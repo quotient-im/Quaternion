@@ -16,57 +16,35 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "connection.h"
+#ifndef QMATRIXCLIENT_PASSWORDLOGIN_H
+#define QMATRIXCLIENT_PASSWORDLOGIN_H
 
-#include <QtNetwork/QNetworkAccessManager>
+#include "basejob.h"
 
-using namespace QMatrixClient;
-
-class Connection::Private
+namespace QMatrixClient
 {
-    public:
-        Private() {isConnected=false;}
-        
-        QUrl baseUrl;
-        bool isConnected;
-        QString token;
-        QNetworkAccessManager* nam;
-};
+    class Connection;
 
-Connection::Connection(QUrl baseUrl)
-    : d(new Private)
-{
-    d->baseUrl = baseUrl;
-    d->nam = new QNetworkAccessManager();
+    class PasswordLogin : public BaseJob
+    {
+            Q_OBJECT
+        public:
+            PasswordLogin(Connection* connection, QString user, QString password);
+            virtual ~PasswordLogin();
+
+            void start();
+
+            QString token();
+            QString id();
+            QString server();
+
+        protected slots:
+            void gotReply();
+
+        private:
+            class Private;
+            Private* d;
+    };
 }
 
-Connection::~Connection()
-{
-    d->nam->deleteLater();
-    delete d;
-}
-
-bool Connection::isConnected() const
-{
-    return d->isConnected;
-}
-
-QString Connection::token() const
-{
-    return d->token;
-}
-
-QUrl Connection::baseUrl() const
-{
-    return d->baseUrl;
-}
-
-QNetworkAccessManager* Connection::nam() const
-{
-    return d->nam;
-}
-
-void Connection::setToken(QString token)
-{
-    d->token = token;
-}
+#endif // QMATRIXCLIENT_PASSWORDLOGIN_H

@@ -54,6 +54,7 @@ QNetworkReply* BaseJob::get(const QString& path) const
     QUrl url = d->connection->baseUrl();
     url.setPath( url.path() + "/" + path );
     QNetworkRequest req = QNetworkRequest(url);
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     return d->connection->nam()->get(req);
 }
 
@@ -62,6 +63,7 @@ QNetworkReply* BaseJob::put(const QString& path, const QJsonDocument& data) cons
     QUrl url = d->connection->baseUrl();
     url.setPath( url.path() + "/" + path );
     QNetworkRequest req = QNetworkRequest(url);
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     return d->connection->nam()->put(req, data.toJson());
 }
 
@@ -70,6 +72,7 @@ QNetworkReply* BaseJob::post(const QString& path, const QJsonDocument& data) con
     QUrl url = d->connection->baseUrl();
     url.setPath( url.path() + "/" + path );
     QNetworkRequest req = QNetworkRequest(url);
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     return d->connection->nam()->post(req, data.toJson());
 }
 

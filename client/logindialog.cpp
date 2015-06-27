@@ -19,48 +19,81 @@
 #include "logindialog.h"
 
 #include <QtCore/QDebug>
+#include <QtWidgets/QFormLayout>
 
 LoginDialog::LoginDialog(QWidget* parent)
     : QDialog(parent)
 {
-    connection = 0;
+    m_connection = 0;
     
     serverEdit = new QLineEdit();
-    initButton = new QPushButton("Init");
+    userEdit = new QLineEdit();
+    passwordEdit = new QLineEdit();
+    passwordEdit->setEchoMode( QLineEdit::Password );
     sessionLabel = new QLabel("Session:");
+    loginButton = new QPushButton("Login");
     
-    QHBoxLayout* initLayout = new QHBoxLayout();
-    initLayout->addWidget(serverEdit);
-    initLayout->addWidget(initButton);
+    QFormLayout* formLayout = new QFormLayout();
+    formLayout->addRow("Server", serverEdit);
+    formLayout->addRow("User", userEdit);
+    formLayout->addRow("Password", passwordEdit);
     
     QVBoxLayout* mainLayout = new QVBoxLayout();
-    mainLayout->addLayout(initLayout);
+    mainLayout->addLayout(formLayout);
+    mainLayout->addWidget(loginButton);
     mainLayout->addWidget(sessionLabel);
     
     setLayout(mainLayout);
     
-    connect( initButton, &QPushButton::clicked, this, &LoginDialog::init );
+    connect( loginButton, &QPushButton::clicked, this, &LoginDialog::login );
 }
 
-void LoginDialog::init()
+QMatrixClient::Connection* LoginDialog::connection() const
 {
-    qDebug() << "init";
+    return m_connection;
+}
+
+QString LoginDialog::token() const
+{
+    return m_token;
+}
+
+QString LoginDialog::homeServer() const
+{
+    return m_homeServer;
+}
+
+QString LoginDialog::userId() const
+{
+    return m_userId;
+}
+
+void LoginDialog::login()
+{
+    qDebug() << "login";
     QUrl url = QUrl::fromUserInput(serverEdit->text());
-    connection = new QMatrixClient::Connection(url);
-    QMatrixClient::CheckAuthMethods* job = new QMatrixClient::CheckAuthMethods(connection);
-    connect( job, &QMatrixClient::CheckAuthMethods::result, this, &LoginDialog::initDone );
+    QString user = userEdit->text();
+    QString password = passwordEdit->text();
+    m_connection = new QMatrixClient::Connection(url);
+    QMatrixClient::PasswordLogin* job = new QMatrixClient::PasswordLogin(m_connection, user, password);
+    connect( job, &QMatrixClient::PasswordLogin::result, this, &LoginDialog::loginDone );
     job->start();
 }
 
-void LoginDialog::initDone(KJob* job)
+void LoginDialog::loginDone(KJob* job)
 {
-    QMatrixClient::CheckAuthMethods* realJob = static_cast<QMatrixClient::CheckAuthMethods*>(job);
+    QMatrixClient::PasswordLogin* realJob = static_cast<QMatrixClient::PasswordLogin*>(job);
     if( realJob->error() )
     {
         sessionLabel->setText( realJob->errorText() );
     }
     else
     {
-        sessionLabel->setText( "Session: " + realJob->session() );
+        sessionLabel->setText( "Token: " + realJob->token() );
+        qDebug() << realJob->token();
+        m_token = realJob->token();
+        m_userId = realJob->id();
+        m_homeServer = realJob->server();
+        accept();
     }
 }

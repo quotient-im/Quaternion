@@ -36,6 +36,7 @@ namespace QMatrixClient
             QUrl baseUrl() const;
             
             QNetworkAccessManager* nam() const;
+            void setToken( QString token );
             
         private:
             class Private;

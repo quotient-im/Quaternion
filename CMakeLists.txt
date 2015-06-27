@@ -16,6 +16,7 @@ set(qmatrixclient_SRCS
     lib/connection.cpp
     lib/jobs/basejob.cpp
     lib/jobs/checkauthmethods.cpp
+    lib/jobs/passwordlogin.cpp
     client/logindialog.cpp
     client/main.cpp
     )

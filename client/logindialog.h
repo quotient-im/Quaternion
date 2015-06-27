@@ -27,24 +27,34 @@
 #include <QtWidgets/QHBoxLayout>
 
 #include "lib/connection.h"
-#include "lib/jobs/checkauthmethods.h"
+#include "lib/jobs/passwordlogin.h"
 
 class LoginDialog : public QDialog
 {
         Q_OBJECT
     public:
         LoginDialog(QWidget* parent=0);
+
+        QString token() const;
+        QString userId() const;
+        QString homeServer() const;
+        QMatrixClient::Connection* connection() const;
         
     private slots:
-        void init();
-        void initDone(KJob* job);
+        void login();
+        void loginDone(KJob* job);
         
     private:
         QLineEdit* serverEdit;
-        QPushButton* initButton;
+        QLineEdit* userEdit;
+        QLineEdit* passwordEdit;
+        QPushButton* loginButton;
         QLabel* sessionLabel;
         
-        QMatrixClient::Connection* connection;
+        QMatrixClient::Connection* m_connection;
+        QString m_token;
+        QString m_userId;
+        QString m_homeServer;
 };
 
 #endif // LOGINDIALOG_H
