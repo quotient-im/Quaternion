@@ -16,31 +16,32 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef QMATRIXCLIENT_CONNECTION_H
-#define QMATRIXCLIENT_CONNECTION_H
+#ifndef QMATRIXCLIENT_CHECKAUTHMETHODS_H
+#define QMATRIXCLIENT_CHECKAUTHMETHODS_H
 
-#include <QtCore/QUrl>
-
-class QNetworkAccessManager;
+#include "basejob.h"
 
 namespace QMatrixClient
 {
-    class Connection
+    class Connection;
+    
+    class CheckAuthMethods : public BaseJob
     {
+            Q_OBJECT
         public:
-            Connection(QUrl baseUrl);
-            virtual ~Connection();
+            CheckAuthMethods(Connection* connection);
+            virtual ~CheckAuthMethods();
             
-            bool isConnected() const;
-            QString token() const;
-            QUrl baseUrl() const;
+            void start();
+            QString session();
             
-            QNetworkAccessManager* nam() const;
+        protected slots:
+            void gotReply();
             
         private:
             class Private;
             Private* d;
     };
-}           
+}
 
-#endif // QMATRIXCLIENT_CONNECTION_H
+#endif // QMATRIXCLIENT_CHECKAUTHMETHODS_H

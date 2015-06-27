@@ -18,6 +18,9 @@
 
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QWidget>
+#include <QtCore/QTimer>
+
+#include "logindialog.h"
 
 int main( int argc, char* argv[] )
 {
@@ -25,6 +28,10 @@ int main( int argc, char* argv[] )
     
     QWidget widget;
     widget.show();
+    
+    LoginDialog dialog(&widget);
+    QTimer::singleShot(0, &dialog, &QDialog::exec);
+    //dialog.exec();
     
     return app.exec();
 }

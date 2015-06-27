@@ -9,9 +9,24 @@ set(CMAKE_AUTOMOC ON)
 
 # Find the QtWidgets library
 find_package(Qt5Widgets)
+find_package(Qt5Network)
+find_package(KF5CoreAddons)
+
+set(qmatrixclient_SRCS
+    lib/connection.cpp
+    lib/jobs/basejob.cpp
+    lib/jobs/checkauthmethods.cpp
+    client/logindialog.cpp
+    client/main.cpp
+    )
 
 # Tell CMake to create the helloworld executable
-add_executable(qmatrixclient client/main.cpp)
+add_executable(qmatrixclient ${qmatrixclient_SRCS})
+
+if ( CMAKE_COMPILER_IS_GNUCC )
+    # This is tested
+    set_property( TARGET qmatrixclient APPEND_STRING PROPERTY COMPILE_FLAGS -Wall )
+endif ( CMAKE_COMPILER_IS_GNUCC )
 
 # Use the Widgets module from Qt 5.
-target_link_libraries(qmatrixclient Qt5::Widgets)
+target_link_libraries(qmatrixclient Qt5::Widgets Qt5::Network KF5::CoreAddons)

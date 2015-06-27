@@ -16,31 +16,38 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef QMATRIXCLIENT_CONNECTION_H
-#define QMATRIXCLIENT_CONNECTION_H
+#ifndef QMATRIXCLIENT_BASEJOB_H
+#define QMATRIXCLIENT_BASEJOB_H
 
-#include <QtCore/QUrl>
+#include <KCoreAddons/KJob>
+#include <QtCore/QJsonDocument>
 
-class QNetworkAccessManager;
+class QNetworkReply;
 
 namespace QMatrixClient
 {
-    class Connection
+    class Connection;
+    
+    class BaseJob: public KJob
     {
+            Q_OBJECT
         public:
-            Connection(QUrl baseUrl);
-            virtual ~Connection();
+            BaseJob(Connection* connection);
+            virtual ~BaseJob();
             
-            bool isConnected() const;
-            QString token() const;
-            QUrl baseUrl() const;
+        protected:
+            Connection* connection() const;
             
-            QNetworkAccessManager* nam() const;
+            QNetworkReply* get(const QString& path) const;
+            QNetworkReply* put(const QString& path, const QJsonDocument& data) const;
+            QNetworkReply* post(const QString& path, const QJsonDocument& data) const;
+            
+            void fail( int errorCode, QString errorString );
             
         private:
             class Private;
             Private* d;
     };
-}           
+}
 
-#endif // QMATRIXCLIENT_CONNECTION_H
+#endif // QMATRIXCLIENT_BASEJOB_H

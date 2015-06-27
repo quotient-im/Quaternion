@@ -16,31 +16,35 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef QMATRIXCLIENT_CONNECTION_H
-#define QMATRIXCLIENT_CONNECTION_H
+#ifndef LOGINDIALOG_H
+#define LOGINDIALOG_H
 
-#include <QtCore/QUrl>
+#include <QtWidgets/QDialog>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QHBoxLayout>
 
-class QNetworkAccessManager;
+#include "lib/connection.h"
+#include "lib/jobs/checkauthmethods.h"
 
-namespace QMatrixClient
+class LoginDialog : public QDialog
 {
-    class Connection
-    {
-        public:
-            Connection(QUrl baseUrl);
-            virtual ~Connection();
-            
-            bool isConnected() const;
-            QString token() const;
-            QUrl baseUrl() const;
-            
-            QNetworkAccessManager* nam() const;
-            
-        private:
-            class Private;
-            Private* d;
-    };
-}           
+        Q_OBJECT
+    public:
+        LoginDialog(QWidget* parent=0);
+        
+    private slots:
+        void init();
+        void initDone(KJob* job);
+        
+    private:
+        QLineEdit* serverEdit;
+        QPushButton* initButton;
+        QLabel* sessionLabel;
+        
+        QMatrixClient::Connection* connection;
+};
 
-#endif // QMATRIXCLIENT_CONNECTION_H
+#endif // LOGINDIALOG_H

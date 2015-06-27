@@ -18,6 +18,8 @@
 
 #include "connection.h"
 
+#include <QtNetwork/QNetworkAccessManager>
+
 using namespace QMatrixClient;
 
 class Connection::Private
@@ -28,16 +30,19 @@ class Connection::Private
         QUrl baseUrl;
         bool isConnected;
         QString sessionId;
+        QNetworkAccessManager* nam;
 };
 
 Connection::Connection(QUrl baseUrl)
     : d(new Private)
 {
     d->baseUrl = baseUrl;
+    d->nam = new QNetworkAccessManager();
 }
 
 Connection::~Connection()
 {
+    d->nam->deleteLater();
     delete d;
 }
 
@@ -46,7 +51,7 @@ bool Connection::isConnected() const
     return d->isConnected;
 }
 
-QString Connection::sessionId() const
+QString Connection::token() const
 {
     return d->sessionId;
 }
@@ -54,4 +59,9 @@ QString Connection::sessionId() const
 QUrl Connection::baseUrl() const
 {
     return d->baseUrl;
+}
+
+QNetworkAccessManager* Connection::nam() const
+{
+    return d->nam;
 }
