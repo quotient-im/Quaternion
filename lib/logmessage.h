@@ -16,39 +16,29 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef QMATRIXCLIENT_BASEJOB_H
-#define QMATRIXCLIENT_BASEJOB_H
+#ifndef QMATRIXCLIENT_LOGMESSAGE_H
+#define QMATRIXCLIENT_LOGMESSAGE_H
 
-#include <KCoreAddons/KJob>
-#include <QtCore/QJsonDocument>
-#include <QtCore/QUrlQuery>
-
-class QNetworkReply;
+#include <QtCore/QString>
 
 namespace QMatrixClient
 {
-    class Connection;
-    
-    class BaseJob: public KJob
+    class LogMessage
     {
-            Q_OBJECT
         public:
-            BaseJob(Connection* connection);
-            virtual ~BaseJob();
-            
-        protected:
-            Connection* connection() const;
-            
-            QNetworkReply* get(const QString& path, const QUrlQuery& query = QUrlQuery()) const;
-            QNetworkReply* put(const QString& path, const QJsonDocument& data, const QUrlQuery& query = QUrlQuery()) const;
-            QNetworkReply* post(const QString& path, const QJsonDocument& data, const QUrlQuery& query = QUrlQuery()) const;
-            
-            void fail( int errorCode, QString errorString );
-            
+            enum MessageType{ UserMessage, StatusMessage };
+
+            LogMessage( MessageType type, QString message, QString author=QString() );
+            virtual ~LogMessage();
+
+            MessageType type() const;
+            QString message() const;
+            QString author() const;
+
         private:
             class Private;
             Private* d;
     };
 }
 
-#endif // QMATRIXCLIENT_BASEJOB_H
+#endif // QMATRIXCLIENT_LOGMESSAGE_H

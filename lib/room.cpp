@@ -16,23 +16,55 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <QtWidgets/QApplication>
-#include <QtWidgets/QWidget>
-#include <QtCore/QTimer>
+#include "room.h"
 
-#include "mainwindow.h"
+#include "logmessage.h"
 
-int main( int argc, char* argv[] )
+using namespace QMatrixClient;
+
+class Room::Private
 {
-    QApplication app(argc, argv);
-    
-    MainWindow window;
-    window.show();
-    
-    //LoginDialog dialog(&widget);
-    //QTimer::singleShot(0, &dialog, &QDialog::exec);
-    //dialog.exec();
-    
-    return app.exec();
+    public:
+        Private() {messages=new QList<LogMessage*>();}
+
+        QList<LogMessage*>* messages;
+        QString id;
+};
+
+Room::Room(QString id)
+    : d(new Private)
+{
+    d->id = id;
 }
+
+Room::~Room()
+{
+    delete d->messages;
+    delete d;
+}
+
+QString Room::id() const
+{
+    return d->id;
+}
+
+QList< LogMessage* >* Room::logMessages() const
+{
+    return d->messages;
+}
+
+void Room::addMessages(const QList< LogMessage* >& messages)
+{
+    for( LogMessage* msg: messages )
+    {
+        d->messages->append(msg);
+    }
+}
+
+void Room::addMessage(LogMessage* message)
+{
+    d->messages->append(message);
+}
+
+
 

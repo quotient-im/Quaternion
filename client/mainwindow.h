@@ -16,23 +16,29 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <QtWidgets/QApplication>
-#include <QtWidgets/QWidget>
-#include <QtCore/QTimer>
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
-#include "mainwindow.h"
+#include <QtWidgets/QMainWindow>
+#include <KCoreAddons/KJob>
 
-int main( int argc, char* argv[] )
+#include "lib/connection.h"
+
+class RoomListDock;
+
+class MainWindow: public QMainWindow
 {
-    QApplication app(argc, argv);
-    
-    MainWindow window;
-    window.show();
-    
-    //LoginDialog dialog(&widget);
-    //QTimer::singleShot(0, &dialog, &QDialog::exec);
-    //dialog.exec();
-    
-    return app.exec();
-}
+        Q_OBJECT
+    public:
+        MainWindow();
+        virtual ~MainWindow();
 
+    private:
+        void initialize();
+        void initialSync(KJob* job);
+
+        RoomListDock* roomListDock;
+        QMatrixClient::Connection* connection;
+};
+
+#endif // MAINWINDOW_H

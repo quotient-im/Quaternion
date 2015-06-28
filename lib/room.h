@@ -16,39 +16,31 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef QMATRIXCLIENT_BASEJOB_H
-#define QMATRIXCLIENT_BASEJOB_H
+#ifndef QMATRIXCLIENT_ROOM_H
+#define QMATRIXCLIENT_ROOM_H
 
-#include <KCoreAddons/KJob>
-#include <QtCore/QJsonDocument>
-#include <QtCore/QUrlQuery>
-
-class QNetworkReply;
+#include <QtCore/QList>
 
 namespace QMatrixClient
 {
-    class Connection;
-    
-    class BaseJob: public KJob
+    class LogMessage;
+
+    class Room
     {
-            Q_OBJECT
         public:
-            BaseJob(Connection* connection);
-            virtual ~BaseJob();
-            
-        protected:
-            Connection* connection() const;
-            
-            QNetworkReply* get(const QString& path, const QUrlQuery& query = QUrlQuery()) const;
-            QNetworkReply* put(const QString& path, const QJsonDocument& data, const QUrlQuery& query = QUrlQuery()) const;
-            QNetworkReply* post(const QString& path, const QJsonDocument& data, const QUrlQuery& query = QUrlQuery()) const;
-            
-            void fail( int errorCode, QString errorString );
-            
+            Room(QString id);
+            virtual ~Room();
+
+            QString id() const;
+            QList<LogMessage*>* logMessages() const;
+
+            void addMessages(const QList<LogMessage*>& messages);
+            void addMessage( LogMessage* message );
+
         private:
             class Private;
             Private* d;
     };
 }
 
-#endif // QMATRIXCLIENT_BASEJOB_H
+#endif // QMATRIXCLIENT_ROOM_H

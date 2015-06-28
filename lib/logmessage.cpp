@@ -16,23 +16,45 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <QtWidgets/QApplication>
-#include <QtWidgets/QWidget>
-#include <QtCore/QTimer>
+#include "logmessage.h"
 
-#include "mainwindow.h"
+using namespace QMatrixClient;
 
-int main( int argc, char* argv[] )
+class LogMessage::Private
 {
-    QApplication app(argc, argv);
-    
-    MainWindow window;
-    window.show();
-    
-    //LoginDialog dialog(&widget);
-    //QTimer::singleShot(0, &dialog, &QDialog::exec);
-    //dialog.exec();
-    
-    return app.exec();
+    public:
+        Private() {}
+
+        MessageType type;
+        QString message;
+        QString author;
+};
+
+LogMessage::LogMessage(LogMessage::MessageType type, QString message, QString author)
+    : d(new Private)
+{
+    d->type = type;
+    d->message = message;
+    d->author = author;
+}
+
+LogMessage::~LogMessage()
+{
+    delete d;
+}
+
+LogMessage::MessageType LogMessage::type() const
+{
+    return d->type;
+}
+
+QString LogMessage::message() const
+{
+    return d->message;
+}
+
+QString LogMessage::author() const
+{
+    return d->author;
 }
 

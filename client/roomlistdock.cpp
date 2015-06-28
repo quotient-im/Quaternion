@@ -16,23 +16,30 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <QtWidgets/QApplication>
-#include <QtWidgets/QWidget>
-#include <QtCore/QTimer>
+#include "roomlistdock.h"
 
-#include "mainwindow.h"
-
-int main( int argc, char* argv[] )
+RoomListDock::RoomListDock(QWidget* parent)
+    : QDockWidget("Rooms", parent)
 {
-    QApplication app(argc, argv);
-    
-    MainWindow window;
-    window.show();
-    
-    //LoginDialog dialog(&widget);
-    //QTimer::singleShot(0, &dialog, &QDialog::exec);
-    //dialog.exec();
-    
-    return app.exec();
+    roomMap = 0;
+    //setWidget(new QWidget());
+    model = new QStringListModel(this);
+    view = new QListView();
+    view->setModel(model);
+    setWidget(view);
 }
 
+RoomListDock::~RoomListDock()
+{
+}
+
+void RoomListDock::setRoomMap(QHash< QString, QMatrixClient::Room* >* map)
+{
+    roomMap = map;
+    QStringList rooms;
+    for( const QString& room : roomMap->keys() )
+    {
+        rooms.append( room );
+    }
+    model->setStringList( rooms );
+}

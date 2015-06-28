@@ -16,39 +16,35 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef QMATRIXCLIENT_BASEJOB_H
-#define QMATRIXCLIENT_BASEJOB_H
+#ifndef QMATRIXCLIENT_INITIALSYNCJOB_H
+#define QMATRIXCLIENT_INITIALSYNCJOB_H
 
-#include <KCoreAddons/KJob>
-#include <QtCore/QJsonDocument>
-#include <QtCore/QUrlQuery>
+#include "basejob.h"
 
-class QNetworkReply;
+#include "lib/room.h"
 
 namespace QMatrixClient
 {
     class Connection;
-    
-    class BaseJob: public KJob
+
+    class InitialSyncJob: public BaseJob
     {
             Q_OBJECT
         public:
-            BaseJob(Connection* connection);
-            virtual ~BaseJob();
-            
-        protected:
-            Connection* connection() const;
-            
-            QNetworkReply* get(const QString& path, const QUrlQuery& query = QUrlQuery()) const;
-            QNetworkReply* put(const QString& path, const QJsonDocument& data, const QUrlQuery& query = QUrlQuery()) const;
-            QNetworkReply* post(const QString& path, const QJsonDocument& data, const QUrlQuery& query = QUrlQuery()) const;
-            
-            void fail( int errorCode, QString errorString );
-            
+            InitialSyncJob(Connection* connection);
+            virtual ~InitialSyncJob();
+
+            void start();
+
+            QHash<QString, QMatrixClient::Room*>* roomMap();
+
+        protected slots:
+            void gotReply();
+
         private:
             class Private;
             Private* d;
     };
 }
 
-#endif // QMATRIXCLIENT_BASEJOB_H
+#endif // QMATRIXCLIENT_INITIALSYNCJOB_H
