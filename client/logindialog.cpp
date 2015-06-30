@@ -26,7 +26,7 @@ LoginDialog::LoginDialog(QWidget* parent)
 {
     m_connection = 0;
     
-    serverEdit = new QLineEdit();
+    serverEdit = new QLineEdit("https://matrix.org");
     userEdit = new QLineEdit();
     passwordEdit = new QLineEdit();
     passwordEdit->setEchoMode( QLineEdit::Password );

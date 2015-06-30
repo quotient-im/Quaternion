@@ -98,13 +98,13 @@ void InitialSyncJob::gotReply()
     }
     //qDebug() << data;
     QJsonObject json = data.object();
-    if( !json.contains("chunk") || !json.value("chunk").isArray() )
+    if( !json.contains("rooms") || !json.value("rooms").isArray() )
     {
-        fail( KJob::UserDefinedError+2, "Didn't find chunk" );
+        fail( KJob::UserDefinedError+2, "Didn't find rooms" );
         qDebug() << json;
         return;
     }
-    QJsonArray array = json.value("chunk").toArray();
+    QJsonArray array = json.value("rooms").toArray();
     d->roomMap = new QHash<QString, QMatrixClient::Room*>();
     for( const QJsonValue& val : array )
     {
@@ -114,10 +114,13 @@ void InitialSyncJob::gotReply()
             continue;
         }
         QJsonObject obj = val.toObject();
-        qDebug() << obj.value("type");
-        if( obj.value("type") == "m.room.message" )
-        {
-            d->parseRoomMessage(obj, d->roomMap);
-        }
+        QString id = obj.value("room_id").toString();
+        d->roomMap->insert(id, new QMatrixClient::Room(id));
+//         qDebug() << obj.value("type");
+//         if( obj.value("type") == "m.room.message" )
+//         {
+//             d->parseRoomMessage(obj, d->roomMap);
+//         }
     }
+    emitResult();
 }

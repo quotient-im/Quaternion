@@ -18,6 +18,8 @@
 
 #include "roomlistdock.h"
 
+#include <QtCore/QDebug>
+
 RoomListDock::RoomListDock(QWidget* parent)
     : QDockWidget("Rooms", parent)
 {
@@ -41,5 +43,6 @@ void RoomListDock::setRoomMap(QHash< QString, QMatrixClient::Room* >* map)
     {
         rooms.append( room );
     }
+    qDebug() << rooms;
     model->setStringList( rooms );
 }

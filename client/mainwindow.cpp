@@ -53,12 +53,14 @@ void MainWindow::initialize()
 
 void MainWindow::initialSync(KJob* job)
 {
+    qDebug() << "initial";
     QMatrixClient::InitialSyncJob* realJob = static_cast<QMatrixClient::InitialSyncJob*>(job);
     if( realJob->error() )
     {
         qDebug() << realJob->errorText();
         return;
     }
+    qDebug() << "blub";
     roomListDock->setRoomMap( realJob->roomMap() );
 }
 
