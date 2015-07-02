@@ -115,7 +115,9 @@ void InitialSyncJob::gotReply()
         }
         QJsonObject obj = val.toObject();
         QString id = obj.value("room_id").toString();
-        d->roomMap->insert(id, new QMatrixClient::Room(id));
+        Room* room = new Room(id);
+        room->parseEvents(obj);
+        d->roomMap->insert(id, room);
 //         qDebug() << obj.value("type");
 //         if( obj.value("type") == "m.room.message" )
 //         {

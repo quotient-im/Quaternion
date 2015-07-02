@@ -21,6 +21,8 @@
 
 #include <QtCore/QList>
 
+#include <QtCore/QJsonObject>
+
 namespace QMatrixClient
 {
     class LogMessage;
@@ -36,6 +38,8 @@ namespace QMatrixClient
 
             void addMessages(const QList<LogMessage*>& messages);
             void addMessage( LogMessage* message );
+
+            bool parseEvents(const QJsonObject& json);
 
         private:
             class Private;

@@ -18,6 +18,8 @@
 
 #include "room.h"
 
+#include <QtCore/QJsonArray>
+
 #include "logmessage.h"
 
 using namespace QMatrixClient;
@@ -26,6 +28,8 @@ class Room::Private
 {
     public:
         Private() {messages=new QList<LogMessage*>();}
+
+        static QList<LogMessage*> parseMessages(const QJsonArray& messages);
 
         QList<LogMessage*>* messages;
         QString id;
@@ -66,5 +70,38 @@ void Room::addMessage(LogMessage* message)
     d->messages->append(message);
 }
 
+bool Room::parseEvents(const QJsonObject& json)
+{
+    QJsonValue value = json.value("messages").toObject().value("chunk");
+    if( !value.isArray() )
+    {
+        return false;
+    }
+    QJsonArray messages = value.toArray();
+    QList<LogMessage*> newMessages = Private::parseMessages(messages);
+    d->messages->append( newMessages );
+    return true;
+}
 
+QList<LogMessage*> Room::Private::parseMessages(const QJsonArray& messages)
+{
+    QList<LogMessage*> result;
+    for( const QJsonValue& val: messages )
+    {
+        if( !val.isObject() )
+            continue;
+        QJsonObject message = val.toObject();
+        if( message.value("type") == "m.room.message" )
+        {
+            QJsonObject content = message.value("content").toObject();
+            if( content.value("msgtype").toString() != "m.text" )
+                continue;
+            QString user = message.value("user_id").toString();
+            QString body = content.value("body").toString();
+            LogMessage* msg = new LogMessage( LogMessage::UserMessage, user, body );
+            result.append( msg );
+        }
+    }
+    return result;
+}
 
