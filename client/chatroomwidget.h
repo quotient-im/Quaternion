@@ -16,35 +16,32 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef QMATRIXCLIENT_ROOM_H
-#define QMATRIXCLIENT_ROOM_H
+#ifndef CHATROOMWIDGET_H
+#define CHATROOMWIDGET_H
 
-#include <QtCore/QList>
-
-#include <QtCore/QJsonObject>
+#include <QtWidgets/QWidget>
 
 namespace QMatrixClient
 {
-    class LogMessage;
-
-    class Room
-    {
-        public:
-            Room(QString id);
-            virtual ~Room();
-
-            QString id() const;
-            QList<LogMessage*> logMessages() const;
-
-            void addMessages(const QList<LogMessage*>& messages);
-            void addMessage( LogMessage* message );
-
-            bool parseEvents(const QJsonObject& json);
-
-        private:
-            class Private;
-            Private* d;
-    };
+    class Room;
 }
+class LogMessageModel;
+class QListView;
 
-#endif // QMATRIXCLIENT_ROOM_H
+class ChatRoomWidget: public QWidget
+{
+        Q_OBJECT
+    public:
+        ChatRoomWidget(QWidget* parent=0);
+        virtual ~ChatRoomWidget();
+
+        void setRoom(QMatrixClient::Room* room);
+
+    private:
+        LogMessageModel* m_messageModel;
+        QMatrixClient::Room* m_currentRoom;
+
+        QListView* m_messageView;
+};
+
+#endif // CHATROOMWIDGET_H

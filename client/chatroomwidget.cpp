@@ -16,35 +16,32 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef QMATRIXCLIENT_ROOM_H
-#define QMATRIXCLIENT_ROOM_H
+#include "chatroomwidget.h"
 
-#include <QtCore/QList>
+#include <QtWidgets/QListView>
+#include <QtWidgets/QVBoxLayout>
 
-#include <QtCore/QJsonObject>
+#include "lib/room.h"
+#include "lib/logmessage.h"
+#include "models/logmessagemodel.h"
 
-namespace QMatrixClient
+ChatRoomWidget::ChatRoomWidget(QWidget* parent)
 {
-    class LogMessage;
+    m_messageModel = new LogMessageModel(this);
+    m_currentRoom = 0;
 
-    class Room
-    {
-        public:
-            Room(QString id);
-            virtual ~Room();
-
-            QString id() const;
-            QList<LogMessage*> logMessages() const;
-
-            void addMessages(const QList<LogMessage*>& messages);
-            void addMessage( LogMessage* message );
-
-            bool parseEvents(const QJsonObject& json);
-
-        private:
-            class Private;
-            Private* d;
-    };
+    m_messageView = new QListView();
+    m_messageView->setModel(m_messageModel);
+    QVBoxLayout* layout = new QVBoxLayout();
+    layout->addWidget(m_messageView);
+    setLayout(layout);
 }
 
-#endif // QMATRIXCLIENT_ROOM_H
+ChatRoomWidget::~ChatRoomWidget()
+{
+}
+
+void ChatRoomWidget::setRoom(QMatrixClient::Room* room)
+{
+    m_messageModel->changeRoom( room );
+}

@@ -25,6 +25,7 @@
 #include "lib/connection.h"
 
 class RoomListDock;
+class ChatRoomWidget;
 
 class MainWindow: public QMainWindow
 {
@@ -38,6 +39,7 @@ class MainWindow: public QMainWindow
         void initialSync(KJob* job);
 
         RoomListDock* roomListDock;
+        ChatRoomWidget* chatRoomWidget;
         QMatrixClient::Connection* connection;
 };
 

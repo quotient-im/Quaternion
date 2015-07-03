@@ -27,11 +27,11 @@ using namespace QMatrixClient;
 class Room::Private
 {
     public:
-        Private() {messages=new QList<LogMessage*>();}
+        Private() {}
 
         static QList<LogMessage*> parseMessages(const QJsonArray& messages);
 
-        QList<LogMessage*>* messages;
+        QList<LogMessage*> messages;
         QString id;
 };
 
@@ -43,7 +43,6 @@ Room::Room(QString id)
 
 Room::~Room()
 {
-    delete d->messages;
     delete d;
 }
 
@@ -52,7 +51,7 @@ QString Room::id() const
     return d->id;
 }
 
-QList< LogMessage* >* Room::logMessages() const
+QList< LogMessage* > Room::logMessages() const
 {
     return d->messages;
 }
@@ -61,13 +60,13 @@ void Room::addMessages(const QList< LogMessage* >& messages)
 {
     for( LogMessage* msg: messages )
     {
-        d->messages->append(msg);
+        d->messages.append(msg);
     }
 }
 
 void Room::addMessage(LogMessage* message)
 {
-    d->messages->append(message);
+    d->messages.append(message);
 }
 
 bool Room::parseEvents(const QJsonObject& json)
@@ -79,7 +78,7 @@ bool Room::parseEvents(const QJsonObject& json)
     }
     QJsonArray messages = value.toArray();
     QList<LogMessage*> newMessages = Private::parseMessages(messages);
-    d->messages->append( newMessages );
+    d->messages.append( newMessages );
     return true;
 }
 
@@ -98,7 +97,7 @@ QList<LogMessage*> Room::Private::parseMessages(const QJsonArray& messages)
                 continue;
             QString user = message.value("user_id").toString();
             QString body = content.value("body").toString();
-            LogMessage* msg = new LogMessage( LogMessage::UserMessage, user, body );
+            LogMessage* msg = new LogMessage( LogMessage::UserMessage, body, user );
             result.append( msg );
         }
     }

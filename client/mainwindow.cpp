@@ -22,15 +22,17 @@
 #include <QtCore/QDebug>
 
 #include "roomlistdock.h"
+#include "chatroomwidget.h"
 #include "logindialog.h"
 #include "lib/jobs/initialsyncjob.h"
 
 MainWindow::MainWindow()
 {
     connection = 0;
-    setCentralWidget( new QWidget() );
     roomListDock = new RoomListDock(this);
     addDockWidget(Qt::LeftDockWidgetArea, roomListDock);
+    chatRoomWidget = new ChatRoomWidget(this);
+    setCentralWidget(chatRoomWidget);
     show();
     QTimer::singleShot(0, this, &MainWindow::initialize);
 }
@@ -62,6 +64,7 @@ void MainWindow::initialSync(KJob* job)
     }
     qDebug() << "blub";
     roomListDock->setRoomMap( realJob->roomMap() );
+    chatRoomWidget->setRoom( realJob->roomMap()->values().first() );
 }
 
 

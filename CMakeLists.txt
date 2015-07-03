@@ -23,6 +23,8 @@ set(qmatrixclient_SRCS
     client/logindialog.cpp
     client/mainwindow.cpp
     client/roomlistdock.cpp
+    client/chatroomwidget.cpp
+    client/models/logmessagemodel.cpp
     client/main.cpp
     )
 
@@ -34,6 +36,7 @@ if ( CMAKE_COMPILER_IS_GNUCC )
     set_property( TARGET qmatrixclient APPEND_STRING PROPERTY COMPILE_FLAGS -Wall )
 endif ( CMAKE_COMPILER_IS_GNUCC )
 target_compile_features(qmatrixclient PRIVATE cxx_range_for)
+target_compile_features(qmatrixclient PRIVATE cxx_override)
 
 # Use the Widgets module from Qt 5.
 target_link_libraries(qmatrixclient Qt5::Widgets Qt5::Network KF5::CoreAddons)

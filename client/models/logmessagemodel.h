@@ -15,36 +15,38 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
+#ifndef LOGMESSAGEMODEL_H
+#define LOGMESSAGEMODEL_H
 
-#ifndef QMATRIXCLIENT_ROOM_H
-#define QMATRIXCLIENT_ROOM_H
-
-#include <QtCore/QList>
-
-#include <QtCore/QJsonObject>
+#include <QtCore/QAbstractListModel>
+#include <QtCore/QModelIndex>
 
 namespace QMatrixClient
 {
+    class Room;
     class LogMessage;
-
-    class Room
-    {
-        public:
-            Room(QString id);
-            virtual ~Room();
-
-            QString id() const;
-            QList<LogMessage*> logMessages() const;
-
-            void addMessages(const QList<LogMessage*>& messages);
-            void addMessage( LogMessage* message );
-
-            bool parseEvents(const QJsonObject& json);
-
-        private:
-            class Private;
-            Private* d;
-    };
 }
 
-#endif // QMATRIXCLIENT_ROOM_H
+class LogMessageModel: public QAbstractListModel
+{
+        Q_OBJECT
+    public:
+        LogMessageModel(QObject* parent=0);
+        virtual ~LogMessageModel();
+
+        void changeRoom(QMatrixClient::Room* room);
+
+        //override QModelIndex index(int row, int column, const QModelIndex& parent=QModelIndex()) const;
+        //override QModelIndex parent(const QModelIndex& index) const;
+        int rowCount(const QModelIndex& parent) const override;
+        QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+
+    public slots:
+        void newMessages(QList<QMatrixClient::LogMessage*> messages);
+
+    private:
+        QMatrixClient::Room* m_currentRoom;
+        QList<QMatrixClient::LogMessage*> m_currentMessages;
+};
+
+#endif // LOGMESSAGEMODEL_H
