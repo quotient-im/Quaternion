@@ -16,37 +16,33 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef QMATRIXCLIENT_GETEVENTSJOB_H
+#define QMATRIXCLIENT_GETEVENTSJOB_H
 
-#include <QtWidgets/QMainWindow>
-#include <KCoreAddons/KJob>
+#include "basejob.h"
 
-#include "lib/connection.h"
-#include "lib/room.h"
-
-class RoomListDock;
-class ChatRoomWidget;
-
-class MainWindow: public QMainWindow
+namespace QMatrixClient
 {
-        Q_OBJECT
-    public:
-        MainWindow();
-        virtual ~MainWindow();
+    class Connection;
+    class Room;
+    class GetEventsJob: public BaseJob
+    {
+            Q_OBJECT
+        public:
+            GetEventsJob(Connection* connection, QHash<QString, Room*>* roomMap, QString from=QString());
+            virtual ~GetEventsJob();
 
-    private slots:
-        void getNewEvents();
-        void newEvents(KJob* job);
+            void start() override;
 
-    private:
-        void initialize();
-        void initialSync(KJob* job);
+            QList<Room*> newRooms();
 
-        RoomListDock* roomListDock;
-        ChatRoomWidget* chatRoomWidget;
-        QMatrixClient::Connection* connection;
-        QHash<QString, QMatrixClient::Room*>* roomMap;
-};
+        protected slots:
+            void gotReply();
 
-#endif // MAINWINDOW_H
+        private:
+            class Private;
+            Private* d;
+    };
+}
+
+#endif // QMATRIXCLIENT_GETEVENTSJOB_H

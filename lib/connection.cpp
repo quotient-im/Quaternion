@@ -30,6 +30,7 @@ class Connection::Private
         QUrl baseUrl;
         bool isConnected;
         QString token;
+        QString lastEvent;
         QNetworkAccessManager* nam;
 };
 
@@ -69,4 +70,14 @@ QNetworkAccessManager* Connection::nam() const
 void Connection::setToken(QString token)
 {
     d->token = token;
+}
+
+QString Connection::lastEvent() const
+{
+    return d->lastEvent;
+}
+
+void Connection::setLastEvent(QString identifier)
+{
+    d->lastEvent = identifier;
 }

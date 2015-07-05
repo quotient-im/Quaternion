@@ -125,5 +125,7 @@ void InitialSyncJob::gotReply()
 //             d->parseRoomMessage(obj, d->roomMap);
 //         }
     }
+    connection()->setLastEvent( json.value("end").toString() );
+    qDebug() << connection()->lastEvent();
     emitResult();
 }

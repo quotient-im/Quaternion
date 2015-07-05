@@ -20,6 +20,7 @@ set(qmatrixclient_SRCS
     lib/jobs/checkauthmethods.cpp
     lib/jobs/passwordlogin.cpp
     lib/jobs/initialsyncjob.cpp
+    lib/jobs/geteventsjob.cpp
     client/logindialog.cpp
     client/mainwindow.cpp
     client/roomlistdock.cpp

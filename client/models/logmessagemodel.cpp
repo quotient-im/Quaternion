@@ -18,6 +18,8 @@
 
 #include "logmessagemodel.h"
 
+#include <QtCore/QDebug>
+
 #include "lib/room.h"
 #include "lib/logmessage.h"
 
@@ -34,10 +36,16 @@ LogMessageModel::~LogMessageModel()
 void LogMessageModel::changeRoom(QMatrixClient::Room* room)
 {
     beginResetModel();
+    if( m_currentRoom )
+    {
+        disconnect( m_currentRoom, &QMatrixClient::Room::newMessages, this, &LogMessageModel::newMessages );
+    }
     m_currentRoom = room;
     if( room )
     {
         m_currentMessages = room->logMessages();
+        connect( room, &QMatrixClient::Room::newMessages, this, &LogMessageModel::newMessages );
+        qDebug() << "connected" << room;
     }
     else
     {
@@ -79,5 +87,8 @@ QVariant LogMessageModel::data(const QModelIndex& index, int role) const
 
 void LogMessageModel::newMessages(QList< QMatrixClient::LogMessage* > messages)
 {
-    //TODO
+    qDebug() << "Messages: " << messages;
+    beginInsertRows(QModelIndex(), m_currentMessages.count(), m_currentMessages.count()+messages.count()-1);
+    m_currentMessages.append(messages);
+    endInsertRows();
 }

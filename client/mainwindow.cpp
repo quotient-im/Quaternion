@@ -25,10 +25,12 @@
 #include "chatroomwidget.h"
 #include "logindialog.h"
 #include "lib/jobs/initialsyncjob.h"
+#include "lib/jobs/geteventsjob.h"
 
 MainWindow::MainWindow()
 {
     connection = 0;
+    roomMap = 0;
     roomListDock = new RoomListDock(this);
     addDockWidget(Qt::LeftDockWidgetArea, roomListDock);
     chatRoomWidget = new ChatRoomWidget(this);
@@ -63,8 +65,27 @@ void MainWindow::initialSync(KJob* job)
         return;
     }
     qDebug() << "blub";
-    roomListDock->setRoomMap( realJob->roomMap() );
-    chatRoomWidget->setRoom( realJob->roomMap()->values().first() );
+    roomMap = realJob->roomMap();
+    roomListDock->setRoomMap( roomMap );
+    chatRoomWidget->setRoom( roomMap->values().first() );
+    QTimer::singleShot(0, this, &MainWindow::getNewEvents);
+}
+
+void MainWindow::getNewEvents()
+{
+    qDebug() << "getNewEvents";
+    qDebug() << "Keys:" << roomMap->keys();
+    QMatrixClient::GetEventsJob* job = new QMatrixClient::GetEventsJob(connection, roomMap);
+    connect( job, &QMatrixClient::GetEventsJob::result, this, &MainWindow::newEvents );
+    job->start();
+}
+
+void MainWindow::newEvents(KJob* job)
+{
+    qDebug() << "newEvents";
+    QMatrixClient::GetEventsJob* realJob = static_cast<QMatrixClient::GetEventsJob*>(job);
+    // TODO: Add new rooms
+    getNewEvents();
 }
 
 

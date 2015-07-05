@@ -37,6 +37,9 @@ namespace QMatrixClient
             
             QNetworkAccessManager* nam() const;
             void setToken( QString token );
+
+            QString lastEvent() const;
+            void setLastEvent( QString identifier );
             
         private:
             class Private;

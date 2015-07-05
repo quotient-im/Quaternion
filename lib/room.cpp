@@ -19,6 +19,7 @@
 #include "room.h"
 
 #include <QtCore/QJsonArray>
+#include <QtCore/QDebug>
 
 #include "logmessage.h"
 
@@ -29,7 +30,7 @@ class Room::Private
     public:
         Private() {}
 
-        static QList<LogMessage*> parseMessages(const QJsonArray& messages);
+        static LogMessage* parseMessage(const QJsonObject& message);
 
         QList<LogMessage*> messages;
         QString id;
@@ -62,45 +63,66 @@ void Room::addMessages(const QList< LogMessage* >& messages)
     {
         d->messages.append(msg);
     }
+    emit newMessages(messages);
 }
 
 void Room::addMessage(LogMessage* message)
 {
+    qDebug() << "Room::addMessage" << this;
     d->messages.append(message);
+    QList<LogMessage*> messages;
+    messages << message;
+    emit newMessages(messages);
 }
 
 bool Room::parseEvents(const QJsonObject& json)
 {
+    QList<LogMessage*> newMessages;
     QJsonValue value = json.value("messages").toObject().value("chunk");
     if( !value.isArray() )
     {
         return false;
     }
     QJsonArray messages = value.toArray();
-    QList<LogMessage*> newMessages = Private::parseMessages(messages);
-    d->messages.append( newMessages );
-    return true;
-}
-
-QList<LogMessage*> Room::Private::parseMessages(const QJsonArray& messages)
-{
-    QList<LogMessage*> result;
-    for( const QJsonValue& val: messages )
+    for(const QJsonValue& val: messages )
     {
         if( !val.isObject() )
             continue;
-        QJsonObject message = val.toObject();
-        if( message.value("type") == "m.room.message" )
+        LogMessage* msg = Private::parseMessage(val.toObject());
+        if( msg )
         {
-            QJsonObject content = message.value("content").toObject();
-            if( content.value("msgtype").toString() != "m.text" )
-                continue;
-            QString user = message.value("user_id").toString();
-            QString body = content.value("body").toString();
-            LogMessage* msg = new LogMessage( LogMessage::UserMessage, body, user );
-            result.append( msg );
+            newMessages.append(msg);
         }
+
     }
-    return result;
+    addMessages(newMessages);
+    return true;
+}
+
+bool Room::parseSingleEvent(const QJsonObject& json)
+{
+    qDebug() << "parseSingleEvent";
+    LogMessage* msg = Private::parseMessage(json);
+    if( msg )
+    {
+        addMessage(msg);
+        return true;
+    }
+    return false;
+}
+
+LogMessage* Room::Private::parseMessage(const QJsonObject& message)
+{
+    if( message.value("type") == "m.room.message" )
+    {
+        QJsonObject content = message.value("content").toObject();
+        if( content.value("msgtype").toString() != "m.text" )
+            return 0;
+        QString user = message.value("user_id").toString();
+        QString body = content.value("body").toString();
+        LogMessage* msg = new LogMessage( LogMessage::UserMessage, body, user );
+        return msg;
+    }
+    return 0;
 }
 

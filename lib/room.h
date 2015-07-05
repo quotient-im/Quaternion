@@ -20,15 +20,16 @@
 #define QMATRIXCLIENT_ROOM_H
 
 #include <QtCore/QList>
-
+#include <QtCore/QObject>
 #include <QtCore/QJsonObject>
 
 namespace QMatrixClient
 {
     class LogMessage;
 
-    class Room
+    class Room: public QObject
     {
+            Q_OBJECT
         public:
             Room(QString id);
             virtual ~Room();
@@ -40,6 +41,10 @@ namespace QMatrixClient
             void addMessage( LogMessage* message );
 
             bool parseEvents(const QJsonObject& json);
+            bool parseSingleEvent(const QJsonObject& json);
+
+        signals:
+            void newMessages(QList<LogMessage*> messages);
 
         private:
             class Private;
