@@ -8,8 +8,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 # Find the QtWidgets library
-find_package(Qt5Widgets)
-find_package(Qt5Network)
+find_package(Qt5Widgets 5.4.0)
+find_package(Qt5Network 5.4.0)
 find_package(KF5CoreAddons)
 
 set(qmatrixclient_SRCS
