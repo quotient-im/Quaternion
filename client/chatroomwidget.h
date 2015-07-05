@@ -35,6 +35,7 @@ class ChatRoomWidget: public QWidget
         ChatRoomWidget(QWidget* parent=0);
         virtual ~ChatRoomWidget();
 
+    public slots:
         void setRoom(QMatrixClient::Room* room);
 
     private:

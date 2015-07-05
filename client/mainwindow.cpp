@@ -35,6 +35,7 @@ MainWindow::MainWindow()
     addDockWidget(Qt::LeftDockWidgetArea, roomListDock);
     chatRoomWidget = new ChatRoomWidget(this);
     setCentralWidget(chatRoomWidget);
+    connect( roomListDock, &RoomListDock::roomSelected, chatRoomWidget, &ChatRoomWidget::setRoom );
     show();
     QTimer::singleShot(0, this, &MainWindow::initialize);
 }
@@ -67,7 +68,7 @@ void MainWindow::initialSync(KJob* job)
     qDebug() << "blub";
     roomMap = realJob->roomMap();
     roomListDock->setRoomMap( roomMap );
-    chatRoomWidget->setRoom( roomMap->values().first() );
+    //chatRoomWidget->setRoom( roomMap->values().first() );
     QTimer::singleShot(0, this, &MainWindow::getNewEvents);
 }
 

@@ -34,6 +34,12 @@ class RoomListDock : public QDockWidget
 
         void setRoomMap( QHash<QString, QMatrixClient::Room*>* map );
 
+    signals:
+        void roomSelected(QMatrixClient::Room* room);
+
+    private slots:
+        void rowSelected(const QModelIndex& index);
+
     private:
         QHash<QString, QMatrixClient::Room*>* roomMap;
         QListView* view;

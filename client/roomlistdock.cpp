@@ -28,6 +28,7 @@ RoomListDock::RoomListDock(QWidget* parent)
     model = new QStringListModel(this);
     view = new QListView();
     view->setModel(model);
+    connect( view, &QListView::activated, this, &RoomListDock::rowSelected );
     setWidget(view);
 }
 
@@ -45,4 +46,10 @@ void RoomListDock::setRoomMap(QHash< QString, QMatrixClient::Room* >* map)
     }
     qDebug() << rooms;
     model->setStringList( rooms );
+}
+
+void RoomListDock::rowSelected(const QModelIndex& index)
+{
+    QString id = roomMap->keys().at(index.row());
+    emit roomSelected( roomMap->value(id) );
 }
