@@ -118,12 +118,8 @@ void InitialSyncJob::gotReply()
         QString id = obj.value("room_id").toString();
         Room* room = new Room(id);
         room->parseEvents(obj);
+        room->parseState(obj);
         d->roomMap->insert(id, room);
-//         qDebug() << obj.value("type");
-//         if( obj.value("type") == "m.room.message" )
-//         {
-//             d->parseRoomMessage(obj, d->roomMap);
-//         }
     }
     connection()->setLastEvent( json.value("end").toString() );
     qDebug() << connection()->lastEvent();

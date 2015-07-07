@@ -42,7 +42,10 @@ void RoomListDock::setRoomMap(QHash< QString, QMatrixClient::Room* >* map)
     QStringList rooms;
     for( const QString& room : roomMap->keys() )
     {
-        rooms.append( room );
+        QString alias = roomMap->value(room)->alias();
+        if( alias.isEmpty() )
+            alias = room;
+        rooms.append( alias );
     }
     qDebug() << rooms;
     model->setStringList( rooms );

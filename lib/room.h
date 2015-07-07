@@ -36,15 +36,19 @@ namespace QMatrixClient
 
             QString id() const;
             QList<LogMessage*> logMessages() const;
+            QString alias() const;
 
             void addMessages(const QList<LogMessage*>& messages);
             void addMessage( LogMessage* message );
+            void setAlias( QString alias );
 
             bool parseEvents(const QJsonObject& json);
             bool parseSingleEvent(const QJsonObject& json);
+            bool parseState(const QJsonObject& json);
 
         signals:
             void newMessages(QList<LogMessage*> messages);
+            void aliasChanged(Room* room);
 
         private:
             class Private;

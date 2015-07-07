@@ -34,6 +34,7 @@ class Room::Private
 
         QList<LogMessage*> messages;
         QString id;
+        QString alias;
 };
 
 Room::Room(QString id)
@@ -57,6 +58,11 @@ QList< LogMessage* > Room::logMessages() const
     return d->messages;
 }
 
+QString Room::alias() const
+{
+    return d->alias;
+}
+
 void Room::addMessages(const QList< LogMessage* >& messages)
 {
     for( LogMessage* msg: messages )
@@ -73,6 +79,12 @@ void Room::addMessage(LogMessage* message)
     QList<LogMessage*> messages;
     messages << message;
     emit newMessages(messages);
+}
+
+void Room::setAlias(QString alias)
+{
+    d->alias = alias;
+    emit aliasChanged(this);
 }
 
 bool Room::parseEvents(const QJsonObject& json)
@@ -109,6 +121,30 @@ bool Room::parseSingleEvent(const QJsonObject& json)
         return true;
     }
     return false;
+}
+
+bool Room::parseState(const QJsonObject& json)
+{
+    QJsonValue value = json.value("state");
+    if( !value.isArray() )
+    {
+        return false;
+    }
+    QJsonArray states = value.toArray();
+    for( const QJsonValue& val: states )
+    {
+        QJsonObject state = val.toObject();
+        QString type = state.value("type").toString();
+        if( type == "m.room.aliases" )
+        {
+            QJsonArray aliases = state.value("content").toObject().value("aliases").toArray();
+            if( aliases.count() > 0 )
+            {
+                setAlias(aliases.at(0).toString());
+            }
+        }
+    }
+    return true;
 }
 
 LogMessage* Room::Private::parseMessage(const QJsonObject& message)
