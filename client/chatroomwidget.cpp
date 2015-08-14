@@ -18,22 +18,32 @@
 
 #include "chatroomwidget.h"
 
+#include <QtCore/QDebug>
 #include <QtWidgets/QListView>
+#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QVBoxLayout>
 
 #include "lib/room.h"
+#include "lib/connection.h"
 #include "lib/logmessage.h"
+#include "lib/jobs/postmessagejob.h"
 #include "models/logmessagemodel.h"
 
 ChatRoomWidget::ChatRoomWidget(QWidget* parent)
 {
     m_messageModel = new LogMessageModel(this);
     m_currentRoom = 0;
+    m_currentConnection = 0;
 
     m_messageView = new QListView();
     m_messageView->setModel(m_messageModel);
+
+    m_chatEdit = new QLineEdit();
+    connect( m_chatEdit, &QLineEdit::returnPressed, this, &ChatRoomWidget::sendLine );
+
     QVBoxLayout* layout = new QVBoxLayout();
     layout->addWidget(m_messageView);
+    layout->addWidget(m_chatEdit);
     setLayout(layout);
 }
 
@@ -44,4 +54,20 @@ ChatRoomWidget::~ChatRoomWidget()
 void ChatRoomWidget::setRoom(QMatrixClient::Room* room)
 {
     m_messageModel->changeRoom( room );
+    m_currentRoom = room;
+}
+
+void ChatRoomWidget::setConnection(QMatrixClient::Connection* connection)
+{
+    m_currentConnection = connection;
+}
+
+void ChatRoomWidget::sendLine()
+{
+    qDebug() << "sendLine";
+    if( !m_currentRoom || !m_currentConnection )
+        return;
+    QMatrixClient::PostMessageJob* job = new QMatrixClient::PostMessageJob(m_currentConnection, m_currentRoom, "m.text", m_chatEdit->displayText());
+    job->start();
+    m_chatEdit->setText("");
 }

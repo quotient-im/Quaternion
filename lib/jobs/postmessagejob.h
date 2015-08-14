@@ -16,41 +16,32 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CHATROOMWIDGET_H
-#define CHATROOMWIDGET_H
+#ifndef QMATRIXCLIENT_POSTMESSAGEJOB_H
+#define QMATRIXCLIENT_POSTMESSAGEJOB_H
 
-#include <QtWidgets/QWidget>
+#include "basejob.h"
 
 namespace QMatrixClient
 {
     class Room;
-    class Connection;
+    class PostMessageJob: public BaseJob
+    {
+            Q_OBJECT
+        public:
+            PostMessageJob(Connection* connection, Room* room, QString type, QString message);
+            virtual ~PostMessageJob();
+
+            void start() override;
+
+            //bool success();
+
+        protected slots:
+            void gotReply();
+
+        private:
+            class Private;
+            Private* d;
+    };
 }
-class LogMessageModel;
-class QListView;
-class QLineEdit;
 
-class ChatRoomWidget: public QWidget
-{
-        Q_OBJECT
-    public:
-        ChatRoomWidget(QWidget* parent=0);
-        virtual ~ChatRoomWidget();
-
-    public slots:
-        void setRoom(QMatrixClient::Room* room);
-        void setConnection(QMatrixClient::Connection* connection);
-
-    private slots:
-        void sendLine();
-
-    private:
-        LogMessageModel* m_messageModel;
-        QMatrixClient::Room* m_currentRoom;
-        QMatrixClient::Connection* m_currentConnection;
-
-        QListView* m_messageView;
-        QLineEdit* m_chatEdit;
-};
-
-#endif // CHATROOMWIDGET_H
+#endif // QMATRIXCLIENT_POSTMESSAGEJOB_H

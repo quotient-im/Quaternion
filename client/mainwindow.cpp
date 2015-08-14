@@ -50,6 +50,7 @@ void MainWindow::initialize()
     if( dialog.exec() )
     {
         connection = dialog.connection();
+        chatRoomWidget->setConnection(connection);
         QMatrixClient::InitialSyncJob* job = new QMatrixClient::InitialSyncJob(connection);
         connect( job, &QMatrixClient::InitialSyncJob::result, this, &MainWindow::initialSync );
         job->start();
