@@ -23,13 +23,13 @@
 
 namespace QMatrixClient
 {
-    class Connection;
+    class ConnectionData;
     
     class CheckAuthMethods : public BaseJob
     {
             Q_OBJECT
         public:
-            CheckAuthMethods(Connection* connection);
+            CheckAuthMethods(ConnectionData* connection);
             virtual ~CheckAuthMethods();
             
             void start();

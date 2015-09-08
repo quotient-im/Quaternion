@@ -18,7 +18,7 @@
 
 #include "postmessagejob.h"
 #include "../room.h"
-#include "../connection.h"
+#include "../connectiondata.h"
 
 #include <QtNetwork/QNetworkReply>
 
@@ -35,7 +35,7 @@ class PostMessageJob::Private
         QNetworkReply* reply;
 };
 
-PostMessageJob::PostMessageJob(Connection* connection, Room* room, QString type, QString message)
+PostMessageJob::PostMessageJob(ConnectionData* connection, Room* room, QString type, QString message)
     : BaseJob(connection)
     , d(new Private)
 {

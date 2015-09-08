@@ -26,7 +26,7 @@
 #include <QtCore/QJsonArray>
 #include <QtCore/QJsonValue>
 
-#include "../connection.h"
+#include "../connectiondata.h"
 #include "../room.h"
 #include "../logmessage.h"
 
@@ -35,12 +35,12 @@ using namespace QMatrixClient;
 class InitialSyncJob::Private
 {
     public:
-        Private() {reply=0;roomMap=0;}
+        Private() {reply=0;}
 
         void parseRoomMessage(const QJsonObject& obj, QHash<QString, QMatrixClient::Room*>* map);
 
         QNetworkReply* reply;
-        QHash<QString, QMatrixClient::Room*>* roomMap;
+        QHash<QString, QMatrixClient::Room*> roomMap;
 };
 
 void InitialSyncJob::Private::parseRoomMessage(const QJsonObject& obj, QHash< QString, QMatrixClient::Room* >* map)
@@ -56,7 +56,7 @@ void InitialSyncJob::Private::parseRoomMessage(const QJsonObject& obj, QHash< QS
     map->value(roomId)->addMessage( msg );
 }
 
-InitialSyncJob::InitialSyncJob(Connection* connection)
+InitialSyncJob::InitialSyncJob(ConnectionData* connection)
     : BaseJob(connection)
     , d(new Private)
 {
@@ -78,7 +78,7 @@ void InitialSyncJob::start()
     connect( d->reply, &QNetworkReply::finished, this, &InitialSyncJob::gotReply );
 }
 
-QHash< QString, Room* >* InitialSyncJob::roomMap()
+QHash< QString, Room* > InitialSyncJob::roomMap()
 {
     return d->roomMap;
 }
@@ -106,7 +106,6 @@ void InitialSyncJob::gotReply()
         return;
     }
     QJsonArray array = json.value("rooms").toArray();
-    d->roomMap = new QHash<QString, QMatrixClient::Room*>();
     for( const QJsonValue& val : array )
     {
         if( !val.isObject() )
@@ -119,7 +118,7 @@ void InitialSyncJob::gotReply()
         Room* room = new Room(id);
         room->parseEvents(obj);
         room->parseState(obj);
-        d->roomMap->insert(id, room);
+        d->roomMap.insert(id, room);
     }
     connection()->setLastEvent( json.value("end").toString() );
     qDebug() << connection()->lastEvent();

@@ -19,32 +19,38 @@
 #ifndef QMATRIXCLIENT_CONNECTION_H
 #define QMATRIXCLIENT_CONNECTION_H
 
-#include <QtCore/QUrl>
-
-class QNetworkAccessManager;
+#include <QtCore/QObject>
 
 namespace QMatrixClient
 {
-    class Connection
-    {
-        public:
-            Connection(QUrl baseUrl);
-            virtual ~Connection();
-            
-            bool isConnected() const;
-            QString token() const;
-            QUrl baseUrl() const;
-            
-            QNetworkAccessManager* nam() const;
-            void setToken( QString token );
+    class Room;
+    class ConnectionPrivate;
 
-            QString lastEvent() const;
-            void setLastEvent( QString identifier );
-            
+    class Connection: public QObject {
+            Q_OBJECT
+        public:
+            Connection(QUrl server, QObject* parent=0);
+            virtual ~Connection();
+
+            QHash<QString, Room*> roomMap();
+            bool isConnected();
+
+            void connectToServer( QString user, QString password );
+            void startInitialSync();
+            void getEvents();
+            void postMessage( Room* room, QString type, QString message );
+
+        signals:
+            void connected();
+            void initialSyncDone();
+            void gotEvents();
+            void newRoom(Room* room);
+
+            void connectionError(QString error);
+
         private:
-            class Private;
-            Private* d;
+            ConnectionPrivate* d;
     };
-}           
+}
 
 #endif // QMATRIXCLIENT_CONNECTION_H

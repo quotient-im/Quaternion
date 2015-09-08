@@ -28,7 +28,7 @@ namespace QMatrixClient
     {
             Q_OBJECT
         public:
-            PostMessageJob(Connection* connection, Room* room, QString type, QString message);
+            PostMessageJob(ConnectionData* connection, Room* room, QString type, QString message);
             virtual ~PostMessageJob();
 
             void start() override;

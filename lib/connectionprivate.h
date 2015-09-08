@@ -16,41 +16,38 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CHATROOMWIDGET_H
-#define CHATROOMWIDGET_H
+#ifndef QMATRIXCLIENT_CONNECTIONPRIVATE_H
+#define QMATRIXCLIENT_CONNECTIONPRIVATE_H
 
-#include <QtWidgets/QWidget>
+class KJob;
+
+#include <QtCore/QObject>
+#include <QtCore/QHash>
+
+#include "connection.h"
+#include "connectiondata.h"
 
 namespace QMatrixClient
 {
-    class Room;
-    class ConnectionData;
+    class Connection;
+
+    class ConnectionPrivate : public QObject
+    {
+            Q_OBJECT
+        public:
+            ConnectionPrivate(Connection* parent);
+            ~ConnectionPrivate();
+
+            Connection* q;
+            ConnectionData* data;
+            QHash<QString, Room*> roomMap;
+            bool isConnected;
+
+        public slots:
+            void connectDone(KJob* job);
+            void initialSyncDone(KJob* job);
+            void gotEvents(KJob* job);
+    };
 }
-class LogMessageModel;
-class QListView;
-class QLineEdit;
 
-class ChatRoomWidget: public QWidget
-{
-        Q_OBJECT
-    public:
-        ChatRoomWidget(QWidget* parent=0);
-        virtual ~ChatRoomWidget();
-
-    public slots:
-        void setRoom(QMatrixClient::Room* room);
-        void setConnection(QMatrixClient::ConnectionData* connection);
-
-    private slots:
-        void sendLine();
-
-    private:
-        LogMessageModel* m_messageModel;
-        QMatrixClient::Room* m_currentRoom;
-        QMatrixClient::ConnectionData* m_currentConnection;
-
-        QListView* m_messageView;
-        QLineEdit* m_chatEdit;
-};
-
-#endif // CHATROOMWIDGET_H
+#endif // QMATRIXCLIENT_CONNECTIONPRIVATE_H

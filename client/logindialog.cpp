@@ -48,7 +48,7 @@ LoginDialog::LoginDialog(QWidget* parent)
     connect( loginButton, &QPushButton::clicked, this, &LoginDialog::login );
 }
 
-QMatrixClient::Connection* LoginDialog::connection() const
+QMatrixClient::ConnectionData* LoginDialog::connection() const
 {
     return m_connection;
 }
@@ -74,7 +74,7 @@ void LoginDialog::login()
     QUrl url = QUrl::fromUserInput(serverEdit->text());
     QString user = userEdit->text();
     QString password = passwordEdit->text();
-    m_connection = new QMatrixClient::Connection(url);
+    m_connection = new QMatrixClient::ConnectionData(url);
     QMatrixClient::PasswordLogin* job = new QMatrixClient::PasswordLogin(m_connection, user, password);
     connect( job, &QMatrixClient::PasswordLogin::result, this, &LoginDialog::loginDone );
     job->start();

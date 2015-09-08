@@ -13,7 +13,9 @@ find_package(Qt5Network 5.4.0)
 find_package(KF5CoreAddons)
 
 set(qmatrixclient_SRCS
+    lib/connectiondata.cpp
     lib/connection.cpp
+    lib/connectionprivate.cpp
     lib/room.cpp
     lib/logmessage.cpp
     lib/jobs/basejob.cpp

@@ -22,7 +22,7 @@
 #include <QtWidgets/QMainWindow>
 #include <KCoreAddons/KJob>
 
-#include "lib/connection.h"
+#include "lib/connectiondata.h"
 #include "lib/room.h"
 
 class RoomListDock;
@@ -45,7 +45,7 @@ class MainWindow: public QMainWindow
 
         RoomListDock* roomListDock;
         ChatRoomWidget* chatRoomWidget;
-        QMatrixClient::Connection* connection;
+        QMatrixClient::ConnectionData* connection;
         QHash<QString, QMatrixClient::Room*>* roomMap;
 };
 

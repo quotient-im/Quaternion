@@ -23,13 +23,13 @@
 
 namespace QMatrixClient
 {
-    class Connection;
+    class ConnectionData;
 
     class PasswordLogin : public BaseJob
     {
             Q_OBJECT
         public:
-            PasswordLogin(Connection* connection, QString user, QString password);
+            PasswordLogin(ConnectionData* connection, QString user, QString password);
             virtual ~PasswordLogin();
 
             void start();

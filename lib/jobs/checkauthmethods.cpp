@@ -24,7 +24,7 @@
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonParseError>
 
-#include "../connection.h"
+#include "../connectiondata.h"
 
 using namespace QMatrixClient;
 
@@ -37,7 +37,7 @@ class CheckAuthMethods::Private
         QString session;
 };
 
-CheckAuthMethods::CheckAuthMethods(Connection* connection)
+CheckAuthMethods::CheckAuthMethods(ConnectionData* connection)
     : BaseJob(connection)
     , d(new Private)
 {

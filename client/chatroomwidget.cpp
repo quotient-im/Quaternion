@@ -24,7 +24,7 @@
 #include <QtWidgets/QVBoxLayout>
 
 #include "lib/room.h"
-#include "lib/connection.h"
+#include "lib/connectiondata.h"
 #include "lib/logmessage.h"
 #include "lib/jobs/postmessagejob.h"
 #include "models/logmessagemodel.h"
@@ -57,7 +57,7 @@ void ChatRoomWidget::setRoom(QMatrixClient::Room* room)
     m_currentRoom = room;
 }
 
-void ChatRoomWidget::setConnection(QMatrixClient::Connection* connection)
+void ChatRoomWidget::setConnection(QMatrixClient::ConnectionData* connection)
 {
     m_currentConnection = connection;
 }

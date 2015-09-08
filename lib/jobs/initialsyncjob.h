@@ -25,18 +25,18 @@
 
 namespace QMatrixClient
 {
-    class Connection;
+    class ConnectionData;
 
     class InitialSyncJob: public BaseJob
     {
             Q_OBJECT
         public:
-            InitialSyncJob(Connection* connection);
+            InitialSyncJob(ConnectionData* connection);
             virtual ~InitialSyncJob();
 
             void start();
 
-            QHash<QString, QMatrixClient::Room*>* roomMap();
+            QHash<QString, QMatrixClient::Room*> roomMap();
 
         protected slots:
             void gotReply();

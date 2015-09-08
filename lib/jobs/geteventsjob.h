@@ -23,13 +23,13 @@
 
 namespace QMatrixClient
 {
-    class Connection;
+    class ConnectionData;
     class Room;
     class GetEventsJob: public BaseJob
     {
             Q_OBJECT
         public:
-            GetEventsJob(Connection* connection, QHash<QString, Room*>* roomMap, QString from=QString());
+            GetEventsJob(ConnectionData* connection, QHash<QString, Room*>* roomMap, QString from=QString());
             virtual ~GetEventsJob();
 
             void start() override;

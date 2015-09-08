@@ -67,7 +67,7 @@ void MainWindow::initialSync(KJob* job)
         return;
     }
     qDebug() << "blub";
-    roomMap = realJob->roomMap();
+    roomMap = new QHash<QString, QMatrixClient::Room*>( realJob->roomMap() );
     roomListDock->setRoomMap( roomMap );
     //chatRoomWidget->setRoom( roomMap->values().first() );
     QTimer::singleShot(0, this, &MainWindow::getNewEvents);

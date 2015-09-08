@@ -27,17 +27,17 @@ class QNetworkReply;
 
 namespace QMatrixClient
 {
-    class Connection;
+    class ConnectionData;
     
     class BaseJob: public KJob
     {
             Q_OBJECT
         public:
-            BaseJob(Connection* connection);
+            BaseJob(ConnectionData* connection);
             virtual ~BaseJob();
             
         protected:
-            Connection* connection() const;
+            ConnectionData* connection() const;
             
             QNetworkReply* get(const QString& path, const QUrlQuery& query = QUrlQuery()) const;
             QNetworkReply* put(const QString& path, const QJsonDocument& data, const QUrlQuery& query = QUrlQuery()) const;

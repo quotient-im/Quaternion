@@ -22,7 +22,7 @@
 #include <QtCore/QJsonObject>
 #include <QtNetwork/QNetworkReply>
 
-#include "../connection.h"
+#include "../connectiondata.h"
 
 using namespace QMatrixClient;
 
@@ -39,7 +39,7 @@ class PasswordLogin::Private
         QString returned_token;
 };
 
-PasswordLogin::PasswordLogin(Connection* connection, QString user, QString password)
+PasswordLogin::PasswordLogin(ConnectionData* connection, QString user, QString password)
     : BaseJob(connection)
     , d(new Private)
 {

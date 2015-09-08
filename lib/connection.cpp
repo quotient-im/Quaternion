@@ -17,67 +17,60 @@
  */
 
 #include "connection.h"
-
-#include <QtNetwork/QNetworkAccessManager>
+#include "connectiondata.h"
+#include "connectionprivate.h"
+#include "jobs/passwordlogin.h"
+#include "jobs/initialsyncjob.h"
+#include "jobs/geteventsjob.h"
+#include "jobs/postmessagejob.h"
 
 using namespace QMatrixClient;
 
-class Connection::Private
+Connection::Connection(QUrl server, QObject* parent)
+    : QObject(parent)
 {
-    public:
-        Private() {isConnected=false;}
-        
-        QUrl baseUrl;
-        bool isConnected;
-        QString token;
-        QString lastEvent;
-        QNetworkAccessManager* nam;
-};
-
-Connection::Connection(QUrl baseUrl)
-    : d(new Private)
-{
-    d->baseUrl = baseUrl;
-    d->nam = new QNetworkAccessManager();
+    d = new ConnectionPrivate(this);
+    d->data = new ConnectionData(server);
 }
 
 Connection::~Connection()
 {
-    d->nam->deleteLater();
     delete d;
 }
 
-bool Connection::isConnected() const
+void Connection::connectToServer(QString user, QString password)
+{
+    PasswordLogin* loginJob = new PasswordLogin(d->data, user, password);
+    connect( loginJob, &PasswordLogin::result, d, &ConnectionPrivate::connectDone );
+    loginJob->start();
+}
+
+void Connection::startInitialSync()
+{
+    InitialSyncJob* syncJob = new InitialSyncJob(d->data);
+    connect( syncJob, &InitialSyncJob::result, d, &ConnectionPrivate::initialSyncDone );
+    syncJob->start();
+}
+
+void Connection::getEvents()
+{
+    GetEventsJob* job = new GetEventsJob(d->data, &d->roomMap);
+    connect( job, &GetEventsJob::result, d, &ConnectionPrivate::gotEvents );
+    job->start();
+}
+
+void Connection::postMessage(Room* room, QString type, QString message)
+{
+    PostMessageJob* job = new PostMessageJob(d->data, room, type, message);
+    job->start();
+}
+
+QHash< QString, Room* > Connection::roomMap()
+{
+    return d->roomMap;
+}
+
+bool Connection::isConnected()
 {
     return d->isConnected;
-}
-
-QString Connection::token() const
-{
-    return d->token;
-}
-
-QUrl Connection::baseUrl() const
-{
-    return d->baseUrl;
-}
-
-QNetworkAccessManager* Connection::nam() const
-{
-    return d->nam;
-}
-
-void Connection::setToken(QString token)
-{
-    d->token = token;
-}
-
-QString Connection::lastEvent() const
-{
-    return d->lastEvent;
-}
-
-void Connection::setLastEvent(QString identifier)
-{
-    d->lastEvent = identifier;
 }

@@ -22,19 +22,19 @@
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QNetworkRequest>
 
-#include "../connection.h"
+#include "../connectiondata.h"
 
 using namespace QMatrixClient;
 
 class BaseJob::Private
 {
     public:
-        Private(Connection* c) {connection=c;}
+        Private(ConnectionData* c) {connection=c;}
         
-        Connection* connection;
+        ConnectionData* connection;
 };
 
-BaseJob::BaseJob(Connection* connection)
+BaseJob::BaseJob(ConnectionData* connection)
     : d(new Private(connection))
 {
 }
@@ -44,7 +44,7 @@ BaseJob::~BaseJob()
     delete d;
 }
 
-Connection* BaseJob::connection() const
+ConnectionData* BaseJob::connection() const
 {
     return d->connection;
 }

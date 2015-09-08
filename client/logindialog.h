@@ -26,7 +26,7 @@
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QHBoxLayout>
 
-#include "lib/connection.h"
+#include "lib/connectiondata.h"
 #include "lib/jobs/passwordlogin.h"
 
 class LoginDialog : public QDialog
@@ -38,7 +38,7 @@ class LoginDialog : public QDialog
         QString token() const;
         QString userId() const;
         QString homeServer() const;
-        QMatrixClient::Connection* connection() const;
+        QMatrixClient::ConnectionData* connection() const;
         
     private slots:
         void login();
@@ -51,7 +51,7 @@ class LoginDialog : public QDialog
         QPushButton* loginButton;
         QLabel* sessionLabel;
         
-        QMatrixClient::Connection* m_connection;
+        QMatrixClient::ConnectionData* m_connection;
         QString m_token;
         QString m_userId;
         QString m_homeServer;

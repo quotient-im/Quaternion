@@ -27,7 +27,7 @@
 #include <QtNetwork/QNetworkReply>
 
 #include "../room.h"
-#include "../connection.h"
+#include "../connectiondata.h"
 
 using namespace QMatrixClient;
 
@@ -42,7 +42,7 @@ class GetEventsJob::Private
         QNetworkReply* reply;
 };
 
-GetEventsJob::GetEventsJob(Connection* connection, QHash<QString, Room*>* roomMap, QString from)
+GetEventsJob::GetEventsJob(ConnectionData* connection, QHash<QString, Room*>* roomMap, QString from)
     : BaseJob(connection)
     , d(new Private)
 {
