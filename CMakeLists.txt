@@ -18,6 +18,8 @@ set(qmatrixclient_SRCS
     lib/connectionprivate.cpp
     lib/room.cpp
     lib/logmessage.cpp
+    lib/events/event.cpp
+    lib/events/roommessageevent.cpp
     lib/jobs/basejob.cpp
     lib/jobs/checkauthmethods.cpp
     lib/jobs/passwordlogin.cpp
