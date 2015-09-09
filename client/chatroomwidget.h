@@ -24,7 +24,7 @@
 namespace QMatrixClient
 {
     class Room;
-    class ConnectionData;
+    class Connection;
 }
 class LogMessageModel;
 class QListView;
@@ -39,7 +39,7 @@ class ChatRoomWidget: public QWidget
 
     public slots:
         void setRoom(QMatrixClient::Room* room);
-        void setConnection(QMatrixClient::ConnectionData* connection);
+        void setConnection(QMatrixClient::Connection* connection);
 
     private slots:
         void sendLine();
@@ -47,7 +47,7 @@ class ChatRoomWidget: public QWidget
     private:
         LogMessageModel* m_messageModel;
         QMatrixClient::Room* m_currentRoom;
-        QMatrixClient::ConnectionData* m_currentConnection;
+        QMatrixClient::Connection* m_currentConnection;
 
         QListView* m_messageView;
         QLineEdit* m_chatEdit;

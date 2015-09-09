@@ -32,7 +32,7 @@ namespace QMatrixClient
             Connection(QUrl server, QObject* parent=0);
             virtual ~Connection();
 
-            QHash<QString, Room*> roomMap();
+            QHash<QString, Room*> roomMap() const;
             bool isConnected();
 
             void connectToServer( QString user, QString password );
@@ -46,6 +46,7 @@ namespace QMatrixClient
             void gotEvents();
             void newRoom(Room* room);
 
+            void loginError(QString error);
             void connectionError(QString error);
 
         private:

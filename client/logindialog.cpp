@@ -19,6 +19,7 @@
 #include "logindialog.h"
 
 #include <QtCore/QDebug>
+#include <QtCore/QUrl>
 #include <QtWidgets/QFormLayout>
 
 LoginDialog::LoginDialog(QWidget* parent)
@@ -48,24 +49,9 @@ LoginDialog::LoginDialog(QWidget* parent)
     connect( loginButton, &QPushButton::clicked, this, &LoginDialog::login );
 }
 
-QMatrixClient::ConnectionData* LoginDialog::connection() const
+QMatrixClient::Connection* LoginDialog::connection() const
 {
     return m_connection;
-}
-
-QString LoginDialog::token() const
-{
-    return m_token;
-}
-
-QString LoginDialog::homeServer() const
-{
-    return m_homeServer;
-}
-
-QString LoginDialog::userId() const
-{
-    return m_userId;
 }
 
 void LoginDialog::login()
@@ -74,26 +60,13 @@ void LoginDialog::login()
     QUrl url = QUrl::fromUserInput(serverEdit->text());
     QString user = userEdit->text();
     QString password = passwordEdit->text();
-    m_connection = new QMatrixClient::ConnectionData(url);
-    QMatrixClient::PasswordLogin* job = new QMatrixClient::PasswordLogin(m_connection, user, password);
-    connect( job, &QMatrixClient::PasswordLogin::result, this, &LoginDialog::loginDone );
-    job->start();
+    m_connection = new QMatrixClient::Connection(url);
+    connect( m_connection, &QMatrixClient::Connection::connected, this, &QDialog::accept );
+    connect( m_connection, &QMatrixClient::Connection::loginError, this, &LoginDialog::error );
+    m_connection->connectToServer(user, password);
 }
 
-void LoginDialog::loginDone(KJob* job)
+void LoginDialog::error(QString error)
 {
-    QMatrixClient::PasswordLogin* realJob = static_cast<QMatrixClient::PasswordLogin*>(job);
-    if( realJob->error() )
-    {
-        sessionLabel->setText( realJob->errorText() );
-    }
-    else
-    {
-        sessionLabel->setText( "Token: " + realJob->token() );
-        qDebug() << realJob->token();
-        m_token = realJob->token();
-        m_userId = realJob->id();
-        m_homeServer = realJob->server();
-        accept();
-    }
+    sessionLabel->setText( error );
 }

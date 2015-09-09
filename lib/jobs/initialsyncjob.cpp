@@ -73,7 +73,7 @@ void InitialSyncJob::start()
     QString path = "_matrix/client/api/v1/initialSync";
     QUrlQuery query;
     query.addQueryItem("access_token", connection()->token());
-    query.addQueryItem("limit", "200");
+    query.addQueryItem("limit", "0");
     d->reply = get(path, query);
     connect( d->reply, &QNetworkReply::finished, this, &InitialSyncJob::gotReply );
 }

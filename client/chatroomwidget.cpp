@@ -24,7 +24,7 @@
 #include <QtWidgets/QVBoxLayout>
 
 #include "lib/room.h"
-#include "lib/connectiondata.h"
+#include "lib/connection.h"
 #include "lib/logmessage.h"
 #include "lib/jobs/postmessagejob.h"
 #include "models/logmessagemodel.h"
@@ -57,7 +57,7 @@ void ChatRoomWidget::setRoom(QMatrixClient::Room* room)
     m_currentRoom = room;
 }
 
-void ChatRoomWidget::setConnection(QMatrixClient::ConnectionData* connection)
+void ChatRoomWidget::setConnection(QMatrixClient::Connection* connection)
 {
     m_currentConnection = connection;
 }
@@ -67,7 +67,6 @@ void ChatRoomWidget::sendLine()
     qDebug() << "sendLine";
     if( !m_currentRoom || !m_currentConnection )
         return;
-    QMatrixClient::PostMessageJob* job = new QMatrixClient::PostMessageJob(m_currentConnection, m_currentRoom, "m.text", m_chatEdit->displayText());
-    job->start();
+    m_currentConnection->postMessage(m_currentRoom, "m.text", m_chatEdit->displayText());
     m_chatEdit->setText("");
 }

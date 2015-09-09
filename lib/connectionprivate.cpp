@@ -46,7 +46,7 @@ void ConnectionPrivate::connectDone(KJob* job)
         emit q->connected();
     }
     else {
-        emit q->connectionError( job->errorString() );
+        emit q->loginError( job->errorString() );
     }
 }
 

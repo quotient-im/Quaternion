@@ -24,6 +24,7 @@
 #include <QtCore/QStringListModel>
 
 #include "lib/room.h"
+#include "lib/connection.h"
 
 class RoomListDock : public QDockWidget
 {
@@ -32,7 +33,7 @@ class RoomListDock : public QDockWidget
         RoomListDock(QWidget* parent=0);
         virtual ~RoomListDock();
 
-        void setRoomMap( QHash<QString, QMatrixClient::Room*>* map );
+        void setConnection( QMatrixClient::Connection* connection );
 
     signals:
         void roomSelected(QMatrixClient::Room* room);
@@ -41,7 +42,7 @@ class RoomListDock : public QDockWidget
         void rowSelected(const QModelIndex& index);
 
     private:
-        QHash<QString, QMatrixClient::Room*>* roomMap;
+        QMatrixClient::Connection* connection;
         QListView* view;
         QStringListModel* model;
 };

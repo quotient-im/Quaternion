@@ -30,7 +30,6 @@
 MainWindow::MainWindow()
 {
     connection = 0;
-    roomMap = 0;
     roomListDock = new RoomListDock(this);
     addDockWidget(Qt::LeftDockWidgetArea, roomListDock);
     chatRoomWidget = new ChatRoomWidget(this);
@@ -51,24 +50,16 @@ void MainWindow::initialize()
     {
         connection = dialog.connection();
         chatRoomWidget->setConnection(connection);
-        QMatrixClient::InitialSyncJob* job = new QMatrixClient::InitialSyncJob(connection);
-        connect( job, &QMatrixClient::InitialSyncJob::result, this, &MainWindow::initialSync );
-        job->start();
+        connect( connection, &QMatrixClient::Connection::initialSyncDone, this, &MainWindow::initialSyncDone );
+        connect( connection, &QMatrixClient::Connection::connectionError, this, &MainWindow::connectionError );
+        connect( connection, &QMatrixClient::Connection::gotEvents, this, &MainWindow::gotEvents );
+        connection->startInitialSync();
     }
 }
 
-void MainWindow::initialSync(KJob* job)
+void MainWindow::initialSyncDone()
 {
-    qDebug() << "initial";
-    QMatrixClient::InitialSyncJob* realJob = static_cast<QMatrixClient::InitialSyncJob*>(job);
-    if( realJob->error() )
-    {
-        qDebug() << realJob->errorText();
-        return;
-    }
-    qDebug() << "blub";
-    roomMap = new QHash<QString, QMatrixClient::Room*>( realJob->roomMap() );
-    roomListDock->setRoomMap( roomMap );
+    roomListDock->setConnection( connection );
     //chatRoomWidget->setRoom( roomMap->values().first() );
     QTimer::singleShot(0, this, &MainWindow::getNewEvents);
 }
@@ -76,18 +67,18 @@ void MainWindow::initialSync(KJob* job)
 void MainWindow::getNewEvents()
 {
     qDebug() << "getNewEvents";
-    qDebug() << "Keys:" << roomMap->keys();
-    QMatrixClient::GetEventsJob* job = new QMatrixClient::GetEventsJob(connection, roomMap);
-    connect( job, &QMatrixClient::GetEventsJob::result, this, &MainWindow::newEvents );
-    job->start();
+    connection->getEvents();
 }
 
-void MainWindow::newEvents(KJob* job)
+void MainWindow::gotEvents()
 {
     qDebug() << "newEvents";
-    QMatrixClient::GetEventsJob* realJob = static_cast<QMatrixClient::GetEventsJob*>(job);
-    // TODO: Add new rooms
     getNewEvents();
+}
+
+void MainWindow::connectionError(QString error)
+{
+    qDebug() << error;
 }
 
 

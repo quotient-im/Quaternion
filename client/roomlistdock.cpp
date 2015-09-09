@@ -23,7 +23,7 @@
 RoomListDock::RoomListDock(QWidget* parent)
     : QDockWidget("Rooms", parent)
 {
-    roomMap = 0;
+    connection = 0;
     //setWidget(new QWidget());
     model = new QStringListModel(this);
     view = new QListView();
@@ -36,13 +36,13 @@ RoomListDock::~RoomListDock()
 {
 }
 
-void RoomListDock::setRoomMap(QHash< QString, QMatrixClient::Room* >* map)
+void RoomListDock::setConnection( QMatrixClient::Connection* connection )
 {
-    roomMap = map;
+    this->connection = connection;
     QStringList rooms;
-    for( const QString& room : roomMap->keys() )
+    for( const QString& room : connection->roomMap().keys() )
     {
-        QString alias = roomMap->value(room)->alias();
+        QString alias = connection->roomMap().value(room)->alias();
         if( alias.isEmpty() )
             alias = room;
         rooms.append( alias );
@@ -53,6 +53,6 @@ void RoomListDock::setRoomMap(QHash< QString, QMatrixClient::Room* >* map)
 
 void RoomListDock::rowSelected(const QModelIndex& index)
 {
-    QString id = roomMap->keys().at(index.row());
-    emit roomSelected( roomMap->value(id) );
+    QString id = connection->roomMap().keys().at(index.row());
+    emit roomSelected( connection->roomMap().value(id) );
 }

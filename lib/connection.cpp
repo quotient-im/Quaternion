@@ -65,7 +65,7 @@ void Connection::postMessage(Room* room, QString type, QString message)
     job->start();
 }
 
-QHash< QString, Room* > Connection::roomMap()
+QHash< QString, Room* > Connection::roomMap() const
 {
     return d->roomMap;
 }
