@@ -30,7 +30,7 @@ set(qmatrixclient_SRCS
     client/mainwindow.cpp
     client/roomlistdock.cpp
     client/chatroomwidget.cpp
-    client/models/logmessagemodel.cpp
+    client/models/messageeventmodel.cpp
     client/main.cpp
     )
 

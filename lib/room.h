@@ -25,29 +25,25 @@
 
 namespace QMatrixClient
 {
-    class LogMessage;
+    class Event;
+    class Connection;
 
     class Room: public QObject
     {
             Q_OBJECT
         public:
-            Room(QString id);
+            Room(Connection* connection, QString id);
             virtual ~Room();
 
             QString id() const;
-            QList<LogMessage*> logMessages() const;
+            QList<Event*> messages() const;
             QString alias() const;
 
-            void addMessages(const QList<LogMessage*>& messages);
-            void addMessage( LogMessage* message );
-            void setAlias( QString alias );
-
-            bool parseEvents(const QJsonObject& json);
-            bool parseSingleEvent(const QJsonObject& json);
-            bool parseState(const QJsonObject& json);
+            void addMessage( Event* event );
+            void addInitialState( Event* event );
 
         signals:
-            void newMessages(QList<LogMessage*> messages);
+            void newMessage(Event* event);
             void aliasChanged(Room* room);
 
         private:

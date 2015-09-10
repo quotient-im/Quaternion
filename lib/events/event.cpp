@@ -22,6 +22,8 @@
 #include <QtCore/QDateTime>
 #include <QtCore/QDebug>
 
+#include "roommessageevent.h"
+
 using namespace QMatrixClient;
 
 class Event::Private
@@ -30,12 +32,18 @@ class Event::Private
         EventType type;
         QString id;
         QDateTime timestamp;
+        QString roomId;
 };
 
 Event::Event(EventType type)
     : d(new Private)
 {
     d->type = type;
+}
+
+Event::~Event()
+{
+    delete d;
 }
 
 EventType Event::type() const
@@ -51,6 +59,23 @@ QString Event::id() const
 QDateTime Event::timestamp() const
 {
     return d->timestamp;
+}
+
+QString Event::roomId() const
+{
+    return d->roomId;
+}
+
+Event* Event::fromJson(const QJsonObject& obj)
+{
+    //qDebug() << obj.value("type").toString();
+    if( obj.value("type").toString() == "m.room.message" )
+    {
+        qDebug() << "asd";
+        return RoomMessageEvent::fromJson(obj);
+    }
+    //qDebug() << "Unknown event";
+    return 0;
 }
 
 bool Event::parseJson(const QJsonObject& obj)
@@ -69,6 +94,11 @@ bool Event::parseJson(const QJsonObject& obj)
     } else {
         correct = false;
         qDebug() << "Event: can't find ts";
+        //qDebug() << obj;
+    }
+    if( obj.contains("room_id") )
+    {
+        d->roomId = obj.value("room_id").toString();
     }
     return correct;
 }

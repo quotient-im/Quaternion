@@ -30,6 +30,7 @@ class KJob;
 namespace QMatrixClient
 {
     class Connection;
+    class Event;
 
     class ConnectionPrivate : public QObject
     {
@@ -37,6 +38,8 @@ namespace QMatrixClient
         public:
             ConnectionPrivate(Connection* parent);
             ~ConnectionPrivate();
+
+            void processEvent( Event* event, bool isInitialState=false );
 
             Connection* q;
             ConnectionData* data;

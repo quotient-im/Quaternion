@@ -24,15 +24,15 @@
 namespace QMatrixClient
 {
     class Room;
-    class LogMessage;
+    class Event;
 }
 
-class LogMessageModel: public QAbstractListModel
+class MessageEventModel: public QAbstractListModel
 {
         Q_OBJECT
     public:
-        LogMessageModel(QObject* parent=0);
-        virtual ~LogMessageModel();
+        MessageEventModel(QObject* parent=0);
+        virtual ~MessageEventModel();
 
         void changeRoom(QMatrixClient::Room* room);
 
@@ -42,11 +42,11 @@ class LogMessageModel: public QAbstractListModel
         QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
 
     public slots:
-        void newMessages(QList<QMatrixClient::LogMessage*> messages);
+        void newMessage(QMatrixClient::Event* messageEvent);
 
     private:
         QMatrixClient::Room* m_currentRoom;
-        QList<QMatrixClient::LogMessage*> m_currentMessages;
+        QList<QMatrixClient::Event*> m_currentMessages;
 };
 
 #endif // LOGMESSAGEMODEL_H

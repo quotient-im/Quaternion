@@ -25,16 +25,17 @@ namespace QMatrixClient
 {
     class ConnectionData;
     class Room;
+    class Event;
     class GetEventsJob: public BaseJob
     {
             Q_OBJECT
         public:
-            GetEventsJob(ConnectionData* connection, QHash<QString, Room*>* roomMap, QString from=QString());
+            GetEventsJob(ConnectionData* connection, QString from=QString());
             virtual ~GetEventsJob();
 
             void start() override;
 
-            QList<Room*> newRooms();
+            QList<Event*> events();
 
         protected slots:
             void gotReply();

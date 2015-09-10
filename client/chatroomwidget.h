@@ -26,7 +26,7 @@ namespace QMatrixClient
     class Room;
     class Connection;
 }
-class LogMessageModel;
+class MessageEventModel;
 class QListView;
 class QLineEdit;
 
@@ -45,7 +45,7 @@ class ChatRoomWidget: public QWidget
         void sendLine();
 
     private:
-        LogMessageModel* m_messageModel;
+        MessageEventModel* m_messageModel;
         QMatrixClient::Room* m_currentRoom;
         QMatrixClient::Connection* m_currentConnection;
 

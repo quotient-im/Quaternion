@@ -21,6 +21,8 @@
 #include "jobs/passwordlogin.h"
 #include "jobs/initialsyncjob.h"
 #include "jobs/geteventsjob.h"
+#include "events/event.h"
+#include "events/roommessageevent.h"
 
 using namespace QMatrixClient;
 
@@ -36,6 +38,25 @@ ConnectionPrivate::~ConnectionPrivate()
     delete data;
 }
 
+void ConnectionPrivate::processEvent(Event* event, bool isInitialState)
+{
+    if( !event->roomId().isEmpty() )
+    {
+        Room* room;
+        if( !roomMap.contains(event->roomId()) )
+        {
+            room = new Room(q, event->roomId());
+            roomMap.insert( event->roomId(), room );
+            emit q->newRoom(room);
+        } else {
+            room = roomMap.value(event->roomId());
+        }
+        if( isInitialState )
+            room->addInitialState(event);
+        else
+            room->addMessage(event);
+    }
+}
 
 void ConnectionPrivate::connectDone(KJob* job)
 {
@@ -55,7 +76,12 @@ void ConnectionPrivate::initialSyncDone(KJob* job)
     InitialSyncJob* syncJob = static_cast<InitialSyncJob*>(job);
     if( !syncJob->error() )
     {
-        roomMap = syncJob->roomMap();
+        QList<Event*> initialState = syncJob->initialState();
+        for( Event* e: initialState )
+            processEvent(e, true);
+        QList<Event*> events = syncJob->events();
+        for( Event* e: events )
+            processEvent(e);
         emit q->initialSyncDone();
     }
     else
@@ -69,10 +95,10 @@ void ConnectionPrivate::gotEvents(KJob* job)
     GetEventsJob* eventsJob = static_cast<GetEventsJob*>(job);
     if( !eventsJob->error() )
     {
-        QList<Room*> newRooms = eventsJob->newRooms();
-        for( Room* r: newRooms )
+        QList<Event*> events = eventsJob->events();
+        for( Event* e: events )
         {
-            emit q->newRoom( r );
+            processEvent(e);
         }
         emit q->gotEvents();
     }

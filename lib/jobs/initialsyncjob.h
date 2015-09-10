@@ -26,6 +26,7 @@
 namespace QMatrixClient
 {
     class ConnectionData;
+    class Event;
 
     class InitialSyncJob: public BaseJob
     {
@@ -36,7 +37,8 @@ namespace QMatrixClient
 
             void start();
 
-            QHash<QString, QMatrixClient::Room*> roomMap();
+            QList<Event*> events();
+            QList<Event*> initialState();
 
         protected slots:
             void gotReply();

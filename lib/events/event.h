@@ -34,10 +34,14 @@ namespace QMatrixClient
     {
         public:
             Event(EventType type);
+            virtual ~Event();
             
             EventType type() const;
             QString id() const;
             QDateTime timestamp() const;
+            QString roomId() const;
+
+            static Event* fromJson(const QJsonObject& obj);
             
         protected:
             bool parseJson(const QJsonObject& obj);

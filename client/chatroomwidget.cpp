@@ -27,11 +27,11 @@
 #include "lib/connection.h"
 #include "lib/logmessage.h"
 #include "lib/jobs/postmessagejob.h"
-#include "models/logmessagemodel.h"
+#include "models/messageeventmodel.h"
 
 ChatRoomWidget::ChatRoomWidget(QWidget* parent)
 {
-    m_messageModel = new LogMessageModel(this);
+    m_messageModel = new MessageEventModel(this);
     m_currentRoom = 0;
     m_currentConnection = 0;
 

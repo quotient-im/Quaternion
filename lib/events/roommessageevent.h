@@ -27,14 +27,14 @@ namespace QMatrixClient
     {
         public:
             RoomMessageEvent();
+            virtual ~RoomMessageEvent();
             
             QString userId() const;
-            QString roomId() const;
             QString msgtype() const;
             QString body() const;
             QDateTime hsob_ts() const;
         
-            static RoomMessageEvent* fromJsonObject( const QJsonObject& obj );
+            static RoomMessageEvent* fromJson( const QJsonObject& obj );
             
         private:
             class Private;

@@ -28,6 +28,7 @@
 
 #include "../room.h"
 #include "../connectiondata.h"
+#include "../events/event.h"
 
 using namespace QMatrixClient;
 
@@ -36,20 +37,18 @@ class GetEventsJob::Private
     public:
         Private() {reply=0;}
 
-        QHash<QString,Room*>* roomMap;
-        QList<Room*> newRooms;
+        QList<Event*> events;
         QString from;
         QNetworkReply* reply;
 };
 
-GetEventsJob::GetEventsJob(ConnectionData* connection, QHash<QString, Room*>* roomMap, QString from)
+GetEventsJob::GetEventsJob(ConnectionData* connection, QString from)
     : BaseJob(connection)
     , d(new Private)
 {
     if( from.isEmpty() )
         from = connection->lastEvent();
     d->from = from;
-    d->roomMap = roomMap;
 }
 
 GetEventsJob::~GetEventsJob()
@@ -63,9 +62,14 @@ void GetEventsJob::start()
     QUrlQuery query;
     query.addQueryItem("access_token", connection()->token());
     query.addQueryItem("from", d->from);
-    query.addQueryItem("timeout", "10000");
+    //query.addQueryItem("timeout", "10000");
     d->reply = get(path, query);
     connect( d->reply, &QNetworkReply::finished, this, &GetEventsJob::gotReply );
+}
+
+QList< Event* > GetEventsJob::events()
+{
+    return d->events;
 }
 
 void GetEventsJob::gotReply()
@@ -92,35 +96,13 @@ void GetEventsJob::gotReply()
     QJsonArray chunk = json.value("chunk").toArray();
     for( const QJsonValue& val: chunk )
     {
-        qDebug() << chunk;
-        QJsonObject event = val.toObject();
-        QString roomId = event.value("room_id").toString();
-        qDebug() << roomId;
-        qDebug() << d->roomMap->keys();
-        if( roomId.isEmpty() )
+        QJsonObject eventObj = val.toObject();
+        Event* event = Event::fromJson(eventObj);
+        if( event )
         {
-            //qDebug() << event;
-            continue;
+            d->events.append(event);
         }
-        Room* room;
-        if( d->roomMap->contains(roomId) )
-        {
-            room = d->roomMap->value(roomId);
-        }
-        else
-        {
-            qDebug() << "New room";
-            room = new Room(roomId);
-            d->roomMap->insert(roomId, room);
-            d->newRooms.append(room);
-        }
-        room->parseSingleEvent(event);
     }
     connection()->setLastEvent( json.value("end").toString() );
     emitResult();
-}
-
-QList< Room* > GetEventsJob::newRooms()
-{
-    return d->newRooms;
 }

@@ -28,7 +28,7 @@
 
 #include "../connectiondata.h"
 #include "../room.h"
-#include "../logmessage.h"
+#include "../events/event.h"
 
 using namespace QMatrixClient;
 
@@ -37,24 +37,10 @@ class InitialSyncJob::Private
     public:
         Private() {reply=0;}
 
-        void parseRoomMessage(const QJsonObject& obj, QHash<QString, QMatrixClient::Room*>* map);
-
         QNetworkReply* reply;
-        QHash<QString, QMatrixClient::Room*> roomMap;
+        QList<Event*> events;
+        QList<Event*> initialState;
 };
-
-void InitialSyncJob::Private::parseRoomMessage(const QJsonObject& obj, QHash< QString, QMatrixClient::Room* >* map)
-{
-    QString roomId = obj.value("room_id").toString();
-    if( !map->contains(roomId) )
-    {
-        map->insert(roomId, new QMatrixClient::Room(roomId));
-    }
-    QMatrixClient::LogMessage* msg = new QMatrixClient::LogMessage( QMatrixClient::LogMessage::UserMessage,
-                                                                    obj.value("content").toObject().value("body").toString(),
-                                                                    obj.value("user_id").toString() );
-    map->value(roomId)->addMessage( msg );
-}
 
 InitialSyncJob::InitialSyncJob(ConnectionData* connection)
     : BaseJob(connection)
@@ -73,14 +59,19 @@ void InitialSyncJob::start()
     QString path = "_matrix/client/api/v1/initialSync";
     QUrlQuery query;
     query.addQueryItem("access_token", connection()->token());
-    query.addQueryItem("limit", "0");
+    query.addQueryItem("limit", "200");
     d->reply = get(path, query);
     connect( d->reply, &QNetworkReply::finished, this, &InitialSyncJob::gotReply );
 }
 
-QHash< QString, Room* > InitialSyncJob::roomMap()
+QList< Event* > InitialSyncJob::events()
 {
-    return d->roomMap;
+    return d->events;
+}
+
+QList< Event* > InitialSyncJob::initialState()
+{
+    return d->initialState;
 }
 
 void InitialSyncJob::gotReply()
@@ -114,11 +105,21 @@ void InitialSyncJob::gotReply()
             continue;
         }
         QJsonObject obj = val.toObject();
-        QString id = obj.value("room_id").toString();
-        Room* room = new Room(id);
-        room->parseEvents(obj);
-        room->parseState(obj);
-        d->roomMap.insert(id, room);
+        QJsonObject messages = obj.value("messages").toObject();
+        QJsonArray chunk = messages.value("chunk").toArray();
+        for( const QJsonValue& val: chunk )
+        {
+            Event* event = Event::fromJson(val.toObject());
+            if( event )
+                d->events.append( event );
+        }
+        QJsonArray state = obj.value("state").toArray();
+        for( const QJsonValue& val: state )
+        {
+            Event* event = Event::fromJson(val.toObject());
+            if( event )
+                d->initialState.append( event );
+        }
     }
     connection()->setLastEvent( json.value("end").toString() );
     qDebug() << connection()->lastEvent();

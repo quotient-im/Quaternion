@@ -16,40 +16,41 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "logmessagemodel.h"
+#include "messageeventmodel.h"
 
 #include <QtCore/QDebug>
 
 #include "lib/room.h"
-#include "lib/logmessage.h"
+#include "lib/events/event.h"
+#include "lib/events/roommessageevent.h"
 
-LogMessageModel::LogMessageModel(QObject* parent)
+MessageEventModel::MessageEventModel(QObject* parent)
     : QAbstractListModel(parent)
 {
     m_currentRoom = 0;
 }
 
-LogMessageModel::~LogMessageModel()
+MessageEventModel::~MessageEventModel()
 {
 }
 
-void LogMessageModel::changeRoom(QMatrixClient::Room* room)
+void MessageEventModel::changeRoom(QMatrixClient::Room* room)
 {
     beginResetModel();
     if( m_currentRoom )
     {
-        disconnect( m_currentRoom, &QMatrixClient::Room::newMessages, this, &LogMessageModel::newMessages );
+        disconnect( m_currentRoom, &QMatrixClient::Room::newMessage, this, &MessageEventModel::newMessage );
     }
     m_currentRoom = room;
     if( room )
     {
-        m_currentMessages = room->logMessages();
-        connect( room, &QMatrixClient::Room::newMessages, this, &LogMessageModel::newMessages );
+        m_currentMessages = room->messages();
+        connect( room, &QMatrixClient::Room::newMessage, this, &MessageEventModel::newMessage );
         qDebug() << "connected" << room;
     }
     else
     {
-        m_currentMessages = QList<QMatrixClient::LogMessage*>();
+        m_currentMessages = QList<QMatrixClient::Event*>();
     }
     endResetModel();
 }
@@ -68,27 +69,33 @@ void LogMessageModel::changeRoom(QMatrixClient::Room* room)
 //     return QModelIndex();
 // }
 
-int LogMessageModel::rowCount(const QModelIndex& parent) const
+int MessageEventModel::rowCount(const QModelIndex& parent) const
 {
     if( parent.isValid() )
         return 0;
     return m_currentMessages.count();
 }
 
-QVariant LogMessageModel::data(const QModelIndex& index, int role) const
+QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 {
     if( role != Qt::DisplayRole )
         return QVariant();
     if( index.row() < 0 || index.row() >= m_currentMessages.count() )
         return QVariant();
-    QMatrixClient::LogMessage* msg = m_currentMessages.at(index.row());
-    return msg->author() + ": " + msg->message();
+
+    QMatrixClient::Event* event = m_currentMessages.at(index.row());
+    if( event->type() == QMatrixClient::EventType::RoomMessage )
+    {
+        QMatrixClient::RoomMessageEvent* e = static_cast<QMatrixClient::RoomMessageEvent*>(event);
+        return e->userId() + ": " + e->body();
+    }
+    return "Unknown event";
 }
 
-void LogMessageModel::newMessages(QList< QMatrixClient::LogMessage* > messages)
+void MessageEventModel::newMessage(QMatrixClient::Event* messageEvent)
 {
-    qDebug() << "Messages: " << messages;
-    beginInsertRows(QModelIndex(), m_currentMessages.count(), m_currentMessages.count()+messages.count()-1);
-    m_currentMessages.append(messages);
+    //qDebug() << "Message: " << message;
+    beginInsertRows(QModelIndex(), m_currentMessages.count(), m_currentMessages.count());
+    m_currentMessages.append(messageEvent);
     endInsertRows();
 }

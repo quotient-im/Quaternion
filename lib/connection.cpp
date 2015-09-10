@@ -54,7 +54,7 @@ void Connection::startInitialSync()
 
 void Connection::getEvents()
 {
-    GetEventsJob* job = new GetEventsJob(d->data, &d->roomMap);
+    GetEventsJob* job = new GetEventsJob(d->data);
     connect( job, &GetEventsJob::result, d, &ConnectionPrivate::gotEvents );
     job->start();
 }

@@ -30,7 +30,6 @@ class RoomMessageEvent::Private
         Private() {}
         
         QString userId;
-        QString roomId;
         QString body;
         QString msgtype;
         QDateTime hsob_ts;
@@ -43,14 +42,14 @@ RoomMessageEvent::RoomMessageEvent()
 
 }
 
+RoomMessageEvent::~RoomMessageEvent()
+{
+    delete d;
+}
+
 QString RoomMessageEvent::userId() const
 {
     return d->userId;
-}
-
-QString RoomMessageEvent::roomId() const
-{
-    return d->roomId;
 }
 
 QString RoomMessageEvent::msgtype() const
@@ -68,7 +67,7 @@ QDateTime RoomMessageEvent::hsob_ts() const
     return d->hsob_ts;
 }
 
-RoomMessageEvent* RoomMessageEvent::fromJsonObject(const QJsonObject& obj)
+RoomMessageEvent* RoomMessageEvent::fromJson(const QJsonObject& obj)
 {
     RoomMessageEvent* e = new RoomMessageEvent();
     e->parseJson(obj);
@@ -77,12 +76,6 @@ RoomMessageEvent* RoomMessageEvent::fromJsonObject(const QJsonObject& obj)
         e->d->userId = obj.value("user_id").toString();
     } else {
         qDebug() << "RoomMessageEvent: user_id not found";
-    }
-    if( obj.contains("room_id") )
-    {
-        e->d->roomId = obj.value("room_id").toString();
-    } else {
-        qDebug() << "RoomMessageEvent: room_id not found";
     }
     if( obj.contains("content") )
     {
@@ -95,10 +88,14 @@ RoomMessageEvent* RoomMessageEvent::fromJsonObject(const QJsonObject& obj)
         }
         if( content.contains("body") )
         {
-            e->d->hsob_ts = QDateTime::fromMSecsSinceEpoch( content.value("hsoc_ts").toInt() );
+            e->d->body = content.value("body").toString();
         } else {
-            qDebug() << "RoomMessageEvent: hsoc_ts not found";
+            qDebug() << "RoomMessageEvent: body not found";
         }
+//             e->d->hsob_ts = QDateTime::fromMSecsSinceEpoch( content.value("hsoc_ts").toInt() );
+//         } else {
+//             qDebug() << "RoomMessageEvent: hsoc_ts not found";
+//         }
     }
     return e;
 }
