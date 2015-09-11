@@ -16,41 +16,54 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef QMATRIXCLIENT_ROOM_H
-#define QMATRIXCLIENT_ROOM_H
+#include "state.h"
 
-#include <QtCore/QList>
-#include <QtCore/QObject>
-#include <QtCore/QJsonObject>
+#include "events/event.h"
 
-namespace QMatrixClient
+using namespace QMatrixClient;
+
+class State::Private
 {
-    class Event;
-    class State;
-    class Connection;
+    public:
+        Event* event;
+        QString stateKey;
+        QString replacesState;
+};
 
-    class Room: public QObject
-    {
-            Q_OBJECT
-        public:
-            Room(Connection* connection, QString id);
-            virtual ~Room();
 
-            QString id() const;
-            QList<Event*> messages() const;
-            QString alias() const;
-
-            void addMessage( Event* event );
-            void addInitialState( State* state );
-
-        signals:
-            void newMessage(Event* event);
-            void aliasChanged(Room* room);
-
-        private:
-            class Private;
-            Private* d;
-    };
+State::State(Event* event)
+    : d(new Private)
+{
+    d->event = event;
 }
 
-#endif // QMATRIXCLIENT_ROOM_H
+State::~State()
+{
+    delete d;
+}
+
+Event* State::event() const
+{
+    return d->event;
+}
+
+QString State::stateKey() const
+{
+    return d->stateKey;
+}
+
+QString State::replacesState() const
+{
+    return d->replacesState;
+}
+
+State* State::fromJson(const QJsonObject& obj)
+{
+    Event* event = Event::fromJson(obj);
+    if( !event )
+        return 0;
+    State* state = new State(event);
+    state->d->stateKey = obj.value("state_key").toString();
+    state->d->replacesState = obj.value("replaces_state").toString();
+    return state;
+}

@@ -31,6 +31,7 @@ namespace QMatrixClient
 {
     class Connection;
     class Event;
+    class State;
 
     class ConnectionPrivate : public QObject
     {
@@ -39,7 +40,8 @@ namespace QMatrixClient
             ConnectionPrivate(Connection* parent);
             ~ConnectionPrivate();
 
-            void processEvent( Event* event, bool isInitialState=false );
+            void processEvent( Event* event );
+            void processState( State* state );
 
             Connection* q;
             ConnectionData* data;

@@ -22,6 +22,7 @@
 #include <QtCore/QDebug>
 
 #include "connection.h"
+#include "state.h"
 #include "events/event.h"
 #include "events/roommessageevent.h"
 
@@ -77,9 +78,9 @@ void Room::addMessage(Event* event)
     d->addState(event);
 }
 
-void Room::addInitialState(Event* event)
+void Room::addInitialState(State* state)
 {
-    d->addState(event);
+    d->addState(state->event());
 }
 
 void Room::Private::addState(Event* event)

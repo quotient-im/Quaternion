@@ -28,6 +28,7 @@
 
 #include "../connectiondata.h"
 #include "../room.h"
+#include "../state.h"
 #include "../events/event.h"
 
 using namespace QMatrixClient;
@@ -39,7 +40,7 @@ class InitialSyncJob::Private
 
         QNetworkReply* reply;
         QList<Event*> events;
-        QList<Event*> initialState;
+        QList<State*> initialState;
 };
 
 InitialSyncJob::InitialSyncJob(ConnectionData* connection)
@@ -69,7 +70,7 @@ QList< Event* > InitialSyncJob::events()
     return d->events;
 }
 
-QList< Event* > InitialSyncJob::initialState()
+QList< State* > InitialSyncJob::initialState()
 {
     return d->initialState;
 }
@@ -116,9 +117,10 @@ void InitialSyncJob::gotReply()
         QJsonArray state = obj.value("state").toArray();
         for( const QJsonValue& val: state )
         {
-            Event* event = Event::fromJson(val.toObject());
-            if( event )
-                d->initialState.append( event );
+            qDebug() << val.toObject();
+            State* state = State::fromJson(val.toObject());
+            if( state )
+                d->initialState.append( state );
         }
     }
     connection()->setLastEvent( json.value("end").toString() );

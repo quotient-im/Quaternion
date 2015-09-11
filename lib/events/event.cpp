@@ -74,6 +74,10 @@ Event* Event::fromJson(const QJsonObject& obj)
         qDebug() << "asd";
         return RoomMessageEvent::fromJson(obj);
     }
+    if( obj.value("type").toString() == "m.room.aliases" )
+    {
+        qDebug() << obj;
+    }
     //qDebug() << "Unknown event";
     return 0;
 }

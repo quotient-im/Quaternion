@@ -18,6 +18,7 @@
 
 #include "connectionprivate.h"
 #include "connection.h"
+#include "state.h"
 #include "jobs/passwordlogin.h"
 #include "jobs/initialsyncjob.h"
 #include "jobs/geteventsjob.h"
@@ -38,7 +39,7 @@ ConnectionPrivate::~ConnectionPrivate()
     delete data;
 }
 
-void ConnectionPrivate::processEvent(Event* event, bool isInitialState)
+void ConnectionPrivate::processEvent(Event* event)
 {
     if( !event->roomId().isEmpty() )
     {
@@ -51,10 +52,25 @@ void ConnectionPrivate::processEvent(Event* event, bool isInitialState)
         } else {
             room = roomMap.value(event->roomId());
         }
-        if( isInitialState )
-            room->addInitialState(event);
-        else
-            room->addMessage(event);
+        room->addMessage(event);
+    }
+}
+
+void ConnectionPrivate::processState(State* state)
+{
+    QString roomId = state->event()->roomId();
+    if( !roomId.isEmpty() )
+    {
+        Room* room;
+        if( !roomMap.contains(roomId) )
+        {
+            room = new Room(q, roomId);
+            roomMap.insert( roomId, room );
+            emit q->newRoom(room);
+        } else {
+            room = roomMap.value(roomId);
+        }
+        room->addInitialState(state);
     }
 }
 
@@ -76,9 +92,9 @@ void ConnectionPrivate::initialSyncDone(KJob* job)
     InitialSyncJob* syncJob = static_cast<InitialSyncJob*>(job);
     if( !syncJob->error() )
     {
-        QList<Event*> initialState = syncJob->initialState();
-        for( Event* e: initialState )
-            processEvent(e, true);
+        QList<State*> initialState = syncJob->initialState();
+        for( State* s: initialState )
+            processState(s);
         QList<Event*> events = syncJob->events();
         for( Event* e: events )
             processEvent(e);

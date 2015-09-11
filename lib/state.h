@@ -16,36 +16,30 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef QMATRIXCLIENT_ROOM_H
-#define QMATRIXCLIENT_ROOM_H
+#ifndef QMATRIXCLIENT_STATE_H
+#define QMATRIXCLIENT_STATE_H
 
-#include <QtCore/QList>
-#include <QtCore/QObject>
+#include <QtCore/QString>
 #include <QtCore/QJsonObject>
 
 namespace QMatrixClient
 {
     class Event;
-    class State;
-    class Connection;
 
-    class Room: public QObject
+    /**
+     * Wraps an event that is a state
+     */
+    class State
     {
-            Q_OBJECT
         public:
-            Room(Connection* connection, QString id);
-            virtual ~Room();
+            State(Event* event);
+            virtual ~State();
 
-            QString id() const;
-            QList<Event*> messages() const;
-            QString alias() const;
+            Event* event() const;
+            QString stateKey() const;
+            QString replacesState() const;
 
-            void addMessage( Event* event );
-            void addInitialState( State* state );
-
-        signals:
-            void newMessage(Event* event);
-            void aliasChanged(Room* room);
+            static State* fromJson(const QJsonObject& obj);
 
         private:
             class Private;
@@ -53,4 +47,4 @@ namespace QMatrixClient
     };
 }
 
-#endif // QMATRIXCLIENT_ROOM_H
+#endif // QMATRIXCLIENT_STATE_H

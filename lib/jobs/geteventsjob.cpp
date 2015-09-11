@@ -94,6 +94,7 @@ void GetEventsJob::gotReply()
         return;
     }
     QJsonArray chunk = json.value("chunk").toArray();
+    qDebug() << chunk;
     for( const QJsonValue& val: chunk )
     {
         QJsonObject eventObj = val.toObject();
