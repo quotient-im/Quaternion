@@ -117,7 +117,7 @@ void InitialSyncJob::gotReply()
         QJsonArray state = obj.value("state").toArray();
         for( const QJsonValue& val: state )
         {
-            qDebug() << val.toObject();
+//             qDebug() << val.toObject();
             State* state = State::fromJson(val.toObject());
             if( state )
                 d->initialState.append( state );

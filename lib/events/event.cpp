@@ -23,6 +23,7 @@
 #include <QtCore/QDebug>
 
 #include "roommessageevent.h"
+#include "roomaliasesevent.h"
 
 using namespace QMatrixClient;
 
@@ -76,7 +77,7 @@ Event* Event::fromJson(const QJsonObject& obj)
     }
     if( obj.value("type").toString() == "m.room.aliases" )
     {
-        qDebug() << obj;
+        return RoomAliasesEvent::fromJson(obj);
     }
     //qDebug() << "Unknown event";
     return 0;

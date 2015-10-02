@@ -22,8 +22,11 @@
 #include "jobs/passwordlogin.h"
 #include "jobs/initialsyncjob.h"
 #include "jobs/geteventsjob.h"
+#include "jobs/joinroomjob.h"
 #include "events/event.h"
 #include "events/roommessageevent.h"
+
+#include <QtCore/QDebug>
 
 using namespace QMatrixClient;
 
@@ -121,5 +124,29 @@ void ConnectionPrivate::gotEvents(KJob* job)
     else
     {
         emit q->connectionError( eventsJob->errorString() );
+    }
+}
+
+void ConnectionPrivate::gotJoinRoom(KJob* job)
+{
+    qDebug() << "gotJoinRoom";
+    JoinRoomJob* joinJob = static_cast<JoinRoomJob*>(job);
+    if( !joinJob->error() )
+    {
+        QString roomId = joinJob->roomId();
+        Room* room;
+        if( roomMap.contains(roomId) )
+        {
+            room = roomMap.value(roomId);
+        } else {
+            room = new Room(q, roomId);
+            roomMap.insert( roomId, room );
+            emit q->newRoom(room);
+        }
+        emit q->joinedRoom(room);
+    }
+    else
+    {
+        emit q->connectionError( joinJob->errorString() );
     }
 }

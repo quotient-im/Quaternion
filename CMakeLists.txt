@@ -21,12 +21,14 @@ set(qmatrixclient_SRCS
     lib/state.cpp
     lib/events/event.cpp
     lib/events/roommessageevent.cpp
+    lib/events/roomaliasesevent.cpp
     lib/jobs/basejob.cpp
     lib/jobs/checkauthmethods.cpp
     lib/jobs/passwordlogin.cpp
     lib/jobs/initialsyncjob.cpp
     lib/jobs/geteventsjob.cpp
     lib/jobs/postmessagejob.cpp
+    lib/jobs/joinroomjob.cpp
     client/logindialog.cpp
     client/mainwindow.cpp
     client/roomlistdock.cpp

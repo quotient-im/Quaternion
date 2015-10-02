@@ -25,13 +25,16 @@
 #include "state.h"
 #include "events/event.h"
 #include "events/roommessageevent.h"
+#include "events/roomaliasesevent.h"
 
 using namespace QMatrixClient;
 
 class Room::Private
 {
     public:
-        Private() {}
+        Private(Room* parent): q(parent) {}
+
+        Room* q;
 
         //static LogMessage* parseMessage(const QJsonObject& message);
         void addState(Event* event);
@@ -43,7 +46,7 @@ class Room::Private
 };
 
 Room::Room(Connection* connection, QString id)
-    : d(new Private)
+    : d(new Private(this))
 {
     d->id = id;
     d->connection = connection;
@@ -85,6 +88,15 @@ void Room::addInitialState(State* state)
 
 void Room::Private::addState(Event* event)
 {
+    if( event->type() == EventType::RoomAliases )
+    {
+        RoomAliasesEvent* aliasesEvent = static_cast<RoomAliasesEvent*>(event);
+        if( aliasesEvent->aliases().count() > 0 )
+        {
+            alias = aliasesEvent->aliases().first();
+            emit q->aliasChanged(q);
+        }
+    }
 }
 
 // void Room::setAlias(QString alias)

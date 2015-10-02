@@ -27,7 +27,7 @@ namespace QMatrixClient
 {
     enum class EventType
     {
-        RoomMessage
+        RoomMessage, RoomAliases
     };
     
     class Event

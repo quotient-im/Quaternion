@@ -16,36 +16,32 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef ROOMLISTDOCK_H
-#define ROOMLISTDOCK_H
+#ifndef QMATRIXCLIENT_JOINROOMJOB_H
+#define QMATRIXCLIENT_JOINROOMJOB_H
 
-#include <QtWidgets/QDockWidget>
-#include <QtWidgets/QListView>
-#include <QtCore/QStringListModel>
+#include "basejob.h"
 
-#include "lib/room.h"
-#include "lib/connection.h"
-
-class RoomListDock : public QDockWidget
+namespace QMatrixClient
 {
-        Q_OBJECT
-    public:
-        RoomListDock(QWidget* parent=0);
-        virtual ~RoomListDock();
+    class ConnectionData;
 
-        void setConnection( QMatrixClient::Connection* connection );
+    class JoinRoomJob: public BaseJob
+    {
+        public:
+            JoinRoomJob(ConnectionData* data, QString roomAlias);
+            virtual ~JoinRoomJob();
 
-    signals:
-        void roomSelected(QMatrixClient::Room* room);
+            void start() override;
 
-    private slots:
-        void rowSelected(const QModelIndex& index);
-        void newRoom( QMatrixClient::Room* room );
+            QString roomId();
 
-    private:
-        QMatrixClient::Connection* connection;
-        QListView* view;
-        QStringListModel* model;
-};
+            protected slots:
+                void gotReply();
 
-#endif // ROOMLISTDOCK_H
+            private:
+                class Private;
+                Private* d;
+    };
+}
+
+#endif // QMATRIXCLIENT_JOINROOMJOB_H

@@ -49,10 +49,18 @@ void RoomListDock::setConnection( QMatrixClient::Connection* connection )
     }
     qDebug() << rooms;
     model->setStringList( rooms );
+    connect( connection, &QMatrixClient::Connection::joinedRoom, this, &RoomListDock::newRoom );
 }
 
 void RoomListDock::rowSelected(const QModelIndex& index)
 {
     QString id = connection->roomMap().keys().at(index.row());
     emit roomSelected( connection->roomMap().value(id) );
+}
+
+void RoomListDock::newRoom(QMatrixClient::Room* room)
+{
+    QStringList rooms = model->stringList();
+    rooms << room->alias();
+    model->setStringList(rooms);
 }

@@ -39,12 +39,14 @@ namespace QMatrixClient
             void startInitialSync();
             void getEvents();
             void postMessage( Room* room, QString type, QString message );
+            void joinRoom( QString roomAlias );
 
         signals:
             void connected();
             void initialSyncDone();
             void gotEvents();
             void newRoom(Room* room);
+            void joinedRoom(Room* room);
 
             void loginError(QString error);
             void connectionError(QString error);

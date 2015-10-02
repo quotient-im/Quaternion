@@ -67,6 +67,18 @@ void ChatRoomWidget::sendLine()
     qDebug() << "sendLine";
     if( !m_currentRoom || !m_currentConnection )
         return;
-    m_currentConnection->postMessage(m_currentRoom, "m.text", m_chatEdit->displayText());
+    QString text = m_chatEdit->displayText();
+    if( text.startsWith("/join") )
+    {
+        QStringList splitted = text.split(' ');
+        if( splitted.count() > 1 )
+            m_currentConnection->joinRoom( splitted[1] );
+        else
+            qDebug() << "No arguments for join";
+    }
+    else
+    {
+        m_currentConnection->postMessage(m_currentRoom, "m.text", m_chatEdit->displayText());
+    }
     m_chatEdit->setText("");
 }

@@ -16,36 +16,29 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef ROOMLISTDOCK_H
-#define ROOMLISTDOCK_H
+#ifndef QMATRIXCLIENT_ROOMALIASESEVENT_H
+#define QMATRIXCLIENT_ROOMALIASESEVENT_H
 
-#include <QtWidgets/QDockWidget>
-#include <QtWidgets/QListView>
-#include <QtCore/QStringListModel>
+#include "event.h"
 
-#include "lib/room.h"
-#include "lib/connection.h"
+#include <QtCore/QStringList>
 
-class RoomListDock : public QDockWidget
+namespace QMatrixClient
 {
-        Q_OBJECT
-    public:
-        RoomListDock(QWidget* parent=0);
-        virtual ~RoomListDock();
+    class RoomAliasesEvent: public Event
+    {
+        public:
+            RoomAliasesEvent();
+            virtual ~RoomAliasesEvent();
 
-        void setConnection( QMatrixClient::Connection* connection );
+            QStringList aliases() const;
 
-    signals:
-        void roomSelected(QMatrixClient::Room* room);
+            static RoomAliasesEvent* fromJson(const QJsonObject& obj);
 
-    private slots:
-        void rowSelected(const QModelIndex& index);
-        void newRoom( QMatrixClient::Room* room );
+        private:
+            class Private;
+            Private* d;
+    };
+}
 
-    private:
-        QMatrixClient::Connection* connection;
-        QListView* view;
-        QStringListModel* model;
-};
-
-#endif // ROOMLISTDOCK_H
+#endif // QMATRIXCLIENT_ROOMALIASESEVENT_H

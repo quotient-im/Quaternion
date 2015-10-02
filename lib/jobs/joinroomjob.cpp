@@ -16,63 +16,51 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "geteventsjob.h"
+#include "joinroomjob.h"
 
-#include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
-#include <QtCore/QJsonValue>
-#include <QtCore/QJsonArray>
-#include <QtCore/QDebug>
-
 #include <QtNetwork/QNetworkReply>
 
-#include "../room.h"
 #include "../connectiondata.h"
-#include "../events/event.h"
 
 using namespace QMatrixClient;
 
-class GetEventsJob::Private
+class JoinRoomJob::Private
 {
     public:
-        Private() {reply=0;}
-
-        QList<Event*> events;
-        QString from;
+        QString roomId;
+        QString roomAlias;
         QNetworkReply* reply;
 };
 
-GetEventsJob::GetEventsJob(ConnectionData* connection, QString from)
-    : BaseJob(connection)
+JoinRoomJob::JoinRoomJob(ConnectionData* data, QString roomAlias)
+    : BaseJob(data)
     , d(new Private)
 {
-    if( from.isEmpty() )
-        from = connection->lastEvent();
-    d->from = from;
+    d->roomAlias = roomAlias;
 }
 
-GetEventsJob::~GetEventsJob()
+JoinRoomJob::~JoinRoomJob()
 {
     delete d;
 }
 
-void GetEventsJob::start()
+void JoinRoomJob::start()
 {
-    QString path = "_matrix/client/api/v1/events";
+    QString path = QString("_matrix/client/api/v1/join/%1").arg(d->roomAlias);
     QUrlQuery query;
     query.addQueryItem("access_token", connection()->token());
-    query.addQueryItem("from", d->from);
-    //query.addQueryItem("timeout", "10000");
-    d->reply = get(path, query);
-    connect( d->reply, &QNetworkReply::finished, this, &GetEventsJob::gotReply );
+    QJsonObject json;
+    d->reply = post(path, QJsonDocument(json), query );
+    connect( d->reply, &QNetworkReply::finished, this, &JoinRoomJob::gotReply );
 }
 
-QList< Event* > GetEventsJob::events()
+QString JoinRoomJob::roomId()
 {
-    return d->events;
+    return d->roomId;
 }
 
-void GetEventsJob::gotReply()
+void JoinRoomJob::gotReply()
 {
     if( d->reply->error() != QNetworkReply::NoError )
     {
@@ -88,22 +76,15 @@ void GetEventsJob::gotReply()
     }
     //qDebug() << data;
     QJsonObject json = data.object();
-    if( !json.contains("chunk") || !json.value("chunk").isArray() )
+    if( !json.contains("room_id") )
     {
-        fail( KJob::UserDefinedError+2, "Couldn't find chunk" );
+        fail( KJob::UserDefinedError+2, "Something went wrong..." );
+        qDebug() << data;
         return;
     }
-    QJsonArray chunk = json.value("chunk").toArray();
-//     qDebug() << chunk;
-    for( const QJsonValue& val: chunk )
+    else
     {
-        QJsonObject eventObj = val.toObject();
-        Event* event = Event::fromJson(eventObj);
-        if( event )
-        {
-            d->events.append(event);
-        }
+        d->roomId = json.value("room_id").toString();
     }
-    connection()->setLastEvent( json.value("end").toString() );
     emitResult();
 }

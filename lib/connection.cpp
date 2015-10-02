@@ -23,6 +23,9 @@
 #include "jobs/initialsyncjob.h"
 #include "jobs/geteventsjob.h"
 #include "jobs/postmessagejob.h"
+#include "jobs/joinroomjob.h"
+
+#include <QtCore/QDebug>
 
 using namespace QMatrixClient;
 
@@ -62,6 +65,13 @@ void Connection::getEvents()
 void Connection::postMessage(Room* room, QString type, QString message)
 {
     PostMessageJob* job = new PostMessageJob(d->data, room, type, message);
+    job->start();
+}
+
+void Connection::joinRoom(QString roomAlias)
+{
+    JoinRoomJob* job = new JoinRoomJob(d->data, roomAlias);
+    connect( job, &JoinRoomJob::result, d, &ConnectionPrivate::gotJoinRoom );
     job->start();
 }
 
