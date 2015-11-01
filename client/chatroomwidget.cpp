@@ -55,6 +55,7 @@ void ChatRoomWidget::setRoom(QMatrixClient::Room* room)
 {
     m_messageModel->changeRoom( room );
     m_currentRoom = room;
+    m_messageView->scrollToBottom();
 }
 
 void ChatRoomWidget::setConnection(QMatrixClient::Connection* connection)
