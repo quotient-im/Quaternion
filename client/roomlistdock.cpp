@@ -49,7 +49,7 @@ void RoomListDock::setConnection( QMatrixClient::Connection* connection )
     }
     qDebug() << rooms;
     model->setStringList( rooms );
-    connect( connection, &QMatrixClient::Connection::joinedRoom, this, &RoomListDock::newRoom );
+    connect( connection, &QMatrixClient::Connection::newRoom, this, &RoomListDock::newRoom );
 }
 
 void RoomListDock::rowSelected(const QModelIndex& index)
