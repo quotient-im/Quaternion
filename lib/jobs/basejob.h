@@ -22,8 +22,7 @@
 #include <KCoreAddons/KJob>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QUrlQuery>
-
-class QNetworkReply;
+#include <QtNetwork/QNetworkReply>
 
 namespace QMatrixClient
 {
@@ -45,6 +44,9 @@ namespace QMatrixClient
             
             void fail( int errorCode, QString errorString );
             
+        protected slots:
+            void networkError(QNetworkReply::NetworkError code);
+
         private:
             class Private;
             Private* d;

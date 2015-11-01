@@ -29,9 +29,10 @@ using namespace QMatrixClient;
 class BaseJob::Private
 {
     public:
-        Private(ConnectionData* c) {connection=c;}
+        Private(ConnectionData* c) : connection(c), reply(0) {}
         
         ConnectionData* connection;
+        QNetworkReply* reply;
 };
 
 BaseJob::BaseJob(ConnectionData* connection)
@@ -56,7 +57,10 @@ QNetworkReply* BaseJob::get(const QString& path, const QUrlQuery& query) const
     url.setQuery(query);
     QNetworkRequest req = QNetworkRequest(url);
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    return d->connection->nam()->get(req);
+    d->reply = d->connection->nam()->get(req);
+    connect( d->reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
+             this, &BaseJob::networkError ); // http://doc.qt.io/qt-5/qnetworkreply.html#error-1
+    return d->reply;
 }
 
 QNetworkReply* BaseJob::put(const QString& path, const QJsonDocument& data, const QUrlQuery& query) const
@@ -66,7 +70,10 @@ QNetworkReply* BaseJob::put(const QString& path, const QJsonDocument& data, cons
     url.setQuery(query);
     QNetworkRequest req = QNetworkRequest(url);
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    return d->connection->nam()->put(req, data.toJson());
+    d->reply = d->connection->nam()->put(req, data.toJson());
+    connect( d->reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
+             this, &BaseJob::networkError );
+    return d->reply;
 }
 
 QNetworkReply* BaseJob::post(const QString& path, const QJsonDocument& data, const QUrlQuery& query) const
@@ -76,7 +83,10 @@ QNetworkReply* BaseJob::post(const QString& path, const QJsonDocument& data, con
     url.setQuery(query);
     QNetworkRequest req = QNetworkRequest(url);
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    return d->connection->nam()->post(req, data.toJson());
+    d->reply = d->connection->nam()->post(req, data.toJson());
+    connect( d->reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
+             this, &BaseJob::networkError );
+    return d->reply;
 }
 
 void BaseJob::fail(int errorCode, QString errorString)
@@ -84,4 +94,9 @@ void BaseJob::fail(int errorCode, QString errorString)
     setError( errorCode );
     setErrorText( errorString );
     emitResult();
+}
+
+void BaseJob::networkError(QNetworkReply::NetworkError code)
+{
+    fail( KJob::UserDefinedError+1, d->reply->errorString() );
 }
