@@ -40,6 +40,7 @@ namespace QMatrixClient
             void getEvents();
             void postMessage( Room* room, QString type, QString message );
             void joinRoom( QString roomAlias );
+            void leaveRoom( Room* room );
 
         signals:
             void connected();

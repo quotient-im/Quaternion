@@ -29,6 +29,7 @@ set(qmatrixclient_SRCS
     lib/jobs/geteventsjob.cpp
     lib/jobs/postmessagejob.cpp
     lib/jobs/joinroomjob.cpp
+    lib/jobs/leaveroomjob.cpp
     client/logindialog.cpp
     client/mainwindow.cpp
     client/roomlistdock.cpp

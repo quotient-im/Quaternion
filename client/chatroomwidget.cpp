@@ -77,6 +77,10 @@ void ChatRoomWidget::sendLine()
         else
             qDebug() << "No arguments for join";
     }
+    else if( text.startsWith("/leave") )
+    {
+        m_currentConnection->leaveRoom( m_currentRoom );
+    }
     else
     {
         m_currentConnection->postMessage(m_currentRoom, "m.text", m_chatEdit->displayText());
