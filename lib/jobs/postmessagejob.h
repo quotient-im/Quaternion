@@ -31,12 +31,12 @@ namespace QMatrixClient
             PostMessageJob(ConnectionData* connection, Room* room, QString type, QString message);
             virtual ~PostMessageJob();
 
-            void start() override;
-
             //bool success();
 
-        protected slots:
-            void gotReply();
+        protected:
+            QString apiPath();
+            QJsonObject data();
+            void parseJson(const QJsonDocument& data);
 
         private:
             class Private;

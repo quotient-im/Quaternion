@@ -51,6 +51,7 @@ namespace QMatrixClient
 
             void loginError(QString error);
             void connectionError(QString error);
+            //void jobError(BaseJob* job);
 
         private:
             ConnectionPrivate* d;

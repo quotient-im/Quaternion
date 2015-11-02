@@ -31,12 +31,11 @@ namespace QMatrixClient
             JoinRoomJob(ConnectionData* data, QString roomAlias);
             virtual ~JoinRoomJob();
 
-            void start() override;
-
             QString roomId();
 
-            protected slots:
-                void gotReply();
+            protected:
+                QString apiPath();
+                void parseJson(const QJsonDocument& data);
 
             private:
                 class Private;

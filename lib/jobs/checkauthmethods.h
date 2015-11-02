@@ -32,11 +32,11 @@ namespace QMatrixClient
             CheckAuthMethods(ConnectionData* connection);
             virtual ~CheckAuthMethods();
             
-            void start();
             QString session();
             
-        protected slots:
-            void gotReply();
+        protected:
+            QString apiPath();
+            void parseJson(const QJsonDocument& data);
             
         private:
             class Private;

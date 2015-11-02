@@ -29,9 +29,8 @@ using namespace QMatrixClient;
 class PasswordLogin::Private
 {
     public:
-        Private() {reply=0;}
+        Private() {}
 
-        QNetworkReply* reply;
         QString user;
         QString password;
         QString returned_id;
@@ -40,7 +39,7 @@ class PasswordLogin::Private
 };
 
 PasswordLogin::PasswordLogin(ConnectionData* connection, QString user, QString password)
-    : BaseJob(connection)
+    : BaseJob(connection, JobHttpType::PostJob, false)
     , d(new Private)
 {
     d->user = user;
@@ -49,19 +48,7 @@ PasswordLogin::PasswordLogin(ConnectionData* connection, QString user, QString p
 
 PasswordLogin::~PasswordLogin()
 {
-    delete d->reply;
     delete d;
-}
-
-void PasswordLogin::start()
-{
-    QString path = "_matrix/client/api/v1/login";
-    QJsonObject json;
-    json.insert("type", "m.login.password");
-    json.insert("user", d->user);
-    json.insert("password", d->password);
-    d->reply = post(path, QJsonDocument(json) );
-    connect( d->reply, &QNetworkReply::finished, this, &PasswordLogin::gotReply );
 }
 
 QString PasswordLogin::token()
@@ -79,25 +66,26 @@ QString PasswordLogin::server()
     return d->returned_server;
 }
 
-void PasswordLogin::gotReply()
+QString PasswordLogin::apiPath()
 {
-    if( d->reply->error() != QNetworkReply::NoError && d->reply->error() != QNetworkReply::ContentAccessDenied )
-    {
-        fail( KJob::UserDefinedError, d->reply->errorString() );
-        return;
-    }
-    QJsonParseError error;
-    QJsonDocument data = QJsonDocument::fromJson(d->reply->readAll(), &error);
-    if( error.error != QJsonParseError::NoError )
-    {
-        fail( KJob::UserDefinedError+1, error.errorString() );
-        return;
-    }
-    qDebug() << data;
+    return "_matrix/client/api/v1/login";
+}
+
+QJsonObject PasswordLogin::data()
+{
+    QJsonObject json;
+    json.insert("type", "m.login.password");
+    json.insert("user", d->user);
+    json.insert("password", d->password);
+    return json;
+}
+
+void PasswordLogin::parseJson(const QJsonDocument& data)
+{
     QJsonObject json = data.object();
     if( !json.contains("access_token") || !json.contains("home_server") || !json.contains("user_id") )
     {
-        fail( KJob::UserDefinedError+2, "Unexpected data" );
+        fail( BaseJob::UserDefinedError, "Unexpected data" );
     }
     d->returned_token = json.value("access_token").toString();
     d->returned_server = json.value("home_server").toString();
@@ -105,5 +93,3 @@ void PasswordLogin::gotReply()
     connection()->setToken(d->returned_token);
     emitResult();
 }
-
-

@@ -27,16 +27,15 @@ using namespace QMatrixClient;
 class PostMessageJob::Private
 {
     public:
-        Private() {reply=0;}
+        Private() {}
 
         QString type;
         QString message;
         Room* room;
-        QNetworkReply* reply;
 };
 
 PostMessageJob::PostMessageJob(ConnectionData* connection, Room* room, QString type, QString message)
-    : BaseJob(connection)
+    : BaseJob(connection, JobHttpType::PostJob)
     , d(new Private)
 {
     d->type = type;
@@ -49,37 +48,25 @@ PostMessageJob::~PostMessageJob()
     delete d;
 }
 
-void PostMessageJob::start()
+QString PostMessageJob::apiPath()
 {
-    QString path = QString("_matrix/client/api/v1/rooms/%1/send/m.room.message").arg(d->room->id());
-    QUrlQuery query;
-    query.addQueryItem("access_token", connection()->token());
+    return QString("_matrix/client/api/v1/rooms/%1/send/m.room.message").arg(d->room->id());
+}
+
+QJsonObject PostMessageJob::data()
+{
     QJsonObject json;
     json.insert("msgtype", d->type);
     json.insert("body", d->message);
-    d->reply = post(path, QJsonDocument(json), query );
-    connect( d->reply, &QNetworkReply::finished, this, &PostMessageJob::gotReply );
+    return json;
 }
 
-void PostMessageJob::gotReply()
+void PostMessageJob::parseJson(const QJsonDocument& data)
 {
-    if( d->reply->error() != QNetworkReply::NoError )
-    {
-        fail( KJob::UserDefinedError, d->reply->errorString() );
-        return;
-    }
-    QJsonParseError error;
-    QJsonDocument data = QJsonDocument::fromJson(d->reply->readAll(), &error);
-    if( error.error != QJsonParseError::NoError )
-    {
-        fail( KJob::UserDefinedError+1, error.errorString() );
-        return;
-    }
-    //qDebug() << data;
     QJsonObject json = data.object();
     if( !json.contains("event_id") )
     {
-        fail( KJob::UserDefinedError+2, "Something went wrong..." );
+        fail( BaseJob::UserDefinedError, "Something went wrong..." );
         qDebug() << data;
         return;
     }

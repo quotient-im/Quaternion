@@ -32,14 +32,14 @@ namespace QMatrixClient
             PasswordLogin(ConnectionData* connection, QString user, QString password);
             virtual ~PasswordLogin();
 
-            void start();
-
             QString token();
             QString id();
             QString server();
 
-        protected slots:
-            void gotReply();
+        protected:
+            QString apiPath();
+            QJsonObject data();
+            void parseJson(const QJsonDocument& data);
 
         private:
             class Private;

@@ -36,33 +36,21 @@ using namespace QMatrixClient;
 class InitialSyncJob::Private
 {
     public:
-        Private() {reply=0;}
+        Private() {}
 
-        QNetworkReply* reply;
         QList<Event*> events;
         QList<State*> initialState;
 };
 
 InitialSyncJob::InitialSyncJob(ConnectionData* connection)
-    : BaseJob(connection)
+    : BaseJob(connection, JobHttpType::GetJob)
     , d(new Private)
 {
 }
 
 InitialSyncJob::~InitialSyncJob()
 {
-    delete d->reply;
     delete d;
-}
-
-void InitialSyncJob::start()
-{
-    QString path = "_matrix/client/api/v1/initialSync";
-    QUrlQuery query;
-    query.addQueryItem("access_token", connection()->token());
-    query.addQueryItem("limit", "200");
-    d->reply = get(path, query);
-    connect( d->reply, &QNetworkReply::finished, this, &InitialSyncJob::gotReply );
 }
 
 QList< Event* > InitialSyncJob::events()
@@ -75,21 +63,20 @@ QList< State* > InitialSyncJob::initialState()
     return d->initialState;
 }
 
-void InitialSyncJob::gotReply()
+QString InitialSyncJob::apiPath()
 {
-    if( d->reply->error() != QNetworkReply::NoError )
-    {
-        fail( KJob::UserDefinedError, d->reply->errorString() );
-        return;
-    }
-    QJsonParseError error;
-    QJsonDocument data = QJsonDocument::fromJson(d->reply->readAll(), &error);
-    if( error.error != QJsonParseError::NoError )
-    {
-        fail( KJob::UserDefinedError+1, error.errorString() );
-        return;
-    }
-    //qDebug() << data;
+    return "_matrix/client/api/v1/initialSync";
+}
+
+QUrlQuery InitialSyncJob::query()
+{
+    QUrlQuery query;
+    query.addQueryItem("limit", "200");
+    return query;
+}
+
+void InitialSyncJob::parseJson(const QJsonDocument& data)
+{
     QJsonObject json = data.object();
     if( !json.contains("rooms") || !json.value("rooms").isArray() )
     {
@@ -127,3 +114,4 @@ void InitialSyncJob::gotReply()
     qDebug() << connection()->lastEvent();
     emitResult();
 }
+

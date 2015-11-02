@@ -32,10 +32,8 @@ namespace QMatrixClient
             LeaveRoomJob(ConnectionData* data, Room* room);
             virtual ~LeaveRoomJob();
 
-            void start() override;
-
         protected:
-            void gotReply();
+            QString apiPath();
 
         private:
             class Private;

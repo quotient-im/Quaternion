@@ -33,12 +33,12 @@ namespace QMatrixClient
             GetEventsJob(ConnectionData* connection, QString from=QString());
             virtual ~GetEventsJob();
 
-            void start() override;
-
             QList<Event*> events();
 
-        protected slots:
-            void gotReply();
+        protected:
+            QString apiPath();
+            QUrlQuery query();
+            void parseJson(const QJsonDocument& data);
 
         private:
             class Private;

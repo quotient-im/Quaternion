@@ -30,11 +30,10 @@ class JoinRoomJob::Private
     public:
         QString roomId;
         QString roomAlias;
-        QNetworkReply* reply;
 };
 
 JoinRoomJob::JoinRoomJob(ConnectionData* data, QString roomAlias)
-    : BaseJob(data)
+    : BaseJob(data, JobHttpType::PostJob)
     , d(new Private)
 {
     d->roomAlias = roomAlias;
@@ -45,40 +44,22 @@ JoinRoomJob::~JoinRoomJob()
     delete d;
 }
 
-void JoinRoomJob::start()
-{
-    QString path = QString("_matrix/client/api/v1/join/%1").arg(d->roomAlias);
-    QUrlQuery query;
-    query.addQueryItem("access_token", connection()->token());
-    QJsonObject json;
-    d->reply = post(path, QJsonDocument(json), query );
-    connect( d->reply, &QNetworkReply::finished, this, &JoinRoomJob::gotReply );
-}
-
 QString JoinRoomJob::roomId()
 {
     return d->roomId;
 }
 
-void JoinRoomJob::gotReply()
+QString JoinRoomJob::apiPath()
 {
-    if( d->reply->error() != QNetworkReply::NoError )
-    {
-        fail( KJob::UserDefinedError, d->reply->errorString() );
-        return;
-    }
-    QJsonParseError error;
-    QJsonDocument data = QJsonDocument::fromJson(d->reply->readAll(), &error);
-    if( error.error != QJsonParseError::NoError )
-    {
-        fail( KJob::UserDefinedError+1, error.errorString() );
-        return;
-    }
-    //qDebug() << data;
+    return QString("_matrix/client/api/v1/join/%1").arg(d->roomAlias);
+}
+
+void JoinRoomJob::parseJson(const QJsonDocument& data)
+{
     QJsonObject json = data.object();
     if( !json.contains("room_id") )
     {
-        fail( KJob::UserDefinedError+2, "Something went wrong..." );
+        fail( BaseJob::UserDefinedError, "Something went wrong..." );
         qDebug() << data;
         return;
     }

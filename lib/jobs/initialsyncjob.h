@@ -36,13 +36,13 @@ namespace QMatrixClient
             InitialSyncJob(ConnectionData* connection);
             virtual ~InitialSyncJob();
 
-            void start();
-
             QList<Event*> events();
             QList<State*> initialState();
 
-        protected slots:
-            void gotReply();
+        protected:
+            QString apiPath();
+            QUrlQuery query();
+            void parseJson(const QJsonDocument& data);
 
         private:
             class Private;

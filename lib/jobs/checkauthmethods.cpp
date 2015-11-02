@@ -31,29 +31,20 @@ using namespace QMatrixClient;
 class CheckAuthMethods::Private
 {
     public:
-        Private() {reply=0;}
+        Private() {}
         
-        QNetworkReply* reply;
         QString session;
 };
 
 CheckAuthMethods::CheckAuthMethods(ConnectionData* connection)
-    : BaseJob(connection)
+    : BaseJob(connection, JobHttpType::GetJob, false)
     , d(new Private)
 {
 }
 
 CheckAuthMethods::~CheckAuthMethods()
 {
-    delete d->reply;
     delete d;
-}
-
-void CheckAuthMethods::start()
-{
-    QString path = "_matrix/client/api/v1/login";
-    d->reply = get(path);
-    connect( d->reply, &QNetworkReply::finished, this, &CheckAuthMethods::gotReply );
 }
 
 QString CheckAuthMethods::session()
@@ -61,25 +52,12 @@ QString CheckAuthMethods::session()
     return d->session;
 }
 
-void CheckAuthMethods::gotReply()
+QString CheckAuthMethods::apiPath()
 {
-    if( d->reply->error() != QNetworkReply::NoError && d->reply->error() != QNetworkReply::ContentAccessDenied )
-    {
-        fail( KJob::UserDefinedError, d->reply->errorString() );
-        return;
-    }
-    QJsonParseError error;
-    QJsonDocument data = QJsonDocument::fromJson(d->reply->readAll(), &error);
-    if( error.error != QJsonParseError::NoError )
-    {
-        fail( KJob::UserDefinedError+1, error.errorString() );
-        return;
-    }
-//     if( !data.object().contains("session") )
-//     {
-//         qDebug() << data;
-//         fail( KJob::UserDefinedError+2, "Session attribute missing" );
-//         return;
-//     }
-//     d->session = data.object().value("session").toString();
+    return "_matrix/client/api/v1/login";
+}
+
+void CheckAuthMethods::parseJson(const QJsonDocument& data)
+{
+    // TODO
 }

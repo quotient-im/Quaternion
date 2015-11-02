@@ -35,15 +35,14 @@ using namespace QMatrixClient;
 class GetEventsJob::Private
 {
     public:
-        Private() {reply=0;}
+        Private() {}
 
         QList<Event*> events;
         QString from;
-        QNetworkReply* reply;
 };
 
 GetEventsJob::GetEventsJob(ConnectionData* connection, QString from)
-    : BaseJob(connection)
+    : BaseJob(connection, JobHttpType::GetJob)
     , d(new Private)
 {
     if( from.isEmpty() )
@@ -56,41 +55,29 @@ GetEventsJob::~GetEventsJob()
     delete d;
 }
 
-void GetEventsJob::start()
-{
-    QString path = "_matrix/client/api/v1/events";
-    QUrlQuery query;
-    query.addQueryItem("access_token", connection()->token());
-    query.addQueryItem("from", d->from);
-    //query.addQueryItem("timeout", "10000");
-    d->reply = get(path, query);
-    connect( d->reply, &QNetworkReply::finished, this, &GetEventsJob::gotReply );
-}
-
 QList< Event* > GetEventsJob::events()
 {
     return d->events;
 }
 
-void GetEventsJob::gotReply()
+QString GetEventsJob::apiPath()
 {
-    if( d->reply->error() != QNetworkReply::NoError )
-    {
-        fail( KJob::UserDefinedError, d->reply->errorString() );
-        return;
-    }
-    QJsonParseError error;
-    QJsonDocument data = QJsonDocument::fromJson(d->reply->readAll(), &error);
-    if( error.error != QJsonParseError::NoError )
-    {
-        fail( KJob::UserDefinedError+1, error.errorString() );
-        return;
-    }
-    //qDebug() << data;
+    return "_matrix/client/api/v1/events";
+}
+
+QUrlQuery GetEventsJob::query()
+{
+    QUrlQuery query;
+    query.addQueryItem("from", d->from);
+    return query;
+}
+
+void GetEventsJob::parseJson(const QJsonDocument& data)
+{
     QJsonObject json = data.object();
     if( !json.contains("chunk") || !json.value("chunk").isArray() )
     {
-        fail( KJob::UserDefinedError+2, "Couldn't find chunk" );
+        fail( BaseJob::UserDefinedError, "Couldn't find chunk" );
         return;
     }
     QJsonArray chunk = json.value("chunk").toArray();

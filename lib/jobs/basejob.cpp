@@ -29,14 +29,17 @@ using namespace QMatrixClient;
 class BaseJob::Private
 {
     public:
-        Private(ConnectionData* c) : connection(c), reply(0) {}
+        Private(ConnectionData* c, JobHttpType t, bool nt)
+            : connection(c), reply(0), type(t), needsToken(nt) {}
         
         ConnectionData* connection;
         QNetworkReply* reply;
+        JobHttpType type;
+        bool needsToken;
 };
 
-BaseJob::BaseJob(ConnectionData* connection)
-    : d(new Private(connection))
+BaseJob::BaseJob(ConnectionData* connection, JobHttpType type, bool needsToken)
+    : d(new Private(connection, type, needsToken))
 {
 }
 
@@ -50,43 +53,46 @@ ConnectionData* BaseJob::connection() const
     return d->connection;
 }
 
-QNetworkReply* BaseJob::get(const QString& path, const QUrlQuery& query) const
+QJsonObject BaseJob::data()
 {
-    QUrl url = d->connection->baseUrl();
-    url.setPath( url.path() + "/" + path );
-    url.setQuery(query);
-    QNetworkRequest req = QNetworkRequest(url);
-    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    d->reply = d->connection->nam()->get(req);
-    connect( d->reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
-             this, &BaseJob::networkError ); // http://doc.qt.io/qt-5/qnetworkreply.html#error-1
-    return d->reply;
+    return QJsonObject();
 }
 
-QNetworkReply* BaseJob::put(const QString& path, const QJsonDocument& data, const QUrlQuery& query) const
+QUrlQuery BaseJob::query()
 {
-    QUrl url = d->connection->baseUrl();
-    url.setPath( url.path() + "/" + path );
-    url.setQuery(query);
-    QNetworkRequest req = QNetworkRequest(url);
-    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    d->reply = d->connection->nam()->put(req, data.toJson());
-    connect( d->reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
-             this, &BaseJob::networkError );
-    return d->reply;
+    return QUrlQuery();
 }
 
-QNetworkReply* BaseJob::post(const QString& path, const QJsonDocument& data, const QUrlQuery& query) const
+void BaseJob::parseJson(const QJsonDocument& data)
+{
+}
+
+void BaseJob::start()
 {
     QUrl url = d->connection->baseUrl();
-    url.setPath( url.path() + "/" + path );
+    url.setPath( url.path() + "/" + apiPath() );
+    QUrlQuery query = this->query();
+    if( d->needsToken )
+        query.addQueryItem("access_token", connection()->token());
     url.setQuery(query);
     QNetworkRequest req = QNetworkRequest(url);
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    d->reply = d->connection->nam()->post(req, data.toJson());
-    connect( d->reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
-             this, &BaseJob::networkError );
-    return d->reply;
+    QJsonDocument data = QJsonDocument(this->data());
+    switch( d->type )
+    {
+        case JobHttpType::GetJob:
+            d->reply = d->connection->nam()->get(req);
+            break;
+        case JobHttpType::PostJob:
+            d->reply = d->connection->nam()->post(req, data.toJson());
+            break;
+        case JobHttpType::PutJob:
+            d->reply = d->connection->nam()->put(req, data.toJson());
+            break;
+    }
+    connect( d->reply, &QNetworkReply::finished, this, &BaseJob::gotReply );
+//     connect( d->reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
+//              this, &BaseJob::networkError ); // http://doc.qt.io/qt-5/qnetworkreply.html#error-1
 }
 
 void BaseJob::fail(int errorCode, QString errorString)
@@ -96,7 +102,25 @@ void BaseJob::fail(int errorCode, QString errorString)
     emitResult();
 }
 
-void BaseJob::networkError(QNetworkReply::NetworkError code)
+// void BaseJob::networkError(QNetworkReply::NetworkError code)
+// {
+//     fail( KJob::UserDefinedError+1, d->reply->errorString() );
+// }
+
+void BaseJob::gotReply()
 {
-    fail( KJob::UserDefinedError+1, d->reply->errorString() );
+    if( d->reply->error() != QNetworkReply::NoError )
+    {
+        qDebug() << "NetworkError!!!";
+        fail( NetworkError, d->reply->errorString() );
+        return;
+    }
+    QJsonParseError error;
+    QJsonDocument data = QJsonDocument::fromJson(d->reply->readAll(), &error);
+    if( error.error != QJsonParseError::NoError )
+    {
+        fail( JsonParseError, error.errorString() );
+        return;
+    }
+    parseJson(data);
 }

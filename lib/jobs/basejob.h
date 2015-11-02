@@ -21,31 +21,44 @@
 
 #include <KCoreAddons/KJob>
 #include <QtCore/QJsonDocument>
+#include <QtCore/QJsonObject>
 #include <QtCore/QUrlQuery>
 #include <QtNetwork/QNetworkReply>
 
 namespace QMatrixClient
 {
     class ConnectionData;
+
+    enum class JobHttpType { GetJob, PutJob, PostJob };
     
     class BaseJob: public KJob
     {
             Q_OBJECT
         public:
-            BaseJob(ConnectionData* connection);
+            BaseJob(ConnectionData* connection, JobHttpType type, bool needsToken=true);
             virtual ~BaseJob();
+
+            void start() override;
+
+            enum ErrorCode { NetworkError = KJob::UserDefinedError, JsonParseError, UserDefinedError };
             
         protected:
             ConnectionData* connection() const;
-            
-            QNetworkReply* get(const QString& path, const QUrlQuery& query = QUrlQuery()) const;
-            QNetworkReply* put(const QString& path, const QJsonDocument& data, const QUrlQuery& query = QUrlQuery()) const;
-            QNetworkReply* post(const QString& path, const QJsonDocument& data, const QUrlQuery& query = QUrlQuery()) const;
+
+            // to implement
+            virtual QString apiPath()=0;
+            virtual QUrlQuery query();
+            virtual QJsonObject data();
+            virtual void parseJson(const QJsonDocument& data);
             
             void fail( int errorCode, QString errorString );
+
             
         protected slots:
-            void networkError(QNetworkReply::NetworkError code);
+            void gotReply();
+
+            //void networkError(QNetworkReply::NetworkError code);
+
 
         private:
             class Private;
