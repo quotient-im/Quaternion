@@ -21,6 +21,7 @@
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QNetworkRequest>
+#include <QtCore/QTimer>
 
 #include "../connectiondata.h"
 
@@ -45,6 +46,8 @@ BaseJob::BaseJob(ConnectionData* connection, JobHttpType type, bool needsToken)
 
 BaseJob::~BaseJob()
 {
+    if( d->reply )
+        d->reply->deleteLater();
     delete d;
 }
 
@@ -91,6 +94,7 @@ void BaseJob::start()
             break;
     }
     connect( d->reply, &QNetworkReply::finished, this, &BaseJob::gotReply );
+    QTimer::singleShot( 120*1000, this, &BaseJob::timeout );
 //     connect( d->reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
 //              this, &BaseJob::networkError ); // http://doc.qt.io/qt-5/qnetworkreply.html#error-1
 }
@@ -123,4 +127,11 @@ void BaseJob::gotReply()
         return;
     }
     parseJson(data);
+}
+
+void BaseJob::timeout()
+{
+    qDebug() << "Timeout!";
+    if( d->reply->isRunning() )
+        d->reply->abort();
 }

@@ -56,6 +56,7 @@ namespace QMatrixClient
             
         protected slots:
             void gotReply();
+            void timeout();
 
             //void networkError(QNetworkReply::NetworkError code);
 
