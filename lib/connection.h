@@ -36,6 +36,7 @@ namespace QMatrixClient
             bool isConnected();
 
             void connectToServer( QString user, QString password );
+            void reconnect();
             void startInitialSync();
             void getEvents();
             void postMessage( Room* room, QString type, QString message );
@@ -44,6 +45,7 @@ namespace QMatrixClient
 
         signals:
             void connected();
+            void reconnected();
             void initialSyncDone();
             void gotEvents();
             void newRoom(Room* room);

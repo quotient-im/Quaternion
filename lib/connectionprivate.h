@@ -47,9 +47,12 @@ namespace QMatrixClient
             ConnectionData* data;
             QHash<QString, Room*> roomMap;
             bool isConnected;
+            QString user;
+            QString password;
 
         public slots:
             void connectDone(KJob* job);
+            void reconnectDone(KJob* job);
             void initialSyncDone(KJob* job);
             void gotEvents(KJob* job);
             void gotJoinRoom(KJob* job);

@@ -90,6 +90,19 @@ void ConnectionPrivate::connectDone(KJob* job)
     }
 }
 
+void ConnectionPrivate::reconnectDone(KJob* job)
+{
+    PasswordLogin* realJob = static_cast<PasswordLogin*>(job);
+    if( !realJob->error() )
+    {
+        emit q->reconnected();
+    }
+    else {
+        emit q->loginError( job->errorString() );
+        isConnected = false;
+    }
+}
+
 void ConnectionPrivate::initialSyncDone(KJob* job)
 {
     InitialSyncJob* syncJob = static_cast<InitialSyncJob*>(job);
@@ -105,7 +118,8 @@ void ConnectionPrivate::initialSyncDone(KJob* job)
     }
     else
     {
-        emit q->connectionError( syncJob->errorString() );
+        if( syncJob->error() == BaseJob::NetworkError )
+            emit q->connectionError( syncJob->errorString() );
     }
 }
 
@@ -123,7 +137,8 @@ void ConnectionPrivate::gotEvents(KJob* job)
     }
     else
     {
-        emit q->connectionError( eventsJob->errorString() );
+        if( eventsJob->error() == BaseJob::NetworkError )
+            emit q->connectionError( eventsJob->errorString() );
     }
 }
 
@@ -147,6 +162,7 @@ void ConnectionPrivate::gotJoinRoom(KJob* job)
     }
     else
     {
-        emit q->connectionError( joinJob->errorString() );
+        if( joinJob->error() == BaseJob::NetworkError )
+            emit q->connectionError( joinJob->errorString() );
     }
 }

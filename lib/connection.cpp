@@ -47,6 +47,15 @@ void Connection::connectToServer(QString user, QString password)
     PasswordLogin* loginJob = new PasswordLogin(d->data, user, password);
     connect( loginJob, &PasswordLogin::result, d, &ConnectionPrivate::connectDone );
     loginJob->start();
+    d->user = user; // to be able to reconnect
+    d->password = password;
+}
+
+void Connection::reconnect()
+{
+    PasswordLogin* loginJob = new PasswordLogin(d->data, d->user, d->password );
+    connect( loginJob, &PasswordLogin::result, d, &ConnectionPrivate::reconnectDone );
+    loginJob->start();
 }
 
 void Connection::startInitialSync()

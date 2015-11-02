@@ -79,6 +79,9 @@ void MainWindow::gotEvents()
 void MainWindow::connectionError(QString error)
 {
     qDebug() << error;
+    qDebug() << "reconnecting...";
+    connect( connection, &QMatrixClient::Connection::reconnected, this, &MainWindow::getNewEvents );
+    connection->reconnect();
 }
 
 
