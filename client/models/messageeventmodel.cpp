@@ -24,6 +24,7 @@
 #include "lib/events/event.h"
 #include "lib/events/roommessageevent.h"
 #include "lib/events/roommemberevent.h"
+#include "lib/events/roomaliasesevent.h"
 #include "lib/events/unknownevent.h"
 
 MessageEventModel::MessageEventModel(QObject* parent)
@@ -107,6 +108,11 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
             case QMatrixClient::MembershipType::Knock:
                 return QString("%1 (%2) knocked").arg(e->displayName(), e->userId());
         }
+    }
+    if( event->type() == QMatrixClient::EventType::RoomAliases )
+    {
+        QMatrixClient::RoomAliasesEvent* event = static_cast<QMatrixClient::RoomAliasesEvent*>(event);
+        return QString("Current aliases: %1").arg(event->aliases().join(", "));
     }
     if( event->type() == QMatrixClient::EventType::Unknown )
     {
