@@ -16,40 +16,33 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef QMATRIXCLIENT_EVENT_H
-#define QMATRIXCLIENT_EVENT_H
+#ifndef QMATRIXCLIENT_ROOMMEMBEREVENT_H
+#define QMATRIXCLIENT_ROOMMEMBEREVENT_H
 
-#include <QtCore/QString>
-#include <QtCore/QDateTime>
 #include <QtCore/QJsonObject>
+
+#include "event.h"
 
 namespace QMatrixClient
 {
-    enum class EventType
-    {
-        RoomMessage, RoomAliases, RoomMember, Typing, Unknown
-    };
-    
-    class Event
+    enum class MembershipType {Invite, Join, Knock, Leave, Ban};
+
+    class RoomMemberEvent: public Event
     {
         public:
-            Event(EventType type);
-            virtual ~Event();
-            
-            EventType type() const;
-            QString id() const;
-            QDateTime timestamp() const;
-            QString roomId() const;
+            RoomMemberEvent();
+            virtual ~RoomMemberEvent();
 
-            static Event* fromJson(const QJsonObject& obj);
-            
-        protected:
-            bool parseJson(const QJsonObject& obj);
-        
+            MembershipType membership() const;
+            QString userId() const;
+            QString displayName() const;
+
+            static RoomMemberEvent* fromJson(const QJsonObject& obj);
+
         private:
             class Private;
             Private* d;
     };
 }
 
-#endif // QMATRIXCLIENT_EVENT_H
+#endif // QMATRIXCLIENT_ROOMMEMBEREVENT_H

@@ -24,6 +24,7 @@
 
 #include "roommessageevent.h"
 #include "roomaliasesevent.h"
+#include "roommemberevent.h"
 #include "typingevent.h"
 #include "unknownevent.h"
 
@@ -80,6 +81,10 @@ Event* Event::fromJson(const QJsonObject& obj)
     if( obj.value("type").toString() == "m.room.aliases" )
     {
         return RoomAliasesEvent::fromJson(obj);
+    }
+    if( obj.value("type").toString() == "m.room.member" )
+    {
+        return RoomMemberEvent::fromJson(obj);
     }
     if( obj.value("type").toString() == "m.typing" )
     {

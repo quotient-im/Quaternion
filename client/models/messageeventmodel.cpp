@@ -23,6 +23,7 @@
 #include "lib/room.h"
 #include "lib/events/event.h"
 #include "lib/events/roommessageevent.h"
+#include "lib/events/roommemberevent.h"
 #include "lib/events/unknownevent.h"
 
 MessageEventModel::MessageEventModel(QObject* parent)
@@ -89,6 +90,23 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     {
         QMatrixClient::RoomMessageEvent* e = static_cast<QMatrixClient::RoomMessageEvent*>(event);
         return e->userId() + ": " + e->body();
+    }
+    if( event->type() == QMatrixClient::EventType::RoomMember )
+    {
+        QMatrixClient::RoomMemberEvent* e = static_cast<QMatrixClient::RoomMemberEvent*>(event);
+        switch( e->membership() )
+        {
+            case QMatrixClient::MembershipType::Join:
+                return QString("%1 (%2) joined the room").arg(e->displayName(), e->userId());
+            case QMatrixClient::MembershipType::Leave:
+                return QString("%1 (%2) left the room").arg(e->displayName(), e->userId());
+            case QMatrixClient::MembershipType::Ban:
+                return QString("%1 (%2) was banned from the room").arg(e->displayName(), e->userId());
+            case QMatrixClient::MembershipType::Invite:
+                return QString("%1 (%2) was invited to the room").arg(e->displayName(), e->userId());
+            case QMatrixClient::MembershipType::Knock:
+                return QString("%1 (%2) knocked").arg(e->displayName(), e->userId());
+        }
     }
     if( event->type() == QMatrixClient::EventType::Unknown )
     {
