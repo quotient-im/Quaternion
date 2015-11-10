@@ -16,45 +16,28 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CHATROOMWIDGET_H
-#define CHATROOMWIDGET_H
+#ifndef QMATRIXCLIENT_UNKNOWNEVENT_H
+#define QMATRIXCLIENT_UNKNOWNEVENT_H
 
-#include <QtWidgets/QWidget>
+#include "event.h"
 
 namespace QMatrixClient
 {
-    class Room;
-    class Connection;
-    class Event;
+    class UnknownEvent: public Event
+    {
+        public:
+            UnknownEvent();
+            virtual ~UnknownEvent();
+
+            QString typeString() const;
+            QString content() const;
+
+            static UnknownEvent* fromJson(const QJsonObject& obj);
+
+        private:
+            class Private;
+            Private* d;
+    };
 }
-class MessageEventModel;
-class QListView;
-class QLineEdit;
-class QLabel;
 
-class ChatRoomWidget: public QWidget
-{
-        Q_OBJECT
-    public:
-        ChatRoomWidget(QWidget* parent=0);
-        virtual ~ChatRoomWidget();
-
-    public slots:
-        void setRoom(QMatrixClient::Room* room);
-        void setConnection(QMatrixClient::Connection* connection);
-        void newEvent(QMatrixClient::Event* event);
-
-    private slots:
-        void sendLine();
-
-    private:
-        MessageEventModel* m_messageModel;
-        QMatrixClient::Room* m_currentRoom;
-        QMatrixClient::Connection* m_currentConnection;
-
-        QListView* m_messageView;
-        QLineEdit* m_chatEdit;
-        QLabel* m_currentlyTyping;
-};
-
-#endif // CHATROOMWIDGET_H
+#endif // QMATRIXCLIENT_UNKNOWNEVENT_H

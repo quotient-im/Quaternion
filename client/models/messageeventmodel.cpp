@@ -23,6 +23,7 @@
 #include "lib/room.h"
 #include "lib/events/event.h"
 #include "lib/events/roommessageevent.h"
+#include "lib/events/unknownevent.h"
 
 MessageEventModel::MessageEventModel(QObject* parent)
     : QAbstractListModel(parent)
@@ -89,12 +90,21 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         QMatrixClient::RoomMessageEvent* e = static_cast<QMatrixClient::RoomMessageEvent*>(event);
         return e->userId() + ": " + e->body();
     }
+    if( event->type() == QMatrixClient::EventType::Unknown )
+    {
+        QMatrixClient::UnknownEvent* e = static_cast<QMatrixClient::UnknownEvent*>(event);
+        return "Unknown Event: " + e->typeString() + "(" + e->content();
+    }
     return "Unknown event";
 }
 
 void MessageEventModel::newMessage(QMatrixClient::Event* messageEvent)
 {
     //qDebug() << "Message: " << message;
+    if( messageEvent->type() == QMatrixClient::EventType::Typing )
+    {
+        return;
+    }
     beginInsertRows(QModelIndex(), m_currentMessages.count(), m_currentMessages.count());
     m_currentMessages.append(messageEvent);
     endInsertRows();

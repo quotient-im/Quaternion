@@ -22,6 +22,8 @@ set(qmatrixclient_SRCS
     lib/events/event.cpp
     lib/events/roommessageevent.cpp
     lib/events/roomaliasesevent.cpp
+    lib/events/typingevent.cpp
+    lib/events/unknownevent.cpp
     lib/jobs/basejob.cpp
     lib/jobs/checkauthmethods.cpp
     lib/jobs/passwordlogin.cpp

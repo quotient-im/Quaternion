@@ -22,11 +22,14 @@
 #include <QtWidgets/QListView>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QLabel>
 
 #include "lib/room.h"
 #include "lib/connection.h"
 #include "lib/logmessage.h"
 #include "lib/jobs/postmessagejob.h"
+#include "lib/events/event.h"
+#include "lib/events/typingevent.h"
 #include "models/messageeventmodel.h"
 
 ChatRoomWidget::ChatRoomWidget(QWidget* parent)
@@ -41,8 +44,11 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     m_chatEdit = new QLineEdit();
     connect( m_chatEdit, &QLineEdit::returnPressed, this, &ChatRoomWidget::sendLine );
 
+    m_currentlyTyping = new QLabel();
+
     QVBoxLayout* layout = new QVBoxLayout();
     layout->addWidget(m_messageView);
+    layout->addWidget(m_currentlyTyping);
     layout->addWidget(m_chatEdit);
     setLayout(layout);
 }
@@ -54,13 +60,29 @@ ChatRoomWidget::~ChatRoomWidget()
 void ChatRoomWidget::setRoom(QMatrixClient::Room* room)
 {
     m_messageModel->changeRoom( room );
+    if( m_currentRoom )
+        disconnect( m_currentRoom, &QMatrixClient::Room::newMessage, this, &ChatRoomWidget::newEvent );
     m_currentRoom = room;
+    if( m_currentRoom )
+        connect( m_currentRoom, &QMatrixClient::Room::newMessage, this, &ChatRoomWidget::newEvent );
     m_messageView->scrollToBottom();
 }
 
 void ChatRoomWidget::setConnection(QMatrixClient::Connection* connection)
 {
     m_currentConnection = connection;
+}
+
+void ChatRoomWidget::newEvent(QMatrixClient::Event* event)
+{
+    if( event->type() == QMatrixClient::EventType::Typing )
+    {
+        QMatrixClient::TypingEvent* e = static_cast<QMatrixClient::TypingEvent*>(event);
+        if( e->users().count() > 0 )
+            m_currentlyTyping->setText( QString("<i>Currently typing: %1</i>").arg( e->users().join(", ") ) );
+        else
+            m_currentlyTyping->setText("");
+    }
 }
 
 void ChatRoomWidget::sendLine()

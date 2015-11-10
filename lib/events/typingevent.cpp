@@ -16,45 +16,42 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CHATROOMWIDGET_H
-#define CHATROOMWIDGET_H
+#include "typingevent.h"
 
-#include <QtWidgets/QWidget>
+#include <QtCore/QJsonArray>
 
-namespace QMatrixClient
+using namespace QMatrixClient;
+
+class TypingEvent::Private
 {
-    class Room;
-    class Connection;
-    class Event;
-}
-class MessageEventModel;
-class QListView;
-class QLineEdit;
-class QLabel;
-
-class ChatRoomWidget: public QWidget
-{
-        Q_OBJECT
     public:
-        ChatRoomWidget(QWidget* parent=0);
-        virtual ~ChatRoomWidget();
-
-    public slots:
-        void setRoom(QMatrixClient::Room* room);
-        void setConnection(QMatrixClient::Connection* connection);
-        void newEvent(QMatrixClient::Event* event);
-
-    private slots:
-        void sendLine();
-
-    private:
-        MessageEventModel* m_messageModel;
-        QMatrixClient::Room* m_currentRoom;
-        QMatrixClient::Connection* m_currentConnection;
-
-        QListView* m_messageView;
-        QLineEdit* m_chatEdit;
-        QLabel* m_currentlyTyping;
+        QStringList users;
 };
 
-#endif // CHATROOMWIDGET_H
+TypingEvent::TypingEvent()
+    : Event(EventType::Typing)
+    , d( new Private )
+{
+}
+
+TypingEvent::~TypingEvent()
+{
+    delete d;
+}
+
+QStringList TypingEvent::users()
+{
+    return d->users;
+}
+
+TypingEvent* TypingEvent::fromJson(const QJsonObject& obj)
+{
+    TypingEvent* e = new TypingEvent();
+    e->parseJson(obj);
+    QJsonArray array = obj.value("content").toObject().value("user_ids").toArray();
+    for( const QJsonValue& user: array )
+    {
+        e->d->users << user.toString();
+    }
+    return e;
+}

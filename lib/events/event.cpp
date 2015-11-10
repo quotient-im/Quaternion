@@ -24,6 +24,8 @@
 
 #include "roommessageevent.h"
 #include "roomaliasesevent.h"
+#include "typingevent.h"
+#include "unknownevent.h"
 
 using namespace QMatrixClient;
 
@@ -79,7 +81,16 @@ Event* Event::fromJson(const QJsonObject& obj)
     {
         return RoomAliasesEvent::fromJson(obj);
     }
+    if( obj.value("type").toString() == "m.typing" )
+    {
+        qDebug() << "m.typing...";
+        return TypingEvent::fromJson(obj);
+    }
     //qDebug() << "Unknown event";
+    if( obj.contains("room_id") )
+    {
+        return UnknownEvent::fromJson(obj);
+    }
     return 0;
 }
 

@@ -16,45 +16,45 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CHATROOMWIDGET_H
-#define CHATROOMWIDGET_H
+#include "unknownevent.h"
 
-#include <QtWidgets/QWidget>
+#include <QtCore/QJsonDocument>
 
-namespace QMatrixClient
+using namespace QMatrixClient;
+
+class UnknownEvent::Private
 {
-    class Room;
-    class Connection;
-    class Event;
-}
-class MessageEventModel;
-class QListView;
-class QLineEdit;
-class QLabel;
-
-class ChatRoomWidget: public QWidget
-{
-        Q_OBJECT
     public:
-        ChatRoomWidget(QWidget* parent=0);
-        virtual ~ChatRoomWidget();
-
-    public slots:
-        void setRoom(QMatrixClient::Room* room);
-        void setConnection(QMatrixClient::Connection* connection);
-        void newEvent(QMatrixClient::Event* event);
-
-    private slots:
-        void sendLine();
-
-    private:
-        MessageEventModel* m_messageModel;
-        QMatrixClient::Room* m_currentRoom;
-        QMatrixClient::Connection* m_currentConnection;
-
-        QListView* m_messageView;
-        QLineEdit* m_chatEdit;
-        QLabel* m_currentlyTyping;
+        QString type;
+        QString content;
 };
 
-#endif // CHATROOMWIDGET_H
+UnknownEvent::UnknownEvent()
+    : Event(EventType::Unknown)
+    , d(new Private)
+{
+}
+
+UnknownEvent::~UnknownEvent()
+{
+    delete d;
+}
+
+QString UnknownEvent::typeString() const
+{
+    return d->type;
+}
+
+QString UnknownEvent::content() const
+{
+    return d->content;
+}
+
+UnknownEvent* UnknownEvent::fromJson(const QJsonObject& obj)
+{
+    UnknownEvent* e = new UnknownEvent();
+    e->parseJson(obj);
+    e->d->type = obj.value("type").toString();
+    e->d->content = QString::fromUtf8(QJsonDocument(obj).toJson());
+    return e;
+}
