@@ -80,6 +80,7 @@ void ChatRoomWidget::setRoom(QMatrixClient::Room* room)
 void ChatRoomWidget::setConnection(QMatrixClient::Connection* connection)
 {
     m_currentConnection = connection;
+    m_messageModel->setConnection(connection);
 }
 
 void ChatRoomWidget::newEvent(QMatrixClient::Event* event)

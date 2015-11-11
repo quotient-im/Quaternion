@@ -19,6 +19,7 @@
 #include "connection.h"
 #include "connectiondata.h"
 #include "connectionprivate.h"
+#include "user.h"
 #include "jobs/passwordlogin.h"
 #include "jobs/initialsyncjob.h"
 #include "jobs/geteventsjob.h"
@@ -89,6 +90,11 @@ void Connection::leaveRoom(Room* room)
 {
     LeaveRoomJob* job = new LeaveRoomJob(d->data, room);
     job->start();
+}
+
+User* Connection::user(QString userId)
+{
+    return d->userMap.value(userId);
 }
 
 QHash< QString, Room* > Connection::roomMap() const

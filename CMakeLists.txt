@@ -17,6 +17,7 @@ set(qmatrixclient_SRCS
     lib/connection.cpp
     lib/connectionprivate.cpp
     lib/room.cpp
+    lib/user.cpp
     lib/logmessage.cpp
     lib/state.cpp
     lib/events/event.cpp

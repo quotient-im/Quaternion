@@ -19,12 +19,14 @@
 #include "connectionprivate.h"
 #include "connection.h"
 #include "state.h"
+#include "user.h"
 #include "jobs/passwordlogin.h"
 #include "jobs/initialsyncjob.h"
 #include "jobs/geteventsjob.h"
 #include "jobs/joinroomjob.h"
 #include "events/event.h"
 #include "events/roommessageevent.h"
+#include "events/roommemberevent.h"
 
 #include <QtCore/QDebug>
 
@@ -57,6 +59,19 @@ void ConnectionPrivate::processEvent(Event* event)
         }
         room->addMessage(event);
     }
+    if( event->type() == QMatrixClient::EventType::RoomMember )
+    {
+        QMatrixClient::RoomMemberEvent* e = static_cast<QMatrixClient::RoomMemberEvent*>(event);
+        User* user;
+        if( !userMap.contains(e->userId()) )
+        {
+            user = new User(e->userId());
+            userMap.insert(e->userId(), user);
+        } else {
+            user = userMap.value(e->userId());
+        }
+        user->processEvent(e);
+    }
 }
 
 void ConnectionPrivate::processState(State* state)
@@ -74,6 +89,20 @@ void ConnectionPrivate::processState(State* state)
             room = roomMap.value(roomId);
         }
         room->addInitialState(state);
+    }
+    if( state->event()->type() == QMatrixClient::EventType::RoomMember )
+    {
+        QMatrixClient::RoomMemberEvent* e = static_cast<QMatrixClient::RoomMemberEvent*>(state->event());
+        User* user;
+        if( !userMap.contains(e->userId()) )
+        {
+            user = new User(e->userId());
+            userMap.insert(e->userId(), user);
+            qDebug() << e->userId();
+        } else {
+            user = userMap.value(e->userId());
+        }
+        user->processEvent(e);
     }
 }
 

@@ -24,6 +24,7 @@
 namespace QMatrixClient
 {
     class Room;
+    class User;
     class ConnectionPrivate;
 
     class Connection: public QObject {
@@ -42,6 +43,8 @@ namespace QMatrixClient
             void postMessage( Room* room, QString type, QString message );
             void joinRoom( QString roomAlias );
             void leaveRoom( Room* room );
+
+            User* user(QString userId);
 
         signals:
             void connected();

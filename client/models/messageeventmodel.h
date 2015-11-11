@@ -25,6 +25,7 @@ namespace QMatrixClient
 {
     class Room;
     class Event;
+    class Connection;
 }
 
 class MessageEventModel: public QAbstractListModel
@@ -34,6 +35,7 @@ class MessageEventModel: public QAbstractListModel
         MessageEventModel(QObject* parent=0);
         virtual ~MessageEventModel();
 
+        void setConnection(QMatrixClient::Connection* connection);
         void changeRoom(QMatrixClient::Room* room);
 
         //override QModelIndex index(int row, int column, const QModelIndex& parent=QModelIndex()) const;
@@ -45,6 +47,7 @@ class MessageEventModel: public QAbstractListModel
         void newMessage(QMatrixClient::Event* messageEvent);
 
     private:
+        QMatrixClient::Connection* m_connection;
         QMatrixClient::Room* m_currentRoom;
         QList<QMatrixClient::Event*> m_currentMessages;
 };

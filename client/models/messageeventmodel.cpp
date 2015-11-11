@@ -20,7 +20,9 @@
 
 #include <QtCore/QDebug>
 
+#include "lib/connection.h"
 #include "lib/room.h"
+#include "lib/user.h"
 #include "lib/events/event.h"
 #include "lib/events/roommessageevent.h"
 #include "lib/events/roommemberevent.h"
@@ -31,6 +33,7 @@ MessageEventModel::MessageEventModel(QObject* parent)
     : QAbstractListModel(parent)
 {
     m_currentRoom = 0;
+    m_connection = 0;
 }
 
 MessageEventModel::~MessageEventModel()
@@ -56,6 +59,11 @@ void MessageEventModel::changeRoom(QMatrixClient::Room* room)
         m_currentMessages = QList<QMatrixClient::Event*>();
     }
     endResetModel();
+}
+
+void MessageEventModel::setConnection(QMatrixClient::Connection* connection)
+{
+    m_connection = connection;
 }
 
 // QModelIndex LogMessageModel::index(int row, int column, const QModelIndex& parent) const
@@ -90,7 +98,8 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     if( event->type() == QMatrixClient::EventType::RoomMessage )
     {
         QMatrixClient::RoomMessageEvent* e = static_cast<QMatrixClient::RoomMessageEvent*>(event);
-        return e->userId() + ": " + e->body();
+        QMatrixClient::User* user = m_connection->user(e->userId());
+        return QString("%1 (%2): %3").arg(user->displayname()).arg(user->id()).arg(e->body());
     }
     if( event->type() == QMatrixClient::EventType::RoomMember )
     {

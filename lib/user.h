@@ -16,49 +16,35 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef QMATRIXCLIENT_CONNECTIONPRIVATE_H
-#define QMATRIXCLIENT_CONNECTIONPRIVATE_H
+#ifndef QMATRIXCLIENT_USER_H
+#define QMATRIXCLIENT_USER_H
 
-class KJob;
-
+#include <QtCore/QString>
 #include <QtCore/QObject>
-#include <QtCore/QHash>
-
-#include "connection.h"
-#include "connectiondata.h"
 
 namespace QMatrixClient
 {
-    class Connection;
     class Event;
-    class State;
-    class User;
-
-    class ConnectionPrivate : public QObject
+    class User: public QObject
     {
             Q_OBJECT
         public:
-            ConnectionPrivate(Connection* parent);
-            ~ConnectionPrivate();
+            User(QString userId);
+            virtual ~User();
 
-            void processEvent( Event* event );
-            void processState( State* state );
+            QString id() const;
 
-            Connection* q;
-            ConnectionData* data;
-            QHash<QString, Room*> roomMap;
-            QHash<QString, User*> userMap;
-            bool isConnected;
-            QString user;
-            QString password;
+            QString displayname() const;
 
-        public slots:
-            void connectDone(KJob* job);
-            void reconnectDone(KJob* job);
-            void initialSyncDone(KJob* job);
-            void gotEvents(KJob* job);
-            void gotJoinRoom(KJob* job);
+            void processEvent(Event* event);
+
+        signals:
+            void displaynameChanged();
+
+        private:
+            class Private;
+            Private* d;
     };
 }
 
-#endif // QMATRIXCLIENT_CONNECTIONPRIVATE_H
+#endif // QMATRIXCLIENT_USER_H
