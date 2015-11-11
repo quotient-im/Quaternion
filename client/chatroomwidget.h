@@ -43,6 +43,7 @@ class ChatRoomWidget: public QWidget
         void setRoom(QMatrixClient::Room* room);
         void setConnection(QMatrixClient::Connection* connection);
         void newEvent(QMatrixClient::Event* event);
+        void topicChanged();
 
     private slots:
         void sendLine();
@@ -55,6 +56,7 @@ class ChatRoomWidget: public QWidget
         QListView* m_messageView;
         QLineEdit* m_chatEdit;
         QLabel* m_currentlyTyping;
+        QLabel* m_topicLabel;
 };
 
 #endif // CHATROOMWIDGET_H

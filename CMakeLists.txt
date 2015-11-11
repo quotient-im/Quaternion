@@ -23,6 +23,7 @@ set(qmatrixclient_SRCS
     lib/events/roommessageevent.cpp
     lib/events/roomaliasesevent.cpp
     lib/events/roommemberevent.cpp
+    lib/events/roomtopicevent.cpp
     lib/events/typingevent.cpp
     lib/events/unknownevent.cpp
     lib/jobs/basejob.cpp

@@ -26,6 +26,7 @@
 #include "events/event.h"
 #include "events/roommessageevent.h"
 #include "events/roomaliasesevent.h"
+#include "events/roomtopicevent.h"
 
 using namespace QMatrixClient;
 
@@ -43,6 +44,7 @@ class Room::Private
         QList<Event*> messageEvents;
         QString id;
         QString alias;
+        QString topic;
 };
 
 Room::Room(Connection* connection, QString id)
@@ -74,6 +76,11 @@ QString Room::alias() const
     return d->alias;
 }
 
+QString Room::topic() const
+{
+    return d->topic;
+}
+
 void Room::addMessage(Event* event)
 {
     d->messageEvents.append(event);
@@ -96,6 +103,12 @@ void Room::Private::addState(Event* event)
             alias = aliasesEvent->aliases().first();
             emit q->aliasChanged(q);
         }
+    }
+    if( event->type() == EventType::RoomTopic )
+    {
+        RoomTopicEvent* topicEvent = static_cast<RoomTopicEvent*>(event);
+        topic = topicEvent->topic();
+        emit q->topicChanged();
     }
 }
 

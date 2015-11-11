@@ -45,8 +45,10 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     connect( m_chatEdit, &QLineEdit::returnPressed, this, &ChatRoomWidget::sendLine );
 
     m_currentlyTyping = new QLabel();
+    m_topicLabel = new QLabel();
 
     QVBoxLayout* layout = new QVBoxLayout();
+    layout->addWidget(m_topicLabel);
     layout->addWidget(m_messageView);
     layout->addWidget(m_currentlyTyping);
     layout->addWidget(m_chatEdit);
@@ -61,10 +63,17 @@ void ChatRoomWidget::setRoom(QMatrixClient::Room* room)
 {
     m_messageModel->changeRoom( room );
     if( m_currentRoom )
+    {
         disconnect( m_currentRoom, &QMatrixClient::Room::newMessage, this, &ChatRoomWidget::newEvent );
+        disconnect( m_currentRoom, &QMatrixClient::Room::topicChanged, this, &ChatRoomWidget::topicChanged );
+    }
     m_currentRoom = room;
     if( m_currentRoom )
+    {
         connect( m_currentRoom, &QMatrixClient::Room::newMessage, this, &ChatRoomWidget::newEvent );
+        connect( m_currentRoom, &QMatrixClient::Room::topicChanged, this, &ChatRoomWidget::topicChanged );
+        topicChanged();
+    }
     m_messageView->scrollToBottom();
 }
 
@@ -83,6 +92,11 @@ void ChatRoomWidget::newEvent(QMatrixClient::Event* event)
         else
             m_currentlyTyping->setText("");
     }
+}
+
+void ChatRoomWidget::topicChanged()
+{
+    m_topicLabel->setText( m_currentRoom->topic() );
 }
 
 void ChatRoomWidget::sendLine()

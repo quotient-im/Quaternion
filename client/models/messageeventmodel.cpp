@@ -111,8 +111,8 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     }
     if( event->type() == QMatrixClient::EventType::RoomAliases )
     {
-        QMatrixClient::RoomAliasesEvent* event = static_cast<QMatrixClient::RoomAliasesEvent*>(event);
-        return QString("Current aliases: %1").arg(event->aliases().join(", "));
+        QMatrixClient::RoomAliasesEvent* e = static_cast<QMatrixClient::RoomAliasesEvent*>(event);
+        return QString("Current aliases: %1").arg(e->aliases().join(", "));
     }
     if( event->type() == QMatrixClient::EventType::Unknown )
     {

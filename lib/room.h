@@ -39,6 +39,7 @@ namespace QMatrixClient
             QString id() const;
             QList<Event*> messages() const;
             QString alias() const;
+            QString topic() const;
 
             void addMessage( Event* event );
             void addInitialState( State* state );
@@ -46,6 +47,7 @@ namespace QMatrixClient
         signals:
             void newMessage(Event* event);
             void aliasChanged(Room* room);
+            void topicChanged();
 
         private:
             class Private;
