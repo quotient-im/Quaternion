@@ -88,6 +88,7 @@ void PasswordLogin::parseJson(const QJsonDocument& data)
         fail( BaseJob::UserDefinedError, "Unexpected data" );
     }
     d->returned_token = json.value("access_token").toString();
+    qDebug() << d->returned_token;
     d->returned_server = json.value("home_server").toString();
     d->returned_id = json.value("user_id").toString();
     connection()->setToken(d->returned_token);

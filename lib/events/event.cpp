@@ -76,7 +76,6 @@ Event* Event::fromJson(const QJsonObject& obj)
     //qDebug() << obj.value("type").toString();
     if( obj.value("type").toString() == "m.room.message" )
     {
-        qDebug() << "asd";
         return RoomMessageEvent::fromJson(obj);
     }
     if( obj.value("type").toString() == "m.room.aliases" )
@@ -114,7 +113,7 @@ bool Event::parseJson(const QJsonObject& obj)
         correct = false;
         qDebug() << "Event: can't find event_id";
     }
-    if( obj.contains("ts") )
+    if( obj.contains("origin_server_ts") )
     {
         d->timestamp = QDateTime::fromMSecsSinceEpoch( obj.value("ts").toInt() );
     } else {

@@ -16,48 +16,39 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef QMATRIXCLIENT_ROOM_H
-#define QMATRIXCLIENT_ROOM_H
+#ifndef USERLISTMODEL_H
+#define USERLISTMODEL_H
 
-#include <QtCore/QList>
-#include <QtCore/QObject>
-#include <QtCore/QJsonObject>
+#include <QtCore/QAbstractListModel>
 
 namespace QMatrixClient
 {
-    class Event;
-    class State;
     class Connection;
+    class Room;
     class User;
-
-    class Room: public QObject
-    {
-            Q_OBJECT
-        public:
-            Room(Connection* connection, QString id);
-            virtual ~Room();
-
-            QString id() const;
-            QList<Event*> messages() const;
-            QString alias() const;
-            QString topic() const;
-
-            QList<User*> users() const;
-
-            void addMessage( Event* event );
-            void addInitialState( State* state );
-
-        signals:
-            void newMessage(Event* event);
-            void aliasChanged(Room* room);
-            void topicChanged();
-            void userAdded(User* user);
-            void userRemoved(User* user);
-
-        private:
-            class Private;
-            Private* d;
-    };
 }
 
-#endif // QMATRIXCLIENT_ROOM_H
+class UserListModel: public QAbstractListModel
+{
+        Q_OBJECT
+    public:
+        UserListModel(QObject* parent=0);
+        virtual ~UserListModel();
+
+        void setConnection(QMatrixClient::Connection* connection);
+        void setRoom(QMatrixClient::Room* room);
+
+        QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+        int rowCount(const QModelIndex& parent=QModelIndex()) const override;
+
+    private slots:
+        void userAdded(QMatrixClient::User* user);
+        void userRemoved(QMatrixClient::User* user);
+
+    private:
+        QMatrixClient::Connection* m_connection;
+        QMatrixClient::Room* m_currentRoom;
+        QList<QMatrixClient::User*> m_users;
+};
+
+#endif // USERLISTMODEL_H

@@ -26,6 +26,7 @@
 #include "jobs/postmessagejob.h"
 #include "jobs/joinroomjob.h"
 #include "jobs/leaveroomjob.h"
+#include "jobs/roommembersjob.h"
 
 #include <QtCore/QDebug>
 
@@ -89,6 +90,13 @@ void Connection::joinRoom(QString roomAlias)
 void Connection::leaveRoom(Room* room)
 {
     LeaveRoomJob* job = new LeaveRoomJob(d->data, room);
+    job->start();
+}
+
+void Connection::getMembers(Room* room)
+{
+    RoomMembersJob* job = new RoomMembersJob(d->data, room);
+    connect( job, &RoomMembersJob::result, d, &ConnectionPrivate::gotRoomMembers );
     job->start();
 }
 

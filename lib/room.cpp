@@ -23,10 +23,12 @@
 
 #include "connection.h"
 #include "state.h"
+#include "user.h"
 #include "events/event.h"
 #include "events/roommessageevent.h"
 #include "events/roomaliasesevent.h"
 #include "events/roomtopicevent.h"
+#include "events/roommemberevent.h"
 
 using namespace QMatrixClient;
 
@@ -45,6 +47,7 @@ class Room::Private
         QString id;
         QString alias;
         QString topic;
+        QList<User*> users;
 };
 
 Room::Room(Connection* connection, QString id)
@@ -54,6 +57,8 @@ Room::Room(Connection* connection, QString id)
     d->connection = connection;
     d->alias = id;
     qDebug() << "New Room: " << id;
+
+    connection->getMembers(this);
 }
 
 Room::~Room()
@@ -79,6 +84,11 @@ QString Room::alias() const
 QString Room::topic() const
 {
     return d->topic;
+}
+
+QList< User* > Room::users() const
+{
+    return d->users;
 }
 
 void Room::addMessage(Event* event)
@@ -109,6 +119,23 @@ void Room::Private::addState(Event* event)
         RoomTopicEvent* topicEvent = static_cast<RoomTopicEvent*>(event);
         topic = topicEvent->topic();
         emit q->topicChanged();
+    }
+    if( event->type() == EventType::RoomMember )
+    {
+        RoomMemberEvent* memberEvent = static_cast<RoomMemberEvent*>(event);
+        User* u = connection->user(memberEvent->userId());
+        if( !u ) qDebug() << "addState: invalid user!" << u << memberEvent->userId();
+        if( memberEvent->membership() == MembershipType::Join and !users.contains(u) )
+        {
+            users.append(u);
+            emit q->userAdded(u);
+        }
+        else if( memberEvent->membership() == MembershipType::Leave
+                 and users.contains(u) )
+        {
+            users.removeAll(u);
+            emit q->userRemoved(u);
+        }
     }
 }
 

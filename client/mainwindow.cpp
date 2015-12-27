@@ -22,6 +22,7 @@
 #include <QtCore/QDebug>
 
 #include "roomlistdock.h"
+#include "userlistdock.h"
 #include "chatroomwidget.h"
 #include "logindialog.h"
 #include "lib/jobs/initialsyncjob.h"
@@ -32,9 +33,12 @@ MainWindow::MainWindow()
     connection = 0;
     roomListDock = new RoomListDock(this);
     addDockWidget(Qt::LeftDockWidgetArea, roomListDock);
+    userListDock = new UserListDock(this);
+    addDockWidget(Qt::RightDockWidgetArea, userListDock);
     chatRoomWidget = new ChatRoomWidget(this);
     setCentralWidget(chatRoomWidget);
     connect( roomListDock, &RoomListDock::roomSelected, chatRoomWidget, &ChatRoomWidget::setRoom );
+    connect( roomListDock, &RoomListDock::roomSelected, userListDock, &UserListDock::setRoom );
     show();
     QTimer::singleShot(0, this, &MainWindow::initialize);
 }
@@ -50,9 +54,11 @@ void MainWindow::initialize()
     {
         connection = dialog.connection();
         chatRoomWidget->setConnection(connection);
+        userListDock->setConnection(connection);
         connect( connection, &QMatrixClient::Connection::initialSyncDone, this, &MainWindow::initialSyncDone );
         connect( connection, &QMatrixClient::Connection::connectionError, this, &MainWindow::connectionError );
         connect( connection, &QMatrixClient::Connection::gotEvents, this, &MainWindow::gotEvents );
+        connect( connection, &QMatrixClient::Connection::reconnected, this, &MainWindow::getNewEvents );
         connection->startInitialSync();
     }
 }
@@ -80,7 +86,6 @@ void MainWindow::connectionError(QString error)
 {
     qDebug() << error;
     qDebug() << "reconnecting...";
-    connect( connection, &QMatrixClient::Connection::reconnected, this, &MainWindow::getNewEvents );
     connection->reconnect();
 }
 

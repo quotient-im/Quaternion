@@ -16,43 +16,27 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef QMATRIXCLIENT_ROOM_H
-#define QMATRIXCLIENT_ROOM_H
+#ifndef QMATRIXCLIENT_ROOMMEMBERSJOB_H
+#define QMATRIXCLIENT_ROOMMEMBERSJOB_H
 
-#include <QtCore/QList>
-#include <QtCore/QObject>
-#include <QtCore/QJsonObject>
+#include "basejob.h"
 
 namespace QMatrixClient
 {
-    class Event;
+    class ConnectionData;
+    class Room;
     class State;
-    class Connection;
-    class User;
-
-    class Room: public QObject
+    class RoomMembersJob: public BaseJob
     {
-            Q_OBJECT
         public:
-            Room(Connection* connection, QString id);
-            virtual ~Room();
+            RoomMembersJob(ConnectionData* data, Room* room);
+            virtual ~RoomMembersJob();
 
-            QString id() const;
-            QList<Event*> messages() const;
-            QString alias() const;
-            QString topic() const;
+            QList<State*> states();
 
-            QList<User*> users() const;
-
-            void addMessage( Event* event );
-            void addInitialState( State* state );
-
-        signals:
-            void newMessage(Event* event);
-            void aliasChanged(Room* room);
-            void topicChanged();
-            void userAdded(User* user);
-            void userRemoved(User* user);
+        protected:
+            virtual QString apiPath();
+            virtual void parseJson(const QJsonDocument& data);
 
         private:
             class Private;
@@ -60,4 +44,4 @@ namespace QMatrixClient
     };
 }
 
-#endif // QMATRIXCLIENT_ROOM_H
+#endif // QMATRIXCLIENT_ROOMMEMBERSJOB_H

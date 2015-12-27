@@ -43,6 +43,7 @@ namespace QMatrixClient
             void postMessage( Room* room, QString type, QString message );
             void joinRoom( QString roomAlias );
             void leaveRoom( Room* room );
+            void getMembers( Room* room );
 
             User* user(QString userId);
 

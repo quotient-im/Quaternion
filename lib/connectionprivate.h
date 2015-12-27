@@ -58,6 +58,7 @@ namespace QMatrixClient
             void initialSyncDone(KJob* job);
             void gotEvents(KJob* job);
             void gotJoinRoom(KJob* job);
+            void gotRoomMembers(KJob* job);
     };
 }
 

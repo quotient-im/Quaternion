@@ -16,40 +16,34 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#include "userlistdock.h"
 
-#include <QtWidgets/QMainWindow>
-#include <KCoreAddons/KJob>
+#include <QtWidgets/QListView>
 
 #include "lib/connection.h"
 #include "lib/room.h"
+#include "models/userlistmodel.h"
 
-class RoomListDock;
-class UserListDock;
-class ChatRoomWidget;
-
-class MainWindow: public QMainWindow
+UserListDock::UserListDock(QWidget* parent)
+    : QDockWidget("Users", parent)
 {
-        Q_OBJECT
-    public:
-        MainWindow();
-        virtual ~MainWindow();
+    m_view = new QListView();
+    setWidget(m_view);
 
-    private slots:
-        void initialSyncDone();
-        void getNewEvents();
-        void gotEvents();
+    m_model = new UserListModel();
+    m_view->setModel(m_model);
+}
 
-        void connectionError(QString error);
+UserListDock::~UserListDock()
+{
+}
 
-    private:
-        void initialize();
+void UserListDock::setConnection(QMatrixClient::Connection* connection)
+{
+    m_model->setConnection(connection);
+}
 
-        RoomListDock* roomListDock;
-        UserListDock* userListDock;
-        ChatRoomWidget* chatRoomWidget;
-        QMatrixClient::Connection* connection;
-};
-
-#endif // MAINWINDOW_H
+void UserListDock::setRoom(QMatrixClient::Room* room)
+{
+    m_model->setRoom(room);
+}

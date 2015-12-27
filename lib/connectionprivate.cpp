@@ -24,6 +24,7 @@
 #include "jobs/initialsyncjob.h"
 #include "jobs/geteventsjob.h"
 #include "jobs/joinroomjob.h"
+#include "jobs/roommembersjob.h"
 #include "events/event.h"
 #include "events/roommessageevent.h"
 #include "events/roommemberevent.h"
@@ -46,19 +47,6 @@ ConnectionPrivate::~ConnectionPrivate()
 
 void ConnectionPrivate::processEvent(Event* event)
 {
-    if( !event->roomId().isEmpty() )
-    {
-        Room* room;
-        if( !roomMap.contains(event->roomId()) )
-        {
-            room = new Room(q, event->roomId());
-            roomMap.insert( event->roomId(), room );
-            emit q->newRoom(room);
-        } else {
-            room = roomMap.value(event->roomId());
-        }
-        room->addMessage(event);
-    }
     if( event->type() == QMatrixClient::EventType::RoomMember )
     {
         QMatrixClient::RoomMemberEvent* e = static_cast<QMatrixClient::RoomMemberEvent*>(event);
@@ -72,11 +60,37 @@ void ConnectionPrivate::processEvent(Event* event)
         }
         user->processEvent(e);
     }
+    if( !event->roomId().isEmpty() )
+    {
+        Room* room;
+        if( !roomMap.contains(event->roomId()) )
+        {
+            room = new Room(q, event->roomId());
+            roomMap.insert( event->roomId(), room );
+            emit q->newRoom(room);
+        } else {
+            room = roomMap.value(event->roomId());
+        }
+        room->addMessage(event);
+    }
 }
 
 void ConnectionPrivate::processState(State* state)
 {
     QString roomId = state->event()->roomId();
+    if( state->event()->type() == QMatrixClient::EventType::RoomMember )
+    {
+        QMatrixClient::RoomMemberEvent* e = static_cast<QMatrixClient::RoomMemberEvent*>(state->event());
+        User* user;
+        if( !userMap.contains(e->userId()) )
+        {
+            user = new User(e->userId());
+            userMap.insert(e->userId(), user);
+        } else {
+            user = userMap.value(e->userId());
+        }
+        user->processEvent(e);
+    }
     if( !roomId.isEmpty() )
     {
         Room* room;
@@ -89,20 +103,6 @@ void ConnectionPrivate::processState(State* state)
             room = roomMap.value(roomId);
         }
         room->addInitialState(state);
-    }
-    if( state->event()->type() == QMatrixClient::EventType::RoomMember )
-    {
-        QMatrixClient::RoomMemberEvent* e = static_cast<QMatrixClient::RoomMemberEvent*>(state->event());
-        User* user;
-        if( !userMap.contains(e->userId()) )
-        {
-            user = new User(e->userId());
-            userMap.insert(e->userId(), user);
-            qDebug() << e->userId();
-        } else {
-            user = userMap.value(e->userId());
-        }
-        user->processEvent(e);
     }
 }
 
@@ -193,5 +193,24 @@ void ConnectionPrivate::gotJoinRoom(KJob* job)
     {
         if( joinJob->error() == BaseJob::NetworkError )
             emit q->connectionError( joinJob->errorString() );
+    }
+}
+
+void ConnectionPrivate::gotRoomMembers(KJob* job)
+{
+    RoomMembersJob* membersJob = static_cast<RoomMembersJob*>(job);
+    if( !membersJob->error() )
+    {
+        for( State* state: membersJob->states() )
+        {
+            processState(state);
+        }
+        qDebug() << membersJob->states().count() << " processed...";
+    }
+    else
+    {
+        qDebug() << "MembersJob error: " <<membersJob->errorString();
+        if( membersJob->error() == BaseJob::NetworkError )
+            emit q->connectionError( membersJob->errorString() );
     }
 }

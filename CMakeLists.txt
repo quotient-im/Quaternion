@@ -35,11 +35,14 @@ set(qmatrixclient_SRCS
     lib/jobs/postmessagejob.cpp
     lib/jobs/joinroomjob.cpp
     lib/jobs/leaveroomjob.cpp
+    lib/jobs/roommembersjob.cpp
     client/logindialog.cpp
     client/mainwindow.cpp
     client/roomlistdock.cpp
+    client/userlistdock.cpp
     client/chatroomwidget.cpp
     client/models/messageeventmodel.cpp
+    client/models/userlistmodel.cpp
     client/main.cpp
     )
 
