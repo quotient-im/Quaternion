@@ -123,11 +123,11 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         QMatrixClient::RoomAliasesEvent* e = static_cast<QMatrixClient::RoomAliasesEvent*>(event);
         return QString("Current aliases: %1").arg(e->aliases().join(", "));
     }
-    if( event->type() == QMatrixClient::EventType::Unknown )
-    {
-        QMatrixClient::UnknownEvent* e = static_cast<QMatrixClient::UnknownEvent*>(event);
-        return "Unknown Event: " + e->typeString() + "(" + e->content();
-    }
+//     if( event->type() == QMatrixClient::EventType::Unknown )
+//     {
+//         QMatrixClient::UnknownEvent* e = static_cast<QMatrixClient::UnknownEvent*>(event);
+//         return "Unknown Event: " + e->typeString() + "(" + e->content();
+//     }
     return "Unknown event";
 }
 
