@@ -1,5 +1,5 @@
 # Quaternion
-Quaternion is an IM client for the Matrix protocol.
+Quaternion is an IM client for the Matrix protocol in development.
 
 ## Dependencies
 - Qt 5
