@@ -51,7 +51,7 @@ QString JoinRoomJob::roomId()
 
 QString JoinRoomJob::apiPath()
 {
-    return QString("_matrix/client/api/v1/join/%1").arg(d->roomAlias);
+    return QString("_matrix/client/r0/join/%1").arg(d->roomAlias);
 }
 
 void JoinRoomJob::parseJson(const QJsonDocument& data)

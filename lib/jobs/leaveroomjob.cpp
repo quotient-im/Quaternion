@@ -46,5 +46,5 @@ LeaveRoomJob::~LeaveRoomJob()
 
 QString LeaveRoomJob::apiPath()
 {
-    return QString("_matrix/client/api/v1/rooms/%1/leave").arg(d->room->id());
+    return QString("_matrix/client/r0/rooms/%1/leave").arg(d->room->id());
 }

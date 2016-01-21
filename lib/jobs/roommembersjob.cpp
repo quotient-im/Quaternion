@@ -52,7 +52,7 @@ QList< State* > RoomMembersJob::states()
 
 QString RoomMembersJob::apiPath()
 {
-    return QString("_matrix/client/api/v1/rooms/%1/members").arg(d->room->id());
+    return QString("_matrix/client/r0/rooms/%1/members").arg(d->room->id());
 }
 
 void RoomMembersJob::parseJson(const QJsonDocument& data)

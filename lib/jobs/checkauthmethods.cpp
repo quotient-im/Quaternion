@@ -54,7 +54,7 @@ QString CheckAuthMethods::session()
 
 QString CheckAuthMethods::apiPath()
 {
-    return "_matrix/client/api/v1/login";
+    return "_matrix/client/r0/login";
 }
 
 void CheckAuthMethods::parseJson(const QJsonDocument& data)

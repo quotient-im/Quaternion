@@ -65,7 +65,7 @@ QList< State* > InitialSyncJob::initialState()
 
 QString InitialSyncJob::apiPath()
 {
-    return "_matrix/client/api/v1/initialSync";
+    return "_matrix/client/r0/initialSync";
 }
 
 QUrlQuery InitialSyncJob::query()

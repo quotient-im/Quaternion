@@ -62,7 +62,7 @@ QList< Event* > GetEventsJob::events()
 
 QString GetEventsJob::apiPath()
 {
-    return "_matrix/client/api/v1/events";
+    return "_matrix/client/r0/events";
 }
 
 QUrlQuery GetEventsJob::query()

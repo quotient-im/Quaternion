@@ -68,7 +68,7 @@ QString PasswordLogin::server()
 
 QString PasswordLogin::apiPath()
 {
-    return "_matrix/client/api/v1/login";
+    return "_matrix/client/r0/login";
 }
 
 QJsonObject PasswordLogin::data()

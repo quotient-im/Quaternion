@@ -50,7 +50,7 @@ PostMessageJob::~PostMessageJob()
 
 QString PostMessageJob::apiPath()
 {
-    return QString("_matrix/client/api/v1/rooms/%1/send/m.room.message").arg(d->room->id());
+    return QString("_matrix/client/r0/rooms/%1/send/m.room.message").arg(d->room->id());
 }
 
 QJsonObject PostMessageJob::data()
