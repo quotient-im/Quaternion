@@ -16,3 +16,7 @@ sudo make install
 
 ## Building (Windows)
 I have no idea, but should be possible
+
+
+## Screenshot
+![Screenshot](http://fxrh.de/img/quaternion.png)
