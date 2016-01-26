@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.11)
 
-project(qmatrixclient)
+project(quaternion)
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -47,14 +47,14 @@ set(qmatrixclient_SRCS
     )
 
 # Tell CMake to create the executable
-add_executable(qmatrixclient ${qmatrixclient_SRCS})
+add_executable(quaternion ${qmatrixclient_SRCS})
 
 if ( CMAKE_COMPILER_IS_GNUCC )
     # This is tested
-    set_property( TARGET qmatrixclient APPEND_STRING PROPERTY COMPILE_FLAGS -Wall )
+    set_property( TARGET quaternion APPEND_STRING PROPERTY COMPILE_FLAGS -Wall )
 endif ( CMAKE_COMPILER_IS_GNUCC )
-target_compile_features(qmatrixclient PRIVATE cxx_range_for)
-target_compile_features(qmatrixclient PRIVATE cxx_override)
+target_compile_features(quaternion PRIVATE cxx_range_for)
+target_compile_features(quaternion PRIVATE cxx_override)
 
 # Use the Widgets module from Qt 5.
-target_link_libraries(qmatrixclient Qt5::Widgets Qt5::Network KF5::CoreAddons)
+target_link_libraries(quaternion Qt5::Widgets Qt5::Network KF5::CoreAddons)
