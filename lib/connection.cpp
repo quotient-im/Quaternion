@@ -111,7 +111,11 @@ void Connection::getMembers(Room* room)
 
 User* Connection::user(QString userId)
 {
-    return d->userMap.value(userId);
+    if( d->userMap.contains(userId) )
+        return d->userMap.value(userId);
+    User* user = new User(userId);
+    d->userMap.insert(userId, user);
+    return user;
 }
 
 QHash< QString, Room* > Connection::roomMap() const
