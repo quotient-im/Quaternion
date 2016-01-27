@@ -60,7 +60,7 @@ Room::Room(Connection* connection, QString id)
     d->joinState = JoinState::Join;
     qDebug() << "New Room: " << id;
 
-    connection->getMembers(this);
+    //connection->getMembers(this); // I don't think we need this anymore in r0.0.1
 }
 
 Room::~Room()
