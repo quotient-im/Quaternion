@@ -42,9 +42,9 @@ class SyncJob::Private
         int timeout;
         QString nextBatch;
 
-        QHash<QString, QJsonObject> joinedRooms;
-        QHash<QString, QJsonObject> invitedRooms;
-        QHash<QString, QJsonObject> leftRooms;
+        QList<SyncRoomData> roomData;
+
+        void parseEvents(QString roomId, const QJsonObject& room, JoinState joinState);
 };
 
 SyncJob::SyncJob(ConnectionData* connection, QString since)
@@ -81,19 +81,14 @@ void SyncJob::setTimeout(int timeout)
     d->timeout = timeout;
 }
 
-QHash<QString, QJsonObject> SyncJob::joinedRooms()
+QString SyncJob::nextBatch() const
 {
-    return d->joinedRooms;
+    return d->nextBatch;
 }
 
-QHash<QString, QJsonObject> SyncJob::invitedRooms()
+QList<SyncRoomData> SyncJob::roomData() const
 {
-    return d->invitedRooms;
-}
-
-QHash<QString, QJsonObject> SyncJob::leftRooms()
-{
-    return d->leftRooms;
+    return d->roomData;
 }
 
 QString SyncJob::apiPath()
@@ -121,24 +116,69 @@ void SyncJob::parseJson(const QJsonDocument& data)
 {
     QJsonObject json = data.object();
     d->nextBatch = json.value("next_batch").toString();
+    // TODO: presence
+    // TODO: account_data
     QJsonObject rooms = json.value("rooms").toObject();
 
     QJsonObject joinRooms = rooms.value("join").toObject();
     for( const QString& roomId: joinRooms.keys() )
     {
-        d->joinedRooms.insert(roomId, joinRooms.value(roomId).toObject());
+        d->parseEvents(roomId, joinRooms.value(roomId).toObject(), JoinState::Join);
     }
 
     QJsonObject inviteRooms = rooms.value("invite").toObject();
     for( const QString& roomId: inviteRooms.keys() )
     {
-        d->invitedRooms.insert(roomId, inviteRooms.value(roomId).toObject());
+        d->parseEvents(roomId, inviteRooms.value(roomId).toObject(), JoinState::Invite);
     }
 
     QJsonObject leaveRooms = rooms.value("leave").toObject();
     for( const QString& roomId: leaveRooms.keys() )
     {
-        d->leftRooms.insert(roomId, leaveRooms.value(roomId).toObject());
+        d->parseEvents(roomId, leaveRooms.value(roomId).toObject(), JoinState::Leave);
     }
+}
+
+void SyncJob::Private::parseEvents(QString roomId, const QJsonObject& room, JoinState joinState)
+{
+    SyncRoomData data;
+    data.roomId = roomId;
+    data.joinState = joinState;
+
+    QJsonArray stateArray = room.value("state").toObject().value("events").toArray();
+    for( QJsonValue val: stateArray )
+    {
+        Event* event = Event::fromJson(val.toObject());
+        if( event )
+            data.state.append(event);
+    }
+
+    QJsonObject timeline = room.value("timeline").toObject();
+    QJsonArray timelineArray = timeline.value("events").toArray();
+    for( QJsonValue val: timelineArray )
+    {
+        Event* event = Event::fromJson(val.toObject());
+        if( event )
+            data.timeline.append(event);
+    }
+    data.timelineLimited = timeline.value("limited").toBool();
+    data.timelinePrevBatch = timeline.value("prev_batch").toString();
+
+    QJsonArray ephemeralArray = room.value("ephemeral").toObject().value("events").toArray();
+    for( QJsonValue val: ephemeralArray )
+    {
+        Event* event = Event::fromJson(val.toObject());
+        if( event )
+            data.ephemeral.append(event);
+    }
+
+    QJsonArray accountDataArray = room.value("account_data").toObject().value("events").toArray();
+    for( QJsonValue val: accountDataArray )
+    {
+        Event* event = Event::fromJson(val.toObject());
+        if( event )
+            data.accountData.append(event);
+    }
+    roomData.append(data);
 }
 

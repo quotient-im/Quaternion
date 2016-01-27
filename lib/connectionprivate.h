@@ -23,9 +23,11 @@ class KJob;
 
 #include <QtCore/QObject>
 #include <QtCore/QHash>
+#include <QtCore/QJsonObject>
 
 #include "connection.h"
 #include "connectiondata.h"
+#include "jobs/syncjob.h"
 
 namespace QMatrixClient
 {
@@ -43,6 +45,7 @@ namespace QMatrixClient
 
             void processEvent( Event* event );
             void processState( State* state );
+            void processRooms( const QList<SyncRoomData>& data );
 
             Connection* q;
             ConnectionData* data;

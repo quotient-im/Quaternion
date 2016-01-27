@@ -107,6 +107,23 @@ void ConnectionPrivate::processState(State* state)
     }
 }
 
+void ConnectionPrivate::processRooms(const QList<SyncRoomData>& data)
+{
+    for( const SyncRoomData& roomData: data )
+    {
+        Room* room;
+        if( !roomMap.contains(roomData.roomId) )
+        {
+            room = new Room(q, roomData.roomId);
+            roomMap.insert( roomData.roomId, room );
+            emit q->newRoom(room);
+        } else {
+            room = roomMap.value(roomData.roomId);
+        }
+        room->updateData(roomData);
+    }
+}
+
 void ConnectionPrivate::connectDone(KJob* job)
 {
     PasswordLogin* realJob = static_cast<PasswordLogin*>(job);
@@ -136,7 +153,11 @@ void ConnectionPrivate::reconnectDone(KJob* job)
 void ConnectionPrivate::syncDone(KJob* job)
 {
     SyncJob* syncJob = static_cast<SyncJob*>(job);
-    // TODO
+    if( !syncJob->error() )
+    {
+        data->setLastEvent(syncJob->nextBatch());
+        processRooms(syncJob->roomData());
+    }
 }
 
 void ConnectionPrivate::initialSyncDone(KJob* job)

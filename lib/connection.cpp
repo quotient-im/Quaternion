@@ -63,7 +63,7 @@ void Connection::reconnect()
 
 SyncJob* Connection::sync()
 {
-    SyncJob* syncJob = new SyncJob(d->data);
+    SyncJob* syncJob = new SyncJob(d->data, d->data->lastEvent());
     connect( syncJob, &SyncJob::result, d, &ConnectionPrivate::syncDone );
     syncJob->start();
     return syncJob;

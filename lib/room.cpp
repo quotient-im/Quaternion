@@ -96,6 +96,8 @@ JoinState Room::joinState() const
 void Room::setJoinState(JoinState state)
 {
     JoinState oldState = d->joinState;
+    if( state == oldState )
+        return;
     d->joinState = state;
     emit joinStateChanged(oldState, state);
 }
@@ -115,6 +117,27 @@ void Room::addMessage(Event* event)
 void Room::addInitialState(State* state)
 {
     d->addState(state->event());
+}
+
+void Room::updateData(const SyncRoomData& data)
+{
+    setJoinState(data.joinState);
+
+    for( Event* stateEvent: data.state )
+    {
+        d->addState(stateEvent);
+    }
+
+    for( Event* timelineEvent: data.timeline )
+    {
+        d->messageEvents.append(timelineEvent);
+        emit newMessage(timelineEvent);
+    }
+
+    for( Event* ephemeralEvent: data.ephemeral )
+    {
+        // TODO
+    }
 }
 
 void Room::Private::addState(Event* event)

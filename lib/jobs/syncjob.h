@@ -21,8 +21,26 @@
 
 #include "basejob.h"
 
+#include "../joinstate.h"
+
 namespace QMatrixClient
 {
+    class Event;
+
+    class SyncRoomData
+    {
+    public:
+        QString roomId;
+        JoinState joinState;
+        QList<Event*> state;
+        QList<Event*> timeline;
+        QList<Event*> ephemeral;
+        QList<Event*> accountData;
+
+        bool timelineLimited;
+        QString timelinePrevBatch;
+    };
+
     class ConnectionData;
     class Room;
     class Event;
@@ -38,9 +56,8 @@ namespace QMatrixClient
             void setPresence(QString presence);
             void setTimeout(int timeout);
 
-            QHash<QString, QJsonObject> joinedRooms();
-            QHash<QString, QJsonObject> invitedRooms();
-            QHash<QString, QJsonObject> leftRooms();
+            QList<SyncRoomData> roomData() const;
+            QString nextBatch() const;
 
         protected:
             QString apiPath();

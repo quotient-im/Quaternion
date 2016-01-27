@@ -23,14 +23,15 @@
 #include <QtCore/QObject>
 #include <QtCore/QJsonObject>
 
+#include "jobs/syncjob.h"
+#include "joinstate.h"
+
 namespace QMatrixClient
 {
     class Event;
     class State;
     class Connection;
     class User;
-
-    enum class JoinState {Join, Invite, Leave};
 
     class Room: public QObject
     {
@@ -49,6 +50,7 @@ namespace QMatrixClient
 
             void addMessage( Event* event );
             void addInitialState( State* state );
+            void updateData( const SyncRoomData& data );
             void setJoinState( JoinState state );
 
         signals:
