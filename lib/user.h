@@ -32,14 +32,25 @@ namespace QMatrixClient
             User(QString userId);
             virtual ~User();
 
+            /**
+             * Returns the id of the user
+             */
             QString id() const;
 
+            /**
+             * Returns the name chosen by the user
+             */
+            QString name() const;
+
+            /**
+             * Returns the name that should be used to display the user.
+             */
             QString displayname() const;
 
             void processEvent(Event* event);
 
         signals:
-            void displaynameChanged();
+            void nameChanged();
 
         private:
             class Private;

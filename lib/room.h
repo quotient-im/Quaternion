@@ -45,6 +45,7 @@ namespace QMatrixClient
             QString alias() const;
             QString topic() const;
             JoinState joinState() const;
+            QList<User*> usersTyping() const;
 
             QList<User*> users() const;
 
@@ -60,6 +61,7 @@ namespace QMatrixClient
             void userAdded(User* user);
             void userRemoved(User* user);
             void joinStateChanged(JoinState oldState, JoinState newState);
+            void typingChanged();
 
         private:
             class Private;

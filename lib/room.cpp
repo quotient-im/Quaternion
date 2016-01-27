@@ -29,6 +29,7 @@
 #include "events/roomaliasesevent.h"
 #include "events/roomtopicevent.h"
 #include "events/roommemberevent.h"
+#include "events/typingevent.h"
 
 using namespace QMatrixClient;
 
@@ -41,6 +42,7 @@ class Room::Private
 
         //static LogMessage* parseMessage(const QJsonObject& message);
         void addState(Event* event);
+        void ephemeralEvent(Event* event);
 
         Connection* connection;
         QList<Event*> messageEvents;
@@ -49,6 +51,7 @@ class Room::Private
         QString topic;
         JoinState joinState;
         QList<User*> users;
+        QList<User*> usersTyping;
 };
 
 Room::Room(Connection* connection, QString id)
@@ -102,6 +105,11 @@ void Room::setJoinState(JoinState state)
     emit joinStateChanged(oldState, state);
 }
 
+QList< User* > Room::usersTyping() const
+{
+    return d->usersTyping;
+}
+
 QList< User* > Room::users() const
 {
     return d->users;
@@ -136,7 +144,7 @@ void Room::updateData(const SyncRoomData& data)
 
     for( Event* ephemeralEvent: data.ephemeral )
     {
-        // TODO
+        d->ephemeralEvent(ephemeralEvent);
     }
 }
 
@@ -174,6 +182,20 @@ void Room::Private::addState(Event* event)
             users.removeAll(u);
             emit q->userRemoved(u);
         }
+    }
+}
+
+void Room::Private::ephemeralEvent(Event* event)
+{
+    if( event->type() == EventType::Typing )
+    {
+        TypingEvent* typingEvent = static_cast<TypingEvent*>(event);
+        usersTyping.clear();
+        for( const QString& user: typingEvent->users() )
+        {
+            usersTyping.append(connection->user(user));
+        }
+        emit q->typingChanged();
     }
 }
 
