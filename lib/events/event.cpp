@@ -96,11 +96,7 @@ Event* Event::fromJson(const QJsonObject& obj)
         return TypingEvent::fromJson(obj);
     }
     //qDebug() << "Unknown event";
-    if( obj.contains("room_id") )
-    {
-        return UnknownEvent::fromJson(obj);
-    }
-    return 0;
+    return UnknownEvent::fromJson(obj);
 }
 
 bool Event::parseJson(const QJsonObject& obj)
