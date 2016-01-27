@@ -30,13 +30,17 @@ namespace QMatrixClient
     {
             Q_OBJECT
         public:
-            SyncJob(ConnectionData* connection, QHash<QString, Room*>* roomMap, QString since=QString());
+            SyncJob(ConnectionData* connection, QString since=QString());
             virtual ~SyncJob();
             
             void setFilter(QString filter);
             void setFullState(bool full);
             void setPresence(QString presence);
             void setTimeout(int timeout);
+
+            QHash<QString, QJsonObject> joinedRooms();
+            QHash<QString, QJsonObject> invitedRooms();
+            QHash<QString, QJsonObject> leftRooms();
 
         protected:
             QString apiPath();

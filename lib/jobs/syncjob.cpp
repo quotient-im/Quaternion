@@ -35,20 +35,22 @@ using namespace QMatrixClient;
 class SyncJob::Private
 {
     public:
-        QHash<QString, Room*>* roomMap;
         QString since;
         QString filter;
         bool fullState;
         QString presence;
         int timeout;
         QString nextBatch;
+
+        QHash<QString, QJsonObject> joinedRooms;
+        QHash<QString, QJsonObject> invitedRooms;
+        QHash<QString, QJsonObject> leftRooms;
 };
 
-SyncJob::SyncJob(ConnectionData* connection, QHash<QString, Room*>* roomMap, QString since)
+SyncJob::SyncJob(ConnectionData* connection, QString since)
     : BaseJob(connection, JobHttpType::GetJob)
     , d(new Private)
 {
-    d->roomMap = roomMap;
     d->since = since;
     d->fullState = false;
     d->timeout = -1;
@@ -79,6 +81,21 @@ void SyncJob::setTimeout(int timeout)
     d->timeout = timeout;
 }
 
+QHash<QString, QJsonObject> SyncJob::joinedRooms()
+{
+    return d->joinedRooms;
+}
+
+QHash<QString, QJsonObject> SyncJob::invitedRooms()
+{
+    return d->invitedRooms;
+}
+
+QHash<QString, QJsonObject> SyncJob::leftRooms()
+{
+    return d->leftRooms;
+}
+
 QString SyncJob::apiPath()
 {
     return "_matrix/clients/r0/sync";
@@ -104,5 +121,24 @@ void SyncJob::parseJson(const QJsonDocument& data)
 {
     QJsonObject json = data.object();
     d->nextBatch = json.value("next_batch").toString();
+    QJsonObject rooms = json.value("rooms").toObject();
+
+    QJsonObject joinRooms = rooms.value("join").toObject();
+    for( const QString& roomId: joinRooms.keys() )
+    {
+        d->joinedRooms.insert(roomId, joinRooms.value(roomId).toObject());
+    }
+
+    QJsonObject inviteRooms = rooms.value("invite").toObject();
+    for( const QString& roomId: inviteRooms.keys() )
+    {
+        d->invitedRooms.insert(roomId, inviteRooms.value(roomId).toObject());
+    }
+
+    QJsonObject leaveRooms = rooms.value("leave").toObject();
+    for( const QString& roomId: leaveRooms.keys() )
+    {
+        d->leftRooms.insert(roomId, leaveRooms.value(roomId).toObject());
+    }
 }
 
