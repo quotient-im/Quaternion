@@ -27,6 +27,7 @@
 #include "jobs/joinroomjob.h"
 #include "jobs/leaveroomjob.h"
 #include "jobs/roommembersjob.h"
+#include "jobs/syncjob.h"
 
 #include <QtCore/QDebug>
 
@@ -58,6 +59,14 @@ void Connection::reconnect()
     PasswordLogin* loginJob = new PasswordLogin(d->data, d->user, d->password );
     connect( loginJob, &PasswordLogin::result, d, &ConnectionPrivate::reconnectDone );
     loginJob->start();
+}
+
+SyncJob* Connection::sync()
+{
+    SyncJob* syncJob = new SyncJob(d->data);
+    connect( syncJob, &SyncJob::result, d, &ConnectionPrivate::syncDone );
+    syncJob->start();
+    return syncJob;
 }
 
 void Connection::startInitialSync()

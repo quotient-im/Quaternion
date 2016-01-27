@@ -21,6 +21,7 @@
 #include "state.h"
 #include "user.h"
 #include "jobs/passwordlogin.h"
+#include "jobs/syncjob.h"
 #include "jobs/initialsyncjob.h"
 #include "jobs/geteventsjob.h"
 #include "jobs/joinroomjob.h"
@@ -130,6 +131,12 @@ void ConnectionPrivate::reconnectDone(KJob* job)
         emit q->loginError( job->errorString() );
         isConnected = false;
     }
+}
+
+void ConnectionPrivate::syncDone(KJob* job)
+{
+    SyncJob* syncJob = static_cast<SyncJob*>(job);
+    // TODO
 }
 
 void ConnectionPrivate::initialSyncDone(KJob* job)
