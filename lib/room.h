@@ -30,6 +30,8 @@ namespace QMatrixClient
     class Connection;
     class User;
 
+    enum class JoinState {Join, Invite, Leave};
+
     class Room: public QObject
     {
             Q_OBJECT
@@ -41,11 +43,13 @@ namespace QMatrixClient
             QList<Event*> messages() const;
             QString alias() const;
             QString topic() const;
+            JoinState joinState() const;
 
             QList<User*> users() const;
 
             void addMessage( Event* event );
             void addInitialState( State* state );
+            void setJoinState( JoinState state );
 
         signals:
             void newMessage(Event* event);
@@ -53,6 +57,7 @@ namespace QMatrixClient
             void topicChanged();
             void userAdded(User* user);
             void userRemoved(User* user);
+            void joinStateChanged(JoinState oldState, JoinState newState);
 
         private:
             class Private;

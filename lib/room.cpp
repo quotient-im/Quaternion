@@ -47,6 +47,7 @@ class Room::Private
         QString id;
         QString alias;
         QString topic;
+        JoinState joinState;
         QList<User*> users;
 };
 
@@ -56,6 +57,7 @@ Room::Room(Connection* connection, QString id)
     d->id = id;
     d->connection = connection;
     d->alias = id;
+    d->joinState = JoinState::Join;
     qDebug() << "New Room: " << id;
 
     connection->getMembers(this);
@@ -84,6 +86,18 @@ QString Room::alias() const
 QString Room::topic() const
 {
     return d->topic;
+}
+
+JoinState Room::joinState() const
+{
+    return d->joinState;
+}
+
+void Room::setJoinState(JoinState state)
+{
+    JoinState oldState = d->joinState;
+    d->joinState = state;
+    emit joinStateChanged(oldState, state);
 }
 
 QList< User* > Room::users() const
