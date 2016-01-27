@@ -53,6 +53,7 @@ namespace QMatrixClient
         signals:
             void connected();
             void reconnected();
+            void syncDone();
             void initialSyncDone();
             void gotEvents();
             void newRoom(Room* room);

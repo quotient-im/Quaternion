@@ -157,6 +157,11 @@ void ConnectionPrivate::syncDone(KJob* job)
     {
         data->setLastEvent(syncJob->nextBatch());
         processRooms(syncJob->roomData());
+        emit q->syncDone();
+    }
+    else {
+        if( syncJob->error() == BaseJob::NetworkError )
+            emit q->connectionError( syncJob->errorString() );
     }
 }
 

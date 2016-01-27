@@ -55,25 +55,19 @@ void MainWindow::initialize()
         connection = dialog.connection();
         chatRoomWidget->setConnection(connection);
         userListDock->setConnection(connection);
-        connect( connection, &QMatrixClient::Connection::initialSyncDone, this, &MainWindow::initialSyncDone );
+        roomListDock->setConnection(connection);
+        //connect( connection, &QMatrixClient::Connection::initialSyncDone, this, &MainWindow::initialSyncDone );
         connect( connection, &QMatrixClient::Connection::connectionError, this, &MainWindow::connectionError );
-        connect( connection, &QMatrixClient::Connection::gotEvents, this, &MainWindow::gotEvents );
+        connect( connection, &QMatrixClient::Connection::syncDone, this, &MainWindow::gotEvents );
         connect( connection, &QMatrixClient::Connection::reconnected, this, &MainWindow::getNewEvents );
-        connection->startInitialSync();
+        connection->sync();
     }
-}
-
-void MainWindow::initialSyncDone()
-{
-    roomListDock->setConnection( connection );
-    //chatRoomWidget->setRoom( roomMap->values().first() );
-    QTimer::singleShot(0, this, &MainWindow::getNewEvents);
 }
 
 void MainWindow::getNewEvents()
 {
     qDebug() << "getNewEvents";
-    connection->getEvents();
+    connection->sync();
 }
 
 void MainWindow::gotEvents()
