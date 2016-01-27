@@ -56,7 +56,6 @@ void MainWindow::initialize()
         chatRoomWidget->setConnection(connection);
         userListDock->setConnection(connection);
         roomListDock->setConnection(connection);
-        //connect( connection, &QMatrixClient::Connection::initialSyncDone, this, &MainWindow::initialSyncDone );
         connect( connection, &QMatrixClient::Connection::connectionError, this, &MainWindow::connectionError );
         connect( connection, &QMatrixClient::Connection::syncDone, this, &MainWindow::gotEvents );
         connect( connection, &QMatrixClient::Connection::reconnected, this, &MainWindow::getNewEvents );

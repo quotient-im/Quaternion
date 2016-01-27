@@ -69,20 +69,6 @@ SyncJob* Connection::sync()
     return syncJob;
 }
 
-void Connection::startInitialSync()
-{
-    InitialSyncJob* syncJob = new InitialSyncJob(d->data);
-    connect( syncJob, &InitialSyncJob::result, d, &ConnectionPrivate::initialSyncDone );
-    syncJob->start();
-}
-
-void Connection::getEvents()
-{
-    GetEventsJob* job = new GetEventsJob(d->data);
-    connect( job, &GetEventsJob::result, d, &ConnectionPrivate::gotEvents );
-    job->start();
-}
-
 void Connection::postMessage(Room* room, QString type, QString message)
 {
     PostMessageJob* job = new PostMessageJob(d->data, room, type, message);

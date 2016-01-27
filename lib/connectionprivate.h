@@ -43,7 +43,6 @@ namespace QMatrixClient
             ConnectionPrivate(Connection* parent);
             ~ConnectionPrivate();
 
-            void processEvent( Event* event );
             void processState( State* state );
             void processRooms( const QList<SyncRoomData>& data );
 
@@ -59,8 +58,6 @@ namespace QMatrixClient
             void connectDone(KJob* job);
             void reconnectDone(KJob* job);
             void syncDone(KJob* job);
-            void initialSyncDone(KJob* job);
-            void gotEvents(KJob* job);
             void gotJoinRoom(KJob* job);
             void gotRoomMembers(KJob* job);
     };

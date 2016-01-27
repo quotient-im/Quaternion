@@ -46,36 +46,6 @@ ConnectionPrivate::~ConnectionPrivate()
     delete data;
 }
 
-void ConnectionPrivate::processEvent(Event* event)
-{
-    if( event->type() == QMatrixClient::EventType::RoomMember )
-    {
-        QMatrixClient::RoomMemberEvent* e = static_cast<QMatrixClient::RoomMemberEvent*>(event);
-        User* user;
-        if( !userMap.contains(e->userId()) )
-        {
-            user = new User(e->userId());
-            userMap.insert(e->userId(), user);
-        } else {
-            user = userMap.value(e->userId());
-        }
-        user->processEvent(e);
-    }
-    if( !event->roomId().isEmpty() )
-    {
-        Room* room;
-        if( !roomMap.contains(event->roomId()) )
-        {
-            room = new Room(q, event->roomId());
-            roomMap.insert( event->roomId(), room );
-            emit q->newRoom(room);
-        } else {
-            room = roomMap.value(event->roomId());
-        }
-        room->addMessage(event);
-    }
-}
-
 void ConnectionPrivate::processState(State* state)
 {
     QString roomId = state->event()->roomId();
@@ -162,45 +132,6 @@ void ConnectionPrivate::syncDone(KJob* job)
     else {
         if( syncJob->error() == BaseJob::NetworkError )
             emit q->connectionError( syncJob->errorString() );
-    }
-}
-
-void ConnectionPrivate::initialSyncDone(KJob* job)
-{
-    InitialSyncJob* syncJob = static_cast<InitialSyncJob*>(job);
-    if( !syncJob->error() )
-    {
-        QList<State*> initialState = syncJob->initialState();
-        for( State* s: initialState )
-            processState(s);
-        QList<Event*> events = syncJob->events();
-        for( Event* e: events )
-            processEvent(e);
-        emit q->initialSyncDone();
-    }
-    else
-    {
-        if( syncJob->error() == BaseJob::NetworkError )
-            emit q->connectionError( syncJob->errorString() );
-    }
-}
-
-void ConnectionPrivate::gotEvents(KJob* job)
-{
-    GetEventsJob* eventsJob = static_cast<GetEventsJob*>(job);
-    if( !eventsJob->error() )
-    {
-        QList<Event*> events = eventsJob->events();
-        for( Event* e: events )
-        {
-            processEvent(e);
-        }
-        emit q->gotEvents();
-    }
-    else
-    {
-        if( eventsJob->error() == BaseJob::NetworkError )
-            emit q->connectionError( eventsJob->errorString() );
     }
 }
 
