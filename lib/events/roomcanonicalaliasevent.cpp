@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2015 Felix Rohrbach <kde@fxrh.de>
+ * Copyright (C) 2016 Felix Rohrbach <kde@fxrh.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,37 +16,38 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef ROOMLISTDOCK_H
-#define ROOMLISTDOCK_H
+#include "roomcanonicalaliasevent.h"
 
-#include <QtWidgets/QDockWidget>
-#include <QtWidgets/QListView>
-#include <QtCore/QStringListModel>
+using namespace QMatrixClient;
 
-#include "lib/room.h"
-#include "lib/connection.h"
-
-class RoomListModel;
-
-class RoomListDock : public QDockWidget
+class RoomCanonicalAliasEvent::Private
 {
-        Q_OBJECT
     public:
-        RoomListDock(QWidget* parent=0);
-        virtual ~RoomListDock();
-
-        void setConnection( QMatrixClient::Connection* connection );
-
-    signals:
-        void roomSelected(QMatrixClient::Room* room);
-
-    private slots:
-        void rowSelected(const QModelIndex& index);
-
-    private:
-        QMatrixClient::Connection* connection;
-        QListView* view;
-        RoomListModel* model;
+        QString alias;
 };
 
-#endif // ROOMLISTDOCK_H
+RoomCanonicalAliasEvent::RoomCanonicalAliasEvent()
+    : Event(EventType::RoomCanonicalAlias)
+    , d(new Private)
+{
+}
+
+RoomCanonicalAliasEvent::~RoomCanonicalAliasEvent()
+{
+    delete d;
+}
+
+QString RoomCanonicalAliasEvent::alias()
+{
+    return d->alias;
+}
+
+RoomCanonicalAliasEvent* RoomCanonicalAliasEvent::fromJson(const QJsonObject& obj)
+{
+    RoomCanonicalAliasEvent* e = new RoomCanonicalAliasEvent();
+    e->parseJson(obj);
+    const QJsonObject contents = obj.value("content").toObject();
+    e->d->alias = contents.value("alias").toString();
+    return e;
+}
+

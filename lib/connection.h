@@ -27,6 +27,8 @@ namespace QMatrixClient
     class User;
     class ConnectionPrivate;
 
+    class SyncJob;
+
     class Connection: public QObject {
             Q_OBJECT
         public:
@@ -38,8 +40,7 @@ namespace QMatrixClient
 
             void connectToServer( QString user, QString password );
             void reconnect();
-            void startInitialSync();
-            void getEvents();
+            SyncJob* sync();
             void postMessage( Room* room, QString type, QString message );
             void joinRoom( QString roomAlias );
             void leaveRoom( Room* room );
@@ -50,8 +51,7 @@ namespace QMatrixClient
         signals:
             void connected();
             void reconnected();
-            void initialSyncDone();
-            void gotEvents();
+            void syncDone();
             void newRoom(Room* room);
             void joinedRoom(Room* room);
 

@@ -73,9 +73,9 @@ QVariant UserListModel::data(const QModelIndex& index, int role) const
     QMatrixClient::User* user = m_users.at(index.row());
     if( role == Qt::DisplayRole )
     {
-        if( user->displayname().isEmpty() )
+        if( user->name().isEmpty() )
             return user->id();
-        return user->displayname();
+        return user->name();
     }
     return QVariant();
 }

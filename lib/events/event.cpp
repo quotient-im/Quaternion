@@ -24,6 +24,7 @@
 
 #include "roommessageevent.h"
 #include "roomaliasesevent.h"
+#include "roomcanonicalaliasevent.h"
 #include "roommemberevent.h"
 #include "roomtopicevent.h"
 #include "typingevent.h"
@@ -82,6 +83,10 @@ Event* Event::fromJson(const QJsonObject& obj)
     {
         return RoomAliasesEvent::fromJson(obj);
     }
+    if( obj.value("type").toString() == "m.room.canonical_alias" )
+    {
+        return RoomCanonicalAliasEvent::fromJson(obj);
+    }
     if( obj.value("type").toString() == "m.room.member" )
     {
         return RoomMemberEvent::fromJson(obj);
@@ -96,11 +101,7 @@ Event* Event::fromJson(const QJsonObject& obj)
         return TypingEvent::fromJson(obj);
     }
     //qDebug() << "Unknown event";
-    if( obj.contains("room_id") )
-    {
-        return UnknownEvent::fromJson(obj);
-    }
-    return 0;
+    return UnknownEvent::fromJson(obj);
 }
 
 bool Event::parseJson(const QJsonObject& obj)

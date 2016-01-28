@@ -73,5 +73,6 @@ RoomAliasesEvent* RoomAliasesEvent::fromJson(const QJsonObject& obj)
     {
         e->d->aliases << alias.toString();
     }
+    qDebug() << e->d->aliases;
     return e;
 }

@@ -21,6 +21,7 @@
 #include "state.h"
 #include "user.h"
 #include "jobs/passwordlogin.h"
+#include "jobs/syncjob.h"
 #include "jobs/initialsyncjob.h"
 #include "jobs/geteventsjob.h"
 #include "jobs/joinroomjob.h"
@@ -43,36 +44,6 @@ ConnectionPrivate::ConnectionPrivate(Connection* parent)
 ConnectionPrivate::~ConnectionPrivate()
 {
     delete data;
-}
-
-void ConnectionPrivate::processEvent(Event* event)
-{
-    if( event->type() == QMatrixClient::EventType::RoomMember )
-    {
-        QMatrixClient::RoomMemberEvent* e = static_cast<QMatrixClient::RoomMemberEvent*>(event);
-        User* user;
-        if( !userMap.contains(e->userId()) )
-        {
-            user = new User(e->userId());
-            userMap.insert(e->userId(), user);
-        } else {
-            user = userMap.value(e->userId());
-        }
-        user->processEvent(e);
-    }
-    if( !event->roomId().isEmpty() )
-    {
-        Room* room;
-        if( !roomMap.contains(event->roomId()) )
-        {
-            room = new Room(q, event->roomId());
-            roomMap.insert( event->roomId(), room );
-            emit q->newRoom(room);
-        } else {
-            room = roomMap.value(event->roomId());
-        }
-        room->addMessage(event);
-    }
 }
 
 void ConnectionPrivate::processState(State* state)
@@ -106,6 +77,23 @@ void ConnectionPrivate::processState(State* state)
     }
 }
 
+void ConnectionPrivate::processRooms(const QList<SyncRoomData>& data)
+{
+    for( const SyncRoomData& roomData: data )
+    {
+        Room* room;
+        if( !roomMap.contains(roomData.roomId) )
+        {
+            room = new Room(q, roomData.roomId);
+            roomMap.insert( roomData.roomId, room );
+            emit q->newRoom(room);
+        } else {
+            room = roomMap.value(roomData.roomId);
+        }
+        room->updateData(roomData);
+    }
+}
+
 void ConnectionPrivate::connectDone(KJob* job)
 {
     PasswordLogin* realJob = static_cast<PasswordLogin*>(job);
@@ -132,42 +120,18 @@ void ConnectionPrivate::reconnectDone(KJob* job)
     }
 }
 
-void ConnectionPrivate::initialSyncDone(KJob* job)
+void ConnectionPrivate::syncDone(KJob* job)
 {
-    InitialSyncJob* syncJob = static_cast<InitialSyncJob*>(job);
+    SyncJob* syncJob = static_cast<SyncJob*>(job);
     if( !syncJob->error() )
     {
-        QList<State*> initialState = syncJob->initialState();
-        for( State* s: initialState )
-            processState(s);
-        QList<Event*> events = syncJob->events();
-        for( Event* e: events )
-            processEvent(e);
-        emit q->initialSyncDone();
+        data->setLastEvent(syncJob->nextBatch());
+        processRooms(syncJob->roomData());
+        emit q->syncDone();
     }
-    else
-    {
+    else {
         if( syncJob->error() == BaseJob::NetworkError )
             emit q->connectionError( syncJob->errorString() );
-    }
-}
-
-void ConnectionPrivate::gotEvents(KJob* job)
-{
-    GetEventsJob* eventsJob = static_cast<GetEventsJob*>(job);
-    if( !eventsJob->error() )
-    {
-        QList<Event*> events = eventsJob->events();
-        for( Event* e: events )
-        {
-            processEvent(e);
-        }
-        emit q->gotEvents();
-    }
-    else
-    {
-        if( eventsJob->error() == BaseJob::NetworkError )
-            emit q->connectionError( eventsJob->errorString() );
     }
 }
 

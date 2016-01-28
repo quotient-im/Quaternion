@@ -27,7 +27,7 @@ class User::Private
 {
     public:
         QString userId;
-        QString displayname;
+        QString name;
 };
 
 User::User(QString userId)
@@ -46,9 +46,16 @@ QString User::id() const
     return d->userId;
 }
 
+QString User::name() const
+{
+    return d->name;
+}
+
 QString User::displayname() const
 {
-    return d->displayname;
+    if( !d->name.isEmpty() )
+        return d->name;
+    return d->userId;
 }
 
 void User::processEvent(Event* event)
@@ -56,10 +63,10 @@ void User::processEvent(Event* event)
     if( event->type() == EventType::RoomMember )
     {
         RoomMemberEvent* e = static_cast<RoomMemberEvent*>(event);
-        if( d->displayname != e->displayName() )
+        if( d->name != e->displayName() )
         {
-            d->displayname = e->displayName();
-            emit displaynameChanged();
+            d->name = e->displayName();
+            emit nameChanged();
         }
     }
 }

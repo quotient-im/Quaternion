@@ -25,6 +25,7 @@
 #include <QtWidgets/QLabel>
 
 #include "lib/room.h"
+#include "lib/user.h"
 #include "lib/connection.h"
 #include "lib/logmessage.h"
 #include "lib/jobs/postmessagejob.h"
@@ -64,13 +65,13 @@ void ChatRoomWidget::setRoom(QMatrixClient::Room* room)
     m_messageModel->changeRoom( room );
     if( m_currentRoom )
     {
-        disconnect( m_currentRoom, &QMatrixClient::Room::newMessage, this, &ChatRoomWidget::newEvent );
+        disconnect( m_currentRoom, &QMatrixClient::Room::typingChanged, this, &ChatRoomWidget::typingChanged );
         disconnect( m_currentRoom, &QMatrixClient::Room::topicChanged, this, &ChatRoomWidget::topicChanged );
     }
     m_currentRoom = room;
     if( m_currentRoom )
     {
-        connect( m_currentRoom, &QMatrixClient::Room::newMessage, this, &ChatRoomWidget::newEvent );
+        connect( m_currentRoom, &QMatrixClient::Room::typingChanged, this, &ChatRoomWidget::typingChanged );
         connect( m_currentRoom, &QMatrixClient::Room::topicChanged, this, &ChatRoomWidget::topicChanged );
         topicChanged();
     }
@@ -83,16 +84,20 @@ void ChatRoomWidget::setConnection(QMatrixClient::Connection* connection)
     m_messageModel->setConnection(connection);
 }
 
-void ChatRoomWidget::newEvent(QMatrixClient::Event* event)
+void ChatRoomWidget::typingChanged()
 {
-    if( event->type() == QMatrixClient::EventType::Typing )
+    QList<QMatrixClient::User*> typing = m_currentRoom->usersTyping();
+    if( typing.count() == 0 )
     {
-        QMatrixClient::TypingEvent* e = static_cast<QMatrixClient::TypingEvent*>(event);
-        if( e->users().count() > 0 )
-            m_currentlyTyping->setText( QString("<i>Currently typing: %1</i>").arg( e->users().join(", ") ) );
-        else
-            m_currentlyTyping->setText("");
+        m_currentlyTyping->clear();
+        return;
     }
+    QStringList typingNames;
+    for( QMatrixClient::User* user: typing )
+    {
+        typingNames << user->displayname();
+    }
+    m_currentlyTyping->setText( QString("<i>Currently typing: %1</i>").arg( typingNames.join(", ") ) );
 }
 
 void ChatRoomWidget::topicChanged()

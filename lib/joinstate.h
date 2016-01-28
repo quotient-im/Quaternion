@@ -16,37 +16,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef ROOMLISTDOCK_H
-#define ROOMLISTDOCK_H
+#ifndef QMATRIXCLIENT_JOINSTATE_H
+#define QMATRIXCLIENT_JOINSTATE_H
 
-#include <QtWidgets/QDockWidget>
-#include <QtWidgets/QListView>
-#include <QtCore/QStringListModel>
-
-#include "lib/room.h"
-#include "lib/connection.h"
-
-class RoomListModel;
-
-class RoomListDock : public QDockWidget
+namespace QMatrixClient
 {
-        Q_OBJECT
-    public:
-        RoomListDock(QWidget* parent=0);
-        virtual ~RoomListDock();
+    enum class JoinState
+    {
+        Join,
+        Invite,
+        Leave
+    };
+}
 
-        void setConnection( QMatrixClient::Connection* connection );
-
-    signals:
-        void roomSelected(QMatrixClient::Room* room);
-
-    private slots:
-        void rowSelected(const QModelIndex& index);
-
-    private:
-        QMatrixClient::Connection* connection;
-        QListView* view;
-        RoomListModel* model;
-};
-
-#endif // ROOMLISTDOCK_H
+#endif // QMATRIXCLIENT_JOINSTATE_H

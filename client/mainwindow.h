@@ -37,7 +37,6 @@ class MainWindow: public QMainWindow
         virtual ~MainWindow();
 
     private slots:
-        void initialSyncDone();
         void getNewEvents();
         void gotEvents();
 

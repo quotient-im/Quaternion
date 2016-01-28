@@ -23,9 +23,11 @@ class KJob;
 
 #include <QtCore/QObject>
 #include <QtCore/QHash>
+#include <QtCore/QJsonObject>
 
 #include "connection.h"
 #include "connectiondata.h"
+#include "jobs/syncjob.h"
 
 namespace QMatrixClient
 {
@@ -41,8 +43,8 @@ namespace QMatrixClient
             ConnectionPrivate(Connection* parent);
             ~ConnectionPrivate();
 
-            void processEvent( Event* event );
             void processState( State* state );
+            void processRooms( const QList<SyncRoomData>& data );
 
             Connection* q;
             ConnectionData* data;
@@ -55,8 +57,7 @@ namespace QMatrixClient
         public slots:
             void connectDone(KJob* job);
             void reconnectDone(KJob* job);
-            void initialSyncDone(KJob* job);
-            void gotEvents(KJob* job);
+            void syncDone(KJob* job);
             void gotJoinRoom(KJob* job);
             void gotRoomMembers(KJob* job);
     };

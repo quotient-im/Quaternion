@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2015 Felix Rohrbach <kde@fxrh.de>
+ * Copyright (C) 2016 Felix Rohrbach <kde@fxrh.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,37 +16,27 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef ROOMLISTDOCK_H
-#define ROOMLISTDOCK_H
+#ifndef QMATRIXCLIENT_ROOMCANONICALALIASEVENT_H
+#define QMATRIXCLIENT_ROOMCANONICALALIASEVENT_H
 
-#include <QtWidgets/QDockWidget>
-#include <QtWidgets/QListView>
-#include <QtCore/QStringListModel>
+#include "event.h"
 
-#include "lib/room.h"
-#include "lib/connection.h"
-
-class RoomListModel;
-
-class RoomListDock : public QDockWidget
+namespace QMatrixClient
 {
-        Q_OBJECT
-    public:
-        RoomListDock(QWidget* parent=0);
-        virtual ~RoomListDock();
+    class RoomCanonicalAliasEvent: public Event
+    {
+        public:
+            RoomCanonicalAliasEvent();
+            virtual ~RoomCanonicalAliasEvent();
 
-        void setConnection( QMatrixClient::Connection* connection );
+            QString alias();
 
-    signals:
-        void roomSelected(QMatrixClient::Room* room);
+            static RoomCanonicalAliasEvent* fromJson(const QJsonObject& obj);
 
-    private slots:
-        void rowSelected(const QModelIndex& index);
+        private:
+            class Private;
+            Private* d;
+    };
+}
 
-    private:
-        QMatrixClient::Connection* connection;
-        QListView* view;
-        RoomListModel* model;
-};
-
-#endif // ROOMLISTDOCK_H
+#endif // QMATRIXCLIENT_ROOMCANONICALALIASEVENT_H

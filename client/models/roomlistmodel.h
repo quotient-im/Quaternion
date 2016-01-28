@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2015 Felix Rohrbach <kde@fxrh.de>
+ * Copyright (C) 2016 Felix Rohrbach <kde@fxrh.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,37 +16,37 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef ROOMLISTDOCK_H
-#define ROOMLISTDOCK_H
+#ifndef ROOMLISTMODEL_H
+#define ROOMLISTMODEL_H
 
-#include <QtWidgets/QDockWidget>
-#include <QtWidgets/QListView>
-#include <QtCore/QStringListModel>
+#include <QtCore/QAbstractListModel>
 
-#include "lib/room.h"
-#include "lib/connection.h"
+namespace QMatrixClient
+{
+    class Connection;
+    class Room;
+}
 
-class RoomListModel;
-
-class RoomListDock : public QDockWidget
+class RoomListModel: public QAbstractListModel
 {
         Q_OBJECT
     public:
-        RoomListDock(QWidget* parent=0);
-        virtual ~RoomListDock();
+        RoomListModel(QObject* parent=0);
+        virtual ~RoomListModel();
 
-        void setConnection( QMatrixClient::Connection* connection );
+        void setConnection(QMatrixClient::Connection* connection);
+        QMatrixClient::Room* roomAt(int row);
 
-    signals:
-        void roomSelected(QMatrixClient::Room* room);
+        QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+        int rowCount(const QModelIndex& parent=QModelIndex()) const override;
 
     private slots:
-        void rowSelected(const QModelIndex& index);
+        void aliasChanged(QMatrixClient::Room* room);
+        void addRoom(QMatrixClient::Room* room);
 
     private:
-        QMatrixClient::Connection* connection;
-        QListView* view;
-        RoomListModel* model;
+        QMatrixClient::Connection* m_connection;
+        QList<QMatrixClient::Room*> m_rooms;
 };
 
-#endif // ROOMLISTDOCK_H
+#endif // ROOMLISTMODEL_H

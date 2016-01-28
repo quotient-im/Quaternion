@@ -27,8 +27,10 @@
 #include "events/event.h"
 #include "events/roommessageevent.h"
 #include "events/roomaliasesevent.h"
+#include "events/roomcanonicalaliasevent.h"
 #include "events/roomtopicevent.h"
 #include "events/roommemberevent.h"
+#include "events/typingevent.h"
 
 using namespace QMatrixClient;
 
@@ -41,13 +43,17 @@ class Room::Private
 
         //static LogMessage* parseMessage(const QJsonObject& message);
         void addState(Event* event);
+        void ephemeralEvent(Event* event);
 
         Connection* connection;
         QList<Event*> messageEvents;
         QString id;
-        QString alias;
+        QStringList aliases;
+        QString canonicalAlias;
         QString topic;
+        JoinState joinState;
         QList<User*> users;
+        QList<User*> usersTyping;
 };
 
 Room::Room(Connection* connection, QString id)
@@ -55,10 +61,10 @@ Room::Room(Connection* connection, QString id)
 {
     d->id = id;
     d->connection = connection;
-    d->alias = id;
+    d->joinState = JoinState::Join;
     qDebug() << "New Room: " << id;
 
-    connection->getMembers(this);
+    //connection->getMembers(this); // I don't think we need this anymore in r0.0.1
 }
 
 Room::~Room()
@@ -76,14 +82,47 @@ QList< Event* > Room::messages() const
     return d->messageEvents;
 }
 
-QString Room::alias() const
+QStringList Room::aliases() const
 {
-    return d->alias;
+    return d->aliases;
+}
+
+QString Room::canonicalAlias() const
+{
+    return d->canonicalAlias;
+}
+
+QString Room::displayName() const
+{
+    if( !d->canonicalAlias.isEmpty() )
+        return d->canonicalAlias;
+    if( d->aliases.count() > 0 )
+        return d->aliases.at(0);
+    return d->id;
 }
 
 QString Room::topic() const
 {
     return d->topic;
+}
+
+JoinState Room::joinState() const
+{
+    return d->joinState;
+}
+
+void Room::setJoinState(JoinState state)
+{
+    JoinState oldState = d->joinState;
+    if( state == oldState )
+        return;
+    d->joinState = state;
+    emit joinStateChanged(oldState, state);
+}
+
+QList< User* > Room::usersTyping() const
+{
+    return d->usersTyping;
 }
 
 QList< User* > Room::users() const
@@ -103,16 +142,41 @@ void Room::addInitialState(State* state)
     d->addState(state->event());
 }
 
+void Room::updateData(const SyncRoomData& data)
+{
+    setJoinState(data.joinState);
+
+    for( Event* stateEvent: data.state )
+    {
+        d->addState(stateEvent);
+    }
+
+    for( Event* timelineEvent: data.timeline )
+    {
+        d->messageEvents.append(timelineEvent);
+        emit newMessage(timelineEvent);
+    }
+
+    for( Event* ephemeralEvent: data.ephemeral )
+    {
+        d->ephemeralEvent(ephemeralEvent);
+    }
+}
+
 void Room::Private::addState(Event* event)
 {
     if( event->type() == EventType::RoomAliases )
     {
         RoomAliasesEvent* aliasesEvent = static_cast<RoomAliasesEvent*>(event);
-        if( aliasesEvent->aliases().count() > 0 )
-        {
-            alias = aliasesEvent->aliases().first();
-            emit q->aliasChanged(q);
-        }
+        aliases = aliasesEvent->aliases();
+        emit q->aliasChanged(q);
+    }
+    if( event->type() == EventType::RoomCanonicalAlias )
+    {
+        RoomCanonicalAliasEvent* aliasEvent = static_cast<RoomCanonicalAliasEvent*>(event);
+        canonicalAlias = aliasEvent->alias();
+        qDebug() << canonicalAlias;
+        emit q->aliasChanged(q);
     }
     if( event->type() == EventType::RoomTopic )
     {
@@ -125,6 +189,7 @@ void Room::Private::addState(Event* event)
         RoomMemberEvent* memberEvent = static_cast<RoomMemberEvent*>(event);
         User* u = connection->user(memberEvent->userId());
         if( !u ) qDebug() << "addState: invalid user!" << u << memberEvent->userId();
+        u->processEvent(event);
         if( memberEvent->membership() == MembershipType::Join and !users.contains(u) )
         {
             users.append(u);
@@ -136,6 +201,20 @@ void Room::Private::addState(Event* event)
             users.removeAll(u);
             emit q->userRemoved(u);
         }
+    }
+}
+
+void Room::Private::ephemeralEvent(Event* event)
+{
+    if( event->type() == EventType::Typing )
+    {
+        TypingEvent* typingEvent = static_cast<TypingEvent*>(event);
+        usersTyping.clear();
+        for( const QString& user: typingEvent->users() )
+        {
+            usersTyping.append(connection->user(user));
+        }
+        emit q->typingChanged();
     }
 }
 

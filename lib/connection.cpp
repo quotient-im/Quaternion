@@ -27,6 +27,7 @@
 #include "jobs/joinroomjob.h"
 #include "jobs/leaveroomjob.h"
 #include "jobs/roommembersjob.h"
+#include "jobs/syncjob.h"
 
 #include <QtCore/QDebug>
 
@@ -60,18 +61,12 @@ void Connection::reconnect()
     loginJob->start();
 }
 
-void Connection::startInitialSync()
+SyncJob* Connection::sync()
 {
-    InitialSyncJob* syncJob = new InitialSyncJob(d->data);
-    connect( syncJob, &InitialSyncJob::result, d, &ConnectionPrivate::initialSyncDone );
+    SyncJob* syncJob = new SyncJob(d->data, d->data->lastEvent());
+    connect( syncJob, &SyncJob::result, d, &ConnectionPrivate::syncDone );
     syncJob->start();
-}
-
-void Connection::getEvents()
-{
-    GetEventsJob* job = new GetEventsJob(d->data);
-    connect( job, &GetEventsJob::result, d, &ConnectionPrivate::gotEvents );
-    job->start();
+    return syncJob;
 }
 
 void Connection::postMessage(Room* room, QString type, QString message)
@@ -102,7 +97,11 @@ void Connection::getMembers(Room* room)
 
 User* Connection::user(QString userId)
 {
-    return d->userMap.value(userId);
+    if( d->userMap.contains(userId) )
+        return d->userMap.value(userId);
+    User* user = new User(userId);
+    d->userMap.insert(userId, user);
+    return user;
 }
 
 QHash< QString, Room* > Connection::roomMap() const

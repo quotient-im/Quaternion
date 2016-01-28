@@ -23,6 +23,9 @@
 #include <QtCore/QObject>
 #include <QtCore/QJsonObject>
 
+#include "jobs/syncjob.h"
+#include "joinstate.h"
+
 namespace QMatrixClient
 {
     class Event;
@@ -39,13 +42,19 @@ namespace QMatrixClient
 
             QString id() const;
             QList<Event*> messages() const;
-            QString alias() const;
+            QStringList aliases() const;
+            QString canonicalAlias() const;
+            QString displayName() const;
             QString topic() const;
+            JoinState joinState() const;
+            QList<User*> usersTyping() const;
 
             QList<User*> users() const;
 
             void addMessage( Event* event );
             void addInitialState( State* state );
+            void updateData( const SyncRoomData& data );
+            void setJoinState( JoinState state );
 
         signals:
             void newMessage(Event* event);
@@ -53,6 +62,8 @@ namespace QMatrixClient
             void topicChanged();
             void userAdded(User* user);
             void userRemoved(User* user);
+            void joinStateChanged(JoinState oldState, JoinState newState);
+            void typingChanged();
 
         private:
             class Private;

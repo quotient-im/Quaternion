@@ -23,6 +23,7 @@ set(qmatrixclient_SRCS
     lib/events/event.cpp
     lib/events/roommessageevent.cpp
     lib/events/roomaliasesevent.cpp
+    lib/events/roomcanonicalaliasevent.cpp
     lib/events/roommemberevent.cpp
     lib/events/roomtopicevent.cpp
     lib/events/typingevent.cpp
@@ -30,12 +31,11 @@ set(qmatrixclient_SRCS
     lib/jobs/basejob.cpp
     lib/jobs/checkauthmethods.cpp
     lib/jobs/passwordlogin.cpp
-    lib/jobs/initialsyncjob.cpp
-    lib/jobs/geteventsjob.cpp
     lib/jobs/postmessagejob.cpp
     lib/jobs/joinroomjob.cpp
     lib/jobs/leaveroomjob.cpp
     lib/jobs/roommembersjob.cpp
+    lib/jobs/syncjob.cpp
     client/logindialog.cpp
     client/mainwindow.cpp
     client/roomlistdock.cpp
@@ -43,6 +43,7 @@ set(qmatrixclient_SRCS
     client/chatroomwidget.cpp
     client/models/messageeventmodel.cpp
     client/models/userlistmodel.cpp
+    client/models/roomlistmodel.cpp
     client/main.cpp
     )
 
