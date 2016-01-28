@@ -65,13 +65,13 @@ void MainWindow::initialize()
 
 void MainWindow::getNewEvents()
 {
-    qDebug() << "getNewEvents";
+    //qDebug() << "getNewEvents";
     connection->sync();
 }
 
 void MainWindow::gotEvents()
 {
-    qDebug() << "newEvents";
+    //qDebug() << "newEvents";
     getNewEvents();
 }
 

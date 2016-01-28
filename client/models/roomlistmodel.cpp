@@ -74,9 +74,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
     QMatrixClient::Room* room = m_rooms.at(index.row());
     if( role == Qt::DisplayRole )
     {
-        if( !room->alias().isEmpty() )
-            return room->alias();
-        return room->id();
+        return room->displayName();
     }
     return QVariant();
 }

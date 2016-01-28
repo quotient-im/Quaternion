@@ -42,7 +42,9 @@ namespace QMatrixClient
 
             QString id() const;
             QList<Event*> messages() const;
-            QString alias() const;
+            QStringList aliases() const;
+            QString canonicalAlias() const;
+            QString displayName() const;
             QString topic() const;
             JoinState joinState() const;
             QList<User*> usersTyping() const;

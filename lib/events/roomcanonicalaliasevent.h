@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2015 Felix Rohrbach <kde@fxrh.de>
+ * Copyright (C) 2016 Felix Rohrbach <kde@fxrh.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,40 +16,27 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef QMATRIXCLIENT_EVENT_H
-#define QMATRIXCLIENT_EVENT_H
+#ifndef QMATRIXCLIENT_ROOMCANONICALALIASEVENT_H
+#define QMATRIXCLIENT_ROOMCANONICALALIASEVENT_H
 
-#include <QtCore/QString>
-#include <QtCore/QDateTime>
-#include <QtCore/QJsonObject>
+#include "event.h"
 
 namespace QMatrixClient
 {
-    enum class EventType
-    {
-        RoomMessage, RoomAliases, RoomCanonicalAlias, RoomMember, RoomTopic, Typing, Unknown
-    };
-    
-    class Event
+    class RoomCanonicalAliasEvent: public Event
     {
         public:
-            Event(EventType type);
-            virtual ~Event();
-            
-            EventType type() const;
-            QString id() const;
-            QDateTime timestamp() const;
-            QString roomId() const;
+            RoomCanonicalAliasEvent();
+            virtual ~RoomCanonicalAliasEvent();
 
-            static Event* fromJson(const QJsonObject& obj);
-            
-        protected:
-            bool parseJson(const QJsonObject& obj);
-        
+            QString alias();
+
+            static RoomCanonicalAliasEvent* fromJson(const QJsonObject& obj);
+
         private:
             class Private;
             Private* d;
     };
 }
 
-#endif // QMATRIXCLIENT_EVENT_H
+#endif // QMATRIXCLIENT_ROOMCANONICALALIASEVENT_H

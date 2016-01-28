@@ -27,6 +27,7 @@
 #include "events/event.h"
 #include "events/roommessageevent.h"
 #include "events/roomaliasesevent.h"
+#include "events/roomcanonicalaliasevent.h"
 #include "events/roomtopicevent.h"
 #include "events/roommemberevent.h"
 #include "events/typingevent.h"
@@ -47,7 +48,8 @@ class Room::Private
         Connection* connection;
         QList<Event*> messageEvents;
         QString id;
-        QString alias;
+        QStringList aliases;
+        QString canonicalAlias;
         QString topic;
         JoinState joinState;
         QList<User*> users;
@@ -59,7 +61,6 @@ Room::Room(Connection* connection, QString id)
 {
     d->id = id;
     d->connection = connection;
-    d->alias = id;
     d->joinState = JoinState::Join;
     qDebug() << "New Room: " << id;
 
@@ -81,9 +82,23 @@ QList< Event* > Room::messages() const
     return d->messageEvents;
 }
 
-QString Room::alias() const
+QStringList Room::aliases() const
 {
-    return d->alias;
+    return d->aliases;
+}
+
+QString Room::canonicalAlias() const
+{
+    return d->canonicalAlias;
+}
+
+QString Room::displayName() const
+{
+    if( !d->canonicalAlias.isEmpty() )
+        return d->canonicalAlias;
+    if( d->aliases.count() > 0 )
+        return d->aliases.at(0);
+    return d->id;
 }
 
 QString Room::topic() const
@@ -153,11 +168,15 @@ void Room::Private::addState(Event* event)
     if( event->type() == EventType::RoomAliases )
     {
         RoomAliasesEvent* aliasesEvent = static_cast<RoomAliasesEvent*>(event);
-        if( aliasesEvent->aliases().count() > 0 )
-        {
-            alias = aliasesEvent->aliases().first();
-            emit q->aliasChanged(q);
-        }
+        aliases = aliasesEvent->aliases();
+        emit q->aliasChanged(q);
+    }
+    if( event->type() == EventType::RoomCanonicalAlias )
+    {
+        RoomCanonicalAliasEvent* aliasEvent = static_cast<RoomCanonicalAliasEvent*>(event);
+        canonicalAlias = aliasEvent->alias();
+        qDebug() << canonicalAlias;
+        emit q->aliasChanged(q);
     }
     if( event->type() == EventType::RoomTopic )
     {
