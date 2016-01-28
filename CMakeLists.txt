@@ -42,6 +42,7 @@ set(qmatrixclient_SRCS
     client/chatroomwidget.cpp
     client/models/messageeventmodel.cpp
     client/models/userlistmodel.cpp
+    client/models/roomlistmodel.cpp
     client/main.cpp
     )
 

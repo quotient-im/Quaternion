@@ -20,12 +20,14 @@
 
 #include <QtCore/QDebug>
 
+#include "models/roomlistmodel.h"
+
 RoomListDock::RoomListDock(QWidget* parent)
     : QDockWidget("Rooms", parent)
 {
     connection = 0;
     //setWidget(new QWidget());
-    model = new QStringListModel(this);
+    model = new RoomListModel(this);
     view = new QListView();
     view->setModel(model);
     connect( view, &QListView::activated, this, &RoomListDock::rowSelected );
@@ -39,28 +41,10 @@ RoomListDock::~RoomListDock()
 void RoomListDock::setConnection( QMatrixClient::Connection* connection )
 {
     this->connection = connection;
-    QStringList rooms;
-    for( const QString& room : connection->roomMap().keys() )
-    {
-        QString alias = connection->roomMap().value(room)->alias();
-        if( alias.isEmpty() )
-            alias = room;
-        rooms.append( alias );
-    }
-    qDebug() << rooms;
-    model->setStringList( rooms );
-    connect( connection, &QMatrixClient::Connection::newRoom, this, &RoomListDock::newRoom );
+    model->setConnection(connection);
 }
 
 void RoomListDock::rowSelected(const QModelIndex& index)
 {
-    QString id = connection->roomMap().keys().at(index.row());
-    emit roomSelected( connection->roomMap().value(id) );
-}
-
-void RoomListDock::newRoom(QMatrixClient::Room* room)
-{
-    QStringList rooms = model->stringList();
-    rooms << room->alias();
-    model->setStringList(rooms);
+    emit roomSelected( model->roomAt(index.row()) );
 }
