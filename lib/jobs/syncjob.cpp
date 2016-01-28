@@ -93,7 +93,7 @@ QList<SyncRoomData> SyncJob::roomData() const
 
 QString SyncJob::apiPath()
 {
-    return "_matrix/clients/r0/sync";
+    return "_matrix/client/r0/sync";
 }
 
 QUrlQuery SyncJob::query()
@@ -137,6 +137,7 @@ void SyncJob::parseJson(const QJsonDocument& data)
     {
         d->parseEvents(roomId, leaveRooms.value(roomId).toObject(), JoinState::Leave);
     }
+    emitResult();
 }
 
 void SyncJob::Private::parseEvents(QString roomId, const QJsonObject& room, JoinState joinState)

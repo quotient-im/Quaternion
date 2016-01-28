@@ -30,8 +30,6 @@ set(qmatrixclient_SRCS
     lib/jobs/basejob.cpp
     lib/jobs/checkauthmethods.cpp
     lib/jobs/passwordlogin.cpp
-    lib/jobs/initialsyncjob.cpp
-    lib/jobs/geteventsjob.cpp
     lib/jobs/postmessagejob.cpp
     lib/jobs/joinroomjob.cpp
     lib/jobs/leaveroomjob.cpp

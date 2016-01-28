@@ -71,9 +71,9 @@ RoomMessageEvent* RoomMessageEvent::fromJson(const QJsonObject& obj)
 {
     RoomMessageEvent* e = new RoomMessageEvent();
     e->parseJson(obj);
-    if( obj.contains("user_id") )
+    if( obj.contains("sender") )
     {
-        e->d->userId = obj.value("user_id").toString();
+        e->d->userId = obj.value("sender").toString();
     } else {
         qDebug() << "RoomMessageEvent: user_id not found";
     }
