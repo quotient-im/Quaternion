@@ -116,7 +116,7 @@ bool Event::parseJson(const QJsonObject& obj)
     }
     if( obj.contains("origin_server_ts") )
     {
-        d->timestamp = QDateTime::fromMSecsSinceEpoch( obj.value("ts").toInt() );
+        d->timestamp = QDateTime::fromMSecsSinceEpoch( (quint64) obj.value("origin_server_ts").toDouble(), Qt::UTC );
     } else {
         correct = false;
         qDebug() << "Event: can't find ts";
