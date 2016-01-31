@@ -32,6 +32,13 @@ class MessageEventModel: public QAbstractListModel
 {
         Q_OBJECT
     public:
+        enum MessageRoles {
+            MessageTypeRole = Qt::UserRole + 1,
+            TimeRole,
+            AuthorRole,
+            ContentRole
+        };
+
         MessageEventModel(QObject* parent=0);
         virtual ~MessageEventModel();
 
@@ -42,6 +49,7 @@ class MessageEventModel: public QAbstractListModel
         //override QModelIndex parent(const QModelIndex& index) const;
         int rowCount(const QModelIndex& parent) const override;
         QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+        QHash<int, QByteArray> roleNames() const override;
 
     public slots:
         void newMessage(QMatrixClient::Event* messageEvent);
