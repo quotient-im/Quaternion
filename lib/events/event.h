@@ -40,6 +40,8 @@ namespace QMatrixClient
             QString id() const;
             QDateTime timestamp() const;
             QString roomId() const;
+            // only for debug purposes!
+            QString originalJson() const;
 
             static Event* fromJson(const QJsonObject& obj);
             

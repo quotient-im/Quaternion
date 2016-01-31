@@ -19,6 +19,7 @@
 #include "event.h"
 
 #include <QtCore/QJsonObject>
+#include <QtCore/QJsonDocument>
 #include <QtCore/QDateTime>
 #include <QtCore/QDebug>
 
@@ -39,6 +40,7 @@ class Event::Private
         QString id;
         QDateTime timestamp;
         QString roomId;
+        QString originalJson;
 };
 
 Event::Event(EventType type)
@@ -70,6 +72,11 @@ QDateTime Event::timestamp() const
 QString Event::roomId() const
 {
     return d->roomId;
+}
+
+QString Event::originalJson() const
+{
+    return d->originalJson;
 }
 
 Event* Event::fromJson(const QJsonObject& obj)
@@ -106,6 +113,7 @@ Event* Event::fromJson(const QJsonObject& obj)
 
 bool Event::parseJson(const QJsonObject& obj)
 {
+    d->originalJson = QString::fromUtf8(QJsonDocument(obj).toJson());
     bool correct = true;
     if( obj.contains("event_id") )
     {

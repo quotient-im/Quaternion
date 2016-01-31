@@ -127,6 +127,11 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         return "Unknown Event";
     }
 
+    if( role == Qt::ToolTipRole )
+    {
+        return event->originalJson();
+    }
+
     if( role == TimeRole )
     {
         return event->timestamp();
