@@ -22,8 +22,14 @@ Rectangle {
             width: parent.width
 
             Label { text: time.toLocaleString(Qt.locale("de_DE"), "'<'hh:mm:ss'>'"); color: "grey" }
-            Label { text: author; width: 120; elide: Text.ElideRight; }
+            Label {
+                width: 120; elide: Text.ElideRight;
+                text: eventType == "message" ? author : "***"
+                horizontalAlignment: if( eventType != "message" ) { Text.AlignRight }
+                color: if( eventType != "message" ) { "lightgrey" } else { "black" }
+            }
             Label { text: content; wrapMode: Text.Wrap; width: parent.width - (x - parent.x) - spacing
+                    color: if( eventType != "message" ) { "lightgrey" } else { "black" }
                     ToolTipArea { tip { text: toolTip; color: "#999999"; zParent: message } }
             }
             spacing: 3
