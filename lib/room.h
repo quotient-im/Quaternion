@@ -56,6 +56,9 @@ namespace QMatrixClient
             void updateData( const SyncRoomData& data );
             void setJoinState( JoinState state );
 
+        public slots:
+            void getNewContent();
+
         signals:
             void newMessage(Event* event);
             void aliasChanged(Room* room);

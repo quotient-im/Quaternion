@@ -210,6 +210,16 @@ void MessageEventModel::newMessage(QMatrixClient::Event* messageEvent)
     {
         return;
     }
+    for( int i=0; i<m_currentMessages.count(); i++ )
+    {
+        if( messageEvent->timestamp() < m_currentMessages.at(i)->timestamp() )
+        {
+            beginInsertRows(QModelIndex(), i, i);
+            m_currentMessages.insert(i, messageEvent);
+            endInsertRows();
+            return;
+        }
+    }
     beginInsertRows(QModelIndex(), m_currentMessages.count(), m_currentMessages.count());
     m_currentMessages.append(messageEvent);
     endInsertRows();

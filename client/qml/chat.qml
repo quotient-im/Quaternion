@@ -2,16 +2,32 @@ import QtQuick 2.3
 import QtQuick.Controls 1.4
 
 Rectangle {
+    id: root
     anchors.fill: parent
 
-    ListView {
-        id: chatView
-        anchors.fill: parent
-        //width: 200; height: 250
+    signal getNewContent()
 
-        model: messageModel
-        delegate: messageDelegate
-        flickableDirection: Flickable.VerticalFlick
+    ScrollView {
+    anchors.fill: parent
+
+        ListView {
+            id: chatView
+            anchors.fill: parent
+            //width: 200; height: 250
+
+            model: messageModel
+            delegate: messageDelegate
+            flickableDirection: Flickable.VerticalFlick
+            pixelAligned: true
+
+            onContentYChanged: {
+                if( (this.contentY - this.originY) < 5 )
+                {
+                    console.log("get new content!");
+                    root.getNewContent()
+                }
+            }
+        }
     }
 
     Component {

@@ -28,6 +28,7 @@ namespace QMatrixClient
     class ConnectionPrivate;
 
     class SyncJob;
+    class RoomMessagesJob;
 
     class Connection: public QObject {
             Q_OBJECT
@@ -45,6 +46,7 @@ namespace QMatrixClient
             void joinRoom( QString roomAlias );
             void leaveRoom( Room* room );
             void getMembers( Room* room );
+            RoomMessagesJob* getMessages( Room* room, QString from );
 
             User* user(QString userId);
 

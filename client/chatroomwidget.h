@@ -46,6 +46,7 @@ class ChatRoomWidget: public QWidget
         void setConnection(QMatrixClient::Connection* connection);
         void topicChanged();
         void typingChanged();
+        void getNewContent();
 
     private slots:
         void sendLine();

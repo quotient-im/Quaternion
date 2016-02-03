@@ -27,6 +27,7 @@
 #include "jobs/joinroomjob.h"
 #include "jobs/leaveroomjob.h"
 #include "jobs/roommembersjob.h"
+#include "jobs/roommessagesjob.h"
 #include "jobs/syncjob.h"
 
 #include <QtCore/QDebug>
@@ -63,7 +64,9 @@ void Connection::reconnect()
 
 SyncJob* Connection::sync()
 {
+    QString filter = "{\"room\": { \"timeline\": { \"limit\": 100 } } }";
     SyncJob* syncJob = new SyncJob(d->data, d->data->lastEvent());
+    syncJob->setFilter(filter);
     connect( syncJob, &SyncJob::result, d, &ConnectionPrivate::syncDone );
     syncJob->start();
     return syncJob;
@@ -93,6 +96,13 @@ void Connection::getMembers(Room* room)
     RoomMembersJob* job = new RoomMembersJob(d->data, room);
     connect( job, &RoomMembersJob::result, d, &ConnectionPrivate::gotRoomMembers );
     job->start();
+}
+
+RoomMessagesJob* Connection::getMessages(Room* room, QString from)
+{
+    RoomMessagesJob* job = new RoomMessagesJob(d->data, room, from);
+    job->start();
+    return job;
 }
 
 User* Connection::user(QString userId)

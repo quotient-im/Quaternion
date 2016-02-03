@@ -25,6 +25,7 @@
 #include <QtWidgets/QLabel>
 
 #include <QtQml/QQmlContext>
+#include <QtQuick/QQuickItem>
 
 #include "lib/room.h"
 #include "lib/user.h"
@@ -51,6 +52,9 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     ctxt->setContextProperty("messageModel", m_messageModel);
     m_quickView->setSource(QUrl::fromLocalFile("client/qml/chat.qml"));
     m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
+
+    QObject* rootItem = m_quickView->rootObject();
+    connect( rootItem, SIGNAL(getNewContent()), this, SLOT(getNewContent()) );
 
 
     m_chatEdit = new QLineEdit();
@@ -114,6 +118,11 @@ void ChatRoomWidget::typingChanged()
 void ChatRoomWidget::topicChanged()
 {
     m_topicLabel->setText( m_currentRoom->topic() );
+}
+
+void ChatRoomWidget::getNewContent()
+{
+    m_currentRoom->getNewContent();
 }
 
 void ChatRoomWidget::sendLine()
