@@ -50,7 +50,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QQmlContext* ctxt = m_quickView->rootContext();
     ctxt->setContextProperty("messageModel", m_messageModel);
-    m_quickView->setSource(QUrl::fromLocalFile("client/qml/chat.qml"));
+    m_quickView->setSource(QUrl("qrc:///qml/chat.qml"));
     m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
 
     QObject* rootItem = m_quickView->rootObject();

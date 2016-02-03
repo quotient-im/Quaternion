@@ -50,8 +50,14 @@ set(qmatrixclient_SRCS
     client/main.cpp
     )
 
+set(qmatrixclient_QRC
+    client/resources.qrc
+    )
+
+QT5_ADD_RESOURCES(qmatrixclient_QRC_SRC ${qmatrixclient_QRC})
+
 # Tell CMake to create the executable
-add_executable(quaternion ${qmatrixclient_SRCS})
+add_executable(quaternion ${qmatrixclient_SRCS} ${qmatrixclient_QRC_SRC})
 
 if ( CMAKE_COMPILER_IS_GNUCC )
     # This is tested
