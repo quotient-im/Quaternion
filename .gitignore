@@ -1,2 +1,6 @@
 build
 .kdev4
+
+# CodeLite's CMake plugin stuff
+.cmake_dirty
+*.mk
