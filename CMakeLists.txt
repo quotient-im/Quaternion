@@ -12,7 +12,9 @@ find_package(Qt5Widgets 5.4.0)
 find_package(Qt5Network 5.4.0)
 find_package(Qt5Quick 5.4.0)
 find_package(Qt5Qml 5.4.0)
-find_package(KF5CoreAddons)
+#find_package(KF5CoreAddons)
+
+include_directories( kcoreaddons/src/lib )
 
 set(qmatrixclient_SRCS
     lib/connectiondata.cpp
@@ -48,6 +50,10 @@ set(qmatrixclient_SRCS
     client/models/userlistmodel.cpp
     client/models/roomlistmodel.cpp
     client/main.cpp
+    kcoreaddons/src/lib/jobs/kjob.cpp
+    kcoreaddons/src/lib/jobs/kcompositejob.cpp
+    kcoreaddons/src/lib/jobs/kjobtrackerinterface.cpp
+    kcoreaddons/src/lib/jobs/kjobuidelegate.cpp
     )
 
 set(qmatrixclient_QRC
@@ -67,4 +73,4 @@ target_compile_features(quaternion PRIVATE cxx_range_for)
 target_compile_features(quaternion PRIVATE cxx_override)
 
 # Use the Widgets module from Qt 5.
-target_link_libraries(quaternion Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Network KF5::CoreAddons)
+target_link_libraries(quaternion Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Network) #KF5::CoreAddons)
