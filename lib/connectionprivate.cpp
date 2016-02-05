@@ -52,14 +52,7 @@ void ConnectionPrivate::processState(State* state)
     if( state->event()->type() == QMatrixClient::EventType::RoomMember )
     {
         QMatrixClient::RoomMemberEvent* e = static_cast<QMatrixClient::RoomMemberEvent*>(state->event());
-        User* user;
-        if( !userMap.contains(e->userId()) )
-        {
-            user = new User(e->userId());
-            userMap.insert(e->userId(), user);
-        } else {
-            user = userMap.value(e->userId());
-        }
+        User* user = q->user(e->userId());
         user->processEvent(e);
     }
     if( !roomId.isEmpty() )

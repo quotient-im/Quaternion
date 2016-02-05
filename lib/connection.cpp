@@ -29,6 +29,7 @@
 #include "jobs/roommembersjob.h"
 #include "jobs/roommessagesjob.h"
 #include "jobs/syncjob.h"
+#include "jobs/mediathumbnailjob.h"
 
 #include <QtCore/QDebug>
 
@@ -105,11 +106,18 @@ RoomMessagesJob* Connection::getMessages(Room* room, QString from)
     return job;
 }
 
+MediaThumbnailJob* Connection::getThumbnail(QUrl url, int requestedWidth, int requestedHeight)
+{
+    MediaThumbnailJob* job = new MediaThumbnailJob(d->data, url, requestedWidth, requestedHeight);
+    job->start();
+    return job;
+}
+
 User* Connection::user(QString userId)
 {
     if( d->userMap.contains(userId) )
         return d->userMap.value(userId);
-    User* user = new User(userId);
+    User* user = new User(userId, this);
     d->userMap.insert(userId, user);
     return user;
 }
