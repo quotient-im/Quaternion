@@ -21,6 +21,8 @@
 
 #include <QtWidgets/QWidget>
 
+#include <QtQuick/QQuickView>
+
 namespace QMatrixClient
 {
     class Room;
@@ -44,6 +46,7 @@ class ChatRoomWidget: public QWidget
         void setConnection(QMatrixClient::Connection* connection);
         void topicChanged();
         void typingChanged();
+        void getNewContent();
 
     private slots:
         void sendLine();
@@ -53,7 +56,8 @@ class ChatRoomWidget: public QWidget
         QMatrixClient::Room* m_currentRoom;
         QMatrixClient::Connection* m_currentConnection;
 
-        QListView* m_messageView;
+        //QListView* m_messageView;
+        QQuickView* m_quickView;
         QLineEdit* m_chatEdit;
         QLabel* m_currentlyTyping;
         QLabel* m_topicLabel;

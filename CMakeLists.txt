@@ -10,6 +10,9 @@ set(CMAKE_AUTOMOC ON)
 # Find the QtWidgets library
 find_package(Qt5Widgets 5.4.0)
 find_package(Qt5Network 5.4.0)
+find_package(Qt5Quick 5.4.0)
+find_package(Qt5Qml 5.4.0)
+find_package(Qt5Gui 5.4.0)
 find_package(KF5CoreAddons)
 
 set(qmatrixclient_SRCS
@@ -35,7 +38,9 @@ set(qmatrixclient_SRCS
     lib/jobs/joinroomjob.cpp
     lib/jobs/leaveroomjob.cpp
     lib/jobs/roommembersjob.cpp
+    lib/jobs/roommessagesjob.cpp
     lib/jobs/syncjob.cpp
+    lib/jobs/mediathumbnailjob.cpp
     client/logindialog.cpp
     client/mainwindow.cpp
     client/roomlistdock.cpp
@@ -47,8 +52,14 @@ set(qmatrixclient_SRCS
     client/main.cpp
     )
 
+set(qmatrixclient_QRC
+    client/resources.qrc
+    )
+
+QT5_ADD_RESOURCES(qmatrixclient_QRC_SRC ${qmatrixclient_QRC})
+
 # Tell CMake to create the executable
-add_executable(quaternion ${qmatrixclient_SRCS})
+add_executable(quaternion ${qmatrixclient_SRCS} ${qmatrixclient_QRC_SRC})
 
 if ( CMAKE_COMPILER_IS_GNUCC )
     # This is tested
@@ -58,4 +69,4 @@ target_compile_features(quaternion PRIVATE cxx_range_for)
 target_compile_features(quaternion PRIVATE cxx_override)
 
 # Use the Widgets module from Qt 5.
-target_link_libraries(quaternion Qt5::Widgets Qt5::Network KF5::CoreAddons)
+target_link_libraries(quaternion Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network KF5::CoreAddons)

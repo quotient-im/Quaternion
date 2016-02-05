@@ -106,6 +106,11 @@ void BaseJob::fail(int errorCode, QString errorString)
     emitResult();
 }
 
+QNetworkReply* BaseJob::networkReply() const
+{
+    return d->reply;
+}
+
 // void BaseJob::networkError(QNetworkReply::NetworkError code)
 // {
 //     fail( KJob::UserDefinedError+1, d->reply->errorString() );

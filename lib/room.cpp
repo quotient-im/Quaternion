@@ -31,10 +31,11 @@
 #include "events/roomtopicevent.h"
 #include "events/roommemberevent.h"
 #include "events/typingevent.h"
+#include "jobs/roommessagesjob.h"
 
 using namespace QMatrixClient;
 
-class Room::Private
+class Room::Private: public QObject
 {
     public:
         Private(Room* parent): q(parent) {}
@@ -42,8 +43,10 @@ class Room::Private
         Room* q;
 
         //static LogMessage* parseMessage(const QJsonObject& message);
+        void insertMessage(Event* event);
         void addState(Event* event);
         void ephemeralEvent(Event* event);
+        void gotMessages(KJob* job);
 
         Connection* connection;
         QList<Event*> messageEvents;
@@ -54,6 +57,8 @@ class Room::Private
         JoinState joinState;
         QList<User*> users;
         QList<User*> usersTyping;
+        QString prevBatch;
+        bool gettingNewContent;
 };
 
 Room::Room(Connection* connection, QString id)
@@ -62,6 +67,7 @@ Room::Room(Connection* connection, QString id)
     d->id = id;
     d->connection = connection;
     d->joinState = JoinState::Join;
+    d->gettingNewContent = false;
     qDebug() << "New Room: " << id;
 
     //connection->getMembers(this); // I don't think we need this anymore in r0.0.1
@@ -132,9 +138,9 @@ QList< User* > Room::users() const
 
 void Room::addMessage(Event* event)
 {
-    d->messageEvents.append(event);
+    d->insertMessage(event);
     emit newMessage(event);
-    d->addState(event);
+    //d->addState(event);
 }
 
 void Room::addInitialState(State* state)
@@ -144,6 +150,8 @@ void Room::addInitialState(State* state)
 
 void Room::updateData(const SyncRoomData& data)
 {
+    if( d->prevBatch.isEmpty() )
+        d->prevBatch = data.timelinePrevBatch;
     setJoinState(data.joinState);
 
     for( Event* stateEvent: data.state )
@@ -153,7 +161,8 @@ void Room::updateData(const SyncRoomData& data)
 
     for( Event* timelineEvent: data.timeline )
     {
-        d->messageEvents.append(timelineEvent);
+
+        d->insertMessage(timelineEvent);
         emit newMessage(timelineEvent);
     }
 
@@ -161,6 +170,29 @@ void Room::updateData(const SyncRoomData& data)
     {
         d->ephemeralEvent(ephemeralEvent);
     }
+}
+
+void Room::getNewContent()
+{
+    if( !d->gettingNewContent )
+    {
+        d->gettingNewContent = true;
+        RoomMessagesJob* job = d->connection->getMessages(this, d->prevBatch);
+        connect( job, &RoomMessagesJob::result, d, &Room::Private::gotMessages );
+    }
+}
+
+void Room::Private::insertMessage(Event* event)
+{
+    for( int i=0; i<messageEvents.count(); i++ )
+    {
+        if( event->timestamp() < messageEvents.at(i)->timestamp() )
+        {
+            messageEvents.insert(i, event);
+            return;
+        }
+    }
+    messageEvents.append(event);
 }
 
 void Room::Private::addState(Event* event)
@@ -216,6 +248,25 @@ void Room::Private::ephemeralEvent(Event* event)
         }
         emit q->typingChanged();
     }
+}
+
+void Room::Private::gotMessages(KJob* job)
+{
+    RoomMessagesJob* realJob = static_cast<RoomMessagesJob*>(job);
+    if( realJob->error() )
+    {
+        qDebug() << realJob->errorString();
+    }
+    else
+    {
+        for( Event* event: realJob->events() )
+        {
+            insertMessage(event);
+            emit q->newMessage(event);
+        }
+        prevBatch = realJob->end();
+    }
+    gettingNewContent = false;
 }
 
 // void Room::setAlias(QString alias)

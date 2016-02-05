@@ -27,7 +27,9 @@
 #include "jobs/joinroomjob.h"
 #include "jobs/leaveroomjob.h"
 #include "jobs/roommembersjob.h"
+#include "jobs/roommessagesjob.h"
 #include "jobs/syncjob.h"
+#include "jobs/mediathumbnailjob.h"
 
 #include <QtCore/QDebug>
 
@@ -63,7 +65,9 @@ void Connection::reconnect()
 
 SyncJob* Connection::sync()
 {
+    QString filter = "{\"room\": { \"timeline\": { \"limit\": 100 } } }";
     SyncJob* syncJob = new SyncJob(d->data, d->data->lastEvent());
+    syncJob->setFilter(filter);
     connect( syncJob, &SyncJob::result, d, &ConnectionPrivate::syncDone );
     syncJob->start();
     return syncJob;
@@ -95,11 +99,25 @@ void Connection::getMembers(Room* room)
     job->start();
 }
 
+RoomMessagesJob* Connection::getMessages(Room* room, QString from)
+{
+    RoomMessagesJob* job = new RoomMessagesJob(d->data, room, from);
+    job->start();
+    return job;
+}
+
+MediaThumbnailJob* Connection::getThumbnail(QUrl url, int requestedWidth, int requestedHeight)
+{
+    MediaThumbnailJob* job = new MediaThumbnailJob(d->data, url, requestedWidth, requestedHeight);
+    job->start();
+    return job;
+}
+
 User* Connection::user(QString userId)
 {
     if( d->userMap.contains(userId) )
         return d->userMap.value(userId);
-    User* user = new User(userId);
+    User* user = new User(userId, this);
     d->userMap.insert(userId, user);
     return user;
 }

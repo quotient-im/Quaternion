@@ -52,10 +52,11 @@ namespace QMatrixClient
             virtual void parseJson(const QJsonDocument& data);
             
             void fail( int errorCode, QString errorString );
+            QNetworkReply* networkReply() const;
 
             
         protected slots:
-            void gotReply();
+            virtual void gotReply();
             void timeout();
 
             //void networkError(QNetworkReply::NetworkError code);

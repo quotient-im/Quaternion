@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2015 Felix Rohrbach <kde@fxrh.de>
+ * Copyright (C) 2016 Felix Rohrbach <kde@fxrh.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,45 +16,32 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef QMATRIXCLIENT_USER_H
-#define QMATRIXCLIENT_USER_H
+#ifndef QMATRIXCLIENT_ROOMMESSAGESJOB_H
+#define QMATRIXCLIENT_ROOMMESSAGESJOB_H
 
-#include <QtCore/QString>
-#include <QtCore/QObject>
+#include "basejob.h"
 
 namespace QMatrixClient
 {
+    class Room;
     class Event;
-    class Connection;
-    class User: public QObject
+
+    enum class FetchDirectory { Backwards, Forward };
+
+    class RoomMessagesJob: public BaseJob
     {
             Q_OBJECT
         public:
-            User(QString userId, Connection* connection);
-            virtual ~User();
+            RoomMessagesJob(ConnectionData* data, Room* room, QString from, FetchDirectory dir = FetchDirectory::Backwards, int limit=10);
+            virtual ~RoomMessagesJob();
 
-            /**
-             * Returns the id of the user
-             */
-            QString id() const;
+            QList<Event*> events();
+            QString end();
 
-            /**
-             * Returns the name chosen by the user
-             */
-            QString name() const;
-
-            /**
-             * Returns the name that should be used to display the user.
-             */
-            QString displayname() const;
-
-            QPixmap avatar(int requestedWidth, int requestedHeight);
-
-            void processEvent(Event* event);
-
-        signals:
-            void nameChanged();
-            void avatarChanged(User* user);
+        protected:
+            QString apiPath();
+            QUrlQuery query();
+            void parseJson(const QJsonDocument& data);
 
         private:
             class Private;
@@ -62,4 +49,4 @@ namespace QMatrixClient
     };
 }
 
-#endif // QMATRIXCLIENT_USER_H
+#endif // QMATRIXCLIENT_ROOMMESSAGESJOB_H

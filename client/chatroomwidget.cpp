@@ -24,6 +24,9 @@
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QLabel>
 
+#include <QtQml/QQmlContext>
+#include <QtQuick/QQuickItem>
+
 #include "lib/room.h"
 #include "lib/user.h"
 #include "lib/connection.h"
@@ -39,8 +42,20 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     m_currentRoom = 0;
     m_currentConnection = 0;
 
-    m_messageView = new QListView();
-    m_messageView->setModel(m_messageModel);
+    //m_messageView = new QListView();
+    //m_messageView->setModel(m_messageModel);
+
+    m_quickView = new QQuickView();
+    QWidget* container = QWidget::createWindowContainer(m_quickView, this);
+    container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    QQmlContext* ctxt = m_quickView->rootContext();
+    ctxt->setContextProperty("messageModel", m_messageModel);
+    m_quickView->setSource(QUrl("qrc:///qml/chat.qml"));
+    m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
+
+    QObject* rootItem = m_quickView->rootObject();
+    connect( rootItem, SIGNAL(getNewContent()), this, SLOT(getNewContent()) );
+
 
     m_chatEdit = new QLineEdit();
     connect( m_chatEdit, &QLineEdit::returnPressed, this, &ChatRoomWidget::sendLine );
@@ -50,7 +65,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
 
     QVBoxLayout* layout = new QVBoxLayout();
     layout->addWidget(m_topicLabel);
-    layout->addWidget(m_messageView);
+    layout->addWidget(container);
     layout->addWidget(m_currentlyTyping);
     layout->addWidget(m_chatEdit);
     setLayout(layout);
@@ -75,7 +90,7 @@ void ChatRoomWidget::setRoom(QMatrixClient::Room* room)
         connect( m_currentRoom, &QMatrixClient::Room::topicChanged, this, &ChatRoomWidget::topicChanged );
         topicChanged();
     }
-    m_messageView->scrollToBottom();
+    //m_messageView->scrollToBottom();
 }
 
 void ChatRoomWidget::setConnection(QMatrixClient::Connection* connection)
@@ -103,6 +118,11 @@ void ChatRoomWidget::typingChanged()
 void ChatRoomWidget::topicChanged()
 {
     m_topicLabel->setText( m_currentRoom->topic() );
+}
+
+void ChatRoomWidget::getNewContent()
+{
+    m_currentRoom->getNewContent();
 }
 
 void ChatRoomWidget::sendLine()

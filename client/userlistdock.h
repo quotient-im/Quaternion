@@ -28,7 +28,7 @@ namespace QMatrixClient
 }
 
 class UserListModel;
-class QListView;
+class QTableView;
 
 class UserListDock: public QDockWidget
 {
@@ -41,7 +41,7 @@ class UserListDock: public QDockWidget
         void setRoom( QMatrixClient::Room* room );
 
     private:
-        QListView* m_view;
+        QTableView* m_view;
         UserListModel* m_model;
 };
 
