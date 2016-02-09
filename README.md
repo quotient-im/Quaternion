@@ -1,5 +1,5 @@
 # Quaternion
-Quaternion is an IM client for the Matrix protocol in development.
+Quaternion is an IM client for the [Matrix](https://matrix.org) protocol in development.
 
 ## Dependencies
 - Qt 5
@@ -19,4 +19,4 @@ I have no idea, but should be possible
 
 
 ## Screenshot
-![Screenshot](http://fxrh.de/img/quaternion.png)
+![Screenshot](quaternion.png)
