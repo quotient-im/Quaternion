@@ -144,6 +144,11 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         return event->timestamp();
     }
 
+    if( role == DateRole )
+    {
+        return event->timestamp().toLocalTime().date();
+    }
+
     if( role == AuthorRole )
     {
         if( event->type() == QMatrixClient::EventType::RoomMessage )
@@ -198,6 +203,7 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
     QHash<int, QByteArray> roles = QAbstractItemModel::roleNames();
     roles[EventTypeRole] = "eventType";
     roles[TimeRole] = "time";
+    roles[DateRole] = "date";
     roles[AuthorRole] = "author";
     roles[ContentRole] = "content";
     return roles;

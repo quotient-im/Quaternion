@@ -20,6 +20,15 @@ Rectangle {
             flickableDirection: Flickable.VerticalFlick
             pixelAligned: true
 
+            section {
+                property: "date"
+                delegate: Rectangle {
+                    width:parent.width
+                    height: childrenRect.height
+                    Label { text: section.toLocaleString("dd.MM.yyyy") }
+                }
+            }
+
             onContentYChanged: {
                 if( (this.contentY - this.originY) < 5 )
                 {
@@ -37,7 +46,10 @@ Rectangle {
             id: message
             width: parent.width
 
-            Label { text: time.toLocaleString(Qt.locale("de_DE"), "'<'hh:mm:ss'>'"); color: "grey" }
+            Label {
+                text: time.toLocaleString(Qt.locale("de_DE"), "'<'hh:mm:ss'>'")
+                color: "grey"
+            }
             Label {
                 width: 120; elide: Text.ElideRight;
                 text: eventType == "message" ? author : "***"
