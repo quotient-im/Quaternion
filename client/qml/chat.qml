@@ -7,6 +7,10 @@ Rectangle {
 
     signal getNewContent()
 
+    function scrollToBottom() {
+        chatView.positionViewAtEnd();
+    }
+
     ScrollView {
     anchors.fill: parent
 
@@ -19,6 +23,28 @@ Rectangle {
             delegate: messageDelegate
             flickableDirection: Flickable.VerticalFlick
             pixelAligned: true
+            property bool wasAtEndY: true
+
+            function aboutToBeInserted() {
+                console.log("test!");
+                wasAtEndY = atYEnd;
+            }
+
+            function rowsInserted() {
+                if( wasAtEndY )
+                {
+                    root.scrollToBottom();
+                } else  {
+                    console.log("was not at end...");
+                }
+            }
+
+            Component.onCompleted: {
+                console.log("onCompleted");
+                model.rowsAboutToBeInserted.connect(aboutToBeInserted);
+                model.rowsInserted.connect(rowsInserted);
+                //positionViewAtEnd();
+            }
 
             section {
                 property: "date"
@@ -35,6 +61,7 @@ Rectangle {
                     console.log("get new content!");
                     root.getNewContent()
                 }
+
             }
         }
     }

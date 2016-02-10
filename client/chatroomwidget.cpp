@@ -19,6 +19,7 @@
 #include "chatroomwidget.h"
 
 #include <QtCore/QDebug>
+#include <QtCore/QTimer>
 #include <QtWidgets/QListView>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QVBoxLayout>
@@ -77,7 +78,6 @@ ChatRoomWidget::~ChatRoomWidget()
 
 void ChatRoomWidget::setRoom(QMatrixClient::Room* room)
 {
-    m_messageModel->changeRoom( room );
     if( m_currentRoom )
     {
         disconnect( m_currentRoom, &QMatrixClient::Room::typingChanged, this, &ChatRoomWidget::typingChanged );
@@ -90,7 +90,10 @@ void ChatRoomWidget::setRoom(QMatrixClient::Room* room)
         connect( m_currentRoom, &QMatrixClient::Room::topicChanged, this, &ChatRoomWidget::topicChanged );
         topicChanged();
     }
+    m_messageModel->changeRoom( room );
     //m_messageView->scrollToBottom();
+    QObject* rootItem = m_quickView->rootObject();
+    QMetaObject::invokeMethod(rootItem, "scrollToBottom");
 }
 
 void ChatRoomWidget::setConnection(QMatrixClient::Connection* connection)
