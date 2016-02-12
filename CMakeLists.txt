@@ -15,7 +15,7 @@ find_package(Qt5Qml 5.4.0)
 find_package(Qt5Gui 5.4.0)
 #find_package(KF5CoreAddons)
 
-include_directories( kcoreaddons/src/lib )
+include_directories( kcoreaddons/src/lib kcoreaddons/src/lib/jobs )
 
 set(qmatrixclient_SRCS
     lib/connectiondata.cpp
