@@ -24,6 +24,7 @@
 #include <QtCore/QDebug>
 
 #include "roommessageevent.h"
+#include "roomnameevent.h"
 #include "roomaliasesevent.h"
 #include "roomcanonicalaliasevent.h"
 #include "roommemberevent.h"
@@ -85,6 +86,10 @@ Event* Event::fromJson(const QJsonObject& obj)
     if( obj.value("type").toString() == "m.room.message" )
     {
         return RoomMessageEvent::fromJson(obj);
+    }
+    if( obj.value("type").toString() == "m.room.name" )
+    {
+        return RoomNameEvent::fromJson(obj);
     }
     if( obj.value("type").toString() == "m.room.aliases" )
     {
