@@ -27,6 +27,7 @@ set(qmatrixclient_SRCS
     lib/state.cpp
     lib/events/event.cpp
     lib/events/roommessageevent.cpp
+    lib/events/roomnameevent.cpp
     lib/events/roomaliasesevent.cpp
     lib/events/roomcanonicalaliasevent.cpp
     lib/events/roommemberevent.cpp
