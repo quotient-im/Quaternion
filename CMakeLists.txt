@@ -12,9 +12,14 @@ find_package(Qt5Widgets 5.4.0)
 find_package(Qt5Network 5.4.0)
 find_package(Qt5Quick 5.4.0)
 find_package(Qt5Qml 5.4.0)
+<<<<<<< HEAD
 #find_package(KF5CoreAddons)
 
 include_directories( kcoreaddons/src/lib )
+=======
+find_package(Qt5Gui 5.4.0)
+find_package(KF5CoreAddons)
+>>>>>>> master
 
 set(qmatrixclient_SRCS
     lib/connectiondata.cpp
@@ -41,6 +46,7 @@ set(qmatrixclient_SRCS
     lib/jobs/roommembersjob.cpp
     lib/jobs/roommessagesjob.cpp
     lib/jobs/syncjob.cpp
+    lib/jobs/mediathumbnailjob.cpp
     client/logindialog.cpp
     client/mainwindow.cpp
     client/roomlistdock.cpp
@@ -73,4 +79,4 @@ target_compile_features(quaternion PRIVATE cxx_range_for)
 target_compile_features(quaternion PRIVATE cxx_override)
 
 # Use the Widgets module from Qt 5.
-target_link_libraries(quaternion Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Network) #KF5::CoreAddons)
+target_link_libraries(quaternion Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network) #KF5::CoreAddons)

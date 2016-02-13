@@ -36,7 +36,7 @@ Rectangle {
     onVisibleChanged: if(visible)fadein.start();
     function show(){
         visible = true;
-        zParent.z = 2;
+        zParent.z = 20;
         fadein.start();
     }
     function hide(){

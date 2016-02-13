@@ -7,6 +7,10 @@ Rectangle {
 
     signal getNewContent()
 
+    function scrollToBottom() {
+        chatView.positionViewAtEnd();
+    }
+
     ScrollView {
     anchors.fill: parent
 
@@ -19,6 +23,37 @@ Rectangle {
             delegate: messageDelegate
             flickableDirection: Flickable.VerticalFlick
             pixelAligned: true
+            property bool wasAtEndY: true
+
+            function aboutToBeInserted() {
+                console.log("test!");
+                wasAtEndY = atYEnd;
+            }
+
+            function rowsInserted() {
+                if( wasAtEndY )
+                {
+                    root.scrollToBottom();
+                } else  {
+                    console.log("was not at end...");
+                }
+            }
+
+            Component.onCompleted: {
+                console.log("onCompleted");
+                model.rowsAboutToBeInserted.connect(aboutToBeInserted);
+                model.rowsInserted.connect(rowsInserted);
+                //positionViewAtEnd();
+            }
+
+            section {
+                property: "date"
+                delegate: Rectangle {
+                    width:parent.width
+                    height: childrenRect.height
+                    Label { text: section.toLocaleString("dd.MM.yyyy") }
+                }
+            }
 
             onContentYChanged: {
                 if( (this.contentY - this.originY) < 5 )
@@ -26,6 +61,7 @@ Rectangle {
                     console.log("get new content!");
                     root.getNewContent()
                 }
+
             }
         }
     }
@@ -37,7 +73,10 @@ Rectangle {
             id: message
             width: parent.width
 
-            Label { text: time.toLocaleString(Qt.locale("de_DE"), "'<'hh:mm:ss'>'"); color: "grey" }
+            Label {
+                text: time.toLocaleString(Qt.locale("de_DE"), "'<'hh:mm:ss'>'")
+                color: "grey"
+            }
             Label {
                 width: 120; elide: Text.ElideRight;
                 text: eventType == "message" ? author : "***"

@@ -19,6 +19,7 @@
 #include "roommemberevent.h"
 
 #include <QtCore/QDebug>
+#include <QtCore/QUrl>
 
 using namespace QMatrixClient;
 
@@ -28,6 +29,7 @@ class RoomMemberEvent::Private
         MembershipType membership;
         QString userId;
         QString displayname;
+        QUrl avatarUrl;
 };
 
 RoomMemberEvent::RoomMemberEvent()
@@ -56,6 +58,11 @@ QString RoomMemberEvent::displayName() const
     return d->displayname;
 }
 
+QUrl RoomMemberEvent::avatarUrl() const
+{
+    return d->avatarUrl;
+}
+
 RoomMemberEvent* RoomMemberEvent::fromJson(const QJsonObject& obj)
 {
     RoomMemberEvent* e = new RoomMemberEvent();
@@ -76,5 +83,6 @@ RoomMemberEvent* RoomMemberEvent::fromJson(const QJsonObject& obj)
         e->d->membership = MembershipType::Ban;
     else
         qDebug() << "Unknown MembershipType: " << membershipString;
+    e->d->avatarUrl = QUrl(content.value("avatar_url").toString());
     return e;
 }

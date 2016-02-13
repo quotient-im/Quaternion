@@ -18,7 +18,8 @@
 
 #include "userlistdock.h"
 
-#include <QtWidgets/QListView>
+#include <QtWidgets/QTableView>
+#include <QtWidgets/QHeaderView>
 
 #include "lib/connection.h"
 #include "lib/room.h"
@@ -27,7 +28,11 @@
 UserListDock::UserListDock(QWidget* parent)
     : QDockWidget("Users", parent)
 {
-    m_view = new QListView();
+    m_view = new QTableView();
+    m_view->setShowGrid(false);
+    m_view->horizontalHeader()->setStretchLastSection(true);
+    m_view->horizontalHeader()->setVisible(false);
+    m_view->verticalHeader()->setVisible(false);
     setWidget(m_view);
 
     m_model = new UserListModel();

@@ -18,22 +18,46 @@
 
 #include "user.h"
 
+#include "connection.h"
 #include "events/event.h"
 #include "events/roommemberevent.h"
+#include "jobs/mediathumbnailjob.h"
+
+#include <QtCore/QTimer>
+#include <QtCore/QPair>
 
 using namespace QMatrixClient;
 
-class User::Private
+class User::Private: public QObject
 {
     public:
+        User* q;
         QString userId;
         QString name;
+        QUrl avatarUrl;
+        Connection* connection;
+
+        QPixmap avatar;
+        int requestedWidth;
+        int requestedHeight;
+        bool avatarValid;
+        bool avatarOngoingRequest;
+        QHash<QPair<int,int>,QPixmap> scaledMap;
+
+        void requestAvatar();
+
+    public slots:
+        void gotAvatar(KJob* job);
 };
 
-User::User(QString userId)
+User::User(QString userId, Connection* connection)
     : d(new Private)
 {
+    d->q = this;
+    d->connection = connection;
     d->userId = userId;
+    d->avatarValid = false;
+    d->avatarOngoingRequest = false;
 }
 
 User::~User()
@@ -58,6 +82,32 @@ QString User::displayname() const
     return d->userId;
 }
 
+QPixmap User::avatar(int width, int height)
+{
+    if( !d->avatarValid
+        || width > d->requestedWidth
+        || height > d->requestedHeight )
+    {
+        if( !d->avatarOngoingRequest && d->avatarUrl.isValid() )
+        {
+            qDebug() << "Get avatar...";
+            d->requestedWidth = width;
+            d->requestedHeight = height;
+            d->avatarOngoingRequest = true;
+            QTimer::singleShot(0, d, &User::Private::requestAvatar);
+        }
+    }
+
+    if( d->avatar.isNull() )
+        return d->avatar;
+    QPair<int,int> size(width, height);
+    if( !d->scaledMap.contains(size) )
+    {
+        d->scaledMap.insert(size, d->avatar.scaled(width, height, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+    return d->scaledMap.value(size);
+}
+
 void User::processEvent(Event* event)
 {
     if( event->type() == EventType::RoomMember )
@@ -68,5 +118,26 @@ void User::processEvent(Event* event)
             d->name = e->displayName();
             emit nameChanged();
         }
+        if( d->avatarUrl != e->avatarUrl() )
+        {
+            d->avatarUrl = e->avatarUrl();
+            d->avatarValid = false;
+        }
     }
+}
+
+void User::Private::requestAvatar()
+{
+    MediaThumbnailJob* job = connection->getThumbnail(avatarUrl, requestedWidth, requestedHeight);
+    connect( job, &MediaThumbnailJob::result, this, &User::Private::gotAvatar );
+}
+
+void User::Private::gotAvatar(KJob* job)
+{
+    avatarOngoingRequest = false;
+    avatarValid = true;
+    avatar = static_cast<MediaThumbnailJob*>(job)->thumbnail().scaled(requestedWidth, requestedHeight,
+                                                                      Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    scaledMap.clear();
+    emit q->avatarChanged(q);
 }

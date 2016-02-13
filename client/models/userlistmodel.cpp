@@ -19,6 +19,8 @@
 #include "userlistmodel.h"
 
 #include <QtCore/QDebug>
+#include <QtCore/QVector>
+#include <QtGui/QPixmap>
 
 #include "lib/connection.h"
 #include "lib/room.h"
@@ -77,6 +79,13 @@ QVariant UserListModel::data(const QModelIndex& index, int role) const
             return user->id();
         return user->name();
     }
+    if( role == Qt::DecorationRole )
+    {
+        QPixmap map = user->avatar(25,25);
+        if( !map.isNull() )
+            return map;
+        return QVariant();
+    }
     return QVariant();
 }
 
@@ -93,6 +102,7 @@ void UserListModel::userAdded(QMatrixClient::User* user)
     beginInsertRows(QModelIndex(), m_users.count(), m_users.count());
     m_users.append(user);
     endInsertRows();
+    connect( user, &QMatrixClient::User::avatarChanged, this, &UserListModel::avatarChanged );
 }
 
 void UserListModel::userRemoved(QMatrixClient::User* user)
@@ -101,5 +111,12 @@ void UserListModel::userRemoved(QMatrixClient::User* user)
     beginRemoveRows(QModelIndex(), pos, pos);
     m_users.removeAt(pos);
     endRemoveRows();
+    disconnect( user, &QMatrixClient::User::avatarChanged, this, &UserListModel::avatarChanged );
+}
+
+void UserListModel::avatarChanged(QMatrixClient::User* user)
+{
+    int pos = m_users.indexOf(user);
+    dataChanged(index(pos), index(pos), QVector<int>() << Qt::DecorationRole );
 }
 
