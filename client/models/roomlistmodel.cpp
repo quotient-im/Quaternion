@@ -50,7 +50,7 @@ void RoomListModel::addRoom(QMatrixClient::Room* room)
 {
     beginInsertRows(QModelIndex(), m_rooms.count(), m_rooms.count());
     m_rooms.append(room);
-    connect( room, &QMatrixClient::Room::aliasChanged, this, &RoomListModel::aliasChanged );
+    connect( room, &QMatrixClient::Room::namesChanged, this, &RoomListModel::aliasChanged );
     endInsertRows();
 }
 
