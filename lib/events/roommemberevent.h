@@ -20,6 +20,7 @@
 #define QMATRIXCLIENT_ROOMMEMBEREVENT_H
 
 #include <QtCore/QJsonObject>
+#include <QtCore/QUrl>
 
 #include "event.h"
 
@@ -36,6 +37,7 @@ namespace QMatrixClient
             MembershipType membership() const;
             QString userId() const;
             QString displayName() const;
+            QUrl avatarUrl() const;
 
             static RoomMemberEvent* fromJson(const QJsonObject& obj);
 

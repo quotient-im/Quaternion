@@ -8,7 +8,7 @@ MouseArea {
     property alias hideDelay: hideTimer.interval
     property alias showDelay: showTimer.interval
     id: mouseArea
-    z: 3
+    z: 21
     acceptedButtons: Qt.NoButton
     anchors.fill: parent
     hoverEnabled: true
