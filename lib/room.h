@@ -61,7 +61,7 @@ namespace QMatrixClient
 
         signals:
             void newMessage(Event* event);
-            void aliasChanged(Room* room);
+            void namesChanged(Room* room);
             void topicChanged();
             void userAdded(User* user);
             void userRemoved(User* user);
