@@ -12,14 +12,10 @@ find_package(Qt5Widgets 5.4.0)
 find_package(Qt5Network 5.4.0)
 find_package(Qt5Quick 5.4.0)
 find_package(Qt5Qml 5.4.0)
-<<<<<<< HEAD
+find_package(Qt5Gui 5.4.0)
 #find_package(KF5CoreAddons)
 
 include_directories( kcoreaddons/src/lib )
-=======
-find_package(Qt5Gui 5.4.0)
-find_package(KF5CoreAddons)
->>>>>>> master
 
 set(qmatrixclient_SRCS
     lib/connectiondata.cpp
