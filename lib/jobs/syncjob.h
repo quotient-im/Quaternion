@@ -39,11 +39,11 @@ namespace QMatrixClient
 
         bool timelineLimited;
         QString timelinePrevBatch;
+
+        SyncRoomData(QString roomId_, const QJsonObject& room_, JoinState joinState_);
     };
 
     class ConnectionData;
-    class Room;
-    class Event;
     class SyncJob: public BaseJob
     {
             Q_OBJECT

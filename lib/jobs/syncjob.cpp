@@ -140,46 +140,32 @@ void SyncJob::parseJson(const QJsonDocument& data)
     emitResult();
 }
 
+SyncRoomData::SyncRoomData(QString roomId_, const QJsonObject& room_, JoinState joinState_)
+    : roomId(roomId_), joinState(joinState_)
+{
+    const QList<QPair<QString, QList<Event *> *> > eventLists = {
+        { "state", &state },
+        { "timeline", &timeline },
+        { "ephemeral", &ephemeral },
+        { "account_data", &accountData }
+    };
+
+    for (auto elist: eventLists) {
+        QJsonArray array = room_.value(elist.first).toObject().value("events").toArray();
+        for( QJsonValue val: array )
+        {
+            if ( Event* event = Event::fromJson(val.toObject()) )
+                elist.second->append(event);
+        }
+    }
+
+    QJsonObject timeline = room_.value("timeline").toObject();
+    timelineLimited = timeline.value("limited").toBool();
+    timelinePrevBatch = timeline.value("prev_batch").toString();
+}
+
 void SyncJob::Private::parseEvents(QString roomId, const QJsonObject& room, JoinState joinState)
 {
-    SyncRoomData data;
-    data.roomId = roomId;
-    data.joinState = joinState;
-
-    QJsonArray stateArray = room.value("state").toObject().value("events").toArray();
-    for( QJsonValue val: stateArray )
-    {
-        Event* event = Event::fromJson(val.toObject());
-        if( event )
-            data.state.append(event);
-    }
-
-    QJsonObject timeline = room.value("timeline").toObject();
-    QJsonArray timelineArray = timeline.value("events").toArray();
-    for( QJsonValue val: timelineArray )
-    {
-        Event* event = Event::fromJson(val.toObject());
-        if( event )
-            data.timeline.append(event);
-    }
-    data.timelineLimited = timeline.value("limited").toBool();
-    data.timelinePrevBatch = timeline.value("prev_batch").toString();
-
-    QJsonArray ephemeralArray = room.value("ephemeral").toObject().value("events").toArray();
-    for( QJsonValue val: ephemeralArray )
-    {
-        Event* event = Event::fromJson(val.toObject());
-        if( event )
-            data.ephemeral.append(event);
-    }
-
-    QJsonArray accountDataArray = room.value("account_data").toObject().value("events").toArray();
-    for( QJsonValue val: accountDataArray )
-    {
-        Event* event = Event::fromJson(val.toObject());
-        if( event )
-            data.accountData.append(event);
-    }
-    roomData.append(data);
+    roomData.append(SyncRoomData{roomId, room, joinState});
 }
 
