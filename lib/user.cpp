@@ -90,7 +90,7 @@ QPixmap User::avatar(int width, int height)
     {
         if( !d->avatarOngoingRequest && d->avatarUrl.isValid() )
         {
-            qDebug() << "Get avatar...";
+            qDebug() << "Get avatar for" << displayname() << "...";
             d->requestedWidth = width;
             d->requestedHeight = height;
             d->avatarOngoingRequest = true;
