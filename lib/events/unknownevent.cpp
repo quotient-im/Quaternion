@@ -19,6 +19,7 @@
 #include "unknownevent.h"
 
 #include <QtCore/QJsonDocument>
+#include <QtCore/QDebug>
 
 using namespace QMatrixClient;
 
@@ -56,5 +57,7 @@ UnknownEvent* UnknownEvent::fromJson(const QJsonObject& obj)
     e->parseJson(obj);
     e->d->type = obj.value("type").toString();
     e->d->content = QString::fromUtf8(QJsonDocument(obj).toJson());
+    qDebug() << "UnknownEvent, JSON follows:";
+    qDebug().noquote() << obj;
     return e;
 }

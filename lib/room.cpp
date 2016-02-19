@@ -67,12 +67,10 @@ Room::Room(Connection* connection, QString id)
     : d(new Private(this))
 {
     d->id = id;
-    // It will be updated once names and aliases arrive from the server
-    d->name = id;
     d->connection = connection;
     d->joinState = JoinState::Join;
     d->gettingNewContent = false;
-    qDebug() << "New Room: " << id;
+    qDebug() << "New Room:" << id;
 
     //connection->getMembers(this); // I don't think we need this anymore in r0.0.1
 }
@@ -92,6 +90,11 @@ QList< Event* > Room::messages() const
     return d->messageEvents;
 }
 
+QString Room::name() const
+{
+    return d->name;
+}
+
 QStringList Room::aliases() const
 {
     return d->aliases;
@@ -104,7 +107,25 @@ QString Room::canonicalAlias() const
 
 QString Room::displayName() const
 {
-    QString dispName = d->name;
+    if (name().isEmpty())
+    {
+        if (!canonicalAlias().isEmpty())
+            return canonicalAlias();
+        if (!aliases().empty())
+            return aliases().at(0);
+        /* Ok, last attempt - one on one chat (FIXME: doesn't seem to work yet) */
+        if (users().size() == 2)
+        {
+            return users().at(0)->displayname() + " vs. " +
+                    users().at(1)->displayname();
+        }
+        /* Fail miserably */
+        return id();
+    }
+
+    // If we have a non-empty name, try to stack canonical alias to it.
+    // The format is unwittingly borrowed from the email address format.
+    QString dispName = name();
     if (!canonicalAlias().isEmpty())
         dispName += " <" + canonicalAlias() + ">";
 
@@ -206,7 +227,7 @@ void Room::Private::addState(Event* event)
         if (RoomNameEvent* nameEvent = static_cast<RoomNameEvent*>(event))
         {
             name = nameEvent->name();
-            qDebug() << "room name: " << name;
+            qDebug() << "room name:" << name;
             emit q->namesChanged(q);
         } else
         {
@@ -218,14 +239,14 @@ void Room::Private::addState(Event* event)
     {
         RoomAliasesEvent* aliasesEvent = static_cast<RoomAliasesEvent*>(event);
         aliases = aliasesEvent->aliases();
-        qDebug() << "room aliases: " << aliases;
+        qDebug() << "room aliases:" << aliases;
         emit q->namesChanged(q);
     }
     if( event->type() == EventType::RoomCanonicalAlias )
     {
         RoomCanonicalAliasEvent* aliasEvent = static_cast<RoomCanonicalAliasEvent*>(event);
         canonicalAlias = aliasEvent->alias();
-        qDebug() << "room canonical alias: " << canonicalAlias;
+        qDebug() << "room canonical alias:" << canonicalAlias;
         emit q->namesChanged(q);
     }
     if( event->type() == EventType::RoomTopic )
@@ -253,18 +274,6 @@ void Room::Private::addState(Event* event)
         }
     }
 
-    // This can be optimized into specific events but then name calculation logic
-    // scatters across several places; and we don't have so much problems with
-    // performance yet.
-    name =
-        !name.isEmpty() ? name :
-        !canonicalAlias.isEmpty() ? canonicalAlias :
-        !aliases.empty() ? aliases.at(0) :
-        /* Ok, last attempt - one on one chat (FIXME: doesn't seem to work yet */
-        users.size() == 2 ?
-            users.at(0)->displayname() + " vs. " + users.at(1)->displayname() :
-        /* Fail miserably */
-        id;
 }
 
 void Room::Private::ephemeralEvent(Event* event)
