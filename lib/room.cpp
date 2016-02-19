@@ -26,6 +26,7 @@
 #include "user.h"
 #include "events/event.h"
 #include "events/roommessageevent.h"
+#include "events/roomnameevent.h"
 #include "events/roomaliasesevent.h"
 #include "events/roomcanonicalaliasevent.h"
 #include "events/roomtopicevent.h"
@@ -53,6 +54,7 @@ class Room::Private: public QObject
         QString id;
         QStringList aliases;
         QString canonicalAlias;
+        QString name;
         QString topic;
         JoinState joinState;
         QList<User*> users;
@@ -88,6 +90,11 @@ QList< Event* > Room::messages() const
     return d->messageEvents;
 }
 
+QString Room::name() const
+{
+    return d->name;
+}
+
 QStringList Room::aliases() const
 {
     return d->aliases;
@@ -100,11 +107,29 @@ QString Room::canonicalAlias() const
 
 QString Room::displayName() const
 {
-    if( !d->canonicalAlias.isEmpty() )
-        return d->canonicalAlias;
-    if( d->aliases.count() > 0 )
-        return d->aliases.at(0);
-    return d->id;
+    if (name().isEmpty())
+    {
+        if (!canonicalAlias().isEmpty())
+            return canonicalAlias();
+        if (!aliases().empty())
+            return aliases().at(0);
+        /* Ok, last attempt - one on one chat (FIXME: doesn't seem to work yet) */
+        if (users().size() == 2)
+        {
+            return users().at(0)->displayname() + " vs. " +
+                    users().at(1)->displayname();
+        }
+        /* Fail miserably */
+        return id();
+    }
+
+    // If we have a non-empty name, try to stack canonical alias to it.
+    // The format is unwittingly borrowed from the email address format.
+    QString dispName = name();
+    if (!canonicalAlias().isEmpty())
+        dispName += " <" + canonicalAlias() + ">";
+
+    return dispName;
 }
 
 QString Room::topic() const
@@ -197,18 +222,32 @@ void Room::Private::insertMessage(Event* event)
 
 void Room::Private::addState(Event* event)
 {
+    if( event->type() == EventType::RoomName )
+    {
+        if (RoomNameEvent* nameEvent = static_cast<RoomNameEvent*>(event))
+        {
+            name = nameEvent->name();
+            qDebug() << "room name: " << name;
+            emit q->namesChanged(q);
+        } else
+        {
+            qDebug() <<
+                "!!! event type is RoomName but the event is not RoomNameEvent";
+        }
+    }
     if( event->type() == EventType::RoomAliases )
     {
         RoomAliasesEvent* aliasesEvent = static_cast<RoomAliasesEvent*>(event);
         aliases = aliasesEvent->aliases();
-        emit q->aliasChanged(q);
+        qDebug() << "room aliases: " << aliases;
+        emit q->namesChanged(q);
     }
     if( event->type() == EventType::RoomCanonicalAlias )
     {
         RoomCanonicalAliasEvent* aliasEvent = static_cast<RoomCanonicalAliasEvent*>(event);
         canonicalAlias = aliasEvent->alias();
-        qDebug() << canonicalAlias;
-        emit q->aliasChanged(q);
+        qDebug() << "room canonical alias: " << canonicalAlias;
+        emit q->namesChanged(q);
     }
     if( event->type() == EventType::RoomTopic )
     {
@@ -234,6 +273,7 @@ void Room::Private::addState(Event* event)
             emit q->userRemoved(u);
         }
     }
+
 }
 
 void Room::Private::ephemeralEvent(Event* event)

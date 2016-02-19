@@ -42,6 +42,7 @@ namespace QMatrixClient
 
             QString id() const;
             QList<Event*> messages() const;
+            QString name() const;
             QStringList aliases() const;
             QString canonicalAlias() const;
             QString displayName() const;
@@ -61,7 +62,7 @@ namespace QMatrixClient
 
         signals:
             void newMessage(Event* event);
-            void aliasChanged(Room* room);
+            void namesChanged(Room* room);
             void topicChanged();
             void userAdded(User* user);
             void userRemoved(User* user);
