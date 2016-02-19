@@ -24,6 +24,7 @@
 #include <QtCore/QDebug>
 
 #include "roommessageevent.h"
+#include "roomnameevent.h"
 #include "roomaliasesevent.h"
 #include "roomcanonicalaliasevent.h"
 #include "roommemberevent.h"
@@ -86,6 +87,10 @@ Event* Event::fromJson(const QJsonObject& obj)
     {
         return RoomMessageEvent::fromJson(obj);
     }
+    if( obj.value("type").toString() == "m.room.name" )
+    {
+        return RoomNameEvent::fromJson(obj);
+    }
     if( obj.value("type").toString() == "m.room.aliases" )
     {
         return RoomAliasesEvent::fromJson(obj);
@@ -104,31 +109,34 @@ Event* Event::fromJson(const QJsonObject& obj)
     }
     if( obj.value("type").toString() == "m.typing" )
     {
-        qDebug() << "m.typing...";
         return TypingEvent::fromJson(obj);
     }
-    //qDebug() << "Unknown event";
     return UnknownEvent::fromJson(obj);
 }
 
 bool Event::parseJson(const QJsonObject& obj)
 {
     d->originalJson = QString::fromUtf8(QJsonDocument(obj).toJson());
-    bool correct = true;
-    if( obj.contains("event_id") )
+    bool correct = (d->type != EventType::Unknown);
+    if( d->type != EventType::Unknown && d->type != EventType::Typing )
     {
-        d->id = obj.value("event_id").toString();
-    } else {
-        correct = false;
-        qDebug() << "Event: can't find event_id";
-    }
-    if( obj.contains("origin_server_ts") )
-    {
-        d->timestamp = QDateTime::fromMSecsSinceEpoch( (quint64) obj.value("origin_server_ts").toDouble(), Qt::UTC );
-    } else {
-        correct = false;
-        qDebug() << "Event: can't find ts";
-        //qDebug() << obj;
+        if( obj.contains("event_id") )
+        {
+            d->id = obj.value("event_id").toString();
+        } else {
+            correct = false;
+            qDebug() << "Event: can't find event_id";
+            qDebug().noquote() << obj;
+        }
+        if( obj.contains("origin_server_ts") )
+        {
+            d->timestamp = QDateTime::fromMSecsSinceEpoch(
+                        (quint64) obj.value("origin_server_ts").toDouble(), Qt::UTC );
+        } else {
+            correct = false;
+            qDebug() << "Event: can't find ts";
+            qDebug().noquote() << obj;
+        }
     }
     if( obj.contains("room_id") )
     {
