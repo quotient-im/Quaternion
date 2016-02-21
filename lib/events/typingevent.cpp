@@ -54,7 +54,6 @@ TypingEvent* TypingEvent::fromJson(const QJsonObject& obj)
     {
         e->d->users << user.toString();
     }
-    qDebug() << "TypingEvent in room" << e->roomId() << ":";
-    qDebug() << e->d->users;
+    qDebug() << "TypingEvent in room" << e->roomId() << ":" << e->d->users;
     return e;
 }
