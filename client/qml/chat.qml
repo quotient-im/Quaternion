@@ -26,7 +26,7 @@ Rectangle {
             property bool wasAtEndY: true
 
             function aboutToBeInserted() {
-                console.log("test!");
+                console.log("aboutToBeInserted!");
                 wasAtEndY = atYEnd;
             }
 
