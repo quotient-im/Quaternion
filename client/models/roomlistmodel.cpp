@@ -50,7 +50,7 @@ void RoomListModel::addRoom(QMatrixClient::Room* room)
 {
     beginInsertRows(QModelIndex(), m_rooms.count(), m_rooms.count());
     m_rooms.append(room);
-    connect( room, &QMatrixClient::Room::namesChanged, this, &RoomListModel::aliasChanged );
+    connect( room, &QMatrixClient::Room::namesChanged, this, &RoomListModel::namesChanged );
     endInsertRows();
 }
 
@@ -79,7 +79,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
-void RoomListModel::aliasChanged(QMatrixClient::Room* room)
+void RoomListModel::namesChanged(QMatrixClient::Room* room)
 {
     int row = m_rooms.indexOf(room);
     emit dataChanged(index(row), index(row));
