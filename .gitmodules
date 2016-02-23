@@ -1,0 +1,3 @@
+[submodule "kcoreaddons"]
+	path = kcoreaddons
+	url = git://anongit.kde.org/kcoreaddons.git
