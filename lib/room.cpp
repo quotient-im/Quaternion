@@ -109,17 +109,17 @@ QString Room::displayName() const
 {
     if (name().isEmpty())
     {
+        // Without a human name, try to find a substitute
         if (!canonicalAlias().isEmpty())
             return canonicalAlias();
-        if (!aliases().empty())
+        if (!aliases().empty() && !aliases().at(0).isEmpty())
             return aliases().at(0);
-        /* Ok, last attempt - one on one chat (FIXME: doesn't seem to work yet) */
-        if (users().size() == 2)
-        {
-            return users().at(0)->displayname() + " vs. " +
+        // Ok, last attempt - one on one chat
+        if (users().size() == 2) {
+            return users().at(0)->displayname() + " and " +
                     users().at(1)->displayname();
         }
-        /* Fail miserably */
+        // Fail miserably
         return id();
     }
 
@@ -189,6 +189,8 @@ void Room::updateData(const SyncRoomData& data)
 
         d->insertMessage(timelineEvent);
         emit newMessage(timelineEvent);
+        // State changes can arrive in a timeline event - try to check those.
+        d->addState(timelineEvent);
     }
 
     for( Event* ephemeralEvent: data.ephemeral )
