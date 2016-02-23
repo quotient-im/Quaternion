@@ -19,7 +19,12 @@
 #ifndef QMATRIXCLIENT_BASEJOB_H
 #define QMATRIXCLIENT_BASEJOB_H
 
+#ifdef KCOREADDONS_FOUND
 #include <KCoreAddons/KJob>
+#else
+#include "kcoreaddons/src/lib/jobs/kjob.h"
+#endif // KCOREADDONS_FOUND
+
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 #include <QtCore/QUrlQuery>

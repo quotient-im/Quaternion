@@ -20,10 +20,10 @@
 #define MAINWINDOW_H
 
 #include <QtWidgets/QMainWindow>
-#include <KCoreAddons/KJob>
 
 #include "lib/connection.h"
 #include "lib/room.h"
+#include "lib/jobs/basejob.h"
 
 class RoomListDock;
 class UserListDock;

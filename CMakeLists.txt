@@ -13,10 +13,18 @@ find_package(Qt5Network 5.4.0)
 find_package(Qt5Quick 5.4.0)
 find_package(Qt5Qml 5.4.0)
 find_package(Qt5Gui 5.4.0)
+
 find_package(KF5CoreAddons)
-if ( NOT KF5CoreAddons_FOUND )
+if ( KF5CoreAddons_FOUND )
+    # The proper way of doing things would be to make a separate config.h.in
+    # file and use configure_file() command here to generate config.h with
+    # needed C++ preprocessor macros. If we have more than one or two
+    # dependencies like that, we should turn to that more scalable way.
+    # As for now, passing a macro through -D is easier to observe and maintain.
+    set ( CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -DKCOREADDONS_FOUND )
+else ( KF5CoreAddons_FOUND )
     include_directories( kcoreaddons/src/lib kcoreaddons/src/lib/jobs )
-endif ( NOT KF5CoreAddons_FOUND )
+endif ( KF5CoreAddons_FOUND )
 
 set(qmatrixclient_SRCS
     lib/connectiondata.cpp
