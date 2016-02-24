@@ -21,7 +21,7 @@ if ( KF5CoreAddons_FOUND )
     # needed C++ preprocessor macros. If we have more than one or two
     # dependencies like that, we should turn to that more scalable way.
     # As for now, passing a macro through -D is easier to observe and maintain.
-    set ( CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -DKCOREADDONS_FOUND )
+    set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DKCOREADDONS_FOUND" )
 else ( KF5CoreAddons_FOUND )
     include_directories( kcoreaddons/src/lib kcoreaddons/src/lib/jobs )
 endif ( KF5CoreAddons_FOUND )
