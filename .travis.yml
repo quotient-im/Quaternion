@@ -9,8 +9,8 @@ before_install:
  - sudo apt-get install -y qt54base qt54declarative qt54quickcontrols
  - if [ "$BUILD_KCOREADDONS" = true ]; then sudo apt-get install -y qt54tools; fi
  - if [ "$BUILD_KCOREADDONS" = true ]; then source /opt/qt54/bin/qt54-env.sh; fi
- - if [ "$BUILD_KCOREADDONS" = true ]; then git clone git://anongit.kde.org/extra-cmake-modules.git ecm && cd ecm && git checkout v5.18.0 && cmake . && make && sudo make install; fi
- - if [ "$BUILD_KCOREADDONS" = true ]; then git clone git://anongit.kde.org/kcoreaddons.git kca && cd kca && git checkout v5.18.0 && cmake . && make && sudo make install; fi
+ - if [ "$BUILD_KCOREADDONS" = true ]; then git clone git://anongit.kde.org/extra-cmake-modules.git ecm && cd ecm && git checkout v5.18.0 && cmake . && make && sudo make install && cd ..; fi
+ - if [ "$BUILD_KCOREADDONS" = true ]; then git clone git://anongit.kde.org/kcoreaddons.git kca && cd kca && git checkout v5.18.0 && cmake . && make && sudo make install && cd ..; fi
 install:
  - source /opt/qt54/bin/qt54-env.sh
  - mkdir build && cd build
