@@ -1,9 +1,13 @@
 dist: trusty
 language: cpp
+env:
+ - BUILD_KCOREADDONS=true
+ - BUILD_KCOREADDONS=false
 before_install:
  - sudo add-apt-repository --yes ppa:beineri/opt-qt542-trusty
  - sudo apt-get update -qq
  - sudo apt-get install -y qt54base qt54declarative qt54quickcontrols
+ - if [ $BUILD_KCOREADDONS ]; then git clone git://anongit.kde.org/kcoreaddons.git && cd kcoreaddons && git checkout v5.18.0 && cmake . && make && sudo make install; fi
 install:
  - source /opt/qt54/bin/qt54-env.sh
  - mkdir build && cd build
