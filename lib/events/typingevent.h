@@ -19,6 +19,8 @@
 #ifndef QMATRIXCLIENT_TYPINGEVENT_H
 #define QMATRIXCLIENT_TYPINGEVENT_H
 
+#include <QtCore/QStringList>
+
 #include "event.h"
 
 namespace QMatrixClient
