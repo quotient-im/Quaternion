@@ -40,7 +40,7 @@ MainWindow::MainWindow()
     connect( roomListDock, &RoomListDock::roomSelected, chatRoomWidget, &ChatRoomWidget::setRoom );
     connect( roomListDock, &RoomListDock::roomSelected, userListDock, &UserListDock::setRoom );
     show();
-    QTimer::singleShot(0, this, &MainWindow::initialize);
+    QTimer::singleShot(0, this, SLOT(initialize()));
 }
 
 MainWindow::~MainWindow()

@@ -45,7 +45,6 @@ class User::Private: public QObject
         QHash<QPair<int,int>,QPixmap> scaledMap;
 
         void requestAvatar();
-
     public slots:
         void gotAvatar(KJob* job);
 };
@@ -94,7 +93,7 @@ QPixmap User::avatar(int width, int height)
             d->requestedWidth = width;
             d->requestedHeight = height;
             d->avatarOngoingRequest = true;
-            QTimer::singleShot(0, d, &User::Private::requestAvatar);
+            QTimer::singleShot(0, this, SLOT(requestAvatar()));
         }
     }
 
@@ -126,9 +125,15 @@ void User::processEvent(Event* event)
     }
 }
 
+void User::requestAvatar()
+{
+    d->requestAvatar();
+}
+
 void User::Private::requestAvatar()
 {
-    MediaThumbnailJob* job = connection->getThumbnail(avatarUrl, requestedWidth, requestedHeight);
+    MediaThumbnailJob* job =
+            connection->getThumbnail(avatarUrl, requestedWidth, requestedHeight);
     connect( job, &MediaThumbnailJob::result, this, &User::Private::gotAvatar );
 }
 
@@ -136,8 +141,10 @@ void User::Private::gotAvatar(KJob* job)
 {
     avatarOngoingRequest = false;
     avatarValid = true;
-    avatar = static_cast<MediaThumbnailJob*>(job)->thumbnail().scaled(requestedWidth, requestedHeight,
-                                                                      Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    avatar =
+        static_cast<MediaThumbnailJob*>(job)->thumbnail()
+            .scaled(requestedWidth, requestedHeight,
+                    Qt::KeepAspectRatio, Qt::SmoothTransformation);
     scaledMap.clear();
     emit q->avatarChanged(q);
 }

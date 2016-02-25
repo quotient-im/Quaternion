@@ -41,7 +41,7 @@ class RoomListModel: public QAbstractListModel
         int rowCount(const QModelIndex& parent=QModelIndex()) const override;
 
     private slots:
-        void aliasChanged(QMatrixClient::Room* room);
+        void namesChanged(QMatrixClient::Room* room);
         void addRoom(QMatrixClient::Room* room);
 
     private:

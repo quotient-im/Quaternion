@@ -52,6 +52,9 @@ namespace QMatrixClient
 
             void processEvent(Event* event);
 
+        public slots:
+            void requestAvatar();
+
         signals:
             void nameChanged();
             void avatarChanged(User* user);

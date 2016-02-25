@@ -37,13 +37,13 @@ class MainWindow: public QMainWindow
         virtual ~MainWindow();
 
     private slots:
+        void initialize();
         void getNewEvents();
         void gotEvents();
 
         void connectionError(QString error);
 
     private:
-        void initialize();
 
         RoomListDock* roomListDock;
         UserListDock* userListDock;
