@@ -7,6 +7,7 @@ before_install:
  - sudo add-apt-repository --yes ppa:beineri/opt-qt542-trusty
  - sudo apt-get update -qq
  - sudo apt-get install -y qt54base qt54declarative qt54quickcontrols
+ - if [ "$BUILD_KCOREADDONS" = true ]; then source /opt/qt54/bin/qt54-env.sh; fi
  - if [ "$BUILD_KCOREADDONS" = true ]; then git clone git://anongit.kde.org/extra-cmake-modules.git ecm && cd ecm && git checkout v5.18.0 && cmake . && make && sudo make install; fi
  - if [ "$BUILD_KCOREADDONS" = true ]; then git clone git://anongit.kde.org/kcoreaddons.git kca && cd kca && git checkout v5.18.0 && cmake . && make && sudo make install; fi
 install:
