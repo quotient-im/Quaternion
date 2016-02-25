@@ -44,9 +44,8 @@ class User::Private: public QObject
         bool avatarOngoingRequest;
         QHash<QPair<int,int>,QPixmap> scaledMap;
 
-        void requestAvatar();
-
     public slots:
+        void requestAvatar();
         void gotAvatar(KJob* job);
 };
 
@@ -94,7 +93,7 @@ QPixmap User::avatar(int width, int height)
             d->requestedWidth = width;
             d->requestedHeight = height;
             d->avatarOngoingRequest = true;
-            QTimer::singleShot(0, d, &User::Private::requestAvatar);
+            QTimer::singleShot(0, d, SLOT(requestAvatar()));
         }
     }
 

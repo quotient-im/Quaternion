@@ -94,7 +94,7 @@ void BaseJob::start()
             break;
     }
     connect( d->reply, &QNetworkReply::finished, this, &BaseJob::gotReply );
-    QTimer::singleShot( 120*1000, this, &BaseJob::timeout );
+    QTimer::singleShot( 120*1000, this, SLOT(timeout()) );
 //     connect( d->reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
 //              this, &BaseJob::networkError ); // http://doc.qt.io/qt-5/qnetworkreply.html#error-1
 }
