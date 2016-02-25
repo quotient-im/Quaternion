@@ -9,4 +9,5 @@ install:
  - mkdir build && cd build
  - cmake ../
  - make
+script: true
 
