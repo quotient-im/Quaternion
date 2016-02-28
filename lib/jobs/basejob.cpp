@@ -80,6 +80,10 @@ void BaseJob::start()
     url.setQuery(query);
     QNetworkRequest req = QNetworkRequest(url);
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+    req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);\
+    req.setMaximumRedirectsAllowed(10);
+#endif
     QJsonDocument data = QJsonDocument(this->data());
     switch( d->type )
     {
