@@ -29,6 +29,41 @@ cd build
 sudo make install
 ```
 
+## OS X
+
+```
+brew install qt5
+git submodule init # pull in the KCoreAddons package
+git submodule update
+mkdir build
+cd build
+cmake ../ -DCMAKE_PREFIX_PATH=/usr/local/Cellar/qt5/5.5.1/ # or whatever version of qt5 brew installed
+make
+quaternion &
+```
+
+### Troubleshooting
+
+If `cmake` fails with...
+```
+CMake Warning at CMakeLists.txt:11 (find_package):
+  By not providing "FindQt5Widgets.cmake" in CMAKE_MODULE_PATH this project
+  has asked CMake to find a package configuration file provided by
+  "Qt5Widgets", but CMake did not find one.
+```
+...then you need to set the right -DCMAKE_PREFIX_PATH variable, see above.
+
+If `make` fails with...
+```
+Scanning dependencies of target quaternion
+make[2]: *** No rule to make target `CMakeFiles/quaternion.dir/build'.  Stop.
+make[1]: *** [CMakeFiles/quaternion.dir/all] Error 2
+```
+...then cmake failed to create a build target for quaternion as it couldn't find
+an optional dependency - probably KCoreAddons.  You probably forgot to do the
+`git submodule init && git submodule update` dance.
+
+
 ## Windows
 ### Installing pre-requisites
 Here you have options.
