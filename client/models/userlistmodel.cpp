@@ -49,6 +49,10 @@ void UserListModel::setRoom(QMatrixClient::Room* room)
     {
         disconnect( m_currentRoom, &QMatrixClient::Room::userAdded, this, &UserListModel::userAdded );
         disconnect( m_currentRoom, &QMatrixClient::Room::userRemoved, this, &UserListModel::userRemoved );
+        for( QMatrixClient::User* user: m_users )
+        {
+            disconnect( user, &QMatrixClient::User::avatarChanged, this, &UserListModel::avatarChanged );
+        }
         m_users.clear();
     }
     m_currentRoom = room;
@@ -57,6 +61,10 @@ void UserListModel::setRoom(QMatrixClient::Room* room)
         connect( m_currentRoom, &QMatrixClient::Room::userAdded, this, &UserListModel::userAdded );
         connect( m_currentRoom, &QMatrixClient::Room::userRemoved, this, &UserListModel::userRemoved );
         m_users = m_currentRoom->users();
+        for( QMatrixClient::User* user: m_users )
+        {
+            connect( user, &QMatrixClient::User::avatarChanged, this, &UserListModel::avatarChanged );
+        }
         qDebug() << m_users.count();
     }
     endResetModel();
