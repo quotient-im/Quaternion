@@ -260,24 +260,20 @@ void Room::Private::addState(Event* event)
     if( event->type() == EventType::RoomMember )
     {
         RoomMemberEvent* memberEvent = static_cast<RoomMemberEvent*>(event);
-        if (User* u = connection->user(memberEvent->userId()))
+        User* u = connection->user(memberEvent->userId());
+        u->processEvent(event);
+        if( memberEvent->membership() == MembershipType::Join
+            && !users.contains(u) )
         {
-            u->processEvent(event);
-            if( memberEvent->membership() == MembershipType::Join
-                    && !users.contains(u) )
-            {
-                users.append(u);
-                emit q->userAdded(u);
-            }
-            else if( memberEvent->membership() == MembershipType::Leave
-                     && users.contains(u) )
-            {
-                users.removeAll(u);
-                emit q->userRemoved(u);
-            }
+            users.append(u);
+            emit q->userAdded(u);
         }
-        else
-            qDebug() << "addState: invalid user!" << memberEvent->userId();
+        else if( memberEvent->membership() == MembershipType::Leave
+                 && users.contains(u) )
+        {
+            users.removeAll(u);
+            emit q->userRemoved(u);
+        }
     }
 
 }
