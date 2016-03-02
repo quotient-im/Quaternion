@@ -7,6 +7,18 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
+option( BUILD_KCOREADDONS "Build KCoreAddons instead of using system version" OFF )
+
+message( STATUS )
+message( STATUS "================================================================================" )
+message( STATUS "                          Quaternion Build Information                          " )
+message( STATUS "================================================================================" )
+message( STATUS "Building with: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}" )
+message( STATUS "Install Prefix: ${CMAKE_INSTALL_PREFIX}" )
+message( STATUS "Build own KCoreAddons (BUILD_KCOREADDONS): ${BUILD_KCOREADDONS}" )
+message( STATUS "================================================================================" )
+
+
 # Find the QtWidgets library
 find_package(Qt5Widgets 5.3.0)
 find_package(Qt5Network 5.3.0)
@@ -14,17 +26,20 @@ find_package(Qt5Quick 5.3.0)
 find_package(Qt5Qml 5.3.0)
 find_package(Qt5Gui 5.3.0)
 
-find_package(KF5CoreAddons)
-if ( KF5CoreAddons_FOUND )
+if( NOT BUILD_KCOREADDONS )
+    find_package(KF5CoreAddons REQUIRED)
+endif( NOT BUILD_KCOREADDONS )
+
+if ( BUILD_KCOREADDONS )
     # The proper way of doing things would be to make a separate config.h.in
     # file and use configure_file() command here to generate config.h with
     # needed C++ preprocessor macros. If we have more than one or two
     # dependencies like that, we should turn to that more scalable way.
     # As for now, passing a macro through -D is easier to observe and maintain.
     set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DKCOREADDONS_FOUND" )
-else ( KF5CoreAddons_FOUND )
+else ( BUILD_KCOREADDONS )
     include_directories( kcoreaddons/src/lib kcoreaddons/src/lib/jobs )
-endif ( KF5CoreAddons_FOUND )
+endif ( BUILD_KCOREADDONS )
 
 set(qmatrixclient_SRCS
     lib/connectiondata.cpp
@@ -64,14 +79,14 @@ set(qmatrixclient_SRCS
     client/main.cpp
     )
 
-if ( NOT KF5CoreAddons_FOUND )
+if ( NOT BUILD_KCOREADDONS )
     set (qmatrixclient_SRCS ${qmatrixclient_SRCS}
         kcoreaddons/src/lib/jobs/kjob.cpp
         kcoreaddons/src/lib/jobs/kcompositejob.cpp
         kcoreaddons/src/lib/jobs/kjobtrackerinterface.cpp
         kcoreaddons/src/lib/jobs/kjobuidelegate.cpp
         )
-endif ( NOT KF5CoreAddons_FOUND )
+endif ( NOT BUILD_KCOREADDONS )
 
 set(qmatrixclient_QRC
     client/resources.qrc
@@ -89,8 +104,8 @@ endif ( CMAKE_COMPILER_IS_GNUCC )
 target_compile_features(quaternion PRIVATE cxx_range_for)
 target_compile_features(quaternion PRIVATE cxx_override)
 
-if ( KF5CoreAddons_FOUND )
+if ( NOT BUILD_KCOREADDONS )
     target_link_libraries(quaternion Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network KF5::CoreAddons)
-else ( KF5CoreAddons_FOUND )
+else ( NOT BUILD_KCOREADDONS )
     target_link_libraries(quaternion Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
-endif ( KF5CoreAddons_FOUND )
+endif ( NOT BUILD_KCOREADDONS )
