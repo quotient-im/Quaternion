@@ -19,7 +19,7 @@
 #ifndef QMATRIXCLIENT_BASEJOB_H
 #define QMATRIXCLIENT_BASEJOB_H
 
-#ifdef KCOREADDONS_FOUND
+#ifdef USING_SYSTEM_KCOREADDONS
 #include <KCoreAddons/KJob>
 #else
 #include "kcoreaddons/src/lib/jobs/kjob.h"
