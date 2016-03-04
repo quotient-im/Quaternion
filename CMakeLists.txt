@@ -8,20 +8,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 # Whether to build with the bundled KCoreAddons or system KCoreAddons
-option( BUILD_KCOREADDONS "Build KCoreAddons even if there is a system version" OFF )
-option( FORCE_SYSTEM_KCOREADDONS "Fail if system KCoreAddons are not found" OFF )
-
-message( STATUS )
-message( STATUS "================================================================================" )
-message( STATUS "                          Quaternion Build Information                          " )
-message( STATUS "================================================================================" )
-message( STATUS "Building with: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}" )
-message( STATUS "Install Prefix: ${CMAKE_INSTALL_PREFIX}" )
-message( STATUS "Build own KCoreAddons (BUILD_KCOREADDONS): ${BUILD_KCOREADDONS}" )
-if ( NOT BUILD_KCOREADDONS )
-    message( STATUS "Force using system KCoreAddons (FORCE_SYSTEM_KCOREADDONS): ${FORCE_SYSTEM_KCOREADDONS}" )
-endif ( NOT BUILD_KCOREADDONS )
-message( STATUS "================================================================================" )
+set( BUNDLE_KCOREADDONS "AUTO" CACHE STRING "Build own KCoreAddons, one of ON, OFF and AUTO" )
 
 # Find the libraries
 find_package(Qt5Widgets 5.3.0)
@@ -30,18 +17,34 @@ find_package(Qt5Quick 5.3.0)
 find_package(Qt5Qml 5.3.0)
 find_package(Qt5Gui 5.3.0)
 
-if ( NOT BUILD_KCOREADDONS )
-    if ( FORCE_SYSTEM_KCOREADDONS )
-        find_package(KF5CoreAddons REQUIRED)
-    else ( FORCE_SYSTEM_KCOREADDONS )
-        find_package(KF5CoreAddons QUIET)
-        if ( KF5CoreAddons_FOUND )
-            message( STATUS "Path to system KCoreAddons: ${KF5CoreAddons_DIR}" )
-        else ( KF5CoreAddons_FOUND )
-            message( STATUS "System KCoreAddons not found, using the bundled version" )
-        endif ( KF5CoreAddons_FOUND )
-    endif ( FORCE_SYSTEM_KCOREADDONS )
-endif ( NOT BUILD_KCOREADDONS )
+if ( (NOT BUNDLE_KCOREADDONS STREQUAL "ON")
+     AND (NOT BUNDLE_KCOREADDONS STREQUAL "OFF")
+     AND (NOT BUNDLE_KCOREADDONS STREQUAL "AUTO") )
+       message( FATAL_ERROR "BUNDLE_KCOREADDONS must be one of ON, OFF or AUTO" )
+endif ()
+
+if ( BUNDLE_KCOREADDONS STREQUAL "AUTO" )
+    find_package(KF5CoreAddons QUIET)
+elseif ( BUNDLE_KCOREADDONS STREQUAL "OFF" )
+    find_package(KF5CoreAddons REQUIRED)
+endif ()
+
+message( STATUS )
+message( STATUS "================================================================================" )
+message( STATUS "                          Quaternion Build Information                          " )
+message( STATUS "================================================================================" )
+message( STATUS "Building with: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}" )
+message( STATUS "Install Prefix: ${CMAKE_INSTALL_PREFIX}" )
+message( STATUS "Build own KCoreAddons (BUNDLE_KCOREADDONS): ${BUNDLE_KCOREADDONS}" )
+if ( BUNDLE_KCOREADDONS STREQUAL "AUTO" )
+    if ( KF5CoreAddons_FOUND )
+        message( STATUS "'- Path to system KCoreAddons: ${KF5CoreAddons_DIR}" )
+    else ( KF5CoreAddons_FOUND )
+        message( STATUS "'- System KCoreAddons not found, using the bundled version" )
+    endif ( KF5CoreAddons_FOUND )
+endif ( BUNDLE_KCOREADDONS STREQUAL "AUTO" )
+message( STATUS "================================================================================" )
+message( STATUS )
 
 # Set up source files
 set(qmatrixclient_SRCS
@@ -84,14 +87,14 @@ set(qmatrixclient_SRCS
 
 # Add bundled KCoreAddons sources if we haven't found the system sources
 # or if we ignore them
-if ( BUILD_KCOREADDONS OR NOT KF5CoreAddons_FOUND )
+if ( NOT KF5CoreAddons_FOUND )
     set (qmatrixclient_SRCS ${qmatrixclient_SRCS}
         kcoreaddons/src/lib/jobs/kjob.cpp
         kcoreaddons/src/lib/jobs/kcompositejob.cpp
         kcoreaddons/src/lib/jobs/kjobtrackerinterface.cpp
         kcoreaddons/src/lib/jobs/kjobuidelegate.cpp
         )
-endif ( BUILD_KCOREADDONS OR NOT KF5CoreAddons_FOUND )
+endif ( NOT KF5CoreAddons_FOUND )
 
 set(qmatrixclient_QRC
     client/resources.qrc
