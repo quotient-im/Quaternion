@@ -102,7 +102,9 @@ QPixmap User::avatar(int width, int height)
     QPair<int,int> size(width, height);
     if( !d->scaledMap.contains(size) )
     {
-        d->scaledMap.insert(size, d->avatar.scaled(width, height, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        d->scaledMap.insert(size,
+            d->avatar.scaled(width, height,
+                Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
     return d->scaledMap.value(size);
 }
