@@ -5,7 +5,7 @@ Rectangle {
     id: root
     anchors.fill: parent
 
-    signal getNewContent()
+    signal getPreviousContent()
 
     function scrollToBottom() {
         chatView.positionViewAtEnd();
@@ -26,8 +26,8 @@ Rectangle {
             property bool wasAtEndY: true
 
             function aboutToBeInserted() {
-                console.log("test!");
                 wasAtEndY = atYEnd;
+                console.log("aboutToBeInserted! atYEnd=" + atYEnd);
             }
 
             function rowsInserted() {
@@ -35,7 +35,7 @@ Rectangle {
                 {
                     root.scrollToBottom();
                 } else  {
-                    console.log("was not at end...");
+                    console.log("was not at end, not scrolling");
                 }
             }
 
@@ -58,8 +58,8 @@ Rectangle {
             onContentYChanged: {
                 if( (this.contentY - this.originY) < 5 )
                 {
-                    console.log("get new content!");
-                    root.getNewContent()
+                    console.log("get older content!");
+                    root.getPreviousContent()
                 }
 
             }

@@ -58,7 +58,7 @@ namespace QMatrixClient
             void setJoinState( JoinState state );
 
         public slots:
-            void getNewContent();
+            void getPreviousContent();
 
         signals:
             void newMessage(Event* event);

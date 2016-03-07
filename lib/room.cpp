@@ -199,7 +199,7 @@ void Room::updateData(const SyncRoomData& data)
     }
 }
 
-void Room::getNewContent()
+void Room::getPreviousContent()
 {
     if( !d->gettingNewContent )
     {
