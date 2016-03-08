@@ -58,7 +58,7 @@ void MainWindow::initialize()
         roomListDock->setConnection(connection);
         connect( connection, &QMatrixClient::Connection::connectionError, this, &MainWindow::connectionError );
         connect( connection, &QMatrixClient::Connection::syncDone, this, &MainWindow::gotEvents );
-        connect( connection, &QMatrixClient::Connection::reconnected, this, &MainWindow::getNewEvents );
+        connect( connection, &QMatrixClient::Connection::connected, this, &MainWindow::getNewEvents );
         connection->sync();
     }
 }
@@ -79,7 +79,7 @@ void MainWindow::connectionError(QString error)
 {
     qDebug() << error;
     qDebug() << "reconnecting...";
-    connection->reconnect();
+    connection->invokeLogin();
 }
 
 
