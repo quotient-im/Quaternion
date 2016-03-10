@@ -21,7 +21,6 @@
 #include "connectionprivate.h"
 #include "user.h"
 #include "jobs/passwordlogin.h"
-#include "jobs/initialsyncjob.h"
 #include "jobs/geteventsjob.h"
 #include "jobs/postmessagejob.h"
 #include "jobs/joinroomjob.h"

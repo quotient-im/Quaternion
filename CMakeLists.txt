@@ -113,6 +113,7 @@ endif ( CMAKE_COMPILER_IS_GNUCC )
 target_compile_features(quaternion PRIVATE cxx_range_for)
 target_compile_features(quaternion PRIVATE cxx_override)
 
+target_link_libraries(quaternion Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
 if ( KF5CoreAddons_FOUND )
     # The proper way of doing things would be to make a separate config.h.in
     # file and use configure_file() command here to generate config.h with
@@ -120,8 +121,7 @@ if ( KF5CoreAddons_FOUND )
     # dependencies like that, we should turn to that more scalable way.
     # As for now, passing a macro through -D is easier to observe and maintain.
     target_compile_definitions ( quaternion PRIVATE USING_SYSTEM_KCOREADDONS )
-    target_link_libraries(quaternion Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network KF5::CoreAddons)
+    target_link_libraries(quaternion KF5::CoreAddons)
 else ( KF5CoreAddons_FOUND )
-    include_directories( kcoreaddons/src/lib kcoreaddons/src/lib/jobs )
-    target_link_libraries(quaternion Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
+    include_directories( kcoreaddons/src/lib/jobs )
 endif ( KF5CoreAddons_FOUND )
