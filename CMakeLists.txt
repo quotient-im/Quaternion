@@ -104,7 +104,9 @@ set(qmatrixclient_QRC
 QT5_ADD_RESOURCES(qmatrixclient_QRC_SRC ${qmatrixclient_QRC})
 
 # Tell CMake to create the executable
-add_executable(quaternion ${qmatrixclient_SRCS} ${qmatrixclient_QRC_SRC})
+# (and that on Windows it should be a GUI executable)
+# TODO: MacOS builders, should MACOSX_BUNDLE be specified here as well?
+add_executable(quaternion WIN32 ${qmatrixclient_SRCS} ${qmatrixclient_QRC_SRC})
 
 # Setup command line parameters for the compiler and linker
 if ( CMAKE_COMPILER_IS_GNUCC )
