@@ -125,6 +125,8 @@ void ConnectionPrivate::syncDone(KJob* job)
     else {
         if( syncJob->error() == BaseJob::NetworkError )
             emit q->connectionError( syncJob->errorString() );
+        else
+            qDebug() << "syncJob failed, error:" << syncJob->error();
     }
 }
 
