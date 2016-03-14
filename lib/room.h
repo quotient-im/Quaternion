@@ -20,6 +20,7 @@
 #define QMATRIXCLIENT_ROOM_H
 
 #include <QtCore/QList>
+#include <QtCore/QHash>
 #include <QtCore/QObject>
 #include <QtCore/QJsonObject>
 
@@ -37,6 +38,9 @@ namespace QMatrixClient
     {
             Q_OBJECT
         public:
+            /** Map of user names (potentially duplicate) to users */
+            typedef QMultiHash<QString, User *> members_list_t;
+
             Room(Connection* connection, QString id);
             virtual ~Room();
 
@@ -49,16 +53,25 @@ namespace QMatrixClient
             QString topic() const;
             JoinState joinState() const;
             QList<User*> usersTyping() const;
+            QList<User*> usersLeft() const;
 
-            QList<User*> users() const;
+            members_list_t users() const;
+
+            /**
+             * @brief Produces a disambiguated name for a given user in
+             * the context of the room.
+             */
+            QString roomMembername(User* u) const;
 
             void addMessage( Event* event );
             void addInitialState( State* state );
             void updateData( const SyncRoomData& data );
             void setJoinState( JoinState state );
+            void getPreviousContent();
 
         public slots:
-            void getPreviousContent();
+            void gotMessages(KJob* job);
+            void userRenamed(User* user, QString oldName);
 
         signals:
             void newMessage(Event* event);

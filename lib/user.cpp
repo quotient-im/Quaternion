@@ -19,7 +19,6 @@
 #include "user.h"
 
 #include "connection.h"
-#include "events/event.h"
 #include "events/roommemberevent.h"
 #include "jobs/mediathumbnailjob.h"
 
@@ -74,12 +73,12 @@ QString User::name() const
     return d->name;
 }
 
-QString User::displayname() const
-{
-    if( !d->name.isEmpty() )
-        return d->name;
-    return d->userId;
-}
+//QString User::displayname() const
+//{
+//    if( !d->name.isEmpty() )
+//        return d->name;
+//    return d->userId;
+//}
 
 QPixmap User::avatar(int width, int height)
 {
@@ -89,7 +88,7 @@ QPixmap User::avatar(int width, int height)
     {
         if( !d->avatarOngoingRequest && d->avatarUrl.isValid() )
         {
-            qDebug() << "Get avatar...";
+            qDebug() << "Get avatar for" << id();
             d->requestedWidth = width;
             d->requestedHeight = height;
             d->avatarOngoingRequest = true;
@@ -107,21 +106,18 @@ QPixmap User::avatar(int width, int height)
     return d->scaledMap.value(size);
 }
 
-void User::processEvent(Event* event)
+void User::processEvent(RoomMemberEvent* e)
 {
-    if( event->type() == EventType::RoomMember )
+    if( d->name != e->displayName() )
     {
-        RoomMemberEvent* e = static_cast<RoomMemberEvent*>(event);
-        if( d->name != e->displayName() )
-        {
-            d->name = e->displayName();
-            emit nameChanged();
-        }
-        if( d->avatarUrl != e->avatarUrl() )
-        {
-            d->avatarUrl = e->avatarUrl();
-            d->avatarValid = false;
-        }
+        const auto oldName = d->name;
+        d->name = e->displayName();
+        emit nameChanged(this, oldName);
+    }
+    if( d->avatarUrl != e->avatarUrl() )
+    {
+        d->avatarUrl = e->avatarUrl();
+        d->avatarValid = false;
     }
 }
 
