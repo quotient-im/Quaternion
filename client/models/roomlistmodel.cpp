@@ -68,7 +68,7 @@ void RoomListModel::doAddRoom(QMatrixClient::Room* r)
     QuaternionRoom* room = static_cast<QuaternionRoom*>(r);
     m_rooms.append(room);
     connect( room, &QuaternionRoom::displaynameChanged,
-        this, &RoomListModel::namesChanged );
+        this, &RoomListModel::displaynameChanged );
     connect( room, &QuaternionRoom::unreadMessagesChanged,
         this, &RoomListModel::unreadMessagesChanged );
     connect( room, &QuaternionRoom::notificationCountChanged,
@@ -108,7 +108,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
-void RoomListModel::namesChanged(QMatrixClient::Room* room)
+void RoomListModel::displaynameChanged(QMatrixClient::Room* room)
 {
     int row = m_rooms.indexOf(static_cast<QuaternionRoom*>(room));
     emit dataChanged(index(row), index(row));

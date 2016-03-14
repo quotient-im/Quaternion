@@ -22,21 +22,31 @@
 #include "lib/events/roommessageevent.h"
 #include "lib/user.h"
 #include "lib/connection.h"
+#include "lib/room.h"
 
-Message::Message(QMatrixClient::Connection* connection, QMatrixClient::Event* event)
+Message::Message(QMatrixClient::Connection* connection,
+                 QMatrixClient::Event* event,
+                 QMatrixClient::Room* room)
     : m_connection(connection)
     , m_event(event)
     , m_isHighlight(false)
     , m_isStatusMessage(true)
 {
-    if( event->type() == QMatrixClient::EventType::RoomMessage )
+    using namespace QMatrixClient;
+    if( event->type() == EventType::RoomMessage )
     {
         m_isStatusMessage = false;
-        QMatrixClient::RoomMessageEvent* messageEvent = static_cast<QMatrixClient::RoomMessageEvent*>(event);
-        QMatrixClient::User* user = m_connection->user();
-        if( messageEvent->body().contains(user->displayname()) or messageEvent->body().contains(user->id()) )
+        RoomMessageEvent* messageEvent = static_cast<RoomMessageEvent*>(event);
+        User* user = m_connection->user();
+        if( messageEvent->body().contains(user->id()) )
         {
             m_isHighlight = true;
+        }
+        if (room)
+        {
+            QString ownDisplayname = room->roomMembername(user);
+            if (messageEvent->body().contains(ownDisplayname))
+                m_isHighlight = true;
         }
     }
 }

@@ -123,7 +123,7 @@ void ChatRoomWidget::typingChanged()
     QStringList typingNames;
     for( QMatrixClient::User* user: typing )
     {
-        typingNames << user->displayname();
+        typingNames << m_currentRoom->roomMembername(user);
     }
     m_currentlyTyping->setText( QString("<i>Currently typing: %1</i>").arg( typingNames.join(", ") ) );
 }

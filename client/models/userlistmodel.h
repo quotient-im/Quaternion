@@ -44,8 +44,7 @@ class UserListModel: public QAbstractListModel
     private slots:
         void userAdded(QMatrixClient::User* user);
         void userRemoved(QMatrixClient::User* user);
-
-    private slots:
+        void memberRenamed(QMatrixClient::User* user);
         void avatarChanged(QMatrixClient::User* user);
 
     private:

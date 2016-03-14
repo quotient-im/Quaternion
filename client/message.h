@@ -25,12 +25,15 @@ namespace QMatrixClient
 {
     class Connection;
     class Event;
+    class Room;
 }
 
 class Message
 {
     public:
-        Message(QMatrixClient::Connection* connection, QMatrixClient::Event* event);
+        Message(QMatrixClient::Connection* connection,
+                QMatrixClient::Event* event,
+                QMatrixClient::Room* room);
         virtual ~Message();
 
         QMatrixClient::Event* event();
