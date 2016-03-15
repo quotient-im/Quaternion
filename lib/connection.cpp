@@ -31,8 +31,6 @@
 #include "jobs/syncjob.h"
 #include "jobs/mediathumbnailjob.h"
 
-#include <QtCore/QDebug>
-
 using namespace QMatrixClient;
 
 Connection::Connection(QUrl server, QObject* parent)
@@ -61,7 +59,12 @@ void Connection::invokeLogin()
     loginJob->start();
 }
 
-SyncJob* Connection::sync()
+void Connection::sync()
+{
+    doSync();
+}
+
+SyncJob* Connection::doSync()
 {
     QString filter = "{\"room\": { \"timeline\": { \"limit\": 100 } } }";
     SyncJob* syncJob = new SyncJob(d->data, d->data->lastEvent());

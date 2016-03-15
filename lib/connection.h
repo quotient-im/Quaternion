@@ -42,7 +42,7 @@ namespace QMatrixClient
 
             void connectToServer( QString user, QString password );
             void invokeLogin();
-            SyncJob* sync();
+            SyncJob* doSync();
             void postMessage( Room* room, QString type, QString message );
             void joinRoom( QString roomAlias );
             void leaveRoom( Room* room );
@@ -61,6 +61,9 @@ namespace QMatrixClient
             void loginError(QString error);
             void connectionError(QString error);
             //void jobError(BaseJob* job);
+
+        public slots:
+            void sync();
 
         private:
             ConnectionPrivate* d;
