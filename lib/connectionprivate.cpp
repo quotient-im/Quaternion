@@ -36,6 +36,7 @@ using namespace QMatrixClient;
 
 ConnectionPrivate::ConnectionPrivate(Connection* parent)
     : q(parent)
+    , syncJob(nullptr)
 {
     isConnected = false;
     data = 0;
@@ -103,17 +104,18 @@ void ConnectionPrivate::connectDone(KJob* job)
 
 void ConnectionPrivate::syncDone(KJob* job)
 {
-    SyncJob* syncJob = static_cast<SyncJob*>(job);
-    if( !syncJob->error() )
+    SyncJob* finishedSync = static_cast<SyncJob*>(job);
+    if( !finishedSync->error() )
     {
-        data->setLastEvent(syncJob->nextBatch());
-        processRooms(syncJob->roomData());
+        data->setLastEvent(finishedSync->nextBatch());
+        processRooms(finishedSync->roomData());
         emit q->syncDone();
     }
     else {
-        if( syncJob->error() == BaseJob::NetworkError )
-            emit q->connectionError( syncJob->errorString() );
+        if( finishedSync->error() == BaseJob::NetworkError )
+            emit q->connectionError( finishedSync->errorString() );
     }
+    syncJob = nullptr;
 }
 
 void ConnectionPrivate::gotJoinRoom(KJob* job)

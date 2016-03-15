@@ -61,17 +61,14 @@ void Connection::invokeLogin()
 
 void Connection::sync()
 {
-    doSync();
-}
+    if (d->syncJob)
+        return;
 
-SyncJob* Connection::doSync()
-{
     QString filter = "{\"room\": { \"timeline\": { \"limit\": 100 } } }";
-    SyncJob* syncJob = new SyncJob(d->data, d->data->lastEvent());
-    syncJob->setFilter(filter);
-    connect( syncJob, &SyncJob::result, d, &ConnectionPrivate::syncDone );
-    syncJob->start();
-    return syncJob;
+    d->syncJob = new SyncJob(d->data, d->data->lastEvent());
+    d->syncJob->setFilter(filter);
+    connect( d->syncJob, &SyncJob::result, d, &ConnectionPrivate::syncDone );
+    d->syncJob->start();
 }
 
 void Connection::postMessage(Room* room, QString type, QString message)

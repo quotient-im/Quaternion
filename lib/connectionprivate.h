@@ -53,10 +53,10 @@ namespace QMatrixClient
             bool isConnected;
             QString user;
             QString password;
+            SyncJob* syncJob;
 
         public slots:
             void connectDone(KJob* job);
-            void reconnectDone(KJob* job);
             void syncDone(KJob* job);
             void gotJoinRoom(KJob* job);
             void gotRoomMembers(KJob* job);

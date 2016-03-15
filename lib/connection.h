@@ -42,7 +42,6 @@ namespace QMatrixClient
 
             void connectToServer( QString user, QString password );
             void invokeLogin();
-            SyncJob* doSync();
             void postMessage( Room* room, QString type, QString message );
             void joinRoom( QString roomAlias );
             void leaveRoom( Room* room );
