@@ -63,11 +63,12 @@ void Connection::reconnect()
     loginJob->start();
 }
 
-SyncJob* Connection::sync()
+SyncJob* Connection::sync(int timeout)
 {
     QString filter = "{\"room\": { \"timeline\": { \"limit\": 100 } } }";
     SyncJob* syncJob = new SyncJob(d->data, d->data->lastEvent());
     syncJob->setFilter(filter);
+    syncJob->setTimeout(timeout);
     connect( syncJob, &SyncJob::result, d, &ConnectionPrivate::syncDone );
     syncJob->start();
     return syncJob;

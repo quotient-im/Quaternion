@@ -66,7 +66,7 @@ void MainWindow::initialize()
 void MainWindow::getNewEvents()
 {
     //qDebug() << "getNewEvents";
-    connection->sync();
+    connection->sync(30*1000);
 }
 
 void MainWindow::gotEvents()
