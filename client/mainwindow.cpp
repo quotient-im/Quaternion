@@ -71,8 +71,9 @@ void MainWindow::getNewEvents()
 
 void MainWindow::gotEvents()
 {
-    //qDebug() << "newEvents";
-    getNewEvents();
+    // qDebug() << "newEvents";
+    // without the 1 ms wait, the application will never quit
+    QTimer::singleShot(1, this, SLOT(getNewEvents()));
 }
 
 void MainWindow::connectionError(QString error)
