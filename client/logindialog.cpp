@@ -24,9 +24,8 @@
 
 LoginDialog::LoginDialog(QWidget* parent)
     : QDialog(parent)
+    , m_connection(nullptr)
 {
-    m_connection = 0;
-    
     serverEdit = new QLineEdit("https://matrix.org");
     userEdit = new QLineEdit();
     passwordEdit = new QLineEdit();
@@ -63,6 +62,7 @@ void LoginDialog::login()
     m_connection = new QMatrixClient::Connection(url);
     connect( m_connection, &QMatrixClient::Connection::connected, this, &QDialog::accept );
     connect( m_connection, &QMatrixClient::Connection::loginError, this, &LoginDialog::error );
+    sessionLabel->setText("Logging in...");
     m_connection->connectToServer(user, password);
 }
 

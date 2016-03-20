@@ -44,6 +44,7 @@ class MainWindow: public QMainWindow
         void connectionError(QString error);
 
     private:
+        void setupSyncClock();
 
         RoomListDock* roomListDock;
         UserListDock* userListDock;

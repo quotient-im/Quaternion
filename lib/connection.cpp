@@ -31,8 +31,6 @@
 #include "jobs/syncjob.h"
 #include "jobs/mediathumbnailjob.h"
 
-#include <QtCore/QDebug>
-
 using namespace QMatrixClient;
 
 Connection::Connection(QUrl server, QObject* parent)
@@ -49,28 +47,28 @@ Connection::~Connection()
 
 void Connection::connectToServer(QString user, QString password)
 {
-    PasswordLogin* loginJob = new PasswordLogin(d->data, user, password);
-    connect( loginJob, &PasswordLogin::result, d, &ConnectionPrivate::connectDone );
-    loginJob->start();
     d->user = user; // to be able to reconnect
     d->password = password;
+    invokeLogin();
 }
 
-void Connection::reconnect()
+void Connection::invokeLogin()
 {
     PasswordLogin* loginJob = new PasswordLogin(d->data, d->user, d->password );
-    connect( loginJob, &PasswordLogin::result, d, &ConnectionPrivate::reconnectDone );
+    connect( loginJob, &PasswordLogin::result, d, &ConnectionPrivate::connectDone );
     loginJob->start();
 }
 
-SyncJob* Connection::sync()
+void Connection::sync()
 {
+    if (d->syncJob)
+        return;
+
     QString filter = "{\"room\": { \"timeline\": { \"limit\": 100 } } }";
-    SyncJob* syncJob = new SyncJob(d->data, d->data->lastEvent());
-    syncJob->setFilter(filter);
-    connect( syncJob, &SyncJob::result, d, &ConnectionPrivate::syncDone );
-    syncJob->start();
-    return syncJob;
+    d->syncJob = new SyncJob(d->data, d->data->lastEvent());
+    d->syncJob->setFilter(filter);
+    connect( d->syncJob, &SyncJob::result, d, &ConnectionPrivate::syncDone );
+    d->syncJob->start();
 }
 
 void Connection::postMessage(Room* room, QString type, QString message)
