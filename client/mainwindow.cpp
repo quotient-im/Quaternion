@@ -72,8 +72,7 @@ void MainWindow::getNewEvents()
 void MainWindow::gotEvents()
 {
     // qDebug() << "newEvents";
-    // without the 1 ms wait, the application will never quit
-    QTimer::singleShot(1, this, SLOT(getNewEvents()));
+    getNewEvents();
 }
 
 void MainWindow::connectionError(QString error)
@@ -81,6 +80,16 @@ void MainWindow::connectionError(QString error)
     qDebug() << error;
     qDebug() << "reconnecting...";
     connection->reconnect();
+}
+
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+    if (connection)
+    {
+        disconnect( connection, &QMatrixClient::Connection::syncDone, this, &MainWindow::gotEvents );
+        disconnect( connection, &QMatrixClient::Connection::reconnected, this, &MainWindow::getNewEvents );
+    }
+    event->accept();
 }
 
 
