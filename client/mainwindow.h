@@ -43,6 +43,9 @@ class MainWindow: public QMainWindow
 
         void connectionError(QString error);
 
+    protected:
+        virtual void closeEvent(QCloseEvent* event) override;
+
     private:
 
         RoomListDock* roomListDock;
