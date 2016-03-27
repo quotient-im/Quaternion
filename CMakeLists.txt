@@ -64,6 +64,7 @@ set(qmatrixclient_SRCS
     lib/events/roommemberevent.cpp
     lib/events/roomtopicevent.cpp
     lib/events/typingevent.cpp
+    lib/events/receiptevent.cpp
     lib/events/unknownevent.cpp
     lib/jobs/basejob.cpp
     lib/jobs/checkauthmethods.cpp

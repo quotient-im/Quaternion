@@ -30,6 +30,7 @@
 #include "roommemberevent.h"
 #include "roomtopicevent.h"
 #include "typingevent.h"
+#include "receiptevent.h"
 #include "unknownevent.h"
 
 using namespace QMatrixClient;
@@ -111,6 +112,10 @@ Event* Event::fromJson(const QJsonObject& obj)
     {
         qDebug() << "m.typing...";
         return TypingEvent::fromJson(obj);
+    }
+    if( obj.value("type").toString() == "m.receipt" )
+    {
+        return ReceiptEvent::fromJson(obj);
     }
     //qDebug() << "Unknown event";
     return UnknownEvent::fromJson(obj);
