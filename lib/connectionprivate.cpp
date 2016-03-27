@@ -60,7 +60,7 @@ void ConnectionPrivate::processState(State* state)
         Room* room;
         if( !roomMap.contains(roomId) )
         {
-            room = new Room(q, roomId);
+            room = q->createRoom(roomId);
             roomMap.insert( roomId, room );
             emit q->newRoom(room);
         } else {
@@ -77,7 +77,7 @@ void ConnectionPrivate::processRooms(const QList<SyncRoomData>& data)
         Room* room;
         if( !roomMap.contains(roomData.roomId) )
         {
-            room = new Room(q, roomData.roomId);
+            room = q->createRoom(roomData.roomId);
             roomMap.insert( roomData.roomId, room );
             emit q->newRoom(room);
         } else {
@@ -140,7 +140,7 @@ void ConnectionPrivate::gotJoinRoom(KJob* job)
         {
             room = roomMap.value(roomId);
         } else {
-            room = new Room(q, roomId);
+            room = q->createRoom(roomId);
             roomMap.insert( roomId, room );
             emit q->newRoom(room);
         }

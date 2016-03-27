@@ -21,6 +21,7 @@
 #include "connectionprivate.h"
 #include "user.h"
 #include "events/event.h"
+#include "room.h"
 #include "jobs/passwordlogin.h"
 #include "jobs/initialsyncjob.h"
 #include "jobs/geteventsjob.h"
@@ -127,7 +128,7 @@ User* Connection::user(QString userId)
 {
     if( d->userMap.contains(userId) )
         return d->userMap.value(userId);
-    User* user = new User(userId, this);
+    User* user = createUser(userId);
     d->userMap.insert(userId, user);
     return user;
 }
@@ -140,4 +141,19 @@ QHash< QString, Room* > Connection::roomMap() const
 bool Connection::isConnected()
 {
     return d->isConnected;
+}
+
+ConnectionData* Connection::connectionData()
+{
+    return d->data;
+}
+
+User* Connection::createUser(QString userId)
+{
+    return new User(userId, d->data);
+}
+
+Room* Connection::createRoom(QString roomId)
+{
+    return new Room(this, roomId);
 }

@@ -27,6 +27,7 @@ namespace QMatrixClient
     class User;
     class Event;
     class ConnectionPrivate;
+    class ConnectionData;
 
     class SyncJob;
     class RoomMessagesJob;
@@ -40,20 +41,20 @@ namespace QMatrixClient
             virtual ~Connection();
 
             QHash<QString, Room*> roomMap() const;
-            bool isConnected();
+            virtual bool isConnected();
 
-            void connectToServer( QString user, QString password );
-            void reconnect();
-            SyncJob* sync(int timeout=-1);
-            void postMessage( Room* room, QString type, QString message );
-            PostReceiptJob* postReceipt( Room* room, Event* event );
-            void joinRoom( QString roomAlias );
-            void leaveRoom( Room* room );
-            void getMembers( Room* room );
-            RoomMessagesJob* getMessages( Room* room, QString from );
-            MediaThumbnailJob* getThumbnail( QUrl url, int requestedWidth, int requestedHeight );
+            virtual void connectToServer( QString user, QString password );
+            virtual void reconnect();
+            virtual SyncJob* sync(int timeout=-1);
+            virtual void postMessage( Room* room, QString type, QString message );
+            virtual PostReceiptJob* postReceipt( Room* room, Event* event );
+            virtual void joinRoom( QString roomAlias );
+            virtual void leaveRoom( Room* room );
+            virtual void getMembers( Room* room );
+            virtual RoomMessagesJob* getMessages( Room* room, QString from );
+            virtual MediaThumbnailJob* getThumbnail( QUrl url, int requestedWidth, int requestedHeight );
 
-            User* user(QString userId);
+            virtual User* user(QString userId);
 
         signals:
             void connected();
@@ -65,8 +66,25 @@ namespace QMatrixClient
             void loginError(QString error);
             void connectionError(QString error);
             //void jobError(BaseJob* job);
+            
+        protected:
+            /**
+             * Access the underlying ConnectionData class
+             */
+            ConnectionData* connectionData();
+            
+            /**
+             * makes it possible for derived classes to have its own User class
+             */
+            virtual User* createUser(QString userId);
+            
+            /**
+             * makes it possible for derived classes to have its own Room class
+             */
+            virtual Room* createRoom(QString roomId);
 
         private:
+            friend class ConnectionPrivate;
             ConnectionPrivate* d;
     };
 }
