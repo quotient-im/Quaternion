@@ -25,10 +25,12 @@ namespace QMatrixClient
 {
     class Room;
     class User;
+    class Event;
     class ConnectionPrivate;
 
     class SyncJob;
     class RoomMessagesJob;
+    class PostReceiptJob;
     class MediaThumbnailJob;
 
     class Connection: public QObject {
@@ -44,6 +46,7 @@ namespace QMatrixClient
             void reconnect();
             SyncJob* sync(int timeout=-1);
             void postMessage( Room* room, QString type, QString message );
+            PostReceiptJob* postReceipt( Room* room, Event* event );
             void joinRoom( QString roomAlias );
             void leaveRoom( Room* room );
             void getMembers( Room* room );

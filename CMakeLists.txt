@@ -70,6 +70,7 @@ set(qmatrixclient_SRCS
     lib/jobs/checkauthmethods.cpp
     lib/jobs/passwordlogin.cpp
     lib/jobs/postmessagejob.cpp
+    lib/jobs/postreceiptjob.cpp
     lib/jobs/joinroomjob.cpp
     lib/jobs/leaveroomjob.cpp
     lib/jobs/roommembersjob.cpp

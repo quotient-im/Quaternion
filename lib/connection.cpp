@@ -20,10 +20,12 @@
 #include "connectiondata.h"
 #include "connectionprivate.h"
 #include "user.h"
+#include "events/event.h"
 #include "jobs/passwordlogin.h"
 #include "jobs/initialsyncjob.h"
 #include "jobs/geteventsjob.h"
 #include "jobs/postmessagejob.h"
+#include "jobs/postreceiptjob.h"
 #include "jobs/joinroomjob.h"
 #include "jobs/leaveroomjob.h"
 #include "jobs/roommembersjob.h"
@@ -78,6 +80,13 @@ void Connection::postMessage(Room* room, QString type, QString message)
 {
     PostMessageJob* job = new PostMessageJob(d->data, room, type, message);
     job->start();
+}
+
+PostReceiptJob* Connection::postReceipt(Room* room, Event* event)
+{
+    PostReceiptJob* job = new PostReceiptJob(d->data, room->id(), event->id());
+    job->start();
+    return job;
 }
 
 void Connection::joinRoom(QString roomAlias)
