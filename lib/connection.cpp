@@ -150,7 +150,7 @@ ConnectionData* Connection::connectionData()
 
 User* Connection::createUser(QString userId)
 {
-    return new User(userId, d->data);
+    return new User(userId, this);
 }
 
 Room* Connection::createRoom(QString roomId)
