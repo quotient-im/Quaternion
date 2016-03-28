@@ -26,6 +26,8 @@ namespace QMatrixClient
 {
     class Event;
     class Connection;
+    class RoomMemberEvent;
+
     class User: public QObject
     {
             Q_OBJECT
@@ -45,19 +47,21 @@ namespace QMatrixClient
 
             /**
              * Returns the name that should be used to display the user.
+             * Moved to the Room::roomMemberName() because it can only be
+             * calculated in the context of a room, according to the spec.
              */
-            QString displayname() const;
+            //QString displayname() const;
 
             QPixmap avatar(int requestedWidth, int requestedHeight);
 
-            void processEvent(Event* event);
+            void processEvent(RoomMemberEvent* event);
 
         public slots:
             void requestAvatar();
 
         signals:
-            void nameChanged();
-            void avatarChanged(User* user);
+            void nameChanged(User*, QString);
+            void avatarChanged(User*);
 
         private:
             class Private;

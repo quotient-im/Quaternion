@@ -46,11 +46,12 @@ namespace QMatrixClient
             void postMessage( Room* room, QString type, QString message );
             void joinRoom( QString roomAlias );
             void leaveRoom( Room* room );
-            void getMembers( Room* room );
+            //void getMembers( Room* room );
             RoomMessagesJob* getMessages( Room* room, QString from );
             MediaThumbnailJob* getThumbnail( QUrl url, int requestedWidth, int requestedHeight );
 
             User* user(QString userId);
+            User* user();
 
         signals:
             void connected();

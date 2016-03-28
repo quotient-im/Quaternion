@@ -40,8 +40,8 @@
 ChatRoomWidget::ChatRoomWidget(QWidget* parent)
 {
     m_messageModel = new MessageEventModel(this);
-    m_currentRoom = 0;
-    m_currentConnection = 0;
+    m_currentRoom = nullptr;
+    m_currentConnection = nullptr;
 
     //m_messageView = new QListView();
     //m_messageView->setModel(m_messageModel);
@@ -55,7 +55,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
 
     QObject* rootItem = m_quickView->rootObject();
-    connect( rootItem, SIGNAL(getNewContent()), this, SLOT(getNewContent()) );
+    connect( rootItem, SIGNAL(getPreviousContent()), this, SLOT(getPreviousContent()) );
 
 
     m_chatEdit = new QLineEdit();
@@ -105,7 +105,7 @@ void ChatRoomWidget::setConnection(QMatrixClient::Connection* connection)
 void ChatRoomWidget::typingChanged()
 {
     QList<QMatrixClient::User*> typing = m_currentRoom->usersTyping();
-    if( typing.count() == 0 )
+    if( typing.isEmpty() )
     {
         m_currentlyTyping->clear();
         return;
@@ -113,7 +113,7 @@ void ChatRoomWidget::typingChanged()
     QStringList typingNames;
     for( QMatrixClient::User* user: typing )
     {
-        typingNames << user->displayname();
+        typingNames << m_currentRoom->roomMembername(user);
     }
     m_currentlyTyping->setText( QString("<i>Currently typing: %1</i>").arg( typingNames.join(", ") ) );
 }
@@ -123,9 +123,9 @@ void ChatRoomWidget::topicChanged()
     m_topicLabel->setText( m_currentRoom->topic() );
 }
 
-void ChatRoomWidget::getNewContent()
+void ChatRoomWidget::getPreviousContent()
 {
-    m_currentRoom->getNewContent();
+    m_currentRoom->getPreviousContent();
 }
 
 void ChatRoomWidget::sendLine()

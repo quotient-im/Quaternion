@@ -104,7 +104,9 @@ set(qmatrixclient_QRC
 QT5_ADD_RESOURCES(qmatrixclient_QRC_SRC ${qmatrixclient_QRC})
 
 # Tell CMake to create the executable
-add_executable(quaternion ${qmatrixclient_SRCS} ${qmatrixclient_QRC_SRC})
+# (and that on Windows it should be a GUI executable)
+# TODO: MacOS builders, should MACOSX_BUNDLE be specified here as well?
+add_executable(quaternion WIN32 ${qmatrixclient_SRCS} ${qmatrixclient_QRC_SRC})
 
 # Setup command line parameters for the compiler and linker
 if ( CMAKE_COMPILER_IS_GNUCC )
@@ -113,6 +115,7 @@ endif ( CMAKE_COMPILER_IS_GNUCC )
 target_compile_features(quaternion PRIVATE cxx_range_for)
 target_compile_features(quaternion PRIVATE cxx_override)
 
+target_link_libraries(quaternion Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
 if ( KF5CoreAddons_FOUND )
     # The proper way of doing things would be to make a separate config.h.in
     # file and use configure_file() command here to generate config.h with
@@ -120,8 +123,7 @@ if ( KF5CoreAddons_FOUND )
     # dependencies like that, we should turn to that more scalable way.
     # As for now, passing a macro through -D is easier to observe and maintain.
     target_compile_definitions ( quaternion PRIVATE USING_SYSTEM_KCOREADDONS )
-    target_link_libraries(quaternion Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network KF5::CoreAddons)
+    target_link_libraries(quaternion KF5::CoreAddons)
 else ( KF5CoreAddons_FOUND )
-    include_directories( kcoreaddons/src/lib kcoreaddons/src/lib/jobs )
-    target_link_libraries(quaternion Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
+    include_directories( kcoreaddons/src/lib/jobs )
 endif ( KF5CoreAddons_FOUND )
