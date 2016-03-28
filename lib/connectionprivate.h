@@ -51,7 +51,7 @@ namespace QMatrixClient
             QHash<QString, Room*> roomMap;
             QHash<QString, User*> userMap;
             bool isConnected;
-            QString user;
+            QString username;
             QString password;
 
         public slots:

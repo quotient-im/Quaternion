@@ -55,6 +55,7 @@ namespace QMatrixClient
             virtual MediaThumbnailJob* getThumbnail( QUrl url, int requestedWidth, int requestedHeight );
 
             virtual User* user(QString userId);
+            virtual User* user();
 
         signals:
             void connected();

@@ -19,10 +19,10 @@
 #include "connectionprivate.h"
 #include "connection.h"
 #include "state.h"
+#include "room.h"
 #include "user.h"
 #include "jobs/passwordlogin.h"
 #include "jobs/syncjob.h"
-#include "jobs/initialsyncjob.h"
 #include "jobs/geteventsjob.h"
 #include "jobs/joinroomjob.h"
 #include "jobs/roommembersjob.h"
@@ -125,6 +125,8 @@ void ConnectionPrivate::syncDone(KJob* job)
     else {
         if( syncJob->error() == BaseJob::NetworkError )
             emit q->connectionError( syncJob->errorString() );
+        else
+            qDebug() << "syncJob failed, error:" << syncJob->error();
     }
 }
 

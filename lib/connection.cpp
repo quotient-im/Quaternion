@@ -23,7 +23,6 @@
 #include "events/event.h"
 #include "room.h"
 #include "jobs/passwordlogin.h"
-#include "jobs/initialsyncjob.h"
 #include "jobs/geteventsjob.h"
 #include "jobs/postmessagejob.h"
 #include "jobs/postreceiptjob.h"
@@ -55,13 +54,13 @@ void Connection::connectToServer(QString user, QString password)
     PasswordLogin* loginJob = new PasswordLogin(d->data, user, password);
     connect( loginJob, &PasswordLogin::result, d, &ConnectionPrivate::connectDone );
     loginJob->start();
-    d->user = user; // to be able to reconnect
+    d->username = user; // to be able to reconnect
     d->password = password;
 }
 
 void Connection::reconnect()
 {
-    PasswordLogin* loginJob = new PasswordLogin(d->data, d->user, d->password );
+    PasswordLogin* loginJob = new PasswordLogin(d->data, d->username, d->password );
     connect( loginJob, &PasswordLogin::result, d, &ConnectionPrivate::reconnectDone );
     loginJob->start();
 }
@@ -131,6 +130,11 @@ User* Connection::user(QString userId)
     User* user = createUser(userId);
     d->userMap.insert(userId, user);
     return user;
+}
+
+User *Connection::user()
+{
+    return user(d->username);
 }
 
 QHash< QString, Room* > Connection::roomMap() const

@@ -26,7 +26,6 @@
 #include "userlistdock.h"
 #include "chatroomwidget.h"
 #include "logindialog.h"
-#include "lib/jobs/initialsyncjob.h"
 #include "lib/jobs/geteventsjob.h"
 
 MainWindow::MainWindow()
