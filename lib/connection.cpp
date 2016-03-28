@@ -134,7 +134,9 @@ User* Connection::user(QString userId)
 
 User *Connection::user()
 {
-    return user(d->username);
+    if( d->userId.isEmpty() )
+        return 0;
+    return user(d->userId);
 }
 
 QHash< QString, Room* > Connection::roomMap() const

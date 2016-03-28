@@ -53,6 +53,7 @@ namespace QMatrixClient
             bool isConnected;
             QString username;
             QString password;
+            QString userId;
 
         public slots:
             void connectDone(KJob* job);

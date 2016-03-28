@@ -93,6 +93,8 @@ void ConnectionPrivate::connectDone(KJob* job)
     if( !realJob->error() )
     {
         isConnected = true;
+        userId = realJob->id();
+        qDebug() << "Our user ID: " << userId;
         emit q->connected();
     }
     else {
@@ -105,6 +107,7 @@ void ConnectionPrivate::reconnectDone(KJob* job)
     PasswordLogin* realJob = static_cast<PasswordLogin*>(job);
     if( !realJob->error() )
     {
+        userId = realJob->id();
         emit q->reconnected();
     }
     else {
