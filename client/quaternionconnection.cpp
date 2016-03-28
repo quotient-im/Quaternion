@@ -16,38 +16,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef LOGINDIALOG_H
-#define LOGINDIALOG_H
+#include "quaternionconnection.h"
+#include "quaternionroom.h"
 
-#include <QtWidgets/QDialog>
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QLabel>
-#include <QtWidgets/QVBoxLayout>
-#include <QtWidgets/QHBoxLayout>
-
-class QuaternionConnection;
-
-class LoginDialog : public QDialog
+QuaternionConnection::QuaternionConnection(QUrl server, QObject* parent)
+    : QMatrixClient::Connection(server, parent)
 {
-        Q_OBJECT
-    public:
-        LoginDialog(QWidget* parent=0);
+}
 
-        QuaternionConnection* connection() const;
-        
-    private slots:
-        void login();
-        void error(QString error);
-        
-    private:
-        QLineEdit* serverEdit;
-        QLineEdit* userEdit;
-        QLineEdit* passwordEdit;
-        QPushButton* loginButton;
-        QLabel* sessionLabel;
-        
-        QuaternionConnection* m_connection;
-};
-
-#endif // LOGINDIALOG_H
+QMatrixClient::Room* QuaternionConnection::createRoom(QString roomId)
+{
+    return new QuaternionRoom(this, roomId);
+}

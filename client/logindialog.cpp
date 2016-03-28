@@ -22,6 +22,8 @@
 #include <QtCore/QUrl>
 #include <QtWidgets/QFormLayout>
 
+#include "quaternionconnection.h"
+
 LoginDialog::LoginDialog(QWidget* parent)
     : QDialog(parent)
 {
@@ -49,7 +51,7 @@ LoginDialog::LoginDialog(QWidget* parent)
     connect( loginButton, &QPushButton::clicked, this, &LoginDialog::login );
 }
 
-QMatrixClient::Connection* LoginDialog::connection() const
+QuaternionConnection* LoginDialog::connection() const
 {
     return m_connection;
 }
@@ -60,7 +62,7 @@ void LoginDialog::login()
     QUrl url = QUrl::fromUserInput(serverEdit->text());
     QString user = userEdit->text();
     QString password = passwordEdit->text();
-    m_connection = new QMatrixClient::Connection(url);
+    m_connection = new QuaternionConnection(url);
     connect( m_connection, &QMatrixClient::Connection::connected, this, &QDialog::accept );
     connect( m_connection, &QMatrixClient::Connection::loginError, this, &LoginDialog::error );
     m_connection->connectToServer(user, password);

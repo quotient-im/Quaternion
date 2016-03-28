@@ -21,13 +21,13 @@
 
 #include <QtWidgets/QMainWindow>
 
-#include "lib/connection.h"
 #include "lib/room.h"
 #include "lib/jobs/basejob.h"
 
 class RoomListDock;
 class UserListDock;
 class ChatRoomWidget;
+class QuaternionConnection;
 
 class MainWindow: public QMainWindow
 {
@@ -51,7 +51,7 @@ class MainWindow: public QMainWindow
         RoomListDock* roomListDock;
         UserListDock* userListDock;
         ChatRoomWidget* chatRoomWidget;
-        QMatrixClient::Connection* connection;
+        QuaternionConnection* connection;
 };
 
 #endif // MAINWINDOW_H

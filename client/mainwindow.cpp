@@ -21,6 +21,7 @@
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>
 
+#include "quaternionconnection.h"
 #include "roomlistdock.h"
 #include "userlistdock.h"
 #include "chatroomwidget.h"
