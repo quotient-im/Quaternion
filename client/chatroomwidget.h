@@ -30,6 +30,7 @@ namespace QMatrixClient
     class Event;
 }
 class MessageEventModel;
+class QuaternionRoom;
 class QListView;
 class QLineEdit;
 class QLabel;
@@ -53,7 +54,7 @@ class ChatRoomWidget: public QWidget
 
     private:
         MessageEventModel* m_messageModel;
-        QMatrixClient::Room* m_currentRoom;
+        QuaternionRoom* m_currentRoom;
         QMatrixClient::Connection* m_currentConnection;
 
         //QListView* m_messageView;

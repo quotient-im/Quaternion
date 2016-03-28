@@ -26,6 +26,26 @@ class QuaternionRoom: public QMatrixClient::Room
         Q_OBJECT
     public:
         QuaternionRoom(QMatrixClient::Connection* connection, QString roomId);
+
+        /**
+         * set/get whether this room is currently show to the user.
+         * This is used to mark messages as read.
+         */
+        void setShown(bool shown);
+        bool isShown();
+
+        bool hasUnreadMessages();
+
+    signals:
+        void unreadMessagesChanged(QuaternionRoom* room);
+
+    protected:
+        virtual void processMessageEvent(QMatrixClient::Event* event) override;
+        virtual void processEphemeralEvent(QMatrixClient::Event* event) override;
+
+    private:
+        bool m_shown;
+        bool m_unreadMessages;
 };
 
 #endif // QUATERNIONROOM_H

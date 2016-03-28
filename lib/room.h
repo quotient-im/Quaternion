@@ -57,6 +57,9 @@ namespace QMatrixClient
             void updateData( const SyncRoomData& data );
             void setJoinState( JoinState state );
 
+            void markMessageAsRead( Event* event );
+            QString lastReadEvent(User* user);
+
         public slots:
             void getPreviousContent();
 
@@ -68,6 +71,12 @@ namespace QMatrixClient
             void userRemoved(User* user);
             void joinStateChanged(JoinState oldState, JoinState newState);
             void typingChanged();
+
+        protected:
+            Connection* connection();
+            virtual void processMessageEvent(Event* event);
+            virtual void processStateEvent(Event* event);
+            virtual void processEphemeralEvent(Event* event);
 
         private:
             class Private;

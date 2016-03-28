@@ -32,6 +32,7 @@
 #include "events/roomtopicevent.h"
 #include "events/roommemberevent.h"
 #include "events/typingevent.h"
+#include "events/receiptevent.h"
 #include "jobs/roommessagesjob.h"
 
 using namespace QMatrixClient;
@@ -44,9 +45,6 @@ class Room::Private: public QObject
         Room* q;
 
         //static LogMessage* parseMessage(const QJsonObject& message);
-        void insertMessage(Event* event);
-        void addState(Event* event);
-        void ephemeralEvent(Event* event);
         void gotMessages(KJob* job);
 
         Connection* connection;
@@ -59,6 +57,7 @@ class Room::Private: public QObject
         JoinState joinState;
         QList<User*> users;
         QList<User*> usersTyping;
+        QHash<User*, QString> lastReadEvent;
         QString prevBatch;
         bool gettingNewContent;
 };
@@ -151,6 +150,16 @@ void Room::setJoinState(JoinState state)
     emit joinStateChanged(oldState, state);
 }
 
+void Room::markMessageAsRead(Event* event)
+{
+    d->connection->postReceipt(this, event);
+}
+
+QString Room::lastReadEvent(User* user)
+{
+    return d->lastReadEvent.value(user);
+}
+
 QList< User* > Room::usersTyping() const
 {
     return d->usersTyping;
@@ -163,14 +172,14 @@ QList< User* > Room::users() const
 
 void Room::addMessage(Event* event)
 {
-    d->insertMessage(event);
+    processMessageEvent(event);
     emit newMessage(event);
     //d->addState(event);
 }
 
 void Room::addInitialState(State* state)
 {
-    d->addState(state->event());
+    processStateEvent(state->event());
 }
 
 void Room::updateData(const SyncRoomData& data)
@@ -181,21 +190,21 @@ void Room::updateData(const SyncRoomData& data)
 
     for( Event* stateEvent: data.state )
     {
-        d->addState(stateEvent);
+        processStateEvent(stateEvent);
     }
 
     for( Event* timelineEvent: data.timeline )
     {
 
-        d->insertMessage(timelineEvent);
+        processMessageEvent(timelineEvent);
         emit newMessage(timelineEvent);
         // State changes can arrive in a timeline event - try to check those.
-        d->addState(timelineEvent);
+        processStateEvent(timelineEvent);
     }
 
     for( Event* ephemeralEvent: data.ephemeral )
     {
-        d->ephemeralEvent(ephemeralEvent);
+        processEphemeralEvent(ephemeralEvent);
     }
 }
 
@@ -206,89 +215,6 @@ void Room::getPreviousContent()
         d->gettingNewContent = true;
         RoomMessagesJob* job = d->connection->getMessages(this, d->prevBatch);
         connect( job, &RoomMessagesJob::result, d, &Room::Private::gotMessages );
-    }
-}
-
-void Room::Private::insertMessage(Event* event)
-{
-    for( int i=0; i<messageEvents.count(); i++ )
-    {
-        if( event->timestamp() < messageEvents.at(i)->timestamp() )
-        {
-            messageEvents.insert(i, event);
-            return;
-        }
-    }
-    messageEvents.append(event);
-}
-
-void Room::Private::addState(Event* event)
-{
-    if( event->type() == EventType::RoomName )
-    {
-        if (RoomNameEvent* nameEvent = static_cast<RoomNameEvent*>(event))
-        {
-            name = nameEvent->name();
-            qDebug() << "room name: " << name;
-            emit q->namesChanged(q);
-        } else
-        {
-            qDebug() <<
-                "!!! event type is RoomName but the event is not RoomNameEvent";
-        }
-    }
-    if( event->type() == EventType::RoomAliases )
-    {
-        RoomAliasesEvent* aliasesEvent = static_cast<RoomAliasesEvent*>(event);
-        aliases = aliasesEvent->aliases();
-        qDebug() << "room aliases: " << aliases;
-        emit q->namesChanged(q);
-    }
-    if( event->type() == EventType::RoomCanonicalAlias )
-    {
-        RoomCanonicalAliasEvent* aliasEvent = static_cast<RoomCanonicalAliasEvent*>(event);
-        canonicalAlias = aliasEvent->alias();
-        qDebug() << "room canonical alias: " << canonicalAlias;
-        emit q->namesChanged(q);
-    }
-    if( event->type() == EventType::RoomTopic )
-    {
-        RoomTopicEvent* topicEvent = static_cast<RoomTopicEvent*>(event);
-        topic = topicEvent->topic();
-        emit q->topicChanged();
-    }
-    if( event->type() == EventType::RoomMember )
-    {
-        RoomMemberEvent* memberEvent = static_cast<RoomMemberEvent*>(event);
-        User* u = connection->user(memberEvent->userId());
-        if( !u ) qDebug() << "addState: invalid user!" << u << memberEvent->userId();
-        u->processEvent(event);
-        if( memberEvent->membership() == MembershipType::Join and !users.contains(u) )
-        {
-            users.append(u);
-            emit q->userAdded(u);
-        }
-        else if( memberEvent->membership() == MembershipType::Leave
-                 and users.contains(u) )
-        {
-            users.removeAll(u);
-            emit q->userRemoved(u);
-        }
-    }
-
-}
-
-void Room::Private::ephemeralEvent(Event* event)
-{
-    if( event->type() == EventType::Typing )
-    {
-        TypingEvent* typingEvent = static_cast<TypingEvent*>(event);
-        usersTyping.clear();
-        for( const QString& user: typingEvent->users() )
-        {
-            usersTyping.append(connection->user(user));
-        }
-        emit q->typingChanged();
     }
 }
 
@@ -303,12 +229,111 @@ void Room::Private::gotMessages(KJob* job)
     {
         for( Event* event: realJob->events() )
         {
-            insertMessage(event);
+            q->processMessageEvent(event);
             emit q->newMessage(event);
         }
         prevBatch = realJob->end();
     }
     gettingNewContent = false;
+}
+
+Connection* Room::connection()
+{
+    return d->connection;
+}
+
+void Room::processMessageEvent(Event* event)
+{
+    for( int i=0; i<d->messageEvents.count(); i++ )
+    {
+        if( event->timestamp() < d->messageEvents.at(i)->timestamp() )
+        {
+            d->messageEvents.insert(i, event);
+            return;
+        }
+    }
+    d->messageEvents.append(event);
+}
+
+void Room::processStateEvent(Event* event)
+{
+    if( event->type() == EventType::RoomName )
+    {
+        if (RoomNameEvent* nameEvent = static_cast<RoomNameEvent*>(event))
+        {
+            d->name = nameEvent->name();
+            qDebug() << "room name: " << d->name;
+            emit namesChanged(this);
+        } else
+        {
+            qDebug() <<
+                "!!! event type is RoomName but the event is not RoomNameEvent";
+        }
+    }
+    if( event->type() == EventType::RoomAliases )
+    {
+        RoomAliasesEvent* aliasesEvent = static_cast<RoomAliasesEvent*>(event);
+        d->aliases = aliasesEvent->aliases();
+        qDebug() << "room aliases: " << d->aliases;
+        emit namesChanged(this);
+    }
+    if( event->type() == EventType::RoomCanonicalAlias )
+    {
+        RoomCanonicalAliasEvent* aliasEvent = static_cast<RoomCanonicalAliasEvent*>(event);
+        d->canonicalAlias = aliasEvent->alias();
+        qDebug() << "room canonical alias: " << d->canonicalAlias;
+        emit namesChanged(this);
+    }
+    if( event->type() == EventType::RoomTopic )
+    {
+        RoomTopicEvent* topicEvent = static_cast<RoomTopicEvent*>(event);
+        d->topic = topicEvent->topic();
+        emit topicChanged();
+    }
+    if( event->type() == EventType::RoomMember )
+    {
+        RoomMemberEvent* memberEvent = static_cast<RoomMemberEvent*>(event);
+        User* u = d->connection->user(memberEvent->userId());
+        if( !u ) qDebug() << "addState: invalid user!" << u << memberEvent->userId();
+        u->processEvent(event);
+        if( memberEvent->membership() == MembershipType::Join and !d->users.contains(u) )
+        {
+            d->users.append(u);
+            emit userAdded(u);
+        }
+        else if( memberEvent->membership() == MembershipType::Leave
+                 and d->users.contains(u) )
+        {
+            d->users.removeAll(u);
+            emit userRemoved(u);
+        }
+    }
+}
+
+void Room::processEphemeralEvent(Event* event)
+{
+    if( event->type() == EventType::Typing )
+    {
+        TypingEvent* typingEvent = static_cast<TypingEvent*>(event);
+        d->usersTyping.clear();
+        for( const QString& user: typingEvent->users() )
+        {
+            d->usersTyping.append(d->connection->user(user));
+        }
+        emit typingChanged();
+    }
+    if( event->type() == EventType::Receipt )
+    {
+        ReceiptEvent* receiptEvent = static_cast<ReceiptEvent*>(event);
+        for( QString eventId: receiptEvent->events() )
+        {
+            QList<Receipt> receipts = receiptEvent->receiptsForEvent(eventId);
+            for( Receipt r: receipts )
+            {
+                d->lastReadEvent.insert(d->connection->user(r.userId), eventId);
+            }
+        }
+    }
 }
 
 // void Room::setAlias(QString alias)

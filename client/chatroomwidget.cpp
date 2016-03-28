@@ -36,6 +36,7 @@
 #include "lib/events/event.h"
 #include "lib/events/typingevent.h"
 #include "models/messageeventmodel.h"
+#include "quaternionroom.h"
 
 ChatRoomWidget::ChatRoomWidget(QWidget* parent)
 {
@@ -82,12 +83,14 @@ void ChatRoomWidget::setRoom(QMatrixClient::Room* room)
     {
         disconnect( m_currentRoom, &QMatrixClient::Room::typingChanged, this, &ChatRoomWidget::typingChanged );
         disconnect( m_currentRoom, &QMatrixClient::Room::topicChanged, this, &ChatRoomWidget::topicChanged );
+        m_currentRoom->setShown(false);
     }
-    m_currentRoom = room;
+    m_currentRoom = static_cast<QuaternionRoom*>(room);
     if( m_currentRoom )
     {
         connect( m_currentRoom, &QMatrixClient::Room::typingChanged, this, &ChatRoomWidget::typingChanged );
         connect( m_currentRoom, &QMatrixClient::Room::topicChanged, this, &ChatRoomWidget::topicChanged );
+        m_currentRoom->setShown(true);
         topicChanged();
     }
     m_messageModel->changeRoom( room );

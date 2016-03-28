@@ -55,7 +55,7 @@ class ReceiptEvent::Private
 };
 
 ReceiptEvent::ReceiptEvent()
-    : Event(EventType::RoomAliases)
+    : Event(EventType::Receipt)
     , d(new Private)
 {
 }
