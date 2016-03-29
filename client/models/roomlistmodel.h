@@ -44,7 +44,7 @@ class RoomListModel: public QAbstractListModel
 
     private slots:
         void namesChanged(QMatrixClient::Room* room);
-        void unreadMessagesChanged(QuaternionRoom* room);
+        void unreadMessagesChanged(QMatrixClient::Room* room);
         void addRoom(QMatrixClient::Room* room);
 
     private:

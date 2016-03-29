@@ -43,6 +43,9 @@ class QuaternionRoom: public QMatrixClient::Room
         virtual void processMessageEvent(QMatrixClient::Event* event) override;
         virtual void processEphemeralEvent(QMatrixClient::Event* event) override;
 
+    private slots:
+        void countChanged();
+
     private:
         bool m_shown;
         bool m_unreadMessages;

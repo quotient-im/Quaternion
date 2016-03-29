@@ -26,6 +26,8 @@ QuaternionRoom::QuaternionRoom(QMatrixClient::Connection* connection, QString ro
 {
     m_shown = false;
     m_unreadMessages = true;
+    connect( this, &QuaternionRoom::notificationCountChanged, this, &QuaternionRoom::countChanged );
+    connect( this, &QuaternionRoom::highlightCountChanged, this, &QuaternionRoom::countChanged );
 }
 
 void QuaternionRoom::setShown(bool shown)
@@ -39,6 +41,11 @@ void QuaternionRoom::setShown(bool shown)
         m_unreadMessages = false;
         emit unreadMessagesChanged(this);
         qDebug() << displayName() << "no unread messages";
+    }
+    if( m_shown )
+    {
+        resetHighlightCount();
+        resetNotificationCount();
     }
 }
 
@@ -79,6 +86,15 @@ void QuaternionRoom::processEphemeralEvent(QMatrixClient::Event* event)
         m_unreadMessages = false;
         emit unreadMessagesChanged(this);
         qDebug() << displayName() << "no unread messages";
+    }
+}
+
+void QuaternionRoom::countChanged()
+{
+    if( m_shown )
+    {
+        resetNotificationCount();
+        resetHighlightCount();
     }
 }
 

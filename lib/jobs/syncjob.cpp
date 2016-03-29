@@ -162,6 +162,11 @@ SyncRoomData::SyncRoomData(QString roomId_, const QJsonObject& room_, JoinState 
     QJsonObject timeline = room_.value("timeline").toObject();
     timelineLimited = timeline.value("limited").toBool();
     timelinePrevBatch = timeline.value("prev_batch").toString();
+
+   QJsonObject unread = room_.value("unread_notifications").toObject();
+   highlightCount = unread.value("highlight_count").toInt();
+   notificationCount = unread.value("notification_count").toInt();
+   qDebug() << "Highlights: " << highlightCount << " Notifications:" << notificationCount;
 }
 
 void SyncJob::Private::parseEvents(QString roomId, const QJsonObject& room, JoinState joinState)

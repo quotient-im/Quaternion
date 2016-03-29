@@ -60,6 +60,11 @@ namespace QMatrixClient
             void markMessageAsRead( Event* event );
             QString lastReadEvent(User* user);
 
+            int notificationCount() const;
+            void resetNotificationCount();
+            int highlightCount() const;
+            void resetHighlightCount();
+
         public slots:
             void getPreviousContent();
 
@@ -71,6 +76,8 @@ namespace QMatrixClient
             void userRemoved(User* user);
             void joinStateChanged(JoinState oldState, JoinState newState);
             void typingChanged();
+            void highlightCountChanged(Room* room);
+            void notificationCountChanged(Room* room);
 
         protected:
             Connection* connection();

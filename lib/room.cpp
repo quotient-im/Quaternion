@@ -55,6 +55,8 @@ class Room::Private: public QObject
         QString name;
         QString topic;
         JoinState joinState;
+        int highlightCount;
+        int notificationCount;
         QList<User*> users;
         QList<User*> usersTyping;
         QHash<User*, QString> lastReadEvent;
@@ -160,6 +162,32 @@ QString Room::lastReadEvent(User* user)
     return d->lastReadEvent.value(user);
 }
 
+int Room::notificationCount() const
+{
+    return d->notificationCount;
+}
+
+void Room::resetNotificationCount()
+{
+    if( d->notificationCount == 0 )
+        return;
+    d->notificationCount = 0;
+    emit notificationCountChanged(this);
+}
+
+int Room::highlightCount() const
+{
+    return d->highlightCount;
+}
+
+void Room::resetHighlightCount()
+{
+if( d->highlightCount == 0 )
+        return;
+    d->highlightCount = 0;
+    emit highlightCountChanged(this);
+}
+
 QList< User* > Room::usersTyping() const
 {
     return d->usersTyping;
@@ -205,6 +233,17 @@ void Room::updateData(const SyncRoomData& data)
     for( Event* ephemeralEvent: data.ephemeral )
     {
         processEphemeralEvent(ephemeralEvent);
+    }
+
+    if( data.highlightCount != d->highlightCount )
+    {
+        d->highlightCount = data.highlightCount;
+        emit highlightCountChanged(this);
+    }
+    if( data.notificationCount != d->notificationCount )
+    {
+        d->notificationCount = data.notificationCount;
+        emit notificationCountChanged(this);
     }
 }
 

@@ -39,6 +39,8 @@ namespace QMatrixClient
 
         bool timelineLimited;
         QString timelinePrevBatch;
+        int highlightCount;
+        int notificationCount;
 
         SyncRoomData(QString roomId_, const QJsonObject& room_, JoinState joinState_);
     };
