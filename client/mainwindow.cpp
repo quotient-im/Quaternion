@@ -20,6 +20,11 @@
 
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QMenuBar>
+#include <QtWidgets/QMenu>
+#include <QtWidgets/QAction>
+#include <QtWidgets/QInputDialog>
 
 #include "quaternionconnection.h"
 #include "roomlistdock.h"
@@ -49,6 +54,23 @@ MainWindow::~MainWindow()
 
 void MainWindow::initialize()
 {
+    menuBar = new QMenuBar();
+    connectionMenu = new QMenu(tr("&Connection"));
+    menuBar->addMenu(connectionMenu);
+    roomMenu = new QMenu(tr("&Room"));
+    menuBar->addMenu(roomMenu);
+
+    quitAction = new QAction(tr("&Quit"), this);
+    quitAction->setShortcut(QKeySequence(QKeySequence::Quit));
+    connect( quitAction, &QAction::triggered, qApp, &QApplication::quit );
+    connectionMenu->addAction(quitAction);
+
+    joinRoomAction = new QAction(tr("&Join Room..."), this);
+    connect( joinRoomAction, &QAction::triggered, this, &MainWindow::showJoinRoomDialog );
+    roomMenu->addAction(joinRoomAction);
+
+    setMenuBar(menuBar);
+
     LoginDialog dialog(this);
     if( dialog.exec() )
     {
@@ -90,6 +112,17 @@ void MainWindow::closeEvent(QCloseEvent* event)
         disconnect( connection, &QMatrixClient::Connection::reconnected, this, &MainWindow::getNewEvents );
     }
     event->accept();
+}
+
+void MainWindow::showJoinRoomDialog()
+{
+    bool ok;
+    QString room = QInputDialog::getText(this, tr("Join Room"), tr("Enter the name of the room"),
+                                         QLineEdit::Normal, QString(), &ok);
+    if( ok && !room.isEmpty() )
+    {
+        connection->joinRoom(room);
+    }
 }
 
 

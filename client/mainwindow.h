@@ -29,6 +29,10 @@ class UserListDock;
 class ChatRoomWidget;
 class QuaternionConnection;
 
+class QAction;
+class QMenu;
+class QMenuBar;
+
 class MainWindow: public QMainWindow
 {
         Q_OBJECT
@@ -46,12 +50,21 @@ class MainWindow: public QMainWindow
     protected:
         virtual void closeEvent(QCloseEvent* event) override;
 
-    private:
+    private slots:
+        void showJoinRoomDialog();
 
+    private:
         RoomListDock* roomListDock;
         UserListDock* userListDock;
         ChatRoomWidget* chatRoomWidget;
         QuaternionConnection* connection;
+
+        QMenuBar* menuBar;
+        QMenu* connectionMenu;
+        QMenu* roomMenu;
+
+        QAction* quitAction;
+        QAction* joinRoomAction;
 };
 
 #endif // MAINWINDOW_H
