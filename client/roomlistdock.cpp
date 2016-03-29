@@ -21,6 +21,7 @@
 #include <QtCore/QDebug>
 
 #include "models/roomlistmodel.h"
+#include "quaternionroom.h"
 
 RoomListDock::RoomListDock(QWidget* parent)
     : QDockWidget("Rooms", parent)

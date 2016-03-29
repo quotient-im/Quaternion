@@ -27,6 +27,8 @@ namespace QMatrixClient
     class Room;
 }
 
+class QuaternionRoom;
+
 class RoomListModel: public QAbstractListModel
 {
         Q_OBJECT
@@ -35,18 +37,19 @@ class RoomListModel: public QAbstractListModel
         virtual ~RoomListModel();
 
         void setConnection(QMatrixClient::Connection* connection);
-        QMatrixClient::Room* roomAt(int row);
+        QuaternionRoom* roomAt(int row);
 
         QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
         int rowCount(const QModelIndex& parent=QModelIndex()) const override;
 
     private slots:
         void namesChanged(QMatrixClient::Room* room);
+        void unreadMessagesChanged(QuaternionRoom* room);
         void addRoom(QMatrixClient::Room* room);
 
     private:
         QMatrixClient::Connection* m_connection;
-        QList<QMatrixClient::Room*> m_rooms;
+        QList<QuaternionRoom*> m_rooms;
 };
 
 #endif // ROOMLISTMODEL_H

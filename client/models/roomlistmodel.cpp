@@ -18,8 +18,12 @@
 
 #include "roomlistmodel.h"
 
+#include <QtGui/QBrush>
+#include <QtGui/QColor>
+
 #include "lib/connection.h"
 #include "lib/room.h"
+#include "../quaternionroom.h"
 
 RoomListModel::RoomListModel(QObject* parent)
     : QAbstractListModel(parent)
@@ -35,13 +39,24 @@ void RoomListModel::setConnection(QMatrixClient::Connection* connection)
 {
     beginResetModel();
     m_connection = connection;
+    for( QuaternionRoom* room: m_rooms )
+    {
+        disconnect( room, &QuaternionRoom::namesChanged, this, &RoomListModel::namesChanged );
+        disconnect( room, &QuaternionRoom::unreadMessagesChanged, this, &RoomListModel::unreadMessagesChanged );
+    }
     m_rooms.clear();
     connect( connection, &QMatrixClient::Connection::newRoom, this, &RoomListModel::addRoom );
-    m_rooms = connection->roomMap().values();
+    for( QMatrixClient::Room* r: connection->roomMap().values() )
+    {
+        QuaternionRoom* room = static_cast<QuaternionRoom*>(r);
+        connect( room, &QuaternionRoom::namesChanged, this, &RoomListModel::namesChanged );
+        connect( room, &QuaternionRoom::unreadMessagesChanged, this, &RoomListModel::unreadMessagesChanged );
+        m_rooms.append(static_cast<QuaternionRoom*>(r));
+    }
     endResetModel();
 }
 
-QMatrixClient::Room* RoomListModel::roomAt(int row)
+QuaternionRoom* RoomListModel::roomAt(int row)
 {
     return m_rooms.at(row);
 }
@@ -49,8 +64,10 @@ QMatrixClient::Room* RoomListModel::roomAt(int row)
 void RoomListModel::addRoom(QMatrixClient::Room* room)
 {
     beginInsertRows(QModelIndex(), m_rooms.count(), m_rooms.count());
-    m_rooms.append(room);
-    connect( room, &QMatrixClient::Room::namesChanged, this, &RoomListModel::namesChanged );
+    QuaternionRoom* qRoom = static_cast<QuaternionRoom*>(room);
+    m_rooms.append(qRoom);
+    connect( qRoom, &QuaternionRoom::namesChanged, this, &RoomListModel::namesChanged );
+    connect( qRoom, &QuaternionRoom::unreadMessagesChanged, this, &RoomListModel::unreadMessagesChanged );
     endInsertRows();
 }
 
@@ -71,15 +88,27 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         qDebug() << "UserListModel: something wrong here...";
         return QVariant();
     }
-    QMatrixClient::Room* room = m_rooms.at(index.row());
+    QuaternionRoom* room = m_rooms.at(index.row());
     if( role == Qt::DisplayRole )
     {
         return room->displayName();
+    }
+    if( role == Qt::ForegroundRole )
+    {
+        if( room->hasUnreadMessages() )
+            return QBrush(QColor("blue"));
+        return QVariant();
     }
     return QVariant();
 }
 
 void RoomListModel::namesChanged(QMatrixClient::Room* room)
+{
+    int row = m_rooms.indexOf(static_cast<QuaternionRoom*>(room));
+    emit dataChanged(index(row), index(row));
+}
+
+void RoomListModel::unreadMessagesChanged(QuaternionRoom* room)
 {
     int row = m_rooms.indexOf(room);
     emit dataChanged(index(row), index(row));
