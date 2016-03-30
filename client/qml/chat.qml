@@ -74,6 +74,7 @@ Rectangle {
             width: parent.width
 
             Label {
+                id: timelabel
                 text: time.toLocaleString(Qt.locale("de_DE"), "'<'hh:mm:ss'>'")
                 color: "grey"
             }
@@ -83,7 +84,8 @@ Rectangle {
                 horizontalAlignment: if( eventType != "message" ) { Text.AlignRight }
                 color: if( eventType != "message" ) { "lightgrey" } else { "black" }
             }
-            Label { text: content; wrapMode: Text.Wrap; width: parent.width - (x - parent.x) - spacing
+            TextEdit { selectByMouse: true; readOnly: true; font: timelabel.font;
+                    text: content; wrapMode: Text.Wrap; width: parent.width - (x - parent.x) - spacing
                     color: if( eventType != "message" ) { "lightgrey" } else { "black" }
                     ToolTipArea { tip { text: toolTip; color: "#999999"; zParent: message } }
             }
