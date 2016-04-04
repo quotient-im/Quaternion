@@ -1,6 +1,9 @@
-cmake_minimum_required(VERSION 3.1) # Because of target_compile_features
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.11) # Maybe works with an even older CMake
 
 project(quaternion)
+enable_language(CXX)
+
+include(CheckCXXCompilerFlag)
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -113,11 +116,20 @@ QT5_ADD_RESOURCES(qmatrixclient_QRC_SRC ${qmatrixclient_QRC})
 add_executable(quaternion WIN32 ${qmatrixclient_SRCS} ${qmatrixclient_QRC_SRC})
 
 # Setup command line parameters for the compiler and linker
-if ( CMAKE_COMPILER_IS_GNUCC )
-    add_compile_options( "-Wall" )
-endif ( CMAKE_COMPILER_IS_GNUCC )
-target_compile_features(quaternion PRIVATE cxx_range_for)
-target_compile_features(quaternion PRIVATE cxx_override)
+CHECK_CXX_COMPILER_FLAG("-Wall" WALL_FLAG_SUPPORTED)
+if ( WALL_FLAG_SUPPORTED )
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+endif ( WALL_FLAG_SUPPORTED )
+
+if ( CMAKE_VERSION VERSION_LESS "3.1" )
+    CHECK_CXX_COMPILER_FLAG("-std=c++11" STD_FLAG_SUPPORTED)
+    if ( STD_FLAG_SUPPORTED )
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    endif ( STD_FLAG_SUPPORTED )
+else ( CMAKE_VERSION VERSION_LESS "3.1" )
+    target_compile_features(quaternion PRIVATE cxx_range_for)
+    target_compile_features(quaternion PRIVATE cxx_override)
+endif ( CMAKE_VERSION VERSION_LESS "3.1" )
 
 target_link_libraries(quaternion Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
 if ( KF5CoreAddons_FOUND )
