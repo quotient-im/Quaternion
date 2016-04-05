@@ -20,9 +20,10 @@
 
 using namespace QMatrixClient;
 
-struct RoomNameEvent::Private
+class RoomNameEvent::Private
 {
-    QString name;
+    public:
+        QString name;
 };
 
 RoomNameEvent::RoomNameEvent() :
