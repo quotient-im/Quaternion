@@ -37,8 +37,8 @@ void QuaternionRoom::setShown(bool shown)
     m_shown = shown;
     if( m_shown && m_unreadMessages )
     {
-        if( !messages().empty() )
-            markMessageAsRead( messages().last() );
+        if( !messageEvents().empty() )
+            markMessageAsRead( messageEvents().last() );
         m_unreadMessages = false;
         emit unreadMessagesChanged(this);
         qDebug() << displayName() << "no unread messages";
@@ -62,7 +62,7 @@ bool QuaternionRoom::hasUnreadMessages()
 
 void QuaternionRoom::processMessageEvent(QMatrixClient::Event* event)
 {
-    bool isNewest = messages().empty() || event->timestamp() > messages().last()->timestamp();
+    bool isNewest = messageEvents().empty() || event->timestamp() > messageEvents().last()->timestamp();
     QMatrixClient::Room::processMessageEvent(event);
     if( !isNewest )
         return;
@@ -82,7 +82,7 @@ void QuaternionRoom::processEphemeralEvent(QMatrixClient::Event* event)
 {
     QMatrixClient::Room::processEphemeralEvent(event);
     QString lastReadId = lastReadEvent(connection()->user());
-    if( m_unreadMessages && lastReadId == messages().last()->id() )
+    if( m_unreadMessages && lastReadId == messageEvents().last()->id() )
     {
         m_unreadMessages = false;
         emit unreadMessagesChanged(this);
