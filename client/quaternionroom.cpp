@@ -37,7 +37,8 @@ void QuaternionRoom::setShown(bool shown)
     m_shown = shown;
     if( m_shown && m_unreadMessages )
     {
-        markMessageAsRead( messages().last() );
+        if( !messages().empty() )
+            markMessageAsRead( messages().last() );
         m_unreadMessages = false;
         emit unreadMessagesChanged(this);
         qDebug() << displayName() << "no unread messages";
