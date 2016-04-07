@@ -41,7 +41,7 @@ namespace QMatrixClient
             virtual ~Room();
 
             QString id() const;
-            QList<Event*> messages() const;
+            QList<Event*> messageEvents() const;
             QString name() const;
             QStringList aliases() const;
             QString canonicalAlias() const;

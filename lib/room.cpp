@@ -86,7 +86,7 @@ QString Room::id() const
     return d->id;
 }
 
-QList< Event* > Room::messages() const
+QList< Event* > Room::messageEvents() const
 {
     return d->messageEvents;
 }
