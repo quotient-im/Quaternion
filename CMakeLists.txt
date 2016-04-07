@@ -82,6 +82,7 @@ set(qmatrixclient_SRCS
     lib/jobs/mediathumbnailjob.cpp
     client/quaternionconnection.cpp
     client/quaternionroom.cpp
+    client/message.cpp
     client/logindialog.cpp
     client/mainwindow.cpp
     client/roomlistdock.cpp

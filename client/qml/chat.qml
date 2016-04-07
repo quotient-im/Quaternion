@@ -83,11 +83,19 @@ Rectangle {
                 text: eventType == "message" ? author : "***"
                 horizontalAlignment: if( eventType != "message" ) { Text.AlignRight }
                 color: if( eventType != "message" ) { "lightgrey" } else { "black" }
+
             }
-            TextEdit { selectByMouse: true; readOnly: true; font: timelabel.font;
-                    text: content; wrapMode: Text.Wrap; width: parent.width - (x - parent.x) - spacing
-                    color: if( eventType != "message" ) { "lightgrey" } else { "black" }
-                    ToolTipArea { tip { text: toolTip; color: "#999999"; zParent: message } }
+            Rectangle {
+                color: highlight ? "orange" : "white"
+                height: contentField.height
+                width: parent.width - (x - parent.x) - spacing
+                TextEdit {
+                        id: contentField
+                        selectByMouse: true; readOnly: true; font: timelabel.font;
+                        text: content; wrapMode: Text.Wrap; width: parent.width
+                        color: if( eventType != "message" ) { "lightgrey" } else { "black" }
+                        ToolTipArea { tip { text: toolTip; color: "#999999"; zParent: message } }
+                }
             }
             spacing: 3
         }

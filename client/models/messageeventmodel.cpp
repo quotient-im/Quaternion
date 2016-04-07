@@ -20,6 +20,8 @@
 
 #include <QtCore/QDebug>
 
+#include "../message.h"
+#include "../quaternionroom.h"
 #include "lib/connection.h"
 #include "lib/room.h"
 #include "lib/user.h"
@@ -45,18 +47,19 @@ void MessageEventModel::changeRoom(QMatrixClient::Room* room)
     beginResetModel();
     if( m_currentRoom )
     {
-        disconnect( m_currentRoom, &QMatrixClient::Room::newMessage, this, &MessageEventModel::newMessage );
+        disconnect( m_currentRoom, &QuaternionRoom::newMessage, this, &MessageEventModel::newMessage );
     }
-    m_currentRoom = room;
     if( room )
     {
-        m_currentMessages = room->messageEvents();
-        connect( room, &QMatrixClient::Room::newMessage, this, &MessageEventModel::newMessage );
+        m_currentRoom = static_cast<QuaternionRoom*>(room);
+        m_currentMessages = m_currentRoom->messages();
+        connect( m_currentRoom, &QuaternionRoom::newMessage, this, &MessageEventModel::newMessage );
         qDebug() << "connected" << room;
     }
     else
     {
-        m_currentMessages = QList<QMatrixClient::Event*>();
+        m_currentRoom = 0;
+        m_currentMessages.clear();
     }
     endResetModel();
 }
@@ -92,7 +95,8 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     if( index.row() < 0 || index.row() >= m_currentMessages.count() )
         return QVariant();
 
-    QMatrixClient::Event* event = m_currentMessages.at(index.row());
+    Message* message = m_currentMessages.at(index.row());;
+    QMatrixClient::Event* event = message->event();
 
     if( role == Qt::DisplayRole )
     {
@@ -190,6 +194,11 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         }
         return "Unknown Event";
     }
+
+    if( role == HighlightRole )
+    {
+        return message->highlight();
+    }
 //     if( event->type() == QMatrixClient::EventType::Unknown )
 //     {
 //         QMatrixClient::UnknownEvent* e = static_cast<QMatrixClient::UnknownEvent*>(event);
@@ -206,27 +215,28 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
     roles[DateRole] = "date";
     roles[AuthorRole] = "author";
     roles[ContentRole] = "content";
+    roles[HighlightRole] = "highlight";
     return roles;
 }
 
-void MessageEventModel::newMessage(QMatrixClient::Event* messageEvent)
+void MessageEventModel::newMessage(Message* message)
 {
     //qDebug() << "Message: " << message;
-    if( messageEvent->type() == QMatrixClient::EventType::Typing )
+    if( message->event()->type() == QMatrixClient::EventType::Typing )
     {
         return;
     }
     for( int i=0; i<m_currentMessages.count(); i++ )
     {
-        if( messageEvent->timestamp() < m_currentMessages.at(i)->timestamp() )
+        if( message->timestamp() < m_currentMessages.at(i)->timestamp() )
         {
             beginInsertRows(QModelIndex(), i, i);
-            m_currentMessages.insert(i, messageEvent);
+            m_currentMessages.insert(i, message);
             endInsertRows();
             return;
         }
     }
     beginInsertRows(QModelIndex(), m_currentMessages.count(), m_currentMessages.count());
-    m_currentMessages.append(messageEvent);
+    m_currentMessages.append(message);
     endInsertRows();
 }

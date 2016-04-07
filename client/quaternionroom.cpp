@@ -18,6 +18,7 @@
 
 #include "quaternionroom.h"
 
+#include "message.h"
 #include "lib/events/event.h"
 #include "lib/connection.h"
 
@@ -55,6 +56,11 @@ bool QuaternionRoom::isShown()
     return m_shown;
 }
 
+QList<Message*> QuaternionRoom::messages() const
+{
+    return m_messages;
+}
+
 bool QuaternionRoom::hasUnreadMessages()
 {
     return m_unreadMessages;
@@ -64,6 +70,19 @@ void QuaternionRoom::processMessageEvent(QMatrixClient::Event* event)
 {
     bool isNewest = messageEvents().empty() || event->timestamp() > messageEvents().last()->timestamp();
     QMatrixClient::Room::processMessageEvent(event);
+
+    Message* message = new Message(connection(), event);
+    for( int i=0; i<m_messages.count(); i++ )
+    {
+        if( message->timestamp() < m_messages.at(i)->timestamp() )
+        {
+            m_messages.insert(i, message);
+            return;
+        }
+    }
+    m_messages.append(message);
+    emit newMessage(message);
+
     if( !isNewest )
         return;
     if( m_shown )

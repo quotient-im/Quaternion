@@ -24,9 +24,11 @@
 namespace QMatrixClient
 {
     class Room;
-    class Event;
     class Connection;
 }
+
+class Message;
+class QuaternionRoom;
 
 class MessageEventModel: public QAbstractListModel
 {
@@ -37,7 +39,8 @@ class MessageEventModel: public QAbstractListModel
             TimeRole,
             DateRole,
             AuthorRole,
-            ContentRole
+            ContentRole,
+            HighlightRole
         };
 
         MessageEventModel(QObject* parent=0);
@@ -53,12 +56,12 @@ class MessageEventModel: public QAbstractListModel
         QHash<int, QByteArray> roleNames() const override;
 
     public slots:
-        void newMessage(QMatrixClient::Event* messageEvent);
+        void newMessage(Message* messageEvent);
 
     private:
         QMatrixClient::Connection* m_connection;
-        QMatrixClient::Room* m_currentRoom;
-        QList<QMatrixClient::Event*> m_currentMessages;
+        QuaternionRoom* m_currentRoom;
+        QList<Message*> m_currentMessages;
 };
 
 #endif // LOGMESSAGEMODEL_H

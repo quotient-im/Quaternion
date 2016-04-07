@@ -21,6 +21,8 @@
 
 #include "lib/room.h"
 
+class Message;
+
 class QuaternionRoom: public QMatrixClient::Room
 {
         Q_OBJECT
@@ -34,9 +36,12 @@ class QuaternionRoom: public QMatrixClient::Room
         void setShown(bool shown);
         bool isShown();
 
+        QList<Message*> messages() const;
+
         bool hasUnreadMessages();
 
     signals:
+        void newMessage(Message* message);
         void unreadMessagesChanged(QuaternionRoom* room);
 
     protected:
@@ -47,6 +52,7 @@ class QuaternionRoom: public QMatrixClient::Room
         void countChanged();
 
     private:
+        QList<Message*> m_messages;
         bool m_shown;
         bool m_unreadMessages;
 };

@@ -1,0 +1,49 @@
+/******************************************************************************
+ * Copyright (C) 2016 Felix Rohrbach <kde@fxrh.de>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
+#ifndef MESSAGE_H
+#define MESSAGE_H
+
+#include <QtCore/QDateTime>
+
+namespace QMatrixClient
+{
+    class Connection;
+    class Event;
+}
+
+class Message
+{
+    public:
+        Message(QMatrixClient::Connection* connection, QMatrixClient::Event* event);
+        virtual ~Message();
+
+        QMatrixClient::Event* event();
+        QDateTime timestamp();
+
+        bool highlight();
+        bool isStatusMessage();
+
+    private:
+        QMatrixClient::Connection* m_connection;
+        QMatrixClient::Event* m_event;
+        bool m_isHighlight;
+        bool m_isStatusMessage;
+};
+
+#endif // MESSAGE_H
