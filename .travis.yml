@@ -13,6 +13,7 @@ before_install:
  - if [ "$INSTALL_KCOREADDONS" = true ]; then git clone git://anongit.kde.org/kcoreaddons.git kca && cd kca && git checkout v5.18.0 && cmake . && make && sudo make install && cd ..; fi
 install:
  - source /opt/qt54/bin/qt54-env.sh
+ - git submodule update --init --recursive
  - mkdir build && cd build
  - cmake ../
  - make
