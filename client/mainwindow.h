@@ -40,6 +40,8 @@ class MainWindow: public QMainWindow
         MainWindow();
         virtual ~MainWindow();
 
+        void enableDebug();
+
     private slots:
         void initialize();
         void getNewEvents();

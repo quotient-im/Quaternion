@@ -52,6 +52,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QQmlContext* ctxt = m_quickView->rootContext();
     ctxt->setContextProperty("messageModel", m_messageModel);
+    ctxt->setContextProperty("debug", false);
     m_quickView->setSource(QUrl("qrc:///qml/chat.qml"));
     m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
 
@@ -75,6 +76,12 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
 
 ChatRoomWidget::~ChatRoomWidget()
 {
+}
+
+void ChatRoomWidget::enableDebug()
+{
+    QQmlContext* ctxt = m_quickView->rootContext();
+    ctxt->setContextProperty("debug", true);
 }
 
 void ChatRoomWidget::setRoom(QMatrixClient::Room* room)

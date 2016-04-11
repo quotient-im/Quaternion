@@ -17,22 +17,40 @@
  */
 
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QWidget>
-#include <QtCore/QTimer>
+#include <QtCore/QCommandLineParser>
+#include <QtCore/QCommandLineOption>
+#include <QtCore/QDebug>
 
 #include "mainwindow.h"
 
 int main( int argc, char* argv[] )
 {
     QApplication app(argc, argv);
-    
+    QApplication::setApplicationName("quaternion");
+    QApplication::setApplicationDisplayName("Quaternion");
+    QApplication::setApplicationVersion("0.0");
+
+    QCommandLineParser parser;
+    parser.setApplicationDescription(QApplication::translate("main", "An IM client for the Matrix protocol"));
+    parser.addHelpOption();
+    parser.addVersionOption();
+
+    QCommandLineOption debug("debug", QApplication::translate("main", "Display debug information"));
+    parser.addOption(debug);
+
+    parser.process(app);
+    bool debugEnabled = parser.isSet(debug);
+    qDebug() << "Debug: " << debugEnabled;
+
     MainWindow window;
+    if( debugEnabled )
+        window.enableDebug();
     window.show();
-    
+
     //LoginDialog dialog(&widget);
     //QTimer::singleShot(0, &dialog, &QDialog::exec);
     //dialog.exec();
-    
+
     return app.exec();
 }
 

@@ -7,6 +7,7 @@ MouseArea {
     property alias text: tip.text
     property alias hideDelay: hideTimer.interval
     property alias showDelay: showTimer.interval
+    property bool enabled: true
     id: mouseArea
     z: 21
     acceptedButtons: Qt.NoButton
@@ -15,7 +16,7 @@ MouseArea {
     Timer {
         id:showTimer
         interval: 1000
-        running: mouseArea.containsMouse && !tip.visible
+        running: mouseArea.containsMouse && !tip.visible && mouseArea.enabled
         onTriggered: tip.show();
     }
     Timer {

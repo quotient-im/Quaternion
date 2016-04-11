@@ -52,6 +52,11 @@ MainWindow::~MainWindow()
 {
 }
 
+void MainWindow::enableDebug()
+{
+    chatRoomWidget->enableDebug();
+}
+
 void MainWindow::initialize()
 {
     menuBar = new QMenuBar();

@@ -93,8 +93,11 @@ Rectangle {
                         id: contentField
                         selectByMouse: true; readOnly: true; font: timelabel.font;
                         text: content; wrapMode: Text.Wrap; width: parent.width
-                        color: if( eventType != "message" ) { "lightgrey" } else { "black" }
-                        ToolTipArea { tip { text: toolTip; color: "#999999"; zParent: message } }
+                        color: if( eventType == "other" ) { "lightgrey" } else { "black" }
+                        ToolTipArea {
+                            tip { text: toolTip; color: "#999999"; zParent: message }
+                            enabled: debug
+                        }
                 }
             }
             spacing: 3
