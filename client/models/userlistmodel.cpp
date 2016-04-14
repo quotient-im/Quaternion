@@ -47,12 +47,9 @@ void UserListModel::setRoom(QMatrixClient::Room* room)
     beginResetModel();
     if( m_currentRoom )
     {
-        disconnect( m_currentRoom, &QMatrixClient::Room::userAdded, this, &UserListModel::userAdded );
-        disconnect( m_currentRoom, &QMatrixClient::Room::userRemoved, this, &UserListModel::userRemoved );
+        m_currentRoom->disconnect( this );
         for( QMatrixClient::User* user: m_users )
-        {
-            disconnect( user, &QMatrixClient::User::avatarChanged, this, &UserListModel::avatarChanged );
-        }
+            user->disconnect( this );
         m_users.clear();
     }
     m_currentRoom = room;

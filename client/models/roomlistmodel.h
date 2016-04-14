@@ -50,6 +50,8 @@ class RoomListModel: public QAbstractListModel
     private:
         QMatrixClient::Connection* m_connection;
         QList<QuaternionRoom*> m_rooms;
+
+        void doAddRoom(QMatrixClient::Room* r);
 };
 
 #endif // ROOMLISTMODEL_H

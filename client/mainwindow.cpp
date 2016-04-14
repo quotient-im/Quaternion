@@ -112,10 +112,8 @@ void MainWindow::connectionError(QString error)
 void MainWindow::closeEvent(QCloseEvent* event)
 {
     if (connection)
-    {
-        disconnect( connection, &QMatrixClient::Connection::syncDone, this, &MainWindow::gotEvents );
-        disconnect( connection, &QMatrixClient::Connection::reconnected, this, &MainWindow::getNewEvents );
-    }
+        connection->disconnect( this ); // Disconnects all signals, not the connection itself
+
     event->accept();
 }
 

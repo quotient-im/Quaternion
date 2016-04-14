@@ -46,9 +46,8 @@ void MessageEventModel::changeRoom(QMatrixClient::Room* room)
 {
     beginResetModel();
     if( m_currentRoom )
-    {
-        disconnect( m_currentRoom, &QuaternionRoom::newMessage, this, &MessageEventModel::newMessage );
-    }
+        m_currentRoom->disconnect( this );
+
     if( room )
     {
         m_currentRoom = static_cast<QuaternionRoom*>(room);

@@ -38,23 +38,16 @@ RoomListModel::~RoomListModel()
 void RoomListModel::setConnection(QMatrixClient::Connection* connection)
 {
     beginResetModel();
-    m_connection = connection;
     for( QuaternionRoom* room: m_rooms )
-    {
-        disconnect( room, &QuaternionRoom::namesChanged, this, &RoomListModel::namesChanged );
-        disconnect( room, &QuaternionRoom::unreadMessagesChanged, this, &RoomListModel::unreadMessagesChanged );
-        disconnect( room, &QuaternionRoom::notificationCountChanged, this, &RoomListModel::unreadMessagesChanged );
-    }
+        room->disconnect( this );
+
     m_rooms.clear();
+
+    m_connection = connection;
     connect( connection, &QMatrixClient::Connection::newRoom, this, &RoomListModel::addRoom );
-    for( QMatrixClient::Room* r: connection->roomMap().values() )
-    {
-        QuaternionRoom* room = static_cast<QuaternionRoom*>(r);
-        connect( room, &QuaternionRoom::namesChanged, this, &RoomListModel::namesChanged );
-        connect( room, &QuaternionRoom::unreadMessagesChanged, this, &RoomListModel::unreadMessagesChanged );
-        connect( room, &QuaternionRoom::notificationCountChanged, this, &RoomListModel::unreadMessagesChanged );
-        m_rooms.append(static_cast<QuaternionRoom*>(r));
-    }
+    for( QMatrixClient::Room* r: connection->roomMap() )
+        doAddRoom(r);
+
     endResetModel();
 }
 
@@ -66,12 +59,20 @@ QuaternionRoom* RoomListModel::roomAt(int row)
 void RoomListModel::addRoom(QMatrixClient::Room* room)
 {
     beginInsertRows(QModelIndex(), m_rooms.count(), m_rooms.count());
-    QuaternionRoom* qRoom = static_cast<QuaternionRoom*>(room);
-    m_rooms.append(qRoom);
-    connect( qRoom, &QuaternionRoom::namesChanged, this, &RoomListModel::namesChanged );
-    connect( qRoom, &QuaternionRoom::unreadMessagesChanged, this, &RoomListModel::unreadMessagesChanged );
-    connect( qRoom, &QuaternionRoom::notificationCountChanged, this, &RoomListModel::unreadMessagesChanged );
+    doAddRoom(room);
     endInsertRows();
+}
+
+void RoomListModel::doAddRoom(QMatrixClient::Room* r)
+{
+    QuaternionRoom* room = static_cast<QuaternionRoom*>(r);
+    m_rooms.append(room);
+    connect( room, &QuaternionRoom::displaynameChanged,
+        this, &RoomListModel::namesChanged );
+    connect( room, &QuaternionRoom::unreadMessagesChanged,
+        this, &RoomListModel::unreadMessagesChanged );
+    connect( room, &QuaternionRoom::notificationCountChanged,
+        this, &RoomListModel::unreadMessagesChanged );
 }
 
 int RoomListModel::rowCount(const QModelIndex& parent) const
