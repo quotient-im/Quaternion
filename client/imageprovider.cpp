@@ -38,7 +38,7 @@ QQuickImageResponse* ImageProvider::requestImageResponse(const QString& id, cons
 
     QuaternionImageResponse* res = new QuaternionImageResponse(m_connection, id, size);
     res->moveToThread(m_mainThread);
-    QMetaObject::invokeMethod(res, "requestImage");
+    QMetaObject::invokeMethod(res, "requestImage"); // to make sure it's called in the other thread
     return res;
 }
 
@@ -54,10 +54,6 @@ QuaternionImageResponse::QuaternionImageResponse(QMatrixClient::Connection* conn
     , m_id(id)
     , m_requestedSize(requestedSize)
 {
-    qDebug() << m_connection;
-    qDebug() << m_id;
-    qDebug() << m_requestedSize;
-    //QMetaObject::invokeMethod(this, "requestImage"); // move this into the main thread
 }
 
 QQuickTextureFactory* QuaternionImageResponse::textureFactory() const
@@ -74,20 +70,15 @@ QString QuaternionImageResponse::errorString() const
 void QuaternionImageResponse::gotImage()
 {
     m_result = m_job->thumbnail().scaled(m_requestedSize, Qt::KeepAspectRatio, Qt::SmoothTransformation).toImage();
-    qDebug() << "gotImage";
     emit finished();
 }
 
 void QuaternionImageResponse::requestImage()
 {
-    qDebug() << "requestImage";
-    qDebug() << m_connection;
-    qDebug() << m_id;
-    qDebug() << m_requestedSize;
     if( !m_connection )
     {
         m_errorString = "0-Connection";
-        qDebug() << "error";
+        qDebug() << "QuaternionImageResponse::requestImage: no connection!";
         emit finished();
         return;
     }
