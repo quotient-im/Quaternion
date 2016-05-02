@@ -26,6 +26,7 @@
 #include <QtWidgets/QLabel>
 
 #include <QtQml/QQmlContext>
+#include <QtQml/QQmlEngine>
 #include <QtQuick/QQuickItem>
 
 #include "lib/room.h"
@@ -37,6 +38,7 @@
 #include "lib/events/typingevent.h"
 #include "models/messageeventmodel.h"
 #include "quaternionroom.h"
+#include "imageprovider.h"
 
 ChatRoomWidget::ChatRoomWidget(QWidget* parent)
 {
@@ -48,6 +50,10 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     //m_messageView->setModel(m_messageModel);
 
     m_quickView = new QQuickView();
+
+    m_imageProvider = new ImageProvider(m_currentConnection, thread());
+    m_quickView->engine()->addImageProvider("mtx", m_imageProvider);
+
     QWidget* container = QWidget::createWindowContainer(m_quickView, this);
     container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QQmlContext* ctxt = m_quickView->rootContext();
@@ -109,6 +115,7 @@ void ChatRoomWidget::setRoom(QMatrixClient::Room* room)
 void ChatRoomWidget::setConnection(QMatrixClient::Connection* connection)
 {
     m_currentConnection = connection;
+    m_imageProvider->setConnection(connection);
     m_messageModel->setConnection(connection);
 }
 

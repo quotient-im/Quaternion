@@ -22,6 +22,7 @@
 
 #include "../message.h"
 #include "../quaternionroom.h"
+#include "../imagemessage.h"
 #include "lib/connection.h"
 #include "lib/room.h"
 #include "lib/user.h"
@@ -139,7 +140,11 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     if( role == EventTypeRole )
     {
         if( event->type() == QMatrixClient::EventType::RoomMessage )
+        {
+            if( static_cast<QMatrixClient::RoomMessageEvent*>(event)->msgtype() == QMatrixClient::MessageEventType::Image )
+                return "image";
             return "message";
+        }
         return "other";
     }
 
@@ -168,6 +173,11 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         if( event->type() == QMatrixClient::EventType::RoomMessage )
         {
             QMatrixClient::RoomMessageEvent* e = static_cast<QMatrixClient::RoomMessageEvent*>(event);
+            if( e->msgtype() == QMatrixClient::MessageEventType::Image )
+            {
+                auto content = static_cast<QMatrixClient::ImageEventContent*>(e->content());
+                return QUrl("image://mtx/"+content->url.host()+content->url.path());
+            }
             return e->body();
         }
         if( event->type() == QMatrixClient::EventType::RoomMember )

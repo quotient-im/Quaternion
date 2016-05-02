@@ -80,24 +80,32 @@ Rectangle {
             }
             Label {
                 width: 120; elide: Text.ElideRight;
-                text: eventType == "message" ? author : "***"
-                horizontalAlignment: if( eventType != "message" ) { Text.AlignRight }
-                color: if( eventType != "message" ) { "lightgrey" } else { "black" }
+                text: eventType == "message" || eventType == "image" ? author : "***"
+                horizontalAlignment: if( eventType == "other" ) { Text.AlignRight }
+                color: if( eventType == "other" ) { "lightgrey" } else { "black" }
 
             }
             Rectangle {
                 color: highlight ? "orange" : "white"
-                height: contentField.height
+                height: contentField.height + imageField.height
                 width: parent.width - (x - parent.x) - spacing
                 TextEdit {
                         id: contentField
                         selectByMouse: true; readOnly: true; font: timelabel.font;
-                        text: content; wrapMode: Text.Wrap; width: parent.width
+                        text: content
+                        wrapMode: Text.Wrap; width: parent.width
                         color: if( eventType == "other" ) { "lightgrey" } else { "black" }
                         ToolTipArea {
                             tip { text: toolTip; color: "#999999"; zParent: message }
                             enabled: debug
                         }
+                }
+                Image {
+                    id: imageField
+                    anchors.top: contentField.bottom
+                    sourceSize.width: eventType == "image" ? 500 : 0
+                    sourceSize.height: eventType == "image" ? 500 : 0
+                    source: eventType == "image" ? content : ""
                 }
             }
             spacing: 3

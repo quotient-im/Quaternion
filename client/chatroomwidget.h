@@ -31,6 +31,7 @@ namespace QMatrixClient
 }
 class MessageEventModel;
 class QuaternionRoom;
+class ImageProvider;
 class QListView;
 class QLineEdit;
 class QLabel;
@@ -61,6 +62,7 @@ class ChatRoomWidget: public QWidget
 
         //QListView* m_messageView;
         QQuickView* m_quickView;
+        ImageProvider* m_imageProvider;
         QLineEdit* m_chatEdit;
         QLabel* m_currentlyTyping;
         QLabel* m_topicLabel;
