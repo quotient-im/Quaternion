@@ -96,7 +96,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         return QVariant();
 
     Message* message = m_currentMessages.at(index.row());;
-    QMatrixClient::Event* event = message->event();
+    QMatrixClient::Event* event = message->messageEvent();
 
     if( role == Qt::DisplayRole )
     {
@@ -222,7 +222,7 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
 void MessageEventModel::newMessage(Message* message)
 {
     //qDebug() << "Message: " << message;
-    if( message->event()->type() == QMatrixClient::EventType::Typing )
+    if( message->messageEvent()->type() == QMatrixClient::EventType::Typing )
     {
         return;
     }

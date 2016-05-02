@@ -45,7 +45,7 @@ Message::~Message()
 {
 }
 
-QMatrixClient::Event* Message::event()
+QMatrixClient::Event* Message::messageEvent()
 {
     return m_event;
 }

@@ -33,7 +33,7 @@ class Message
         Message(QMatrixClient::Connection* connection, QMatrixClient::Event* event);
         virtual ~Message();
 
-        QMatrixClient::Event* event();
+        QMatrixClient::Event* messageEvent();
         QDateTime timestamp();
 
         bool highlight();
