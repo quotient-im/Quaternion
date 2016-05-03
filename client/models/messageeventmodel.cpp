@@ -22,7 +22,6 @@
 
 #include "../message.h"
 #include "../quaternionroom.h"
-#include "../imagemessage.h"
 #include "lib/connection.h"
 #include "lib/room.h"
 #include "lib/user.h"
