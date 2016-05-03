@@ -21,25 +21,42 @@
 
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
+#include <QtCore/QWaitCondition>
 
-ImageProvider::ImageProvider(QMatrixClient::Connection* connection, QThread* mainThread)
-    : m_connection(connection)
-    , m_mainThread(mainThread)
+
+
+ImageProvider::ImageProvider(QMatrixClient::Connection* connection)
+    : QQuickImageProvider(QQmlImageProviderBase::Pixmap, QQmlImageProviderBase::ForceAsynchronousImageLoading)
+    , m_connection(connection)
 {
+    qRegisterMetaType<QPixmap*>();
+    qRegisterMetaType<QWaitCondition*>();
 }
 
-QQuickImageResponse* ImageProvider::requestImageResponse(const QString& id, const QSize& requestedSize)
+QPixmap ImageProvider::requestPixmap(const QString& id, QSize* size, const QSize& requestedSize)
 {
     QMutexLocker locker(&m_mutex);
+    qDebug() << "ImageProvider::requestPixmap:" << id;
 
-    QSize size;
-    size.setWidth(requestedSize.width() > 0 ? requestedSize.width() : 100);
-    size.setHeight(requestedSize.height() > 0 ? requestedSize.height() : 100);
+    if( !m_connection )
+    {
+        qDebug() << "ImageProvider::requestPixmap: no connection!";
+        return QPixmap();
+    }
 
-    QuaternionImageResponse* res = new QuaternionImageResponse(m_connection, id, size);
-    res->moveToThread(m_mainThread);
-    QMetaObject::invokeMethod(res, "requestImage"); // to make sure it's called in the other thread
-    return res;
+    QWaitCondition* condition = new QWaitCondition();
+    QPixmap result;
+    QMetaObject::invokeMethod(this, "doRequest", Qt::QueuedConnection,
+                              Q_ARG(QString, id), Q_ARG(QSize, requestedSize),
+                              Q_ARG(QPixmap*, &result), Q_ARG(QWaitCondition*, condition));
+    condition->wait(&m_mutex);
+    delete condition;
+
+    if( size != 0 )
+    {
+        *size = result.size();
+    }
+    return result;
 }
 
 void ImageProvider::setConnection(QMatrixClient::Connection* connection)
@@ -49,39 +66,26 @@ void ImageProvider::setConnection(QMatrixClient::Connection* connection)
     m_connection = connection;
 }
 
-QuaternionImageResponse::QuaternionImageResponse(QMatrixClient::Connection* connection, const QString& id, const QSize& requestedSize)
-    : m_connection(connection)
-    , m_id(id)
-    , m_requestedSize(requestedSize)
+void ImageProvider::doRequest(QString id, QSize requestedSize, QPixmap* pixmap, QWaitCondition* condition)
 {
+    QMutexLocker locker(&m_mutex);
+
+    int width = requestedSize.width() > 0 ? requestedSize.width() : 100;
+    int height = requestedSize.height() > 0 ? requestedSize.height() : 100;
+
+    QMatrixClient::MediaThumbnailJob* job = m_connection->getThumbnail(QUrl(id), width, height);
+    QObject::connect( job, &QMatrixClient::MediaThumbnailJob::result, this, &ImageProvider::gotImage );
+    ImageProviderData data = { pixmap, condition, requestedSize };
+    m_callmap.insert(job, data);
 }
 
-QQuickTextureFactory* QuaternionImageResponse::textureFactory() const
+void ImageProvider::gotImage(KJob* job)
 {
-    qDebug() << "textureFactory";
-    return QQuickTextureFactory::textureFactoryForImage(m_result);
-}
+    QMutexLocker locker(&m_mutex);
+    qDebug() << "gotImage";
 
-QString QuaternionImageResponse::errorString() const
-{
-    return m_errorString;
-}
-
-void QuaternionImageResponse::gotImage()
-{
-    m_result = m_job->thumbnail().scaled(m_requestedSize, Qt::KeepAspectRatio, Qt::SmoothTransformation).toImage();
-    emit finished();
-}
-
-void QuaternionImageResponse::requestImage()
-{
-    if( !m_connection )
-    {
-        m_errorString = "0-Connection";
-        qDebug() << "QuaternionImageResponse::requestImage: no connection!";
-        emit finished();
-        return;
-    }
-    m_job = m_connection->getThumbnail(QUrl(m_id), m_requestedSize.width(), m_requestedSize.height());
-    connect(m_job, &QMatrixClient::MediaThumbnailJob::finished, this, &QuaternionImageResponse::gotImage);
+    auto mediaJob = static_cast<QMatrixClient::MediaThumbnailJob*>(job);
+    ImageProviderData data = m_callmap.take(mediaJob);
+    *data.pixmap = mediaJob->thumbnail().scaled(data.requestedSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    data.condition->wakeAll();
 }

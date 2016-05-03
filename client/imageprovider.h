@@ -19,50 +19,45 @@
 #ifndef IMAGEPROVIDER_H
 #define IMAGEPROVIDER_H
 
-#include <QtQuick/QQuickAsyncImageProvider>
+#include <QtQuick/QQuickImageProvider>
 #include <QtQuick/QQuickImageResponse>
 #include <QtCore/QThread>
 #include <QtCore/QMutex>
+#include <QtCore/QWaitCondition>
 
 #include "quaternionconnection.h"
 
-class ImageProvider: public QQuickAsyncImageProvider
+class KJob;
+
+struct ImageProviderData
 {
-    public:
-        ImageProvider(QMatrixClient::Connection* connection, QThread* mainThread);
-
-        QQuickImageResponse* requestImageResponse(const QString& id, const QSize& requestedSize);
-
-        void setConnection(QMatrixClient::Connection* connection);
-
-    private:
-        QMatrixClient::Connection* m_connection;
-        QThread* m_mainThread;
-        QMutex m_mutex;
+    QPixmap* pixmap;
+    QWaitCondition* condition;
+    QSize requestedSize;
 };
 
-class QuaternionImageResponse: public QQuickImageResponse
+class ImageProvider: public QObject, public QQuickImageProvider
 {
         Q_OBJECT
     public:
-        QuaternionImageResponse(QMatrixClient::Connection* connection, const QString& id, const QSize& requestedSize);
+        ImageProvider(QMatrixClient::Connection* connection);
 
-        QQuickTextureFactory* textureFactory() const;
+        QPixmap requestPixmap(const QString& id, QSize* size, const QSize& requestedSize);
 
-        QString errorString() const;
+        void setConnection(QMatrixClient::Connection* connection);
 
     private slots:
-        void gotImage();
+        void gotImage(KJob* job);
 
     private:
-        Q_INVOKABLE void requestImage();
+        Q_INVOKABLE void doRequest(QString id, QSize requestedSize, QPixmap* pixmap, QWaitCondition* condition);
 
         QMatrixClient::Connection* m_connection;
-        QMatrixClient::MediaThumbnailJob* m_job;
-        QString m_id;
-        QSize m_requestedSize;
-        QString m_errorString;
-        QImage m_result;
+        QHash<QMatrixClient::MediaThumbnailJob*, ImageProviderData> m_callmap;
+        QMutex m_mutex;
 };
+
+Q_DECLARE_METATYPE(QPixmap*)
+Q_DECLARE_METATYPE(QWaitCondition*)
 
 #endif // IMAGEPROVIDER_H

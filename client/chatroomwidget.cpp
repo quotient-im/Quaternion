@@ -51,7 +51,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
 
     m_quickView = new QQuickView();
 
-    m_imageProvider = new ImageProvider(m_currentConnection, thread());
+    m_imageProvider = new ImageProvider(m_currentConnection);
     m_quickView->engine()->addImageProvider("mtx", m_imageProvider);
 
     QWidget* container = QWidget::createWindowContainer(m_quickView, this);
