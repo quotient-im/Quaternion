@@ -71,7 +71,7 @@ void QuaternionRoom::processMessageEvent(QMatrixClient::Event* event)
     bool isNewest = messageEvents().empty() || event->timestamp() > messageEvents().last()->timestamp();
     QMatrixClient::Room::processMessageEvent(event);
 
-    Message* message = new Message(connection(), event);
+    Message* message = new Message(connection(), event, this);
     for( int i=0; i<m_messages.count(); i++ )
     {
         if( message->timestamp() < m_messages.at(i)->timestamp() )
@@ -93,7 +93,7 @@ void QuaternionRoom::processMessageEvent(QMatrixClient::Event* event)
     {
         m_unreadMessages = true;
         emit unreadMessagesChanged(this);
-        qDebug() << displayName() << "unread messages";
+        qDebug() << "Room" << displayName() << ": unread messages";
     }
 }
 

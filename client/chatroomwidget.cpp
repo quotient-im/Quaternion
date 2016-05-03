@@ -41,6 +41,7 @@
 #include "imageprovider.h"
 
 ChatRoomWidget::ChatRoomWidget(QWidget* parent)
+    : QWidget(parent)
 {
     m_messageModel = new MessageEventModel(this);
     m_currentRoom = nullptr;
@@ -58,7 +59,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QQmlContext* ctxt = m_quickView->rootContext();
     ctxt->setContextProperty("messageModel", m_messageModel);
-    ctxt->setContextProperty("debug", false);
+    ctxt->setContextProperty("debug", QVariant(false));
     m_quickView->setSource(QUrl("qrc:///qml/chat.qml"));
     m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
 
@@ -94,8 +95,7 @@ void ChatRoomWidget::setRoom(QMatrixClient::Room* room)
 {
     if( m_currentRoom )
     {
-        disconnect( m_currentRoom, &QMatrixClient::Room::typingChanged, this, &ChatRoomWidget::typingChanged );
-        disconnect( m_currentRoom, &QMatrixClient::Room::topicChanged, this, &ChatRoomWidget::topicChanged );
+        m_currentRoom->disconnect( this );
         m_currentRoom->setShown(false);
     }
     m_currentRoom = static_cast<QuaternionRoom*>(room);
@@ -130,7 +130,7 @@ void ChatRoomWidget::typingChanged()
     QStringList typingNames;
     for( QMatrixClient::User* user: typing )
     {
-        typingNames << user->displayname();
+        typingNames << m_currentRoom->roomMembername(user);
     }
     m_currentlyTyping->setText( QString("<i>Currently typing: %1</i>").arg( typingNames.join(", ") ) );
 }

@@ -46,9 +46,8 @@ void MessageEventModel::changeRoom(QMatrixClient::Room* room)
 {
     beginResetModel();
     if( m_currentRoom )
-    {
-        disconnect( m_currentRoom, &QuaternionRoom::newMessage, this, &MessageEventModel::newMessage );
-    }
+        m_currentRoom->disconnect( this );
+
     if( room )
     {
         m_currentRoom = static_cast<QuaternionRoom*>(room);
@@ -162,7 +161,8 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         if( event->type() == QMatrixClient::EventType::RoomMessage )
         {
             QMatrixClient::RoomMessageEvent* e = static_cast<QMatrixClient::RoomMessageEvent*>(event);
-            return m_connection->user(e->userId())->displayname();
+            return m_currentRoom->roomMembername(
+                        m_connection->user(e->userId()));
         }
         return QVariant();
     }
