@@ -20,7 +20,6 @@
 #define IMAGEPROVIDER_H
 
 #include <QtQuick/QQuickImageProvider>
-#include <QtQuick/QQuickImageResponse>
 #include <QtCore/QThread>
 #include <QtCore/QMutex>
 #include <QtCore/QWaitCondition>
