@@ -28,10 +28,12 @@ class RoomListDock;
 class UserListDock;
 class ChatRoomWidget;
 class QuaternionConnection;
+class SystemTray;
 
 class QAction;
 class QMenu;
 class QMenuBar;
+class QSystemTrayIcon;
 
 class MainWindow: public QMainWindow
 {
@@ -67,6 +69,8 @@ class MainWindow: public QMainWindow
 
         QAction* quitAction;
         QAction* joinRoomAction;
+
+        SystemTray* systemTray;
 };
 
 #endif // MAINWINDOW_H

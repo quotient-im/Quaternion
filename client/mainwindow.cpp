@@ -31,10 +31,12 @@
 #include "userlistdock.h"
 #include "chatroomwidget.h"
 #include "logindialog.h"
+#include "systemtray.h"
 #include "lib/jobs/geteventsjob.h"
 
 MainWindow::MainWindow()
 {
+    setWindowIcon(QIcon(":/icon.png"));
     connection = 0;
     roomListDock = new RoomListDock(this);
     addDockWidget(Qt::LeftDockWidgetArea, roomListDock);
@@ -44,6 +46,8 @@ MainWindow::MainWindow()
     setCentralWidget(chatRoomWidget);
     connect( roomListDock, &RoomListDock::roomSelected, chatRoomWidget, &ChatRoomWidget::setRoom );
     connect( roomListDock, &RoomListDock::roomSelected, userListDock, &UserListDock::setRoom );
+    systemTray = new SystemTray(this);
+    systemTray->show();
     show();
     QTimer::singleShot(0, this, SLOT(initialize()));
 }
@@ -83,6 +87,7 @@ void MainWindow::initialize()
         chatRoomWidget->setConnection(connection);
         userListDock->setConnection(connection);
         roomListDock->setConnection(connection);
+        systemTray->setConnection(connection);
         connect( connection, &QMatrixClient::Connection::connectionError, this, &MainWindow::connectionError );
         connect( connection, &QMatrixClient::Connection::syncDone, this, &MainWindow::gotEvents );
         connect( connection, &QMatrixClient::Connection::reconnected, this, &MainWindow::getNewEvents );

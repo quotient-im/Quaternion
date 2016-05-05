@@ -3,5 +3,6 @@
     <file>qml/chat.qml</file>
     <file>qml/ToolTip.qml</file>
     <file>qml/ToolTipArea.qml</file>
+    <file>icon.png</file>
 </qresource>
 </RCC>
