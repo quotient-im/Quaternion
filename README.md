@@ -7,13 +7,12 @@ Quaternion is an IM client for the [Matrix](https://matrix.org) protocol in deve
 - a C++ toolchain that can deal with Qt (see a link for your platform at http://doc.qt.io/qt-5/gettingstarted.html#platform-requirements)
 - CMake (from your package management system or https://cmake.org/download/)
 - Qt 5 (either Open Source or Commercial), version 5.3 or higher as of this writing (check the CMakeLists.txt for details)
-- KDE Framework Core Addons (optional; see the Source code section below)
 
 ## Source code
-Quaternion uses libqmatrixclient that resides in another repo but is not yet shipped as a separate library - it is fetched as a git submodule. libqmatrixclient, in turn, uses KCoreAddons - either a system-wide -dev/-devel package or the in-tree version fetched as a git submodule of libqmatrixclient. To get all necessary sources, you can either supply `--recursive` to your `git clone` for Quaternion sources or do the following in the root directory of already cloned Quaternion sources (NOT in lib subdirectory):
+Quaternion uses libqmatrixclient that resides in another repo but is not yet shipped as a separate library - it is fetched as a git submodule. To get all necessary sources, you can either supply `--recursive` to your `git clone` for Quaternion sources or do the following in the root directory of already cloned Quaternion sources (NOT in lib subdirectory):
 ```
 git submodule init
-git submodule update # add --recursive to fetch the in-tree copy of KCoreAddons
+git submodule update
 ```
 
 ## Linux
@@ -31,7 +30,7 @@ sudo make install # FIXME: Installation seems to be broken atm - run from the bu
 quaternion &
 ```
 
-## OS X
+## OS X
 It's basically the same as for Linux (see above). For pre-requisites, `brew install qt5` should get you Qt5. For building, you might need to specify CMAKE_PREFIX_PATH to your Qt5 explicitly. The build sequence (in the root directory of the project sources) would look as follows:
 ```
 mkdir build
@@ -53,13 +52,13 @@ make
 The good thing is that you can get Qt Creator and a MinGW toolchain together with Qt, all from a single installer. The kind-of bad thing is that there are no official MinGW-based 64-bit packages for Qt. If you're determined to build 64-bit Quaternion, either use a Visual Studio toolchain or pass on to the next section.
 
 ### The hard way aka make world
-#### Building Qt5 and KCoreAddons
+#### Building Qt5
 This is not recommended unless you really want a 64-bit MinGW-based build. The process is based on [this KDE Community Wiki page](https://community.kde.org/Guidelines_and_HOWTOs/Build_from_source/Windows) and it uses a Gentoo Linux portage system ported to Windows. Have the article handy when going through it. The process is slow and takes a lot of machine time - and, possibly, your own time if you're not friendly with command line and configuration files and/or are unlucky to checkout the portage tree when it's broken. Be ready to reach out to respective mailing lists and interwebs to hunt down building errors.
 
 1. Check out and configure the emerge tool as described in the Wiki page.
-1. Enter ```emerge qt qtquickcontrols kcoreaddons``` inside the shell made by the kdeenv script (see the KDE TechBase article), double check that the checkout-configure-build-install process has started and leave it running. Leaving it for a night on even an older machine should suffice.
+1. Enter ```emerge qt qtquickcontrols``` inside the shell made by the kdeenv script (see the KDE TechBase article), double check that the checkout-configure-build-install process has started and leave it running. Leaving it for a night on even an older machine should suffice.
 1. Once the build is over, make sure you have the toolchain reachable from the environment you're going to compile Quaternion in. If you plan to use the just-compiled MinGW and CMake to compile Quaternion you might want to add <KDEROOT>/dev-utils/bin and <KDEROOT>/mingw64/bin into your PATH for convenience. If you have other MinGW or CMake installations around you have to carefully select the order of PATH entries and bear in mind that emerge usually takes the latest versions by default (which are not necessarily the same that you installed somewhere else).
-  - Alternatively: just do the steps from the next section inside the kdeenv wrapper shell that you used to build the pre-requisites (not tried but should work).
+  - Alternatively: after building Qt just do the steps from the next section inside the kdeenv wrapper shell that you used to build the pre-requisites (not tried but should work).
 
 Note: ```emerge qt``` builds the default set of Qt components. You can try to reduce the build time by using only a needed subset of Qt components instead of a qt metapackage (nobody tried yet).
 
@@ -97,16 +96,7 @@ CMake Error at CMakeLists.txt:30 (add_subdirectory):
 
   does not contain a CMakeLists.txt file.
 ```
-...then you don't have libqmatrixclient sources - most likely because you didn't do the `git submodule init && git submodule update --recursive` dance.
-
-If `cmake` fails with...
-```
-CMake Error at lib/CMakeLists.txt:93 (add_library):
-  Cannot find source file:
-
-    kcoreaddons/src/lib/jobs/kjob.cpp
-```
-...then cmake failed to find KCoreAddons sources. Most likely you didn't pass `--recursive` - neither to `git clone` nor to `git submodule update`.
+...then you don't have libqmatrixclient sources - most likely because you didn't do the `git submodule init && git submodule update` dance.
 
 ## Screenshot
 ![Screenshot](quaternion.png)

@@ -23,6 +23,8 @@
 #include <QtGui/QColor>
 #include <QtGui/QIcon>
 
+#include <QtCore/QDebug>
+
 #include "lib/connection.h"
 #include "lib/room.h"
 #include "../quaternionroom.h"

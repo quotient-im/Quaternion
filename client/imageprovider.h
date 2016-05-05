@@ -25,9 +25,8 @@
 #include <QtCore/QMutex>
 #include <QtCore/QWaitCondition>
 
+#include <lib/jobs/basejob.h>
 #include "quaternionconnection.h"
-
-class KJob;
 
 struct ImageProviderData
 {
@@ -47,7 +46,7 @@ class ImageProvider: public QObject, public QQuickImageProvider
         void setConnection(QMatrixClient::Connection* connection);
 
     private slots:
-        void gotImage(KJob* job);
+        void gotImage(QMatrixClient::BaseJob* job);
 
     private:
         Q_INVOKABLE void doRequest(QString id, QSize requestedSize, QPixmap* pixmap, QWaitCondition* condition);

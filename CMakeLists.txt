@@ -28,6 +28,7 @@ message( STATUS "===============================================================
 message( STATUS )
 
 add_subdirectory(lib)
+include_directories(lib)
 
 # Set up source files
 set(quaternion_SRCS
@@ -77,14 +78,3 @@ else ( CMAKE_VERSION VERSION_LESS "3.1" )
 endif ( CMAKE_VERSION VERSION_LESS "3.1" )
 
 target_link_libraries(quaternion qmatrixclient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
-if ( KF5CoreAddons_FOUND )
-    # The proper way of doing things would be to make a separate config.h.in
-    # file and use configure_file() command here to generate config.h with
-    # needed C++ preprocessor macros. If we have more than one or two
-    # dependencies like that, we should turn to that more scalable way.
-    # As for now, passing a macro through -D is easier to observe and maintain.
-    target_compile_definitions ( quaternion PRIVATE USING_SYSTEM_KCOREADDONS )
-    target_link_libraries(quaternion KF5::CoreAddons)
-else ( KF5CoreAddons_FOUND )
-    include_directories( lib lib/kcoreaddons/src/lib/jobs )
-endif ( KF5CoreAddons_FOUND )
