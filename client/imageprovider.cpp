@@ -74,7 +74,7 @@ void ImageProvider::doRequest(QString id, QSize requestedSize, QPixmap* pixmap, 
     int height = requestedSize.height() > 0 ? requestedSize.height() : 100;
 
     QMatrixClient::MediaThumbnailJob* job = m_connection->getThumbnail(QUrl(id), width, height);
-    QObject::connect( job, &QMatrixClient::MediaThumbnailJob::result, this, &ImageProvider::gotImage );
+    QObject::connect( job, &QMatrixClient::MediaThumbnailJob::success, this, &ImageProvider::gotImage );
     ImageProviderData data = { pixmap, condition, requestedSize };
     m_callmap.insert(job, data);
 }
