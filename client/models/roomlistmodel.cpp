@@ -20,6 +20,7 @@
 
 #include <QtGui/QBrush>
 #include <QtGui/QColor>
+#include <QtGui/QIcon>
 
 #include "lib/connection.h"
 #include "lib/room.h"
@@ -104,6 +105,18 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         if( room->hasUnreadMessages() )
             return QBrush(QColor("blue"));
         return QVariant();
+    }
+    if( role == Qt::DecorationRole )
+    {
+        switch( room->joinState() )
+        {
+            case QMatrixClient::JoinState::Join:
+                return QIcon(":/irc-channel-joined.svg");
+            case QMatrixClient::JoinState::Invite:
+                return QIcon(":/irc-channel-invited.svg");
+            case QMatrixClient::JoinState::Leave:
+                return QIcon(":/irc-channel-parted.svg");
+        }
     }
     return QVariant();
 }
