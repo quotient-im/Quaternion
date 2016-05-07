@@ -118,6 +118,18 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
                 return QIcon(":/irc-channel-parted.svg");
         }
     }
+    if( role == Qt::ToolTipRole )
+    {
+        QString result = QString("<b>%1</b><br>").arg(room->displayName());
+        result += tr("Room ID: %1<br>").arg(room->id());
+        if( room->joinState() == QMatrixClient::JoinState::Join )
+            result += tr("You joined this room");
+        else if( room->joinState() == QMatrixClient::JoinState::Leave )
+            result += tr("You left this room");
+        else
+            result += tr("You were invited into this room");
+        return result;
+    }
     return QVariant();
 }
 
