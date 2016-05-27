@@ -45,7 +45,7 @@ class MessageEventModel: public QAbstractListModel
             HighlightRole
         };
 
-        MessageEventModel(QObject* parent=0);
+        MessageEventModel(QObject* parent = nullptr);
         virtual ~MessageEventModel();
 
         void setConnection(QMatrixClient::Connection* connection);

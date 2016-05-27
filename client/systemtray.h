@@ -32,7 +32,7 @@ class SystemTray: public QSystemTrayIcon
 {
         Q_OBJECT
     public:
-        SystemTray(QWidget* parent=0);
+        SystemTray(QWidget* parent = nullptr);
 
         void setConnection(QMatrixClient::Connection* connection);
 

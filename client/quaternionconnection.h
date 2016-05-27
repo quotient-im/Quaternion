@@ -26,7 +26,7 @@ class QuaternionConnection: public QMatrixClient::Connection
 {
         Q_OBJECT
     public:
-        QuaternionConnection(QUrl server, QObject* parent=0);
+        QuaternionConnection(QUrl server, QObject* parent = nullptr);
 
     protected:
         virtual QMatrixClient::Room* createRoom(QString roomId);

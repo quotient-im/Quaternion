@@ -41,7 +41,7 @@ class ChatRoomWidget: public QWidget
 {
         Q_OBJECT
     public:
-        ChatRoomWidget(QWidget* parent=0);
+        ChatRoomWidget(QWidget* parent = nullptr);
         virtual ~ChatRoomWidget();
 
         void enableDebug();

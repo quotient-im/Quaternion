@@ -35,8 +35,8 @@
 MessageEventModel::MessageEventModel(QObject* parent)
     : QAbstractListModel(parent)
 {
-    m_currentRoom = 0;
-    m_connection = 0;
+    m_currentRoom = nullptr;
+    m_connection = nullptr;
 }
 
 MessageEventModel::~MessageEventModel()
@@ -58,7 +58,7 @@ void MessageEventModel::changeRoom(QMatrixClient::Room* room)
     }
     else
     {
-        m_currentRoom = 0;
+        m_currentRoom = nullptr;
         m_currentMessages.clear();
     }
     endResetModel();

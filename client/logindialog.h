@@ -33,7 +33,7 @@ class LoginDialog : public QDialog
 {
         Q_OBJECT
     public:
-        LoginDialog(QWidget* parent=0);
+        LoginDialog(QWidget* parent = nullptr);
 
         QuaternionConnection* connection() const;
         void setDisabled(bool state);
