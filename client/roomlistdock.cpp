@@ -32,6 +32,7 @@ RoomListDock::RoomListDock(QWidget* parent)
     view = new QListView();
     view->setModel(model);
     connect( view, &QListView::activated, this, &RoomListDock::rowSelected );
+    connect( view, &QListView::clicked, this, &RoomListDock::rowSelected);
     setWidget(view);
 }
 
