@@ -106,6 +106,7 @@ void ChatRoomWidget::setRoom(QMatrixClient::Room* room)
         connect( m_currentRoom, &QMatrixClient::Room::topicChanged, this, &ChatRoomWidget::topicChanged );
         m_currentRoom->setShown(true);
         topicChanged();
+        typingChanged();
     }
     m_messageModel->changeRoom( room );
     //m_messageView->scrollToBottom();
