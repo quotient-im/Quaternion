@@ -72,15 +72,19 @@ void QuaternionRoom::processMessageEvent(QMatrixClient::Event* event)
     QMatrixClient::Room::processMessageEvent(event);
 
     Message* message = new Message(connection(), event, this);
+    bool inserted = false;
     for( int i=0; i<m_messages.count(); i++ )
     {
         if( message->timestamp() < m_messages.at(i)->timestamp() )
         {
             m_messages.insert(i, message);
-            return;
+            inserted = true;
+            break;
         }
     }
-    m_messages.append(message);
+    if( !inserted )
+        m_messages.append(message);
+
     emit newMessage(message);
 
     if( !isNewest )
