@@ -59,6 +59,7 @@ QuaternionConnection* LoginDialog::connection() const
 void LoginDialog::login()
 {
     qDebug() << "login";
+    setDisabled(true);
     QUrl url = QUrl::fromUserInput(serverEdit->text());
     QString user = userEdit->text();
     QString password = passwordEdit->text();
@@ -71,4 +72,12 @@ void LoginDialog::login()
 void LoginDialog::error(QString error)
 {
     sessionLabel->setText( error );
+    setDisabled(false);
+}
+
+void LoginDialog::setDisabled(bool state) {
+    QDialog::setDisabled(state);
+    serverEdit->setDisabled(state);
+    userEdit->setDisabled(state);
+    loginButton->setDisabled(state);
 }

@@ -35,7 +35,8 @@ class LoginDialog : public QDialog
         LoginDialog(QWidget* parent=0);
 
         QuaternionConnection* connection() const;
-        
+        void setDisabled(bool state);
+
     private slots:
         void login();
         void error(QString error);
