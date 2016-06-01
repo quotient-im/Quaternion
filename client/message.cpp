@@ -55,22 +55,22 @@ Message::~Message()
 {
 }
 
-QMatrixClient::Event* Message::messageEvent()
+QMatrixClient::Event* Message::messageEvent() const
 {
     return m_event;
 }
 
-QDateTime Message::timestamp()
+QDateTime Message::timestamp() const
 {
     return m_event->timestamp();
 }
 
-bool Message::highlight()
+bool Message::highlight() const
 {
     return m_isHighlight;
 }
 
-bool Message::isStatusMessage()
+bool Message::isStatusMessage() const
 {
     return m_isStatusMessage;
 }

@@ -36,11 +36,11 @@ class Message
                 QMatrixClient::Room* room);
         virtual ~Message();
 
-        QMatrixClient::Event* messageEvent();
-        QDateTime timestamp();
+        QMatrixClient::Event* messageEvent() const;
+        QDateTime timestamp() const;
 
-        bool highlight();
-        bool isStatusMessage();
+        bool highlight() const;
+        bool isStatusMessage() const;
 
     private:
         QMatrixClient::Connection* m_connection;
