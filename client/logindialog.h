@@ -36,6 +36,10 @@ class LoginDialog : public QDialog
 
         QuaternionConnection* connection() const;
         void setDisabled(bool state);
+        void setConnection(QuaternionConnection* connection);
+
+    signals:
+        void connectionChanged(QuaternionConnection* connection);
 
     private slots:
         void login();

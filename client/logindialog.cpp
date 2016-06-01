@@ -27,7 +27,7 @@
 LoginDialog::LoginDialog(QWidget* parent)
     : QDialog(parent)
 {
-    m_connection = 0;
+    m_connection = nullptr;
     
     serverEdit = new QLineEdit("https://matrix.org");
     userEdit = new QLineEdit();
@@ -63,7 +63,9 @@ void LoginDialog::login()
     QUrl url = QUrl::fromUserInput(serverEdit->text());
     QString user = userEdit->text();
     QString password = passwordEdit->text();
-    m_connection = new QuaternionConnection(url);
+
+    setConnection(new QuaternionConnection(url));
+
     connect( m_connection, &QMatrixClient::Connection::connected, this, &QDialog::accept );
     connect( m_connection, &QMatrixClient::Connection::loginError, this, &LoginDialog::error );
     m_connection->connectToServer(user, password);
@@ -80,4 +82,14 @@ void LoginDialog::setDisabled(bool state) {
     serverEdit->setDisabled(state);
     userEdit->setDisabled(state);
     loginButton->setDisabled(state);
+}
+
+void LoginDialog::setConnection(QuaternionConnection* connection) {
+    emit connectionChanged(connection);
+
+    if (m_connection != nullptr) {
+        delete m_connection;
+    }
+
+    m_connection = connection;
 }
