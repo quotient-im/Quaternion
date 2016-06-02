@@ -81,9 +81,7 @@ void MainWindow::initialize()
     setMenuBar(menuBar);
 
     LoginDialog dialog(this);
-    if( dialog.exec() )
-    {
-        connection = dialog.connection();
+    connect(&dialog, &LoginDialog::connectionChanged, [=](QuaternionConnection* connection){
         chatRoomWidget->setConnection(connection);
         userListDock->setConnection(connection);
         roomListDock->setConnection(connection);
@@ -91,6 +89,11 @@ void MainWindow::initialize()
         connect( connection, &QMatrixClient::Connection::connectionError, this, &MainWindow::connectionError );
         connect( connection, &QMatrixClient::Connection::syncDone, this, &MainWindow::gotEvents );
         connect( connection, &QMatrixClient::Connection::reconnected, this, &MainWindow::getNewEvents );
+    });
+
+    if( dialog.exec() )
+    {
+        connection = dialog.connection();
         connection->sync();
     }
 }

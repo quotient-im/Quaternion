@@ -73,6 +73,8 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     m_currentlyTyping = new QLabel();
     m_topicLabel = new QLabel();
     m_topicLabel->setWordWrap(true);
+    m_topicLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
 
     QVBoxLayout* layout = new QVBoxLayout();
     layout->addWidget(m_topicLabel);
