@@ -42,11 +42,17 @@ class RoomListDock : public QDockWidget
 
     private slots:
         void rowSelected(const QModelIndex& index);
+        void showContextMenu(const QPoint& pos);
+        void menuJoinSelected();
+        void menuLeaveSelected();
 
     private:
         QMatrixClient::Connection* connection;
         QListView* view;
         RoomListModel* model;
+        QMenu* contextMenu;
+        QAction* joinAction;
+        QAction* leaveAction;
 };
 
 #endif // ROOMLISTDOCK_H
