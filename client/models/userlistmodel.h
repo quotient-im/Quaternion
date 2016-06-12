@@ -33,7 +33,7 @@ class UserListModel: public QAbstractListModel
 {
         Q_OBJECT
     public:
-        UserListModel(QObject* parent=0);
+        UserListModel(QObject* parent = nullptr);
         virtual ~UserListModel();
 
         void setConnection(QMatrixClient::Connection* connection);

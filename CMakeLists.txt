@@ -72,6 +72,8 @@ if ( CMAKE_VERSION VERSION_LESS "3.1" )
 else ( CMAKE_VERSION VERSION_LESS "3.1" )
     target_compile_features(quaternion PRIVATE cxx_range_for)
     target_compile_features(quaternion PRIVATE cxx_override)
+    target_compile_features(quaternion PRIVATE cxx_auto_type)
+    target_compile_features(quaternion PRIVATE cxx_nullptr)
 endif ( CMAKE_VERSION VERSION_LESS "3.1" )
 
 target_link_libraries(quaternion qmatrixclient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)

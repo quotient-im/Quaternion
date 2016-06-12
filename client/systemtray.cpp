@@ -26,7 +26,7 @@
 
 SystemTray::SystemTray(QWidget* parent)
     : QSystemTrayIcon(parent)
-    , m_connection(0)
+    , m_connection(nullptr)
     , m_parent(parent)
 {
     setIcon(QIcon(":/icon.png"));

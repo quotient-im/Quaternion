@@ -33,7 +33,7 @@ class RoomListDock : public QDockWidget
 {
         Q_OBJECT
     public:
-        RoomListDock(QWidget* parent=0);
+        RoomListDock(QWidget* parent = nullptr);
         virtual ~RoomListDock();
 
         void setConnection( QMatrixClient::Connection* connection );

@@ -35,7 +35,7 @@ class UserListDock: public QDockWidget
 {
         Q_OBJECT
     public:
-        UserListDock(QWidget* parent=0);
+        UserListDock(QWidget* parent = nullptr);
         virtual ~UserListDock();
 
         void setConnection( QMatrixClient::Connection* connection );

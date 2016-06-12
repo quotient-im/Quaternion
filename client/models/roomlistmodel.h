@@ -34,7 +34,7 @@ class RoomListModel: public QAbstractListModel
 {
         Q_OBJECT
     public:
-        RoomListModel(QObject* parent=0);
+        RoomListModel(QObject* parent = nullptr);
         virtual ~RoomListModel();
 
         void setConnection(QMatrixClient::Connection* connection);

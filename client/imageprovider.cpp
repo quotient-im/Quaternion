@@ -53,7 +53,7 @@ QPixmap ImageProvider::requestPixmap(const QString& id, QSize* size, const QSize
     condition->wait(&m_mutex);
     delete condition;
 
-    if( size != 0 )
+    if( size != nullptr )
     {
         *size = result.size();
     }

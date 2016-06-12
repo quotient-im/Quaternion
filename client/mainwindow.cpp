@@ -38,7 +38,7 @@
 MainWindow::MainWindow()
 {
     setWindowIcon(QIcon(":/icon.png"));
-    connection = 0;
+    connection = nullptr;
     roomListDock = new RoomListDock(this);
     addDockWidget(Qt::LeftDockWidgetArea, roomListDock);
     userListDock = new UserListDock(this);
