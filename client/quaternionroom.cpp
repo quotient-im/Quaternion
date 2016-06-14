@@ -27,7 +27,7 @@ QuaternionRoom::QuaternionRoom(QMatrixClient::Connection* connection, QString ro
     : QMatrixClient::Room(connection, roomId)
 {
     m_shown = false;
-    m_unreadMessages = true;
+    m_unreadMessages = false;
     connect( this, &QuaternionRoom::notificationCountChanged, this, &QuaternionRoom::countChanged );
     connect( this, &QuaternionRoom::highlightCountChanged, this, &QuaternionRoom::countChanged );
 }
@@ -95,7 +95,8 @@ void QuaternionRoom::processEphemeralEvent(QMatrixClient::Event* event)
 {
     QMatrixClient::Room::processEphemeralEvent(event);
     QString lastReadId = lastReadEvent(connection()->user());
-    if( m_unreadMessages && lastReadId == messageEvents().last()->id() )
+    if( m_unreadMessages &&
+            (messageEvents().isEmpty() || lastReadId == messageEvents().last()->id()) )
     {
         m_unreadMessages = false;
         emit unreadMessagesChanged(this);
