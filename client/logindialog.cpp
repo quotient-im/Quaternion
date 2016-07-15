@@ -52,10 +52,12 @@ LoginDialog::LoginDialog(QWidget* parent)
     setLayout(mainLayout);
 
     settings = new QSettings(QString("Quaternion"));
+    settings->beginGroup("Login");
     serverEdit->setText(settings->value("homeserver", "https://matrix.org").toString());
     userEdit->setText(settings->value("username", "").toString());
     passwordEdit->setText(settings->value("password", "").toString());
     saveCheck->setChecked(settings->value("savecredentials", false).toBool());
+    settings->endGroup();
 
     
     connect( loginButton, &QPushButton::clicked, this, &LoginDialog::login );
@@ -76,6 +78,7 @@ void LoginDialog::login()
 
     setConnection(new QuaternionConnection(url));
 
+    settings->beginGroup("Login");
     settings->setValue("savecredentials", saveCheck->isChecked());
     if(saveCheck->isChecked()){
         settings->setValue("homeserver", serverEdit->text());
@@ -85,6 +88,7 @@ void LoginDialog::login()
         settings->remove("username");
         settings->remove("password");
     }
+    settings->endGroup();
 
     connect( m_connection, &QMatrixClient::Connection::connected, this, &QDialog::accept );
     connect( m_connection, &QMatrixClient::Connection::loginError, this, &LoginDialog::error );
