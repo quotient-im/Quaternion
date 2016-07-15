@@ -26,6 +26,9 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QCheckBox>
+
+#include <QSettings>
 
 class QuaternionConnection;
 
@@ -52,6 +55,8 @@ class LoginDialog : public QDialog
         QLineEdit* passwordEdit;
         QPushButton* loginButton;
         QLabel* sessionLabel;
+        QCheckBox* saveCheck;
+        QSettings* settings;
         
         QuaternionConnection* m_connection;
 };

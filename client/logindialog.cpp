@@ -36,11 +36,13 @@ LoginDialog::LoginDialog(QWidget* parent)
     passwordEdit->setEchoMode( QLineEdit::Password );
     sessionLabel = new QLabel("Session:");
     loginButton = new QPushButton("Login");
+    saveCheck = new QCheckBox("");
     
     QFormLayout* formLayout = new QFormLayout();
     formLayout->addRow("Server", serverEdit);
     formLayout->addRow("User", userEdit);
     formLayout->addRow("Password", passwordEdit);
+    formLayout->addRow("Save login credentials", saveCheck);
     
     QVBoxLayout* mainLayout = new QVBoxLayout();
     mainLayout->addLayout(formLayout);
@@ -48,6 +50,13 @@ LoginDialog::LoginDialog(QWidget* parent)
     mainLayout->addWidget(sessionLabel);
     
     setLayout(mainLayout);
+
+    settings = new QSettings(QString("Quaternion"));
+    serverEdit->setText(settings->value("homeserver", "https://matrix.org").toString());
+    userEdit->setText(settings->value("username", "").toString());
+    passwordEdit->setText(settings->value("password", "").toString());
+    saveCheck->setChecked(settings->value("savecredentials", false).toBool());
+
     
     connect( loginButton, &QPushButton::clicked, this, &LoginDialog::login );
 }
@@ -66,6 +75,16 @@ void LoginDialog::login()
     QString password = passwordEdit->text();
 
     setConnection(new QuaternionConnection(url));
+
+    settings->setValue("savecredentials", saveCheck->isChecked());
+    if(saveCheck->isChecked()){
+        settings->setValue("homeserver", serverEdit->text());
+        settings->setValue("username", user);
+        settings->setValue("password", password);
+    }else{
+        settings->remove("username");
+        settings->remove("password");
+    }
 
     connect( m_connection, &QMatrixClient::Connection::connected, this, &QDialog::accept );
     connect( m_connection, &QMatrixClient::Connection::loginError, this, &LoginDialog::error );
