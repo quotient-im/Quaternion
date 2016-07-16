@@ -58,6 +58,7 @@ class MainWindow: public QMainWindow
 
     private slots:
         void showJoinRoomDialog();
+        void logout();
 
     private:
         RoomListDock* roomListDock;
@@ -69,6 +70,7 @@ class MainWindow: public QMainWindow
         QMenu* connectionMenu;
         QMenu* roomMenu;
 
+        QAction *logoutAction;
         QAction* quitAction;
         QAction* joinRoomAction;
 
