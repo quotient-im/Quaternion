@@ -27,6 +27,8 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QInputDialog>
 
+#include <iostream>
+
 #include "quaternionconnection.h"
 #include "roomlistdock.h"
 #include "userlistdock.h"
@@ -70,6 +72,9 @@ void MainWindow::initialize()
     roomMenu = new QMenu(tr("&Room"));
     menuBar->addMenu(roomMenu);
 
+    settings = new QSettings(QString("Quaternion"));
+    settings->beginGroup("Login");
+
     quitAction = new QAction(tr("&Quit"), this);
     quitAction->setShortcut(QKeySequence(QKeySequence::Quit));
     connect( quitAction, &QAction::triggered, qApp, &QApplication::quit );
@@ -81,8 +86,15 @@ void MainWindow::initialize()
 
     setMenuBar(menuBar);
 
-    LoginDialog dialog(this);
-    connect(&dialog, &LoginDialog::connectionChanged, [=](QuaternionConnection* connection){
+    if(settings->value("savecredentials").toBool()){
+
+        if (connection != nullptr) {
+            delete connection;
+        }
+
+        connection = new QuaternionConnection(QUrl::fromUserInput(settings->value("homeserver").toString()));
+
+        connection->connectWithToken(settings->value("userid").toString(), settings->value("token").toString());
         chatRoomWidget->setConnection(connection);
         userListDock->setConnection(connection);
         roomListDock->setConnection(connection);
@@ -90,13 +102,35 @@ void MainWindow::initialize()
         connect( connection, &QMatrixClient::Connection::connectionError, this, &MainWindow::connectionError );
         connect( connection, &QMatrixClient::Connection::syncDone, this, &MainWindow::gotEvents );
         connect( connection, &QMatrixClient::Connection::reconnected, this, &MainWindow::getNewEvents );
-    });
-
-    if( dialog.exec() )
-    {
-        connection = dialog.connection();
         connection->sync();
+
+    }else{
+
+        LoginDialog dialog(this);
+        connect(&dialog, &LoginDialog::connectionChanged, [=](QuaternionConnection* connection){
+            chatRoomWidget->setConnection(connection);
+            userListDock->setConnection(connection);
+            roomListDock->setConnection(connection);
+            systemTray->setConnection(connection);
+            connect( connection, &QMatrixClient::Connection::connectionError, this, &MainWindow::connectionError );
+            connect( connection, &QMatrixClient::Connection::syncDone, this, &MainWindow::gotEvents );
+            connect( connection, &QMatrixClient::Connection::reconnected, this, &MainWindow::getNewEvents );
+        });
+
+        if( dialog.exec() )
+        {
+            connection = dialog.connection();
+            QString userid = connection->userId();
+            QString token = connection->token();
+            if(settings->value("savecredentials").toBool()){
+                settings->setValue("userid", userid);
+                settings->setValue("token", token);
+            }
+            connection->sync();
+        }
     }
+
+    settings->endGroup();
 }
 
 void MainWindow::getNewEvents()

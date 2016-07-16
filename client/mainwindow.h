@@ -21,6 +21,7 @@
 #define MAINWINDOW_H
 
 #include <QtWidgets/QMainWindow>
+#include <QSettings>
 
 #include "lib/room.h"
 #include "lib/jobs/basejob.h"
@@ -72,6 +73,8 @@ class MainWindow: public QMainWindow
         QAction* joinRoomAction;
 
         SystemTray* systemTray;
+
+        QSettings *settings;
 };
 
 #endif // MAINWINDOW_H

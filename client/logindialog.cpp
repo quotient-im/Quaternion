@@ -42,7 +42,7 @@ LoginDialog::LoginDialog(QWidget* parent)
     formLayout->addRow("Server", serverEdit);
     formLayout->addRow("User", userEdit);
     formLayout->addRow("Password", passwordEdit);
-    formLayout->addRow("Save login credentials", saveCheck);
+    formLayout->addRow("Stay logged in", saveCheck);
     
     QVBoxLayout* mainLayout = new QVBoxLayout();
     mainLayout->addLayout(formLayout);
@@ -54,8 +54,6 @@ LoginDialog::LoginDialog(QWidget* parent)
     settings = new QSettings(QString("Quaternion"));
     settings->beginGroup("Login");
     serverEdit->setText(settings->value("homeserver", "https://matrix.org").toString());
-    userEdit->setText(settings->value("username", "").toString());
-    passwordEdit->setText(settings->value("password", "").toString());
     saveCheck->setChecked(settings->value("savecredentials", false).toBool());
     settings->endGroup();
 
@@ -82,11 +80,6 @@ void LoginDialog::login()
     settings->setValue("savecredentials", saveCheck->isChecked());
     if(saveCheck->isChecked()){
         settings->setValue("homeserver", serverEdit->text());
-        settings->setValue("username", user);
-        settings->setValue("password", password);
-    }else{
-        settings->remove("username");
-        settings->remove("password");
     }
     settings->endGroup();
 
