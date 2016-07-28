@@ -33,7 +33,6 @@
 #include "chatroomwidget.h"
 #include "logindialog.h"
 #include "systemtray.h"
-#include "lib/jobs/geteventsjob.h"
 
 MainWindow::MainWindow()
 {
