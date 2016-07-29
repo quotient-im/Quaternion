@@ -19,6 +19,7 @@
 
 #include "messageeventmodel.h"
 
+#include <QtCore/QStringBuilder>
 #include <QtCore/QDebug>
 
 #include "../message.h"
@@ -140,8 +141,11 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     {
         if( event->type() == QMatrixClient::EventType::RoomMessage )
         {
-            if( static_cast<QMatrixClient::RoomMessageEvent*>(event)->msgtype() == QMatrixClient::MessageEventType::Image )
+            auto msgType = static_cast<QMatrixClient::RoomMessageEvent*>(event)->msgtype();
+            if( msgType == MessageEventType::Image )
                 return "image";
+            else if( msgType == MessageEventType::Emote )
+                return "emote";
             return "message";
         }
         return "other";
@@ -162,8 +166,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         if( event->type() == QMatrixClient::EventType::RoomMessage )
         {
             QMatrixClient::RoomMessageEvent* e = static_cast<QMatrixClient::RoomMessageEvent*>(event);
-            return m_currentRoom->roomMembername(
-                        m_connection->user(e->userId()));
+            return m_currentRoom->roomMembername(e->userId());
         }
         return QVariant();
     }
@@ -177,6 +180,10 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
             {
                 auto content = static_cast<QMatrixClient::ImageEventContent*>(e->content());
                 return QUrl("image://mtx/"+content->url.host()+content->url.path());
+            }
+            else if( e->msgtype() == QMatrixClient::MessageEventType::Emote )
+            {
+                return QString(m_currentRoom->roomMembername(e->userId()) % " " % e->body());
             }
             return e->body();
         }
