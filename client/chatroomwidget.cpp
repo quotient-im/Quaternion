@@ -153,7 +153,7 @@ void ChatRoomWidget::getPreviousContent()
 void ChatRoomWidget::sendLine()
 {
     qDebug() << "sendLine";
-    if( !m_currentRoom || !m_currentConnection )
+    if( !m_currentConnection )
         return;
     QString text = m_chatEdit->displayText();
     if( text.startsWith("/join") )
@@ -166,11 +166,19 @@ void ChatRoomWidget::sendLine()
     }
     else if( text.startsWith("/leave") )
     {
-        m_currentConnection->leaveRoom( m_currentRoom );
+        if (m_currentRoom)
+            m_currentConnection->leaveRoom( m_currentRoom );
     }
     else
     {
-        m_currentConnection->postMessage(m_currentRoom, "m.text", m_chatEdit->displayText());
+        if (m_currentRoom)
+        {
+            if( text.startsWith("/me") )
+            {
+                text.replace(0, 3, "* " + m_currentConnection->user()->displayname());
+            }
+            m_currentConnection->postMessage(m_currentRoom, "m.text", m_chatEdit->displayText());
+        }
     }
     m_chatEdit->setText("");
 }
