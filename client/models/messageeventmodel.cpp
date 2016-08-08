@@ -244,17 +244,9 @@ void MessageEventModel::newMessage(Message* message)
     {
         return;
     }
-    for( int i=0; i<m_currentMessages.count(); i++ )
-    {
-        if( message->timestamp() < m_currentMessages.at(i)->timestamp() )
-        {
-            beginInsertRows(QModelIndex(), i, i);
-            m_currentMessages.insert(i, message);
-            endInsertRows();
-            return;
-        }
-    }
-    beginInsertRows(QModelIndex(), m_currentMessages.count(), m_currentMessages.count());
-    m_currentMessages.append(message);
+    auto pos = std::distance(m_currentMessages.begin(),
+            QMatrixClient::findInsertionPos(m_currentMessages, message));
+    beginInsertRows(QModelIndex(), pos, pos);
+    m_currentMessages.insert(pos, message);
     endInsertRows();
 }
