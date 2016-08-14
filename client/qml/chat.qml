@@ -95,21 +95,23 @@ Rectangle {
                 height: contentField.height + imageField.height
                 width: parent.width - (x - parent.x) - spacing
                 TextEdit {
-                        id: contentField
-                        selectByMouse: true; readOnly: true; font: timelabel.font;
-                        text: content
-                        wrapMode: Text.Wrap; width: parent.width
-                        color: if( eventType == "other" ) { "darkgrey" }
-                               else if( eventType == "emote" ) { "darkblue" }
-                               else { "black" }
-                        ToolTipArea {
-                            tip { text: toolTip; color: "#999999"; zParent: message }
-                            enabled: debug
-                        }
+                    id: contentField
+                    selectByMouse: true; readOnly: true; font: timelabel.font;
+                    text: content
+                    wrapMode: Text.Wrap; width: parent.width
+                    color: if( eventType == "other" ) { "darkgrey" }
+                           else if( eventType == "emote" ) { "darkblue" }
+                           else { "black" }
+                    ToolTipArea {
+                        tip { text: toolTip; color: "#999999"; zParent: message }
+                        enabled: debug
+                    }
                 }
                 Image {
                     id: imageField
                     anchors.top: contentField.bottom
+                    fillMode: Image.PreserveAspectFit
+                    width: eventType == "image" ? parent.width : 0
                     sourceSize.width: eventType == "image" ? 500 : 0
                     sourceSize.height: eventType == "image" ? 500 : 0
                     source: eventType == "image" ? content : ""
