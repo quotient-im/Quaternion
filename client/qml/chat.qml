@@ -77,7 +77,7 @@ Rectangle {
 
             Label {
                 id: timelabel
-                text: time.toLocaleString(Qt.locale("de_DE"), "'<'hh:mm:ss'>'")
+                text: "<" + time.toLocaleTimeString() + ">"
                 color: "grey"
             }
             Label {
