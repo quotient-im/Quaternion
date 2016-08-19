@@ -172,21 +172,64 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         return QVariant();
     }
 
-    if( role == ContentRole )
+    if (role == ContentTypeRole  || role == ContentRole)
     {
         if( event->type() == EventType::RoomMessage )
         {
+            using namespace MessageEventContent;
+
             RoomMessageEvent* e = static_cast<RoomMessageEvent*>(event);
-            if( e->msgtype() == MessageEventType::Image )
+            switch (e->msgtype())
             {
-                auto content = static_cast<ImageEventContent*>(e->content());
-                return QUrl("image://mtx/"+content->url.host()+content->url.path());
+            case MessageEventType::Emote:
+            case MessageEventType::Text:
+            case MessageEventType::Notice:
+                {
+                    QString body;
+                    QString contentType;
+                    auto textContent = static_cast<TextContent*>(e->content());
+                    if (textContent && textContent->mimeType.inherits("text/html"))
+                    {
+                        body = textContent->body;
+                        contentType = "text/html";
+                    }
+                    else
+                    {
+                        body = e->plainBody();
+                        contentType = "text/plain";
+                    }
+
+                    if (role == ContentRole)
+                        return body;
+                    else
+                        return contentType;
+                }
+            case MessageEventType::Image:
+                {
+                    auto content = static_cast<ImageContent*>(e->content());
+                    if (role == ContentRole)
+                        return QUrl("image://mtx/" +
+                                    content->url.host() + content->url.path());
+                    else
+                        return content->mimetype.name();
+                }
+            case MessageEventType::File:
+            case MessageEventType::Location:
+            case MessageEventType::Video:
+            case MessageEventType::Audio:
+                {
+                    auto fileInfo = static_cast<FileInfo*>(e->content());
+                    if (role == ContentRole)
+                        return e->body(); // TODO
+                    else
+                        return fileInfo ? fileInfo->mimetype.name() : "unknown";
+                }
+            default:
+                if (role == ContentRole)
+                    return e->body();
+                else
+                    return "unknown";
             }
-            else if( e->msgtype() == MessageEventType::Emote )
-            {
-                return QString(m_currentRoom->roomMembername(e->userId()) % " " % e->body());
-            }
-            return e->body();
         }
         if( event->type() == EventType::RoomMember )
         {
@@ -233,6 +276,7 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
     roles[DateRole] = "date";
     roles[AuthorRole] = "author";
     roles[ContentRole] = "content";
+    roles[ContentTypeRole] = "contentType";
     roles[HighlightRole] = "highlight";
     return roles;
 }
