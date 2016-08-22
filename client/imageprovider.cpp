@@ -39,12 +39,6 @@ QPixmap ImageProvider::requestPixmap(const QString& id, QSize* size, const QSize
     QMutexLocker locker(&m_mutex);
     qDebug() << "ImageProvider::requestPixmap:" << id;
 
-    if( !m_connection )
-    {
-        qDebug() << "ImageProvider::requestPixmap: no connection!";
-        return QPixmap();
-    }
-
     QWaitCondition* condition = new QWaitCondition();
     QPixmap result;
     QMetaObject::invokeMethod(this, "doRequest", Qt::QueuedConnection,
@@ -73,6 +67,13 @@ void ImageProvider::doRequest(QString id, QSize requestedSize, QPixmap* pixmap, 
 
     int width = requestedSize.width() > 0 ? requestedSize.width() : 100;
     int height = requestedSize.height() > 0 ? requestedSize.height() : 100;
+
+    if( !m_connection )
+    {
+        qDebug() << "ImageProvider::requestPixmap: no connection!";
+        *pixmap = QPixmap();
+        condition->wakeAll();
+    }
 
     QMatrixClient::MediaThumbnailJob* job = m_connection->getThumbnail(QUrl(id), width, height);
     QObject::connect( job, &QMatrixClient::MediaThumbnailJob::success, this, &ImageProvider::gotImage );

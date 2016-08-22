@@ -39,6 +39,9 @@ RoomListModel::~RoomListModel()
 
 void RoomListModel::setConnection(QMatrixClient::Connection* connection)
 {
+    if (m_connection == connection)
+        return;
+
     beginResetModel();
     for( QuaternionRoom* room: m_rooms )
         room->disconnect( this );
@@ -46,9 +49,12 @@ void RoomListModel::setConnection(QMatrixClient::Connection* connection)
     m_rooms.clear();
 
     m_connection = connection;
-    connect( connection, &QMatrixClient::Connection::newRoom, this, &RoomListModel::addRoom );
-    for( QMatrixClient::Room* r: connection->roomMap() )
-        doAddRoom(r);
+    if (m_connection)
+    {
+        connect( m_connection, &QMatrixClient::Connection::newRoom, this, &RoomListModel::addRoom );
+        for( QMatrixClient::Room* r: m_connection->roomMap() )
+            doAddRoom(r);
+    }
 
     endResetModel();
 }
