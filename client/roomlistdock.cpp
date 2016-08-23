@@ -87,6 +87,9 @@ void RoomListDock::showContextMenu(const QPoint& pos)
 
 void RoomListDock::menuJoinSelected()
 {
+    if (!connection)
+        return;
+
     QModelIndex index = view->currentIndex();
     QuaternionRoom* room = model->roomAt(index.row());
     connection->joinRoom(room->id());
@@ -94,6 +97,9 @@ void RoomListDock::menuJoinSelected()
 
 void RoomListDock::menuLeaveSelected()
 {
+    if (!connection)
+        return;
+
     QModelIndex index = view->currentIndex();
     if( !index.isValid() )
         return;

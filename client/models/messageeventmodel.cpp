@@ -94,7 +94,7 @@ int MessageEventModel::rowCount(const QModelIndex& parent) const
 QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 {
     using namespace QMatrixClient;
-    if( index.row() < 0 || index.row() >= m_currentMessages.count() )
+    if( index.row() < 0 || index.row() >= m_currentMessages.count() || !m_connection )
         return QVariant();
 
     Message* message = m_currentMessages.at(index.row());;

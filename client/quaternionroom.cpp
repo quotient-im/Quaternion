@@ -23,6 +23,8 @@
 #include "lib/events/event.h"
 #include "lib/connection.h"
 
+#include <QtCore/QDebug>
+
 QuaternionRoom::QuaternionRoom(QMatrixClient::Connection* connection, QString roomId)
     : QMatrixClient::Room(connection, roomId)
 {
