@@ -81,8 +81,11 @@ Rectangle {
             Label {
                 width: 120; elide: Text.ElideRight;
                 text: eventType == "message" || eventType == "image" ? author : "***"
-                horizontalAlignment: if( eventType == "other" ) { Text.AlignRight }
-                color: if( eventType == "other" ) { "lightgrey" } else { "black" }
+                horizontalAlignment: if( eventType == "other" || eventType == "emote" )
+                                     { Text.AlignRight }
+                color: if( eventType == "other" ) { "darkgrey" }
+                       else if( eventType == "emote" ) { "darkblue" }
+                       else { "black" }
 
             }
             Rectangle {
@@ -94,7 +97,9 @@ Rectangle {
                         selectByMouse: true; readOnly: true; font: timelabel.font;
                         text: content
                         wrapMode: Text.Wrap; width: parent.width
-                        color: if( eventType == "other" ) { "lightgrey" } else { "black" }
+                        color: if( eventType == "other" ) { "darkgrey" }
+                               else if( eventType == "emote" ) { "darkblue" }
+                               else { "black" }
                         ToolTipArea {
                             tip { text: toolTip; color: "#999999"; zParent: message }
                             enabled: debug

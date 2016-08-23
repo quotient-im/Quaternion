@@ -38,16 +38,20 @@ Message::Message(QMatrixClient::Connection* connection,
     {
         m_isStatusMessage = false;
         RoomMessageEvent* messageEvent = static_cast<RoomMessageEvent*>(event);
-        User* user = m_connection->user();
-        if( messageEvent->body().contains(user->id()) )
+        User* localUser = m_connection->user();
+        // Only highlight messages from other users
+        if (messageEvent->userId() != localUser->id())
         {
-            m_isHighlight = true;
-        }
-        if (room)
-        {
-            QString ownDisplayname = room->roomMembername(user);
-            if (messageEvent->body().contains(ownDisplayname))
+            if( messageEvent->body().contains(localUser->id()) )
+            {
                 m_isHighlight = true;
+            }
+            if (room)
+            {
+                QString ownDisplayname = room->roomMembername(localUser);
+                if (messageEvent->body().contains(ownDisplayname))
+                    m_isHighlight = true;
+            }
         }
     }
 }

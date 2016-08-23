@@ -153,9 +153,11 @@ void ChatRoomWidget::getPreviousContent()
 void ChatRoomWidget::sendLine()
 {
     qDebug() << "sendLine";
-    if( !m_currentRoom || !m_currentConnection )
+    if( !m_currentConnection )
         return;
     QString text = m_chatEdit->displayText();
+
+    // Commands available without current room
     if( text.startsWith("/join") )
     {
         QStringList splitted = text.split(' ');
@@ -164,13 +166,19 @@ void ChatRoomWidget::sendLine()
         else
             qDebug() << "No arguments for join";
     }
-    else if( text.startsWith("/leave") )
-    {
-        m_currentConnection->leaveRoom( m_currentRoom );
-    }
-    else
-    {
-        m_currentConnection->postMessage(m_currentRoom, "m.text", m_chatEdit->displayText());
-    }
+    else // Commands available only in the room context
+        if (m_currentRoom)
+        {
+            if( text.startsWith("/leave") )
+            {
+                m_currentConnection->leaveRoom( m_currentRoom );
+            }
+            else if( text.startsWith("/me") )
+            {
+                text.remove(0, 3);
+                m_currentConnection->postMessage(m_currentRoom, "m.emote", text);
+            } else
+                m_currentConnection->postMessage(m_currentRoom, "m.text", text);
+        }
     m_chatEdit->setText("");
 }
