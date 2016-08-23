@@ -24,7 +24,7 @@
 #include <QtCore/QMutexLocker>
 #include <QtCore/QWaitCondition>
 
-
+#include <QtCore/QDebug>
 
 ImageProvider::ImageProvider(QMatrixClient::Connection* connection)
     : QQuickImageProvider(QQmlImageProviderBase::Pixmap, QQmlImageProviderBase::ForceAsynchronousImageLoading)
@@ -81,7 +81,7 @@ void ImageProvider::doRequest(QString id, QSize requestedSize, QPixmap* pixmap, 
     m_callmap.insert(job, data);
 }
 
-void ImageProvider::gotImage(KJob* job)
+void ImageProvider::gotImage(QMatrixClient::BaseJob* job)
 {
     QMutexLocker locker(&m_mutex);
     qDebug() << "gotImage";
