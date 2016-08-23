@@ -11,11 +11,11 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 # Find the libraries
-find_package(Qt5Widgets 5.3.0)
-find_package(Qt5Network 5.3.0)
-find_package(Qt5Quick 5.3.0)
-find_package(Qt5Qml 5.3.0)
-find_package(Qt5Gui 5.3.0)
+find_package(Qt5Widgets 5.2.1)
+find_package(Qt5Network 5.2.1)
+find_package(Qt5Quick 5.2.1)
+find_package(Qt5Qml 5.2.1)
+find_package(Qt5Gui 5.2.1)
 
 message( STATUS )
 message( STATUS "================================================================================" )

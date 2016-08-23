@@ -3,7 +3,6 @@ import QtQuick.Controls 1.0
 
 Rectangle {
     id: root
-    anchors.fill: parent
 
     signal getPreviousContent()
 

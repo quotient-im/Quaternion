@@ -1,21 +1,12 @@
 dist: trusty
 language: cpp
-env:
- - INSTALL_KCOREADDONS=true
- - INSTALL_KCOREADDONS=false
-before_install:
- - sudo add-apt-repository --yes ppa:beineri/opt-qt542-trusty
- - sudo apt-get update -qq
- - sudo apt-get install -y qt54base qt54declarative qt54quickcontrols
- - if [ "$INSTALL_KCOREADDONS" = true ]; then sudo apt-get install -y qt54tools; fi
- - if [ "$INSTALL_KCOREADDONS" = true ]; then source /opt/qt54/bin/qt54-env.sh; fi
- - if [ "$INSTALL_KCOREADDONS" = true ]; then git clone git://anongit.kde.org/extra-cmake-modules.git ecm && cd ecm && git checkout v5.18.0 && cmake . && make && sudo make install && cd ..; fi
- - if [ "$INSTALL_KCOREADDONS" = true ]; then git clone git://anongit.kde.org/kcoreaddons.git kca && cd kca && git checkout v5.18.0 && cmake . && make && sudo make install && cd ..; fi
+compiler:
+ - gcc
+ - clang
 install:
- - source /opt/qt54/bin/qt54-env.sh
- - git submodule update --init --recursive
+ - sudo apt-get update -qq
+ - sudo apt-get install -y qt5-default qtdeclarative5-dev
+script:
  - mkdir build && cd build
- - cmake ../
- - make
-script: true
-
+ - cmake ..
+ - cmake --build . --target all

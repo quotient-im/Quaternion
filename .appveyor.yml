@@ -1,0 +1,36 @@
+image: Visual Studio 2015
+
+environment:
+  DEPLOY_DIR: Quaternion-%APPVEYOR_BUILD_VERSION%
+  matrix:
+  - QTDIR: C:\Qt\5.7\msvc2015_64
+    VS_FOLDER: Microsoft Visual Studio 14.0
+    PLATFORM: x64
+  - QTDIR: C:\Qt\5.3\msvc2013_opengl
+    VS_FOLDER: Microsoft Visual Studio 12.0
+    PLATFORM: x86
+
+init:
+  - call "%QTDIR%\bin\qtenv2.bat"
+  - set PATH=C:\Qt\Tools\QtCreator\bin;%PATH%
+  - call "%ProgramFiles(x86)%\%VS_FOLDER%\VC\vcvarsall.bat" %platform%
+  - cd /D "%APPVEYOR_BUILD_FOLDER%"
+
+before_build:
+  - git submodule update --init --recursive
+  - cmake -G "NMake Makefiles JOM" -H. -Bbuild -DCMAKE_CXX_FLAGS="/EHsc /W3" -DCMAKE_BUILD_TYPE=MinSizeRel
+
+build_script:
+  - cmake --build build
+
+after_build:
+  - md "%DEPLOY_DIR%"
+  - copy build\quaternion.exe "%DEPLOY_DIR%"
+  - windeployqt --dir "%DEPLOY_DIR%" --release --no-system-d3d-compiler --no-opengl --no-multimedia --no-multimediaquick --no-declarative --no-test --qmldir "%QTDIR%\qml" "%DEPLOY_DIR%\quaternion.exe"
+
+  - 7z a quaternion.zip "%DEPLOY_DIR%\"
+
+test: off
+
+artifacts:
+- path: quaternion.zip
