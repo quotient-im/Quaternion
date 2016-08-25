@@ -92,8 +92,8 @@ Rectangle {
             }
             Rectangle {
                 color: highlight ? "orange" : "white"
-                height: contentField.height + imageField.height
-                width: parent.width - (x - parent.x) - spacing
+                height: contentField.height + imageField.height + sourceField.height
+                width: parent.width - (x - parent.x) - contextMenuButton.width - spacing
                 TextEdit {
                     id: contentField
                     selectByMouse: true; readOnly: true; font: timelabel.font;
@@ -102,14 +102,18 @@ Rectangle {
                     color: if( eventType == "other" ) { "darkgrey" }
                            else if( eventType == "emote" ) { "darkblue" }
                            else { "black" }
-                    ToolTipArea {
-                        tip { text: toolTip; color: "#999999"; zParent: message }
-                        enabled: debug
-                    }
+                }
+                TextEdit {
+                    id: sourceField
+                    selectByMouse: true; readOnly: true; font.family: "Monospace"
+                    text: toolTip
+                    anchors.top: contentField.bottom
+                    visible: showSource.checked
+                    height: visible ? implicitHeight : 0
                 }
                 Image {
                     id: imageField
-                    anchors.top: contentField.bottom
+                    anchors.top: sourceField.bottom
                     fillMode: Image.PreserveAspectFit
                     width: eventType == "image" ? parent.width : 0
                     sourceSize.width: eventType == "image" ? 500 : 0
@@ -117,6 +121,19 @@ Rectangle {
                     source: eventType == "image" ? content : ""
                 }
             }
+            ToolButton {
+                id: contextMenuButton
+                text: " "
+
+                menu: Menu {
+                    MenuItem {
+                        id: showSource
+                        checkable: true
+                        text: "View source"
+                    }
+                }
+            }
+
             spacing: 3
         }
     }
