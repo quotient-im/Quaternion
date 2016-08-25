@@ -47,9 +47,12 @@ Rectangle {
 
             section {
                 property: "date"
+                labelPositioning: ViewSection.InlineLabels | ViewSection.CurrentLabelAtStart
+
                 delegate: Rectangle {
                     width:parent.width
                     height: childrenRect.height
+                    color: "lightgrey"
                     Label { text: section.toLocaleString("dd.MM.yyyy") }
                 }
             }
@@ -74,7 +77,7 @@ Rectangle {
 
             Label {
                 id: timelabel
-                text: time.toLocaleString(Qt.locale("de_DE"), "'<'hh:mm:ss'>'")
+                text: "<" + time.toLocaleTimeString() + ">"
                 color: "grey"
             }
             Label {
@@ -89,29 +92,47 @@ Rectangle {
             }
             Rectangle {
                 color: highlight ? "orange" : "white"
-                height: contentField.height + imageField.height
-                width: parent.width - (x - parent.x) - spacing
+                height: contentField.height + imageField.height + sourceField.height
+                width: parent.width - (x - parent.x) - showSourceButton.width - spacing
                 TextEdit {
-                        id: contentField
-                        selectByMouse: true; readOnly: true; font: timelabel.font;
-                        text: content
-                        wrapMode: Text.Wrap; width: parent.width
-                        color: if( eventType == "other" ) { "darkgrey" }
-                               else if( eventType == "emote" ) { "darkblue" }
-                               else { "black" }
-                        ToolTipArea {
-                            tip { text: toolTip; color: "#999999"; zParent: message }
-                            enabled: debug
-                        }
+                    id: contentField
+                    selectByMouse: true; readOnly: true; font: timelabel.font;
+                    text: content
+                    wrapMode: Text.Wrap; width: parent.width
+                    color: if( eventType == "other" ) { "darkgrey" }
+                           else if( eventType == "emote" ) { "darkblue" }
+                           else { "black" }
+                }
+                TextEdit {
+                    id: sourceField
+                    selectByMouse: true; readOnly: true; font.family: "Monospace"
+                    text: toolTip
+                    anchors.top: contentField.bottom
+                    visible: showSource.checked
+                    height: visible ? implicitHeight : 0
                 }
                 Image {
                     id: imageField
-                    anchors.top: contentField.bottom
+                    anchors.top: sourceField.bottom
+                    fillMode: Image.PreserveAspectFit
+                    width: eventType == "image" ? parent.width : 0
                     sourceSize.width: eventType == "image" ? 500 : 0
                     sourceSize.height: eventType == "image" ? 500 : 0
                     source: eventType == "image" ? content : ""
                 }
             }
+            ToolButton {
+                id: showSourceButton
+                text: "..."
+
+                action: Action {
+                    id: showSource
+
+                    tooltip: "Show source"
+                    checkable: true
+                }
+            }
+
             spacing: 3
         }
     }

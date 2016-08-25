@@ -147,7 +147,8 @@ void ChatRoomWidget::topicChanged()
 
 void ChatRoomWidget::getPreviousContent()
 {
-    m_currentRoom->getPreviousContent();
+    if (m_currentRoom)
+        m_currentRoom->getPreviousContent();
 }
 
 void ChatRoomWidget::sendLine()
