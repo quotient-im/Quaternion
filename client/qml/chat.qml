@@ -93,7 +93,7 @@ Rectangle {
             Rectangle {
                 color: highlight ? "orange" : "white"
                 height: contentField.height + imageField.height + sourceField.height
-                width: parent.width - (x - parent.x) - contextMenuButton.width - spacing
+                width: parent.width - (x - parent.x) - showSourceButton.width - spacing
                 TextEdit {
                     id: contentField
                     selectByMouse: true; readOnly: true; font: timelabel.font;
@@ -122,15 +122,14 @@ Rectangle {
                 }
             }
             ToolButton {
-                id: contextMenuButton
-                text: " "
+                id: showSourceButton
+                text: "..."
 
-                menu: Menu {
-                    MenuItem {
-                        id: showSource
-                        checkable: true
-                        text: "View source"
-                    }
+                action: Action {
+                    id: showSource
+
+                    tooltip: "Show source"
+                    checkable: true
                 }
             }
 
