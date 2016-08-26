@@ -11,61 +11,82 @@ Rectangle {
         chatView.positionViewAtEnd();
     }
 
-    ScrollView {
-    anchors.fill: parent
+    ListView {
+        id: chatView
+        anchors.fill: parent
 
-        ListView {
-            id: chatView
-            anchors.fill: parent
-            //width: 200; height: 250
+        model: messageModel
+        delegate: messageDelegate
+        flickableDirection: Flickable.VerticalFlick
+        pixelAligned: true
+        property bool wasAtEndY: true
 
-            model: messageModel
-            delegate: messageDelegate
-            flickableDirection: Flickable.VerticalFlick
-            pixelAligned: true
-            property bool wasAtEndY: true
+        function aboutToBeInserted() {
+            wasAtEndY = atYEnd;
+            console.log("aboutToBeInserted! atYEnd=" + atYEnd);
+        }
 
-            function aboutToBeInserted() {
-                wasAtEndY = atYEnd;
-                console.log("aboutToBeInserted! atYEnd=" + atYEnd);
+        function rowsInserted() {
+            if( wasAtEndY )
+            {
+                root.scrollToBottom();
+            } else  {
+                console.log("was not at end, not scrolling");
+            }
+        }
+
+        Component.onCompleted: {
+            console.log("onCompleted");
+            model.rowsAboutToBeInserted.connect(aboutToBeInserted);
+            model.rowsInserted.connect(rowsInserted);
+            //positionViewAtEnd();
+        }
+
+        section {
+            property: "date"
+            labelPositioning: ViewSection.InlineLabels | ViewSection.CurrentLabelAtStart
+
+            delegate: Rectangle {
+                width:parent.width
+                height: childrenRect.height
+                color: "lightgrey"
+                Label { text: section.toLocaleString("dd.MM.yyyy") }
+            }
+        }
+
+        onContentYChanged: {
+            if( (this.contentY - this.originY) < 5 )
+            {
+                console.log("get older content!");
+                root.getPreviousContent()
             }
 
-            function rowsInserted() {
-                if( wasAtEndY )
-                {
-                    root.scrollToBottom();
-                } else  {
-                    console.log("was not at end, not scrolling");
-                }
-            }
+        }
+    }
 
-            Component.onCompleted: {
-                console.log("onCompleted");
-                model.rowsAboutToBeInserted.connect(aboutToBeInserted);
-                model.rowsInserted.connect(rowsInserted);
-                //positionViewAtEnd();
-            }
+    Slider {
+        id: chatViewScroller
+        anchors.horizontalCenter: chatView.right
+        anchors.top: chatView.top
+        anchors.bottom: chatView.bottom
+        orientation: Qt.Vertical
+        maximumValue: 10.0
+        minimumValue: -10.0
+        activeFocusOnPress: false
+        activeFocusOnTab: false
 
-            section {
-                property: "date"
-                labelPositioning: ViewSection.InlineLabels | ViewSection.CurrentLabelAtStart
+        onPressedChanged: {
+            if (!pressed)
+                value = 0
+        }
 
-                delegate: Rectangle {
-                    width:parent.width
-                    height: childrenRect.height
-                    color: "lightgrey"
-                    Label { text: section.toLocaleString("dd.MM.yyyy") }
-                }
-            }
-
-            onContentYChanged: {
-                if( (this.contentY - this.originY) < 5 )
-                {
-                    console.log("get older content!");
-                    root.getPreviousContent()
-                }
-
-            }
+        onValueChanged: {
+            if (value)
+                chatView.flick(0, chatView.height * value)
+        }
+        Component.onCompleted: {
+            // This will cause continuous scrolling while the scroller is out of 0
+            chatView.flickEnded.connect(chatViewScroller.valueChanged)
         }
     }
 
