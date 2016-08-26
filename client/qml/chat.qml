@@ -1,5 +1,6 @@
 import QtQuick 2.0
 import QtQuick.Controls 1.0
+import QtQuick.Layouts 1.1
 
 Rectangle {
     id: root
@@ -71,17 +72,21 @@ Rectangle {
     Component {
         id: messageDelegate
 
-        Row {
+        RowLayout {
             id: message
             width: parent.width
+            spacing: 3
 
             Label {
+                Layout.alignment: Qt.AlignTop
                 id: timelabel
                 text: "<" + time.toLocaleTimeString() + ">"
                 color: "grey"
             }
             Label {
-                width: 120; elide: Text.ElideRight;
+                Layout.alignment: Qt.AlignTop | Qt.AlignLeft
+                Layout.preferredWidth: 120
+                elide: Text.ElideRight
                 text: eventType == "message" || eventType == "image" ? author : "***"
                 horizontalAlignment: if( eventType == "other" || eventType == "emote" )
                                      { Text.AlignRight }
@@ -92,38 +97,44 @@ Rectangle {
             }
             Rectangle {
                 color: highlight ? "orange" : "white"
-                height: contentField.height + imageField.height + sourceField.height
-                width: parent.width - (x - parent.x) - showSourceButton.width - spacing
-                TextEdit {
-                    id: contentField
-                    selectByMouse: true; readOnly: true; font: timelabel.font;
-                    text: content
-                    wrapMode: Text.Wrap; width: parent.width
-                    color: if( eventType == "other" ) { "darkgrey" }
-                           else if( eventType == "emote" ) { "darkblue" }
-                           else { "black" }
-                }
-                TextEdit {
-                    id: sourceField
-                    selectByMouse: true; readOnly: true; font.family: "Monospace"
-                    text: toolTip
-                    anchors.top: contentField.bottom
-                    visible: showSource.checked
-                    height: visible ? implicitHeight : 0
-                }
-                Image {
-                    id: imageField
-                    anchors.top: sourceField.bottom
-                    fillMode: Image.PreserveAspectFit
-                    width: eventType == "image" ? parent.width : 0
-                    sourceSize.width: eventType == "image" ? 500 : 0
-                    sourceSize.height: eventType == "image" ? 500 : 0
-                    source: eventType == "image" ? content : ""
+                Layout.fillWidth: true
+                Layout.minimumHeight: childrenRect.height
+
+                Column {
+                    spacing: 0
+                    width: parent.width
+
+                    TextEdit {
+                        id: contentField
+                        selectByMouse: true; readOnly: true; font: timelabel.font;
+                        text: content
+                        height: eventType == "image" ? 0 : implicitHeight
+                        wrapMode: Text.Wrap; width: parent.width
+                        color: if( eventType == "other" ) { "darkgrey" }
+                               else if( eventType == "emote" ) { "darkblue" }
+                               else { "black" }
+                    }
+                    TextArea {
+                        id: sourceField
+                        selectByMouse: true; readOnly: true; font.family: "Monospace"
+                        text: toolTip
+                        visible: showSource.checked
+                        width: parent.width
+                    }
+                    Image {
+                        id: imageField
+                        fillMode: Image.PreserveAspectFit
+                        width: eventType == "image" ? parent.width : 0
+
+                        sourceSize: eventType == "image" ? "500x500" : "0x0"
+                        source: eventType == "image" ? content : ""
+                    }
                 }
             }
             ToolButton {
                 id: showSourceButton
                 text: "..."
+                Layout.alignment: Qt.AlignTop
 
                 action: Action {
                     id: showSource
@@ -132,8 +143,6 @@ Rectangle {
                     checkable: true
                 }
             }
-
-            spacing: 3
         }
     }
 }
