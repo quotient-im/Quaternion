@@ -18,6 +18,7 @@ Rectangle {
         model: messageModel
         delegate: messageDelegate
         flickableDirection: Flickable.VerticalFlick
+        boundsBehavior: Flickable.StopAtBounds
         pixelAligned: true
         property bool wasAtEndY: true
 
@@ -66,12 +67,15 @@ Rectangle {
 
     Slider {
         id: chatViewScroller
-        anchors.horizontalCenter: chatView.right
-        anchors.top: chatView.top
-        anchors.bottom: chatView.bottom
         orientation: Qt.Vertical
+        anchors.horizontalCenter: chatView.right
+        anchors.verticalCenter: chatView.verticalCenter
+        height: chatView.height / 2
+
+        value: -chatView.verticalVelocity / chatView.height
         maximumValue: 10.0
         minimumValue: -10.0
+
         activeFocusOnPress: false
         activeFocusOnTab: false
 
@@ -81,7 +85,7 @@ Rectangle {
         }
 
         onValueChanged: {
-            if (value)
+            if (pressed && value)
                 chatView.flick(0, chatView.height * value)
         }
         Component.onCompleted: {
