@@ -31,6 +31,7 @@
 #include "lib/events/roommessageevent.h"
 #include "lib/events/roommemberevent.h"
 #include "lib/events/roomaliasesevent.h"
+#include "lib/events/roomtopicevent.h"
 #include "lib/events/unknownevent.h"
 
 MessageEventModel::MessageEventModel(QObject* parent)
@@ -250,8 +251,14 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         }
         if( event->type() == EventType::RoomAliases )
         {
-            RoomAliasesEvent* e = static_cast<RoomAliasesEvent*>(event);
+            auto e = static_cast<RoomAliasesEvent*>(event);
             return QString("Current aliases: %1").arg(e->aliases().join(", "));
+        }
+        if( event->type() == EventType::RoomTopic )
+        {
+            auto e = static_cast<RoomTopicEvent*>(event);
+            return QString("%1 has set the topic to: %2")
+                    .arg(m_currentRoom->roomMembername(e->senderId()), e->topic());
         }
         return "Unknown Event";
     }
