@@ -135,12 +135,13 @@ Rectangle {
                                else if( eventType == "emote" ) { "darkblue" }
                                else { "black" }
                     }
-                    TextArea {
-                        id: sourceField
-                        selectByMouse: true; readOnly: true; font.family: "Monospace"
-                        text: toolTip
-                        visible: showSource.checked
+                    Loader {
+                        asynchronous: true
+                        visible: status == Loader.Ready
                         width: parent.width
+                        property string sourceText: toolTip
+
+                        sourceComponent: showSource.checked ? sourceArea : undefined
                     }
                     Image {
                         id: imageField
@@ -164,6 +165,15 @@ Rectangle {
                     checkable: true
                 }
             }
+        }
+    }
+
+    Component {
+        id: sourceArea
+
+        TextArea {
+            selectByMouse: true; readOnly: true; font.family: "Monospace"
+            text: sourceText
         }
     }
 }
