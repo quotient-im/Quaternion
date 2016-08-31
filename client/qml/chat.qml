@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.2
 import QtQuick.Controls 1.0
 import QtQuick.Layouts 1.1
 
@@ -112,7 +112,10 @@ Rectangle {
                 Layout.alignment: Qt.AlignTop | Qt.AlignLeft
                 Layout.preferredWidth: 120
                 elide: Text.ElideRight
-                text: eventType == "message" || eventType == "image" ? author : "***"
+                text: eventType == "message" ||
+                      eventType == "image" ||
+                      eventType == "emote"
+                      ? author : "***"
                 horizontalAlignment: if( eventType == "other" || eventType == "emote" )
                                      { Text.AlignRight }
                 color: if( eventType == "other" ) { "darkgrey" }
@@ -124,6 +127,7 @@ Rectangle {
                 color: highlight ? "orange" : "white"
                 Layout.fillWidth: true
                 Layout.minimumHeight: childrenRect.height
+                Layout.alignment: Qt.AlignTop | Qt.AlignLeft
 
                 Column {
                     spacing: 0
@@ -132,20 +136,23 @@ Rectangle {
                     TextEdit {
                         id: contentField
                         selectByMouse: true; readOnly: true; font: timelabel.font;
-                        text: content
-                        height: eventType == "image" ? 0 : implicitHeight
+                        textFormat: contentType == "text/html" ? TextEdit.RichText
+                                                               : TextEdit.PlainText;
+                        text: eventType != "image" ? content : ""
+                        height: eventType != "image" ? implicitHeight : 0
                         wrapMode: Text.Wrap; width: parent.width
                         color: if( eventType == "other" ) { "darkgrey" }
                                else if( eventType == "emote" ) { "darkblue" }
                                else { "black" }
-                    }
-                    Loader {
-                        asynchronous: true
-                        visible: status == Loader.Ready
-                        width: parent.width
-                        property string sourceText: toolTip
 
-                        sourceComponent: showSource.checked ? sourceArea : undefined
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.IBeamCursor
+                            acceptedButtons: Qt.NoButton
+                        }
+                        onLinkActivated: {
+                            Qt.openUrlExternally(link)
+                        }
                     }
                     Image {
                         id: imageField
@@ -154,6 +161,14 @@ Rectangle {
 
                         sourceSize: eventType == "image" ? "500x500" : "0x0"
                         source: eventType == "image" ? content : ""
+                    }
+                    Loader {
+                        asynchronous: true
+                        visible: status == Loader.Ready
+                        width: parent.width
+                        property string sourceText: toolTip
+
+                        sourceComponent: showSource.checked ? sourceArea : undefined
                     }
                 }
             }
