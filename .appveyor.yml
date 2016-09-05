@@ -24,7 +24,7 @@ build_script:
   - cmake --build build
 
 after_build:
-  - rename bin "%DEPLOY_DIR%"
+  - rename build\bin "%DEPLOY_DIR%"
   - windeployqt --dir "%DEPLOY_DIR%" --release --no-system-d3d-compiler --no-opengl --no-multimedia --no-multimediaquick --no-declarative --no-test --qmldir "%QTDIR%\qml" "%DEPLOY_DIR%\quaternion.exe"
 
   - 7z a quaternion.zip "%DEPLOY_DIR%\"
