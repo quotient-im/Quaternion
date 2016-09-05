@@ -4,11 +4,16 @@ project(quaternion)
 enable_language(CXX)
 
 include(CheckCXXCompilerFlag)
+include(GNUInstallDirs)
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
+
+if(UNIX AND NOT APPLE)
+    set(LINUX 1)
+endif(UNIX AND NOT APPLE)
 
 # Find the libraries
 find_package(Qt5Widgets 5.2.1)
@@ -78,3 +83,10 @@ else ( CMAKE_VERSION VERSION_LESS "3.1" )
 endif ( CMAKE_VERSION VERSION_LESS "3.1" )
 
 target_link_libraries(quaternion qmatrixclient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
+
+if(LINUX)
+    install(TARGETS quaternion DESTINATION bin)
+    install(FILES linux/quaternion.desktop
+            DESTINATION  ${CMAKE_INSTALL_DATADIR}/applications
+            )
+endif(LINUX)
