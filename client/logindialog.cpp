@@ -19,28 +19,35 @@
 
 #include "logindialog.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QUrl>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFormLayout>
 
+#include <QtCore/QDebug>
+#include <QtCore/QUrl>
+
 #include "quaternionconnection.h"
+#include "settings.h"
 
 LoginDialog::LoginDialog(QWidget* parent)
     : QDialog(parent)
+    , m_connection(nullptr)
 {
-    m_connection = nullptr;
-    
     serverEdit = new QLineEdit("https://matrix.org");
     userEdit = new QLineEdit();
     passwordEdit = new QLineEdit();
     passwordEdit->setEchoMode( QLineEdit::Password );
-    sessionLabel = new QLabel("Session:");
+    saveTokenCheck = new QCheckBox("Stay logged in");
+    sessionLabel = new QLabel();
     loginButton = new QPushButton("Login");
-    
+
     QFormLayout* formLayout = new QFormLayout();
     formLayout->addRow("Server", serverEdit);
     formLayout->addRow("User", userEdit);
     formLayout->addRow("Password", passwordEdit);
+    formLayout->addRow(saveTokenCheck);
     
     QVBoxLayout* mainLayout = new QVBoxLayout();
     mainLayout->addLayout(formLayout);
@@ -48,7 +55,42 @@ LoginDialog::LoginDialog(QWidget* parent)
     mainLayout->addWidget(sessionLabel);
     
     setLayout(mainLayout);
-    
+
+    {
+        // Fill defaults
+        using namespace QMatrixClient;
+        QStringList accounts { SettingsGroup("Accounts").childGroups() };
+        if ( !accounts.empty() )
+        {
+            AccountSettings account { accounts.front() };
+            QUrl homeserver = account.homeserver();
+            QString username = account.userId();
+            if (username.startsWith('@'))
+            {
+                QString serverpart = ":" + homeserver.host();
+                if (homeserver.port() != -1)
+                    serverpart += ":" + QString::number(homeserver.port());
+                if (username.endsWith(serverpart))
+                {
+                    // Keep only the local part of the user id
+                    username.remove(0, 1).chop(serverpart.size());
+                }
+            }
+            serverEdit->setText(homeserver.toString());
+            userEdit->setText(username);
+            saveTokenCheck->setChecked(account.keepLoggedIn());
+        }
+        else
+        {
+            serverEdit->setText("https://matrix.org");
+            saveTokenCheck->setChecked(false);
+        }
+    }
+    if (userEdit->text().isEmpty())
+        userEdit->setFocus();
+    else
+        passwordEdit->setFocus();
+
     connect( loginButton, &QPushButton::clicked, this, &LoginDialog::login );
 }
 
@@ -57,9 +99,14 @@ QuaternionConnection* LoginDialog::connection() const
     return m_connection;
 }
 
+bool LoginDialog::keepLoggedIn() const
+{
+    return saveTokenCheck->isChecked();
+}
+
 void LoginDialog::login()
 {
-    qDebug() << "login";
+    sessionLabel->setText("Connecting and logging in, please wait");
     setDisabled(true);
     QUrl url = QUrl::fromUserInput(serverEdit->text());
     QString user = userEdit->text();
@@ -75,21 +122,14 @@ void LoginDialog::login()
 void LoginDialog::error(QString error)
 {
     sessionLabel->setText( error );
+    setConnection(nullptr);
     setDisabled(false);
 }
 
-void LoginDialog::setDisabled(bool state) {
-    QDialog::setDisabled(state);
-    serverEdit->setDisabled(state);
-    userEdit->setDisabled(state);
-    loginButton->setDisabled(state);
-}
-
-void LoginDialog::setConnection(QuaternionConnection* connection) {
-    emit connectionChanged(connection);
-
+void LoginDialog::setConnection(QuaternionConnection* connection)
+{
     if (m_connection != nullptr) {
-        delete m_connection;
+        m_connection->deleteLater();
     }
 
     m_connection = connection;

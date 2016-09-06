@@ -45,18 +45,22 @@ class MainWindow: public QMainWindow
 
         void enableDebug();
 
-    private slots:
-        void initialize();
-        void getNewEvents();
-        void gotEvents();
-
-        void connectionError(QString error);
+        void setConnection(QuaternionConnection* newConnection);
 
     protected:
         virtual void closeEvent(QCloseEvent* event) override;
 
     private slots:
+        void initialize();
+        void getNewEvents();
+        void gotEvents();
+        void loggedOut();
+
+        void connectionError(QString error);
+
         void showJoinRoomDialog();
+        void showLoginWindow();
+        void logout();
 
     private:
         RoomListDock* roomListDock;
@@ -64,14 +68,12 @@ class MainWindow: public QMainWindow
         ChatRoomWidget* chatRoomWidget;
         QuaternionConnection* connection;
 
-        QMenuBar* menuBar;
-        QMenu* connectionMenu;
-        QMenu* roomMenu;
-
-        QAction* quitAction;
-        QAction* joinRoomAction;
+        QAction* loginAction;
+        QAction* logoutAction;
 
         SystemTray* systemTray;
+
+        void invokeLogin();
 };
 
 #endif // MAINWINDOW_H

@@ -27,6 +27,7 @@
 int main( int argc, char* argv[] )
 {
     QApplication app(argc, argv);
+    QApplication::setOrganizationName("Quaternion");
     QApplication::setApplicationName("quaternion");
     QApplication::setApplicationDisplayName("Quaternion");
     QApplication::setApplicationVersion("0.0");
@@ -47,10 +48,6 @@ int main( int argc, char* argv[] )
     if( debugEnabled )
         window.enableDebug();
     window.show();
-
-    //LoginDialog dialog(&widget);
-    //QTimer::singleShot(0, &dialog, &QDialog::exec);
-    //dialog.exec();
 
     return app.exec();
 }

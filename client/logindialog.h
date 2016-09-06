@@ -21,12 +21,11 @@
 #define LOGINDIALOG_H
 
 #include <QtWidgets/QDialog>
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QLabel>
-#include <QtWidgets/QVBoxLayout>
-#include <QtWidgets/QHBoxLayout>
 
+class QLineEdit;
+class QPushButton;
+class QLabel;
+class QCheckBox;
 class QuaternionConnection;
 
 class LoginDialog : public QDialog
@@ -36,11 +35,7 @@ class LoginDialog : public QDialog
         LoginDialog(QWidget* parent = nullptr);
 
         QuaternionConnection* connection() const;
-        void setDisabled(bool state);
-        void setConnection(QuaternionConnection* connection);
-
-    signals:
-        void connectionChanged(QuaternionConnection* connection);
+        bool keepLoggedIn() const;
 
     private slots:
         void login();
@@ -52,8 +47,11 @@ class LoginDialog : public QDialog
         QLineEdit* passwordEdit;
         QPushButton* loginButton;
         QLabel* sessionLabel;
+        QCheckBox* saveTokenCheck;
         
         QuaternionConnection* m_connection;
+
+        void setConnection(QuaternionConnection* connection);
 };
 
 #endif // LOGINDIALOG_H
