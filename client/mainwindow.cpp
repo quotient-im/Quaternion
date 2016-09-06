@@ -33,6 +33,7 @@
 #include "chatroomwidget.h"
 #include "logindialog.h"
 #include "systemtray.h"
+#include "settings.h"
 
 MainWindow::MainWindow()
 {
@@ -63,39 +64,124 @@ void MainWindow::enableDebug()
 
 void MainWindow::initialize()
 {
-    menuBar = new QMenuBar();
-    connectionMenu = new QMenu(tr("&Connection"));
-    menuBar->addMenu(connectionMenu);
-    roomMenu = new QMenu(tr("&Room"));
-    menuBar->addMenu(roomMenu);
+    auto menuBar = new QMenuBar();
+    { // Connection menu
+        auto connectionMenu = menuBar->addMenu(tr("&Connection"));
 
-    quitAction = new QAction(tr("&Quit"), this);
-    quitAction->setShortcut(QKeySequence(QKeySequence::Quit));
-    connect( quitAction, &QAction::triggered, qApp, &QApplication::quit );
-    connectionMenu->addAction(quitAction);
+        loginAction = connectionMenu->addAction(tr("&Login..."));
+        connect( loginAction, &QAction::triggered, this, &MainWindow::showLoginWindow );
 
-    joinRoomAction = new QAction(tr("&Join Room..."), this);
-    connect( joinRoomAction, &QAction::triggered, this, &MainWindow::showJoinRoomDialog );
-    roomMenu->addAction(joinRoomAction);
+        logoutAction = connectionMenu->addAction(tr("&Logout"));
+        connect( logoutAction, &QAction::triggered, this, &MainWindow::logout );
+
+        connectionMenu->addSeparator();
+
+        auto quitAction = connectionMenu->addAction(tr("&Quit"));
+        quitAction->setShortcut(QKeySequence::Quit);
+        connect( quitAction, &QAction::triggered, qApp, &QApplication::quit );
+    }
+    { // Room menu
+        auto roomMenu = menuBar->addMenu(tr("&Room"));
+
+        auto joinRoomAction = roomMenu->addAction(tr("&Join Room..."));
+        connect( joinRoomAction, &QAction::triggered, this, &MainWindow::showJoinRoomDialog );
+    }
 
     setMenuBar(menuBar);
+    invokeLogin();
+}
 
-    LoginDialog dialog(this);
-    connect(&dialog, &LoginDialog::connectionChanged, [=](QuaternionConnection* connection){
+void MainWindow::setConnection(QuaternionConnection* newConnection)
+{
+    if (connection)
+    {
+        chatRoomWidget->setConnection(nullptr);
+        userListDock->setConnection(nullptr);
+        roomListDock->setConnection(nullptr);
+        systemTray->setConnection(nullptr);
+
+        connection->disconnectFromServer();
+        connection->disconnect(); // Disconnect everybody from all connection's signals
+        connection->deleteLater();
+    }
+
+    connection = newConnection;
+    loginAction->setEnabled(connection == nullptr); // Don't support multiple accounts yet
+    logoutAction->setEnabled(connection != nullptr);
+
+    if (connection)
+    {
         chatRoomWidget->setConnection(connection);
         userListDock->setConnection(connection);
         roomListDock->setConnection(connection);
         systemTray->setConnection(connection);
-        connect( connection, &QMatrixClient::Connection::connectionError, this, &MainWindow::connectionError );
-        connect( connection, &QMatrixClient::Connection::syncDone, this, &MainWindow::gotEvents );
-        connect( connection, &QMatrixClient::Connection::reconnected, this, &MainWindow::getNewEvents );
-    });
 
+        using QMatrixClient::Connection;
+        connect( connection, &Connection::connectionError, this, &MainWindow::connectionError );
+        connect( connection, &Connection::syncDone, this, &MainWindow::gotEvents );
+        connect( connection, &Connection::connected, this, &MainWindow::getNewEvents );
+        connect( connection, &Connection::reconnected, this, &MainWindow::getNewEvents );
+        connect( connection, &Connection::loginError, this, &MainWindow::loggedOut);
+        connect( connection, &Connection::loggedOut, this, &MainWindow::loggedOut);
+    }
+}
+
+void MainWindow::showLoginWindow()
+{
+    LoginDialog dialog(this);
     if( dialog.exec() )
     {
-        connection = dialog.connection();
-        connection->sync();
+        setConnection(dialog.connection());
+
+        QMatrixClient::AccountSettings account(connection->userId());
+        account.setKeepLoggedIn(dialog.keepLoggedIn());
+        if (dialog.keepLoggedIn())
+        {
+            account.setHomeserver(connection->homeserver());
+            account.setAccessToken(connection->accessToken());
+        }
+        account.sync();
+
+        getNewEvents();
     }
+}
+
+void MainWindow::invokeLogin()
+{
+    using namespace QMatrixClient;
+    SettingsGroup settings("Accounts");
+    for(auto accountId: settings.childGroups())
+    {
+        AccountSettings account { accountId };
+        if (!account.accessToken().isEmpty())
+        {
+            // TODO: Support multiple accounts
+            // Right now the code just finds the first configured account,
+            // rather than connects all available.
+            setConnection(new QuaternionConnection(account.homeserver()));
+            connection->connectWithToken(account.userId(), account.accessToken());
+            return;
+        }
+    }
+    // No accounts to automatically log into
+    showLoginWindow();
+}
+
+void MainWindow::logout()
+{
+    QMatrixClient::AccountSettings account { connection->userId() };
+    account.clearAccessToken();
+    account.sync();
+
+    connection->logout();
+}
+
+void MainWindow::loggedOut()
+{
+    loginAction->setEnabled(true);
+    logoutAction->setEnabled(false);
+    setConnection(nullptr);
+    loginAction->trigger();
 }
 
 void MainWindow::getNewEvents()
@@ -119,8 +205,7 @@ void MainWindow::connectionError(QString error)
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-    if (connection)
-        connection->disconnect( this ); // Disconnects all signals, not the connection itself
+    setConnection(nullptr);
 
     event->accept();
 }
