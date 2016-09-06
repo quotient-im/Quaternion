@@ -84,9 +84,6 @@ endif ( CMAKE_VERSION VERSION_LESS "3.1" )
 
 target_link_libraries(quaternion qmatrixclient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
 
-if (WIN32)
-    set(CMAKE_INSTALL_PREFIX ".") # Relative to build dir
-endif()
 install(TARGETS quaternion
         RUNTIME DESTINATION bin)
 if(LINUX)
