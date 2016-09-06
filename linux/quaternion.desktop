@@ -5,5 +5,6 @@ Comment=IM client for the Matrix protocol
 Comment[de]=IM Client für das Matrix Protokoll
 Exec=quaternion
 Terminal=false
+Icon=quaternion
 Type=Application
 Categories=Network;InstantMessaging;

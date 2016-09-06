@@ -5,6 +5,7 @@ enable_language(CXX)
 
 include(CheckCXXCompilerFlag)
 include(GNUInstallDirs)
+include(cmake/ECMInstallIcons.cmake)
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -90,4 +91,8 @@ if(LINUX)
     install(FILES linux/quaternion.desktop
             DESTINATION  ${CMAKE_INSTALL_DATADIR}/applications
             )
+    file(GLOB quaternion_icons icons/quaternion/*-apps-quaternion.png)
+    ecm_install_icons(ICONS ${quaternion_icons} icons/quaternion/sc-apps-quaternion.svgz
+                      DESTINATION ${CMAKE_INSTALL_DATADIR}/icons
+                      )
 endif(LINUX)
