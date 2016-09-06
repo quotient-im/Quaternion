@@ -18,17 +18,20 @@ init:
 
 before_build:
   - git submodule update --init --recursive
-  - cmake -G "NMake Makefiles JOM" -H. -Bbuild -DCMAKE_CXX_FLAGS="/EHsc /W3" -DCMAKE_BUILD_TYPE=MinSizeRel
+  - cmake -G "NMake Makefiles JOM" -H. -Bbuild -DCMAKE_CXX_FLAGS="/EHsc /W3" -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX="%DEPLOY_DIR%" -DCMAKE_INSTALL_BINDIR="."
 
 build_script:
   - cmake --build build
 
 after_build:
-  - md "%DEPLOY_DIR%"
-  - copy build\quaternion.exe "%DEPLOY_DIR%"
+  - cmake --build build --target install
   - windeployqt --dir "%DEPLOY_DIR%" --release --no-system-d3d-compiler --no-opengl --no-multimedia --no-multimediaquick --no-declarative --no-test --qmldir "%QTDIR%\qml" "%DEPLOY_DIR%\quaternion.exe"
 
   - 7z a quaternion.zip "%DEPLOY_DIR%\"
+
+# Uncomment this to connect to the AppVeyor build worker
+#on_finish:
+#  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 test: off
 
