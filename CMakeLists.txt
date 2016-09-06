@@ -85,7 +85,7 @@ endif ( CMAKE_VERSION VERSION_LESS "3.1" )
 target_link_libraries(quaternion qmatrixclient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
 
 install(TARGETS quaternion
-        RUNTIME DESTINATION bin)
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 if(LINUX)
     install(FILES linux/quaternion.desktop
             DESTINATION  ${CMAKE_INSTALL_DATADIR}/applications
