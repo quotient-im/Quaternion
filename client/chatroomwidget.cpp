@@ -119,6 +119,7 @@ void ChatRoomWidget::setRoom(QMatrixClient::Room* room)
 
 void ChatRoomWidget::setConnection(QMatrixClient::Connection* connection)
 {
+    setRoom(nullptr);
     m_currentConnection = connection;
     m_imageProvider->setConnection(connection);
     m_messageModel->setConnection(connection);

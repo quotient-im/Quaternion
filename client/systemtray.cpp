@@ -36,7 +36,7 @@ void SystemTray::setConnection(QMatrixClient::Connection* connection)
 {
     if( m_connection )
     {
-        disconnect(m_connection, &QMatrixClient::Connection::newRoom, this, &SystemTray::newRoom);
+        m_connection->disconnect(this);
     }
     m_connection = connection;
     if( m_connection )
