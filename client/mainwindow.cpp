@@ -73,6 +73,7 @@ void MainWindow::initialize()
 
         logoutAction = connectionMenu->addAction(tr("&Logout"));
         connect( logoutAction, &QAction::triggered, this, &MainWindow::logout );
+        logoutAction->setEnabled(false); // we start in a logged out state
 
         connectionMenu->addSeparator();
 
@@ -169,6 +170,9 @@ void MainWindow::invokeLogin()
 
 void MainWindow::logout()
 {
+    if( !connection )
+        return; // already logged out
+
     QMatrixClient::AccountSettings account { connection->userId() };
     account.clearAccessToken();
     account.sync();
