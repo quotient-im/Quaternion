@@ -73,7 +73,10 @@ class MainWindow: public QMainWindow
 
         SystemTray* systemTray;
 
+        void createMenu();
         void invokeLogin();
+        void loadSettings();
+        void saveSettings() const;
 };
 
 #endif // MAINWINDOW_H
