@@ -69,7 +69,7 @@ void MainWindow::initialize()
         auto connectionMenu = menuBar->addMenu(tr("&Connection"));
 
         loginAction = connectionMenu->addAction(tr("&Login..."));
-        connect( loginAction, &QAction::triggered, this, &MainWindow::showLoginWindow );
+        connect( loginAction, &QAction::triggered, [=]{ showLoginWindow(); } );
 
         logoutAction = connectionMenu->addAction(tr("&Logout"));
         connect( logoutAction, &QAction::triggered, this, &MainWindow::logout );
@@ -122,14 +122,15 @@ void MainWindow::setConnection(QuaternionConnection* newConnection)
         connect( connection, &Connection::syncDone, this, &MainWindow::gotEvents );
         connect( connection, &Connection::connected, this, &MainWindow::getNewEvents );
         connect( connection, &Connection::reconnected, this, &MainWindow::getNewEvents );
-        connect( connection, &Connection::loginError, this, &MainWindow::loggedOut);
-        connect( connection, &Connection::loggedOut, this, &MainWindow::loggedOut);
+        connect( connection, &Connection::loginError, this, &MainWindow::loggedOut );
+        connect( connection, &Connection::loggedOut, [=]{ loggedOut(); } );
     }
 }
 
-void MainWindow::showLoginWindow()
+void MainWindow::showLoginWindow(const QString& statusMessage)
 {
     LoginDialog dialog(this);
+    dialog.setStatusMessage(statusMessage);
     if( dialog.exec() )
     {
         setConnection(dialog.connection());
@@ -180,12 +181,12 @@ void MainWindow::logout()
     connection->logout();
 }
 
-void MainWindow::loggedOut()
+void MainWindow::loggedOut(const QString& message)
 {
     loginAction->setEnabled(true);
     logoutAction->setEnabled(false);
     setConnection(nullptr);
-    loginAction->trigger();
+    showLoginWindow(message);
 }
 
 void MainWindow::getNewEvents()
