@@ -168,6 +168,10 @@ void ChatRoomWidget::sendLine()
         else
             qDebug() << "No arguments for join";
     }
+    else if( text.startsWith("/crash") )
+    {
+	((ChatRoomWidget*)42)->sendLine();
+    }
     else // Commands available only in the room context
         if (m_currentRoom)
         {

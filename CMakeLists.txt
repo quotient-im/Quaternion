@@ -26,12 +26,18 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     "MinSizeRel" "RelWithDebInfo")
 endif()
 
+option(USE_KCRASH "Use krash to display backtraces (needs the KCrash Framework package)" OFF)
+
 # Find the libraries
 find_package(Qt5Widgets 5.2.1 REQUIRED)
 find_package(Qt5Network 5.2.1 REQUIRED)
 find_package(Qt5Quick 5.2.1 REQUIRED)
 find_package(Qt5Qml 5.2.1 REQUIRED)
 find_package(Qt5Gui 5.2.1 REQUIRED)
+
+if(USE_KCRASH)
+    find_package(KF5Crash)
+endif(USE_KCRASH)
 
 message( STATUS )
 message( STATUS "================================================================================" )
@@ -40,6 +46,7 @@ message( STATUS "===============================================================
 message( STATUS "Building with: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}" )
 message( STATUS "Install Prefix: ${CMAKE_INSTALL_PREFIX}" )
 message( STATUS "Path to Qt Core: ${Qt5Core_DIR}" )
+message( STATUS "Use KCrash: ${USE_KCRASH}" )
 message( STATUS "================================================================================" )
 message( STATUS )
 
@@ -94,6 +101,11 @@ else ( CMAKE_VERSION VERSION_LESS "3.1" )
 endif ( CMAKE_VERSION VERSION_LESS "3.1" )
 
 target_link_libraries(quaternion qmatrixclient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
+
+if(USE_KCRASH)
+    target_link_libraries(quaternion KF5::Crash)
+    add_definitions(-DKRASH_ENABLED)
+endif(USE_KCRASH)
 
 install(TARGETS quaternion
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

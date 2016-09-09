@@ -22,6 +22,10 @@
 #include <QtCore/QCommandLineOption>
 #include <QtCore/QDebug>
 
+#ifdef KCRASH_ENABLED
+    #include <KCrash>
+#endif // KCRASH_ENABLED
+
 #include "mainwindow.h"
 
 int main( int argc, char* argv[] )
@@ -31,6 +35,10 @@ int main( int argc, char* argv[] )
     QApplication::setApplicationName("quaternion");
     QApplication::setApplicationDisplayName("Quaternion");
     QApplication::setApplicationVersion("0.0");
+
+#ifdef KCRASH_ENABLED
+    KCrash::initialize();
+#endif //KCRASH_ENABLED
 
     QObject::connect(&app, &QApplication::lastWindowClosed, []{
         qDebug() << "Last window closed!";
