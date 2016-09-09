@@ -75,7 +75,7 @@ void MainWindow::createMenu()
 
     auto quitAction = connectionMenu->addAction(tr("&Quit"));
     quitAction->setShortcut(QKeySequence::Quit);
-    connect( quitAction, &QAction::triggered, qApp, &QApplication::quit );
+    connect( quitAction, &QAction::triggered, qApp, &QApplication::closeAllWindows );
 
     // Room menu
     auto roomMenu = menuBar()->addMenu(tr("&Room"));
