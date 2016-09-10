@@ -27,11 +27,11 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Find the libraries
-find_package(Qt5Widgets 5.2.1)
-find_package(Qt5Network 5.2.1)
-find_package(Qt5Quick 5.2.1)
-find_package(Qt5Qml 5.2.1)
-find_package(Qt5Gui 5.2.1)
+find_package(Qt5Widgets 5.2.1 REQUIRED)
+find_package(Qt5Network 5.2.1 REQUIRED)
+find_package(Qt5Quick 5.2.1 REQUIRED)
+find_package(Qt5Qml 5.2.1 REQUIRED)
+find_package(Qt5Gui 5.2.1 REQUIRED)
 
 message( STATUS )
 message( STATUS "================================================================================" )
