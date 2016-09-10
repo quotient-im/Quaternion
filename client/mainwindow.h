@@ -35,6 +35,7 @@ class QAction;
 class QMenu;
 class QMenuBar;
 class QSystemTrayIcon;
+class QProgressBar;
 
 class MainWindow: public QMainWindow
 {
@@ -67,6 +68,8 @@ class MainWindow: public QMainWindow
         UserListDock* userListDock;
         ChatRoomWidget* chatRoomWidget;
         QuaternionConnection* connection;
+
+        QProgressBar* progressBar;
 
         QAction* loginAction;
         QAction* logoutAction;

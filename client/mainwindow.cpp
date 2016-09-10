@@ -26,6 +26,8 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QInputDialog>
+#include <QtWidgets/QProgressBar>
+#include <QtWidgets/QStatusBar>
 
 #include "quaternionconnection.h"
 #include "quaternionroom.h"
@@ -50,8 +52,10 @@ MainWindow::MainWindow()
     connect( roomListDock, &RoomListDock::roomSelected, chatRoomWidget, &ChatRoomWidget::setRoom );
     connect( roomListDock, &RoomListDock::roomSelected, userListDock, &UserListDock::setRoom );
     systemTray = new SystemTray(this);
+    systemTray->show();
     createMenu();
     loadSettings();
+    statusBar(); // Make sure it is displayed from the start
     show();
     systemTray->show();
     QTimer::singleShot(0, this, SLOT(initialize()));
@@ -113,6 +117,10 @@ void MainWindow::enableDebug()
 
 void MainWindow::initialize()
 {
+    progressBar = new QProgressBar(this);
+    progressBar->setMinimum(0);
+    progressBar->setMaximum(0);
+
     invokeLogin();
 }
 
@@ -215,13 +223,21 @@ void MainWindow::loggedOut(const QString& message)
 
 void MainWindow::getNewEvents()
 {
-    //qDebug() << "getNewEvents";
+    if( progressBar ) // only for the first sync
+    {
+        statusBar()->addWidget(progressBar);
+    }
+
     connection->sync(30*1000);
 }
 
 void MainWindow::gotEvents()
 {
-    // qDebug() << "newEvents";
+    if( progressBar )
+    {
+        statusBar()->removeWidget(progressBar);
+        progressBar = nullptr;
+    }
     getNewEvents();
 }
 
