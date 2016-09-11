@@ -1,6 +1,9 @@
 # Quaternion
 Quaternion is a cross-platform desktop IM client for the [Matrix](https://matrix.org) protocol in development.
 
+## Version 0.0.1 out now!
+The release (including binaries for Windows) can be found [here](https://github.com/Fxrh/Quaternion/releases/tag/v0.0.1).
+
 ## Pre-requisites
 - a Linux, MacOS or Windows system (desktop versions tried; mobile Linux/Windows might work too)
 - a Git client (to check out this repo)
