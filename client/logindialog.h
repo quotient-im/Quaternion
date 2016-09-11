@@ -34,6 +34,7 @@ class LoginDialog : public QDialog
     public:
         LoginDialog(QWidget* parent = nullptr);
 
+        void setStatusMessage(const QString& msg);
         QuaternionConnection* connection() const;
         bool keepLoggedIn() const;
 
@@ -46,7 +47,7 @@ class LoginDialog : public QDialog
         QLineEdit* userEdit;
         QLineEdit* passwordEdit;
         QPushButton* loginButton;
-        QLabel* sessionLabel;
+        QLabel* statusLabel;
         QCheckBox* saveTokenCheck;
         
         QuaternionConnection* m_connection;

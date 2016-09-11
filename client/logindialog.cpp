@@ -40,7 +40,7 @@ LoginDialog::LoginDialog(QWidget* parent)
     passwordEdit = new QLineEdit();
     passwordEdit->setEchoMode( QLineEdit::Password );
     saveTokenCheck = new QCheckBox("Stay logged in");
-    sessionLabel = new QLabel();
+    statusLabel = new QLabel("Welcome to Quaternion");
     loginButton = new QPushButton("Login");
 
     QFormLayout* formLayout = new QFormLayout();
@@ -52,7 +52,7 @@ LoginDialog::LoginDialog(QWidget* parent)
     QVBoxLayout* mainLayout = new QVBoxLayout();
     mainLayout->addLayout(formLayout);
     mainLayout->addWidget(loginButton);
-    mainLayout->addWidget(sessionLabel);
+    mainLayout->addWidget(statusLabel);
     
     setLayout(mainLayout);
 
@@ -94,6 +94,11 @@ LoginDialog::LoginDialog(QWidget* parent)
     connect( loginButton, &QPushButton::clicked, this, &LoginDialog::login );
 }
 
+void LoginDialog::setStatusMessage(const QString& msg)
+{
+    statusLabel->setText(msg);
+}
+
 QuaternionConnection* LoginDialog::connection() const
 {
     return m_connection;
@@ -106,7 +111,7 @@ bool LoginDialog::keepLoggedIn() const
 
 void LoginDialog::login()
 {
-    sessionLabel->setText("Connecting and logging in, please wait");
+    setStatusMessage("Connecting and logging in, please wait");
     setDisabled(true);
     QUrl url = QUrl::fromUserInput(serverEdit->text());
     QString user = userEdit->text();
@@ -121,7 +126,7 @@ void LoginDialog::login()
 
 void LoginDialog::error(QString error)
 {
-    sessionLabel->setText( error );
+    setStatusMessage( error );
     setConnection(nullptr);
     setDisabled(false);
 }

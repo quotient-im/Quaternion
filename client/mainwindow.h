@@ -54,12 +54,12 @@ class MainWindow: public QMainWindow
         void initialize();
         void getNewEvents();
         void gotEvents();
-        void loggedOut();
+        void loggedOut(const QString& message = QString());
 
         void connectionError(QString error);
 
         void showJoinRoomDialog();
-        void showLoginWindow();
+        void showLoginWindow(const QString& statusMessage = QString());
         void logout();
 
     private:
