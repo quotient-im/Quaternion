@@ -46,6 +46,9 @@ class ChatRoomWidget: public QWidget
 
         void enableDebug();
 
+    signals:
+        void joinRoomNeedsInteraction();
+
     public slots:
         void setRoom(QMatrixClient::Room* room);
         void setConnection(QMatrixClient::Connection* connection);
