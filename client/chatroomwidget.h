@@ -50,7 +50,7 @@ class ChatRoomWidget: public QWidget
         void joinRoomNeedsInteraction();
 
     public slots:
-        void setRoom(QMatrixClient::Room* room);
+        void setRoom(QuaternionRoom* room);
         void setConnection(QMatrixClient::Connection* connection);
         void topicChanged();
         void typingChanged();

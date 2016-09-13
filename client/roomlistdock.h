@@ -28,6 +28,7 @@
 #include "lib/connection.h"
 
 class RoomListModel;
+class QuaternionRoom;
 
 class RoomListDock : public QDockWidget
 {
@@ -39,7 +40,7 @@ class RoomListDock : public QDockWidget
         void setConnection( QMatrixClient::Connection* connection );
 
     signals:
-        void roomSelected(QMatrixClient::Room* room);
+        void roomSelected(QuaternionRoom* room);
 
     private slots:
         void rowSelected(const QModelIndex& index);

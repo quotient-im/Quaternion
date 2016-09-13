@@ -95,14 +95,14 @@ void ChatRoomWidget::enableDebug()
     ctxt->setContextProperty("debug", true);
 }
 
-void ChatRoomWidget::setRoom(QMatrixClient::Room* room)
+void ChatRoomWidget::setRoom(QuaternionRoom* room)
 {
     if( m_currentRoom )
     {
         m_currentRoom->disconnect( this );
         m_currentRoom->setShown(false);
     }
-    m_currentRoom = static_cast<QuaternionRoom*>(room);
+    m_currentRoom = room;
     if( m_currentRoom )
     {
         connect( m_currentRoom, &QMatrixClient::Room::typingChanged, this, &ChatRoomWidget::typingChanged );
@@ -111,7 +111,7 @@ void ChatRoomWidget::setRoom(QMatrixClient::Room* room)
         topicChanged();
         typingChanged();
     }
-    m_messageModel->changeRoom( room );
+    m_messageModel->changeRoom( m_currentRoom );
     //m_messageView->scrollToBottom();
     QObject* rootItem = m_quickView->rootObject();
     QMetaObject::invokeMethod(rootItem, "scrollToBottom");

@@ -28,6 +28,7 @@
 #include <QtWidgets/QInputDialog>
 
 #include "quaternionconnection.h"
+#include "quaternionroom.h"
 #include "roomlistdock.h"
 #include "userlistdock.h"
 #include "chatroomwidget.h"

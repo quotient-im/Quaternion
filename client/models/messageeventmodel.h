@@ -20,6 +20,8 @@
 #ifndef LOGMESSAGEMODEL_H
 #define LOGMESSAGEMODEL_H
 
+#include "../quaternionroom.h"
+
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QModelIndex>
 
@@ -50,7 +52,7 @@ class MessageEventModel: public QAbstractListModel
         virtual ~MessageEventModel();
 
         void setConnection(QMatrixClient::Connection* connection);
-        void changeRoom(QMatrixClient::Room* room);
+        void changeRoom(QuaternionRoom* room);
 
         //override QModelIndex index(int row, int column, const QModelIndex& parent=QModelIndex()) const;
         //override QModelIndex parent(const QModelIndex& index) const;
