@@ -36,10 +36,9 @@
 
 MessageEventModel::MessageEventModel(QObject* parent)
     : QAbstractListModel(parent)
-{
-    m_currentRoom = nullptr;
-    m_connection = nullptr;
-}
+    , m_connection(nullptr)
+    , m_currentRoom(nullptr)
+{ }
 
 MessageEventModel::~MessageEventModel()
 {
@@ -54,13 +53,20 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
     m_currentRoom = room;
     if( room )
     {
-        m_currentMessages = m_currentRoom->messages();
-        connect( m_currentRoom, &QuaternionRoom::newMessage, this, &MessageEventModel::newMessage );
+        connect(m_currentRoom, &QuaternionRoom::aboutToAddNewMessages,
+                [=](const QMatrixClient::Events& events)
+                {
+                    beginInsertRows(QModelIndex(),
+                                    rowCount(), rowCount() + events.size() - 1);
+                });
+        connect(m_currentRoom, &QuaternionRoom::aboutToAddHistoricalMessages,
+                [=](const QMatrixClient::Events& events)
+                {
+                    beginInsertRows(QModelIndex(), 0, events.size() - 1);
+                });
+        connect(m_currentRoom, &QuaternionRoom::addedMessages,
+                this, &MessageEventModel::endInsertRows);
         qDebug() << "connected" << room;
-    }
-    else
-    {
-        m_currentMessages.clear();
     }
     endResetModel();
 }
@@ -70,34 +76,21 @@ void MessageEventModel::setConnection(QMatrixClient::Connection* connection)
     m_connection = connection;
 }
 
-// QModelIndex LogMessageModel::index(int row, int column, const QModelIndex& parent) const
-// {
-//     if( parent.isValid() )
-//         return QModelIndex();
-//     if( row < 0 || row >= m_currentMessages.count() )
-//         return QModelIndex();
-//     return createIndex(row, column, m_currentMessages.at(row));
-// }
-//
-// LogMessageModel::parent(const QModelIndex& index) const
-// {
-//     return QModelIndex();
-// }
-
 int MessageEventModel::rowCount(const QModelIndex& parent) const
 {
-    if( parent.isValid() )
+    if( !m_currentRoom || parent.isValid() )
         return 0;
-    return m_currentMessages.count();
+    return m_currentRoom->messages().count();
 }
 
 QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 {
     using namespace QMatrixClient;
-    if( index.row() < 0 || index.row() >= m_currentMessages.count() || !m_connection )
+    if( !m_connection || !m_currentRoom ||
+            index.row() < 0 || index.row() >= m_currentRoom->messages().count())
         return QVariant();
 
-    Message* message = m_currentMessages.at(index.row());;
+    const Message* message = m_currentRoom->messages().at(index.row());;
     Event* event = message->messageEvent();
 
     if( role == Qt::DisplayRole )
@@ -266,11 +259,6 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     {
         return message->highlight();
     }
-//     if( event->type() == EventType::Unknown )
-//     {
-//         UnknownEvent* e = static_cast<UnknownEvent*>(event);
-//         return "Unknown Event: " + e->typeString() + "(" + e->content();
-//     }
     return QVariant();
 }
 
@@ -285,18 +273,4 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
     roles[ContentTypeRole] = "contentType";
     roles[HighlightRole] = "highlight";
     return roles;
-}
-
-void MessageEventModel::newMessage(Message* message)
-{
-    //qDebug() << "Message: " << message;
-    if( message->messageEvent()->type() == QMatrixClient::EventType::Typing )
-    {
-        return;
-    }
-    auto pos = std::distance(m_currentMessages.begin(),
-            QMatrixClient::findInsertionPos(m_currentMessages, message));
-    beginInsertRows(QModelIndex(), pos, pos);
-    m_currentMessages.insert(pos, message);
-    endInsertRows();
 }
