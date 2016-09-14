@@ -39,7 +39,7 @@ class QuaternionRoom: public QMatrixClient::Room
         void setShown(bool shown);
         bool isShown();
 
-        Timeline messages() const;
+        const Timeline& messages() const;
 
         bool hasUnreadMessages();
 
