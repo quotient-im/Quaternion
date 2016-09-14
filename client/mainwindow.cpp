@@ -120,6 +120,9 @@ void MainWindow::initialize()
     progressBar = new QProgressBar(this);
     progressBar->setMinimum(0);
     progressBar->setMaximum(0);
+    progressBar->setMaximumWidth(300); // too big looks ugly
+    progressBar->hide();
+    statusBar()->addPermanentWidget(progressBar);
 
     invokeLogin();
 }
@@ -152,7 +155,7 @@ void MainWindow::setConnection(QuaternionConnection* newConnection)
         using QMatrixClient::Connection;
         connect( connection, &Connection::connectionError, this, &MainWindow::connectionError );
         connect( connection, &Connection::syncDone, this, &MainWindow::gotEvents );
-        connect( connection, &Connection::connected, this, &MainWindow::getNewEvents );
+        connect( connection, &Connection::connected, this, &MainWindow::initialSync );
         connect( connection, &Connection::reconnected, this, &MainWindow::getNewEvents );
         connect( connection, &Connection::loginError, this, &MainWindow::loggedOut );
         connect( connection, &Connection::loggedOut, [=]{ loggedOut(); } );
@@ -176,7 +179,7 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
         }
         account.sync();
 
-        getNewEvents();
+        initialSync();
     }
 }
 
@@ -221,23 +224,22 @@ void MainWindow::loggedOut(const QString& message)
     showLoginWindow(message);
 }
 
+void MainWindow::initialSync()
+{
+    progressBar->show();
+    statusBar()->showMessage("Syncing, please wait...");
+    getNewEvents();
+}
+
 void MainWindow::getNewEvents()
 {
-    if( progressBar ) // only for the first sync
-    {
-        statusBar()->addWidget(progressBar);
-    }
-
     connection->sync(30*1000);
 }
 
 void MainWindow::gotEvents()
 {
-    if( progressBar )
-    {
-        statusBar()->removeWidget(progressBar);
-        progressBar = nullptr;
-    }
+    progressBar->hide();
+    statusBar()->clearMessage();
     getNewEvents();
 }
 

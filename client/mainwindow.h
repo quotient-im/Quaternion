@@ -53,6 +53,7 @@ class MainWindow: public QMainWindow
 
     private slots:
         void initialize();
+        void initialSync();
         void getNewEvents();
         void gotEvents();
         void loggedOut(const QString& message = QString());
