@@ -59,7 +59,7 @@ bool QuaternionRoom::isShown()
     return m_shown;
 }
 
-QList<Message*> QuaternionRoom::messages() const
+const QuaternionRoom::Timeline& QuaternionRoom::messages() const
 {
     return m_messages;
 }

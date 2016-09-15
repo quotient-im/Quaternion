@@ -28,6 +28,8 @@ class QuaternionRoom: public QMatrixClient::Room
 {
         Q_OBJECT
     public:
+        using Timeline = QList<Message*>;
+
         QuaternionRoom(QMatrixClient::Connection* connection, QString roomId);
 
         /**
@@ -37,7 +39,7 @@ class QuaternionRoom: public QMatrixClient::Room
         void setShown(bool shown);
         bool isShown();
 
-        QList<Message*> messages() const;
+        const Timeline& messages() const;
 
         bool hasUnreadMessages();
 
@@ -53,7 +55,7 @@ class QuaternionRoom: public QMatrixClient::Room
         void countChanged();
 
     private:
-        QList<Message*> m_messages;
+        Timeline m_messages;
         bool m_shown;
         bool m_unreadMessages;
 };

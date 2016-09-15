@@ -45,22 +45,21 @@ MessageEventModel::~MessageEventModel()
 {
 }
 
-void MessageEventModel::changeRoom(QMatrixClient::Room* room)
+void MessageEventModel::changeRoom(QuaternionRoom* room)
 {
     beginResetModel();
     if( m_currentRoom )
         m_currentRoom->disconnect( this );
 
+    m_currentRoom = room;
     if( room )
     {
-        m_currentRoom = static_cast<QuaternionRoom*>(room);
         m_currentMessages = m_currentRoom->messages();
         connect( m_currentRoom, &QuaternionRoom::newMessage, this, &MessageEventModel::newMessage );
         qDebug() << "connected" << room;
     }
     else
     {
-        m_currentRoom = nullptr;
         m_currentMessages.clear();
     }
     endResetModel();

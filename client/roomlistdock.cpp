@@ -27,8 +27,9 @@
 
 RoomListDock::RoomListDock(QWidget* parent)
     : QDockWidget("Rooms", parent)
+    , connection(nullptr)
 {
-    connection = nullptr;
+    setObjectName("RoomsDock");
     //setWidget(new QWidget());
     model = new RoomListModel(this);
     view = new QListView();

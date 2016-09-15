@@ -28,6 +28,7 @@
 #include <QtWidgets/QInputDialog>
 
 #include "quaternionconnection.h"
+#include "quaternionroom.h"
 #include "roomlistdock.h"
 #include "userlistdock.h"
 #include "chatroomwidget.h"
@@ -45,6 +46,7 @@ MainWindow::MainWindow()
     addDockWidget(Qt::RightDockWidgetArea, userListDock);
     chatRoomWidget = new ChatRoomWidget(this);
     setCentralWidget(chatRoomWidget);
+    connect( chatRoomWidget, &ChatRoomWidget::joinRoomNeedsInteraction, this, &MainWindow::showJoinRoomDialog);
     connect( roomListDock, &RoomListDock::roomSelected, chatRoomWidget, &ChatRoomWidget::setRoom );
     connect( roomListDock, &RoomListDock::roomSelected, userListDock, &UserListDock::setRoom );
     systemTray = new SystemTray(this);
