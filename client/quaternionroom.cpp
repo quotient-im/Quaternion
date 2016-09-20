@@ -69,21 +69,22 @@ bool QuaternionRoom::hasUnreadMessages()
     return m_unreadMessages;
 }
 
-void QuaternionRoom::processMessageEvent(QMatrixClient::Event* event)
+inline Message* QuaternionRoom::makeMessage(QMatrixClient::Event* e)
 {
-    bool isNewest = messageEvents().empty() || event->timestamp() > messageEvents().last()->timestamp();
-    QMatrixClient::Room::processMessageEvent(event);
+    return new Message(connection(), e, this);
+}
 
-    Message* message = new Message(connection(), event, this);
-    m_messages.insert(QMatrixClient::findInsertionPos(m_messages, message), message);
+void QuaternionRoom::doAddNewMessageEvents(const QMatrixClient::Events& events)
+{
+    Room::doAddNewMessageEvents(events);
 
-    emit newMessage(message);
+    m_messages.reserve(m_messages.size() + events.size());
+    for (auto e: events)
+        m_messages.push_back(makeMessage(e));
 
-    if( !isNewest )
-        return;
     if( m_shown )
     {
-        markMessageAsRead(event);
+        markMessageAsRead(messageEvents().back());
     }
     else if( !m_unreadMessages )
     {
@@ -91,6 +92,15 @@ void QuaternionRoom::processMessageEvent(QMatrixClient::Event* event)
         emit unreadMessagesChanged(this);
         qDebug() << "Room" << displayName() << ": unread messages";
     }
+}
+
+void QuaternionRoom::doAddHistoricalMessageEvents(const QMatrixClient::Events& events)
+{
+    Room::doAddHistoricalMessageEvents(events);
+
+    m_messages.reserve(m_messages.size() + events.size());
+    for (auto e: events)
+        m_messages.push_front(makeMessage(e));
 }
 
 void QuaternionRoom::processEphemeralEvent(QMatrixClient::Event* event)

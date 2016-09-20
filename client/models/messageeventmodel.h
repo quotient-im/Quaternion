@@ -25,14 +25,7 @@
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QModelIndex>
 
-namespace QMatrixClient
-{
-    class Room;
-    class Connection;
-}
-
 class Message;
-class QuaternionRoom;
 
 class MessageEventModel: public QAbstractListModel
 {
@@ -56,17 +49,13 @@ class MessageEventModel: public QAbstractListModel
 
         //override QModelIndex index(int row, int column, const QModelIndex& parent=QModelIndex()) const;
         //override QModelIndex parent(const QModelIndex& index) const;
-        int rowCount(const QModelIndex& parent) const override;
+        int rowCount(const QModelIndex& parent = QModelIndex()) const override;
         QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
         QHash<int, QByteArray> roleNames() const override;
-
-    public slots:
-        void newMessage(Message* messageEvent);
 
     private:
         QMatrixClient::Connection* m_connection;
         QuaternionRoom* m_currentRoom;
-        QList<Message*> m_currentMessages;
 };
 
 #endif // LOGMESSAGEMODEL_H
