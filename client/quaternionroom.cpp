@@ -100,8 +100,7 @@ void QuaternionRoom::doAddHistoricalMessageEvents(const QMatrixClient::Events& e
 
     m_messages.reserve(m_messages.size() + events.size());
     for (auto e: events)
-        m_messages.push_back(makeMessage(e));
-    std::rotate(m_messages.begin(), m_messages.end() - events.size(), m_messages.end());
+        m_messages.push_front(makeMessage(e));
 }
 
 void QuaternionRoom::processEphemeralEvent(QMatrixClient::Event* event)
