@@ -24,7 +24,6 @@
 #include <QtWidgets/QListView>
 #include <QtCore/QStringListModel>
 
-#include "lib/room.h"
 #include "lib/connection.h"
 
 class RoomListModel;
