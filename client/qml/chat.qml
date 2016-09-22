@@ -5,6 +5,11 @@ import QtQuick.Layouts 1.1
 Rectangle {
     id: root
 
+    SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
+    SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
+
+    color: defaultPalette.base
+
     signal getPreviousContent()
 
     function scrollToBottom() {
@@ -50,7 +55,7 @@ Rectangle {
             delegate: Rectangle {
                 width:parent.width
                 height: childrenRect.height
-                color: "lightgrey"
+                color: defaultPalette.window
                 Label { text: section.toLocaleString("dd.MM.yyyy") }
             }
         }
@@ -102,29 +107,32 @@ Rectangle {
             width: parent.width
             spacing: 3
 
+            property string textColor:
+                    // FIXME: Doesn't play well with monochrome colour schemes
+                    if (highlight) { defaultPalette.highlight }
+                    else if (eventType == "state" || eventType == "other") { disabledPalette.text }
+//                    else if (eventType == "emote") { defaultPalette.highlight }
+                    else { defaultPalette.text }
+
             Label {
                 Layout.alignment: Qt.AlignTop
                 id: timelabel
                 text: "<" + time.toLocaleTimeString() + ">"
-                color: "grey"
+                color: disabledPalette.text
             }
             Label {
                 Layout.alignment: Qt.AlignTop | Qt.AlignLeft
                 Layout.preferredWidth: 120
                 elide: Text.ElideRight
-                text: eventType == "message" ||
-                      eventType == "image" ||
-                      eventType == "emote"
-                      ? author : "***"
-                horizontalAlignment: if( eventType == "other" || eventType == "emote" )
+                text: eventType == "state" || eventType == "emote" ? "* " + author :
+                      eventType != "other" ? author : "***"
+                horizontalAlignment: if( ["other", "emote", "state"]
+                                             .indexOf(eventType) >= 0 )
                                      { Text.AlignRight }
-                color: if( eventType == "other" ) { "darkgrey" }
-                       else if( eventType == "emote" ) { "darkblue" }
-                       else { "black" }
-
+                color: message.textColor
             }
             Rectangle {
-                color: highlight ? "orange" : "white"
+                color: defaultPalette.base
                 Layout.fillWidth: true
                 Layout.minimumHeight: childrenRect.height
                 Layout.alignment: Qt.AlignTop | Qt.AlignLeft
@@ -141,9 +149,7 @@ Rectangle {
                         text: eventType != "image" ? content : ""
                         height: eventType != "image" ? implicitHeight : 0
                         wrapMode: Text.Wrap; width: parent.width
-                        color: if( eventType == "other" ) { "darkgrey" }
-                               else if( eventType == "emote" ) { "darkblue" }
-                               else { "black" }
+                        color: message.textColor
 
                         MouseArea {
                             anchors.fill: parent

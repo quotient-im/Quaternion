@@ -40,7 +40,7 @@ Message::Message(QMatrixClient::Connection* connection,
         RoomMessageEvent* messageEvent = static_cast<RoomMessageEvent*>(event);
         User* localUser = m_connection->user();
         // Only highlight messages from other users
-        if (messageEvent->userId() != localUser->id())
+        if (messageEvent->senderId() != localUser->id())
         {
             if( messageEvent->body().contains(localUser->id()) )
             {
