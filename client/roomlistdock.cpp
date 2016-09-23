@@ -29,7 +29,9 @@
 class RoomListItemDelegate : public QStyledItemDelegate
 {
     public:
-        using QStyledItemDelegate::QStyledItemDelegate;
+        explicit RoomListItemDelegate(QObject* parent = nullptr)
+            : QStyledItemDelegate(parent)
+        { }
 
         void paint(QPainter *painter, const QStyleOptionViewItem &option,
                    const QModelIndex &index) const override;
