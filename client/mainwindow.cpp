@@ -26,8 +26,9 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QInputDialog>
-#include <QtWidgets/QProgressBar>
 #include <QtWidgets/QStatusBar>
+#include <QtWidgets/QLabel>
+#include <QtGui/QMovie>
 
 #include "quaternionconnection.h"
 #include "quaternionroom.h"
@@ -117,12 +118,12 @@ void MainWindow::enableDebug()
 
 void MainWindow::initialize()
 {
-    progressBar = new QProgressBar(this);
-    progressBar->setMinimum(0);
-    progressBar->setMaximum(0);
-    progressBar->setMaximumWidth(300); // too big looks ugly
-    progressBar->hide();
-    statusBar()->addPermanentWidget(progressBar);
+    busyIndicator = new QMovie(":/busy.gif");
+    busyLabel = new QLabel(this);
+    busyLabel->setMovie(busyIndicator);
+    busyLabel->hide();
+    statusBar()->setSizeGripEnabled(false);
+    statusBar()->addPermanentWidget(busyLabel);
 
     invokeLogin();
 }
@@ -226,7 +227,8 @@ void MainWindow::loggedOut(const QString& message)
 
 void MainWindow::initialSync()
 {
-    progressBar->show();
+    busyLabel->show();
+    busyIndicator->start();
     statusBar()->showMessage("Syncing, please wait...");
     getNewEvents();
 }
@@ -238,7 +240,8 @@ void MainWindow::getNewEvents()
 
 void MainWindow::gotEvents()
 {
-    progressBar->hide();
+    busyLabel->hide();
+    busyIndicator->stop();
     statusBar()->clearMessage();
     getNewEvents();
 }
