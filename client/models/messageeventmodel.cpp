@@ -20,6 +20,7 @@
 #include "messageeventmodel.h"
 
 #include <QtCore/QStringBuilder>
+#include <QtCore/QSettings>
 #include <QtCore/QDebug>
 
 #include "../message.h"
@@ -32,6 +33,7 @@
 #include "lib/events/roommemberevent.h"
 #include "lib/events/roomnameevent.h"
 #include "lib/events/roomaliasesevent.h"
+#include "lib/events/roomcanonicalaliasevent.h"
 #include "lib/events/roomtopicevent.h"
 #include "lib/events/unknownevent.h"
 
@@ -93,6 +95,8 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 
     const Message* message = m_currentRoom->messages().at(index.row());;
     Event* event = message->messageEvent();
+    // FIXME: Rewind to the name that was at the time of this event
+    QString senderName = m_currentRoom->roomMembername(event->senderId());
 
     if( role == Qt::DisplayRole )
     {
@@ -134,16 +138,26 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 
     if( role == EventTypeRole )
     {
-        if( event->type() == EventType::RoomMessage )
+        switch (event->type())
         {
-            auto msgType = static_cast<RoomMessageEvent*>(event)->msgtype();
-            if( msgType == MessageEventType::Image )
-                return "image";
-            else if( msgType == MessageEventType::Emote )
-                return "emote";
-            return "message";
+            case EventType::RoomMessage:
+            {
+                auto msgType = static_cast<RoomMessageEvent*>(event)->msgtype();
+                if( msgType == MessageEventType::Image )
+                    return "image";
+                else if( msgType == MessageEventType::Emote )
+                    return "emote";
+                return "message";
+            }
+            case EventType::RoomMember:
+            case EventType::RoomAliases:
+            case EventType::RoomCanonicalAlias:
+            case EventType::RoomName:
+            case EventType::RoomTopic:
+                return "state";
+            default:
+                return "other";
         }
-        return "other";
     }
 
     if( role == TimeRole )
@@ -158,12 +172,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 
     if( role == AuthorRole )
     {
-        if( event->type() == EventType::RoomMessage )
-        {
-            RoomMessageEvent* e = static_cast<RoomMessageEvent*>(event);
-            return m_currentRoom->roomMembername(e->userId());
-        }
-        return QVariant();
+        return senderName;
     }
 
     if (role == ContentTypeRole  || role == ContentRole)
@@ -228,36 +237,48 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         if( event->type() == EventType::RoomMember )
         {
             RoomMemberEvent* e = static_cast<RoomMemberEvent*>(event);
+            // FIXME: Rewind to the name that was at the time of this event
+            QString subjectName = m_currentRoom->roomMembername(e->userId());
+            // The below code assumes senderName output in AuthorRole
             switch( e->membership() )
             {
                 case MembershipType::Join:
-                    return QString("%1 (%2) joined the room").arg(e->displayName(), e->userId());
+                    return tr("joined the room");
                 case MembershipType::Leave:
-                    return QString("%1 (%2) left the room").arg(e->displayName(), e->userId());
+                    if (e->senderId() != e->userId())
+                        return tr("doesn't want %1 in the room anymore").arg(subjectName);
+                    else
+                        return tr("left the room");
                 case MembershipType::Ban:
-                    return QString("%1 (%2) was banned from the room").arg(e->displayName(), e->userId());
+                    if (e->senderId() != e->userId())
+                        return tr("banned %1 from the room").arg(subjectName);
+                    else
+                        return tr("self-banned from the room");
                 case MembershipType::Invite:
-                    return QString("%1 (%2) was invited to the room").arg(e->displayName(), e->userId());
+                    return tr("invited %1 to the room").arg(subjectName);
                 case MembershipType::Knock:
-                    return QString("%1 (%2) knocked").arg(e->displayName(), e->userId());
+                    return tr("knocked");
             }
         }
         if( event->type() == EventType::RoomAliases )
         {
             auto e = static_cast<RoomAliasesEvent*>(event);
-            return QString("Current aliases: %1").arg(e->aliases().join(", "));
+            return tr("set aliases to: %1").arg(e->aliases().join(", "));
+        }
+        if( event->type() == EventType::RoomCanonicalAlias )
+        {
+            auto e = static_cast<RoomCanonicalAliasEvent*>(event);
+            return tr("set the room main alias to: %1").arg(e->alias());
         }
         if( event->type() == EventType::RoomName )
         {
             auto e = static_cast<RoomNameEvent*>(event);
-            return QString("%1 has set the room name to: %2")
-                    .arg(m_currentRoom->roomMembername(e->senderId()), e->name());
+            return tr("set the room name to: %1").arg(e->name());
         }
         if( event->type() == EventType::RoomTopic )
         {
             auto e = static_cast<RoomTopicEvent*>(event);
-            return QString("%1 has set the topic to: %2")
-                    .arg(m_currentRoom->roomMembername(e->senderId()), e->topic());
+            return tr("set the topic to: %1").arg(e->topic());
         }
         return "Unknown Event";
     }
@@ -265,6 +286,14 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     if( role == HighlightRole )
     {
         return message->highlight();
+    }
+
+    if( role == Qt::DecorationRole )
+    {
+        if (message->highlight())
+        {
+            return QSettings().value("UI/highlight_color", "orange");
+        }
     }
     return QVariant();
 }

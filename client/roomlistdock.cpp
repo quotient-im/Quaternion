@@ -19,21 +19,58 @@
 
 #include "roomlistdock.h"
 
+#include <QtCore/QSettings>
 #include <QtCore/QDebug>
 #include <QtWidgets/QMenu>
+#include <QtWidgets/QStyledItemDelegate>
 
 #include "models/roomlistmodel.h"
 #include "quaternionroom.h"
+
+class RoomListItemDelegate : public QStyledItemDelegate
+{
+    public:
+        explicit RoomListItemDelegate(QObject* parent = nullptr)
+            : QStyledItemDelegate(parent)
+            , highlightColor(QSettings()
+                             .value("UI/highlight_color", QColor("orange"))
+                             .value<QColor>())
+        { }
+
+        void paint(QPainter *painter, const QStyleOptionViewItem &option,
+                   const QModelIndex &index) const override;
+
+    private:
+        QColor highlightColor;
+};
+
+void RoomListItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+    QStyleOptionViewItem o { option };
+
+    if (index.data(RoomListModel::HasUnreadRole).toBool())
+        o.font.setBold(true);
+
+    if (index.data(RoomListModel::HighlightCountRole).toInt() > 0)
+    {
+        // Highlighting the text may not work out on monochrome colour schemes,
+        // hence duplicating with italic font.
+        o.palette.setColor(QPalette::Text, highlightColor);
+        o.font.setItalic(true);
+    }
+
+    QStyledItemDelegate::paint(painter, o, index);
+}
 
 RoomListDock::RoomListDock(QWidget* parent)
     : QDockWidget("Rooms", parent)
     , connection(nullptr)
 {
     setObjectName("RoomsDock");
-    //setWidget(new QWidget());
     model = new RoomListModel(this);
     view = new QListView();
     view->setModel(model);
+    view->setItemDelegate(new RoomListItemDelegate(this));
     connect( view, &QListView::activated, this, &RoomListDock::rowSelected );
     connect( view, &QListView::clicked, this, &RoomListDock::rowSelected);
     setWidget(view);

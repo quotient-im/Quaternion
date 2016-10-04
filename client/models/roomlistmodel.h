@@ -34,6 +34,11 @@ class RoomListModel: public QAbstractListModel
 {
         Q_OBJECT
     public:
+        enum Roles {
+            HasUnreadRole = Qt::UserRole + 1,
+            HighlightCountRole,
+        };
+
         RoomListModel(QObject* parent = nullptr);
         virtual ~RoomListModel();
 

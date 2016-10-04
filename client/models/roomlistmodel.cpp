@@ -107,14 +107,10 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
     {
         return room->displayName();
     }
-    if( role == Qt::ForegroundRole )
-    {
-        if( room->highlightCount() > 0 )
-            return QBrush(QColor("orange"));
-        if( room->hasUnreadMessages() )
-            return QBrush(QColor("blue"));
-        return QVariant();
-    }
+    if( role == HasUnreadRole )
+        return room->hasUnreadMessages();
+    if( role == HighlightCountRole )
+        return room->highlightCount();
     if( role == Qt::DecorationRole )
     {
         switch( room->joinState() )
