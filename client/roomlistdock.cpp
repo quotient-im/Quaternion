@@ -19,6 +19,7 @@
 
 #include "roomlistdock.h"
 
+#include <QtCore/QSettings>
 #include <QtCore/QDebug>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QStyledItemDelegate>
@@ -31,10 +32,16 @@ class RoomListItemDelegate : public QStyledItemDelegate
     public:
         explicit RoomListItemDelegate(QObject* parent = nullptr)
             : QStyledItemDelegate(parent)
+            , highlightColor(QSettings()
+                             .value("UI/highlight_color", QColor("orange"))
+                             .value<QColor>())
         { }
 
         void paint(QPainter *painter, const QStyleOptionViewItem &option,
                    const QModelIndex &index) const override;
+
+    private:
+        QColor highlightColor;
 };
 
 void RoomListItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
@@ -48,7 +55,7 @@ void RoomListItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
     {
         // Highlighting the text may not work out on monochrome colour schemes,
         // hence duplicating with italic font.
-        o.palette.setBrush(QPalette::Text, o.palette.brush(QPalette::Highlight));
+        o.palette.setColor(QPalette::Text, highlightColor);
         o.font.setItalic(true);
     }
 

@@ -108,11 +108,9 @@ Rectangle {
             spacing: 3
 
             property string textColor:
-                    // FIXME: Doesn't play well with monochrome colour schemes
-                    if (highlight) { defaultPalette.highlight }
-                    else if (eventType == "state" || eventType == "other") { disabledPalette.text }
-//                    else if (eventType == "emote") { defaultPalette.highlight }
-                    else { defaultPalette.text }
+                    if (highlight) decoration
+                    else if (eventType == "state" || eventType == "other") disabledPalette.text
+                    else defaultPalette.text
 
             Label {
                 Layout.alignment: Qt.AlignTop

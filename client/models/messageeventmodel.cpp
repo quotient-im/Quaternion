@@ -20,6 +20,7 @@
 #include "messageeventmodel.h"
 
 #include <QtCore/QStringBuilder>
+#include <QtCore/QSettings>
 #include <QtCore/QDebug>
 
 #include "../message.h"
@@ -285,6 +286,14 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     if( role == HighlightRole )
     {
         return message->highlight();
+    }
+
+    if( role == Qt::DecorationRole )
+    {
+        if (message->highlight())
+        {
+            return QSettings().value("UI/highlight_color", "orange");
+        }
     }
     return QVariant();
 }
