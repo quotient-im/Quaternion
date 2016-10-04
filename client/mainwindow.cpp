@@ -227,6 +227,7 @@ void MainWindow::loggedOut(const QString& message)
 
 void MainWindow::initialSync()
 {
+    setWindowTitle(connection->userId());
     busyLabel->show();
     busyIndicator->start();
     statusBar()->showMessage("Syncing, please wait...");
@@ -240,9 +241,12 @@ void MainWindow::getNewEvents()
 
 void MainWindow::gotEvents()
 {
-    busyLabel->hide();
-    busyIndicator->stop();
-    statusBar()->clearMessage();
+    if( busyLabel->isVisible() )
+    {
+        busyLabel->hide();
+        busyIndicator->stop();
+        statusBar()->showMessage(tr("Connected as %1").arg(connection->userId()), 5000);
+    }
     getNewEvents();
 }
 
