@@ -35,6 +35,8 @@ class QAction;
 class QMenu;
 class QMenuBar;
 class QSystemTrayIcon;
+class QMovie;
+class QLabel;
 
 class MainWindow: public QMainWindow
 {
@@ -52,6 +54,7 @@ class MainWindow: public QMainWindow
 
     private slots:
         void initialize();
+        void initialSync();
         void getNewEvents();
         void gotEvents();
         void loggedOut(const QString& message = QString());
@@ -67,6 +70,9 @@ class MainWindow: public QMainWindow
         UserListDock* userListDock;
         ChatRoomWidget* chatRoomWidget;
         QuaternionConnection* connection;
+
+        QMovie* busyIndicator;
+        QLabel* busyLabel;
 
         QAction* loginAction;
         QAction* logoutAction;

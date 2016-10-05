@@ -26,6 +26,9 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QInputDialog>
+#include <QtWidgets/QStatusBar>
+#include <QtWidgets/QLabel>
+#include <QtGui/QMovie>
 
 #include "quaternionconnection.h"
 #include "quaternionroom.h"
@@ -50,8 +53,10 @@ MainWindow::MainWindow()
     connect( roomListDock, &RoomListDock::roomSelected, chatRoomWidget, &ChatRoomWidget::setRoom );
     connect( roomListDock, &RoomListDock::roomSelected, userListDock, &UserListDock::setRoom );
     systemTray = new SystemTray(this);
+    systemTray->show();
     createMenu();
     loadSettings();
+    statusBar(); // Make sure it is displayed from the start
     show();
     systemTray->show();
     QTimer::singleShot(0, this, SLOT(initialize()));
@@ -113,6 +118,13 @@ void MainWindow::enableDebug()
 
 void MainWindow::initialize()
 {
+    busyIndicator = new QMovie(":/busy.gif");
+    busyLabel = new QLabel(this);
+    busyLabel->setMovie(busyIndicator);
+    busyLabel->hide();
+    statusBar()->setSizeGripEnabled(false);
+    statusBar()->addPermanentWidget(busyLabel);
+
     invokeLogin();
 }
 
@@ -144,7 +156,7 @@ void MainWindow::setConnection(QuaternionConnection* newConnection)
         using QMatrixClient::Connection;
         connect( connection, &Connection::connectionError, this, &MainWindow::connectionError );
         connect( connection, &Connection::syncDone, this, &MainWindow::gotEvents );
-        connect( connection, &Connection::connected, this, &MainWindow::getNewEvents );
+        connect( connection, &Connection::connected, this, &MainWindow::initialSync );
         connect( connection, &Connection::reconnected, this, &MainWindow::getNewEvents );
         connect( connection, &Connection::loginError, this, &MainWindow::loggedOut );
         connect( connection, &Connection::loggedOut, [=]{ loggedOut(); } );
@@ -168,7 +180,7 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
         }
         account.sync();
 
-        getNewEvents();
+        initialSync();
     }
 }
 
@@ -213,15 +225,28 @@ void MainWindow::loggedOut(const QString& message)
     showLoginWindow(message);
 }
 
+void MainWindow::initialSync()
+{
+    setWindowTitle(connection->userId());
+    busyLabel->show();
+    busyIndicator->start();
+    statusBar()->showMessage("Syncing, please wait...");
+    getNewEvents();
+}
+
 void MainWindow::getNewEvents()
 {
-    //qDebug() << "getNewEvents";
     connection->sync(30*1000);
 }
 
 void MainWindow::gotEvents()
 {
-    // qDebug() << "newEvents";
+    if( busyLabel->isVisible() )
+    {
+        busyLabel->hide();
+        busyIndicator->stop();
+        statusBar()->showMessage(tr("Connected as %1").arg(connection->userId()), 5000);
+    }
     getNewEvents();
 }
 
