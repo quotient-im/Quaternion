@@ -110,6 +110,9 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
         m_currentRoom->setShown(true);
         topicChanged();
         typingChanged();
+    } else {
+        m_topicLabel->clear();
+        m_currentlyTyping->clear();
     }
     m_messageModel->changeRoom( m_currentRoom );
     //m_messageView->scrollToBottom();
