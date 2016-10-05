@@ -27,6 +27,36 @@
 #include "lib/room.h"
 #include "lib/user.h"
 
+class MemberNameSorter
+{
+        using Room = QMatrixClient::Room;
+        using User = QMatrixClient::User;
+    public:
+        MemberNameSorter(Room* r) : room(r) { }
+
+        bool operator()(User* u1, User* u2) const
+        {
+            auto n1 = room->roomMembername(u1);
+            auto n2 = room->roomMembername(u2);
+            if (n1[0] == '@')
+                n1.remove(0, 1);
+            if (n2[0] == '@')
+                n2.remove(0, 1);
+            return n1 < n2;
+        }
+
+        template <typename ContT>
+        typename ContT::size_type lowerBoundIndex(const ContT& c,
+                                                  typename ContT::value_type v) const
+        {
+            return  std::lower_bound(c.begin(), c.end(), v, *this) - c.begin();
+        }
+
+    private:
+        Room* room;
+};
+
+
 UserListModel::UserListModel(QObject* parent)
     : QAbstractListModel(parent)
 {
@@ -47,24 +77,26 @@ void UserListModel::setConnection(QMatrixClient::Connection* connection)
 
 void UserListModel::setRoom(QMatrixClient::Room* room)
 {
+    using namespace QMatrixClient;
     beginResetModel();
     if( m_currentRoom )
     {
         m_currentRoom->disconnect( this );
-        for( QMatrixClient::User* user: m_users )
+        for( User* user: m_users )
             user->disconnect( this );
         m_users.clear();
     }
     m_currentRoom = room;
     if( m_currentRoom )
     {
-        connect( m_currentRoom, &QMatrixClient::Room::userAdded, this, &UserListModel::userAdded );
-        connect( m_currentRoom, &QMatrixClient::Room::userRemoved, this, &UserListModel::userRemoved );
-        connect( m_currentRoom, &QMatrixClient::Room::memberRenamed, this, &UserListModel::memberRenamed );
+        connect( m_currentRoom, &Room::userAdded, this, &UserListModel::userAdded );
+        connect( m_currentRoom, &Room::userRemoved, this, &UserListModel::userRemoved );
+        connect( m_currentRoom, &Room::memberRenamed, this, &UserListModel::memberRenamed );
         m_users = m_currentRoom->users();
-        for( QMatrixClient::User* user: m_users )
+        std::sort(m_users.begin(), m_users.end(), MemberNameSorter(room));
+        for( User* user: m_users )
         {
-            connect( user, &QMatrixClient::User::avatarChanged, this, &UserListModel::avatarChanged );
+            connect( user, &User::avatarChanged, this, &UserListModel::avatarChanged );
         }
         qDebug() << m_users.count() << "user(s) in the room";
     }
@@ -103,32 +135,41 @@ int UserListModel::rowCount(const QModelIndex& parent) const
 
 void UserListModel::userAdded(QMatrixClient::User* user)
 {
-    beginInsertRows(QModelIndex(), m_users.count(), m_users.count());
-    m_users.append(user);
+    auto pos = MemberNameSorter(m_currentRoom).lowerBoundIndex(m_users, user);
+    beginInsertRows(QModelIndex(), pos, pos);
+    m_users.insert(pos, user);
     endInsertRows();
     connect( user, &QMatrixClient::User::avatarChanged, this, &UserListModel::avatarChanged );
 }
 
 void UserListModel::userRemoved(QMatrixClient::User* user)
 {
-    int pos = m_users.indexOf(user);
-    beginRemoveRows(QModelIndex(), pos, pos);
-    m_users.removeAt(pos);
-    endRemoveRows();
-    disconnect( user, &QMatrixClient::User::avatarChanged, this, &UserListModel::avatarChanged );
+    auto pos = MemberNameSorter(m_currentRoom).lowerBoundIndex(m_users, user);
+    if (pos != m_users.size())
+    {
+        beginRemoveRows(QModelIndex(), pos, pos);
+        m_users.removeAt(pos);
+        endRemoveRows();
+        disconnect( user, &QMatrixClient::User::avatarChanged, this, &UserListModel::avatarChanged );
+    } else
+        qWarning() << "Trying to remove a room member not in the user list";
 }
 
 void UserListModel::memberRenamed(QMatrixClient::User *user)
 {
-    int pos = m_users.indexOf(user);
-    if ( pos > -1 )
+    auto pos = MemberNameSorter(m_currentRoom).lowerBoundIndex(m_users, user);
+    if ( pos != m_users.size() )
         emit dataChanged(index(pos), index(pos), {Qt::DisplayRole} );
+    else
+        qWarning() << "Trying to access a room member not in the user list";
 }
 
 void UserListModel::avatarChanged(QMatrixClient::User* user)
 {
-    int pos = m_users.indexOf(user);
-    if ( pos > -1 )
+    auto pos = MemberNameSorter(m_currentRoom).lowerBoundIndex(m_users, user);
+    if ( pos != m_users.size() )
         emit dataChanged(index(pos), index(pos), {Qt::DecorationRole} );
+    else
+        qWarning() << "Trying to access a room member not in the user list";
 }
 

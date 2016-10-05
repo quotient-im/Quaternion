@@ -22,9 +22,6 @@
 
 #include <QtWidgets/QMainWindow>
 
-#include "lib/room.h"
-#include "lib/jobs/basejob.h"
-
 class RoomListDock;
 class UserListDock;
 class ChatRoomWidget;
