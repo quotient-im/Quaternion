@@ -217,5 +217,10 @@ Rectangle {
             anchors.fill: parent
             source: "qrc:///scrolldown.svg"
         }
+        MouseArea {
+            anchors.fill: parent
+            onClicked: root.scrollToBottom()
+            cursorShape: Qt.PointingHandCursor
+        }
     }
 }
