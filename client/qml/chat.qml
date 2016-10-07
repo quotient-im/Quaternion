@@ -115,7 +115,7 @@ Rectangle {
             Label {
                 Layout.alignment: Qt.AlignTop
                 id: timelabel
-                text: "<" + time.toLocaleTimeString() + ">"
+                text: "<" + time.toLocaleTimeString(Qt.locale(), Locale.ShortFormat) + ">"
                 color: disabledPalette.text
             }
             Label {
