@@ -34,6 +34,9 @@ QuaternionRoom::QuaternionRoom(QMatrixClient::Connection* connection, QString ro
     connect( this, &QuaternionRoom::highlightCountChanged, this, &QuaternionRoom::countChanged );
 }
 
+QuaternionRoom::~QuaternionRoom()
+{ }
+
 void QuaternionRoom::setShown(bool shown)
 {
     if( shown == m_shown )

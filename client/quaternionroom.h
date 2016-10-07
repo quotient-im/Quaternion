@@ -28,10 +28,11 @@ class QuaternionRoom: public QMatrixClient::Room
 {
         Q_OBJECT
     public:
-        using Timeline = QList<Message*>;
+        using Timeline = QMatrixClient::Owning< QList<Message*> >;
         using size_type = Timeline::size_type;
 
         QuaternionRoom(QMatrixClient::Connection* connection, QString roomId);
+        ~QuaternionRoom();
 
         /**
          * set/get whether this room is currently show to the user.
