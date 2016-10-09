@@ -30,6 +30,7 @@ QuaternionRoom::QuaternionRoom(QMatrixClient::Connection* connection, QString ro
 {
     m_shown = false;
     m_unreadMessages = false;
+    m_cachedInput = "";
     connect( this, &QuaternionRoom::notificationCountChanged, this, &QuaternionRoom::countChanged );
     connect( this, &QuaternionRoom::highlightCountChanged, this, &QuaternionRoom::countChanged );
 }
@@ -125,3 +126,12 @@ void QuaternionRoom::countChanged()
     }
 }
 
+const QString& QuaternionRoom::cachedInput() const
+{
+    return m_cachedInput;
+}
+
+void QuaternionRoom::setCachedInput(const QString& input)
+{
+    m_cachedInput = input;
+}

@@ -99,12 +99,14 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
 {
     if( m_currentRoom )
     {
+        m_currentRoom->setCachedInput( m_chatEdit->displayText() );
         m_currentRoom->disconnect( this );
         m_currentRoom->setShown(false);
     }
     m_currentRoom = room;
     if( m_currentRoom )
     {
+        m_chatEdit->setText( m_currentRoom->cachedInput() );
         connect( m_currentRoom, &QMatrixClient::Room::typingChanged, this, &ChatRoomWidget::typingChanged );
         connect( m_currentRoom, &QMatrixClient::Room::topicChanged, this, &ChatRoomWidget::topicChanged );
         m_currentRoom->setShown(true);
