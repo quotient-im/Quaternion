@@ -191,6 +191,8 @@ void ChatRoomWidget::sendLine()
     if( !m_currentConnection )
         return;
     QString text = m_chatEdit->displayText();
+    if ( text.isEmpty() )
+        return;
 
     // Commands available without current room
     if( text.startsWith("/join") )
