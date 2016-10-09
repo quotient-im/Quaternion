@@ -217,6 +217,17 @@ void ChatRoomWidget::sendLine()
             {
                 text.remove(0, 3);
                 m_currentConnection->postMessage(m_currentRoom, "m.emote", text);
+            }
+            else if( text.startsWith("//") )
+            {
+                text.remove(0, 1);
+                m_currentConnection->postMessage(m_currentRoom, "m.text", text);
+            }
+            else if( text.startsWith("/") )
+            {
+                m_currentlyTyping->setText( "Unknown command. Use // to send this line literally" );
+                QTimer::singleShot(5000, this, SLOT(typingChanged()));
+                return;
             } else
                 m_currentConnection->postMessage(m_currentRoom, "m.text", text);
         }
