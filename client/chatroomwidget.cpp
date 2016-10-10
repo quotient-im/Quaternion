@@ -297,6 +297,7 @@ void ChatRoomWidget::startNewCompletion()
         else if ( inputText.mid(m_completionInsertStart - 1, 1) == ":")
         {
             m_chatEdit->setText(inputText.left(m_completionInsertStart - 1) + ", : " + inputText.right(inputText.length() - cursorPosition));
+            m_completionInsertStart++;
             m_completionCursorOffset = 2;
         }
         else
