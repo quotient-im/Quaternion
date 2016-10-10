@@ -253,7 +253,7 @@ void ChatRoomWidget::triggerCompletion()
     if ( m_completing )
     {
         m_currentlyTyping->setText( QString("<i>Tab Completion (next: %1)</i>").arg(
-            m_completionList.mid( (m_completionListPosition + 1) % m_completionList.length(), 5).join(", ") ) );
+            QStringList(m_completionList.mid( (m_completionListPosition + 1) % m_completionList.length(), 5)).join(", ") ) );
         QString inputText = m_chatEdit->text();
         m_chatEdit->setText( inputText.left(m_completionInsertStart)
             + m_completionList.at(m_completionListPosition)
