@@ -45,7 +45,6 @@ Rectangle {
             console.log("onCompleted");
             model.rowsAboutToBeInserted.connect(aboutToBeInserted);
             model.rowsInserted.connect(rowsInserted);
-            //positionViewAtEnd();
         }
 
         section {
@@ -201,14 +200,14 @@ Rectangle {
     }
     Rectangle{
         id: scrollindicator;
-        opacity: chatView.atYEnd ? 0 : 1;
+        opacity: chatView.atYEnd ? 0 : 0.5
         color: defaultPalette.text
         height: 30;
         radius: height/2;
         width: height;
         anchors.left: parent.left;
         anchors.bottom: parent.bottom;
-        anchors.leftMargin: height/2;
+        anchors.leftMargin: width/2;
         anchors.bottomMargin: height/2;
         Behavior on opacity {
             NumberAnimation { duration: 300 }
