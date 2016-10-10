@@ -45,6 +45,8 @@ class ChatRoomWidget: public QWidget
         virtual ~ChatRoomWidget();
 
         void enableDebug();
+        void triggerCompletion();
+        void cancelCompletion();
 
     signals:
         void joinRoomNeedsInteraction();
@@ -63,6 +65,15 @@ class ChatRoomWidget: public QWidget
         MessageEventModel* m_messageModel;
         QuaternionRoom* m_currentRoom;
         QMatrixClient::Connection* m_currentConnection;
+        bool m_completing;
+        QStringList m_completionList;
+        int m_completionListPosition;
+        int m_completionInsertStart;
+        int m_completionLength;
+        int m_completionCursorOffset;
+
+        void findCompletionMatches(const QString& pattern);
+        void startNewCompletion();
 
         //QListView* m_messageView;
         QQuickView* m_quickView;
