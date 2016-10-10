@@ -272,7 +272,7 @@ void ChatRoomWidget::startNewCompletion()
           m_completionInsertStart >= 0;
           m_completionInsertStart-- )
     {
-        if ( !inputText.at(m_completionInsertStart).isLetterOrNumber() )
+        if ( !(inputText.at(m_completionInsertStart).isLetterOrNumber() || inputText.at(m_completionInsertStart) == '@') )
             break;
     }
     m_completionInsertStart++;
