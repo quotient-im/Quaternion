@@ -7,6 +7,7 @@
     <file alias="irc-channel-joined.svg">../icons/breeze/irc-channel-joined.svg</file>
     <file alias="irc-channel-parted.svg">../icons/breeze/irc-channel-parted.svg</file>
     <file alias="irc-channel-invited.svg">../icons/irc-channel-invited.svg</file>
+    <file alias="scrolldown.svg">../icons/scrolldown.svg</file>
     <file alias="busy.gif">../icons/busy_16x16.gif</file>
 </qresource>
 </RCC>

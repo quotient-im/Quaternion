@@ -199,4 +199,28 @@ Rectangle {
             text: sourceText
         }
     }
+    Rectangle{
+        id: scrollindicator;
+        opacity: chatView.atYEnd ? 0 : 1;
+        color: defaultPalette.text
+        height: 30;
+        radius: height/2;
+        width: height;
+        anchors.left: parent.left;
+        anchors.bottom: parent.bottom;
+        anchors.leftMargin: height/2;
+        anchors.bottomMargin: height/2;
+        Behavior on opacity {
+            NumberAnimation { duration: 300 }
+        }
+        Image {
+            anchors.fill: parent
+            source: "qrc:///scrolldown.svg"
+        }
+        MouseArea {
+            anchors.fill: parent
+            onClicked: root.scrollToBottom()
+            cursorShape: Qt.PointingHandCursor
+        }
+    }
 }
