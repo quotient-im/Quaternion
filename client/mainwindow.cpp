@@ -65,6 +65,11 @@ MainWindow::~MainWindow()
 {
 }
 
+void MainWindow::activity()
+{
+    chatRoomWidget->lookAtRoom();
+}
+
 void MainWindow::createMenu()
 {
     // Connection menu

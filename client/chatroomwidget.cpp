@@ -115,6 +115,12 @@ ChatRoomWidget::~ChatRoomWidget()
 {
 }
 
+void ChatRoomWidget::lookAtRoom()
+{
+    if ( m_currentRoom )
+        m_currentRoom->lookAt();
+}
+
 void ChatRoomWidget::enableDebug()
 {
     QQmlContext* ctxt = m_quickView->rootContext();

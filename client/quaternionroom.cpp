@@ -38,6 +38,18 @@ QuaternionRoom::QuaternionRoom(QMatrixClient::Connection* connection, QString ro
 QuaternionRoom::~QuaternionRoom()
 { }
 
+void QuaternionRoom::lookAt()
+{
+    if ( !messageEvents().empty() && lastReadEvent(connection()->user()) != messageEvents().last()->id() )
+        markMessageAsRead( messageEvents().last() );
+    if( m_unreadMessages )
+    {
+        m_unreadMessages = false;
+        emit unreadMessagesChanged(this);
+        qDebug() << displayName() << "no unread messages";
+    }
+}
+
 void QuaternionRoom::setShown(bool shown)
 {
     if( shown == m_shown )
@@ -45,14 +57,6 @@ void QuaternionRoom::setShown(bool shown)
     m_shown = shown;
     if( m_shown )
     {
-        if ( !messageEvents().empty() && lastReadEvent(connection()->user()) != messageEvents().last()->id() )
-            markMessageAsRead( messageEvents().last() );
-        if( m_unreadMessages )
-        {
-            m_unreadMessages = false;
-            emit unreadMessagesChanged(this);
-            qDebug() << displayName() << "no unread messages";
-        }
         resetHighlightCount();
         resetNotificationCount();
     }
@@ -91,11 +95,7 @@ void QuaternionRoom::doAddNewMessageEvents(const QMatrixClient::Events& events)
             new_message = true;
     }
 
-    if( m_shown )
-    {
-        markMessageAsRead(messageEvents().back());
-    }
-    else if( !m_unreadMessages && new_message)
+    if( !m_unreadMessages && new_message)
     {
         m_unreadMessages = true;
         emit unreadMessagesChanged(this);
