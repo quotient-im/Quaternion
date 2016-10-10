@@ -41,20 +41,19 @@
 #include "quaternionroom.h"
 #include "imageprovider.h"
 
-class TabCatcher : public QObject
+class ChatEdit : public QLineEdit
 {
-//    Q_OBJECT
     public:
-        TabCatcher(ChatRoomWidget* c);
+        ChatEdit(ChatRoomWidget* c);
     protected:
-        bool eventFilter(QObject *obj, QEvent *event);
+        bool event(QEvent *event);
     private:
         ChatRoomWidget* m_chatRoomWidget;
 };
 
-TabCatcher::TabCatcher(ChatRoomWidget* c): m_chatRoomWidget(c) {};
+ChatEdit::ChatEdit(ChatRoomWidget* c): m_chatRoomWidget(c) {};
 
-bool TabCatcher::eventFilter(QObject *obj, QEvent *event)
+bool ChatEdit::event(QEvent *event)
 {
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
@@ -64,7 +63,7 @@ bool TabCatcher::eventFilter(QObject *obj, QEvent *event)
         } else
             m_chatRoomWidget->cancelCompletion();
     }
-    return QObject::eventFilter(obj, event);
+    return QLineEdit::event(event);
 }
 
 ChatRoomWidget::ChatRoomWidget(QWidget* parent)
@@ -95,11 +94,8 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     connect( rootItem, SIGNAL(getPreviousContent()), this, SLOT(getPreviousContent()) );
 
 
-    m_chatEdit = new QLineEdit();
+    m_chatEdit = new ChatEdit(this);
     connect( m_chatEdit, &QLineEdit::returnPressed, this, &ChatRoomWidget::sendLine );
-
-    TabCatcher *tabCatcher = new TabCatcher(this);
-    m_chatEdit->installEventFilter(tabCatcher);
 
     m_currentlyTyping = new QLabel();
     m_topicLabel = new QLabel();
