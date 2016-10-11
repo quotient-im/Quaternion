@@ -268,7 +268,7 @@ void ChatRoomWidget::startNewCompletion()
 {
     QString inputText = m_chatEdit->text();
     int cursorPosition = m_chatEdit->cursorPosition();
-    for ( m_completionInsertStart = cursorPosition - 1; --m_completionInsertStart >= 0; )
+    for ( m_completionInsertStart = cursorPosition; --m_completionInsertStart >= 0; )
     {
         if ( !(inputText.at(m_completionInsertStart).isLetterOrNumber() || inputText.at(m_completionInsertStart) == '@') )
             break;
