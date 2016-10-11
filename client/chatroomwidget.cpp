@@ -252,8 +252,6 @@ void ChatRoomWidget::triggerCompletion()
     }
     if ( m_completing )
     {
-        m_currentlyTyping->setText( QString("<i>Tab Completion (next: %1)</i>").arg(
-            QStringList(m_completionList.mid( (m_completionListPosition + 1) % m_completionList.length(), 5)).join(", ") ) );
         QString inputText = m_chatEdit->text();
         m_chatEdit->setText( inputText.left(m_completionInsertStart)
             + m_completionList.at(m_completionListPosition)
@@ -261,6 +259,8 @@ void ChatRoomWidget::triggerCompletion()
         m_completionLength = m_completionList.at(m_completionListPosition).length();
         m_chatEdit->setCursorPosition( m_completionInsertStart + m_completionLength + m_completionCursorOffset );
         m_completionListPosition = (m_completionListPosition + 1) % m_completionList.length();
+        m_currentlyTyping->setText( QString("<i>Tab Completion (next: %1)</i>").arg(
+            QStringList(m_completionList.mid( m_completionListPosition, 5)).join(", ") ) );
     }
 }
 
@@ -268,14 +268,12 @@ void ChatRoomWidget::startNewCompletion()
 {
     QString inputText = m_chatEdit->text();
     int cursorPosition = m_chatEdit->cursorPosition();
-    for ( m_completionInsertStart = cursorPosition - 1;
-          m_completionInsertStart >= 0;
-          m_completionInsertStart-- )
+    for ( m_completionInsertStart = cursorPosition - 1; --m_completionInsertStart >= 0; )
     {
         if ( !(inputText.at(m_completionInsertStart).isLetterOrNumber() || inputText.at(m_completionInsertStart) == '@') )
             break;
     }
-    m_completionInsertStart++;
+    ++m_completionInsertStart;
     m_completionLength = cursorPosition - m_completionInsertStart;
     findCompletionMatches(inputText.mid(m_completionInsertStart, m_completionLength));
     if ( !m_completionList.isEmpty() )
@@ -286,23 +284,23 @@ void ChatRoomWidget::startNewCompletion()
         m_completionLength = 0;
         if ( m_completionInsertStart == 0)
         {
-            m_chatEdit->setText(inputText.left(m_completionInsertStart) + ": " + inputText.right(inputText.length() - cursorPosition));
+            m_chatEdit->setText(inputText.left(m_completionInsertStart) + ": " + inputText.mid(cursorPosition));
             m_completionCursorOffset = 2;
         }
         else if ( inputText.mid(m_completionInsertStart - 2, 2) == ": ")
         {
-            m_chatEdit->setText(inputText.left(m_completionInsertStart - 2) + ", : " + inputText.right(inputText.length() - cursorPosition));
+            m_chatEdit->setText(inputText.left(m_completionInsertStart - 2) + ", : " + inputText.mid(cursorPosition));
             m_completionCursorOffset = 2;
         }
         else if ( inputText.mid(m_completionInsertStart - 1, 1) == ":")
         {
-            m_chatEdit->setText(inputText.left(m_completionInsertStart - 1) + ", : " + inputText.right(inputText.length() - cursorPosition));
-            m_completionInsertStart++;
+            m_chatEdit->setText(inputText.left(m_completionInsertStart - 1) + ", : " + inputText.mid(cursorPosition));
+            ++m_completionInsertStart;
             m_completionCursorOffset = 2;
         }
         else
         {
-            m_chatEdit->setText(inputText.left(m_completionInsertStart) + " " + inputText.right(inputText.length() - cursorPosition));
+            m_chatEdit->setText(inputText.left(m_completionInsertStart) + " " + inputText.mid(cursorPosition));
             m_completionCursorOffset = 1;
         }
     }
