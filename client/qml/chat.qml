@@ -23,6 +23,7 @@ Rectangle {
         model: messageModel
         delegate: messageDelegate
         flickableDirection: Flickable.VerticalFlick
+        flickDeceleration: 9001
         boundsBehavior: Flickable.StopAtBounds
         pixelAligned: true
         property bool wasAtEndY: true
