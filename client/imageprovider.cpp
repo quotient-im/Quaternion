@@ -39,13 +39,12 @@ QPixmap ImageProvider::requestPixmap(const QString& id, QSize* size, const QSize
     QMutexLocker locker(&m_mutex);
     qDebug() << "ImageProvider::requestPixmap:" << id;
 
-    QWaitCondition* condition = new QWaitCondition();
+    QWaitCondition condition;
     QPixmap result;
     QMetaObject::invokeMethod(this, "doRequest", Qt::QueuedConnection,
                               Q_ARG(QString, id), Q_ARG(QSize, requestedSize),
-                              Q_ARG(QPixmap*, &result), Q_ARG(QWaitCondition*, condition));
-    condition->wait(&m_mutex);
-    delete condition;
+                              Q_ARG(QPixmap*, &result), Q_ARG(QWaitCondition*, &condition));
+    condition.wait(&m_mutex);
 
     if( size != nullptr )
     {
