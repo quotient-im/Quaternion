@@ -52,6 +52,7 @@ MainWindow::MainWindow()
     connect( chatRoomWidget, &ChatRoomWidget::joinRoomNeedsInteraction, this, &MainWindow::showJoinRoomDialog);
     connect( roomListDock, &RoomListDock::roomSelected, chatRoomWidget, &ChatRoomWidget::setRoom );
     connect( roomListDock, &RoomListDock::roomSelected, userListDock, &UserListDock::setRoom );
+    connect( chatRoomWidget, &ChatRoomWidget::showStatusMessage, statusBar(), &QStatusBar::showMessage );
     systemTray = new SystemTray(this);
     createMenu();
     loadSettings();

@@ -225,8 +225,7 @@ void ChatRoomWidget::sendLine()
             }
             else if( text.startsWith("/") )
             {
-                m_currentlyTyping->setText( "Unknown command. Use // to send this line literally" );
-                QTimer::singleShot(5000, this, SLOT(typingChanged()));
+                emit showStatusMessage( "Unknown command. Use // to send this line literally", 5000);
                 return;
             } else
                 m_currentConnection->postMessage(m_currentRoom, "m.text", text);
