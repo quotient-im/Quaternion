@@ -209,7 +209,6 @@ Rectangle {
         anchors.left: parent.left;
         anchors.bottom: parent.bottom;
         anchors.leftMargin: width/2;
-        anchors.leftMargin: height/2;
         anchors.bottomMargin: chatView.atYEnd ? -height : height/2;
         Behavior on opacity {
             NumberAnimation { duration: 300 }
