@@ -53,7 +53,6 @@ MainWindow::MainWindow()
     connect( roomListDock, &RoomListDock::roomSelected, chatRoomWidget, &ChatRoomWidget::setRoom );
     connect( roomListDock, &RoomListDock::roomSelected, userListDock, &UserListDock::setRoom );
     systemTray = new SystemTray(this);
-    systemTray->show();
     createMenu();
     loadSettings();
     statusBar(); // Make sure it is displayed from the start
