@@ -41,6 +41,9 @@ class QuaternionRoom: public QMatrixClient::Room
         void setShown(bool shown);
         bool isShown();
 
+        void setCachedInput(const QString& input);
+        const QString& cachedInput() const;
+
         const Timeline& messages() const;
 
         bool hasUnreadMessages();
@@ -62,6 +65,7 @@ class QuaternionRoom: public QMatrixClient::Room
         Timeline m_messages;
         bool m_shown;
         bool m_unreadMessages;
+        QString m_cachedInput;
 
         Message* makeMessage(QMatrixClient::Event* e);
 };
