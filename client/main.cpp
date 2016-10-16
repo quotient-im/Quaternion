@@ -37,7 +37,7 @@ class ActivityDetector : public QObject
             switch (ev->type())
             {
             case QEvent::KeyPress:
-            case QEvent::ApplicationActivate:
+            case QEvent::FocusIn:
             case QEvent::MouseMove:
             case QEvent::MouseButtonPress:
                 m_mainWindow->activity();
