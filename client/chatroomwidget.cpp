@@ -197,6 +197,8 @@ void ChatRoomWidget::sendLine()
     if( !m_currentConnection )
         return;
     QString text = m_chatEdit->displayText();
+    if ( text.isEmpty() )
+        return;
 
     // Commands available without current room
     if( text.startsWith("/join") )
@@ -221,6 +223,16 @@ void ChatRoomWidget::sendLine()
             {
                 text.remove(0, 3);
                 m_currentConnection->postMessage(m_currentRoom, "m.emote", text);
+            }
+            else if( text.startsWith("//") )
+            {
+                text.remove(0, 1);
+                m_currentConnection->postMessage(m_currentRoom, "m.text", text);
+            }
+            else if( text.startsWith("/") )
+            {
+                emit showStatusMessage( "Unknown command. Use // to send this line literally", 5000);
+                return;
             } else
                 m_currentConnection->postMessage(m_currentRoom, "m.text", text);
         }
