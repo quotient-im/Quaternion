@@ -93,6 +93,8 @@ void QuaternionRoom::doAddNewMessageEvents(const QMatrixClient::Events& events)
         m_messages.push_back(makeMessage(e));
         if ( e->type() == QMatrixClient::EventType::RoomMessage )
             new_message = true;
+        if ( e->senderId() == connection()->userId() )
+            markMessageAsRead( e );
     }
 
     if( !m_unreadMessages && new_message)
