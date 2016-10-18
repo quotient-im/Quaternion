@@ -43,6 +43,7 @@ class MainWindow: public QMainWindow
         virtual ~MainWindow();
 
         void enableDebug();
+        void activity();
 
         void setConnection(QuaternionConnection* newConnection);
 

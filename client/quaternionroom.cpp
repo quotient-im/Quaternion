@@ -38,19 +38,23 @@ QuaternionRoom::QuaternionRoom(QMatrixClient::Connection* connection, QString ro
 QuaternionRoom::~QuaternionRoom()
 { }
 
+void QuaternionRoom::lookAt()
+{
+    if ( !messageEvents().empty() && lastReadEvent(connection()->user()) != messageEvents().last()->id() )
+        markMessageAsRead( messageEvents().last() );
+    if( m_unreadMessages )
+    {
+        m_unreadMessages = false;
+        emit unreadMessagesChanged(this);
+        qDebug() << displayName() << "no unread messages";
+    }
+}
+
 void QuaternionRoom::setShown(bool shown)
 {
     if( shown == m_shown )
         return;
     m_shown = shown;
-    if( m_shown && m_unreadMessages )
-    {
-        if( !messageEvents().empty() )
-            markMessageAsRead( messageEvents().last() );
-        m_unreadMessages = false;
-        emit unreadMessagesChanged(this);
-        qDebug() << displayName() << "no unread messages";
-    }
     if( m_shown )
     {
         resetHighlightCount();
@@ -83,14 +87,17 @@ void QuaternionRoom::doAddNewMessageEvents(const QMatrixClient::Events& events)
     Room::doAddNewMessageEvents(events);
 
     m_messages.reserve(m_messages.size() + events.size());
+    bool new_message = false;
     for (auto e: events)
-        m_messages.push_back(makeMessage(e));
-
-    if( m_shown )
     {
-        markMessageAsRead(messageEvents().back());
+        m_messages.push_back(makeMessage(e));
+        if ( e->type() == QMatrixClient::EventType::RoomMessage )
+            new_message = true;
+        if ( e->senderId() == connection()->userId() )
+            markMessageAsRead( e );
     }
-    else if( !m_unreadMessages )
+
+    if( !m_unreadMessages && new_message)
     {
         m_unreadMessages = true;
         emit unreadMessagesChanged(this);
@@ -110,13 +117,21 @@ void QuaternionRoom::doAddHistoricalMessageEvents(const QMatrixClient::Events& e
 void QuaternionRoom::processEphemeralEvent(QMatrixClient::Event* event)
 {
     QMatrixClient::Room::processEphemeralEvent(event);
-    QString lastReadId = lastReadEvent(connection()->user());
-    if( m_unreadMessages &&
-            (messageEvents().isEmpty() || lastReadId == messageEvents().last()->id()) )
+    if ( m_unreadMessages && event->type() == QMatrixClient::EventType::Receipt )
     {
-        m_unreadMessages = false;
-        emit unreadMessagesChanged(this);
-        qDebug() << displayName() << "no unread messages";
+        QString lastReadId = lastReadEvent(connection()->user());
+        for (int i = messageEvents().size()-1; i >= 0; i--)
+        {
+            if ( lastReadId == messageEvents().at(i)->id() )
+            {
+                m_unreadMessages = false;
+                emit unreadMessagesChanged(this);
+                qDebug() << displayName() << "no unread messages";
+                break;
+            }
+            if ( messageEvents().at(i)->type() == QMatrixClient::EventType::RoomMessage )
+                break;
+        }
     }
 }
 
