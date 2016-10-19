@@ -120,16 +120,17 @@ void QuaternionRoom::processEphemeralEvent(QMatrixClient::Event* event)
     if ( m_unreadMessages && event->type() == QMatrixClient::EventType::Receipt )
     {
         QString lastReadId = lastReadEvent(connection()->user());
-        for (int i = messageEvents().size()-1; i >= 0; i--)
+        for (auto it = messageEvents().end(); it != messageEvents().begin(); )
         {
-            if ( lastReadId == messageEvents().at(i)->id() )
+            --it;
+            if ( lastReadId == (*it)->id() )
             {
                 m_unreadMessages = false;
                 emit unreadMessagesChanged(this);
                 qDebug() << displayName() << "no unread messages";
                 break;
             }
-            if ( messageEvents().at(i)->type() == QMatrixClient::EventType::RoomMessage )
+            if ( (*it)->type() == QMatrixClient::EventType::RoomMessage )
                 break;
         }
     }
