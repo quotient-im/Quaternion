@@ -88,14 +88,17 @@ void QuaternionRoom::doAddNewMessageEvents(const QMatrixClient::Events& events)
 
     m_messages.reserve(m_messages.size() + events.size());
     bool new_message = false;
+    QMatrixClient::Event* lastOwnMessage = nullptr;
     for (auto e: events)
     {
         m_messages.push_back(makeMessage(e));
         if ( e->type() == QMatrixClient::EventType::RoomMessage )
             new_message = true;
         if ( e->senderId() == connection()->userId() )
-            markMessageAsRead( e );
+            lastOwnMessage = e;
     }
+    if (lastOwnMessage)
+        markMessageAsRead( lastOwnMessage );
 
     if( !m_unreadMessages && new_message)
     {
@@ -120,6 +123,7 @@ void QuaternionRoom::processEphemeralEvent(QMatrixClient::Event* event)
     if ( m_unreadMessages && event->type() == QMatrixClient::EventType::Receipt )
     {
         QString lastReadId = lastReadEvent(connection()->user());
+        // Older Qt doesn't provide QVector::rbegin()/rend()
         for (auto it = messageEvents().end(); it != messageEvents().begin(); )
         {
             --it;
