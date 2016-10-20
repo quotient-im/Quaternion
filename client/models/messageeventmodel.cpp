@@ -37,6 +37,31 @@
 #include "lib/events/roomtopicevent.h"
 #include "lib/events/unknownevent.h"
 
+enum EventRoles {
+    EventTypeRole = Qt::UserRole + 1,
+    EventIdRole,
+    TimeRole,
+    DateRole,
+    AuthorRole,
+    ContentRole,
+    ContentTypeRole,
+    HighlightRole,
+};
+
+QHash<int, QByteArray> MessageEventModel::roleNames() const
+{
+    QHash<int, QByteArray> roles = QAbstractItemModel::roleNames();
+    roles[EventTypeRole] = "eventType";
+    roles[EventIdRole] = "eventId";
+    roles[TimeRole] = "time";
+    roles[DateRole] = "date";
+    roles[AuthorRole] = "author";
+    roles[ContentRole] = "content";
+    roles[ContentTypeRole] = "contentType";
+    roles[HighlightRole] = "highlight";
+    return roles;
+}
+
 MessageEventModel::MessageEventModel(QObject* parent)
     : QAbstractListModel(parent)
     , m_connection(nullptr)
@@ -295,18 +320,10 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
             return QSettings().value("UI/highlight_color", "orange");
         }
     }
-    return QVariant();
-}
+    if( role == EventIdRole )
+    {
+        return event->id();
+    }
 
-QHash<int, QByteArray> MessageEventModel::roleNames() const
-{
-    QHash<int, QByteArray> roles = QAbstractItemModel::roleNames();
-    roles[EventTypeRole] = "eventType";
-    roles[TimeRole] = "time";
-    roles[DateRole] = "date";
-    roles[AuthorRole] = "author";
-    roles[ContentRole] = "content";
-    roles[ContentTypeRole] = "contentType";
-    roles[HighlightRole] = "highlight";
-    return roles;
+    return QVariant();
 }
