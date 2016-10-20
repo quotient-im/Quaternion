@@ -105,7 +105,7 @@ Rectangle {
         id: messageDelegate
 
         Rectangle {
-            width: parent.width
+            width: chatView.width
             height: childrenRect.height
 
             RowLayout {
@@ -196,11 +196,14 @@ Rectangle {
                 }
             }
             Rectangle {
-                visible: messageModel.lastReadId === eventId
-                color: message.textColor
-                width: parent.width
+                color: defaultPalette.highlight
+                width: messageModel.lastReadId === eventId ? parent.width : 0
                 height: 1
                 anchors.bottom: message.bottom
+                anchors.horizontalCenter: message.horizontalCenter
+                Behavior on width {
+                    NumberAnimation { duration: 500; easing.type: Easing.OutQuad }
+                }
             }
         }
     }
