@@ -81,19 +81,26 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
     m_currentRoom = room;
     if( room )
     {
+        using namespace QMatrixClient;
         connect(m_currentRoom, &QuaternionRoom::aboutToAddNewMessages,
-                [=](const QMatrixClient::Events& events)
+                [=](const Events& events)
                 {
                     beginInsertRows(QModelIndex(),
                                     rowCount(), rowCount() + events.size() - 1);
                 });
         connect(m_currentRoom, &QuaternionRoom::aboutToAddHistoricalMessages,
-                [=](const QMatrixClient::Events& events)
+                [=](const Events& events)
                 {
                     beginInsertRows(QModelIndex(), 0, events.size() - 1);
                 });
         connect(m_currentRoom, &QuaternionRoom::addedMessages,
                 this, &MessageEventModel::endInsertRows);
+        connect(m_currentRoom, &QuaternionRoom::lastReadEventChanged,
+                [=](const User* u) {
+                    if (u == m_connection->user())
+                        emit lastReadIdChanged();
+                });
+        emit lastReadIdChanged();
         qDebug() << "connected" << room;
     }
     endResetModel();
@@ -326,4 +333,12 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     }
 
     return QVariant();
+}
+
+QString MessageEventModel::lastReadId() const
+{
+    if (m_currentRoom)
+        return m_currentRoom->lastReadEvent(m_connection->user());
+
+    return {};
 }
