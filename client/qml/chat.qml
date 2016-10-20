@@ -196,11 +196,14 @@ Rectangle {
                 }
             }
             Rectangle {
-                visible: messageModel.lastReadId === eventId
                 color: message.textColor
-                width: parent.width
+                width: messageModel.lastReadId == eventId ? parent.width : 0
                 height: 1
                 anchors.bottom: message.bottom
+                anchors.horizontalCenter: message.horizontalCenter
+                Behavior on width {
+                    NumberAnimation { duration: 1000; easing.type: Easing.OutQuad }
+                }
             }
         }
     }
