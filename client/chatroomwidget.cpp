@@ -28,6 +28,7 @@
 
 #include <QtQml/QQmlContext>
 #include <QtQml/QQmlEngine>
+#include <QtQuick/QQuickView>
 #include <QtQuick/QQuickItem>
 
 #include "lib/room.h"
@@ -143,9 +144,11 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
         m_chatEdit->setText( m_currentRoom->cachedInput() );
         connect( m_currentRoom, &QMatrixClient::Room::typingChanged, this, &ChatRoomWidget::typingChanged );
         connect( m_currentRoom, &QMatrixClient::Room::topicChanged, this, &ChatRoomWidget::topicChanged );
+        connect( m_currentRoom, &QMatrixClient::Room::lastReadEventChanged, this, &ChatRoomWidget::updateReadMarker );
         m_currentRoom->setShown(true);
         topicChanged();
         typingChanged();
+        updateReadMarker(m_currentConnection->user());
     } else {
         m_topicLabel->clear();
         m_currentlyTyping->clear();
@@ -178,6 +181,13 @@ void ChatRoomWidget::typingChanged()
         typingNames << m_currentRoom->roomMembername(user);
     }
     m_currentlyTyping->setText( QString("<i>Currently typing: %1</i>").arg( typingNames.join(", ") ) );
+}
+
+void ChatRoomWidget::updateReadMarker(QMatrixClient::User* user)
+{
+    if (user == m_currentConnection->user())
+        m_quickView->rootContext()
+            ->setContextProperty("lastReadId", m_currentRoom->lastReadEvent(user));
 }
 
 void ChatRoomWidget::topicChanged()
