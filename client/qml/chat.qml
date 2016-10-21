@@ -196,7 +196,7 @@ Rectangle {
                 }
             }
             Rectangle {
-                visible: lastReadId == eventId
+                visible: messageModel.lastReadId === eventId
                 color: message.textColor
                 width: parent.width
                 height: 1
