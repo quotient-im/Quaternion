@@ -87,18 +87,17 @@ void QuaternionRoom::doAddNewMessageEvents(const QMatrixClient::Events& events)
 
     m_messages.reserve(m_messages.size() + events.size());
     bool new_message = false;
-    QMatrixClient::Event* lastOwnMessage = nullptr;
     for (auto e: events)
     {
         m_messages.push_back(makeMessage(e));
-        if (e->senderId() == connection()->userId())
-            lastOwnMessage = e;
-        else if (e->type() == QMatrixClient::EventType::RoomMessage)
+        if (e->type() == QMatrixClient::EventType::RoomMessage)
             new_message = true;
     }
-    if (lastOwnMessage)
-        setLastReadEvent(connection()->user(), lastOwnMessage->id());
-
+    if (events.last()->senderId() == connection()->userId())
+    {
+        setLastReadEvent(connection()->user(), events.last()->id());
+        new_message = false;
+    }
     if( !m_unreadMessages && new_message)
     {
         m_unreadMessages = true;
