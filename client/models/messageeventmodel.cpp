@@ -37,6 +37,31 @@
 #include "lib/events/roomtopicevent.h"
 #include "lib/events/unknownevent.h"
 
+enum EventRoles {
+    EventTypeRole = Qt::UserRole + 1,
+    EventIdRole,
+    TimeRole,
+    DateRole,
+    AuthorRole,
+    ContentRole,
+    ContentTypeRole,
+    HighlightRole,
+};
+
+QHash<int, QByteArray> MessageEventModel::roleNames() const
+{
+    QHash<int, QByteArray> roles = QAbstractItemModel::roleNames();
+    roles[EventTypeRole] = "eventType";
+    roles[EventIdRole] = "eventId";
+    roles[TimeRole] = "time";
+    roles[DateRole] = "date";
+    roles[AuthorRole] = "author";
+    roles[ContentRole] = "content";
+    roles[ContentTypeRole] = "contentType";
+    roles[HighlightRole] = "highlight";
+    return roles;
+}
+
 MessageEventModel::MessageEventModel(QObject* parent)
     : QAbstractListModel(parent)
     , m_connection(nullptr)
@@ -56,19 +81,26 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
     m_currentRoom = room;
     if( room )
     {
+        using namespace QMatrixClient;
         connect(m_currentRoom, &QuaternionRoom::aboutToAddNewMessages,
-                [=](const QMatrixClient::Events& events)
+                [=](const Events& events)
                 {
                     beginInsertRows(QModelIndex(),
                                     rowCount(), rowCount() + events.size() - 1);
                 });
         connect(m_currentRoom, &QuaternionRoom::aboutToAddHistoricalMessages,
-                [=](const QMatrixClient::Events& events)
+                [=](const Events& events)
                 {
                     beginInsertRows(QModelIndex(), 0, events.size() - 1);
                 });
         connect(m_currentRoom, &QuaternionRoom::addedMessages,
                 this, &MessageEventModel::endInsertRows);
+        connect(m_currentRoom, &QuaternionRoom::lastReadEventChanged,
+                [=](const User* u) {
+                    if (u == m_connection->user())
+                        emit lastReadIdChanged();
+                });
+        emit lastReadIdChanged();
         qDebug() << "connected" << room;
     }
     endResetModel();
@@ -295,18 +327,18 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
             return QSettings().value("UI/highlight_color", "orange");
         }
     }
+    if( role == EventIdRole )
+    {
+        return event->id();
+    }
+
     return QVariant();
 }
 
-QHash<int, QByteArray> MessageEventModel::roleNames() const
+QString MessageEventModel::lastReadId() const
 {
-    QHash<int, QByteArray> roles = QAbstractItemModel::roleNames();
-    roles[EventTypeRole] = "eventType";
-    roles[TimeRole] = "time";
-    roles[DateRole] = "date";
-    roles[AuthorRole] = "author";
-    roles[ContentRole] = "content";
-    roles[ContentTypeRole] = "contentType";
-    roles[HighlightRole] = "highlight";
-    return roles;
+    if (m_currentRoom)
+        return m_currentRoom->lastReadEvent(m_connection->user());
+
+    return {};
 }

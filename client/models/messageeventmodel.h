@@ -30,17 +30,8 @@ class Message;
 class MessageEventModel: public QAbstractListModel
 {
         Q_OBJECT
+        Q_PROPERTY(QString lastReadId READ lastReadId NOTIFY lastReadIdChanged STORED false)
     public:
-        enum EventRoles {
-            EventTypeRole = Qt::UserRole + 1,
-            TimeRole,
-            DateRole,
-            AuthorRole,
-            ContentRole,
-            ContentTypeRole,
-            HighlightRole
-        };
-
         MessageEventModel(QObject* parent = nullptr);
         virtual ~MessageEventModel();
 
@@ -52,6 +43,11 @@ class MessageEventModel: public QAbstractListModel
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
         QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
         QHash<int, QByteArray> roleNames() const override;
+
+        QString lastReadId() const;
+
+    signals:
+        void lastReadIdChanged();
 
     private:
         QMatrixClient::Connection* m_connection;

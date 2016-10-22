@@ -40,8 +40,7 @@ QuaternionRoom::~QuaternionRoom()
 
 void QuaternionRoom::lookAt()
 {
-    if ( !messageEvents().empty() && lastReadEvent(connection()->user()) != messageEvents().last()->id() )
-        markMessageAsRead( messageEvents().last() );
+    markMessagesAsRead();
     if( m_unreadMessages )
     {
         m_unreadMessages = false;
@@ -91,12 +90,14 @@ void QuaternionRoom::doAddNewMessageEvents(const QMatrixClient::Events& events)
     for (auto e: events)
     {
         m_messages.push_back(makeMessage(e));
-        if ( e->type() == QMatrixClient::EventType::RoomMessage )
+        if (e->type() == QMatrixClient::EventType::RoomMessage)
             new_message = true;
-        if ( e->senderId() == connection()->userId() )
-            markMessageAsRead( e );
     }
-
+    if (events.last()->senderId() == connection()->userId())
+    {
+        setLastReadEvent(connection()->user(), events.last()->id());
+        new_message = false;
+    }
     if( !m_unreadMessages && new_message)
     {
         m_unreadMessages = true;
@@ -120,16 +121,18 @@ void QuaternionRoom::processEphemeralEvent(QMatrixClient::Event* event)
     if ( m_unreadMessages && event->type() == QMatrixClient::EventType::Receipt )
     {
         QString lastReadId = lastReadEvent(connection()->user());
-        for (int i = messageEvents().size()-1; i >= 0; i--)
+        // Older Qt doesn't provide QVector::rbegin()/rend()
+        for (auto it = messageEvents().end(); it != messageEvents().begin(); )
         {
-            if ( lastReadId == messageEvents().at(i)->id() )
+            --it;
+            if ( lastReadId == (*it)->id() )
             {
                 m_unreadMessages = false;
                 emit unreadMessagesChanged(this);
                 qDebug() << displayName() << "no unread messages";
                 break;
             }
-            if ( messageEvents().at(i)->type() == QMatrixClient::EventType::RoomMessage )
+            if ( (*it)->type() == QMatrixClient::EventType::RoomMessage )
                 break;
         }
     }
