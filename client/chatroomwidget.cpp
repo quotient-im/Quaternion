@@ -130,6 +130,9 @@ void ChatRoomWidget::enableDebug()
 
 void ChatRoomWidget::setRoom(QuaternionRoom* room)
 {
+    if (m_currentRoom == room)
+        return;
+
     if( m_currentRoom )
     {
         m_currentRoom->setCachedInput( m_chatEdit->displayText() );
