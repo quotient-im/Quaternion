@@ -29,6 +29,7 @@
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QLabel>
 #include <QtGui/QMovie>
+#include <QtGui/QCloseEvent>
 
 #include "quaternionconnection.h"
 #include "quaternionroom.h"

@@ -40,8 +40,7 @@ QuaternionRoom::~QuaternionRoom()
 
 void QuaternionRoom::lookAt()
 {
-    if ( !messageEvents().empty() && lastReadEvent(connection()->user()) != messageEvents().last()->id() )
-        markMessageAsRead( messageEvents().last() );
+    markMessagesAsRead();
     if( m_unreadMessages )
     {
         m_unreadMessages = false;
@@ -92,13 +91,13 @@ void QuaternionRoom::doAddNewMessageEvents(const QMatrixClient::Events& events)
     for (auto e: events)
     {
         m_messages.push_back(makeMessage(e));
-        if ( e->type() == QMatrixClient::EventType::RoomMessage )
-            new_message = true;
-        if ( e->senderId() == connection()->userId() )
+        if (e->senderId() == connection()->userId())
             lastOwnMessage = e;
+        else if (e->type() == QMatrixClient::EventType::RoomMessage)
+            new_message = true;
     }
     if (lastOwnMessage)
-        markMessageAsRead( lastOwnMessage );
+        promoteReadMarker(connection()->user(), lastOwnMessage->id());
 
     if( !m_unreadMessages && new_message)
     {
