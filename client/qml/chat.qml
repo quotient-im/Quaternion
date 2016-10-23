@@ -106,7 +106,7 @@ Rectangle {
 
         RowLayout {
             id: message
-            width: parent.width
+            width: chatView.width
             spacing: 3
 
             property string textColor:
