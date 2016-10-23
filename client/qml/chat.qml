@@ -202,7 +202,7 @@ Rectangle {
                 anchors.bottom: message.bottom
                 anchors.horizontalCenter: message.horizontalCenter
                 Behavior on width {
-                    NumberAnimation { duration: 1000; easing.type: Easing.OutQuad }
+                    NumberAnimation { duration: 500; easing.type: Easing.OutQuad }
                 }
             }
         }
