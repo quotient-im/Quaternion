@@ -26,11 +26,13 @@ Rectangle {
         flickDeceleration: 9001
         boundsBehavior: Flickable.StopAtBounds
         pixelAligned: true
+        // FIXME: atYEnd is glitchy on Qt 5.2.1
+        property bool nowAtYEnd: contentY - originY + height >= contentHeight
         property bool wasAtEndY: true
 
         function aboutToBeInserted() {
-            wasAtEndY = atYEnd;
-            console.log("aboutToBeInserted! atYEnd=" + atYEnd);
+            wasAtEndY = nowAtYEnd;
+            console.log("aboutToBeInserted! nowAtYEnd=" + nowAtYEnd);
         }
 
         function rowsInserted() {
@@ -199,9 +201,9 @@ Rectangle {
             text: sourceText
         }
     }
-    Rectangle{
+    Rectangle {
         id: scrollindicator;
-        opacity: chatView.atYEnd ? 0 : 0.5
+        opacity: chatView.nowAtYEnd ? 0 : 0.5
         color: defaultPalette.text
         height: 30;
         radius: height/2;
@@ -209,7 +211,7 @@ Rectangle {
         anchors.left: parent.left;
         anchors.bottom: parent.bottom;
         anchors.leftMargin: width/2;
-        anchors.bottomMargin: chatView.atYEnd ? -height : height/2;
+        anchors.bottomMargin: chatView.nowAtYEnd ? -height : height/2;
         Behavior on opacity {
             NumberAnimation { duration: 300 }
         }
