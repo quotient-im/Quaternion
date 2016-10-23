@@ -77,6 +77,9 @@ void UserListModel::setConnection(QMatrixClient::Connection* connection)
 
 void UserListModel::setRoom(QMatrixClient::Room* room)
 {
+    if (m_currentRoom == room)
+        return;
+
     using namespace QMatrixClient;
     beginResetModel();
     if( m_currentRoom )
