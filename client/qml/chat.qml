@@ -14,7 +14,6 @@ Rectangle {
 
     Timer{
         id: scrollTimer
-        interval: 1;
         onTriggered: reallyScrollToBottom()
     }
 
