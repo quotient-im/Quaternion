@@ -12,8 +12,23 @@ Rectangle {
 
     signal getPreviousContent()
 
+    Timer{
+        id: scrollTimer
+        interval: 1;
+        onTriggered: reallyScrollToBottom()
+    }
+
+    function reallyScrollToBottom() {
+        if (chatView.stickToBottom && !chatView.nowAtYEnd)
+        {
+            chatView.positionViewAtEnd()
+            scrollToBottom()
+        }
+    }
+
     function scrollToBottom() {
-        chatView.positionViewAtEnd();
+        chatView.stickToBottom = true
+        scrollTimer.running = true
     }
 
     ListView {
@@ -28,25 +43,15 @@ Rectangle {
         pixelAligned: true
         // FIXME: atYEnd is glitchy on Qt 5.2.1
         property bool nowAtYEnd: contentY - originY + height >= contentHeight
-        property bool wasAtEndY: true
-
-        function aboutToBeInserted() {
-            wasAtEndY = nowAtYEnd;
-            console.log("aboutToBeInserted! nowAtYEnd=" + nowAtYEnd);
-        }
+        property bool stickToBottom: true
 
         function rowsInserted() {
-            if( wasAtEndY )
-            {
+            if( stickToBottom )
                 root.scrollToBottom();
-            } else  {
-                console.log("was not at end, not scrolling");
-            }
         }
 
         Component.onCompleted: {
             console.log("onCompleted");
-            model.rowsAboutToBeInserted.connect(aboutToBeInserted);
             model.rowsInserted.connect(rowsInserted);
         }
 
@@ -62,6 +67,16 @@ Rectangle {
             }
         }
 
+        onHeightChanged: {
+            if( stickToBottom )
+                root.scrollToBottom();
+        }
+
+        onContentHeightChanged: {
+            if( stickToBottom )
+                root.scrollToBottom();
+        }
+
         onContentYChanged: {
             if( (this.contentY - this.originY) < 5 )
             {
@@ -70,6 +85,15 @@ Rectangle {
             }
 
         }
+
+        onMovementStarted: {
+            stickToBottom = false;
+        }
+
+        onMovementEnded: {
+            stickToBottom = nowAtYEnd;
+        }
+
     }
 
     Slider {
