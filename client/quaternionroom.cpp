@@ -97,7 +97,7 @@ void QuaternionRoom::doAddNewMessageEvents(const QMatrixClient::Events& events)
             new_message = true;
     }
     if (lastOwnMessage)
-        setLastReadEvent(connection()->user(), lastOwnMessage->id());
+        promoteReadMarker(connection()->user(), lastOwnMessage->id());
 
     if( !m_unreadMessages && new_message)
     {
