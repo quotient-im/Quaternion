@@ -22,17 +22,17 @@
 
 #include <QtWidgets/QWidget>
 
-#include <QtQuick/QQuickView>
-
 namespace QMatrixClient
 {
     class Room;
     class Connection;
+    class User;
     class Event;
 }
 class MessageEventModel;
 class QuaternionRoom;
 class ImageProvider;
+class QQuickView;
 class QListView;
 class QLineEdit;
 class QLabel;

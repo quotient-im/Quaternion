@@ -28,6 +28,7 @@
 
 #include <QtQml/QQmlContext>
 #include <QtQml/QQmlEngine>
+#include <QtQuick/QQuickView>
 #include <QtQuick/QQuickItem>
 
 #include "lib/room.h"
