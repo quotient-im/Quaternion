@@ -115,7 +115,7 @@ if(WIN32)
             COMMAND bin/windeployqt -\${WDQ_FLAG} --no-system-d3d-compiler --no-opengl
                 --no-multimedia --no-multimediaquick --no-declarative --no-test \
                 --qmldir qml \"\${CMAKE_INSTALL_PREFIX}/\${CMAKE_INSTALL_BINDIR}\"
-            WORKING_DIRECTORY \"\${qt5_libdir}/..\"
+            WORKING_DIRECTORY \"\${Qt5_Prefix}/..\"
         )
     ")
 endif()
