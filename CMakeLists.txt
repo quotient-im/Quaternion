@@ -2,18 +2,20 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8.11)
 
 project(quaternion CXX)
 
+if(UNIX AND NOT APPLE)
+    set(LINUX 1)
+endif(UNIX AND NOT APPLE)
+
 include(CheckCXXCompilerFlag)
-include(GNUInstallDirs)
-include(cmake/ECMInstallIcons.cmake)
+if (NOT WIN32)
+    include(GNUInstallDirs)
+    include(cmake/ECMInstallIcons.cmake)
+endif(NOT WIN32)
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
-
-if(UNIX AND NOT APPLE)
-    set(LINUX 1)
-endif(UNIX AND NOT APPLE)
 
 # Set a default build type if none was specified
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -51,7 +53,7 @@ if (CMAKE_BUILD_TYPE)
     message( STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 endif(CMAKE_BUILD_TYPE)
 message( STATUS "Using compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}" )
-message( STATUS "Using Qt ${Qt5_VERSION} at: ${Qt5_Prefix}" )
+message( STATUS "Using Qt ${Qt5_VERSION} at ${Qt5_Prefix}" )
 message( STATUS "Quaternion install prefix: ${CMAKE_INSTALL_PREFIX}" )
 message( STATUS "=============================================================================" )
 message( STATUS )
@@ -92,6 +94,10 @@ target_link_libraries(quaternion qmatrixclient Qt5::Widgets Qt5::Quick Qt5::Qml 
 
 # Installation
 
+if (NOT CMAKE_INSTALL_BINDIR)
+    set(CMAKE_INSTALL_BINDIR ".")
+endif()
+
 install(TARGETS quaternion
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 if(LINUX)
@@ -105,17 +111,31 @@ if(LINUX)
 endif(LINUX)
 
 if(WIN32)
-    install(CODE "
-        if (CMAKE_INSTALL_CONFIG_NAME STREQUAL \"Debug\")
-            set(WDQ_FLAG debug)
-        else()
-            set(WDQ_FLAG release)
-        endif()
-        execute_process(
-            COMMAND bin/windeployqt -\${WDQ_FLAG} --no-system-d3d-compiler --no-opengl
-                --no-multimedia --no-multimediaquick --no-declarative --no-test \
-                --qmldir qml \"\${CMAKE_INSTALL_PREFIX}/\${CMAKE_INSTALL_BINDIR}\"
-            WORKING_DIRECTORY \"\${Qt5_Prefix}/..\"
-        )
-    ")
-endif()
+    if (${Qt5_VERSION} VERSION_LESS "5.3")
+        install(CODE "
+            message(\"Deploying on Windows is only supported with Qt 5.3 or higher\")
+            message(\"Bare executable has been copied to the target folder\")
+        ")
+    else()
+        get_filename_component(Qt5_WinBaseDir "${Qt5_DIR}/../../.." ABSOLUTE)
+        install(CODE "
+            if (CMAKE_INSTALL_CONFIG_NAME STREQUAL \"Debug\")
+                set(WDQ_FLAG debug)
+            else()
+                set(WDQ_FLAG release)
+            endif()
+            execute_process(
+                COMMAND bin/windeployqt --\${WDQ_FLAG} --no-system-d3d-compiler --no-opengl
+                    --no-multimedia --no-multimediaquick --no-declarative --no-test \
+                    --qmldir qml \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}\"
+                WORKING_DIRECTORY \"${Qt5_WinBaseDir}\"
+                RESULT_VARIABLE WDQ_RETVAL
+            )
+            if (WDQ_RETVAL)
+                message( \"windeployqt returned \${WDQ_RETVAL} - check messages above\")
+            else()
+                message( STATUS \"Quaternion and its dependencies have been deployed to \${CMAKE_INSTALL_PREFIX}.\")
+            endif()
+        ")
+    endif()
+endif(WIN32)
