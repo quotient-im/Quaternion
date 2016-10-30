@@ -55,6 +55,6 @@ void SystemTray::highlightCountChanged(QMatrixClient::Room* room)
     if( room->highlightCount() > 0 )
     {
         showMessage(tr("Highlight!"), tr("%1: %2 highlight(s)").arg(room->displayName()).arg(room->highlightCount()));
-        m_parent->raise();
+        m_parent->activateWindow();
     }
 }
