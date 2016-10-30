@@ -38,7 +38,7 @@ From the root directory of the project sources:
 mkdir build
 cd build
 cmake ../ # Pass -DCMAKE_PREFIX_PATH here if needed
-cmake --build build
+cmake --build .
 ```
 This will get you an executable in the build directory inside your project sources.
 
