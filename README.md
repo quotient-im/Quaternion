@@ -13,9 +13,9 @@ You can also file outright bugs at [the project's issue tracker](https://github.
 - a Linux, MacOS or Windows system (desktop versions tried; mobile Linux/Windows might work too)
   - For Ubuntu flavours - Trusty Tar or later (or a derivative) is good enough; older ones will need PPAs at least for a newer Qt
 - a Git client (to check out this repo)
-- CMake (from your package management system or https://cmake.org/download/)
+- CMake (from your package management system or [the official website](https://cmake.org/download/))
 - Qt 5 (either Open Source or Commercial), version 5.2.1 or higher as of this writing (check the CMakeLists.txt for most up-to-date information). Qt 5.3 or higher recommended on Windows.
-- a C++ toolchain supported by Qt 5.2.1 or later (see a link for your platform at http://doc.qt.io/qt-5/gettingstarted.html#platform-requirements)
+- a C++ toolchain supported by Qt 5.2.1 or later (see a link for your platform at [the Qt's platform requirements page](http://doc.qt.io/qt-5/gettingstarted.html#platform-requirements))
   - GCC 4.8, Clang 3.5.0, Visual C++ 2013 are the oldest officially supported by Quaternion as of this writing
 
 ## Installing pre-requisites
@@ -30,7 +30,7 @@ sudo apt-get install git cmake qtdeclarative5-dev qtdeclarative5-qtquick2-plugin
 
 ### Windows
 1. Install a Git client and CMake. The commands here imply that git and cmake are in your PATH - otherwise you have to prepend them with your actual paths.
-1. Install Qt5, using their official installer. If for some reason you need to use Qt 5.2.1, select its Add-ons component in the installer as well; for later versions, no extras are needed. If you don't have a toolchain and/or IDE, you can easily get one by selecting Qt Creator and at least one toolchain under Qt Creator.
+1. Install Qt5, using their official installer. If for some reason you need to use Qt 5.2.1, select its Add-ons component in the installer as well; for later versions, no extras are needed. If you don't have a toolchain and/or IDE, you can easily get one by selecting Qt Creator and at least one toolchain under Qt Creator. At least Qt 5.3 is recommended on Windows; `windeployqt` in Qt 5.2.1 is not functional enough to provide a standalone installation for Quaternion; but you can still compile and run it from your build directory.  
 1. Make sure CMake knows about Qt and the toolchain - the easiest way is to run a qtenv2.bat script that can be found in `C:\Qt\<Qt version>\<toolchain>\bin` (assuming you installed Qt to `C:\Qt`). The only thing it does is adding necessary paths to PATH - you might not want to run it on system startup but it's very handy to setup environment before building. Setting CMAKE_PREFIX_PATH, the same way as for OS X (see above), also helps.
 
 There are no official MinGW-based 64-bit packages for Qt. If you're determined to build 64-bit Quaternion, either use a Visual Studio toolchain or build Qt5 yourself as described in Qt documentation.
