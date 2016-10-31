@@ -60,19 +60,11 @@ class MemberNameSorter
 UserListModel::UserListModel(QObject* parent)
     : QAbstractListModel(parent)
 {
-    m_connection = nullptr;
     m_currentRoom = nullptr;
 }
 
 UserListModel::~UserListModel()
 {
-}
-
-void UserListModel::setConnection(QMatrixClient::Connection* connection)
-{
-    setRoom(nullptr);
-
-    m_connection = connection;
 }
 
 void UserListModel::setRoom(QMatrixClient::Room* room)

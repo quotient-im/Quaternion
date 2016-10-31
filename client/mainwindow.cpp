@@ -139,7 +139,6 @@ void MainWindow::setConnection(QuaternionConnection* newConnection)
     if (connection)
     {
         chatRoomWidget->setConnection(nullptr);
-        userListDock->setConnection(nullptr);
         roomListDock->setConnection(nullptr);
         systemTray->setConnection(nullptr);
 
@@ -155,7 +154,6 @@ void MainWindow::setConnection(QuaternionConnection* newConnection)
     if (connection)
     {
         chatRoomWidget->setConnection(connection);
-        userListDock->setConnection(connection);
         roomListDock->setConnection(connection);
         systemTray->setConnection(connection);
 
