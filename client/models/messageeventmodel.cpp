@@ -19,16 +19,13 @@
 
 #include "messageeventmodel.h"
 
-#include <QtCore/QStringBuilder>
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
 
 #include "../message.h"
 #include "../quaternionroom.h"
 #include "lib/connection.h"
-#include "lib/room.h"
 #include "lib/user.h"
-#include "lib/events/event.h"
 #include "lib/events/roommessageevent.h"
 #include "lib/events/roommemberevent.h"
 #include "lib/events/roomnameevent.h"

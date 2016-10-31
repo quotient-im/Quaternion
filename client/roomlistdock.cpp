@@ -20,7 +20,6 @@
 #include "roomlistdock.h"
 
 #include <QtCore/QSettings>
-#include <QtCore/QDebug>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QStyledItemDelegate>
 

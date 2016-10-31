@@ -20,10 +20,6 @@
 #include "imageprovider.h"
 #include <jobs/mediathumbnailjob.h>
 
-#include <QtCore/QMutex>
-#include <QtCore/QMutexLocker>
-#include <QtCore/QWaitCondition>
-
 #include <QtCore/QDebug>
 
 ImageProvider::ImageProvider(QMatrixClient::Connection* connection)
