@@ -28,8 +28,7 @@
 Message::Message(QMatrixClient::Connection* connection,
                  QMatrixClient::Event* event,
                  QMatrixClient::Room* room)
-    : m_connection(connection)
-    , m_event(event)
+    : m_event(event)
     , m_isHighlight(false)
     , m_isStatusMessage(true)
 {
@@ -38,7 +37,7 @@ Message::Message(QMatrixClient::Connection* connection,
     {
         m_isStatusMessage = false;
         RoomMessageEvent* messageEvent = static_cast<RoomMessageEvent*>(event);
-        User* localUser = m_connection->user();
+        User* localUser = connection->user();
         // Only highlight messages from other users
         if (messageEvent->senderId() != localUser->id())
         {
