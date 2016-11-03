@@ -12,7 +12,7 @@ Rectangle {
 
     signal getPreviousContent()
 
-    Timer{
+    Timer {
         id: scrollTimer
         interval: 0
         onTriggered: reallyScrollToBottom()
@@ -47,12 +47,12 @@ Rectangle {
 
         function rowsInserted() {
             if( stickToBottom )
-                root.scrollToBottom();
+                root.scrollToBottom()
         }
 
         Component.onCompleted: {
-            console.log("onCompleted");
-            model.rowsInserted.connect(rowsInserted);
+            console.log("onCompleted")
+            model.rowsInserted.connect(rowsInserted)
         }
 
         section {
@@ -69,29 +69,29 @@ Rectangle {
 
         onHeightChanged: {
             if( stickToBottom )
-                root.scrollToBottom();
+                root.scrollToBottom()
         }
 
         onContentHeightChanged: {
             if( stickToBottom )
-                root.scrollToBottom();
+                root.scrollToBottom()
         }
 
         onContentYChanged: {
             if( (this.contentY - this.originY) < 5 )
             {
-                console.log("get older content!");
+                console.log("get older content!")
                 root.getPreviousContent()
             }
 
         }
 
         onMovementStarted: {
-            stickToBottom = false;
+            stickToBottom = false
         }
 
         onMovementEnded: {
-            stickToBottom = nowAtYEnd;
+            stickToBottom = nowAtYEnd
         }
 
     }
@@ -216,9 +216,9 @@ Rectangle {
 
                         TextEdit {
                             id: contentField
-                            selectByMouse: true; readOnly: true; font: timelabel.font;
+                            selectByMouse: true; readOnly: true; font: timelabel.font
                             textFormat: contentType == "text/html" ? TextEdit.RichText
-                                                                   : TextEdit.PlainText;
+                                                                   : TextEdit.PlainText
                             text: eventType != "image" ? content : ""
                             height: eventType != "image" ? implicitHeight : 0
                             wrapMode: Text.Wrap; width: parent.width
@@ -286,16 +286,16 @@ Rectangle {
         }
     }
     Rectangle {
-        id: scrollindicator;
+        id: scrollindicator
         opacity: chatView.nowAtYEnd ? 0 : 0.5
         color: defaultPalette.text
-        height: 30;
-        radius: height/2;
-        width: height;
-        anchors.left: parent.left;
-        anchors.bottom: parent.bottom;
-        anchors.leftMargin: width/2;
-        anchors.bottomMargin: chatView.nowAtYEnd ? -height : height/2;
+        height: 30
+        radius: height/2
+        width: height
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        anchors.leftMargin: width/2
+        anchors.bottomMargin: chatView.nowAtYEnd ? -height : height/2
         Behavior on opacity {
             NumberAnimation { duration: 300 }
         }
