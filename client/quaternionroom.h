@@ -26,7 +26,7 @@ class QuaternionRoom: public QMatrixClient::Room
 {
         Q_OBJECT
     public:
-        using Timeline = QMatrixClient::Owning< QList<Message*> >;
+        using Timeline = QVector<Message>;
 
         QuaternionRoom(QMatrixClient::Connection* connection, QString roomId);
 
@@ -60,5 +60,5 @@ class QuaternionRoom: public QMatrixClient::Room
         bool m_shown;
         QString m_cachedInput;
 
-        Message* makeMessage(QMatrixClient::RoomEvent* e);
+        Message makeMessage(QMatrixClient::RoomEvent* e);
 };

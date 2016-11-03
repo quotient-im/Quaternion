@@ -31,6 +31,7 @@ namespace QMatrixClient
 class Message
 {
     public:
+        Message() = default;
         Message(QMatrixClient::Connection* connection,
                 QMatrixClient::RoomEvent* event,
                 QMatrixClient::Room* room);
@@ -44,3 +45,4 @@ class Message
         bool m_isHighlight;
         bool m_isStatusMessage;
 };
+Q_DECLARE_TYPEINFO(Message, Q_MOVABLE_TYPE);

@@ -116,8 +116,8 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
             index.row() < 0 || index.row() >= m_currentRoom->messages().count())
         return QVariant();
 
-    const Message* message = m_currentRoom->messages().at(index.row());;
-    RoomEvent* event = message->messageEvent();
+    const Message& message = m_currentRoom->messages().at(index.row());;
+    auto* event = message.messageEvent();
     // FIXME: Rewind to the name that was at the time of this event
     QString senderName = m_currentRoom->roomMembername(event->senderId());
 
@@ -296,12 +296,12 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 
     if( role == HighlightRole )
     {
-        return message->highlight();
+        return message.highlight();
     }
 
     if( role == Qt::DecorationRole )
     {
-        if (message->highlight())
+        if (message.highlight())
         {
             return QSettings().value("UI/highlight_color", "orange");
         }

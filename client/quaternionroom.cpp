@@ -21,7 +21,7 @@
 
 #include <QtCore/QRegularExpression>
 
-#include "message.h"
+#include "lib/connection.h"
 
 QuaternionRoom::QuaternionRoom(QMatrixClient::Connection* connection, QString roomId)
     : QMatrixClient::Room(connection, roomId)
@@ -54,9 +54,9 @@ const QuaternionRoom::Timeline& QuaternionRoom::messages() const
     return m_messages;
 }
 
-inline Message* QuaternionRoom::makeMessage(QMatrixClient::RoomEvent* e)
+inline Message QuaternionRoom::makeMessage(QMatrixClient::RoomEvent* e)
 {
-    return new Message(connection(), e, this);
+    return { connection(), e, this };
 }
 
 void QuaternionRoom::doAddNewMessageEvents(const QMatrixClient::RoomEvents& events)
