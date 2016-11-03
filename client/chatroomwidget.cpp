@@ -118,8 +118,7 @@ ChatRoomWidget::~ChatRoomWidget()
 
 void ChatRoomWidget::lookAtRoom()
 {
-    if ( m_currentRoom )
-        m_currentRoom->lookAt();
+    m_messageModel->markShownAsRead();
 }
 
 void ChatRoomWidget::enableDebug()
@@ -162,7 +161,6 @@ void ChatRoomWidget::setConnection(QMatrixClient::Connection* connection)
     setRoom(nullptr);
     m_currentConnection = connection;
     m_imageProvider->setConnection(connection);
-    m_messageModel->setConnection(connection);
 }
 
 void ChatRoomWidget::typingChanged()

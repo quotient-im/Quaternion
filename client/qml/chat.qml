@@ -132,6 +132,51 @@ Rectangle {
             width: chatView.width
             height: childrenRect.height
 
+            // A message is considered shown if its bottom is within the
+            // viewing area of the timeline.
+            property bool shown:
+                y + message.height - 1 > chatView.contentY &&
+                y + message.height - 1 < chatView.contentY + chatView.height
+
+            property bool newlyShown: shown &&
+                                      messageModel.lastShownIndex != -1 &&
+                                      index > messageModel.lastShownIndex
+
+            function promoteLastShownIndex() {
+                if (shown && index > messageModel.lastShownIndex) {
+                    // This doesn't promote the read marker, only the shown
+                    // index in the model. The read marker is updated upon
+                    // activity of the user, we have no control over that here.
+                    messageModel.lastShownIndex = index
+                    console.log("Updated last shown index to #" + index,
+                                "event id", eventId)
+                }
+            }
+
+            Timer {
+                id: indexPromotionTimer
+                interval: 1000
+                onTriggered: promoteLastShownIndex()
+            }
+
+            onShownChanged: {
+                if (messageModel.room.readMarkerEventId === eventId)
+                    promoteLastShownIndex()
+            }
+
+            onNewlyShownChanged: {
+                // Only promote the shown index if it's been initialised from
+                // the read marker beforehand, and only if the message has been
+                // on screen for some time.
+                if (newlyShown)
+                {
+                    indexPromotionTimer.start()
+                    console.log("Scheduled lastReadIndex update from",
+                                messageModel.lastShownIndex, "to", index,
+                                "in", indexPromotionTimer.interval, "ms")
+                }
+            }
+
             RowLayout {
                 id: message
                 width: parent.width
@@ -221,7 +266,7 @@ Rectangle {
             }
             Rectangle {
                 color: defaultPalette.highlight
-                width: messageModel.lastReadId === eventId ? parent.width : 0
+                width: messageModel.room.readMarkerEventId === eventId ? parent.width : 0
                 height: 1
                 anchors.bottom: message.bottom
                 anchors.horizontalCenter: message.horizontalCenter
