@@ -36,11 +36,6 @@ QuaternionRoom::QuaternionRoom(QMatrixClient::Connection* connection, QString ro
 QuaternionRoom::~QuaternionRoom()
 { }
 
-void QuaternionRoom::lookAt()
-{
-    markMessagesAsRead();
-}
-
 void QuaternionRoom::setShown(bool shown)
 {
     if( shown == m_shown )
