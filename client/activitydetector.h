@@ -17,8 +17,7 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef ACTIVITYDETECTOR_H
-#define ACTIVITYDETECTOR_H
+#pragma once
 
 #include <QtWidgets/QApplication>
 
@@ -48,5 +47,3 @@ class ActivityDetector : public QObject
         bool m_enabled;
         MessageEventModel* m_messageEventModel;
 };
-
-#endif // ACTIVITYDETECTOR_H
