@@ -1,6 +1,6 @@
 /**************************************************************************
  *                                                                        *
- * Copyright (C) 2015 Felix Rohrbach <kde@fxrh.de>                        *
+ * Copyright (C) 2016 Malte Brandy <malte.brandy@maralorn.de>                        *
  *                                                                        *
  * This program is free software; you can redistribute it and/or          *
  * modify it under the terms of the GNU General Public License            *
@@ -17,46 +17,36 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef LOGMESSAGEMODEL_H
-#define LOGMESSAGEMODEL_H
+#ifndef ACTIVITYDETECTOR_H
+#define ACTIVITYDETECTOR_H
 
-#include "../quaternionroom.h"
+#include <QtWidgets/QApplication>
 
-#include <QtCore/QAbstractListModel>
-#include <QtCore/QModelIndex>
+class MainWindow;
+class MessageEventModel;
 
-class Message;
-
-class MessageEventModel: public QAbstractListModel
+class ActivityDetector : public QObject
 {
-        Q_OBJECT
-        Q_PROPERTY(QuaternionRoom* room MEMBER m_currentRoom CONSTANT)
-        Q_PROPERTY(int lastShownIndex MEMBER lastShownIndex NOTIFY lastShownIndexChanged)
-        Q_PROPERTY(int readMarkerIndex MEMBER m_readMarkerIndex NOTIFY readMarkerIndexChanged)
+    Q_OBJECT
+
     public:
-        MessageEventModel(QObject* parent = nullptr);
-        virtual ~MessageEventModel();
-
-        void changeRoom(QuaternionRoom* room);
-
-        int rowCount(const QModelIndex& parent = QModelIndex()) const override;
-        QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
-        QHash<int, QByteArray> roleNames() const override;
-
-        bool awaitingMarkRead();
-
-    signals:
-        void lastShownIndexChanged(int newValue);
-        void readMarkerIndexChanged(int newValue);
+        ActivityDetector(QApplication* a, MainWindow* c);
 
     public slots:
-        void markShownAsRead();
-        void updateReadMarkerIndex();
+        void updateEnabled();
+        void setEnabled(bool enabled);
+
+    signals:
+        void triggered();
+
+    protected:
+        bool eventFilter(QObject* obj, QEvent* ev);
 
     private:
-        QuaternionRoom* m_currentRoom;
-        int lastShownIndex;
-        int m_readMarkerIndex;
+        QApplication* m_app;
+        MainWindow* m_mainWindow;
+        bool m_enabled;
+        MessageEventModel* m_messageEventModel;
 };
 
-#endif // LOGMESSAGEMODEL_H
+#endif // ACTIVITYDETECTOR_H

@@ -139,8 +139,9 @@ Rectangle {
                 y + message.height - 1 < chatView.contentY + chatView.height
 
             property bool newlyShown: shown &&
-                                      messageModel.lastShownIndex !== -1 &&
-                                      index > messageModel.lastShownIndex
+                                      messageModel.lastShownIndex != -1 &&
+                                      index > messageModel.lastShownIndex &&
+                                      index > messageModel.readMarkerIndex
 
             function promoteLastShownIndex() {
                 if (index > messageModel.lastShownIndex) {

@@ -94,7 +94,6 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     QObject* rootItem = m_quickView->rootObject();
     connect( rootItem, SIGNAL(getPreviousContent()), this, SLOT(getPreviousContent()) );
 
-
     m_chatEdit = new ChatEdit(this);
     connect( m_chatEdit, &QLineEdit::returnPressed, this, &ChatRoomWidget::sendLine );
 
@@ -116,9 +115,9 @@ ChatRoomWidget::~ChatRoomWidget()
 {
 }
 
-void ChatRoomWidget::lookAtRoom()
+MessageEventModel* ChatRoomWidget::getMessageEventModel()
 {
-    m_messageModel->markShownAsRead();
+    return m_messageModel;
 }
 
 void ChatRoomWidget::enableDebug()

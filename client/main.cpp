@@ -23,32 +23,7 @@
 #include <QtCore/QDebug>
 
 #include "mainwindow.h"
-
-class ActivityDetector : public QObject
-{
-    public:
-        ActivityDetector(MainWindow* c): m_mainWindow(c)
-        {
-            c->setMouseTracking(true);
-        };
-    protected:
-        bool eventFilter(QObject* obj, QEvent* ev)
-        {
-            switch (ev->type())
-            {
-            case QEvent::KeyPress:
-            case QEvent::FocusIn:
-            case QEvent::MouseMove:
-            case QEvent::MouseButtonPress:
-                m_mainWindow->activity();
-            default:;
-            }
-            return QObject::eventFilter(obj, ev);
-        }
-    private:
-        MainWindow* m_mainWindow;
-};
-
+#include "activitydetector.h"
 
 int main( int argc, char* argv[] )
 {
@@ -80,8 +55,7 @@ int main( int argc, char* argv[] )
     MainWindow window;
     if( debugEnabled )
         window.enableDebug();
-    ActivityDetector ad(&window);
-    app.installEventFilter(&ad);
+    ActivityDetector ad(&app, &window);
     window.show();
 
     return app.exec();

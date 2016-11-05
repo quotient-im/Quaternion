@@ -66,6 +66,7 @@ MessageEventModel::MessageEventModel(QObject* parent)
     : QAbstractListModel(parent)
     , m_currentRoom(nullptr)
     , lastShownIndex(-1)
+    , m_readMarkerIndex(-1)
 { }
 
 MessageEventModel::~MessageEventModel()
@@ -83,25 +84,34 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
 
     m_currentRoom = room;
     lastShownIndex = -1;
+    m_readMarkerIndex = -1;
     if( room )
     {
         using namespace QMatrixClient;
-        connect(m_currentRoom, &Room::aboutToAddNewMessages,
+        connect(m_currentRoom, &Room::aboutToAddNewMessages, this,
                 [=](const Events& events)
                 {
                     beginInsertRows(QModelIndex(),
                                     rowCount(), rowCount() + events.size() - 1);
                 });
-        connect(m_currentRoom, &Room::aboutToAddHistoricalMessages,
+        connect(m_currentRoom, &Room::aboutToAddHistoricalMessages, this,
                 [=](const Events& events)
                 {
                     beginInsertRows(QModelIndex(), 0, events.size() - 1);
                 });
-        connect(m_currentRoom, &Room::addedMessages,
-                this, &MessageEventModel::endInsertRows);
+        connect(m_currentRoom, &Room::addedMessages, this,
+                [=]()
+                {
+                    endInsertRows();
+                    updateReadMarkerIndex();
+                });
+        connect(m_currentRoom, &Room::readMarkerPromoted,
+                this, &MessageEventModel::updateReadMarkerIndex);
         qDebug() << "connected" << room;
     }
     endResetModel();
+    emit lastShownIndexChanged(lastShownIndex);
+    updateReadMarkerIndex();
 }
 
 int MessageEventModel::rowCount(const QModelIndex& parent) const
@@ -329,9 +339,33 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 
 void MessageEventModel::markShownAsRead()
 {
-    if (m_currentRoom && lastShownIndex > -1)
+    if (m_currentRoom && lastShownIndex > -1 && lastShownIndex < m_currentRoom->messages().count())
     {
         auto lastShownMessage = m_currentRoom->messages().at(lastShownIndex);
         m_currentRoom->markMessagesAsRead(lastShownMessage->messageEvent()->id());
     }
+}
+
+void MessageEventModel::updateReadMarkerIndex()
+{
+    if( !m_currentRoom )
+        return;
+    for (int newReadMarkerIndex = m_readMarkerIndex; newReadMarkerIndex < m_currentRoom->messages().count() ; ++newReadMarkerIndex)
+        {
+        if (newReadMarkerIndex >= 0 && m_currentRoom->readMarkerEventId() == m_currentRoom->messages().at(newReadMarkerIndex)->messageEvent()->id())
+        {
+            if (newReadMarkerIndex != m_readMarkerIndex)
+            {
+                m_readMarkerIndex = newReadMarkerIndex;
+                emit readMarkerIndexChanged(newReadMarkerIndex);
+            }
+            return;
+        }
+    }
+}
+
+bool MessageEventModel::awaitingMarkRead()
+{
+    qDebug() << "readMarker: " << m_readMarkerIndex << "lastShown: " << lastShownIndex;
+    return m_readMarkerIndex < lastShownIndex;
 }
