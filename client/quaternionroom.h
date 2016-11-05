@@ -39,7 +39,6 @@ class QuaternionRoom: public QMatrixClient::Room
          * This is used to mark messages as read.
          */
         void setShown(bool shown);
-        void lookAt();
         bool isShown();
 
         void setCachedInput(const QString& input);
