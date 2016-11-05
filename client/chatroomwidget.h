@@ -42,11 +42,13 @@ class ChatRoomWidget: public QWidget
         void enableDebug();
         void triggerCompletion();
         void cancelCompletion();
-        void lookAtRoom();
+        bool pendingMarkRead() const;
 
     signals:
         void joinCommandEntered(const QString& roomAlias);
         void showStatusMessage(const QString& message, int timeout = 0);
+        void readMarkerMoved();
+        void readMarkerCandidateMoved();
 
     public slots:
         void setRoom(QuaternionRoom* room);

@@ -114,11 +114,6 @@ ChatRoomWidget::~ChatRoomWidget()
 {
 }
 
-void ChatRoomWidget::lookAtRoom()
-{
-    markShownAsRead();
-}
-
 void ChatRoomWidget::enableDebug()
 {
     QQmlContext* ctxt = m_quickView->rootContext();
@@ -147,6 +142,8 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
         m_chatEdit->setText( m_currentRoom->cachedInput() );
         connect( m_currentRoom, &QMatrixClient::Room::typingChanged, this, &ChatRoomWidget::typingChanged );
         connect( m_currentRoom, &QMatrixClient::Room::topicChanged, this, &ChatRoomWidget::topicChanged );
+        connect( m_currentRoom, &QMatrixClient::Room::readMarkerMoved,
+                 this, &ChatRoomWidget::readMarkerMoved );
         m_currentRoom->setShown(true);
         topicChanged();
         typingChanged();
@@ -393,6 +390,7 @@ void ChatRoomWidget::timerEvent(QTimerEvent* qte)
         qDebug() << "Maybe-read message update:" << indexToMaybeRead
                  << "->" << indicesOnScreen.back();
         indexToMaybeRead = indicesOnScreen.back();
+        emit readMarkerCandidateMoved();
     }
 }
 
@@ -406,4 +404,13 @@ void ChatRoomWidget::markShownAsRead()
         Q_ASSERT( iter != m_currentRoom->timelineEdge() );
         m_currentRoom->markMessagesAsRead((*iter)->id());
     }
+}
+
+bool ChatRoomWidget::pendingMarkRead() const
+{
+    if (!readMarkerOnScreen || !m_currentRoom)
+        return false;
+
+    const auto rm = m_currentRoom->readMarker();
+    return rm != m_currentRoom->timelineEdge() && rm->index() < indexToMaybeRead;
 }

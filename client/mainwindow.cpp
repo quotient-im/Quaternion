@@ -69,9 +69,9 @@ MainWindow::~MainWindow()
 {
 }
 
-void MainWindow::activity()
+ChatRoomWidget* MainWindow::getChatRoomWidget() const
 {
-    chatRoomWidget->lookAtRoom();
+   return chatRoomWidget;
 }
 
 void MainWindow::createMenu()
