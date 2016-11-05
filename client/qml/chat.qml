@@ -293,23 +293,20 @@ Rectangle {
     }
     Rectangle {
         id: scrollindicator
-        opacity: chatView.nowAtYEnd ? 0 : 0.5
         color: defaultPalette.text
         height: 30
         radius: height/2
         width: height
         anchors.left: parent.left
         anchors.bottom: parent.bottom
-        anchors.leftMargin: width/2
-        anchors.bottomMargin: chatView.nowAtYEnd ? -height : height/2
-        Behavior on opacity {
-            NumberAnimation { duration: 300 }
-        }
-        Behavior on anchors.bottomMargin {
-            NumberAnimation { duration: 300 }
-        }
+        anchors.leftMargin: height/2
+        anchors.bottomMargin: -height
         Image {
-            anchors.fill: parent
+            id: scrolldownarrow
+            anchors.left: parent.left
+            anchors.top: parent.top
+            height: parent.height
+            width: height
             source: "qrc:///scrolldown.svg"
         }
         MouseArea {
@@ -317,5 +314,179 @@ Rectangle {
             onClicked: root.scrollToBottom()
             cursorShape: Qt.PointingHandCursor
         }
+        Label {
+            id: scrolldowntext
+            text: "unread messages below"
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: scrolldownarrow.right
+            anchors.leftMargin: scrolldownarrow.width/2
+        }
+        state: chatView.nowAtYEnd ? "hide" : (messageModel.readMarkerIndex == chatView.count - 1 ? "show": "extend")
+        states: [
+        State {
+            name: "show"
+            PropertyChanges { target:scrollindicator; opacity: 0.5 }
+            PropertyChanges { target:scrollindicator; color: defaultPalette.text }
+            PropertyChanges { target:scrolldowntext; opacity: 0 }
+            PropertyChanges { target:scrollindicator; width: scrollindicator.height }
+            PropertyChanges { target:scrollindicator; anchors.bottomMargin: scrollindicator.height/2 }
+        },
+        State {
+            name: "extend"
+            PropertyChanges { target:scrollindicator; opacity: 1 }
+            PropertyChanges { target:scrollindicator; color: "#ffaaaa" }
+            PropertyChanges { target:scrolldowntext; opacity: 1 }
+            PropertyChanges { target:scrollindicator; width: scrolldowntext.width + scrollindicator.height*2 }
+            PropertyChanges { target:scrollindicator; anchors.bottomMargin: scrollindicator.height/2 }
+        },
+        State {
+            name: "hide"
+            PropertyChanges { target:scrollindicator; opacity: 0 }
+            PropertyChanges { target:scrollindicator; color: defaultPalette.text }
+            PropertyChanges { target:scrolldowntext; opacity: 0 }
+            PropertyChanges { target:scrollindicator; width: scrollindicator.height }
+            PropertyChanges { target:scrollindicator; anchors.bottomMargin: -scrollindicator.height }
+        }]
+        transitions: [
+            Transition {
+                from: "hide"
+                to: "show"
+                ParallelAnimation{
+                    NumberAnimation{target: scrollindicator; property: "opacity"; duration: 100}
+                    NumberAnimation{target: scrollindicator; property: "anchors.bottomMargin"; duration: 100}
+                }
+            },
+            Transition {
+                from: "show"
+                to: "extend"
+                SequentialAnimation{
+                    ParallelAnimation{
+                        ColorAnimation{target: scrollindicator; duration: 100}
+                        NumberAnimation{target: scrollindicator; property: "opacity"; duration: 100}
+                    }
+                    NumberAnimation{target: scrollindicator; property: "width"; duration: 300}
+                    NumberAnimation{target: scrolldowntext; property: "opacity"; duration: 100}
+                }
+            },
+            Transition {
+                from: "extend"
+                to: "show"
+                SequentialAnimation{
+                    NumberAnimation{target: scrolldowntext; property: "opacity"; duration: 100}
+                    NumberAnimation{target: scrollindicator; property: "width"; duration: 300}
+                    ParallelAnimation{
+                        ColorAnimation{target: scrollindicator; duration: 100}
+                        NumberAnimation{target: scrollindicator; property: "opacity"; duration: 100}
+                    }
+                }
+            },
+            Transition {
+                from: "show"
+                to: "hide"
+                ParallelAnimation{
+                    NumberAnimation{target: scrollindicator; property: "opacity"; duration: 100}
+                    NumberAnimation{target: scrollindicator; property: "anchors.bottomMargin"; duration: 100}
+                }
+            },
+            Transition {
+                from: "extend"
+                to: "hide"
+                SequentialAnimation{
+                    NumberAnimation{target: scrolldowntext; property: "opacity"; duration: 100}
+                    NumberAnimation{target: scrollindicator; property: "width"; duration: 300}
+                    ColorAnimation{target: scrollindicator; duration: 100}
+                    ParallelAnimation{
+                        NumberAnimation{target: scrollindicator; property: "opacity"; duration: 100}
+                        NumberAnimation{target: scrollindicator; property: "anchors.bottomMargin"; duration: 100}
+                    }
+                }
+            },
+            Transition {
+                from: "hide"
+                to: "extend"
+                SequentialAnimation{
+                    ParallelAnimation{
+                        NumberAnimation{target: scrollindicator; property: "opacity"; duration: 100}
+                        NumberAnimation{target: scrollindicator; property: "anchors.bottomMargin"; duration: 100}
+                    }
+                    ColorAnimation{target: scrollindicator; duration: 100}
+                    NumberAnimation{target: scrollindicator; property: "width"; duration: 300}
+                    NumberAnimation{target: scrolldowntext; property: "opacity"; duration: 100}
+                }
+            }
+        ]
+    }
+
+    Rectangle {
+        id: backlogindicator
+        property bool show: chatView.count > 0 && (messageModel.readMarkerIndex == -1 || chatView.indexAt(10,chatView.contentY) > messageModel.readMarkerIndex)
+        color: "#ffaaaa"
+        height: 30
+        width: height
+        radius: height/2
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.leftMargin: height/2
+        anchors.topMargin: height/2
+
+        Image {
+            id: scrolluparrow
+            anchors.left: parent.left
+            anchors.top: parent.top
+            height: parent.height
+            width: height
+            source: "qrc:///scrolldown.svg"
+            transform: Rotation { origin.x: scrolluparrow.height/2; origin.y: scrolluparrow.height/2; angle: 180}
+        }
+        Label {
+            id: scrolluptext
+            text: "unread messages above"
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: scrolluparrow.right
+            anchors.leftMargin: scrolluparrow.width/2
+        }
+
+        state: show ? "show" : "hide"
+        states: [
+        State {
+            name: "show"
+            PropertyChanges { target:backlogindicator; opacity: 1 }
+            PropertyChanges { target:scrolluptext; opacity: 1 }
+            PropertyChanges { target:backlogindicator; width: scrolluptext.width + backlogindicator.height*2 }
+            PropertyChanges { target:backlogindicator; anchors.topMargin: backlogindicator.height/2 }
+        },
+        State {
+            name: "hide"
+            PropertyChanges { target:backlogindicator; opacity: 0 }
+            PropertyChanges { target:scrolluptext; opacity: 0 }
+            PropertyChanges { target:backlogindicator; width: backlogindicator.height }
+            PropertyChanges { target:backlogindicator; anchors.topMargin: -backlogindicator.height }
+        }]
+        transitions: [
+            Transition {
+                from: "hide"
+                to: "show"
+                SequentialAnimation{
+                    ParallelAnimation{
+                        NumberAnimation{target: backlogindicator; property: "opacity"; duration: 100}
+                        NumberAnimation{target: backlogindicator; property: "anchors.topMargin"; duration: 100}
+                    }
+                    NumberAnimation{target: backlogindicator; property: "width"; duration: 300}
+                    NumberAnimation{target: scrolluptext; property: "opacity"; duration: 100}
+                }
+            },
+            Transition {
+                from: "show"
+                to: "hide"
+                SequentialAnimation{
+                    NumberAnimation{target: scrolluptext; property: "opacity"; duration: 100}
+                    NumberAnimation{target: backlogindicator; property: "width"; duration: 300}
+                    ParallelAnimation{
+                        NumberAnimation{target: backlogindicator; property: "opacity"; duration: 100}
+                        NumberAnimation{target: backlogindicator; property: "anchors.topMargin"; duration: 100}
+                    }
+                }
+            }
+        ]
     }
 }
