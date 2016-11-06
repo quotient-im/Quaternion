@@ -19,8 +19,9 @@
 
 #include "quaternionroom.h"
 
-#include "message.h"
 #include "lib/events/event.h"
+#include "lib/events/roommessageevent.h"
+#include "lib/user.h"
 #include "lib/connection.h"
 
 #include <QtCore/QDebug>
@@ -29,7 +30,6 @@ QuaternionRoom::QuaternionRoom(QMatrixClient::Connection* connection, QString ro
     : QMatrixClient::Room(connection, roomId)
 {
     m_shown = false;
-    m_unreadMessages = false;
     m_cachedInput = "";
     connect( this, &QuaternionRoom::notificationCountChanged, this, &QuaternionRoom::countChanged );
     connect( this, &QuaternionRoom::highlightCountChanged, this, &QuaternionRoom::countChanged );
@@ -37,17 +37,6 @@ QuaternionRoom::QuaternionRoom(QMatrixClient::Connection* connection, QString ro
 
 QuaternionRoom::~QuaternionRoom()
 { }
-
-void QuaternionRoom::lookAt()
-{
-    markMessagesAsRead();
-    if( m_unreadMessages )
-    {
-        m_unreadMessages = false;
-        emit unreadMessagesChanged(this);
-        qDebug() << displayName() << "no unread messages";
-    }
-}
 
 void QuaternionRoom::setShown(bool shown)
 {
@@ -64,79 +53,6 @@ void QuaternionRoom::setShown(bool shown)
 bool QuaternionRoom::isShown()
 {
     return m_shown;
-}
-
-const QuaternionRoom::Timeline& QuaternionRoom::messages() const
-{
-    return m_messages;
-}
-
-bool QuaternionRoom::hasUnreadMessages()
-{
-    return m_unreadMessages;
-}
-
-inline Message* QuaternionRoom::makeMessage(QMatrixClient::Event* e)
-{
-    return new Message(connection(), e, this);
-}
-
-void QuaternionRoom::doAddNewMessageEvents(const QMatrixClient::Events& events)
-{
-    Room::doAddNewMessageEvents(events);
-
-    m_messages.reserve(m_messages.size() + events.size());
-    bool new_message = false;
-    QMatrixClient::Event* lastOwnMessage = nullptr;
-    for (auto e: events)
-    {
-        m_messages.push_back(makeMessage(e));
-        if (e->senderId() == connection()->userId())
-            lastOwnMessage = e;
-        else if (e->type() == QMatrixClient::EventType::RoomMessage)
-            new_message = true;
-    }
-    if (lastOwnMessage)
-        promoteReadMarker(connection()->user(), lastOwnMessage->id());
-
-    if( !m_unreadMessages && new_message)
-    {
-        m_unreadMessages = true;
-        emit unreadMessagesChanged(this);
-        qDebug() << "Room" << displayName() << ": unread messages";
-    }
-}
-
-void QuaternionRoom::doAddHistoricalMessageEvents(const QMatrixClient::Events& events)
-{
-    Room::doAddHistoricalMessageEvents(events);
-
-    m_messages.reserve(m_messages.size() + events.size());
-    for (auto e: events)
-        m_messages.push_front(makeMessage(e));
-}
-
-void QuaternionRoom::processEphemeralEvent(QMatrixClient::Event* event)
-{
-    QMatrixClient::Room::processEphemeralEvent(event);
-    if ( m_unreadMessages && event->type() == QMatrixClient::EventType::Receipt )
-    {
-        QString lastReadId = lastReadEvent(connection()->user());
-        // Older Qt doesn't provide QVector::rbegin()/rend()
-        for (auto it = messageEvents().end(); it != messageEvents().begin(); )
-        {
-            --it;
-            if ( lastReadId == (*it)->id() )
-            {
-                m_unreadMessages = false;
-                emit unreadMessagesChanged(this);
-                qDebug() << displayName() << "no unread messages";
-                break;
-            }
-            if ( (*it)->type() == QMatrixClient::EventType::RoomMessage )
-                break;
-        }
-    }
 }
 
 void QuaternionRoom::countChanged()
@@ -156,4 +72,23 @@ const QString& QuaternionRoom::cachedInput() const
 void QuaternionRoom::setCachedInput(const QString& input)
 {
     m_cachedInput = input;
+}
+
+bool QuaternionRoom::isHighlight(const QMatrixClient::Event* event)
+{
+    if( event->type() == QMatrixClient::EventType::RoomMessage )
+    {
+        const QMatrixClient::RoomMessageEvent* messageEvent = static_cast<const QMatrixClient::RoomMessageEvent*>(event);
+        QMatrixClient::User* localUser = connection()->user();
+        // Only highlight messages from other users
+        if (messageEvent->senderId() != localUser->id())
+        {
+            if( messageEvent->body().contains(localUser->id()) )
+                return true;
+            QString ownDisplayname = roomMembername(localUser);
+            if (messageEvent->body().contains(ownDisplayname))
+                return true;
+        }
+    }
+    return false;
 }

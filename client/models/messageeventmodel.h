@@ -25,33 +25,30 @@
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QModelIndex>
 
-class Message;
-
 class MessageEventModel: public QAbstractListModel
 {
         Q_OBJECT
-        Q_PROPERTY(QString lastReadId READ lastReadId NOTIFY lastReadIdChanged STORED false)
+        Q_PROPERTY(QuaternionRoom* room MEMBER m_currentRoom CONSTANT)
+        Q_PROPERTY(int lastShownIndex MEMBER lastShownIndex NOTIFY lastShownIndexChanged)
     public:
         MessageEventModel(QObject* parent = nullptr);
         virtual ~MessageEventModel();
 
-        void setConnection(QMatrixClient::Connection* connection);
         void changeRoom(QuaternionRoom* room);
 
-        //override QModelIndex index(int row, int column, const QModelIndex& parent=QModelIndex()) const;
-        //override QModelIndex parent(const QModelIndex& index) const;
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
         QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
         QHash<int, QByteArray> roleNames() const override;
 
-        QString lastReadId() const;
-
     signals:
-        void lastReadIdChanged();
+        void lastShownIndexChanged(int newValue);
+
+    public slots:
+        void markShownAsRead();
 
     private:
-        QMatrixClient::Connection* m_connection;
         QuaternionRoom* m_currentRoom;
+        int lastShownIndex;
 };
 
 #endif // LOGMESSAGEMODEL_H
