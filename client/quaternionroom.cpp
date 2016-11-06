@@ -19,7 +19,9 @@
 
 #include "quaternionroom.h"
 
-#include "message.h"
+#include "lib/events/event.h"
+#include "lib/events/roommessageevent.h"
+#include "lib/user.h"
 #include "lib/connection.h"
 
 #include <QtCore/QDebug>
@@ -53,34 +55,6 @@ bool QuaternionRoom::isShown()
     return m_shown;
 }
 
-const QuaternionRoom::Timeline& QuaternionRoom::messages() const
-{
-    return m_messages;
-}
-
-inline Message* QuaternionRoom::makeMessage(QMatrixClient::Event* e)
-{
-    return new Message(connection(), e, this);
-}
-
-void QuaternionRoom::doAddNewMessageEvents(const QMatrixClient::Events& events)
-{
-    Room::doAddNewMessageEvents(events);
-
-    m_messages.reserve(m_messages.size() + events.size());
-    for (auto e: events)
-        m_messages.push_back(makeMessage(e));
-}
-
-void QuaternionRoom::doAddHistoricalMessageEvents(const QMatrixClient::Events& events)
-{
-    Room::doAddHistoricalMessageEvents(events);
-
-    m_messages.reserve(m_messages.size() + events.size());
-    for (auto e: events)
-        m_messages.push_front(makeMessage(e));
-}
-
 void QuaternionRoom::countChanged()
 {
     if( m_shown )
@@ -98,4 +72,23 @@ const QString& QuaternionRoom::cachedInput() const
 void QuaternionRoom::setCachedInput(const QString& input)
 {
     m_cachedInput = input;
+}
+
+bool QuaternionRoom::isHighlight(const QMatrixClient::Event* event)
+{
+    if( event->type() == QMatrixClient::EventType::RoomMessage )
+    {
+        const QMatrixClient::RoomMessageEvent* messageEvent = static_cast<const QMatrixClient::RoomMessageEvent*>(event);
+        QMatrixClient::User* localUser = connection()->user();
+        // Only highlight messages from other users
+        if (messageEvent->senderId() != localUser->id())
+        {
+            if( messageEvent->body().contains(localUser->id()) )
+                return true;
+            QString ownDisplayname = roomMembername(localUser);
+            if (messageEvent->body().contains(ownDisplayname))
+                return true;
+        }
+    }
+    return false;
 }

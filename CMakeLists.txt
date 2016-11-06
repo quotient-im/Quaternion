@@ -50,7 +50,6 @@ include_directories(lib)
 set(quaternion_SRCS
     client/quaternionconnection.cpp
     client/quaternionroom.cpp
-    client/message.cpp
     client/imageprovider.cpp
     client/logindialog.cpp
     client/mainwindow.cpp

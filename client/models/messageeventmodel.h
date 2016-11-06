@@ -25,8 +25,6 @@
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QModelIndex>
 
-class Message;
-
 class MessageEventModel: public QAbstractListModel
 {
         Q_OBJECT

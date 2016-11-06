@@ -22,15 +22,10 @@
 
 #include "lib/room.h"
 
-class Message;
-
 class QuaternionRoom: public QMatrixClient::Room
 {
         Q_OBJECT
     public:
-        using Timeline = QMatrixClient::Owning< QList<Message*> >;
-        using size_type = Timeline::size_type;
-
         QuaternionRoom(QMatrixClient::Connection* connection, QString roomId);
         ~QuaternionRoom();
 
@@ -44,21 +39,14 @@ class QuaternionRoom: public QMatrixClient::Room
         void setCachedInput(const QString& input);
         const QString& cachedInput() const;
 
-        const Timeline& messages() const;
-
-    protected:
-        virtual void doAddNewMessageEvents(const QMatrixClient::Events& events) override;
-        virtual void doAddHistoricalMessageEvents(const QMatrixClient::Events& events) override;
+        bool isHighlight(const QMatrixClient::Event* event);
 
     private slots:
         void countChanged();
 
     private:
-        Timeline m_messages;
         bool m_shown;
         QString m_cachedInput;
-
-        Message* makeMessage(QMatrixClient::Event* e);
 };
 
 #endif // QUATERNIONROOM_H

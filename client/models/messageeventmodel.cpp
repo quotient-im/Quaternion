@@ -23,7 +23,6 @@
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
 
-#include "../message.h"
 #include "../quaternionroom.h"
 #include "lib/connection.h"
 #include "lib/room.h"
@@ -108,18 +107,17 @@ int MessageEventModel::rowCount(const QModelIndex& parent) const
 {
     if( !m_currentRoom || parent.isValid() )
         return 0;
-    return m_currentRoom->messages().count();
+    return m_currentRoom->messageEvents().count();
 }
 
 QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 {
     using namespace QMatrixClient;
     if( !m_currentRoom ||
-            index.row() < 0 || index.row() >= m_currentRoom->messages().count())
+            index.row() < 0 || index.row() >= m_currentRoom->messageEvents().count())
         return QVariant();
 
-    const Message* message = m_currentRoom->messages().at(index.row());;
-    Event* event = message->messageEvent();
+    Event* event = m_currentRoom->messageEvents().at(index.row());;
     // FIXME: Rewind to the name that was at the time of this event
     QString senderName = m_currentRoom->roomMembername(event->senderId());
 
@@ -309,12 +307,12 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 
     if( role == HighlightRole )
     {
-        return message->highlight();
+        return m_currentRoom->isHighlight(event);
     }
 
     if( role == Qt::DecorationRole )
     {
-        if (message->highlight())
+        if (m_currentRoom->isHighlight(event))
         {
             return QSettings().value("UI/highlight_color", "orange");
         }
@@ -331,7 +329,7 @@ void MessageEventModel::markShownAsRead()
 {
     if (m_currentRoom && lastShownIndex > -1)
     {
-        auto lastShownMessage = m_currentRoom->messages().at(lastShownIndex);
-        m_currentRoom->markMessagesAsRead(lastShownMessage->messageEvent()->id());
+        auto lastShownMessage = m_currentRoom->messageEvents().at(lastShownIndex);
+        m_currentRoom->markMessagesAsRead(lastShownMessage->id());
     }
 }
