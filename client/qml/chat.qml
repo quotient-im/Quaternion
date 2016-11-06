@@ -12,7 +12,7 @@ Rectangle {
 
     signal getPreviousContent()
 
-    Timer{
+    Timer {
         id: scrollTimer
         interval: 0
         onTriggered: reallyScrollToBottom()
@@ -47,12 +47,12 @@ Rectangle {
 
         function rowsInserted() {
             if( stickToBottom )
-                root.scrollToBottom();
+                root.scrollToBottom()
         }
 
         Component.onCompleted: {
-            console.log("onCompleted");
-            model.rowsInserted.connect(rowsInserted);
+            console.log("onCompleted")
+            model.rowsInserted.connect(rowsInserted)
         }
 
         section {
@@ -69,29 +69,29 @@ Rectangle {
 
         onHeightChanged: {
             if( stickToBottom )
-                root.scrollToBottom();
+                root.scrollToBottom()
         }
 
         onContentHeightChanged: {
             if( stickToBottom )
-                root.scrollToBottom();
+                root.scrollToBottom()
         }
 
         onContentYChanged: {
             if( (this.contentY - this.originY) < 5 )
             {
-                console.log("get older content!");
+                console.log("get older content!")
                 root.getPreviousContent()
             }
 
         }
 
         onMovementStarted: {
-            stickToBottom = false;
+            stickToBottom = false
         }
 
         onMovementEnded: {
-            stickToBottom = nowAtYEnd;
+            stickToBottom = nowAtYEnd
         }
 
     }
@@ -132,6 +132,57 @@ Rectangle {
             width: chatView.width
             height: childrenRect.height
 
+            // A message is considered shown if its bottom is within the
+            // viewing area of the timeline.
+            property bool shown:
+                y + message.height - 1 > chatView.contentY &&
+                y + message.height - 1 < chatView.contentY + chatView.height
+
+            property bool newlyShown: shown &&
+                                      messageModel.lastShownIndex != -1 &&
+                                      index > messageModel.lastShownIndex &&
+                                      index > messageModel.readMarkerIndex
+
+            function promoteLastShownIndex() {
+                if (index > messageModel.lastShownIndex) {
+                    // This doesn't promote the read marker, only the shown
+                    // index in the model. The read marker is updated upon
+                    // activity of the user, we have no control over that here.
+                    messageModel.lastShownIndex = index
+                    console.log("Updated last shown index to #" + index,
+                                "event id", eventId)
+                }
+            }
+
+            Timer {
+                id: indexPromotionTimer
+                interval: 1000
+                onTriggered: { if (parent.shown) promoteLastShownIndex() }
+            }
+
+            onShownChanged: {
+                if (messageModel.room.readMarkerEventId === eventId)
+                {
+                    if (shown)
+                        promoteLastShownIndex()
+                    else
+                        messageModel.lastShownIndex = -1
+                }
+            }
+
+            onNewlyShownChanged: {
+                // Only promote the shown index if it's been initialised from
+                // the read marker beforehand, and only if the message has been
+                // on screen for some time.
+                if (newlyShown)
+                {
+                    indexPromotionTimer.start()
+                    console.log("Scheduled lastReadIndex update from",
+                                messageModel.lastShownIndex, "to", index,
+                                "in", indexPromotionTimer.interval, "ms")
+                }
+            }
+
             RowLayout {
                 id: message
                 width: parent.width
@@ -171,9 +222,9 @@ Rectangle {
 
                         TextEdit {
                             id: contentField
-                            selectByMouse: true; readOnly: true; font: timelabel.font;
+                            selectByMouse: true; readOnly: true; font: timelabel.font
                             textFormat: contentType == "text/html" ? TextEdit.RichText
-                                                                   : TextEdit.PlainText;
+                                                                   : TextEdit.PlainText
                             text: eventType != "image" ? content : ""
                             height: eventType != "image" ? implicitHeight : 0
                             wrapMode: Text.Wrap; width: parent.width
@@ -221,7 +272,7 @@ Rectangle {
             }
             Rectangle {
                 color: defaultPalette.highlight
-                width: messageModel.lastReadId === eventId ? parent.width : 0
+                width: messageModel.room.readMarkerEventId === eventId ? parent.width : 0
                 height: 1
                 anchors.bottom: message.bottom
                 anchors.horizontalCenter: message.horizontalCenter
@@ -241,16 +292,16 @@ Rectangle {
         }
     }
     Rectangle {
-        id: scrollindicator;
+        id: scrollindicator
         opacity: chatView.nowAtYEnd ? 0 : 0.5
         color: defaultPalette.text
-        height: 30;
-        radius: height/2;
-        width: height;
-        anchors.left: parent.left;
-        anchors.bottom: parent.bottom;
-        anchors.leftMargin: width/2;
-        anchors.bottomMargin: chatView.nowAtYEnd ? -height : height/2;
+        height: 30
+        radius: height/2
+        width: height
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        anchors.leftMargin: width/2
+        anchors.bottomMargin: chatView.nowAtYEnd ? -height : height/2
         Behavior on opacity {
             NumberAnimation { duration: 300 }
         }

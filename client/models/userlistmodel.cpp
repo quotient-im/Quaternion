@@ -20,41 +20,11 @@
 #include "userlistmodel.h"
 
 #include <QtCore/QDebug>
-#include <QtCore/QVector>
 #include <QtGui/QPixmap>
 
 #include "lib/connection.h"
 #include "lib/room.h"
 #include "lib/user.h"
-
-class MemberNameSorter
-{
-        using Room = QMatrixClient::Room;
-        using User = QMatrixClient::User;
-    public:
-        MemberNameSorter(Room* r) : room(r) { }
-
-        bool operator()(User* u1, User* u2) const
-        {
-            auto n1 = room->roomMembername(u1);
-            auto n2 = room->roomMembername(u2);
-            if (n1[0] == '@')
-                n1.remove(0, 1);
-            if (n2[0] == '@')
-                n2.remove(0, 1);
-            return n1 < n2;
-        }
-
-        template <typename ContT>
-        typename ContT::size_type lowerBoundIndex(const ContT& c,
-                                                  typename ContT::value_type v) const
-        {
-            return  std::lower_bound(c.begin(), c.end(), v, *this) - c.begin();
-        }
-
-    private:
-        Room* room;
-};
 
 
 UserListModel::UserListModel(QObject* parent)
@@ -93,7 +63,7 @@ void UserListModel::setRoom(QMatrixClient::Room* room)
         connect( m_currentRoom, &Room::userRemoved, this, &UserListModel::userRemoved );
         connect( m_currentRoom, &Room::memberRenamed, this, &UserListModel::memberRenamed );
         m_users = m_currentRoom->users();
-        std::sort(m_users.begin(), m_users.end(), MemberNameSorter(room));
+        std::sort(m_users.begin(), m_users.end(), room->memberSorter());
         for( User* user: m_users )
         {
             connect( user, &User::avatarChanged, this, &UserListModel::avatarChanged );
@@ -135,7 +105,7 @@ int UserListModel::rowCount(const QModelIndex& parent) const
 
 void UserListModel::userAdded(QMatrixClient::User* user)
 {
-    auto pos = MemberNameSorter(m_currentRoom).lowerBoundIndex(m_users, user);
+    auto pos = m_currentRoom->memberSorter().lowerBoundIndex(m_users, user);
     beginInsertRows(QModelIndex(), pos, pos);
     m_users.insert(pos, user);
     endInsertRows();
@@ -144,7 +114,7 @@ void UserListModel::userAdded(QMatrixClient::User* user)
 
 void UserListModel::userRemoved(QMatrixClient::User* user)
 {
-    auto pos = MemberNameSorter(m_currentRoom).lowerBoundIndex(m_users, user);
+    auto pos = m_currentRoom->memberSorter().lowerBoundIndex(m_users, user);
     if (pos != m_users.size())
     {
         beginRemoveRows(QModelIndex(), pos, pos);
@@ -157,7 +127,7 @@ void UserListModel::userRemoved(QMatrixClient::User* user)
 
 void UserListModel::memberRenamed(QMatrixClient::User *user)
 {
-    auto pos = MemberNameSorter(m_currentRoom).lowerBoundIndex(m_users, user);
+    auto pos = m_currentRoom->memberSorter().lowerBoundIndex(m_users, user);
     if ( pos != m_users.size() )
         emit dataChanged(index(pos), index(pos), {Qt::DisplayRole} );
     else
@@ -166,7 +136,7 @@ void UserListModel::memberRenamed(QMatrixClient::User *user)
 
 void UserListModel::avatarChanged(QMatrixClient::User* user)
 {
-    auto pos = MemberNameSorter(m_currentRoom).lowerBoundIndex(m_users, user);
+    auto pos = m_currentRoom->memberSorter().lowerBoundIndex(m_users, user);
     if ( pos != m_users.size() )
         emit dataChanged(index(pos), index(pos), {Qt::DecorationRole} );
     else

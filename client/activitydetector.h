@@ -1,6 +1,6 @@
 /**************************************************************************
  *                                                                        *
- * Copyright (C) 2016 Felix Rohrbach <kde@fxrh.de>                        *
+ * Copyright (C) 2016 Malte Brandy <malte.brandy@maralorn.de>                        *
  *                                                                        *
  * This program is free software; you can redistribute it and/or          *
  * modify it under the terms of the GNU General Public License            *
@@ -17,48 +17,33 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef QUATERNIONROOM_H
-#define QUATERNIONROOM_H
+#pragma once
 
-#include "lib/room.h"
+#include <QtWidgets/QApplication>
 
-class Message;
+class MainWindow;
+class MessageEventModel;
 
-class QuaternionRoom: public QMatrixClient::Room
+class ActivityDetector : public QObject
 {
-        Q_OBJECT
+    Q_OBJECT
+
     public:
-        using Timeline = QMatrixClient::Owning< QList<Message*> >;
-        using size_type = Timeline::size_type;
+        ActivityDetector(QApplication* a, MainWindow* c);
 
-        QuaternionRoom(QMatrixClient::Connection* connection, QString roomId);
-        ~QuaternionRoom();
+    public slots:
+        void updateEnabled();
+        void setEnabled(bool enabled);
 
-        /**
-         * set/get whether this room is currently show to the user.
-         * This is used to mark messages as read.
-         */
-        void setShown(bool shown);
-        bool isShown();
-
-        void setCachedInput(const QString& input);
-        const QString& cachedInput() const;
-
-        const Timeline& messages() const;
+    signals:
+        void triggered();
 
     protected:
-        virtual void doAddNewMessageEvents(const QMatrixClient::Events& events) override;
-        virtual void doAddHistoricalMessageEvents(const QMatrixClient::Events& events) override;
-
-    private slots:
-        void countChanged();
+        bool eventFilter(QObject* obj, QEvent* ev);
 
     private:
-        Timeline m_messages;
-        bool m_shown;
-        QString m_cachedInput;
-
-        Message* makeMessage(QMatrixClient::Event* e);
+        QApplication* m_app;
+        MainWindow* m_mainWindow;
+        bool m_enabled;
+        MessageEventModel* m_messageEventModel;
 };
-
-#endif // QUATERNIONROOM_H
