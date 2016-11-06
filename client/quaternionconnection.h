@@ -17,8 +17,7 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef QUATERNIONCONNECTION_H
-#define QUATERNIONCONNECTION_H
+#pragma once
 
 #include "lib/connection.h"
 
@@ -31,5 +30,3 @@ class QuaternionConnection: public QMatrixClient::Connection
     protected:
         virtual QMatrixClient::Room* createRoom(QString roomId);
 };
-
-#endif // QUATERNIONCONNECTION_H

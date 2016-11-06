@@ -17,8 +17,7 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef LOGMESSAGEMODEL_H
-#define LOGMESSAGEMODEL_H
+#pragma once
 
 #include "../quaternionroom.h"
 
@@ -53,5 +52,3 @@ class MessageEventModel: public QAbstractListModel
         QMatrixClient::Connection* m_connection;
         QuaternionRoom* m_currentRoom;
 };
-
-#endif // LOGMESSAGEMODEL_H

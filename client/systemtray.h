@@ -17,8 +17,7 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef SYSTEMTRAY_H
-#define SYSTEMTRAY_H
+#pragma once
 
 #include <QtWidgets/QSystemTrayIcon>
 
@@ -44,5 +43,3 @@ class SystemTray: public QSystemTrayIcon
         QMatrixClient::Connection* m_connection;
         QWidget* m_parent;
 };
-
-#endif // SYSTEMTRAY_H

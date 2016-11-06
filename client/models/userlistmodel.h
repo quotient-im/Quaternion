@@ -17,8 +17,7 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef USERLISTMODEL_H
-#define USERLISTMODEL_H
+#pragma once
 
 #include <QtCore/QAbstractListModel>
 
@@ -53,5 +52,3 @@ class UserListModel: public QAbstractListModel
         QMatrixClient::Room* m_currentRoom;
         QList<QMatrixClient::User*> m_users;
 };
-
-#endif // USERLISTMODEL_H

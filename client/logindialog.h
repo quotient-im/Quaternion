@@ -17,8 +17,7 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef LOGINDIALOG_H
-#define LOGINDIALOG_H
+#pragma once
 
 #include <QtWidgets/QDialog>
 
@@ -54,5 +53,3 @@ class LoginDialog : public QDialog
 
         void setConnection(QuaternionConnection* connection);
 };
-
-#endif // LOGINDIALOG_H

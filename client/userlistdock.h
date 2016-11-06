@@ -17,8 +17,7 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef USERLISTDOCK_H
-#define USERLISTDOCK_H
+#pragma once
 
 #include <QtWidgets/QDockWidget>
 
@@ -45,6 +44,3 @@ class UserListDock: public QDockWidget
         QTableView* m_view;
         UserListModel* m_model;
 };
-
-#endif // USERLISTDOCK_H
-
