@@ -139,11 +139,11 @@ Rectangle {
                 y + message.height - 1 < chatView.contentY + chatView.height
 
             property bool newlyShown: shown &&
-                                      messageModel.lastShownIndex != -1 &&
+                                      messageModel.lastShownIndex !== -1 &&
                                       index > messageModel.lastShownIndex
 
             function promoteLastShownIndex() {
-                if (shown && index > messageModel.lastShownIndex) {
+                if (index > messageModel.lastShownIndex) {
                     // This doesn't promote the read marker, only the shown
                     // index in the model. The read marker is updated upon
                     // activity of the user, we have no control over that here.
@@ -156,12 +156,17 @@ Rectangle {
             Timer {
                 id: indexPromotionTimer
                 interval: 1000
-                onTriggered: promoteLastShownIndex()
+                onTriggered: { if (parent.shown) promoteLastShownIndex() }
             }
 
             onShownChanged: {
                 if (messageModel.room.readMarkerEventId === eventId)
-                    promoteLastShownIndex()
+                {
+                    if (shown)
+                        promoteLastShownIndex()
+                    else
+                        messageModel.lastShownIndex = -1
+                }
             }
 
             onNewlyShownChanged: {
