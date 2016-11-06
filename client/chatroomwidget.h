@@ -47,7 +47,7 @@ class ChatRoomWidget: public QWidget
         void enableDebug();
         void triggerCompletion();
         void cancelCompletion();
-        void lookAtRoom();
+        MessageEventModel* getMessageEventModel();
 
     signals:
         void joinRoomNeedsInteraction();

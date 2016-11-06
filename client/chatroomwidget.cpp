@@ -94,7 +94,6 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     QObject* rootItem = m_quickView->rootObject();
     connect( rootItem, SIGNAL(getPreviousContent()), this, SLOT(getPreviousContent()) );
 
-
     m_chatEdit = new ChatEdit(this);
     connect( m_chatEdit, &QLineEdit::returnPressed, this, &ChatRoomWidget::sendLine );
 
@@ -116,10 +115,9 @@ ChatRoomWidget::~ChatRoomWidget()
 {
 }
 
-void ChatRoomWidget::lookAtRoom()
+MessageEventModel* ChatRoomWidget::getMessageEventModel()
 {
-    if ( m_currentRoom )
-        m_currentRoom->lookAt();
+    return m_messageModel;
 }
 
 void ChatRoomWidget::enableDebug()
@@ -162,7 +160,6 @@ void ChatRoomWidget::setConnection(QMatrixClient::Connection* connection)
     setRoom(nullptr);
     m_currentConnection = connection;
     m_imageProvider->setConnection(connection);
-    m_messageModel->setConnection(connection);
 }
 
 void ChatRoomWidget::typingChanged()

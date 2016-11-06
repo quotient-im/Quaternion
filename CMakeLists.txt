@@ -52,6 +52,7 @@ set(quaternion_SRCS
     client/quaternionroom.cpp
     client/message.cpp
     client/imageprovider.cpp
+    client/activitydetector.cpp
     client/logindialog.cpp
     client/mainwindow.cpp
     client/roomlistdock.cpp
