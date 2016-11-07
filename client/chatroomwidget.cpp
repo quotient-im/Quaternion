@@ -70,6 +70,7 @@ bool ChatEdit::event(QEvent *event)
 ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     : QWidget(parent)
 {
+    qmlRegisterType<QuaternionRoom>();
     m_messageModel = new MessageEventModel(this);
     m_currentRoom = nullptr;
     m_currentConnection = nullptr;

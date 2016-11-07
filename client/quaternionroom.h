@@ -29,7 +29,6 @@ class QuaternionRoom: public QMatrixClient::Room
         Q_OBJECT
     public:
         using Timeline = QMatrixClient::Owning< QList<Message*> >;
-        using size_type = Timeline::size_type;
 
         QuaternionRoom(QMatrixClient::Connection* connection, QString roomId);
         ~QuaternionRoom();
