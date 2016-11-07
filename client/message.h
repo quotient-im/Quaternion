@@ -44,7 +44,6 @@ class Message
         bool isStatusMessage() const;
 
     private:
-        QMatrixClient::Connection* m_connection;
         QMatrixClient::Event* m_event;
         bool m_isHighlight;
         bool m_isStatusMessage;

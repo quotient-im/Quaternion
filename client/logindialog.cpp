@@ -25,7 +25,6 @@
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFormLayout>
 
-#include <QtCore/QDebug>
 #include <QtCore/QUrl>
 
 #include "quaternionconnection.h"

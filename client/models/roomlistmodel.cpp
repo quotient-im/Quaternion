@@ -19,8 +19,6 @@
 
 #include "roomlistmodel.h"
 
-#include <QtGui/QBrush>
-#include <QtGui/QColor>
 #include <QtGui/QIcon>
 
 #include <QtCore/QDebug>

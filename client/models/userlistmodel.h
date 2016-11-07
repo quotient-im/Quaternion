@@ -36,8 +36,7 @@ class UserListModel: public QAbstractListModel
         UserListModel(QObject* parent = nullptr);
         virtual ~UserListModel();
 
-        void setConnection(QMatrixClient::Connection* connection);
-        void setRoom(QMatrixClient::Room* room);
+    void setRoom(QMatrixClient::Room* room);
 
         QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
         int rowCount(const QModelIndex& parent=QModelIndex()) const override;
@@ -49,7 +48,6 @@ class UserListModel: public QAbstractListModel
         void avatarChanged(QMatrixClient::User* user);
 
     private:
-        QMatrixClient::Connection* m_connection;
         QMatrixClient::Room* m_currentRoom;
         QList<QMatrixClient::User*> m_users;
 };

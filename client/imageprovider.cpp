@@ -20,10 +20,6 @@
 #include "imageprovider.h"
 #include <jobs/mediathumbnailjob.h>
 
-#include <QtCore/QMutex>
-#include <QtCore/QMutexLocker>
-#include <QtCore/QWaitCondition>
-
 #include <QtCore/QDebug>
 
 ImageProvider::ImageProvider(QMatrixClient::Connection* connection)
@@ -64,9 +60,6 @@ void ImageProvider::doRequest(QString id, QSize requestedSize, QPixmap* pixmap, 
 {
     QMutexLocker locker(&m_mutex);
 
-    int width = requestedSize.width() > 0 ? requestedSize.width() : 100;
-    int height = requestedSize.height() > 0 ? requestedSize.height() : 100;
-
     if( !m_connection )
     {
         qDebug() << "ImageProvider::requestPixmap: no connection!";
@@ -74,8 +67,8 @@ void ImageProvider::doRequest(QString id, QSize requestedSize, QPixmap* pixmap, 
         condition->wakeAll();
     }
 
-    QMatrixClient::MediaThumbnailJob* job = m_connection->getThumbnail(QUrl(id), width, height);
-    QObject::connect( job, &QMatrixClient::MediaThumbnailJob::success, this, &ImageProvider::gotImage );
+    auto job = m_connection->getThumbnail(QUrl(id), requestedSize.expandedTo({100,100}));
+    connect( job, &QMatrixClient::MediaThumbnailJob::success, this, &ImageProvider::gotImage );
     ImageProviderData data = { pixmap, condition, requestedSize };
     m_callmap.insert(job, data);
 }

@@ -20,12 +20,15 @@
 #ifndef LOGMESSAGEMODEL_H
 #define LOGMESSAGEMODEL_H
 
-#include "../quaternionroom.h"
-
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QModelIndex>
 
+namespace QMatrixClient
+{
+    class Connection;
+}
 class Message;
+class QuaternionRoom;
 
 class MessageEventModel: public QAbstractListModel
 {

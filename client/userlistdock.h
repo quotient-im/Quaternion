@@ -38,8 +38,7 @@ class UserListDock: public QDockWidget
         UserListDock(QWidget* parent = nullptr);
         virtual ~UserListDock();
 
-        void setConnection( QMatrixClient::Connection* connection );
-        void setRoom( QMatrixClient::Room* room );
+    void setRoom( QMatrixClient::Room* room );
 
     private:
         QTableView* m_view;
