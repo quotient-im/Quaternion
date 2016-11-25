@@ -17,8 +17,7 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef ROOMLISTMODEL_H
-#define ROOMLISTMODEL_H
+#pragma once
 
 #include <QtCore/QAbstractListModel>
 
@@ -59,5 +58,3 @@ class RoomListModel: public QAbstractListModel
 
         void doAddRoom(QMatrixClient::Room* r);
 };
-
-#endif // ROOMLISTMODEL_H

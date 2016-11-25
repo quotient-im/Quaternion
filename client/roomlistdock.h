@@ -17,8 +17,7 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef ROOMLISTDOCK_H
-#define ROOMLISTDOCK_H
+#pragma once
 
 #include <QtWidgets/QDockWidget>
 #include <QtWidgets/QListView>
@@ -55,5 +54,3 @@ class RoomListDock : public QDockWidget
         QAction* joinAction;
         QAction* leaveAction;
 };
-
-#endif // ROOMLISTDOCK_H

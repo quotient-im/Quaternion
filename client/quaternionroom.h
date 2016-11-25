@@ -17,8 +17,7 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef QUATERNIONROOM_H
-#define QUATERNIONROOM_H
+#pragma once
 
 #include "lib/room.h"
 
@@ -70,5 +69,3 @@ class QuaternionRoom: public QMatrixClient::Room
 
         Message* makeMessage(QMatrixClient::Event* e);
 };
-
-#endif // QUATERNIONROOM_H

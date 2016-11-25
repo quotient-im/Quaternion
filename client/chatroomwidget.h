@@ -17,8 +17,7 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef CHATROOMWIDGET_H
-#define CHATROOMWIDGET_H
+#pragma once
 
 #include <QtWidgets/QWidget>
 
@@ -84,5 +83,3 @@ class ChatRoomWidget: public QWidget
         QLabel* m_currentlyTyping;
         QLabel* m_topicLabel;
 };
-
-#endif // CHATROOMWIDGET_H
