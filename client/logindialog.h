@@ -25,6 +25,7 @@ class QLineEdit;
 class QPushButton;
 class QLabel;
 class QCheckBox;
+class QComboBox;
 class QuaternionConnection;
 
 class LoginDialog : public QDialog
@@ -36,18 +37,25 @@ class LoginDialog : public QDialog
         void setStatusMessage(const QString& msg);
         QuaternionConnection* connection() const;
         bool keepLoggedIn() const;
+        
+        class AccountData;
 
     private slots:
+        void accountBoxChanged(int index);
         void login();
         void error(QString error);
         
     private:
+        
+        
+        QComboBox* accountBox;
         QLineEdit* serverEdit;
         QLineEdit* userEdit;
         QLineEdit* passwordEdit;
         QPushButton* loginButton;
         QLabel* statusLabel;
         QCheckBox* saveTokenCheck;
+        QCheckBox* isDefaultConnection;
         
         QuaternionConnection* m_connection;
 

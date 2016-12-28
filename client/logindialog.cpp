@@ -21,6 +21,7 @@
 
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QComboBox>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFormLayout>
@@ -30,10 +31,24 @@
 #include "quaternionconnection.h"
 #include "settings.h"
 
+class LoginDialog::AccountData
+{
+    public:
+        QString name;
+        QUrl homeserver;
+        QString username;
+        bool hasSavedToken;
+};
+
+Q_DECLARE_METATYPE(LoginDialog::AccountData);
+
+
 LoginDialog::LoginDialog(QWidget* parent)
     : QDialog(parent)
     , m_connection(nullptr)
 {
+    accountBox = new QComboBox();
+    connect(accountBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &LoginDialog::accountBoxChanged);
     serverEdit = new QLineEdit("https://matrix.org");
     userEdit = new QLineEdit();
     passwordEdit = new QLineEdit();
@@ -43,6 +58,7 @@ LoginDialog::LoginDialog(QWidget* parent)
     loginButton = new QPushButton("Login");
 
     QFormLayout* formLayout = new QFormLayout();
+    formLayout->addRow(accountBox);
     formLayout->addRow("Server", serverEdit);
     formLayout->addRow("User", userEdit);
     formLayout->addRow("Password", passwordEdit);
@@ -59,31 +75,30 @@ LoginDialog::LoginDialog(QWidget* parent)
         // Fill defaults
         using namespace QMatrixClient;
         QStringList accounts { SettingsGroup("Accounts").childGroups() };
-        if ( !accounts.empty() )
+        for( QString accountName: accounts )
         {
-            AccountSettings account { accounts.front() };
-            QUrl homeserver = account.homeserver();
+            AccountSettings account { accountName };
+            AccountData data;
+            data.name = accountName;
+            data.homeserver = account.homeserver();
             QString username = account.userId();
             if (username.startsWith('@'))
             {
-                QString serverpart = ":" + homeserver.host();
-                if (homeserver.port() != -1)
-                    serverpart += ":" + QString::number(homeserver.port());
+                QString serverpart = ":" + data.homeserver.host();
+                if (data.homeserver.port() != -1)
+                    serverpart += ":" + QString::number(data.homeserver.port());
                 if (username.endsWith(serverpart))
                 {
                     // Keep only the local part of the user id
                     username.remove(0, 1).chop(serverpart.size());
                 }
             }
-            serverEdit->setText(homeserver.toString());
-            userEdit->setText(username);
-            saveTokenCheck->setChecked(account.keepLoggedIn());
+            data.username = username;
+            data.hasSavedToken = account.keepLoggedIn();
+            accountBox->addItem(accountName, QVariant::fromValue<AccountData>(data));
         }
-        else
-        {
-            serverEdit->setText("https://matrix.org");
-            saveTokenCheck->setChecked(false);
-        }
+        accountBox->addItem(tr("Add new account..."));
+        accountBox->setCurrentIndex(0);
     }
     if (userEdit->text().isEmpty())
         userEdit->setFocus();
@@ -106,6 +121,42 @@ QuaternionConnection* LoginDialog::connection() const
 bool LoginDialog::keepLoggedIn() const
 {
     return saveTokenCheck->isChecked();
+}
+
+void LoginDialog::accountBoxChanged(int index)
+{
+    QVariant data = accountBox->itemData(index);
+    if( data.isValid() )
+    {
+        AccountData accountData = qvariant_cast<AccountData>(data);
+        serverEdit->setText(accountData.homeserver.toString());
+        serverEdit->setEnabled(false);
+        userEdit->setText(accountData.username);
+        userEdit->setEnabled(false);
+        if( accountData.hasSavedToken )
+        {
+            passwordEdit->setText(tr("<i>token saved</i>"));
+            passwordEdit->setEnabled(false);
+            saveTokenCheck->setChecked(true);
+        }
+        else
+        {
+            passwordEdit->clear();
+            passwordEdit->setEnabled(true);
+            saveTokenCheck->setChecked(false);
+        }
+    }
+    else
+    {
+        serverEdit->setText("https://matrix.org");
+        serverEdit->setEnabled(true);
+        userEdit->clear();
+        userEdit->setEnabled(true);
+        passwordEdit->clear();
+        passwordEdit->setEnabled(true);
+        saveTokenCheck->setChecked(false);
+    }
+    
 }
 
 void LoginDialog::login()
