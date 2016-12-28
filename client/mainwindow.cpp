@@ -177,9 +177,9 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
 
         QMatrixClient::AccountSettings account(connection->userId());
         account.setKeepLoggedIn(dialog.keepLoggedIn());
-        if (dialog.keepLoggedIn())
+        account.setHomeserver(connection->homeserver());
+        if( dialog.keepLoggedIn() )
         {
-            account.setHomeserver(connection->homeserver());
             account.setAccessToken(connection->accessToken());
         }
         account.sync();
