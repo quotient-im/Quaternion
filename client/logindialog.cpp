@@ -54,6 +54,8 @@ LoginDialog::LoginDialog(QWidget* parent)
     passwordEdit = new QLineEdit();
     passwordEdit->setEchoMode( QLineEdit::Password );
     saveTokenCheck = new QCheckBox("Stay logged in");
+    defaultConnectionCheck = new QCheckBox(tr("Use this connection as default"));
+    autoConnectCheck = new QCheckBox(tr("Autoconnect on startup"));
     statusLabel = new QLabel("Welcome to Quaternion");
     loginButton = new QPushButton("Login");
 
@@ -63,6 +65,8 @@ LoginDialog::LoginDialog(QWidget* parent)
     formLayout->addRow("User", userEdit);
     formLayout->addRow("Password", passwordEdit);
     formLayout->addRow(saveTokenCheck);
+    formLayout->addRow(defaultConnectionCheck);
+    formLayout->addRow(autoConnectCheck);
     
     QVBoxLayout* mainLayout = new QVBoxLayout();
     mainLayout->addLayout(formLayout);
@@ -70,6 +74,23 @@ LoginDialog::LoginDialog(QWidget* parent)
     mainLayout->addWidget(statusLabel);
     
     setLayout(mainLayout);
+    
+    // The checkboxes are ordered in such a way that the next checkbox should only be enabled
+    // if the current one is checked. These two connections ensure that.
+    connect(saveTokenCheck, &QCheckBox::stateChanged, [this](bool state){
+        if( state )
+        {
+            defaultConnectionCheck->setEnabled(true);
+            if( defaultConnectionCheck->isChecked() )
+                autoConnectCheck->setEnabled(true);
+        }
+        else
+        {
+            defaultConnectionCheck->setEnabled(false);
+            autoConnectCheck->setEnabled(false);
+        }
+    });
+    connect(defaultConnectionCheck, &QCheckBox::stateChanged, autoConnectCheck, &QCheckBox::setEnabled);
 
     {
         // Fill defaults
@@ -121,6 +142,16 @@ QuaternionConnection* LoginDialog::connection() const
 bool LoginDialog::keepLoggedIn() const
 {
     return saveTokenCheck->isChecked();
+}
+
+bool LoginDialog::isDefaultConnection() const
+{
+    return defaultConnectionCheck->isChecked();
+}
+
+bool LoginDialog::connectOnStartup() const
+{
+    return autoConnectCheck->isChecked();
 }
 
 void LoginDialog::accountBoxChanged(int index)

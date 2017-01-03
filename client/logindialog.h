@@ -37,6 +37,8 @@ class LoginDialog : public QDialog
         void setStatusMessage(const QString& msg);
         QuaternionConnection* connection() const;
         bool keepLoggedIn() const;
+        bool isDefaultConnection() const;
+        bool connectOnStartup() const;
         
         class AccountData;
 
@@ -55,7 +57,8 @@ class LoginDialog : public QDialog
         QPushButton* loginButton;
         QLabel* statusLabel;
         QCheckBox* saveTokenCheck;
-        QCheckBox* isDefaultConnection;
+        QCheckBox* defaultConnectionCheck;
+        QCheckBox* autoConnectCheck;
         
         QuaternionConnection* m_connection;
 
