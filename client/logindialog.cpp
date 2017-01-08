@@ -81,16 +81,26 @@ LoginDialog::LoginDialog(QWidget* parent)
         if( state )
         {
             defaultConnectionCheck->setEnabled(true);
-            if( defaultConnectionCheck->isChecked() )
-                autoConnectCheck->setEnabled(true);
         }
         else
         {
             defaultConnectionCheck->setEnabled(false);
+            defaultConnectionCheck->setChecked(false);
             autoConnectCheck->setEnabled(false);
+            autoConnectCheck->setChecked(false);
         }
     });
-    connect(defaultConnectionCheck, &QCheckBox::stateChanged, autoConnectCheck, &QCheckBox::setEnabled);
+    connect(defaultConnectionCheck, &QCheckBox::stateChanged, [this](bool state){
+        if( state )
+        {
+            autoConnectCheck->setEnabled(true);
+        }
+        else
+        {
+            autoConnectCheck->setEnabled(false);
+            autoConnectCheck->setChecked(false);
+        }
+    });
 
     {
         // Fill defaults
