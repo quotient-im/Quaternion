@@ -45,11 +45,6 @@ UserListDock::~UserListDock()
 {
 }
 
-void UserListDock::setConnection(QMatrixClient::Connection* connection)
-{
-    m_model->setConnection(connection);
-}
-
 void UserListDock::setRoom(QMatrixClient::Room* room)
 {
     m_model->setRoom(room);

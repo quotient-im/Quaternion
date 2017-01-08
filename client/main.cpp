@@ -19,7 +19,6 @@
 
 #include <QtWidgets/QApplication>
 #include <QtCore/QCommandLineParser>
-#include <QtCore/QCommandLineOption>
 #include <QtCore/QDebug>
 
 #include "mainwindow.h"

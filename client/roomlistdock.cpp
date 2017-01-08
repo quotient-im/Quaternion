@@ -20,7 +20,6 @@
 #include "roomlistdock.h"
 
 #include <QtCore/QSettings>
-#include <QtCore/QDebug>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QStyledItemDelegate>
 
@@ -93,13 +92,15 @@ RoomListDock::~RoomListDock()
 
 void RoomListDock::setConnection( QMatrixClient::Connection* connection )
 {
+    emit roomSelected(nullptr);
     this->connection = connection;
     model->setConnection(connection);
 }
 
 void RoomListDock::rowSelected(const QModelIndex& index)
 {
-    emit roomSelected( model->roomAt(index.row()) );
+    if (index.isValid())
+        emit roomSelected( model->roomAt(index.row()) );
 }
 
 void RoomListDock::showContextMenu(const QPoint& pos)

@@ -17,15 +17,17 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef LOGMESSAGEMODEL_H
-#define LOGMESSAGEMODEL_H
-
-#include "../quaternionroom.h"
+#pragma once
 
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QModelIndex>
 
+namespace QMatrixClient
+{
+    class Connection;
+}
 class Message;
+class QuaternionRoom;
 
 class MessageEventModel: public QAbstractListModel
 {
@@ -52,5 +54,3 @@ class MessageEventModel: public QAbstractListModel
         QuaternionRoom* m_currentRoom;
         int lastShownIndex;
 };
-
-#endif // LOGMESSAGEMODEL_H

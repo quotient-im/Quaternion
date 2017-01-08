@@ -34,12 +34,10 @@
 #include "lib/room.h"
 #include "lib/user.h"
 #include "lib/connection.h"
-#include "lib/logmessage.h"
 #include "lib/jobs/postmessagejob.h"
-#include "lib/events/event.h"
 #include "lib/events/typingevent.h"
-#include "models/messageeventmodel.h"
 #include "quaternionroom.h"
+#include "models/messageeventmodel.h"
 #include "imageprovider.h"
 
 class ChatEdit : public QLineEdit
@@ -130,6 +128,9 @@ void ChatRoomWidget::enableDebug()
 
 void ChatRoomWidget::setRoom(QuaternionRoom* room)
 {
+    if (m_currentRoom == room)
+        return;
+
     if( m_currentRoom )
     {
         m_currentRoom->setCachedInput( m_chatEdit->displayText() );

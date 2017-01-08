@@ -17,9 +17,6 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef MESSAGE_H
-#define MESSAGE_H
-
 #include <QtCore/QDateTime>
 
 namespace QMatrixClient
@@ -44,10 +41,7 @@ class Message
         bool isStatusMessage() const;
 
     private:
-        QMatrixClient::Connection* m_connection;
         QMatrixClient::Event* m_event;
         bool m_isHighlight;
         bool m_isStatusMessage;
 };
-
-#endif // MESSAGE_H
