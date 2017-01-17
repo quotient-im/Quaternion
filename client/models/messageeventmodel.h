@@ -33,7 +33,6 @@ class MessageEventModel: public QAbstractListModel
 {
         Q_OBJECT
         Q_PROPERTY(QuaternionRoom* room MEMBER m_currentRoom CONSTANT)
-        Q_PROPERTY(int lastShownIndex MEMBER lastShownIndex NOTIFY lastShownIndexChanged)
     public:
         MessageEventModel(QObject* parent = nullptr);
         virtual ~MessageEventModel();
@@ -44,13 +43,18 @@ class MessageEventModel: public QAbstractListModel
         QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
         QHash<int, QByteArray> roleNames() const override;
 
-    signals:
-        void lastShownIndexChanged(int newValue);
-
     public slots:
+        void onEventShownChanged(int evtIndex, QString evtId, bool shown);
         void markShownAsRead();
+
+    protected:
+        void timerEvent(QTimerEvent* event) override;
 
     private:
         QuaternionRoom* m_currentRoom;
         int lastShownIndex;
+        QHash<int, int> eventsToShownTimers;
+        QHash<int, int> shownTimersToEvents;
+
+        void promoteLastShownEvent(int evtIndex);
 };

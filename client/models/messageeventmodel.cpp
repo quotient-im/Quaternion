@@ -19,6 +19,7 @@
 
 #include "messageeventmodel.h"
 
+#include <QtCore/QTimerEvent>
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
 
@@ -66,8 +67,7 @@ MessageEventModel::MessageEventModel(QObject* parent)
 { }
 
 MessageEventModel::~MessageEventModel()
-{
-}
+{ }
 
 void MessageEventModel::changeRoom(QuaternionRoom* room)
 {
@@ -80,6 +80,10 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
 
     m_currentRoom = room;
     lastShownIndex = -1;
+    for (int t: eventsToShownTimers)
+        killTimer(t);
+    eventsToShownTimers.clear();
+    shownTimersToEvents.clear();
     if( room )
     {
         using namespace QMatrixClient;
@@ -322,6 +326,73 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     }
 
     return QVariant();
+}
+
+void MessageEventModel::onEventShownChanged(int evtIndex, QString evtId,
+                                            bool shown)
+{
+    if (!m_currentRoom)
+        return;
+
+    Q_ASSERT(evtId ==
+             m_currentRoom->messages().at(evtIndex)->messageEvent()->id());
+    // We track last shown events (and can update the read marker) only when
+    // the read marker is on-screen. Tracking is off when lastShownIndex is -1,
+    // and on otherwise.
+    if (m_currentRoom->readMarkerEventId() == evtId)
+    {
+        if (shown)
+        {
+            qDebug() << "Read marker is on-screen";
+            promoteLastShownEvent(evtIndex);
+        }
+        else
+        {
+            qDebug() << "Read marker is off-screen, last shown event:"
+                     << lastShownIndex << "-> -1";
+            lastShownIndex = -1;
+        }
+    }
+    if (shown && lastShownIndex != -1 && lastShownIndex < evtIndex)
+    {
+        // This message hasn't been shown before. If tracking
+        // last shown event is on (see above), wait for some time and if
+        // the message is still on the screen and the last shown index is
+        // behind it, advance it to the event.
+        eventsToShownTimers.insert(evtIndex,
+            shownTimersToEvents.insert(startTimer(1000), evtIndex).key());
+        qDebug() << "Scheduled last shown event update from"
+                 << lastShownIndex << "to" << evtIndex;
+    }
+    if (!shown && eventsToShownTimers.contains(evtIndex))
+    {
+        // The event's got scrolled off too soon? Not gonna be last shown.
+        const auto timerId = eventsToShownTimers.take(evtIndex);
+        shownTimersToEvents.remove(timerId);
+        killTimer(timerId);
+    }
+}
+
+void MessageEventModel::timerEvent(QTimerEvent* qte)
+{
+    if (shownTimersToEvents.contains(qte->timerId()))
+    {
+        const auto eventId = shownTimersToEvents.take(qte->timerId());
+        killTimer(qte->timerId());
+        eventsToShownTimers.remove(eventId);
+        promoteLastShownEvent(eventId);
+        return;
+    }
+    QAbstractListModel::timerEvent(qte);
+}
+
+void MessageEventModel::promoteLastShownEvent(int evtIndex)
+{
+    if (lastShownIndex < evtIndex)
+    {
+        qDebug() << "Last shown event:" << lastShownIndex << "->" << evtIndex;
+        lastShownIndex = evtIndex;
+    }
 }
 
 void MessageEventModel::markShownAsRead()
