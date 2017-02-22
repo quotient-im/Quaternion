@@ -19,6 +19,7 @@
 
 #include "messageeventmodel.h"
 
+#include <QtCore/QTimerEvent>
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
 
@@ -61,51 +62,47 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
 
 MessageEventModel::MessageEventModel(QObject* parent)
     : QAbstractListModel(parent)
-    , m_connection(nullptr)
     , m_currentRoom(nullptr)
+    , lastShownIndex(-1)
 { }
 
 MessageEventModel::~MessageEventModel()
-{
-}
+{ }
 
 void MessageEventModel::changeRoom(QuaternionRoom* room)
 {
+    if (room == m_currentRoom)
+        return;
+
     beginResetModel();
     if( m_currentRoom )
         m_currentRoom->disconnect( this );
 
     m_currentRoom = room;
+    lastShownIndex = -1;
+    for (int t: eventsToShownTimers)
+        killTimer(t);
+    eventsToShownTimers.clear();
+    shownTimersToEvents.clear();
     if( room )
     {
         using namespace QMatrixClient;
-        connect(m_currentRoom, &QuaternionRoom::aboutToAddNewMessages,
+        connect(m_currentRoom, &Room::aboutToAddNewMessages,
                 [=](const Events& events)
                 {
                     beginInsertRows(QModelIndex(),
                                     rowCount(), rowCount() + events.size() - 1);
                 });
-        connect(m_currentRoom, &QuaternionRoom::aboutToAddHistoricalMessages,
+        connect(m_currentRoom, &Room::aboutToAddHistoricalMessages,
                 [=](const Events& events)
                 {
                     beginInsertRows(QModelIndex(), 0, events.size() - 1);
                 });
-        connect(m_currentRoom, &QuaternionRoom::addedMessages,
+        connect(m_currentRoom, &Room::addedMessages,
                 this, &MessageEventModel::endInsertRows);
-        connect(m_currentRoom, &QuaternionRoom::lastReadEventChanged,
-                [=](const User* u) {
-                    if (u == m_connection->user())
-                        emit lastReadIdChanged();
-                });
-        emit lastReadIdChanged();
         qDebug() << "connected" << room;
     }
     endResetModel();
-}
-
-void MessageEventModel::setConnection(QMatrixClient::Connection* connection)
-{
-    m_connection = connection;
 }
 
 int MessageEventModel::rowCount(const QModelIndex& parent) const
@@ -118,7 +115,7 @@ int MessageEventModel::rowCount(const QModelIndex& parent) const
 QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 {
     using namespace QMatrixClient;
-    if( !m_connection || !m_currentRoom ||
+    if( !m_currentRoom ||
             index.row() < 0 || index.row() >= m_currentRoom->messages().count())
         return QVariant();
 
@@ -132,8 +129,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         if( event->type() == EventType::RoomMessage )
         {
             RoomMessageEvent* e = static_cast<RoomMessageEvent*>(event);
-            User* user = m_connection->user(e->userId());
-            return QString("%1 (%2): %3").arg(user->name()).arg(user->id()).arg(e->body());
+            return QString("%1: %2").arg(senderName, e->body());
         }
         if( event->type() == EventType::RoomMember )
         {
@@ -332,10 +328,78 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
-QString MessageEventModel::lastReadId() const
+void MessageEventModel::onEventShownChanged(int evtIndex, QString evtId,
+                                            bool shown)
 {
-    if (m_currentRoom)
-        return m_currentRoom->lastReadEvent(m_connection->user());
+    if (!m_currentRoom)
+        return;
 
-    return {};
+    Q_ASSERT(evtId ==
+             m_currentRoom->messages().at(evtIndex)->messageEvent()->id());
+    // We track last shown events (and can update the read marker) only when
+    // the read marker is on-screen. Tracking is off when lastShownIndex is -1,
+    // and on otherwise.
+    if (m_currentRoom->readMarkerEventId() == evtId)
+    {
+        if (shown)
+        {
+            qDebug() << "Read marker is on-screen";
+            promoteLastShownEvent(evtIndex);
+        }
+        else
+        {
+            qDebug() << "Read marker is off-screen, last shown event:"
+                     << lastShownIndex << "-> -1";
+            lastShownIndex = -1;
+        }
+    }
+    if (shown && lastShownIndex != -1 && lastShownIndex < evtIndex)
+    {
+        // This message hasn't been shown before. If tracking
+        // last shown event is on (see above), wait for some time and if
+        // the message is still on the screen and the last shown index is
+        // behind it, advance it to the event.
+        eventsToShownTimers.insert(evtIndex,
+            shownTimersToEvents.insert(startTimer(1000), evtIndex).key());
+        qDebug() << "Scheduled last shown event update from"
+                 << lastShownIndex << "to" << evtIndex;
+    }
+    if (!shown && eventsToShownTimers.contains(evtIndex))
+    {
+        // The event's got scrolled off too soon? Not gonna be last shown.
+        const auto timerId = eventsToShownTimers.take(evtIndex);
+        shownTimersToEvents.remove(timerId);
+        killTimer(timerId);
+    }
+}
+
+void MessageEventModel::timerEvent(QTimerEvent* qte)
+{
+    if (shownTimersToEvents.contains(qte->timerId()))
+    {
+        const auto eventId = shownTimersToEvents.take(qte->timerId());
+        killTimer(qte->timerId());
+        eventsToShownTimers.remove(eventId);
+        promoteLastShownEvent(eventId);
+        return;
+    }
+    QAbstractListModel::timerEvent(qte);
+}
+
+void MessageEventModel::promoteLastShownEvent(int evtIndex)
+{
+    if (lastShownIndex < evtIndex)
+    {
+        qDebug() << "Last shown event:" << lastShownIndex << "->" << evtIndex;
+        lastShownIndex = evtIndex;
+    }
+}
+
+void MessageEventModel::markShownAsRead()
+{
+    if (m_currentRoom && lastShownIndex > -1)
+    {
+        auto lastShownMessage = m_currentRoom->messages().at(lastShownIndex);
+        m_currentRoom->markMessagesAsRead(lastShownMessage->messageEvent()->id());
+    }
 }

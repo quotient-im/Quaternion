@@ -32,26 +32,29 @@ class QuaternionRoom;
 class MessageEventModel: public QAbstractListModel
 {
         Q_OBJECT
-        Q_PROPERTY(QString lastReadId READ lastReadId NOTIFY lastReadIdChanged STORED false)
+        Q_PROPERTY(QuaternionRoom* room MEMBER m_currentRoom CONSTANT)
     public:
         MessageEventModel(QObject* parent = nullptr);
         virtual ~MessageEventModel();
 
-        void setConnection(QMatrixClient::Connection* connection);
         void changeRoom(QuaternionRoom* room);
 
-        //override QModelIndex index(int row, int column, const QModelIndex& parent=QModelIndex()) const;
-        //override QModelIndex parent(const QModelIndex& index) const;
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
         QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
         QHash<int, QByteArray> roleNames() const override;
 
-        QString lastReadId() const;
+    public slots:
+        void onEventShownChanged(int evtIndex, QString evtId, bool shown);
+        void markShownAsRead();
 
-    signals:
-        void lastReadIdChanged();
+    protected:
+        void timerEvent(QTimerEvent* event) override;
 
     private:
-        QMatrixClient::Connection* m_connection;
         QuaternionRoom* m_currentRoom;
+        int lastShownIndex;
+        QHash<int, int> eventsToShownTimers;
+        QHash<int, int> shownTimersToEvents;
+
+        void promoteLastShownEvent(int evtIndex);
 };

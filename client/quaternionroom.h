@@ -28,7 +28,6 @@ class QuaternionRoom: public QMatrixClient::Room
         Q_OBJECT
     public:
         using Timeline = QMatrixClient::Owning< QList<Message*> >;
-        using size_type = Timeline::size_type;
 
         QuaternionRoom(QMatrixClient::Connection* connection, QString roomId);
         ~QuaternionRoom();
@@ -38,7 +37,6 @@ class QuaternionRoom: public QMatrixClient::Room
          * This is used to mark messages as read.
          */
         void setShown(bool shown);
-        void lookAt();
         bool isShown();
 
         void setCachedInput(const QString& input);
@@ -46,17 +44,9 @@ class QuaternionRoom: public QMatrixClient::Room
 
         const Timeline& messages() const;
 
-        bool hasUnreadMessages();
-
-    signals:
-        void aboutToInsertMessages(size_type from, size_type to);
-        void insertedMessages();
-        void unreadMessagesChanged(QuaternionRoom* room);
-
     protected:
         virtual void doAddNewMessageEvents(const QMatrixClient::Events& events) override;
         virtual void doAddHistoricalMessageEvents(const QMatrixClient::Events& events) override;
-        virtual void processEphemeralEvent(QMatrixClient::Event* event) override;
 
     private slots:
         void countChanged();
@@ -64,7 +54,6 @@ class QuaternionRoom: public QMatrixClient::Room
     private:
         Timeline m_messages;
         bool m_shown;
-        bool m_unreadMessages;
         QString m_cachedInput;
 
         Message* makeMessage(QMatrixClient::Event* e);
