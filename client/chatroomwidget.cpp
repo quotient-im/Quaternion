@@ -90,10 +90,6 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     m_quickView->setSource(QUrl("qrc:///qml/chat.qml"));
     m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
 
-    QObject* rootItem = m_quickView->rootObject();
-    connect( rootItem, SIGNAL(getPreviousContent()), this, SLOT(getPreviousContent()) );
-
-
     m_chatEdit = new ChatEdit(this);
     connect( m_chatEdit, &QLineEdit::returnPressed, this, &ChatRoomWidget::sendLine );
 
@@ -186,12 +182,6 @@ void ChatRoomWidget::topicChanged()
     m_topicLabel->setText( m_currentRoom->topic() );
 }
 
-void ChatRoomWidget::getPreviousContent()
-{
-    if (m_currentRoom)
-        m_currentRoom->getPreviousContent();
-}
-
 void ChatRoomWidget::sendLine()
 {
     qDebug() << "sendLine";
@@ -223,19 +213,19 @@ void ChatRoomWidget::sendLine()
             else if( text.startsWith("/me") )
             {
                 text.remove(0, 3);
-                m_currentConnection->postMessage(m_currentRoom, "m.emote", text);
+                m_currentRoom->postMessage("m.emote", text);
             }
             else if( text.startsWith("//") )
             {
                 text.remove(0, 1);
-                m_currentConnection->postMessage(m_currentRoom, "m.text", text);
+                m_currentRoom->postMessage("m.text", text);
             }
             else if( text.startsWith("/") )
             {
                 emit showStatusMessage( "Unknown command. Use // to send this line literally", 5000);
                 return;
             } else
-                m_currentConnection->postMessage(m_currentRoom, "m.text", text);
+                m_currentRoom->postMessage("m.text", text);
         }
     m_chatEdit->setText("");
 }

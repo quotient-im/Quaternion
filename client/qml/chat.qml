@@ -10,8 +10,6 @@ Rectangle {
 
     color: defaultPalette.base
 
-    signal getPreviousContent()
-
     Timer {
         id: scrollTimer
         interval: 0
@@ -45,6 +43,31 @@ Rectangle {
         property bool nowAtYEnd: contentY - originY + height >= contentHeight
         property bool stickToBottom: true
 
+        function ensurePreviousContent() {
+            // Check whether we're about to bump into the ceiling in 2 seconds
+            var curVelocity = verticalVelocity // Snapshot the current speed
+            if( curVelocity < 0 && contentY + curVelocity*2 < originY)
+            {
+                // Request the amount of messages enough to scroll at this
+                // rate for 3 more seconds
+                var avgHeight = contentHeight / count
+                model.room.getPreviousContent(-curVelocity*3 / avgHeight);
+            }
+        }
+
+        function onModelAboutToReset() {
+            contentYChanged.disconnect(ensurePreviousContent)
+            console.log("Chat: getPreviousContent disabled")
+        }
+
+        function onModelReset() {
+            if (model.room)
+            {
+                contentYChanged.connect(ensurePreviousContent)
+                console.log("Chat: getPreviousContent enabled")
+            }
+        }
+
         function rowsInserted() {
             if( stickToBottom )
                 root.scrollToBottom()
@@ -52,6 +75,8 @@ Rectangle {
 
         Component.onCompleted: {
             console.log("onCompleted")
+            model.modelAboutToBeReset.connect(onModelAboutToReset)
+            model.modelReset.connect(onModelReset)
             model.rowsInserted.connect(rowsInserted)
         }
 
@@ -77,15 +102,6 @@ Rectangle {
                 root.scrollToBottom()
         }
 
-        onContentYChanged: {
-            if( (this.contentY - this.originY) < 5 )
-            {
-                console.log("get older content!")
-                root.getPreviousContent()
-            }
-
-        }
-
         onMovementStarted: {
             stickToBottom = false
         }
@@ -93,7 +109,6 @@ Rectangle {
         onMovementEnded: {
             stickToBottom = nowAtYEnd
         }
-
     }
 
     Slider {
