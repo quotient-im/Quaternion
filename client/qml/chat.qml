@@ -154,8 +154,12 @@ Rectangle {
                 y + message.height - 1 > chatView.contentY &&
                 y + message.height - 1 < chatView.contentY + chatView.height
 
+            Component.onCompleted:
+                if (shown)
+                    messageModel.onMessageShownChanged(eventId, shown)
+
             onShownChanged:
-                messageModel.onEventShownChanged(index, eventId, shown)
+                messageModel.onMessageShownChanged(eventId, shown)
 
             RowLayout {
                 id: message

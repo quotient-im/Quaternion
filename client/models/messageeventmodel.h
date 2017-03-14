@@ -20,18 +20,18 @@
 #pragma once
 
 #include <QtCore/QAbstractListModel>
-#include <QtCore/QModelIndex>
+#include <QtCore/QBasicTimer>
 
-namespace QMatrixClient
-{
-    class Connection;
-}
-class Message;
-class QuaternionRoom;
+#include "../quaternionroom.h"
 
 class MessageEventModel: public QAbstractListModel
 {
         Q_OBJECT
+        // The below property is marked constant because it only changes
+        // when the whole model is reset (so anything that depends on the model
+        // has to be re-calculated anyway).
+        // XXX: A better way would be to make [Room::]Timeline a list model
+        // itself, leaving only representation of the model to a client.
         Q_PROPERTY(QuaternionRoom* room MEMBER m_currentRoom CONSTANT)
     public:
         MessageEventModel(QObject* parent = nullptr);
@@ -44,7 +44,7 @@ class MessageEventModel: public QAbstractListModel
         QHash<int, QByteArray> roleNames() const override;
 
     public slots:
-        void onEventShownChanged(int evtIndex, QString evtId, bool shown);
+        void onMessageShownChanged(QString eventId, bool shown);
         void markShownAsRead();
 
     protected:
@@ -52,9 +52,10 @@ class MessageEventModel: public QAbstractListModel
 
     private:
         QuaternionRoom* m_currentRoom;
-        int lastShownIndex;
-        QHash<int, int> eventsToShownTimers;
-        QHash<int, int> shownTimersToEvents;
 
-        void promoteLastShownEvent(int evtIndex);
+        QVector<QMatrixClient::TimelineItem::index_t> indicesOnScreen;
+        QuaternionRoom::rev_iter_t maybeReadMessage;
+        QBasicTimer maybeReadTimer;
+
+        void reStartShownTimer();
 };
