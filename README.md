@@ -15,8 +15,8 @@ You can also file outright bugs at [the project's issue tracker](https://github.
 - a Git client (to check out this repo)
 - CMake (from your package management system or [the official website](https://cmake.org/download/))
 - Qt 5 (either Open Source or Commercial), version 5.2.1 or higher as of this writing (check the CMakeLists.txt for most up-to-date information). Qt 5.3 or higher recommended on Windows.
-- a C++ toolchain supported by Qt 5.2.1 or later (see a link for your platform at [the Qt's platform requirements page](http://doc.qt.io/qt-5/gettingstarted.html#platform-requirements))
-  - GCC 4.8, Clang 3.5.0, Visual C++ 2013 are the oldest officially supported by Quaternion as of this writing
+- a C++ toolchain supported by your version of Qt (see a link for your platform at [the Qt's platform requirements page](http://doc.qt.io/qt-5/gettingstarted.html#platform-requirements))
+  - GCC 4.8, Clang 3.5.0, Visual C++ 2015 are the oldest officially supported as of this writing
 
 ## Installing pre-requisites
 ### Linux
@@ -30,7 +30,7 @@ sudo apt-get install git cmake qtdeclarative5-dev qtdeclarative5-qtquick2-plugin
 
 ### Windows
 1. Install a Git client and CMake. The commands here imply that git and cmake are in your PATH - otherwise you have to prepend them with your actual paths.
-1. Install Qt5, using their official installer. If for some reason you need to use Qt 5.2.1, select its Add-ons component in the installer as well; for later versions, no extras are needed. If you don't have a toolchain and/or IDE, you can easily get one by selecting Qt Creator and at least one toolchain under Qt Creator. At least Qt 5.3 is recommended on Windows; `windeployqt` in Qt 5.2.1 is not functional enough to provide a standalone installation for Quaternion; but you can still compile and run it from your build directory.  
+1. Install Qt5, using their official installer. If for some reason you need to use Qt 5.2.1, select its Add-ons component in the installer as well; for later versions, no extras are needed. If you don't have a toolchain and/or IDE, you can easily get one by selecting Qt Creator and at least one toolchain under Qt Creator. At least Qt 5.3 is recommended on Windows; `windeployqt` in Qt 5.2.1 is not functional enough to provide a standalone installation for Quaternion; but you can still compile and run it from your build directory.
 1. Make sure CMake knows about Qt and the toolchain - the easiest way is to run a qtenv2.bat script that can be found in `C:\Qt\<Qt version>\<toolchain>\bin` (assuming you installed Qt to `C:\Qt`). The only thing it does is adding necessary paths to PATH - you might not want to run it on system startup but it's very handy to setup environment before building. Setting CMAKE_PREFIX_PATH, the same way as for OS X (see above), also helps.
 
 There are no official MinGW-based 64-bit packages for Qt. If you're determined to build 64-bit Quaternion, either use a Visual Studio toolchain or build Qt5 yourself as described in Qt documentation.
@@ -63,7 +63,7 @@ In the root directory of the project sources: `cmake --build build_dir --target 
 On Linux, `make install` (with `sudo` if needed) will work equally well.
 
 ### Installation on Windows
-Since we can't rely on package management on Windows, Qt libraries and the runtime are installed together with Quaternion. However, two libraries, namely ssleay32.dll and libeay32.dll from OpenSSL project, are not installed automatically because of export restrictions. Unless you already have them around (just in case: they are a part of Qt Creator installation), your best bet is to download these libraries yourself and either install them system-wide (which probably makes sense as soon as you keep them up-to-date) or put them next to quaternion.exe.
+Since we can't rely on package management on Windows, Qt libraries and the runtime are installed together with Quaternion. However, two libraries, namely ssleay32.dll and libeay32.dll from OpenSSL project, are not installed automatically because of export restrictions. Unless you already have them around (just in case: they are a part of Qt Creator installation), your best bet is to download these libraries yourself and either install them system-wide (which probably makes sense as soon as you keep them up-to-date) or put them next to quaternion.exe. Having the libraries system-wide implies they are in your PATH.
 
 In case of trouble with libraries on Windows, [the Dependencies Walker tool aka depends.exe](http://www.dependencywalker.com/) helps a lot in navigating the DLL hell - especially when you have a mixed 32/64-bit environment or have different versions of the same library scattered around (OpenSSL is notoriously often dragged along by all kinds of software; and you may have other copies of Qt around which you didn't even realise to exist - with CMake GUI, e.g.).
 
@@ -95,6 +95,8 @@ CMake Error at CMakeLists.txt:30 (add_subdirectory):
 ...then you don't have libqmatrixclient sources - most likely because you didn't do the `git submodule init && git submodule update` dance.
 
 If Quaternion runs but you can't see any messages in the chat (though you can type them in) - you have a problem with Qt Quick. Most likely, you don't have Qt Quick libraries and/or plugins installed. On Linux, double check "Pre-requisites" above. On Windows and Mac, just open an issue (see "Contacts" section in the beginning of this README), because most likely not all necessary Qt parts got installed.
+
+Especially on Windows, if Quaternion starts up but upon an attempt to connect returns a message like "Failed to make SSL context" - you haven't made sure that SSL libraries are reachable buy the Quaternion binary. See the "Installation on Windows" section above for details.
 
 ## Screenshot
 ![Screenshot](quaternion.png)
