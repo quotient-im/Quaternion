@@ -24,6 +24,7 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QMenu>
+#include <QtWidgets/QMessageBox>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QInputDialog>
 #include <QtWidgets/QStatusBar>
@@ -164,6 +165,7 @@ void MainWindow::setConnection(QuaternionConnection* newConnection)
         connect( connection, &Connection::reconnected, this, &MainWindow::getNewEvents );
         connect( connection, &Connection::loginError, this, &MainWindow::loggedOut );
         connect( connection, &Connection::loggedOut, [=]{ loggedOut(); } );
+        connect( connection, &Connection::invalidRoom, this, &MainWindow::showInvalidRoomDialog );
     }
 }
 
@@ -277,6 +279,14 @@ void MainWindow::showJoinRoomDialog()
     {
         connection->joinRoom(room);
     }
+}
+
+void MainWindow::showInvalidRoomDialog(const QString& roomAlias) const
+{
+    QMessageBox messageBox;
+    messageBox.setText(tr("The room %1 does not seem to exist.").arg(roomAlias));
+    messageBox.setIcon(QMessageBox::Warning);
+    messageBox.exec();
 }
 
 

@@ -59,6 +59,7 @@ class MainWindow: public QMainWindow
         void connectionError(QString error);
 
         void showJoinRoomDialog();
+        void showInvalidRoomDialog(const QString& roomAlias) const;
         void showLoginWindow(const QString& statusMessage = QString());
         void logout();
 
