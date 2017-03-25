@@ -194,14 +194,8 @@ void ChatRoomWidget::sendLine()
     // Commands available without current room
     if( text.startsWith("/join") )
     {
-        QString roomName = text.section(' ', 1, 1, QString::SectionSkipEmpty);
-        if( !roomName.isEmpty() )
-            m_currentConnection->joinRoom( roomName );
-        else
-        {
-            qDebug() << "No arguments for /join, going interactive";
-            emit joinRoomNeedsInteraction();
-        }
+        const QString roomName = text.section(' ', 1, 1, QString::SectionSkipEmpty);
+        emit joinCommandEntered(roomName);
     }
     else // Commands available only in the room context
         if (m_currentRoom)

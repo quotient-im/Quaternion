@@ -49,7 +49,7 @@ class ChatRoomWidget: public QWidget
         void lookAtRoom();
 
     signals:
-        void joinRoomNeedsInteraction();
+        void joinCommandEntered(const QString& roomAlias);
         void showStatusMessage(const QString& message, int timeout);
 
     public slots:

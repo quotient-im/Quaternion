@@ -52,13 +52,13 @@ class MainWindow: public QMainWindow
     private slots:
         void initialize();
         void initialSync();
+        void joinRoom(const QString& roomAlias = QString());
         void getNewEvents();
         void gotEvents();
         void loggedOut(const QString& message = QString());
 
         void connectionError(QString error);
 
-        void showJoinRoomDialog();
         void showLoginWindow(const QString& statusMessage = QString());
         void logout();
 
