@@ -32,6 +32,7 @@
 #include <QtGui/QMovie>
 #include <QtGui/QCloseEvent>
 
+#include "jobs/joinroomjob.h"
 #include "quaternionconnection.h"
 #include "quaternionroom.h"
 #include "roomlistdock.h"
@@ -165,7 +166,6 @@ void MainWindow::setConnection(QuaternionConnection* newConnection)
         connect( connection, &Connection::reconnected, this, &MainWindow::getNewEvents );
         connect( connection, &Connection::loginError, this, &MainWindow::loggedOut );
         connect( connection, &Connection::loggedOut, [=]{ loggedOut(); } );
-        connect( connection, &Connection::invalidRoom, this, &MainWindow::showInvalidRoomDialog );
     }
 }
 
@@ -277,16 +277,14 @@ void MainWindow::showJoinRoomDialog()
                                          QLineEdit::Normal, QString(), &ok);
     if( ok && !room.isEmpty() )
     {
-        connection->joinRoom(room);
+        auto job = connection->joinRoom(room);
+        connect(job, &QMatrixClient::BaseJob::failure, this, [=] () {
+            QMessageBox messageBox;
+            messageBox.setText(tr("The room <b>%1</b> does not seem to exist.").arg(room));
+            messageBox.setIcon(QMessageBox::Warning);
+            messageBox.exec();
+        });
     }
-}
-
-void MainWindow::showInvalidRoomDialog(const QString& roomAlias) const
-{
-    QMessageBox messageBox;
-    messageBox.setText(tr("The room %1 does not seem to exist.").arg(roomAlias));
-    messageBox.setIcon(QMessageBox::Warning);
-    messageBox.exec();
 }
 
 
