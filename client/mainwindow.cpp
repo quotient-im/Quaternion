@@ -242,13 +242,10 @@ void MainWindow::initialSync()
 
 void MainWindow::joinRoom(const QString& roomAlias)
 {
-    const QString room = [=] {
-        if (!roomAlias.isEmpty())
-            return roomAlias;
-
-        return QInputDialog::getText(this, tr("Join Room"), tr("Enter the name of the room"),
+    QString room = roomAlias;
+    if (room.isEmpty())
+        room = QInputDialog::getText(this, tr("Join Room"), tr("Enter the name of the room"),
                                      QLineEdit::Normal, QString());
-    }();
 
     // Dialog rejected, nothing to do.
     if (room.isEmpty())
