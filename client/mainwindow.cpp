@@ -160,10 +160,9 @@ void MainWindow::setConnection(QuaternionConnection* newConnection)
         systemTray->setConnection(connection);
 
         using QMatrixClient::Connection;
-        connect( connection, &Connection::connectionError, this, &MainWindow::connectionError );
+        connect( connection, &Connection::networkError, this, &MainWindow::networkError );
         connect( connection, &Connection::syncDone, this, &MainWindow::gotEvents );
         connect( connection, &Connection::connected, this, &MainWindow::initialSync );
-        connect( connection, &Connection::reconnected, this, &MainWindow::getNewEvents );
         connect( connection, &Connection::loginError, this, &MainWindow::loggedOut );
         connect( connection, &Connection::loggedOut, [=]{ loggedOut(); } );
     }
@@ -242,20 +241,44 @@ void MainWindow::initialSync()
 
 void MainWindow::joinRoom(const QString& roomAlias)
 {
+    if (!connection)
+    {
+        QMessageBox::warning(this, tr("No connection"),
+            tr("Please connect to a server before joining a room"),
+            QMessageBox::Close, QMessageBox::Close);
+        return;
+    }
+
     QString room = roomAlias;
     if (room.isEmpty())
-        room = QInputDialog::getText(this, tr("Join Room"), tr("Enter the name of the room"),
-                                     QLineEdit::Normal, QString());
+        room = QInputDialog::getText(this, tr("Enter room alias to join"),
+                tr("Enter an alias of the room, including the server part"));
 
     // Dialog rejected, nothing to do.
     if (room.isEmpty())
         return;
 
+    using QMatrixClient::JoinRoomJob;
     auto job = connection->joinRoom(room);
     connect(job, &QMatrixClient::BaseJob::failure, this, [=] {
-        QMessageBox messageBox;
-        messageBox.setText(tr("The room <b>%1</b> does not seem to exist.").arg(room));
-        messageBox.setIcon(QMessageBox::Warning);
+        QMessageBox messageBox(QMessageBox::Warning,
+                               tr("Failed to join room"),
+                               tr("Joining request returned an error"),
+                               QMessageBox::Close, this);
+        messageBox.setWindowModality(Qt::WindowModal);
+        messageBox.setTextFormat(Qt::PlainText);
+        messageBox.setDetailedText(job->errorString());
+        switch (job->error()) {
+            case JoinRoomJob::NotFoundError:
+                messageBox.setText(
+                    tr("Room with id or alias %1 does not seem to exist").arg(roomAlias));
+                break;
+            case JoinRoomJob::IncorrectRequestError:
+                messageBox.setText(
+                    tr("Incorrect id or alias: %1").arg(roomAlias));
+                break;
+            default:;
+        }
         messageBox.exec();
     });
 }
@@ -276,11 +299,27 @@ void MainWindow::gotEvents()
     getNewEvents();
 }
 
-void MainWindow::connectionError(QString error)
+void showMillisToRecon(QStatusBar* statusBar, int millis)
 {
-    qDebug() << error;
-    qDebug() << "reconnecting...";
-    connection->reconnect();
+    statusBar->showMessage(
+        MainWindow::tr("Network error when syncing; will retry within %1 seconds")
+        .arg((millis + 999) / 1000)); // Integer ceiling
+}
+
+void MainWindow::networkError()
+{
+    auto timer = new QTimer(this);
+    timer->start(std::min(1000, connection->millisToReconnect()));
+    showMillisToRecon(statusBar(), timer->remainingTime());
+    timer->connect(timer, &QTimer::timeout, [=] {
+        if (connection->millisToReconnect() > 0)
+            showMillisToRecon(statusBar(), connection->millisToReconnect());
+        else
+        {
+            statusBar()->showMessage(tr("Reconnecting..."), 5000);
+            timer->deleteLater();
+        }
+    });
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)
@@ -289,4 +328,3 @@ void MainWindow::closeEvent(QCloseEvent* event)
     saveSettings();
     event->accept();
 }
-

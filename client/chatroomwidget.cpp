@@ -214,7 +214,7 @@ void ChatRoomWidget::sendLine()
                 text.remove(0, 1);
                 m_currentRoom->postMessage("m.text", text);
             }
-            else if( text.startsWith("/") )
+            else if( text.startsWith('/') )
             {
                 emit showStatusMessage( "Unknown command. Use // to send this line literally", 5000);
                 return;

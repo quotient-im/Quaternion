@@ -57,7 +57,7 @@ class MainWindow: public QMainWindow
         void gotEvents();
         void loggedOut(const QString& message = QString());
 
-        void connectionError(QString error);
+        void networkError();
 
         void showLoginWindow(const QString& statusMessage = QString());
         void logout();
