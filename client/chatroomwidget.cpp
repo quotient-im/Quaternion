@@ -91,6 +91,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
 
     m_chatEdit = new ChatEdit(this);
+    m_chatEdit->setEnabled(false);
     connect( m_chatEdit, &QLineEdit::returnPressed, this, &ChatRoomWidget::sendLine );
 
     m_currentlyTyping = new QLabel();
@@ -136,6 +137,8 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
             cancelCompletion();
     }
     m_currentRoom = room;
+    m_chatEdit->setEnabled(room);
+
     if( m_currentRoom )
     {
         m_chatEdit->setText( m_currentRoom->cachedInput() );
