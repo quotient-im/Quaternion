@@ -24,6 +24,7 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QMenu>
+#include <QtWidgets/QMessageBox>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QInputDialog>
 #include <QtWidgets/QStatusBar>
@@ -31,6 +32,7 @@
 #include <QtGui/QMovie>
 #include <QtGui/QCloseEvent>
 
+#include "jobs/joinroomjob.h"
 #include "quaternionconnection.h"
 #include "quaternionroom.h"
 #include "roomlistdock.h"
@@ -50,7 +52,7 @@ MainWindow::MainWindow()
     addDockWidget(Qt::RightDockWidgetArea, userListDock);
     chatRoomWidget = new ChatRoomWidget(this);
     setCentralWidget(chatRoomWidget);
-    connect( chatRoomWidget, &ChatRoomWidget::joinRoomNeedsInteraction, this, &MainWindow::showJoinRoomDialog);
+    connect( chatRoomWidget, &ChatRoomWidget::joinCommandEntered, this, &MainWindow::joinRoom );
     connect( roomListDock, &RoomListDock::roomSelected, chatRoomWidget, &ChatRoomWidget::setRoom );
     connect( roomListDock, &RoomListDock::roomSelected, userListDock, &UserListDock::setRoom );
     connect( chatRoomWidget, &ChatRoomWidget::showStatusMessage, statusBar(), &QStatusBar::showMessage );
@@ -94,7 +96,7 @@ void MainWindow::createMenu()
     auto roomMenu = menuBar()->addMenu(tr("&Room"));
 
     auto joinRoomAction = roomMenu->addAction(tr("&Join Room..."));
-    connect( joinRoomAction, &QAction::triggered, [=]{ showJoinRoomDialog(); } );
+    connect( joinRoomAction, &QAction::triggered, this, [=]{ joinRoom(); } );
 }
 
 void MainWindow::loadSettings()
@@ -238,6 +240,26 @@ void MainWindow::initialSync()
     getNewEvents();
 }
 
+void MainWindow::joinRoom(const QString& roomAlias)
+{
+    QString room = roomAlias;
+    if (room.isEmpty())
+        room = QInputDialog::getText(this, tr("Join Room"), tr("Enter the name of the room"),
+                                     QLineEdit::Normal, QString());
+
+    // Dialog rejected, nothing to do.
+    if (room.isEmpty())
+        return;
+
+    auto job = connection->joinRoom(room);
+    connect(job, &QMatrixClient::BaseJob::failure, this, [=] {
+        QMessageBox messageBox;
+        messageBox.setText(tr("The room <b>%1</b> does not seem to exist.").arg(room));
+        messageBox.setIcon(QMessageBox::Warning);
+        messageBox.exec();
+    });
+}
+
 void MainWindow::getNewEvents()
 {
     connection->sync(30*1000);
@@ -267,16 +289,4 @@ void MainWindow::closeEvent(QCloseEvent* event)
     saveSettings();
     event->accept();
 }
-
-void MainWindow::showJoinRoomDialog()
-{
-    bool ok;
-    QString room = QInputDialog::getText(this, tr("Join Room"), tr("Enter the name of the room"),
-                                         QLineEdit::Normal, QString(), &ok);
-    if( ok && !room.isEmpty() )
-    {
-        connection->joinRoom(room);
-    }
-}
-
 
