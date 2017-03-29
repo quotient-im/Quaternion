@@ -31,6 +31,7 @@ namespace QMatrixClient
 class MessageEventModel;
 class QuaternionRoom;
 class ImageProvider;
+class QFrame;
 class QQuickView;
 class QListView;
 class QLineEdit;
