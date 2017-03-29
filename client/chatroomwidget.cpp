@@ -94,6 +94,8 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     connect( m_chatEdit, &QLineEdit::returnPressed, this, &ChatRoomWidget::sendLine );
 
     m_currentlyTyping = new QLabel();
+    m_topicSeparator = new QFrame(this);
+    m_topicSeparator->setFrameShape(QFrame::HLine);
     m_topicLabel = new QLabel();
     m_topicLabel->setWordWrap(true);
     m_topicLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -101,6 +103,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
 
     QVBoxLayout* layout = new QVBoxLayout();
     layout->addWidget(m_topicLabel);
+    layout->addWidget(m_topicSeparator);
     layout->addWidget(container);
     layout->addWidget(m_currentlyTyping);
     layout->addWidget(m_chatEdit);
