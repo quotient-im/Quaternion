@@ -87,6 +87,12 @@ QVariant UserListModel::data(const QModelIndex& index, int role) const
     {
         return user->avatar(25,25);
     }
+
+    if (role == Qt::ToolTipRole)
+    {
+        return QStringLiteral("<b>%1</b><br>%2").arg(user->name(), user->id());
+    }
+
     return QVariant();
 }
 
