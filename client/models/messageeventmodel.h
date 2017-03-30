@@ -20,9 +20,8 @@
 #pragma once
 
 #include <QtCore/QAbstractListModel>
-#include <QtCore/QBasicTimer>
 
-#include "../quaternionroom.h"
+class QuaternionRoom;
 
 class MessageEventModel: public QAbstractListModel
 {
@@ -43,19 +42,6 @@ class MessageEventModel: public QAbstractListModel
         QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
         QHash<int, QByteArray> roleNames() const override;
 
-    public slots:
-        void onMessageShownChanged(QString eventId, bool shown);
-        void markShownAsRead();
-
-    protected:
-        void timerEvent(QTimerEvent* event) override;
-
     private:
         QuaternionRoom* m_currentRoom;
-
-        QVector<QMatrixClient::TimelineItem::index_t> indicesOnScreen;
-        QuaternionRoom::rev_iter_t maybeReadMessage;
-        QBasicTimer maybeReadTimer;
-
-        void reStartShownTimer();
 };

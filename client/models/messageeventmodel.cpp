@@ -19,10 +19,10 @@
 
 #include "messageeventmodel.h"
 
-#include <QtCore/QTimerEvent>
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
 
+#include "../quaternionroom.h"
 #include "../message.h"
 #include "lib/connection.h"
 #include "lib/user.h"
@@ -75,8 +75,6 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
     beginResetModel();
     if( m_currentRoom )
         m_currentRoom->disconnect( this );
-    maybeReadTimer.stop();
-    indicesOnScreen.clear();
 
     m_currentRoom = room;
     if( room )
@@ -95,7 +93,6 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                 });
         connect(m_currentRoom, &Room::addedMessages,
                 this, &MessageEventModel::endInsertRows);
-        maybeReadMessage = m_currentRoom->timelineEdge();
         qDebug() << "connected" << room;
     }
     endResetModel();
@@ -322,92 +319,4 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     }
 
     return QVariant();
-}
-
-void MessageEventModel::onMessageShownChanged(QString eventId, bool shown)
-{
-    if (!m_currentRoom)
-        return;
-
-    // A message can be auto-marked as read (as soon as the user is active), if:
-    // 0. The read marker exists and is on the screen
-    // 1. The message is shown on the screen now
-    // 2. It's been the bottommost message on the screen for the last 1 second
-    // 3. It's below the read marker
-
-    const auto readMarker = m_currentRoom->readMarker();
-    if (readMarker != m_currentRoom->timelineEdge() &&
-            readMarker->event()->id() == eventId)
-    {
-        if (shown)
-        {
-            qDebug() << "Read marker is on-screen, at" << *readMarker;
-            maybeReadMessage = readMarker;
-            reStartShownTimer();
-        } else
-        {
-            qDebug() << "Read marker is off-screen";
-            if (maybeReadMessage != m_currentRoom->timelineEdge())
-                qDebug() << "Bottommost shown message was" << *maybeReadMessage;
-            maybeReadMessage = m_currentRoom->timelineEdge();
-            maybeReadTimer.stop();
-        }
-    }
-
-    const auto timelineItem = m_currentRoom->findInTimeline(eventId);
-    Q_ASSERT(timelineItem != m_currentRoom->timelineEdge());
-    const auto timelineIndex = timelineItem->index();
-    auto pos = std::lower_bound(indicesOnScreen.begin(), indicesOnScreen.end(),
-                                timelineIndex);
-    if (shown)
-    {
-        if (pos == indicesOnScreen.end() || *pos != timelineIndex)
-        {
-            indicesOnScreen.insert(pos, timelineIndex);
-            if (timelineIndex == indicesOnScreen.back())
-                reStartShownTimer();
-        }
-    } else
-    {
-        if (pos != indicesOnScreen.end() && *pos == timelineIndex)
-            if (indicesOnScreen.erase(pos) == indicesOnScreen.end())
-                reStartShownTimer();
-    }
-}
-
-void MessageEventModel::reStartShownTimer()
-{
-    if (maybeReadMessage == m_currentRoom->timelineEdge() ||
-            indicesOnScreen.empty() ||
-            maybeReadMessage->index() >= indicesOnScreen.back())
-        return;
-
-    maybeReadTimer.start(1000, this);
-    qDebug() << "Scheduled maybe-read message update:"
-             << maybeReadMessage->index() << "->" << indicesOnScreen.back();
-}
-
-void MessageEventModel::timerEvent(QTimerEvent* qte)
-{
-    if (qte->timerId() != maybeReadTimer.timerId())
-    {
-        QAbstractListModel::timerEvent(qte);
-        return;
-    }
-    maybeReadTimer.stop();
-    // Only update the maybe-read message if we're tracking it
-    if (!indicesOnScreen.empty() &&
-            maybeReadMessage != m_currentRoom->timelineEdge() &&
-            maybeReadMessage->index() < indicesOnScreen.back())
-    {
-        qDebug() << "Maybe-read message update:" << maybeReadMessage->index()
-                 << "->" << indicesOnScreen.back();
-        maybeReadMessage = m_currentRoom->findInTimeline(indicesOnScreen.back());
-    }
-}
-
-void MessageEventModel::markShownAsRead()
-{
-    if (m_currentRoom && maybeReadMessage != m_currentRoom->timelineEdge())
-        m_currentRoom->markMessagesAsRead(maybeReadMessage->event()->id());
 }
