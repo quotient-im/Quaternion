@@ -24,7 +24,6 @@
 #include <QtCore/QDebug>
 
 #include "../message.h"
-#include "../quaternionroom.h"
 #include "lib/connection.h"
 #include "lib/user.h"
 #include "lib/events/roommessageevent.h"
@@ -63,7 +62,6 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
 MessageEventModel::MessageEventModel(QObject* parent)
     : QAbstractListModel(parent)
     , m_currentRoom(nullptr)
-    , lastShownIndex(-1)
 { }
 
 MessageEventModel::~MessageEventModel()
@@ -77,13 +75,10 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
     beginResetModel();
     if( m_currentRoom )
         m_currentRoom->disconnect( this );
+    maybeReadTimer.stop();
+    indicesOnScreen.clear();
 
     m_currentRoom = room;
-    lastShownIndex = -1;
-    for (int t: eventsToShownTimers)
-        killTimer(t);
-    eventsToShownTimers.clear();
-    shownTimersToEvents.clear();
     if( room )
     {
         using namespace QMatrixClient;
@@ -100,6 +95,7 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                 });
         connect(m_currentRoom, &Room::addedMessages,
                 this, &MessageEventModel::endInsertRows);
+        maybeReadMessage = m_currentRoom->timelineEdge();
         qDebug() << "connected" << room;
     }
     endResetModel();
@@ -328,78 +324,90 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
-void MessageEventModel::onEventShownChanged(int evtIndex, QString evtId,
-                                            bool shown)
+void MessageEventModel::onMessageShownChanged(QString eventId, bool shown)
 {
     if (!m_currentRoom)
         return;
 
-    Q_ASSERT(evtId ==
-             m_currentRoom->messages().at(evtIndex)->messageEvent()->id());
-    // We track last shown events (and can update the read marker) only when
-    // the read marker is on-screen. Tracking is off when lastShownIndex is -1,
-    // and on otherwise.
-    if (m_currentRoom->readMarkerEventId() == evtId)
+    // A message can be auto-marked as read (as soon as the user is active), if:
+    // 0. The read marker exists and is on the screen
+    // 1. The message is shown on the screen now
+    // 2. It's been the bottommost message on the screen for the last 1 second
+    // 3. It's below the read marker
+
+    const auto readMarker = m_currentRoom->readMarker();
+    if (readMarker != m_currentRoom->timelineEdge() &&
+            readMarker->event()->id() == eventId)
     {
         if (shown)
         {
-            qDebug() << "Read marker is on-screen";
-            promoteLastShownEvent(evtIndex);
-        }
-        else
+            qDebug() << "Read marker is on-screen, at" << *readMarker;
+            maybeReadMessage = readMarker;
+            reStartShownTimer();
+        } else
         {
-            qDebug() << "Read marker is off-screen, last shown event:"
-                     << lastShownIndex << "-> -1";
-            lastShownIndex = -1;
+            qDebug() << "Read marker is off-screen";
+            if (maybeReadMessage != m_currentRoom->timelineEdge())
+                qDebug() << "Bottommost shown message was" << *maybeReadMessage;
+            maybeReadMessage = m_currentRoom->timelineEdge();
+            maybeReadTimer.stop();
         }
     }
-    if (shown && lastShownIndex != -1 && lastShownIndex < evtIndex)
+
+    const auto timelineItem = m_currentRoom->findInTimeline(eventId);
+    Q_ASSERT(timelineItem != m_currentRoom->timelineEdge());
+    const auto timelineIndex = timelineItem->index();
+    auto pos = std::lower_bound(indicesOnScreen.begin(), indicesOnScreen.end(),
+                                timelineIndex);
+    if (shown)
     {
-        // This message hasn't been shown before. If tracking
-        // last shown event is on (see above), wait for some time and if
-        // the message is still on the screen and the last shown index is
-        // behind it, advance it to the event.
-        eventsToShownTimers.insert(evtIndex,
-            shownTimersToEvents.insert(startTimer(1000), evtIndex).key());
-        qDebug() << "Scheduled last shown event update from"
-                 << lastShownIndex << "to" << evtIndex;
-    }
-    if (!shown && eventsToShownTimers.contains(evtIndex))
+        if (pos == indicesOnScreen.end() || *pos != timelineIndex)
+        {
+            indicesOnScreen.insert(pos, timelineIndex);
+            if (timelineIndex == indicesOnScreen.back())
+                reStartShownTimer();
+        }
+    } else
     {
-        // The event's got scrolled off too soon? Not gonna be last shown.
-        const auto timerId = eventsToShownTimers.take(evtIndex);
-        shownTimersToEvents.remove(timerId);
-        killTimer(timerId);
+        if (pos != indicesOnScreen.end() && *pos == timelineIndex)
+            if (indicesOnScreen.erase(pos) == indicesOnScreen.end())
+                reStartShownTimer();
     }
+}
+
+void MessageEventModel::reStartShownTimer()
+{
+    if (maybeReadMessage == m_currentRoom->timelineEdge() ||
+            indicesOnScreen.empty() ||
+            maybeReadMessage->index() >= indicesOnScreen.back())
+        return;
+
+    maybeReadTimer.start(1000, this);
+    qDebug() << "Scheduled maybe-read message update:"
+             << maybeReadMessage->index() << "->" << indicesOnScreen.back();
 }
 
 void MessageEventModel::timerEvent(QTimerEvent* qte)
 {
-    if (shownTimersToEvents.contains(qte->timerId()))
+    if (qte->timerId() != maybeReadTimer.timerId())
     {
-        const auto eventId = shownTimersToEvents.take(qte->timerId());
-        killTimer(qte->timerId());
-        eventsToShownTimers.remove(eventId);
-        promoteLastShownEvent(eventId);
+        QAbstractListModel::timerEvent(qte);
         return;
     }
-    QAbstractListModel::timerEvent(qte);
-}
-
-void MessageEventModel::promoteLastShownEvent(int evtIndex)
-{
-    if (lastShownIndex < evtIndex)
+    maybeReadTimer.stop();
+    // Only update the maybe-read message if we're tracking it
+    if (!indicesOnScreen.empty() &&
+            maybeReadMessage != m_currentRoom->timelineEdge() &&
+            maybeReadMessage->index() < indicesOnScreen.back())
     {
-        qDebug() << "Last shown event:" << lastShownIndex << "->" << evtIndex;
-        lastShownIndex = evtIndex;
+        qDebug() << "Maybe-read message update:" << maybeReadMessage->index()
+                 << "->" << indicesOnScreen.back();
+        maybeReadMessage = m_currentRoom->findInTimeline(indicesOnScreen.back());
     }
 }
 
 void MessageEventModel::markShownAsRead()
 {
-    if (m_currentRoom && lastShownIndex > -1)
-    {
-        auto lastShownMessage = m_currentRoom->messages().at(lastShownIndex);
-        m_currentRoom->markMessagesAsRead(lastShownMessage->messageEvent()->id());
-    }
+    if (m_currentRoom && maybeReadMessage != m_currentRoom->timelineEdge())
+        m_currentRoom->markMessagesAsRead(maybeReadMessage->event()->id());
 }
