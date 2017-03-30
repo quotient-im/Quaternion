@@ -21,6 +21,7 @@
 
 #include <QtCore/QTimerEvent>
 #include <QtCore/QSettings>
+#include <QtCore/QRegularExpression>
 #include <QtCore/QDebug>
 
 #include "../message.h"
@@ -110,6 +111,44 @@ int MessageEventModel::rowCount(const QModelIndex& parent) const
     if( !m_currentRoom || parent.isValid() )
         return 0;
     return m_currentRoom->messages().count();
+}
+
+void linkifyUrls(QString& text)
+{
+    static const auto RegExpOptions =
+        QRegularExpression::CaseInsensitiveOption
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
+        | QRegularExpression::OptimizeOnFirstUsageOption
+#endif
+        | QRegularExpression::UseUnicodePropertiesOption;
+    static const QRegularExpression urlDetectorMail {
+        "(^|\\s)(" // Criteria to match the beginning of the URL
+            "\\w[^@\\s]*@" // authority (the part before @)
+            "(\\w[-\\w]*\\.)+\\w[-\\w]+" // host (at least two labels and at least two letters in tld)
+        "\\b)", // Criteria to match the end of the URL
+        RegExpOptions
+    };
+    static const QRegularExpression urlDetectorRelative {
+        "(^|\\s)(" // Criteria to match the beginning of the URL
+            "(\\w[-\\w]*\\.)+\\w[-\\w]+" // host (at least two labels and at least two letters in tld)
+        "\\b)", // Criteria to match the end of the URL
+        RegExpOptions
+    };
+    static const QRegularExpression urlDetectorAbsolute {
+        "(^|\\s)(" // Criteria to match the beginning of the URL
+            "(?!file)(\\w+:(//)?)" // schema
+            "(\\w[^@\\s]*@)?" // optional authority (the part before @)
+            "(\\w[-\\w]*\\.?)+" // host (non quite strict)
+            "(:\\d{1,5})?" // optional port
+            "(/[^\\s]*)?" // optional query and fragment
+        "\\b)", // Criteria to match the end of the URL
+        RegExpOptions
+    };
+    // mail regex is the least specific because of [^@\\s], run it first to
+    // avoid repeated substitutions.
+    text.replace(urlDetectorMail, "\\1<a href=\"mailto:\\2\">\\2</a>");
+    text.replace(urlDetectorRelative, "\\1<a href=\"http://\\2\">\\2</a>");
+    text.replace(urlDetectorAbsolute, "\\1<a href=\"\\2\">\\2</a>");
 }
 
 QVariant MessageEventModel::data(const QModelIndex& index, int role) const
@@ -212,25 +251,16 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
             case MessageEventType::Emote:
             case MessageEventType::Text:
             case MessageEventType::Notice:
-                {
-                    QString body;
-                    QString contentType;
+                if (role == ContentTypeRole)
+                    return "text/html";
+                else {
                     auto textContent = static_cast<TextContent*>(e->content());
                     if (textContent && textContent->mimeType.inherits("text/html"))
-                    {
-                        body = textContent->body;
-                        contentType = "text/html";
-                    }
-                    else
-                    {
-                        body = e->plainBody();
-                        contentType = "text/plain";
-                    }
+                        return textContent->body;
 
-                    if (role == ContentRole)
-                        return body;
-                    else
-                        return contentType;
+                    auto body = e->plainBody().toHtmlEscaped();
+                    linkifyUrls(body);
+                    return body;
                 }
             case MessageEventType::Image:
                 {
