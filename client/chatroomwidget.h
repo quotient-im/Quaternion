@@ -51,7 +51,7 @@ class ChatRoomWidget: public QWidget
 
     signals:
         void joinCommandEntered(const QString& roomAlias);
-        void showStatusMessage(const QString& message, int timeout);
+        void showStatusMessage(const QString& message, int timeout = 0);
 
     public slots:
         void setRoom(QuaternionRoom* room);
