@@ -122,33 +122,36 @@ void linkifyUrls(QString& text)
 #endif
         | QRegularExpression::UseUnicodePropertiesOption;
     static const QRegularExpression urlDetectorMail {
-        "(^|\\s)(" // Criteria to match the beginning of the URL
+        QStringLiteral("(^|\\s)(" // Criteria to match the beginning of the URL
             "\\w[^@\\s]*@" // authority (the part before @)
             "(\\w[-\\w]*\\.)+\\w[-\\w]+" // host (at least two labels and at least two letters in tld)
-        "\\b)", // Criteria to match the end of the URL
+        "\\b)"), // Criteria to match the end of the URL
         RegExpOptions
     };
     static const QRegularExpression urlDetectorRelative {
-        "(^|\\s)(" // Criteria to match the beginning of the URL
+        QStringLiteral("(^|\\s)(" // Criteria to match the beginning of the URL
             "(\\w[-\\w]*\\.)+\\w[-\\w]+" // host (at least two labels and at least two letters in tld)
-        "\\b)", // Criteria to match the end of the URL
+        "\\b)"), // Criteria to match the end of the URL
         RegExpOptions
     };
     static const QRegularExpression urlDetectorAbsolute {
-        "(^|\\s)(" // Criteria to match the beginning of the URL
+        QStringLiteral("(^|\\s)(" // Criteria to match the beginning of the URL
             "(?!file)(\\w+:(//)?)" // schema
             "(\\w[^@\\s]*@)?" // optional authority (the part before @)
             "(\\w[-\\w]*\\.?)+" // host (non quite strict)
             "(:\\d{1,5})?" // optional port
             "(/[^\\s]*)?" // optional query and fragment
-        "\\b)", // Criteria to match the end of the URL
+        "\\b)"), // Criteria to match the end of the URL
         RegExpOptions
     };
     // mail regex is the least specific because of [^@\\s], run it first to
     // avoid repeated substitutions.
-    text.replace(urlDetectorMail, "\\1<a href=\"mailto:\\2\">\\2</a>");
-    text.replace(urlDetectorRelative, "\\1<a href=\"http://\\2\">\\2</a>");
-    text.replace(urlDetectorAbsolute, "\\1<a href=\"\\2\">\\2</a>");
+    text.replace(urlDetectorMail,
+                 QStringLiteral("\\1<a href=\"mailto:\\2\">\\2</a>"));
+    text.replace(urlDetectorRelative,
+                 QStringLiteral("\\1<a href=\"http://\\2\">\\2</a>"));
+    text.replace(urlDetectorAbsolute,
+                 QStringLiteral("\\1<a href=\"\\2\">\\2</a>"));
 }
 
 QVariant MessageEventModel::data(const QModelIndex& index, int role) const
