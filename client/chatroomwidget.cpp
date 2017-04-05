@@ -142,7 +142,7 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
         m_chatEdit->setText( m_currentRoom->cachedInput() );
         connect( m_currentRoom, &QMatrixClient::Room::typingChanged, this, &ChatRoomWidget::typingChanged );
         connect( m_currentRoom, &QMatrixClient::Room::topicChanged, this, &ChatRoomWidget::topicChanged );
-        connect( m_currentRoom, &QMatrixClient::Room::readMarkerMoved, [=] {
+        connect( m_currentRoom, &QMatrixClient::Room::readMarkerMoved, this, [this] {
             const auto rm = m_currentRoom->readMarker();
             readMarkerOnScreen =
                 rm != m_currentRoom->timelineEdge() &&
