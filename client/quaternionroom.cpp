@@ -19,10 +19,9 @@
 
 #include "quaternionroom.h"
 
-#include "message.h"
-#include "lib/connection.h"
+#include <QtCore/QRegularExpression>
 
-#include <QtCore/QDebug>
+#include "message.h"
 
 QuaternionRoom::QuaternionRoom(QMatrixClient::Connection* connection, QString roomId)
     : QMatrixClient::Room(connection, roomId)
@@ -98,4 +97,57 @@ const QString& QuaternionRoom::cachedInput() const
 void QuaternionRoom::setCachedInput(const QString& input)
 {
     m_cachedInput = input;
+}
+
+void QuaternionRoom::linkifyUrls(QString& text) const
+{
+    static const auto RegExpOptions =
+        QRegularExpression::CaseInsensitiveOption
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
+        | QRegularExpression::OptimizeOnFirstUsageOption
+#endif
+        | QRegularExpression::UseUnicodePropertiesOption;
+// A regexp for a full-qualified domain name, as used in schemeless URL regexps below:
+// at least two labels (including TLD), with TLD having at least two characters and
+// starting with a letter (not a digit)
+#define FQDN "(\\w[-\\w]*\\.)+(?!\\d)\\w[-\\w]+"
+    static const QRegularExpression urlDetectorMail {
+        QStringLiteral("(^|\\s)(" // Criteria to match the beginning of the URL
+            "\\w[^@\\s]*@" // authority (the part before @)
+            FQDN
+        "\\b)"), // Criteria to match the end of the URL
+        RegExpOptions
+    };
+    static const QRegularExpression urlDetectorRelative {
+        QStringLiteral("(^|\\s)(" FQDN "\\b)"), RegExpOptions
+    };
+    static const QRegularExpression urlDetectorAbsolute {
+        QStringLiteral("(^|\\s)(" // Criteria to match the beginning of the URL
+            "(?!file)(\\w+:(//)?)" // scheme
+            "(\\w[^@\\s]*@)?" // optional authority (the part before @)
+            "(\\w[-\\w]*\\.?)+" // host name or address (non quite strict)
+            "(:\\d{1,5})?" // optional port
+            "(/[^\\s]*)?" // optional query and fragment
+        "\\b)"), // Criteria to match the end of the URL
+        RegExpOptions
+    };
+#undef FQDN
+    // mail regex is the least specific because of [^@\\s], run it first to
+    // avoid repeated substitutions.
+    text.replace(urlDetectorMail,
+                 QStringLiteral("\\1<a href=\"mailto:\\2\">\\2</a>"));
+    text.replace(urlDetectorRelative,
+                 QStringLiteral("\\1<a href=\"http://\\2\">\\2</a>"));
+    text.replace(urlDetectorAbsolute,
+                 QStringLiteral("\\1<a href=\"\\2\">\\2</a>"));
+}
+
+QString QuaternionRoom::prettyTopic() const
+{
+    QString pt = topic().toHtmlEscaped();
+    if (pt.isEmpty())
+        return QStringLiteral("(no topic)");
+
+    linkifyUrls(pt);
+    return pt;
 }
