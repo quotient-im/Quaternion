@@ -94,7 +94,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     connect( m_chatEdit, &QLineEdit::returnPressed, this, &ChatRoomWidget::sendLine );
 
     m_currentlyTyping = new QLabel();
-    auto topicSeparator = new QFrame(this);
+    auto topicSeparator = new QFrame();
     topicSeparator->setFrameShape(QFrame::HLine);
     m_topicLabel = new QLabel();
     m_topicLabel->setWordWrap(true);
