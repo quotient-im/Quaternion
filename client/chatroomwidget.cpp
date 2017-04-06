@@ -20,8 +20,6 @@
 #include "chatroomwidget.h"
 
 #include <QtCore/QDebug>
-#include <QtCore/QTimer>
-#include <QtWidgets/QListView>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QLabel>
@@ -31,7 +29,6 @@
 #include <QtQuick/QQuickView>
 #include <QtQuick/QQuickItem>
 
-#include "lib/room.h"
 #include "lib/user.h"
 #include "lib/connection.h"
 #include "lib/jobs/postmessagejob.h"
@@ -67,12 +64,13 @@ bool ChatEdit::event(QEvent *event)
 
 ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     : QWidget(parent)
+    , m_currentRoom(nullptr)
+    , m_currentConnection(nullptr)
+    , m_completing(false)
+    , readMarkerOnScreen(false)
 {
     qmlRegisterType<QuaternionRoom>();
     m_messageModel = new MessageEventModel(this);
-    m_currentRoom = nullptr;
-    m_currentConnection = nullptr;
-    m_completing = false;
 
     //m_messageView = new QListView();
     //m_messageView->setModel(m_messageModel);
@@ -86,6 +84,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QQmlContext* ctxt = m_quickView->rootContext();
     ctxt->setContextProperty("messageModel", m_messageModel);
+    ctxt->setContextProperty("controller", this);
     ctxt->setContextProperty("debug", QVariant(false));
     m_quickView->setSource(QUrl("qrc:///qml/chat.qml"));
     m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
@@ -95,7 +94,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     connect( m_chatEdit, &QLineEdit::returnPressed, this, &ChatRoomWidget::sendLine );
 
     m_currentlyTyping = new QLabel();
-    auto topicSeparator = new QFrame(this);
+    auto topicSeparator = new QFrame();
     topicSeparator->setFrameShape(QFrame::HLine);
     m_topicLabel = new QLabel();
     m_topicLabel->setWordWrap(true);
@@ -115,11 +114,6 @@ ChatRoomWidget::~ChatRoomWidget()
 {
 }
 
-void ChatRoomWidget::lookAtRoom()
-{
-    m_messageModel->markShownAsRead();
-}
-
 void ChatRoomWidget::enableDebug()
 {
     QQmlContext* ctxt = m_quickView->rootContext();
@@ -131,6 +125,9 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
     if (m_currentRoom == room)
         return;
 
+    readMarkerOnScreen = false;
+    maybeReadTimer.stop();
+    indicesOnScreen.clear();
     if( m_currentRoom )
     {
         m_currentRoom->setCachedInput( m_chatEdit->displayText() );
@@ -145,6 +142,15 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
         m_chatEdit->setText( m_currentRoom->cachedInput() );
         connect( m_currentRoom, &QMatrixClient::Room::typingChanged, this, &ChatRoomWidget::typingChanged );
         connect( m_currentRoom, &QMatrixClient::Room::topicChanged, this, &ChatRoomWidget::topicChanged );
+        connect( m_currentRoom, &QMatrixClient::Room::readMarkerMoved, this, [this] {
+            const auto rm = m_currentRoom->readMarker();
+            readMarkerOnScreen =
+                rm != m_currentRoom->timelineEdge() &&
+                std::lower_bound( indicesOnScreen.begin(), indicesOnScreen.end(),
+                                 rm->index() ) != indicesOnScreen.end();
+            reStartShownTimer();
+            emit readMarkerMoved();
+        });
         m_currentRoom->setShown(true);
         topicChanged();
         typingChanged();
@@ -313,4 +319,105 @@ void ChatRoomWidget::startNewCompletion()
             m_completionCursorOffset = 1;
         }
     }
+}
+
+void ChatRoomWidget::onMessageShownChanged(QString eventId, bool shown)
+{
+    if (!m_currentRoom)
+        return;
+
+    // A message can be auto-marked as read (as soon as the user is active), if:
+    // 0. The read marker exists and is on the screen
+    // 1. The message is shown on the screen now
+    // 2. It's been the bottommost message on the screen for the last 1 second
+    // 3. It's below the read marker
+
+    const auto readMarker = m_currentRoom->readMarker();
+    if (readMarker != m_currentRoom->timelineEdge() &&
+            readMarker->event()->id() == eventId)
+    {
+        readMarkerOnScreen = shown;
+        if (shown)
+        {
+            qDebug() << "Read marker is on-screen, at" << *readMarker;
+            indexToMaybeRead = readMarker->index();
+            reStartShownTimer();
+        } else
+        {
+            qDebug() << "Read marker is off-screen";
+            qDebug() << "Bottommost shown message index was" << indexToMaybeRead;
+            maybeReadTimer.stop();
+        }
+    }
+
+    const auto iter = m_currentRoom->findInTimeline(eventId);
+    Q_ASSERT(iter != m_currentRoom->timelineEdge());
+    const auto timelineIndex = iter->index();
+    auto pos = std::lower_bound(indicesOnScreen.begin(), indicesOnScreen.end(),
+                                timelineIndex);
+    if (shown)
+    {
+        if (pos == indicesOnScreen.end() || *pos != timelineIndex)
+        {
+            indicesOnScreen.insert(pos, timelineIndex);
+            if (timelineIndex == indicesOnScreen.back())
+                reStartShownTimer();
+        }
+    } else
+    {
+        if (pos != indicesOnScreen.end() && *pos == timelineIndex)
+            if (indicesOnScreen.erase(pos) == indicesOnScreen.end())
+                reStartShownTimer();
+    }
+}
+
+void ChatRoomWidget::reStartShownTimer()
+{
+    if (!readMarkerOnScreen || indicesOnScreen.empty() ||
+            indexToMaybeRead >= indicesOnScreen.back())
+        return;
+
+    maybeReadTimer.start(1000, this);
+    qDebug() << "Scheduled maybe-read message update:"
+             << indexToMaybeRead << "->" << indicesOnScreen.back();
+}
+
+void ChatRoomWidget::timerEvent(QTimerEvent* qte)
+{
+    if (qte->timerId() != maybeReadTimer.timerId())
+    {
+        QWidget::timerEvent(qte);
+        return;
+    }
+    maybeReadTimer.stop();
+    // Only update the maybe-read message if we're tracking it
+    if (readMarkerOnScreen && !indicesOnScreen.empty() &&
+            indexToMaybeRead < indicesOnScreen.back())
+    {
+        qDebug() << "Maybe-read message update:" << indexToMaybeRead
+                 << "->" << indicesOnScreen.back();
+        indexToMaybeRead = indicesOnScreen.back();
+        emit readMarkerCandidateMoved();
+    }
+}
+
+void ChatRoomWidget::markShownAsRead()
+{
+    // FIXME: This doesn't cover a case when a single message doesn't fit
+    // on the screen.
+    if (m_currentRoom && readMarkerOnScreen)
+    {
+        const auto iter = m_currentRoom->findInTimeline(indicesOnScreen.back());
+        Q_ASSERT( iter != m_currentRoom->timelineEdge() );
+        m_currentRoom->markMessagesAsRead((*iter)->id());
+    }
+}
+
+bool ChatRoomWidget::pendingMarkRead() const
+{
+    if (!readMarkerOnScreen || !m_currentRoom)
+        return false;
+
+    const auto rm = m_currentRoom->readMarker();
+    return rm != m_currentRoom->timelineEdge() && rm->index() < indexToMaybeRead;
 }

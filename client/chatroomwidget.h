@@ -20,16 +20,11 @@
 #pragma once
 
 #include <QtWidgets/QWidget>
+#include <QtCore/QBasicTimer>
 
-namespace QMatrixClient
-{
-    class Room;
-    class Connection;
-    class User;
-    class Event;
-}
+#include "quaternionroom.h"
+
 class MessageEventModel;
-class QuaternionRoom;
 class ImageProvider;
 class QFrame;
 class QQuickView;
@@ -47,17 +42,24 @@ class ChatRoomWidget: public QWidget
         void enableDebug();
         void triggerCompletion();
         void cancelCompletion();
-        void lookAtRoom();
+        bool pendingMarkRead() const;
 
     signals:
         void joinCommandEntered(const QString& roomAlias);
-        void showStatusMessage(const QString& message, int timeout);
+        void showStatusMessage(const QString& message, int timeout = 0);
+        void readMarkerMoved();
+        void readMarkerCandidateMoved();
 
     public slots:
         void setRoom(QuaternionRoom* room);
         void setConnection(QMatrixClient::Connection* connection);
         void topicChanged();
         void typingChanged();
+        void onMessageShownChanged(QString eventId, bool shown);
+        void markShownAsRead();
+
+    protected:
+        void timerEvent(QTimerEvent* event) override;
 
     private slots:
         void sendLine();
@@ -82,4 +84,12 @@ class ChatRoomWidget: public QWidget
         QLineEdit* m_chatEdit;
         QLabel* m_currentlyTyping;
         QLabel* m_topicLabel;
+
+        using timeline_index_t = QMatrixClient::TimelineItem::index_t;
+        QVector<timeline_index_t> indicesOnScreen;
+        timeline_index_t indexToMaybeRead;
+        QBasicTimer maybeReadTimer;
+        bool readMarkerOnScreen;
+
+        void reStartShownTimer();
 };

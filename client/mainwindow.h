@@ -42,9 +42,9 @@ class MainWindow: public QMainWindow
         virtual ~MainWindow();
 
         void enableDebug();
-        void activity();
 
         void setConnection(QuaternionConnection* newConnection);
+        ChatRoomWidget* getChatRoomWidget() const;
 
     protected:
         virtual void closeEvent(QCloseEvent* event) override;

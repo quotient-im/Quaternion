@@ -1,6 +1,6 @@
 /**************************************************************************
  *                                                                        *
- * Copyright (C) 2015 Felix Rohrbach <kde@fxrh.de>                        *
+ * Copyright (C) 2016 Malte Brandy <malte.brandy@maralorn.de>                        *
  *                                                                        *
  * This program is free software; you can redistribute it and/or          *
  * modify it under the terms of the GNU General Public License            *
@@ -19,29 +19,29 @@
 
 #pragma once
 
-#include <QtCore/QAbstractListModel>
+#include <QtWidgets/QApplication>
 
-class QuaternionRoom;
+class MainWindow;
 
-class MessageEventModel: public QAbstractListModel
+class ActivityDetector : public QObject
 {
-        Q_OBJECT
-        // The below property is marked constant because it only changes
-        // when the whole model is reset (so anything that depends on the model
-        // has to be re-calculated anyway).
-        // XXX: A better way would be to make [Room::]Timeline a list model
-        // itself, leaving only representation of the model to a client.
-        Q_PROPERTY(QuaternionRoom* room MEMBER m_currentRoom CONSTANT)
+    Q_OBJECT
+
     public:
-        MessageEventModel(QObject* parent = nullptr);
-        virtual ~MessageEventModel();
+        ActivityDetector(QApplication& a, MainWindow& c);
 
-        void changeRoom(QuaternionRoom* room);
+    public slots:
+        void updateEnabled();
+        void setEnabled(bool enabled);
 
-        int rowCount(const QModelIndex& parent = QModelIndex()) const override;
-        QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
-        QHash<int, QByteArray> roleNames() const override;
+    signals:
+        void triggered();
+
+    protected:
+        bool eventFilter(QObject* obj, QEvent* ev);
 
     private:
-        QuaternionRoom* m_currentRoom;
+        QApplication& m_app;
+        MainWindow& m_mainWindow;
+        bool m_enabled;
 };
