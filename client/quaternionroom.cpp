@@ -107,13 +107,13 @@ void QuaternionRoom::linkifyUrls(QString& text) const
         | QRegularExpression::OptimizeOnFirstUsageOption
 #endif
         | QRegularExpression::UseUnicodePropertiesOption;
-// A regexp for a full-qualified domain name, as used in schemeless URL regexps below:
-// at least two labels (including TLD), with TLD having at least two characters and
-// starting with a letter (not a digit)
+// A regexp for a full-qualified domain name: at least two labels
+// (including TLD), with TLD having at least two characters and
+// starting with a letter (not a digit).
 #define FQDN "(\\w[-\\w]*\\.)+(?!\\d)\\w[-\\w]+"
     static const QRegularExpression urlDetectorMail {
         QStringLiteral("(^|\\s)(" // Criteria to match the beginning of the URL
-            "\\w[^@\\s]*@" // authority (the part before @)
+            "\\w[^@/#\\s]*@" // authentication (the part before @)
             FQDN
         "\\b)"), // Criteria to match the end of the URL
         RegExpOptions
@@ -123,9 +123,12 @@ void QuaternionRoom::linkifyUrls(QString& text) const
     };
     static const QRegularExpression urlDetectorAbsolute {
         QStringLiteral("(^|\\s)(" // Criteria to match the beginning of the URL
-            "(?!file)(\\w+:(//)?)" // scheme
-            "(\\w[^@\\s]*@)?" // optional authority (the part before @)
-            "(\\w[-\\w]*\\.?)+" // host name or address (non quite strict)
+            "(?!file)([a-z][-.+\\w]+:(//)?)" // scheme
+            "(\\w[^@/#\\s]*@)?" // optional authentication (the part before @)
+            "(" FQDN // host name
+                "|(\\d{1,3}\\.){3}\\d{1,3}" // or IPv4 address (not very strict)
+                "|\\[[\\d:a-f]+\\]" // or IPv6 address (very lazy and not strict)
+            ")"
             "(:\\d{1,5})?" // optional port
             "(/[^\\s]*)?" // optional query and fragment
         "\\b)"), // Criteria to match the end of the URL
