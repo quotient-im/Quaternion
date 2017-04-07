@@ -205,25 +205,16 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
             case MessageEventType::Emote:
             case MessageEventType::Text:
             case MessageEventType::Notice:
-                {
-                    QString body;
-                    QString contentType;
+                if (role == ContentTypeRole)
+                    return "text/html";
+                else {
                     auto textContent = static_cast<TextContent*>(e->content());
                     if (textContent && textContent->mimeType.inherits("text/html"))
-                    {
-                        body = textContent->body;
-                        contentType = "text/html";
-                    }
-                    else
-                    {
-                        body = e->plainBody();
-                        contentType = "text/plain";
-                    }
+                        return textContent->body;
 
-                    if (role == ContentRole)
-                        return body;
-                    else
-                        return contentType;
+                    auto body = e->plainBody().toHtmlEscaped();
+                    m_currentRoom->linkifyUrls(body);
+                    return body;
                 }
             case MessageEventType::Image:
                 {

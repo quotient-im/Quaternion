@@ -97,8 +97,11 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     auto topicSeparator = new QFrame();
     topicSeparator->setFrameShape(QFrame::HLine);
     m_topicLabel = new QLabel();
+    m_topicLabel->setTextFormat(Qt::RichText);
     m_topicLabel->setWordWrap(true);
-    m_topicLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    m_topicLabel->setTextInteractionFlags(Qt::TextBrowserInteraction
+                                          |Qt::TextSelectableByKeyboard);
+    m_topicLabel->setOpenExternalLinks(true);
 
 
     QVBoxLayout* layout = new QVBoxLayout();
@@ -189,7 +192,7 @@ void ChatRoomWidget::typingChanged()
 
 void ChatRoomWidget::topicChanged()
 {
-    m_topicLabel->setText( m_currentRoom->topic() );
+    m_topicLabel->setText( m_currentRoom->prettyTopic() );
 }
 
 void ChatRoomWidget::sendLine()

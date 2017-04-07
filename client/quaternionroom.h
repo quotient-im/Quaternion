@@ -44,6 +44,11 @@ class QuaternionRoom: public QMatrixClient::Room
 
         const Timeline& messages() const;
 
+        /** Converts all that looks like a URL into HTML links */
+        void linkifyUrls(QString& text) const;
+        /** Returns pretty-printed room topic in HTML */
+        QString prettyTopic() const;
+
     protected:
         virtual void doAddNewMessageEvents(const QMatrixClient::Events& events) override;
         virtual void doAddHistoricalMessageEvents(const QMatrixClient::Events& events) override;
