@@ -148,7 +148,7 @@ void KChatEdit::setMaxHistorySize(int maxHistorySize)
 QSize KChatEdit::minimumSizeHint() const
 {
     QSize minimumSizeHint = QTextEdit::minimumSizeHint();
-    QMargins margins = viewportMargins();
+    QMargins margins;
     margins += static_cast<int>(document()->documentMargin());
     margins += contentsMargins();
 
@@ -168,7 +168,7 @@ QSize KChatEdit::sizeHint() const
         return minimumSizeHint();
     }
 
-    QMargins margins = viewportMargins();
+    QMargins margins;
     margins += static_cast<int>(document()->documentMargin());
     margins += contentsMargins();
 
