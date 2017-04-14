@@ -18,6 +18,7 @@
  **************************************************************************/
 
 #include "chatroomwidget.h"
+#include "kchatedit.h"
 
 #include <QtCore/QDebug>
 #include <QtWidgets/QLineEdit>
@@ -37,29 +38,29 @@
 #include "models/messageeventmodel.h"
 #include "imageprovider.h"
 
-class ChatEdit : public QLineEdit
+class ChatEdit : public KChatEdit
 {
-    public:
-        ChatEdit(ChatRoomWidget* c);
-    protected:
-        bool event(QEvent *event);
-    private:
-        ChatRoomWidget* m_chatRoomWidget;
+public:
+    ChatEdit(ChatRoomWidget* c);
+protected:
+    void keyPressEvent(QKeyEvent* event) override;
+private:
+    ChatRoomWidget* m_chatRoomWidget;
 };
 
-ChatEdit::ChatEdit(ChatRoomWidget* c): m_chatRoomWidget(c) {};
+ChatEdit::ChatEdit(ChatRoomWidget* c)
+    : KChatEdit(c)
+    , m_chatRoomWidget(c) {};
 
-bool ChatEdit::event(QEvent *event)
+void ChatEdit::keyPressEvent(QKeyEvent* event)
 {
-    if (event->type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        if (keyEvent->key() == Qt::Key_Tab) {
-            m_chatRoomWidget->triggerCompletion();
-            return true;
-        } else
-            m_chatRoomWidget->cancelCompletion();
+    if (event->key() == Qt::Key_Tab) {
+        m_chatRoomWidget->triggerCompletion();
+        return;
     }
-    return QLineEdit::event(event);
+
+    m_chatRoomWidget->cancelCompletion();
+    KChatEdit::keyPressEvent(event);
 }
 
 ChatRoomWidget::ChatRoomWidget(QWidget* parent)
@@ -91,7 +92,8 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
 
     m_chatEdit = new ChatEdit(this);
     m_chatEdit->setPlaceholderText(tr("Send a message (unencrypted)..."));
-    connect( m_chatEdit, &QLineEdit::returnPressed, this, &ChatRoomWidget::sendLine );
+    m_chatEdit->setAcceptRichText(false);
+    connect( m_chatEdit, &KChatEdit::inputChanged, this, &ChatRoomWidget::sendLine );
 
     m_currentlyTyping = new QLabel();
     auto topicSeparator = new QFrame();
@@ -133,9 +135,10 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
     indicesOnScreen.clear();
     if( m_currentRoom )
     {
-        m_currentRoom->setCachedInput( m_chatEdit->displayText() );
+        m_currentRoom->setCachedInput( m_chatEdit->toPlainText() );
         m_currentRoom->disconnect( this );
         m_currentRoom->setShown(false);
+        roomHistories.insert(m_currentRoom, m_chatEdit->history());
         if ( m_completing )
             cancelCompletion();
     }
@@ -143,6 +146,7 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
     if( m_currentRoom )
     {
         m_chatEdit->setText( m_currentRoom->cachedInput() );
+        m_chatEdit->setHistory(roomHistories.value(m_currentRoom));
         connect( m_currentRoom, &QMatrixClient::Room::typingChanged, this, &ChatRoomWidget::typingChanged );
         connect( m_currentRoom, &QMatrixClient::Room::topicChanged, this, &ChatRoomWidget::topicChanged );
         connect( m_currentRoom, &QMatrixClient::Room::readMarkerMoved, this, [this] {
@@ -200,7 +204,7 @@ void ChatRoomWidget::sendLine()
     qDebug() << "sendLine";
     if( !m_currentConnection )
         return;
-    QString text = m_chatEdit->displayText();
+    QString text = m_chatEdit->input();
     if ( text.isEmpty() )
         return;
 
@@ -234,7 +238,7 @@ void ChatRoomWidget::sendLine()
             } else
                 m_currentRoom->postMessage("m.text", text);
         }
-    m_chatEdit->setText("");
+    m_chatEdit->clear();
 }
 
 void ChatRoomWidget::findCompletionMatches(const QString& pattern)
@@ -270,12 +274,12 @@ void ChatRoomWidget::triggerCompletion()
     }
     if ( m_completing )
     {
-        QString inputText = m_chatEdit->text();
+        const QString inputText = m_chatEdit->toPlainText();
         m_chatEdit->setText( inputText.left(m_completionInsertStart)
             + m_completionList.at(m_completionListPosition)
             + inputText.right(inputText.length() - m_completionInsertStart - m_completionLength) );
         m_completionLength = m_completionList.at(m_completionListPosition).length();
-        m_chatEdit->setCursorPosition( m_completionInsertStart + m_completionLength + m_completionCursorOffset );
+        m_chatEdit->textCursor().setPosition( m_completionInsertStart + m_completionLength + m_completionCursorOffset );
         m_completionListPosition = (m_completionListPosition + 1) % m_completionList.length();
         m_currentlyTyping->setText( QString("<i>Tab Completion (next: %1)</i>").arg(
             QStringList(m_completionList.mid( m_completionListPosition, 5)).join(", ") ) );
@@ -284,8 +288,8 @@ void ChatRoomWidget::triggerCompletion()
 
 void ChatRoomWidget::startNewCompletion()
 {
-    QString inputText = m_chatEdit->text();
-    int cursorPosition = m_chatEdit->cursorPosition();
+    const QString inputText = m_chatEdit->toPlainText();
+    const int cursorPosition = m_chatEdit->textCursor().position();
     for ( m_completionInsertStart = cursorPosition; --m_completionInsertStart >= 0; )
     {
         if ( !(inputText.at(m_completionInsertStart).isLetterOrNumber() || inputText.at(m_completionInsertStart) == '@') )

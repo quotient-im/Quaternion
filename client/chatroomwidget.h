@@ -24,6 +24,7 @@
 
 #include "quaternionroom.h"
 
+class ChatEdit;
 class MessageEventModel;
 class ImageProvider;
 class QFrame;
@@ -81,7 +82,7 @@ class ChatRoomWidget: public QWidget
         //QListView* m_messageView;
         QQuickView* m_quickView;
         ImageProvider* m_imageProvider;
-        QLineEdit* m_chatEdit;
+        ChatEdit* m_chatEdit;
         QLabel* m_currentlyTyping;
         QLabel* m_topicLabel;
 
@@ -90,6 +91,7 @@ class ChatRoomWidget: public QWidget
         timeline_index_t indexToMaybeRead;
         QBasicTimer maybeReadTimer;
         bool readMarkerOnScreen;
+        QMap<QuaternionRoom*, QStringList> roomHistories;
 
         void reStartShownTimer();
 };
