@@ -38,6 +38,31 @@
 #include "models/messageeventmodel.h"
 #include "imageprovider.h"
 
+class ChatEdit : public KChatEdit
+{
+public:
+    ChatEdit(ChatRoomWidget* c, QWidget* parent = nullptr);
+protected:
+    void keyPressEvent(QKeyEvent* event) override;
+private:
+    ChatRoomWidget* m_chatRoomWidget;
+};
+
+ChatEdit::ChatEdit(ChatRoomWidget* c, QWidget* parent)
+    : KChatEdit(parent)
+    , m_chatRoomWidget(c) {};
+
+void ChatEdit::keyPressEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_Tab) {
+        m_chatRoomWidget->triggerCompletion();
+        return;
+    }
+
+    m_chatRoomWidget->cancelCompletion();
+    KChatEdit::keyPressEvent(event);
+}
+
 ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     : QWidget(parent)
     , m_currentRoom(nullptr)
@@ -65,10 +90,9 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     m_quickView->setSource(QUrl("qrc:///qml/chat.qml"));
     m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
 
-    m_chatEdit = new KChatEdit(this);
+    m_chatEdit = new ChatEdit(this);
     m_chatEdit->setPlaceholderText(tr("Send a message (unencrypted)..."));
     m_chatEdit->setAcceptRichText(false);
-    m_chatEdit->installEventFilter(this);
     connect( m_chatEdit, &KChatEdit::inputChanged, this, &ChatRoomWidget::sendLine );
 
     m_currentlyTyping = new QLabel();
@@ -394,21 +418,6 @@ void ChatRoomWidget::markShownAsRead()
         Q_ASSERT( iter != m_currentRoom->timelineEdge() );
         m_currentRoom->markMessagesAsRead((*iter)->id());
     }
-}
-
-bool ChatRoomWidget::eventFilter(QObject *object, QEvent *event)
-{
-    if (object != m_chatEdit || event->type() != QEvent::KeyPress)
-        return QWidget::eventFilter(object, event);
-
-    auto keyEvent = static_cast<QKeyEvent*>(event);
-    if (keyEvent->key() == Qt::Key_Tab) {
-        emit triggerCompletion();
-        return true;
-    }
-
-    emit cancelCompletion();
-    return false;
 }
 
 bool ChatRoomWidget::pendingMarkRead() const

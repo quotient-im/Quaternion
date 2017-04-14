@@ -24,9 +24,9 @@
 
 #include "quaternionroom.h"
 
+class ChatEdit;
 class MessageEventModel;
 class ImageProvider;
-class KChatEdit;
 class QFrame;
 class QQuickView;
 class QListView;
@@ -40,7 +40,6 @@ class ChatRoomWidget: public QWidget
         ChatRoomWidget(QWidget* parent = nullptr);
         virtual ~ChatRoomWidget();
 
-        bool eventFilter(QObject* object, QEvent* event) override;
         void enableDebug();
         void triggerCompletion();
         void cancelCompletion();
@@ -83,7 +82,7 @@ class ChatRoomWidget: public QWidget
         //QListView* m_messageView;
         QQuickView* m_quickView;
         ImageProvider* m_imageProvider;
-        KChatEdit* m_chatEdit;
+        ChatEdit* m_chatEdit;
         QLabel* m_currentlyTyping;
         QLabel* m_topicLabel;
 
