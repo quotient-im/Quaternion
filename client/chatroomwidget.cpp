@@ -41,15 +41,15 @@
 class ChatEdit : public KChatEdit
 {
 public:
-    ChatEdit(ChatRoomWidget* c, QWidget* parent = nullptr);
+    ChatEdit(ChatRoomWidget* c);
 protected:
     void keyPressEvent(QKeyEvent* event) override;
 private:
     ChatRoomWidget* m_chatRoomWidget;
 };
 
-ChatEdit::ChatEdit(ChatRoomWidget* c, QWidget* parent)
-    : KChatEdit(parent)
+ChatEdit::ChatEdit(ChatRoomWidget* c)
+    : KChatEdit(c)
     , m_chatRoomWidget(c) {};
 
 void ChatEdit::keyPressEvent(QKeyEvent* event)
