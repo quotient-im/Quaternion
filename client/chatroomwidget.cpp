@@ -18,10 +18,8 @@
  **************************************************************************/
 
 #include "chatroomwidget.h"
-#include "kchatedit.h"
 
 #include <QtCore/QDebug>
-#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QLabel>
 
@@ -32,49 +30,29 @@
 
 #include "lib/user.h"
 #include "lib/connection.h"
-#include "lib/jobs/postmessagejob.h"
 #include "lib/events/typingevent.h"
-#include "quaternionroom.h"
 #include "models/messageeventmodel.h"
 #include "imageprovider.h"
-
-class ChatEdit : public KChatEdit
-{
-public:
-    ChatEdit(ChatRoomWidget* c);
-protected:
-    void keyPressEvent(QKeyEvent* event) override;
-private:
-    ChatRoomWidget* m_chatRoomWidget;
-};
-
-ChatEdit::ChatEdit(ChatRoomWidget* c)
-    : KChatEdit(c)
-    , m_chatRoomWidget(c) {};
-
-void ChatEdit::keyPressEvent(QKeyEvent* event)
-{
-    if (event->key() == Qt::Key_Tab) {
-        m_chatRoomWidget->triggerCompletion();
-        return;
-    }
-
-    m_chatRoomWidget->cancelCompletion();
-    KChatEdit::keyPressEvent(event);
-}
+#include "chatedit.h"
 
 ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     : QWidget(parent)
     , m_currentRoom(nullptr)
     , m_currentConnection(nullptr)
-    , m_completing(false)
     , readMarkerOnScreen(false)
 {
     qmlRegisterType<QuaternionRoom>();
     m_messageModel = new MessageEventModel(this);
 
-    //m_messageView = new QListView();
-    //m_messageView->setModel(m_messageModel);
+    m_topicLabel = new QLabel();
+    m_topicLabel->setTextFormat(Qt::RichText);
+    m_topicLabel->setWordWrap(true);
+    m_topicLabel->setTextInteractionFlags(Qt::TextBrowserInteraction
+                                          |Qt::TextSelectableByKeyboard);
+    m_topicLabel->setOpenExternalLinks(true);
+
+    auto topicSeparator = new QFrame();
+    topicSeparator->setFrameShape(QFrame::HLine);
 
     m_quickView = new QQuickView();
 
@@ -90,21 +68,21 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     m_quickView->setSource(QUrl("qrc:///qml/chat.qml"));
     m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
 
+    m_currentlyTyping = new QLabel();
+
     m_chatEdit = new ChatEdit(this);
     m_chatEdit->setPlaceholderText(tr("Send a message (unencrypted)..."));
     m_chatEdit->setAcceptRichText(false);
     connect( m_chatEdit, &KChatEdit::returnPressed, this, &ChatRoomWidget::sendInput );
-
-    m_currentlyTyping = new QLabel();
-    auto topicSeparator = new QFrame();
-    topicSeparator->setFrameShape(QFrame::HLine);
-    m_topicLabel = new QLabel();
-    m_topicLabel->setTextFormat(Qt::RichText);
-    m_topicLabel->setWordWrap(true);
-    m_topicLabel->setTextInteractionFlags(Qt::TextBrowserInteraction
-                                          |Qt::TextSelectableByKeyboard);
-    m_topicLabel->setOpenExternalLinks(true);
-
+    connect(m_chatEdit, &ChatEdit::proposedCompletion, this,
+            [=](const QStringList& matches, int pos)
+            {
+                m_currentlyTyping->setText(
+                    QStringLiteral("<i>Tab Completion (next: %1)</i>")
+                    .arg( QStringList(matches.mid(pos, 5)).join(", ") ) );
+            });
+    connect(m_chatEdit, &ChatEdit::cancelledCompletion,
+            this, &ChatRoomWidget::typingChanged);
 
     QVBoxLayout* layout = new QVBoxLayout();
     layout->addWidget(m_topicLabel);
@@ -135,14 +113,13 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
     readMarkerOnScreen = false;
     maybeReadTimer.stop();
     indicesOnScreen.clear();
+    m_chatEdit->cancelCompletion();
     if( m_currentRoom )
     {
         m_currentRoom->setCachedInput( m_chatEdit->toPlainText() );
         m_currentRoom->disconnect( this );
         m_currentRoom->setShown(false);
         roomHistories.insert(m_currentRoom, m_chatEdit->history());
-        if ( m_completing )
-            cancelCompletion();
     }
     m_currentRoom = room;
     if( m_currentRoom )
@@ -163,12 +140,9 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
             emit readMarkerMoved();
         });
         m_currentRoom->setShown(true);
-        topicChanged();
-        typingChanged();
-    } else {
-        m_topicLabel->clear();
-        m_currentlyTyping->clear();
     }
+    topicChanged();
+    typingChanged();
     m_messageModel->changeRoom( m_currentRoom );
     //m_messageView->scrollToBottom();
     QObject* rootItem = m_quickView->rootObject();
@@ -184,23 +158,26 @@ void ChatRoomWidget::setConnection(QMatrixClient::Connection* connection)
 
 void ChatRoomWidget::typingChanged()
 {
-    QList<QMatrixClient::User*> typing = m_currentRoom->usersTyping();
-    if( typing.isEmpty() )
+    if (!m_currentRoom || m_currentRoom->usersTyping().isEmpty())
     {
         m_currentlyTyping->clear();
         return;
     }
     QStringList typingNames;
-    for( QMatrixClient::User* user: typing )
+    for(auto user: m_currentRoom->usersTyping())
     {
         typingNames << m_currentRoom->roomMembername(user);
     }
-    m_currentlyTyping->setText( QString("<i>Currently typing: %1</i>").arg( typingNames.join(", ") ) );
+    m_currentlyTyping->setText(QStringLiteral("<i>Currently typing: %1</i>")
+                               .arg( typingNames.join(", ") ) );
 }
 
 void ChatRoomWidget::topicChanged()
 {
-    m_topicLabel->setText( m_currentRoom->prettyTopic() );
+    if (m_currentRoom)
+        m_topicLabel->setText(m_currentRoom->prettyTopic());
+    else
+        m_topicLabel->clear();
 }
 
 void ChatRoomWidget::sendInput()
@@ -245,9 +222,10 @@ void ChatRoomWidget::sendInput()
     m_chatEdit->saveInput();
 }
 
-void ChatRoomWidget::findCompletionMatches(const QString& pattern)
+QStringList ChatRoomWidget::findCompletionMatches(const QString& pattern) const
 {
-    for( QMatrixClient::User* user: m_currentRoom->users() )
+    QStringList matches;
+    for(auto user: m_currentRoom->users() )
     {
         QString name = m_currentRoom->roomMembername(user);
         if ( name.startsWith(pattern, Qt::CaseInsensitive) )
@@ -255,81 +233,14 @@ void ChatRoomWidget::findCompletionMatches(const QString& pattern)
             int ircSuffixPos = name.indexOf(" (IRC)");
             if ( ircSuffixPos != -1 )
                 name.truncate(ircSuffixPos);
-            m_completionList.append(name);
+            matches.append(name);
         }
     }
-    m_completionList.sort(Qt::CaseInsensitive);
-    m_completionList.removeDuplicates();
-}
-
-void ChatRoomWidget::cancelCompletion()
-{
-    m_completing = false;
-    m_completionList.clear();
-    if (m_currentConnection && m_currentRoom)
-        typingChanged();
-}
-
-void ChatRoomWidget::triggerCompletion()
-{
-    if ( !m_completing && m_currentConnection && m_currentRoom )
-    {
-        startNewCompletion();
-    }
-    if ( m_completing )
-    {
-        const QString inputText = m_chatEdit->toPlainText();
-        m_chatEdit->setText( inputText.left(m_completionInsertStart)
-            + m_completionList.at(m_completionListPosition)
-            + inputText.right(inputText.length() - m_completionInsertStart - m_completionLength) );
-        m_completionLength = m_completionList.at(m_completionListPosition).length();
-        m_chatEdit->textCursor().setPosition( m_completionInsertStart + m_completionLength + m_completionCursorOffset );
-        m_completionListPosition = (m_completionListPosition + 1) % m_completionList.length();
-        m_currentlyTyping->setText( QString("<i>Tab Completion (next: %1)</i>").arg(
-            QStringList(m_completionList.mid( m_completionListPosition, 5)).join(", ") ) );
-    }
-}
-
-void ChatRoomWidget::startNewCompletion()
-{
-    const QString inputText = m_chatEdit->toPlainText();
-    const int cursorPosition = m_chatEdit->textCursor().position();
-    for ( m_completionInsertStart = cursorPosition; --m_completionInsertStart >= 0; )
-    {
-        if ( !(inputText.at(m_completionInsertStart).isLetterOrNumber() || inputText.at(m_completionInsertStart) == '@') )
-            break;
-    }
-    ++m_completionInsertStart;
-    m_completionLength = cursorPosition - m_completionInsertStart;
-    findCompletionMatches(inputText.mid(m_completionInsertStart, m_completionLength));
-    if ( !m_completionList.isEmpty() )
-    {
-        m_completionCursorOffset = 0;
-        m_completionListPosition = 0;
-        m_completing = true;
-        m_completionLength = 0;
-        if ( m_completionInsertStart == 0)
-        {
-            m_chatEdit->setText(inputText.left(m_completionInsertStart) + ": " + inputText.mid(cursorPosition));
-            m_completionCursorOffset = 2;
-        }
-        else if ( inputText.mid(m_completionInsertStart - 2, 2) == ": ")
-        {
-            m_chatEdit->setText(inputText.left(m_completionInsertStart - 2) + ", : " + inputText.mid(cursorPosition));
-            m_completionCursorOffset = 2;
-        }
-        else if ( inputText.mid(m_completionInsertStart - 1, 1) == ":")
-        {
-            m_chatEdit->setText(inputText.left(m_completionInsertStart - 1) + ", : " + inputText.mid(cursorPosition));
-            ++m_completionInsertStart;
-            m_completionCursorOffset = 2;
-        }
-        else
-        {
-            m_chatEdit->setText(inputText.left(m_completionInsertStart) + " " + inputText.mid(cursorPosition));
-            m_completionCursorOffset = 1;
-        }
-    }
+    std::sort(matches.begin(), matches.end(),
+        [] (const QString& s1, const QString& s2)
+            { return s1.localeAwareCompare(s2) < 0; });
+    matches.removeDuplicates();
+    return matches;
 }
 
 void ChatRoomWidget::onMessageShownChanged(QString eventId, bool shown)

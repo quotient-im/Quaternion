@@ -73,6 +73,7 @@ set(quaternion_SRCS
     client/roomlistdock.cpp
     client/userlistdock.cpp
     client/kchatedit.cpp
+    client/chatedit.cpp
     client/chatroomwidget.cpp
     client/systemtray.cpp
     client/models/messageeventmodel.cpp

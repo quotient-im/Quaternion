@@ -29,8 +29,6 @@ class MessageEventModel;
 class ImageProvider;
 class QFrame;
 class QQuickView;
-class QListView;
-class QLineEdit;
 class QLabel;
 class QTextDocument;
 
@@ -42,9 +40,9 @@ class ChatRoomWidget: public QWidget
         virtual ~ChatRoomWidget();
 
         void enableDebug();
-        void triggerCompletion();
-        void cancelCompletion();
         bool pendingMarkRead() const;
+
+        QStringList findCompletionMatches(const QString& pattern) const;
 
     signals:
         void joinCommandEntered(const QString& roomAlias);
@@ -70,17 +68,7 @@ class ChatRoomWidget: public QWidget
         MessageEventModel* m_messageModel;
         QuaternionRoom* m_currentRoom;
         QMatrixClient::Connection* m_currentConnection;
-        bool m_completing;
-        QStringList m_completionList;
-        int m_completionListPosition;
-        int m_completionInsertStart;
-        int m_completionLength;
-        int m_completionCursorOffset;
 
-        void findCompletionMatches(const QString& pattern);
-        void startNewCompletion();
-
-        //QListView* m_messageView;
         QQuickView* m_quickView;
         ImageProvider* m_imageProvider;
         ChatEdit* m_chatEdit;
