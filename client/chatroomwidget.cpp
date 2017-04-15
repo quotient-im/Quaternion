@@ -147,6 +147,8 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
     {
         m_chatEdit->setText( m_currentRoom->cachedInput() );
         m_chatEdit->setHistory(roomHistories.value(m_currentRoom));
+        m_chatEdit->setFocus();
+        m_chatEdit->moveCursor(QTextCursor::End);
         connect( m_currentRoom, &QMatrixClient::Room::typingChanged, this, &ChatRoomWidget::typingChanged );
         connect( m_currentRoom, &QMatrixClient::Room::topicChanged, this, &ChatRoomWidget::topicChanged );
         connect( m_currentRoom, &QMatrixClient::Room::readMarkerMoved, this, [this] {
