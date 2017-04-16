@@ -175,7 +175,11 @@ void ChatRoomWidget::typingChanged()
 void ChatRoomWidget::topicChanged()
 {
     if (m_currentRoom)
-        m_topicLabel->setText(m_currentRoom->prettyTopic());
+    {
+        auto topic = m_currentRoom->topic();
+        m_topicLabel->setText(topic.isEmpty() ? QStringLiteral("(no topic)") :
+                              m_currentRoom->prettyPrint(topic));
+    }
     else
         m_topicLabel->clear();
 }
