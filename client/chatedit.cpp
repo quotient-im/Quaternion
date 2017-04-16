@@ -36,68 +36,72 @@ void ChatEdit::keyPressEvent(QKeyEvent* event)
     KChatEdit::keyPressEvent(event);
 }
 
+void ChatEdit::appendTextAtCursor(const QString& text, bool select)
+{
+    completionCursor.insertText(text);
+    completionCursor.movePosition(QTextCursor::Left,
+        select ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor, text.size());
+}
+
 void ChatEdit::startNewCompletion()
 {
-    const QString inputText = toPlainText();
-    const int cursorPosition = textCursor().position();
-    for ( m_completionInsertStart = cursorPosition; --m_completionInsertStart >= 0; )
+    completionCursor = textCursor();
+    completionCursor.clearSelection();
+    while ( completionCursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor) )
     {
-        if ( !(inputText.at(m_completionInsertStart).isLetterOrNumber() || inputText.at(m_completionInsertStart) == '@') )
+        auto firstChar = completionCursor.selectedText()[0];
+        if (!firstChar.isLetterOrNumber() && firstChar != '@')
+        {
+            completionCursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
             break;
+        }
     }
-    ++m_completionInsertStart;
-    m_completionLength = cursorPosition - m_completionInsertStart;
-    m_completionList = chatRoomWidget->findCompletionMatches(inputText.mid(m_completionInsertStart, m_completionLength));
-    if ( !m_completionList.isEmpty() )
+    completionMatches =
+        chatRoomWidget->findCompletionMatches(completionCursor.selectedText());
+    if ( !completionMatches.isEmpty() )
     {
-        m_completionCursorOffset = 0;
-        m_completionListPosition = 0;
-        m_completionLength = 0;
-        if ( m_completionInsertStart == 0)
+        matchesListPosition = 0;
+        if ( completionCursor.atStart() )
         {
-            setText(inputText.left(m_completionInsertStart) + ": " + inputText.mid(cursorPosition));
-            m_completionCursorOffset = 2;
+            appendTextAtCursor(": ", false);
+            return;
         }
-        else if ( inputText.mid(m_completionInsertStart - 2, 2) == ": ")
+        for (auto stringBefore: {":", ": "})
         {
-            setText(inputText.left(m_completionInsertStart - 2) + ", : " + inputText.mid(cursorPosition));
-            m_completionCursorOffset = 2;
+            completionCursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+            if ( completionCursor.selectedText().startsWith(stringBefore) )
+            {
+                completionCursor.insertText(", ");
+                appendTextAtCursor(": ", false);
+                return;
+            }
         }
-        else if ( inputText.mid(m_completionInsertStart - 1, 1) == ":")
-        {
-            setText(inputText.left(m_completionInsertStart - 1) + ", : " + inputText.mid(cursorPosition));
-            ++m_completionInsertStart;
-            m_completionCursorOffset = 2;
-        }
-        else
-        {
-            setText(inputText.left(m_completionInsertStart) + " " + inputText.mid(cursorPosition));
-            m_completionCursorOffset = 1;
-        }
+        completionCursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 2);
+        appendTextAtCursor(" ", false);
     }
 }
 
 void ChatEdit::triggerCompletion()
 {
-    if (m_completionList.isEmpty())
-    {
+    if (completionMatches.isEmpty())
         startNewCompletion();
-    }
-    if (!m_completionList.isEmpty())
+
+    if (!completionMatches.isEmpty())
     {
-        const QString inputText = toPlainText();
-        setText( inputText.left(m_completionInsertStart)
-                             + m_completionList.at(m_completionListPosition)
-                             + inputText.right(inputText.length() - m_completionInsertStart - m_completionLength) );
-        m_completionLength = m_completionList.at(m_completionListPosition).length();
-        textCursor().setPosition( m_completionInsertStart + m_completionLength + m_completionCursorOffset );
-        m_completionListPosition = (m_completionListPosition + 1) % m_completionList.length();
-        emit proposedCompletion(m_completionList, m_completionListPosition);
+        appendTextAtCursor(completionMatches.at(matchesListPosition), true);
+        ensureCursorVisible(); // The real one, not completionCursor
+        QTextCharFormat completionHL = completionCursor.charFormat();
+        completionHL.setUnderlineStyle(QTextCharFormat::DashUnderline);
+        setExtraSelections({ { completionCursor, completionHL } });
+        emit proposedCompletion(completionMatches, matchesListPosition);
+        matchesListPosition = (matchesListPosition + 1) % completionMatches.length();
     }
 }
 
 void ChatEdit::cancelCompletion()
 {
-    m_completionList.clear();
+    completionMatches.clear();
+    setExtraSelections({});
     emit cancelledCompletion();
 }
+

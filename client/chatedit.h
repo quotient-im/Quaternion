@@ -21,6 +21,8 @@
 
 #include "kchatedit.h"
 
+#include <QtGui/QTextCursor>
+
 class ChatRoomWidget;
 
 class ChatEdit : public KChatEdit
@@ -42,13 +44,12 @@ class ChatEdit : public KChatEdit
     private:
         ChatRoomWidget* chatRoomWidget;
 
-        QStringList m_completionList;
-        int m_completionListPosition;
-        int m_completionInsertStart;
-        int m_completionLength;
-        int m_completionCursorOffset;
+        QTextCursor completionCursor;
+        QStringList completionMatches;
+        int matchesListPosition;
 
         void startNewCompletion();
+        void appendTextAtCursor(const QString& text, bool select = false);
 };
 
 
