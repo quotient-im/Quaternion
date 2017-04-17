@@ -118,8 +118,10 @@ void QuaternionRoom::linkifyUrls(QString& text) const
         "\\b)"), // Criteria to match the end of the URL
         RegExpOptions
     };
+    // Relative URLs require two dots in the series of characters. This is a bit
+    // overly restrictive but eliminates dubious cases like command.com
     static const QRegularExpression urlDetectorRelative {
-        QStringLiteral("(^|\\s)(" FQDN "\\b)"), RegExpOptions
+        QStringLiteral("(^|\\s)(" "(\\w[-\\w]*\\.)" FQDN "\\b)"), RegExpOptions
     };
     static const QRegularExpression urlDetectorAbsolute {
         QStringLiteral("(^|\\s)(" // Criteria to match the beginning of the URL
