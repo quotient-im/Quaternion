@@ -31,6 +31,7 @@ public:
     {}
 
     void init();
+    void emitInputChanged();
     void rewindHistory();
     void forwardHistory();
     void saveInput();
@@ -45,6 +46,16 @@ void KChatEdit::KChatEditPrivate::init()
 {
     // History always ends with a dummy placeholder string.
     history << QString();
+}
+
+void KChatEdit::KChatEditPrivate::emitInputChanged()
+{
+    const QString input = q->acceptRichText() ? q->toHtml() : q->toPlainText();
+    if (input.isEmpty()) {
+        return;
+    }
+
+    emit q->inputChanged(input);
 }
 
 void KChatEdit::KChatEditPrivate::rewindHistory()
@@ -94,9 +105,7 @@ void KChatEdit::KChatEditPrivate::saveInput()
     }
 
     index = history.size() - 1;
-
     q->clear();
-    emit q->inputChanged(input);
 }
 
 KChatEdit::KChatEdit(QWidget *parent)
@@ -114,6 +123,11 @@ KChatEdit::~KChatEdit()
 QString KChatEdit::input() const
 {
     return d->history.value(d->history.size() - 2);
+}
+
+void KChatEdit::saveInput()
+{
+    d->saveInput();
 }
 
 QStringList KChatEdit::history() const
@@ -190,7 +204,7 @@ void KChatEdit::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Enter:
     case Qt::Key_Return:
         if (!(QGuiApplication::keyboardModifiers() & Qt::ShiftModifier)) {
-            d->saveInput();
+            d->emitInputChanged();
             return;
         }
         break;

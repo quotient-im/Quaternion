@@ -93,7 +93,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     m_chatEdit = new ChatEdit(this);
     m_chatEdit->setPlaceholderText(tr("Send a message (unencrypted)..."));
     m_chatEdit->setAcceptRichText(false);
-    connect( m_chatEdit, &KChatEdit::inputChanged, this, &ChatRoomWidget::sendLine );
+    connect( m_chatEdit, &KChatEdit::inputChanged, this, &ChatRoomWidget::sendInput );
 
     m_currentlyTyping = new QLabel();
     auto topicSeparator = new QFrame();
@@ -201,12 +201,12 @@ void ChatRoomWidget::topicChanged()
     m_topicLabel->setText( m_currentRoom->prettyTopic() );
 }
 
-void ChatRoomWidget::sendLine()
+void ChatRoomWidget::sendInput(const QString& input)
 {
-    qDebug() << "sendLine";
+    qDebug() << "Got input:" << input;
     if( !m_currentConnection )
         return;
-    QString text = m_chatEdit->input();
+    QString text = input;
     if ( text.isEmpty() )
         return;
 
@@ -240,7 +240,7 @@ void ChatRoomWidget::sendLine()
             } else
                 m_currentRoom->postMessage("m.text", text);
         }
-    m_chatEdit->clear();
+    m_chatEdit->saveInput();
 }
 
 void ChatRoomWidget::findCompletionMatches(const QString& pattern)

@@ -33,8 +33,9 @@
  *
  * Chat applications usually maintain a history of what the user typed, which can be browsed with the
  * Up and Down keys (exactly like in command-line shells). This feature is fully supported by this widget.
- * Pressing the Return key makes the input text disappear, as typical in chat applications. The input goes
- * in the history and can be retrieved with the input() method.
+ * The widget emits the inputChanged() signal upon pressing the Return key.
+ * You can then call saveInput() to make the input text disappear, as typical in chat applications.
+ * The input goes in the history and can be retrieved with the input() method.
  *
  * @author Elvis Angelaccio <elvis.angelaccio@kde.org>
  */
@@ -50,18 +51,25 @@ public:
     virtual ~KChatEdit();
 
     /**
-     * The latest input text that the user provided by pressing the Return key.
+     * The latest input text typed by the user.
      * This corresponds to the last element of history().
-     * @return Latest available input or an empty string if nothing has been typed yet.
-     * @note If the history is full (see maxHistorySize(), new inputs will take space from the oldest
-     * items in the history.
-     * @see history(), maxHistorySize(), inputChanged()
+     * @return Latest available input or an empty string if saveInput() has not been called yet.
+     * @see inputChanged(), saveInput(), history()
      */
     QString input() const;
 
     /**
+     * Saves in the history the text typed before pressing the Return key.
+     * This also clears the QTextEdit area.
+     * @note If the history is full (see maxHistorySize(), new inputs will take space from the oldest
+     * items in the history.
+     * @see input(), history(), maxHistorySize()
+     */
+    void saveInput();
+
+    /**
      * @return The history of the text inputs that the user typed.
-     * @see input()
+     * @see input(), saveInput();
      */
     QStringList history() const;
 
@@ -90,7 +98,8 @@ public:
 Q_SIGNALS:
     /**
      * The user has typed @p input and then pressed the Return key.
-     * @see input()
+     * Call saveInput() if you want to push @p input to the history.
+     * @see input(), saveInput(), history()
      */
     void inputChanged(const QString &input);
 
