@@ -31,12 +31,13 @@ public:
     {}
 
     void init();
+    void emitReturnPressed();
     void rewindHistory();
     void forwardHistory();
     void saveInput();
 
     KChatEdit *q;
-    QStringList history;
+    QList<QTextDocument*> history;
     int index;
     int maxHistorySize;
 };
@@ -44,12 +45,21 @@ public:
 void KChatEdit::KChatEditPrivate::init()
 {
     // History always ends with a dummy placeholder string.
-    history << QString();
+    history << new QTextDocument(q);
+}
+
+void KChatEdit::KChatEditPrivate::emitReturnPressed()
+{
+    if (q->document()->isEmpty()) {
+        return;
+    }
+
+    emit q->returnPressed();
 }
 
 void KChatEdit::KChatEditPrivate::rewindHistory()
 {
-    history[index] = q->acceptRichText() ? q->toHtml() : q->toPlainText();
+    history[index] = q->document()->clone(q);
 
     // History finished, nothing to do.
     if (index == 0) {
@@ -57,13 +67,13 @@ void KChatEdit::KChatEditPrivate::rewindHistory()
     }
 
     index--;
-    q->setText(history.at(index));
+    q->setDocument(history.at(index));
     q->moveCursor(QTextCursor::End);
 }
 
 void KChatEdit::KChatEditPrivate::forwardHistory()
 {
-    history[index] = q->acceptRichText() ? q->toHtml() : q->toPlainText();
+    history[index] = q->document()->clone(q);
 
     // Back from history, nothing to do.
     if (index == history.size() - 1) {
@@ -71,22 +81,23 @@ void KChatEdit::KChatEditPrivate::forwardHistory()
     }
 
     index++;
-    q->setText(history.at(index));
+    q->setDocument(history.at(index));
     q->moveCursor(QTextCursor::End);
 }
 
 void KChatEdit::KChatEditPrivate::saveInput()
 {
-    const QString input = q->acceptRichText() ? q->toHtml() : q->toPlainText();
-    if (input.isEmpty()) {
+    if (q->document()->isEmpty()) {
         return;
     }
 
+    const QString input = q->acceptRichText() ? q->toHtml() : q->toPlainText();
+    const QString latestInput = q->acceptRichText() ? q->input()->toHtml() : q->input()->toPlainText();
     // Only save input if different from the latest one.
-    if (input != q->input()) {
+    if (input != latestInput) {
         // Replace empty placeholder with the new input.
-        history[history.size() - 1] = input;
-        history << QString();
+        history[history.size() - 1] = q->document()->clone();
+        history << new QTextDocument(q);
 
         if(history.size() > maxHistorySize) {
             history.removeFirst();
@@ -94,9 +105,8 @@ void KChatEdit::KChatEditPrivate::saveInput()
     }
 
     index = history.size() - 1;
-
+    emit q->inputChanged();
     q->clear();
-    emit q->inputChanged(input);
 }
 
 KChatEdit::KChatEdit(QWidget *parent)
@@ -111,21 +121,30 @@ KChatEdit::~KChatEdit()
 {
 }
 
-QString KChatEdit::input() const
+QTextDocument* KChatEdit::input() const
 {
-    return d->history.value(d->history.size() - 2);
+    if (d->history.size() >= 2)
+        return d->history.at(d->history.size() - 2);
+
+    Q_ASSERT(d->history.size() == 1);
+    return d->history.last();
 }
 
-QStringList KChatEdit::history() const
+void KChatEdit::saveInput()
+{
+    d->saveInput();
+}
+
+QList<QTextDocument*> KChatEdit::history() const
 {
     return d->history;
 }
 
-void KChatEdit::setHistory(const QStringList &history)
+void KChatEdit::setHistory(const QList<QTextDocument*> &history)
 {
     d->history = history;
-    if (!history.endsWith(QString())) {
-        d->history << QString();
+    if (history.isEmpty() || !history.last()->isEmpty()) {
+        d->history << new QTextDocument(this);
     }
 
     while (d->history.size() > maxHistorySize()) {
@@ -190,7 +209,7 @@ void KChatEdit::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Enter:
     case Qt::Key_Return:
         if (!(QGuiApplication::keyboardModifiers() & Qt::ShiftModifier)) {
-            d->saveInput();
+            d->emitReturnPressed();
             return;
         }
         break;
@@ -200,7 +219,7 @@ void KChatEdit::keyPressEvent(QKeyEvent *event)
         }
         break;
     case Qt::Key_Down:
-        if (!document()->isEmpty() && !textCursor().movePosition(QTextCursor::Down)) {
+        if (!textCursor().movePosition(QTextCursor::Down)) {
             d->forwardHistory();
         }
         break;

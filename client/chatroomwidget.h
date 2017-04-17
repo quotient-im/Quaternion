@@ -32,6 +32,7 @@ class QQuickView;
 class QListView;
 class QLineEdit;
 class QLabel;
+class QTextDocument;
 
 class ChatRoomWidget: public QWidget
 {
@@ -63,7 +64,7 @@ class ChatRoomWidget: public QWidget
         void timerEvent(QTimerEvent* event) override;
 
     private slots:
-        void sendLine();
+        void sendInput();
 
     private:
         MessageEventModel* m_messageModel;
@@ -91,7 +92,7 @@ class ChatRoomWidget: public QWidget
         timeline_index_t indexToMaybeRead;
         QBasicTimer maybeReadTimer;
         bool readMarkerOnScreen;
-        QMap<QuaternionRoom*, QStringList> roomHistories;
+        QMap<QuaternionRoom*, QList<QTextDocument*>> roomHistories;
 
         void reStartShownTimer();
 };
