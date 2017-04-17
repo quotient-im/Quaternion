@@ -206,7 +206,7 @@ void ChatRoomWidget::sendInput(const QString& input)
     qDebug() << "Got input:" << input;
     if( !m_currentConnection )
         return;
-    QString text = input;
+    QString text = m_chatEdit->document()->toPlainText();
     if ( text.isEmpty() )
         return;
 
