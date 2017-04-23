@@ -81,6 +81,9 @@ RoomListDock::RoomListDock(QWidget* parent)
     leaveAction = new QAction(tr("Leave Room"), this);
     connect(leaveAction, &QAction::triggered, this, &RoomListDock::menuLeaveSelected);
     contextMenu->addAction(leaveAction);
+    markAsReadAction = new QAction(tr("Mark room as read"), this);
+    connect(markAsReadAction, &QAction::triggered, this, &RoomListDock::menuMarkReadSelected);
+    contextMenu->addAction(markAsReadAction);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested, this, &RoomListDock::showContextMenu);
@@ -108,40 +111,47 @@ void RoomListDock::showContextMenu(const QPoint& pos)
     QModelIndex index = view->indexAt(view->mapFromParent(pos));
     if( !index.isValid() )
         return;
-    QuaternionRoom* room = model->roomAt(index.row());
+    auto room = model->roomAt(index.row());
 
     if( room->joinState() == QMatrixClient::JoinState::Join )
     {
         joinAction->setEnabled(false);
         leaveAction->setEnabled(true);
+        markAsReadAction->setEnabled(true);
     }
     else
     {
         joinAction->setEnabled(true);
         leaveAction->setEnabled(false);
+        markAsReadAction->setEnabled(false);
     }
 
     contextMenu->popup(mapToGlobal(pos));
 }
 
-void RoomListDock::menuJoinSelected()
+QuaternionRoom* RoomListDock::getSelectedRoom() const
 {
     if (!connection)
-        return;
+        return nullptr;
 
     QModelIndex index = view->currentIndex();
-    QuaternionRoom* room = model->roomAt(index.row());
-    connection->joinRoom(room->id());
+    return !index.isValid() ? nullptr : model->roomAt(index.row());
+}
+
+void RoomListDock::menuJoinSelected()
+{
+    if (auto room = getSelectedRoom())
+        connection->joinRoom(room->id());
 }
 
 void RoomListDock::menuLeaveSelected()
 {
-    if (!connection)
-        return;
+    if (auto room = getSelectedRoom())
+        connection->leaveRoom(room);
+}
 
-    QModelIndex index = view->currentIndex();
-    if( !index.isValid() )
-        return;
-    QuaternionRoom* room = model->roomAt(index.row());
-    connection->leaveRoom(room);
+void RoomListDock::menuMarkReadSelected()
+{
+    if (auto room = getSelectedRoom())
+        room->markAllMessagesAsRead();
 }

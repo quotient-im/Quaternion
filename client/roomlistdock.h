@@ -45,6 +45,7 @@ class RoomListDock : public QDockWidget
         void showContextMenu(const QPoint& pos);
         void menuJoinSelected();
         void menuLeaveSelected();
+        void menuMarkReadSelected();
 
     private:
         QMatrixClient::Connection* connection;
@@ -53,4 +54,7 @@ class RoomListDock : public QDockWidget
         QMenu* contextMenu;
         QAction* joinAction;
         QAction* leaveAction;
+        QAction* markAsReadAction;
+
+        QuaternionRoom* getSelectedRoom() const;
 };
