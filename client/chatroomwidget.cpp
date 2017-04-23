@@ -127,8 +127,10 @@ void ChatRoomWidget::enableDebug()
 
 void ChatRoomWidget::setRoom(QuaternionRoom* room)
 {
-    if (m_currentRoom == room)
+    if (m_currentRoom == room) {
+        m_chatEdit->setFocus();
         return;
+    }
 
     readMarkerOnScreen = false;
     maybeReadTimer.stop();
