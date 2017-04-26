@@ -92,6 +92,12 @@ void MainWindow::createMenu()
     quitAction->setShortcut(QKeySequence::Quit);
     connect( quitAction, &QAction::triggered, qApp, &QApplication::closeAllWindows );
 
+    // View menu
+    auto viewMenu = menuBar()->addMenu(tr("&View"));
+
+    viewMenu->addAction(roomListDock->toggleViewAction());
+    viewMenu->addAction(userListDock->toggleViewAction());
+
     // Room menu
     auto roomMenu = menuBar()->addMenu(tr("&Room"));
 
