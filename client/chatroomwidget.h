@@ -63,7 +63,7 @@ class ChatRoomWidget: public QWidget
         void timerEvent(QTimerEvent* event) override;
 
     private slots:
-        void sendLine();
+        void sendInput(const QString& input);
 
     private:
         MessageEventModel* m_messageModel;
