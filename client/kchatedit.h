@@ -35,15 +35,15 @@
  * Up and Down keys (exactly like in command-line shells). This feature is fully supported by this widget.
  * The widget emits the inputRequested() signal upon pressing the Return key.
  * You can then call saveInput() to make the input text disappear, as typical in chat applications.
- * The input goes in the history and can be retrieved with the input() method.
+ * The input goes in the history and can be retrieved with the savedInput() method.
  *
  * @author Elvis Angelaccio <elvis.angelaccio@kde.org>
  */
 class KChatEdit : public QTextEdit
 {
     Q_OBJECT
-    Q_PROPERTY(QTextDocument* input READ input NOTIFY inputChanged)
-    Q_PROPERTY(QList<QTextDocument*> history READ history WRITE setHistory)
+    Q_PROPERTY(QTextDocument* savedInput READ savedInput NOTIFY savedInputChanged)
+    Q_PROPERTY(QVector<QTextDocument*> history READ history WRITE setHistory)
     Q_PROPERTY(int maxHistorySize READ maxHistorySize WRITE setMaxHistorySize)
 
 public:
@@ -51,34 +51,34 @@ public:
     virtual ~KChatEdit();
 
     /**
-     * The latest input text typed by the user.
+     * The latest input text saved in the history.
      * This corresponds to the last element of history().
      * @return Latest available input or an empty document if saveInput() has not been called yet.
      * @see inputChanged(), saveInput(), history()
      */
-    QTextDocument* input() const;
+    QTextDocument* savedInput() const;
 
     /**
      * Saves in the history the current document().
      * This also clears the QTextEdit area.
      * @note If the history is full (see maxHistorySize(), new inputs will take space from the oldest
      * items in the history.
-     * @see input(), history(), maxHistorySize()
+     * @see savedInput(), history(), maxHistorySize()
      */
     void saveInput();
 
     /**
      * @return The history of the text inputs that the user typed.
-     * @see input(), saveInput();
+     * @see savedInput(), saveInput();
      */
-    QList<QTextDocument*> history() const;
+    QVector<QTextDocument*> history() const;
 
     /**
      * Set the history of this widget to @p history.
      * This can be useful when sharing a single instance of KChatEdit with many "channels" or "rooms"
      * that maintain their own private history.
      */
-    void setHistory(const QList<QTextDocument*> &history);
+    void setHistory(const QVector<QTextDocument*> &history);
 
     /**
      * @return The maximum number of input items that the history can store.
@@ -98,14 +98,14 @@ public:
 Q_SIGNALS:
     /**
      * A new input has been saved in the history.
-     * @see input(), saveInput(), history()
+     * @see savedInput(), saveInput(), history()
      */
-    void inputChanged();
+    void savedInputChanged();
 
     /**
      * Emitted when the user types Key_Return or Key_Enter, which typically means the user
      * wants to "send" what was typed. Call saveInput() if you want to actually save the input.
-     * @see input(), saveInput(), history()
+     * @see savedInput(), saveInput(), history()
      */
     void returnPressed();
 

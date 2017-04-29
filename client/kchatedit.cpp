@@ -37,7 +37,7 @@ public:
     void saveInput();
 
     KChatEdit *q;
-    QList<QTextDocument*> history;
+    QVector<QTextDocument*> history;
     int index;
     int maxHistorySize;
 };
@@ -92,7 +92,7 @@ void KChatEdit::KChatEditPrivate::saveInput()
     }
 
     const QString input = q->acceptRichText() ? q->toHtml() : q->toPlainText();
-    const QString latestInput = q->acceptRichText() ? q->input()->toHtml() : q->input()->toPlainText();
+    const QString latestInput = q->acceptRichText() ? q->savedInput()->toHtml() : q->savedInput()->toPlainText();
     // Only save input if different from the latest one.
     if (input != latestInput) {
         // Replace empty placeholder with the new input.
@@ -105,7 +105,7 @@ void KChatEdit::KChatEditPrivate::saveInput()
     }
 
     index = history.size() - 1;
-    emit q->inputChanged();
+    emit q->savedInputChanged();
     q->clear();
 }
 
@@ -121,7 +121,7 @@ KChatEdit::~KChatEdit()
 {
 }
 
-QTextDocument* KChatEdit::input() const
+QTextDocument* KChatEdit::savedInput() const
 {
     if (d->history.size() >= 2)
         return d->history.at(d->history.size() - 2);
@@ -135,12 +135,12 @@ void KChatEdit::saveInput()
     d->saveInput();
 }
 
-QList<QTextDocument*> KChatEdit::history() const
+QVector<QTextDocument*> KChatEdit::history() const
 {
     return d->history;
 }
 
-void KChatEdit::setHistory(const QList<QTextDocument*> &history)
+void KChatEdit::setHistory(const QVector<QTextDocument*> &history)
 {
     d->history = history;
     if (history.isEmpty() || !history.last()->isEmpty()) {

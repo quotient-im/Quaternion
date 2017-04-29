@@ -92,7 +92,7 @@ class ChatRoomWidget: public QWidget
         timeline_index_t indexToMaybeRead;
         QBasicTimer maybeReadTimer;
         bool readMarkerOnScreen;
-        QMap<QuaternionRoom*, QList<QTextDocument*>> roomHistories;
+        QMap<QuaternionRoom*, QVector<QTextDocument*>> roomHistories;
 
         void reStartShownTimer();
 };
