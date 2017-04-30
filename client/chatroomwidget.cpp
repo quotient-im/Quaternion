@@ -78,7 +78,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
             [=](const QStringList& matches, int pos)
             {
                 m_currentlyTyping->setText(
-                    QStringLiteral("<i>Tab Completion (next: %1)</i>")
+                    tr("<i>Tab Completion (next: %1)</i>")
                     .arg( QStringList(matches.mid(pos, 5)).join(", ") ) );
             });
     connect(m_chatEdit, &ChatEdit::cancelledCompletion,
@@ -168,7 +168,7 @@ void ChatRoomWidget::typingChanged()
     {
         typingNames << m_currentRoom->roomMembername(user);
     }
-    m_currentlyTyping->setText(QStringLiteral("<i>Currently typing: %1</i>")
+    m_currentlyTyping->setText(tr("<i>Currently typing: %1</i>")
                                .arg( typingNames.join(", ") ) );
 }
 
@@ -177,7 +177,7 @@ void ChatRoomWidget::topicChanged()
     if (m_currentRoom)
     {
         auto topic = m_currentRoom->topic();
-        m_topicLabel->setText(topic.isEmpty() ? QStringLiteral("(no topic)") :
+        m_topicLabel->setText(topic.isEmpty() ? tr("(no topic)") :
                               m_currentRoom->prettyPrint(topic));
     }
     else
@@ -218,7 +218,8 @@ void ChatRoomWidget::sendInput()
             }
             else if( text.startsWith('/') )
             {
-                emit showStatusMessage( "Unknown command. Use // to send this line literally", 5000);
+                emit showStatusMessage(
+                    tr("Unknown command. Use // to send this line literally"), 5000);
                 return;
             } else
                 m_currentRoom->postMessage("m.text", text);
