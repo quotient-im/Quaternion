@@ -212,9 +212,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
                     if (textContent && textContent->mimeType.inherits("text/html"))
                         return textContent->body;
 
-                    auto body = e->plainBody().toHtmlEscaped();
-                    m_currentRoom->linkifyUrls(body);
-                    return body;
+                    return m_currentRoom->prettyPrint(e->plainBody());
                 }
             case MessageEventType::Image:
                 {

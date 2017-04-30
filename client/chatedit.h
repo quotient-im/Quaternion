@@ -1,6 +1,6 @@
 /**************************************************************************
  *                                                                        *
- * Copyright (C) 2016 Felix Rohrbach <kde@fxrh.de>                        *
+ * Copyright (C) 2017 Kitsune Ral <kitsune-ral@users.sf.net>
  *                                                                        *
  * This program is free software; you can redistribute it and/or          *
  * modify it under the terms of the GNU General Public License            *
@@ -19,48 +19,37 @@
 
 #pragma once
 
-#include "lib/room.h"
+#include "kchatedit.h"
 
-class Message;
+#include <QtGui/QTextCursor>
 
-class QuaternionRoom: public QMatrixClient::Room
+class ChatRoomWidget;
+
+class ChatEdit : public KChatEdit
 {
         Q_OBJECT
     public:
-        using Timeline = QMatrixClient::Owning< QList<Message*> >;
+        ChatEdit(ChatRoomWidget* c);
 
-        QuaternionRoom(QMatrixClient::Connection* connection, QString roomId);
-        ~QuaternionRoom();
+        void triggerCompletion();
+        void cancelCompletion();
 
-        /**
-         * set/get whether this room is currently show to the user.
-         * This is used to mark messages as read.
-         */
-        void setShown(bool shown);
-        bool isShown();
-
-        void setCachedInput(const QString& input);
-        const QString& cachedInput() const;
-
-        const Timeline& messages() const;
-
-        /** Converts all that looks like a URL into HTML links */
-        void linkifyUrls(QString& text) const;
-
-        /** Returns the passed plain text pretty-printed in HTML */
-        QString prettyPrint(const QString& plainText) const;
+    signals:
+        void proposedCompletion(const QStringList& allCompletions, int curIndex);
+        void cancelledCompletion();
 
     protected:
-        virtual void doAddNewMessageEvents(const QMatrixClient::Events& events) override;
-        virtual void doAddHistoricalMessageEvents(const QMatrixClient::Events& events) override;
-
-    private slots:
-        void countChanged();
+        void keyPressEvent(QKeyEvent* event) override;
 
     private:
-        Timeline m_messages;
-        bool m_shown;
-        QString m_cachedInput;
+        ChatRoomWidget* chatRoomWidget;
 
-        Message* makeMessage(QMatrixClient::Event* e);
+        QTextCursor completionCursor;
+        QStringList completionMatches;
+        int matchesListPosition;
+
+        void startNewCompletion();
+        void appendTextAtCursor(const QString& text, bool select = false);
 };
+
+

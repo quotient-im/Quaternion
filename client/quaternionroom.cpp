@@ -147,11 +147,10 @@ void QuaternionRoom::linkifyUrls(QString& text) const
                  QStringLiteral("\\1<a href=\"\\2\">\\2</a>"));
 }
 
-QString QuaternionRoom::prettyTopic() const
+QString QuaternionRoom::prettyPrint(const QString& plainText) const
 {
-    QString pt = topic().toHtmlEscaped();
-    if (pt.isEmpty())
-        return QStringLiteral("(no topic)");
+    auto pt = plainText.toHtmlEscaped();
+    pt.replace('\n', "<br/>");
 
     linkifyUrls(pt);
     return pt;
