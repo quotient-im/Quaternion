@@ -72,6 +72,23 @@ There's no official packaging at the moment. Some links to unofficial packages f
 Arch Linux: https://aur.archlinux.org/packages/quaternion/
 Windows: automatic builds are packaged upon every commit (CI) at https://ci.appveyor.com/project/Fxrh/quaternion (go to "Jobs", select the job for your architecture, then "Artifacts")
 
+## Flatpak
+
+If your run Linux and your distribution supports flatpak, you can easily build and install Quaternion as flatpak package:
+
+```
+git clone https://github.com/Fxrh/Quaternion.git --recursive
+cd Quaternion/flatpak
+./setup_repo.sh
+./build.sh
+flatpak --user install quaternion-nightly com.github.quaternion
+```
+Whenever you want to update your Quaternion package, just run again the `build.sh` script and then use:
+
+```
+flatpak --user update
+```
+
 ## Troubleshooting
 
 If `cmake` fails with...
