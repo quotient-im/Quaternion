@@ -39,7 +39,7 @@ void ChatEdit::keyPressEvent(QKeyEvent* event)
 void ChatEdit::appendTextAtCursor(const QString& text, bool select)
 {
     completionCursor.insertText(text);
-    completionCursor.movePosition(QTextCursor::Left,
+    completionCursor.movePosition(QTextCursor::PreviousCharacter,
         select ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor, text.size());
 }
 
@@ -47,12 +47,12 @@ void ChatEdit::startNewCompletion()
 {
     completionCursor = textCursor();
     completionCursor.clearSelection();
-    while ( completionCursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor) )
+    while ( completionCursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor) )
     {
-        auto firstChar = completionCursor.selectedText().at(0);
+        QChar firstChar = completionCursor.selectedText().at(0);
         if (!firstChar.isLetterOrNumber() && firstChar != '@')
         {
-            completionCursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+            completionCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
             break;
         }
     }
@@ -68,7 +68,7 @@ void ChatEdit::startNewCompletion()
         }
         for (auto stringBefore: {":", ": "})
         {
-            completionCursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+            completionCursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
             if ( completionCursor.selectedText().startsWith(stringBefore) )
             {
                 completionCursor.insertText(", ");
@@ -76,7 +76,7 @@ void ChatEdit::startNewCompletion()
                 return;
             }
         }
-        completionCursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 2);
+        completionCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 2);
         appendTextAtCursor(" ", false);
     }
 }
