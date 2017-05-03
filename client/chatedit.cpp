@@ -49,7 +49,7 @@ void ChatEdit::startNewCompletion()
     completionCursor.clearSelection();
     while ( completionCursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor) )
     {
-        auto firstChar = completionCursor.selectedText()[0];
+        auto firstChar = completionCursor.selectedText().at(0);
         if (!firstChar.isLetterOrNumber() && firstChar != '@')
         {
             completionCursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
