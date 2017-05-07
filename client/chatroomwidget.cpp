@@ -230,21 +230,24 @@ void ChatRoomWidget::sendInput()
 QStringList ChatRoomWidget::findCompletionMatches(const QString& pattern) const
 {
     QStringList matches;
-    for(auto user: m_currentRoom->users() )
+    if (m_currentRoom)
     {
-        QString name = m_currentRoom->roomMembername(user);
-        if ( name.startsWith(pattern, Qt::CaseInsensitive) )
+        for(auto user: m_currentRoom->users() )
         {
-            int ircSuffixPos = name.indexOf(" (IRC)");
-            if ( ircSuffixPos != -1 )
-                name.truncate(ircSuffixPos);
-            matches.append(name);
+            QString name = m_currentRoom->roomMembername(user);
+            if ( name.startsWith(pattern, Qt::CaseInsensitive) )
+            {
+                int ircSuffixPos = name.indexOf(" (IRC)");
+                if ( ircSuffixPos != -1 )
+                    name.truncate(ircSuffixPos);
+                matches.append(name);
+            }
         }
+        std::sort(matches.begin(), matches.end(),
+            [] (const QString& s1, const QString& s2)
+                { return s1.localeAwareCompare(s2) < 0; });
+        matches.removeDuplicates();
     }
-    std::sort(matches.begin(), matches.end(),
-        [] (const QString& s1, const QString& s2)
-            { return s1.localeAwareCompare(s2) < 0; });
-    matches.removeDuplicates();
     return matches;
 }
 
