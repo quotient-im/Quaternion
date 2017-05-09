@@ -46,6 +46,7 @@ void UserListModel::setRoom(QMatrixClient::Room* room)
     beginResetModel();
     if( m_currentRoom )
     {
+        m_currentRoom->connection()->disconnect( this );
         m_currentRoom->disconnect( this );
         for( User* user: m_users )
             user->disconnect( this );
@@ -63,6 +64,8 @@ void UserListModel::setRoom(QMatrixClient::Room* room)
         {
             connect( user, &User::avatarChanged, this, &UserListModel::avatarChanged );
         }
+        connect( m_currentRoom->connection(), &Connection::loggedOut,
+                 this, [=] { setRoom(nullptr); } );
         qDebug() << m_users.count() << "user(s) in the room";
     }
     endResetModel();

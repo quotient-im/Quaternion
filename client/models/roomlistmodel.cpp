@@ -20,11 +20,9 @@
 #include "roomlistmodel.h"
 
 #include <QtGui/QIcon>
-
 #include <QtCore/QDebug>
 
 #include "lib/connection.h"
-#include "lib/room.h"
 #include "../quaternionroom.h"
 
 RoomListModel::RoomListModel(QObject* parent)
@@ -33,16 +31,13 @@ RoomListModel::RoomListModel(QObject* parent)
     m_connection = nullptr;
 }
 
-RoomListModel::~RoomListModel()
-{
-}
-
 void RoomListModel::setConnection(QMatrixClient::Connection* connection)
 {
     if (m_connection == connection)
         return;
 
     beginResetModel();
+    m_connection->disconnect(this);
     for( QuaternionRoom* room: m_rooms )
         room->disconnect( this );
 
@@ -51,8 +46,11 @@ void RoomListModel::setConnection(QMatrixClient::Connection* connection)
     m_connection = connection;
     if (m_connection)
     {
-        connect( m_connection, &QMatrixClient::Connection::newRoom, this, &RoomListModel::addRoom );
-        for( QMatrixClient::Room* r: m_connection->roomMap() )
+        using namespace QMatrixClient;
+        connect( m_connection, &Connection::newRoom, this, &RoomListModel::addRoom );
+        connect( m_connection, &Connection::loggedOut,
+                 this, [=]{ setConnection(nullptr); } );
+        for( Room* r: m_connection->roomMap() )
             doAddRoom(r);
     }
 

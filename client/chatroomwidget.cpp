@@ -108,6 +108,7 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
         m_currentRoom->setCachedInput( m_chatEdit->toPlainText() );
         m_currentRoom->setShown(false);
         roomHistories.insert(m_currentRoom, m_chatEdit->history());
+        m_currentRoom->connection()->disconnect(this);
         m_currentRoom->disconnect( this );
     }
     readMarkerOnScreen = false;
@@ -136,6 +137,11 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
                                  rm->index() ) != indicesOnScreen.end();
             reStartShownTimer();
             emit readMarkerMoved();
+        });
+        connect(m_currentRoom->connection(), &Connection::loggedOut, this, [=]
+        {
+            qWarning() << "Logged out, escaping the room";
+            setRoom(nullptr);
         });
 
         m_currentRoom->setShown(true);

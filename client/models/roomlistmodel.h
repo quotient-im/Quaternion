@@ -39,7 +39,6 @@ class RoomListModel: public QAbstractListModel
         };
 
         RoomListModel(QObject* parent = nullptr);
-        virtual ~RoomListModel();
 
         void setConnection(QMatrixClient::Connection* connection);
         QuaternionRoom* roomAt(int row);
