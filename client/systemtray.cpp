@@ -26,28 +26,15 @@
 
 SystemTray::SystemTray(QWidget* parent)
     : QSystemTrayIcon(parent)
-    , m_connection(nullptr)
     , m_parent(parent)
 {
     setIcon(QIcon(":/icon.png"));
 }
 
-void SystemTray::setConnection(QMatrixClient::Connection* connection)
-{
-    if( m_connection )
-    {
-        m_connection->disconnect(this);
-    }
-    m_connection = connection;
-    if( m_connection )
-    {
-        connect(m_connection, &QMatrixClient::Connection::newRoom, this, &SystemTray::newRoom);
-    }
-}
-
 void SystemTray::newRoom(QMatrixClient::Room* room)
 {
-    connect(room, &QMatrixClient::Room::highlightCountChanged, this, &SystemTray::highlightCountChanged);
+    connect(room, &QMatrixClient::Room::highlightCountChanged,
+            this, &SystemTray::highlightCountChanged);
 }
 
 void SystemTray::highlightCountChanged(QMatrixClient::Room* room)

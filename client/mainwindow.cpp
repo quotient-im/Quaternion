@@ -146,12 +146,8 @@ void MainWindow::setConnection(QuaternionConnection* newConnection)
 {
     if (connection)
     {
-        chatRoomWidget->setConnection(nullptr);
-        roomListDock->setConnection(nullptr);
-        systemTray->setConnection(nullptr);
 
-        connection->disconnectFromServer();
-        connection->disconnect(); // Disconnect everybody from all connection's signals
+        connection->stopSync();
         connection->deleteLater();
     }
 
@@ -161,16 +157,16 @@ void MainWindow::setConnection(QuaternionConnection* newConnection)
 
     if (connection)
     {
-        chatRoomWidget->setConnection(connection);
         roomListDock->setConnection(connection);
-        systemTray->setConnection(connection);
 
         using QMatrixClient::Connection;
         connect( connection, &Connection::networkError, this, &MainWindow::networkError );
         connect( connection, &Connection::syncDone, this, &MainWindow::gotEvents );
         connect( connection, &Connection::connected, this, &MainWindow::initialSync );
-        connect( connection, &Connection::loginError, this, &MainWindow::loggedOut );
+        // Short-circuit login errors to logged-out events
+        connect( connection, &Connection::loginError, connection, &Connection::loggedOut );
         connect( connection, &Connection::loggedOut, [=]{ loggedOut(); } );
+        connect( connection, &Connection::newRoom, systemTray, &SystemTray::newRoom );
     }
 }
 

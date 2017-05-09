@@ -31,15 +31,14 @@ class SystemTray: public QSystemTrayIcon
 {
         Q_OBJECT
     public:
-        SystemTray(QWidget* parent = nullptr);
+        explicit SystemTray(QWidget* parent = nullptr);
 
-        void setConnection(QMatrixClient::Connection* connection);
+    public slots:
+        void newRoom(QMatrixClient::Room* room);
 
     private slots:
-        void newRoom(QMatrixClient::Room* room);
         void highlightCountChanged(QMatrixClient::Room* room);
 
     private:
-        QMatrixClient::Connection* m_connection;
         QWidget* m_parent;
 };

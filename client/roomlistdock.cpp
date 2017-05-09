@@ -43,7 +43,8 @@ class RoomListItemDelegate : public QStyledItemDelegate
         QColor highlightColor;
 };
 
-void RoomListItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
+void RoomListItemDelegate::paint(QPainter* painter,
+         const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
     QStyleOptionViewItem o { option };
 
@@ -63,7 +64,6 @@ void RoomListItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
 
 RoomListDock::RoomListDock(QWidget* parent)
     : QDockWidget("Rooms", parent)
-    , connection(nullptr)
 {
     setObjectName("RoomsDock");
     model = new RoomListModel(this);
@@ -89,14 +89,8 @@ RoomListDock::RoomListDock(QWidget* parent)
     connect(this, &QWidget::customContextMenuRequested, this, &RoomListDock::showContextMenu);
 }
 
-RoomListDock::~RoomListDock()
-{
-}
-
 void RoomListDock::setConnection( QMatrixClient::Connection* connection )
 {
-    emit roomSelected(nullptr);
-    this->connection = connection;
     model->setConnection(connection);
 }
 
@@ -131,23 +125,24 @@ void RoomListDock::showContextMenu(const QPoint& pos)
 
 QuaternionRoom* RoomListDock::getSelectedRoom() const
 {
-    if (!connection)
-        return nullptr;
-
     QModelIndex index = view->currentIndex();
     return !index.isValid() ? nullptr : model->roomAt(index.row());
 }
 
 void RoomListDock::menuJoinSelected()
 {
+    // The user has been invited to the room
     if (auto room = getSelectedRoom())
-        connection->joinRoom(room->id());
+    {
+        Q_ASSERT(room->connection());
+        room->connection()->joinRoom(room->id());
+    }
 }
 
 void RoomListDock::menuLeaveSelected()
 {
     if (auto room = getSelectedRoom())
-        connection->leaveRoom(room);
+        room->leaveRoom();
 }
 
 void RoomListDock::menuMarkReadSelected()

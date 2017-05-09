@@ -32,8 +32,7 @@ class RoomListDock : public QDockWidget
 {
         Q_OBJECT
     public:
-        RoomListDock(QWidget* parent = nullptr);
-        virtual ~RoomListDock();
+        explicit RoomListDock(QWidget* parent = nullptr);
 
         void setConnection( QMatrixClient::Connection* connection );
 
@@ -48,7 +47,6 @@ class RoomListDock : public QDockWidget
         void menuMarkReadSelected();
 
     private:
-        QMatrixClient::Connection* connection;
         QListView* view;
         RoomListModel* model;
         QMenu* contextMenu;
