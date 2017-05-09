@@ -25,7 +25,7 @@ QuaternionConnection::QuaternionConnection(QUrl server, QObject* parent)
 {
 }
 
-QMatrixClient::Room* QuaternionConnection::createRoom(QString roomId)
+QMatrixClient::Room* QuaternionConnection::createRoom(const QString& roomId)
 {
     return new QuaternionRoom(this, roomId);
 }

@@ -18,7 +18,9 @@
  **************************************************************************/
 
 #include "imageprovider.h"
-#include <jobs/mediathumbnailjob.h>
+
+#include "lib/connection.h"
+#include "jobs/mediathumbnailjob.h"
 
 #include <QtCore/QDebug>
 
@@ -30,7 +32,8 @@ ImageProvider::ImageProvider(QMatrixClient::Connection* connection)
     qRegisterMetaType<QWaitCondition*>();
 }
 
-QPixmap ImageProvider::requestPixmap(const QString& id, QSize* size, const QSize& requestedSize)
+QPixmap ImageProvider::requestPixmap(const QString& id,
+                                     QSize* size, const QSize& requestedSize)
 {
     QMutexLocker locker(&m_mutex);
     qDebug() << "ImageProvider::requestPixmap:" << id;
@@ -39,7 +42,8 @@ QPixmap ImageProvider::requestPixmap(const QString& id, QSize* size, const QSize
     QPixmap result;
     QMetaObject::invokeMethod(this, "doRequest", Qt::QueuedConnection,
                               Q_ARG(QString, id), Q_ARG(QSize, requestedSize),
-                              Q_ARG(QPixmap*, &result), Q_ARG(QWaitCondition*, &condition));
+                              Q_ARG(QPixmap*, &result),
+                              Q_ARG(QWaitCondition*, &condition));
     condition.wait(&m_mutex);
 
     if( size != nullptr )
@@ -49,37 +53,37 @@ QPixmap ImageProvider::requestPixmap(const QString& id, QSize* size, const QSize
     return result;
 }
 
-void ImageProvider::setConnection(QMatrixClient::Connection* connection)
+void ImageProvider::setConnection(const QMatrixClient::Connection* connection)
 {
     QMutexLocker locker(&m_mutex);
 
     m_connection = connection;
 }
 
-void ImageProvider::doRequest(QString id, QSize requestedSize, QPixmap* pixmap, QWaitCondition* condition)
+void ImageProvider::doRequest(QString id, QSize requestedSize, QPixmap* pixmap,
+                              QWaitCondition* condition)
 {
+    Q_ASSERT(pixmap);
+    Q_ASSERT(condition);
     QMutexLocker locker(&m_mutex);
-
     if( !m_connection )
     {
         qDebug() << "ImageProvider::requestPixmap: no connection!";
         *pixmap = QPixmap();
         condition->wakeAll();
+        return;
     }
 
     auto job = m_connection->getThumbnail(QUrl(id), requestedSize.expandedTo({100,100}));
-    connect( job, &QMatrixClient::MediaThumbnailJob::success, this, &ImageProvider::gotImage );
-    ImageProviderData data = { pixmap, condition, requestedSize };
-    m_callmap.insert(job, data);
+    connect( job, &QMatrixClient::MediaThumbnailJob::success, this, [=]()
+    {
+        // No need to lock because we don't deal with the ImageProvider state
+        qDebug() << "gotImage";
+
+        *pixmap =
+            job->thumbnail().scaled(requestedSize,
+                                    Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        condition->wakeAll();
+    } );
 }
 
-void ImageProvider::gotImage(QMatrixClient::BaseJob* job)
-{
-    QMutexLocker locker(&m_mutex);
-    qDebug() << "gotImage";
-
-    auto mediaJob = static_cast<QMatrixClient::MediaThumbnailJob*>(job);
-    ImageProviderData data = m_callmap.take(mediaJob);
-    *data.pixmap = mediaJob->thumbnail().scaled(data.requestedSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    data.condition->wakeAll();
-}
