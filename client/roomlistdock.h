@@ -23,7 +23,7 @@
 #include <QtWidgets/QListView>
 #include <QtCore/QStringListModel>
 
-#include "lib/connection.h"
+#include "quaternionconnection.h"
 
 class RoomListModel;
 class QuaternionRoom;
@@ -34,7 +34,7 @@ class RoomListDock : public QDockWidget
     public:
         explicit RoomListDock(QWidget* parent = nullptr);
 
-        void setConnection( QMatrixClient::Connection* connection );
+        void addConnection(QuaternionConnection* connection);
 
     signals:
         void roomSelected(QuaternionRoom* room);

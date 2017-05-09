@@ -89,9 +89,9 @@ RoomListDock::RoomListDock(QWidget* parent)
     connect(this, &QWidget::customContextMenuRequested, this, &RoomListDock::showContextMenu);
 }
 
-void RoomListDock::setConnection( QMatrixClient::Connection* connection )
+void RoomListDock::addConnection(QuaternionConnection* connection)
 {
-    model->setConnection(connection);
+    model->addConnection(connection);
 }
 
 void RoomListDock::rowSelected(const QModelIndex& index)
