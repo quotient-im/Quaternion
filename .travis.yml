@@ -10,3 +10,10 @@ script:
  - mkdir build && cd build
  - cmake ..
  - cmake --build . --target all
+notifications:
+    webhooks:
+        urls:
+            - "https://scalar.vector.im/api/neb/services/hooks/dHJhdmlzLWNpLyU0MGtpdHN1bmUlM0FtYXRyaXgub3JnLyUyMVBDelV0eHRPalV5U3hTZWxvZiUzQW1hdHJpeC5vcmc"
+        on_success: change  # always|never|change
+        on_failure: always
+        on_start: never
