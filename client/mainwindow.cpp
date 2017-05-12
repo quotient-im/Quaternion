@@ -310,22 +310,26 @@ void MainWindow::gotEvents(QuaternionConnection* c)
     getNewEvents(c);
 }
 
-void showMillisToRecon(QStatusBar* statusBar, int millis)
+void MainWindow::showMillisToRecon(QuaternionConnection* c)
 {
-    statusBar->showMessage(
-        MainWindow::tr("Network error when syncing; will retry within %1 seconds")
-        .arg((millis + 999) / 1000)); // Integer ceiling
+    // TODO: when there are several connections and they are failing, these
+    // notifications render a mess, fighting for the same status bar. Either
+    // switch to a set of icons in the status bar or find a stacking
+    // notifications engine already instead of the status bar.
+    statusBar()->showMessage(
+        tr("Couldn't connect to the server as %1; will retry within %2 seconds")
+        .arg(c->userId()).arg((c->millisToReconnect() + 999) / 1000)); // Integer ceiling
 }
 
 void MainWindow::networkError(QuaternionConnection* c)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Network error on a null connection");
     auto timer = new QTimer(this);
-    timer->start(std::min(1000, c->millisToReconnect()));
-    showMillisToRecon(statusBar(), timer->remainingTime());
+    timer->start(1000);
+    showMillisToRecon(c);
     timer->connect(timer, &QTimer::timeout, [=] {
         if (c->millisToReconnect() > 0)
-            showMillisToRecon(statusBar(), c->millisToReconnect());
+            showMillisToRecon(c);
         else
         {
             statusBar()->showMessage(tr("Reconnecting..."), 5000);

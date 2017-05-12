@@ -81,4 +81,5 @@ class MainWindow: public QMainWindow
         void invokeLogin();
         void loadSettings();
         void saveSettings() const;
+        void showMillisToRecon(QuaternionConnection* c);
 };
