@@ -112,7 +112,7 @@ void MainWindow::loadSettings()
         setGeometry(sg.value("normal_geometry").toRect());
     if (sg.value("maximized").toBool())
         showMaximized();
-    if (sg.contains("parts_state"))
+    if (sg.contains("window_parts_state"))
         restoreState(sg.value("window_parts_state").toByteArray());
 }
 
