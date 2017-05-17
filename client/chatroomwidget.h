@@ -27,6 +27,7 @@
 class ChatEdit;
 class MessageEventModel;
 class ImageProvider;
+
 class QFrame;
 class QQuickView;
 class QLabel;
@@ -36,8 +37,7 @@ class ChatRoomWidget: public QWidget
 {
         Q_OBJECT
     public:
-        ChatRoomWidget(QWidget* parent = nullptr);
-        virtual ~ChatRoomWidget();
+        explicit ChatRoomWidget(QWidget* parent = nullptr);
 
         void enableDebug();
         bool pendingMarkRead() const;
@@ -52,7 +52,6 @@ class ChatRoomWidget: public QWidget
 
     public slots:
         void setRoom(QuaternionRoom* room);
-        void setConnection(QMatrixClient::Connection* connection);
         void topicChanged();
         void typingChanged();
         void onMessageShownChanged(QString eventId, bool shown);
@@ -67,7 +66,6 @@ class ChatRoomWidget: public QWidget
     private:
         MessageEventModel* m_messageModel;
         QuaternionRoom* m_currentRoom;
-        QMatrixClient::Connection* m_currentConnection;
 
         QQuickView* m_quickView;
         ImageProvider* m_imageProvider;

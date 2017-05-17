@@ -23,10 +23,10 @@
 
 namespace QMatrixClient
 {
-    class Connection;
     class Room;
 }
 
+class QuaternionConnection;
 class QuaternionRoom;
 
 class RoomListModel: public QAbstractListModel
@@ -38,22 +38,22 @@ class RoomListModel: public QAbstractListModel
             HighlightCountRole,
         };
 
-        RoomListModel(QObject* parent = nullptr);
-        virtual ~RoomListModel();
+        explicit RoomListModel(QObject* parent = nullptr);
 
-        void setConnection(QMatrixClient::Connection* connection);
+        void addConnection(QuaternionConnection* connection);
+        void deleteConnection(QuaternionConnection* connection);
         QuaternionRoom* roomAt(int row);
 
-        QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
-        int rowCount(const QModelIndex& parent=QModelIndex()) const override;
+        QVariant data(const QModelIndex& index, int role) const override;
+        int rowCount(const QModelIndex& parent) const override;
 
     private slots:
-        void displaynameChanged(QMatrixClient::Room* room);
-        void unreadMessagesChanged(QMatrixClient::Room* room);
+        void displaynameChanged(QuaternionRoom* room);
+        void unreadMessagesChanged(QuaternionRoom* room);
         void addRoom(QMatrixClient::Room* room);
 
     private:
-        QMatrixClient::Connection* m_connection;
+        QList<QuaternionConnection*> m_connections;
         QList<QuaternionRoom*> m_rooms;
 
         void doAddRoom(QMatrixClient::Room* r);

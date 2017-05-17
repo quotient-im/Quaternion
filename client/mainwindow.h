@@ -43,41 +43,43 @@ class MainWindow: public QMainWindow
 
         void enableDebug();
 
-        void setConnection(QuaternionConnection* newConnection);
+        void addConnection(QuaternionConnection* c);
+        void dropConnection(QuaternionConnection* c);
+
         ChatRoomWidget* getChatRoomWidget() const;
 
     protected:
-        virtual void closeEvent(QCloseEvent* event) override;
+        void closeEvent(QCloseEvent* event) override;
 
     private slots:
         void initialize();
-        void initialSync();
-        void joinRoom(const QString& roomAlias = QString());
-        void getNewEvents();
-        void gotEvents();
-        void loggedOut(const QString& message = QString());
+        void onConnected(QuaternionConnection* c);
+        void joinRoom(const QString& roomAlias = {});
+        void getNewEvents(QuaternionConnection* c);
+        void gotEvents(QuaternionConnection* c);
+        void loginError(QuaternionConnection* c, const QString& message = {});
 
-        void networkError();
+        void networkError(QuaternionConnection* c);
 
-        void showLoginWindow(const QString& statusMessage = QString());
-        void logout();
-
+        void showLoginWindow(const QString& statusMessage = {});
+        void logout(QuaternionConnection* c);
     private:
-        RoomListDock* roomListDock;
-        UserListDock* userListDock;
-        ChatRoomWidget* chatRoomWidget;
-        QuaternionConnection* connection;
+        RoomListDock* roomListDock = nullptr;
+        UserListDock* userListDock = nullptr;
+        ChatRoomWidget* chatRoomWidget = nullptr;
+        QList<QuaternionConnection*> connections;
 
-        QMovie* busyIndicator;
-        QLabel* busyLabel;
+        QMovie* busyIndicator = nullptr;
+        QLabel* busyLabel = nullptr;
 
-        QAction* loginAction;
-        QAction* logoutAction;
+        QMenu* connectionMenu = nullptr;
+        QAction* accountListGrowthPoint = nullptr;
 
-        SystemTray* systemTray;
+        SystemTray* systemTray = nullptr;
 
         void createMenu();
         void invokeLogin();
         void loadSettings();
         void saveSettings() const;
+        void showMillisToRecon(QuaternionConnection* c);
 };

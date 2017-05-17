@@ -20,38 +20,29 @@
 #pragma once
 
 #include <QtQuick/QQuickImageProvider>
-#include <QtCore/QThread>
 #include <QtCore/QMutex>
 #include <QtCore/QWaitCondition>
 
-#include <lib/jobs/basejob.h>
-#include "quaternionconnection.h"
-
-struct ImageProviderData
-{
-    QPixmap* pixmap;
-    QWaitCondition* condition;
-    QSize requestedSize;
-};
+namespace QMatrixClient {
+    class Connection;
+}
 
 class ImageProvider: public QObject, public QQuickImageProvider
 {
         Q_OBJECT
     public:
-        ImageProvider(QMatrixClient::Connection* connection);
+        explicit ImageProvider(QMatrixClient::Connection* connection);
 
-        QPixmap requestPixmap(const QString& id, QSize* size, const QSize& requestedSize);
+        QPixmap requestPixmap(const QString& id, QSize* size,
+                              const QSize& requestedSize) override;
 
-        void setConnection(QMatrixClient::Connection* connection);
-
-    private slots:
-        void gotImage(QMatrixClient::BaseJob* job);
+        void setConnection(const QMatrixClient::Connection* connection);
 
     private:
-        Q_INVOKABLE void doRequest(QString id, QSize requestedSize, QPixmap* pixmap, QWaitCondition* condition);
+        Q_INVOKABLE void doRequest(QString id, QSize requestedSize,
+                                   QPixmap* pixmap, QWaitCondition* condition);
 
-        QMatrixClient::Connection* m_connection;
-        QHash<QMatrixClient::MediaThumbnailJob*, ImageProviderData> m_callmap;
+        const QMatrixClient::Connection* m_connection;
         QMutex m_mutex;
 };
 

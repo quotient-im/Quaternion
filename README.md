@@ -20,7 +20,7 @@ You can also file outright bugs at [the project's issue tracker](https://github.
 
 ## Installing pre-requisites
 ### Linux
-Just install things from "Pre-requisites" using your preferred package manager. If your Qt package base is fine-grained you might want to take a look at CMakeLists.txt to figure out which specific libraries Quaternion uses (or blindly run cmake and look at error messages). Note also that you'll need several Qt Quick plugins for Quaternion to work (without them, it will compile and run but won't show the messages timeline). In case of Trusty Tar the following line will get you everything necessary to build and run Quaternion (thanks to @onlnr:matrix.org):
+Just install things from "Pre-requisites" using your preferred package manager. If your Qt package base is fine-grained you might want to take a look at `CMakeLists.txt` to figure out which specific libraries Quaternion uses (or blindly run cmake and look at error messages). Note also that you'll need several Qt Quick plugins for Quaternion to work (without them, it will compile and run but won't show the messages timeline). In case of Trusty Tar the following line will get you everything necessary to build and run Quaternion (thanks to `@onlnr:matrix.org`):
 ```
 sudo apt-get install git cmake qtdeclarative5-dev qtdeclarative5-qtquick2-plugin qtdeclarative5-controls-plugin
 ```
@@ -114,6 +114,8 @@ CMake Error at CMakeLists.txt:30 (add_subdirectory):
 If Quaternion runs but you can't see any messages in the chat (though you can type them in) - you have a problem with Qt Quick. Most likely, you don't have Qt Quick libraries and/or plugins installed. On Linux, double check "Pre-requisites" above. On Windows and Mac, just open an issue (see "Contacts" section in the beginning of this README), because most likely not all necessary Qt parts got installed.
 
 Especially on Windows, if Quaternion starts up but upon an attempt to connect returns a message like "Failed to make SSL context" - you haven't made sure that SSL libraries are reachable buy the Quaternion binary. See the "Installation on Windows" section above for details.
+
+When chasing bugs and investigating crashes, it helps to increase the debug level. Thanks to @eang:matrix.org, libqmatrixclient uses Qt logging categories - the "Troubleshooting" section of `lib/README.md` elaborates on how to setup logging.
 
 ## Screenshot
 ![Screenshot](quaternion.png)

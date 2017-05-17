@@ -19,7 +19,6 @@
 
 #include "chatroomwidget.h"
 
-#include <QtCore/QDebug>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QLabel>
 
@@ -30,7 +29,6 @@
 
 #include "lib/user.h"
 #include "lib/connection.h"
-#include "lib/events/typingevent.h"
 #include "models/messageeventmodel.h"
 #include "imageprovider.h"
 #include "chatedit.h"
@@ -38,7 +36,6 @@
 ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     : QWidget(parent)
     , m_currentRoom(nullptr)
-    , m_currentConnection(nullptr)
     , readMarkerOnScreen(false)
 {
     qmlRegisterType<QuaternionRoom>();
@@ -56,7 +53,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
 
     m_quickView = new QQuickView();
 
-    m_imageProvider = new ImageProvider(m_currentConnection);
+    m_imageProvider = new ImageProvider(nullptr); // No connection yet
     m_quickView->engine()->addImageProvider("mtx", m_imageProvider);
 
     QWidget* container = QWidget::createWindowContainer(m_quickView, this);
@@ -93,10 +90,6 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     setLayout(layout);
 }
 
-ChatRoomWidget::~ChatRoomWidget()
-{
-}
-
 void ChatRoomWidget::enableDebug()
 {
     QQmlContext* ctxt = m_quickView->rootContext();
@@ -110,27 +103,33 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
         return;
     }
 
+    if( m_currentRoom )
+    {
+        m_currentRoom->setCachedInput( m_chatEdit->toPlainText() );
+        m_currentRoom->setShown(false);
+        roomHistories.insert(m_currentRoom, m_chatEdit->history());
+        m_currentRoom->connection()->disconnect(this);
+        m_currentRoom->disconnect( this );
+    }
     readMarkerOnScreen = false;
     maybeReadTimer.stop();
     indicesOnScreen.clear();
     m_chatEdit->cancelCompletion();
-    if( m_currentRoom )
-    {
-        m_currentRoom->setCachedInput( m_chatEdit->toPlainText() );
-        m_currentRoom->disconnect( this );
-        m_currentRoom->setShown(false);
-        roomHistories.insert(m_currentRoom, m_chatEdit->history());
-    }
+
     m_currentRoom = room;
     if( m_currentRoom )
     {
+        using namespace QMatrixClient;
+        m_imageProvider->setConnection(room->connection());
         m_chatEdit->setText( m_currentRoom->cachedInput() );
         m_chatEdit->setHistory(roomHistories.value(m_currentRoom));
         m_chatEdit->setFocus();
         m_chatEdit->moveCursor(QTextCursor::End);
-        connect( m_currentRoom, &QMatrixClient::Room::typingChanged, this, &ChatRoomWidget::typingChanged );
-        connect( m_currentRoom, &QMatrixClient::Room::topicChanged, this, &ChatRoomWidget::topicChanged );
-        connect( m_currentRoom, &QMatrixClient::Room::readMarkerMoved, this, [this] {
+        connect( m_currentRoom, &Room::typingChanged,
+                 this, &ChatRoomWidget::typingChanged );
+        connect( m_currentRoom, &Room::topicChanged,
+                 this, &ChatRoomWidget::topicChanged );
+        connect( m_currentRoom, &Room::readMarkerMoved, this, [this] {
             const auto rm = m_currentRoom->readMarker();
             readMarkerOnScreen =
                 rm != m_currentRoom->timelineEdge() &&
@@ -139,21 +138,20 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
             reStartShownTimer();
             emit readMarkerMoved();
         });
+        connect(m_currentRoom->connection(), &Connection::loggedOut, this, [=]
+        {
+            qWarning() << "Logged out, escaping the room";
+            setRoom(nullptr);
+        });
+
         m_currentRoom->setShown(true);
-    }
+    } else
+        m_imageProvider->setConnection(nullptr);
     topicChanged();
     typingChanged();
     m_messageModel->changeRoom( m_currentRoom );
-    //m_messageView->scrollToBottom();
     QObject* rootItem = m_quickView->rootObject();
     QMetaObject::invokeMethod(rootItem, "scrollToBottom");
-}
-
-void ChatRoomWidget::setConnection(QMatrixClient::Connection* connection)
-{
-    setRoom(nullptr);
-    m_currentConnection = connection;
-    m_imageProvider->setConnection(connection);
 }
 
 void ChatRoomWidget::typingChanged()
@@ -187,8 +185,6 @@ void ChatRoomWidget::topicChanged()
 void ChatRoomWidget::sendInput()
 {
     qDebug() << "sendLine";
-    if( !m_currentConnection )
-        return;
     QString text = m_chatEdit->toPlainText();
     if ( text.isEmpty() )
         return;
@@ -204,7 +200,7 @@ void ChatRoomWidget::sendInput()
         {
             if( text.startsWith("/leave") )
             {
-                m_currentConnection->leaveRoom( m_currentRoom );
+                m_currentRoom->leaveRoom();
             }
             else if( text.startsWith("/me") )
             {
@@ -333,8 +329,7 @@ void ChatRoomWidget::timerEvent(QTimerEvent* qte)
 
 void ChatRoomWidget::markShownAsRead()
 {
-    // FIXME: This doesn't cover a case when a single message doesn't fit
-    // on the screen.
+    // FIXME: a case when a single message doesn't fit on the screen.
     if (m_currentRoom && readMarkerOnScreen)
     {
         const auto iter = m_currentRoom->findInTimeline(indicesOnScreen.back());

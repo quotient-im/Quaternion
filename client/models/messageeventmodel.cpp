@@ -74,7 +74,10 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
 
     beginResetModel();
     if( m_currentRoom )
+    {
         m_currentRoom->disconnect( this );
+        qDebug() << "Disconnected from" << m_currentRoom->id();
+    }
 
     m_currentRoom = room;
     if( room )
@@ -93,7 +96,8 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                 });
         connect(m_currentRoom, &Room::addedMessages,
                 this, &MessageEventModel::endInsertRows);
-        qDebug() << "connected" << room;
+        qDebug() << "Connected to room" << room->id()
+                 << "as" << room->connection()->userId();
     }
     endResetModel();
 }

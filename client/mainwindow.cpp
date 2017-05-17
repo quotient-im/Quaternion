@@ -23,9 +23,7 @@
 #include <QtCore/QDebug>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QMenuBar>
-#include <QtWidgets/QMenu>
 #include <QtWidgets/QMessageBox>
-#include <QtWidgets/QAction>
 #include <QtWidgets/QInputDialog>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QLabel>
@@ -34,7 +32,6 @@
 
 #include "jobs/joinroomjob.h"
 #include "quaternionconnection.h"
-#include "quaternionroom.h"
 #include "roomlistdock.h"
 #include "userlistdock.h"
 #include "chatroomwidget.h"
@@ -42,10 +39,11 @@
 #include "systemtray.h"
 #include "settings.h"
 
+class QuaternionRoom;
+
 MainWindow::MainWindow()
 {
     setWindowIcon(QIcon(":/icon.png"));
-    connection = nullptr;
     roomListDock = new RoomListDock(this);
     addDockWidget(Qt::LeftDockWidgetArea, roomListDock);
     userListDock = new UserListDock(this);
@@ -53,8 +51,12 @@ MainWindow::MainWindow()
     chatRoomWidget = new ChatRoomWidget(this);
     setCentralWidget(chatRoomWidget);
     connect( chatRoomWidget, &ChatRoomWidget::joinCommandEntered, this, &MainWindow::joinRoom );
-    connect( roomListDock, &RoomListDock::roomSelected, chatRoomWidget, &ChatRoomWidget::setRoom );
-    connect( roomListDock, &RoomListDock::roomSelected, userListDock, &UserListDock::setRoom );
+    connect( roomListDock, &RoomListDock::roomSelected, [=](QuaternionRoom *r)
+    {
+        setWindowTitle(r->displayName());
+        chatRoomWidget->setRoom(r);
+        userListDock->setRoom(r);
+    } );
     connect( chatRoomWidget, &ChatRoomWidget::showStatusMessage, statusBar(), &QStatusBar::showMessage );
     systemTray = new SystemTray(this);
     createMenu();
@@ -77,16 +79,17 @@ ChatRoomWidget* MainWindow::getChatRoomWidget() const
 void MainWindow::createMenu()
 {
     // Connection menu
-    auto connectionMenu = menuBar()->addMenu(tr("&Connection"));
+    connectionMenu = menuBar()->addMenu(tr("&Accounts"));
 
-    loginAction = connectionMenu->addAction(tr("&Login..."));
-    connect( loginAction, &QAction::triggered, [=]{ showLoginWindow(); } );
-
-    logoutAction = connectionMenu->addAction(tr("&Logout"));
-    connect( logoutAction, &QAction::triggered, [=]{ logout(); } );
-    logoutAction->setEnabled(false); // we start in a logged out state
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+    connectionMenu->addAction(tr("&Login..."), this, [=]{ showLoginWindow(); } );
+#else
+    connectionMenu->addAction(tr("&Login..."), this, SLOT(showLoginWindow()));
+#endif
 
     connectionMenu->addSeparator();
+    // Logout actions will be added between these two separators - see onConnected()
+    accountListGrowthPoint = connectionMenu->addSeparator();
 
     auto quitAction = connectionMenu->addAction(tr("&Quit"));
     quitAction->setShortcut(QKeySequence::Quit);
@@ -142,36 +145,31 @@ void MainWindow::initialize()
     invokeLogin();
 }
 
-void MainWindow::setConnection(QuaternionConnection* newConnection)
+void MainWindow::addConnection(QuaternionConnection* c)
 {
-    if (connection)
-    {
-        chatRoomWidget->setConnection(nullptr);
-        roomListDock->setConnection(nullptr);
-        systemTray->setConnection(nullptr);
+    Q_ASSERT_X(c, __FUNCTION__, "Attempt to add a null connection");
 
-        connection->disconnectFromServer();
-        connection->disconnect(); // Disconnect everybody from all connection's signals
-        connection->deleteLater();
-    }
+    connections.push_back(c);
 
-    connection = newConnection;
-    loginAction->setEnabled(connection == nullptr); // Don't support multiple accounts yet
-    logoutAction->setEnabled(connection != nullptr);
+    roomListDock->addConnection(c);
 
-    if (connection)
-    {
-        chatRoomWidget->setConnection(connection);
-        roomListDock->setConnection(connection);
-        systemTray->setConnection(connection);
+    using QMatrixClient::Connection;
+    connect( c, &Connection::connected, this, [=]{ onConnected(c); } );
+    connect( c, &Connection::syncDone, this, [=]{ gotEvents(c); } );
+    connect( c, &Connection::loggedOut, this, [=]{ dropConnection(c); } );
+    connect( c, &Connection::networkError, this, [=]{ networkError(c); } );
+    connect( c, &Connection::loginError,
+             this, [=](const QString& msg){ loginError(c, msg); } );
+    connect( c, &Connection::newRoom, systemTray, &SystemTray::newRoom );
+}
 
-        using QMatrixClient::Connection;
-        connect( connection, &Connection::networkError, this, &MainWindow::networkError );
-        connect( connection, &Connection::syncDone, this, &MainWindow::gotEvents );
-        connect( connection, &Connection::connected, this, &MainWindow::initialSync );
-        connect( connection, &Connection::loginError, this, &MainWindow::loggedOut );
-        connect( connection, &Connection::loggedOut, [=]{ loggedOut(); } );
-    }
+void MainWindow::dropConnection(QuaternionConnection* c)
+{
+    Q_ASSERT_X(c, __FUNCTION__, "Attempt to drop a null connection");
+
+    connections.removeOne(c);
+    Q_ASSERT(!connections.contains(c));
+    c->deleteLater();
 }
 
 void MainWindow::showLoginWindow(const QString& statusMessage)
@@ -180,8 +178,7 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
     dialog.setStatusMessage(statusMessage);
     if( dialog.exec() )
     {
-        setConnection(dialog.connection());
-
+        auto connection = dialog.connection();
         QMatrixClient::AccountSettings account(connection->userId());
         account.setKeepLoggedIn(dialog.keepLoggedIn());
         if (dialog.keepLoggedIn())
@@ -191,7 +188,8 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
         }
         account.sync();
 
-        initialSync();
+        addConnection(connection);
+        onConnected(connection);
     }
 }
 
@@ -204,52 +202,56 @@ void MainWindow::invokeLogin()
         AccountSettings account { accountId };
         if (!account.accessToken().isEmpty())
         {
-            // TODO: Support multiple accounts
-            // Right now the code just finds the first configured account,
-            // rather than connects all available.
-            setConnection(new QuaternionConnection(account.homeserver()));
-            connection->connectWithToken(account.userId(), account.accessToken());
-            return;
+            auto c = new QuaternionConnection(account.homeserver());
+            addConnection(c);
+            c->connectWithToken(account.userId(), account.accessToken());
         }
     }
-    // No accounts to automatically log into
-    showLoginWindow();
+    if (connections.isEmpty())
+        showLoginWindow();
 }
 
-void MainWindow::logout()
+void MainWindow::loginError(QuaternionConnection* c, const QString& message)
 {
-    if( !connection )
-        return; // already logged out
-
-    QMatrixClient::AccountSettings account { connection->userId() };
-    account.clearAccessToken();
-    account.sync();
-
-    connection->logout();
-}
-
-void MainWindow::loggedOut(const QString& message)
-{
-    loginAction->setEnabled(true);
-    logoutAction->setEnabled(false);
-    setConnection(nullptr);
+    Q_ASSERT_X(c, __FUNCTION__, "Login error on a null connection");
+    // FIXME: Make ConnectionManager instead of such hacks
+    emit c->loggedOut(); // Short circuit login error to logged-out event
     showLoginWindow(message);
 }
 
-void MainWindow::initialSync()
+void MainWindow::logout(QuaternionConnection* c)
 {
-    setWindowTitle(connection->userId());
+    Q_ASSERT_X(c, __FUNCTION__, "Logout on a null connection");
+
+    QMatrixClient::AccountSettings account { c->userId() };
+    account.clearAccessToken();
+    account.sync();
+
+    c->logout();
+}
+
+void MainWindow::onConnected(QuaternionConnection* c)
+{
+    Q_ASSERT_X(c, __FUNCTION__, "Null connection");
+    auto logoutAction = new QAction(tr("Logout %1").arg(c->userId()), c);
+    connectionMenu->insertAction(accountListGrowthPoint, logoutAction);
+    connect( logoutAction, &QAction::triggered, this, [=]{ logout(c); } );
+    connect( c, &QMatrixClient::Connection::destroyed, this, [=]
+    {
+        connectionMenu->removeAction(logoutAction);
+    } );
+
     busyLabel->show();
     busyIndicator->start();
     statusBar()->showMessage("Syncing, please wait...");
-    getNewEvents();
+    getNewEvents(c);
 }
 
 void MainWindow::joinRoom(const QString& roomAlias)
 {
-    if (!connection)
+    if (connections.isEmpty())
     {
-        QMessageBox::warning(this, tr("No connection"),
+        QMessageBox::warning(this, tr("No connections"),
             tr("Please connect to a server before joining a room"),
             QMessageBox::Close, QMessageBox::Close);
         return;
@@ -265,7 +267,8 @@ void MainWindow::joinRoom(const QString& roomAlias)
         return;
 
     using QMatrixClient::JoinRoomJob;
-    auto job = connection->joinRoom(room);
+    // FIXME: only the first account is used to join a room
+    auto job = connections.front()->joinRoom(room);
     connect(job, &QMatrixClient::BaseJob::failure, this, [=] {
         QMessageBox messageBox(QMessageBox::Warning,
                                tr("Failed to join room"),
@@ -289,37 +292,44 @@ void MainWindow::joinRoom(const QString& roomAlias)
     });
 }
 
-void MainWindow::getNewEvents()
+void MainWindow::getNewEvents(QuaternionConnection* c)
 {
-    connection->sync(30*1000);
+    Q_ASSERT_X(c, __FUNCTION__, "Attempt to sync on null connection");
+    c->sync(30*1000);
 }
 
-void MainWindow::gotEvents()
+void MainWindow::gotEvents(QuaternionConnection* c)
 {
+    Q_ASSERT_X(c, __FUNCTION__, "Null connection");
     if( busyLabel->isVisible() )
     {
         busyLabel->hide();
         busyIndicator->stop();
-        statusBar()->showMessage(tr("Connected as %1").arg(connection->userId()), 5000);
+        statusBar()->showMessage(tr("Connected as %1").arg(c->userId()), 5000);
     }
-    getNewEvents();
+    getNewEvents(c);
 }
 
-void showMillisToRecon(QStatusBar* statusBar, int millis)
+void MainWindow::showMillisToRecon(QuaternionConnection* c)
 {
-    statusBar->showMessage(
-        MainWindow::tr("Network error when syncing; will retry within %1 seconds")
-        .arg((millis + 999) / 1000)); // Integer ceiling
+    // TODO: when there are several connections and they are failing, these
+    // notifications render a mess, fighting for the same status bar. Either
+    // switch to a set of icons in the status bar or find a stacking
+    // notifications engine already instead of the status bar.
+    statusBar()->showMessage(
+        tr("Couldn't connect to the server as %1; will retry within %2 seconds")
+        .arg(c->userId()).arg((c->millisToReconnect() + 999) / 1000)); // Integer ceiling
 }
 
-void MainWindow::networkError()
+void MainWindow::networkError(QuaternionConnection* c)
 {
+    Q_ASSERT_X(c, __FUNCTION__, "Network error on a null connection");
     auto timer = new QTimer(this);
-    timer->start(std::min(1000, connection->millisToReconnect()));
-    showMillisToRecon(statusBar(), timer->remainingTime());
+    timer->start(1000);
+    showMillisToRecon(c);
     timer->connect(timer, &QTimer::timeout, [=] {
-        if (connection->millisToReconnect() > 0)
-            showMillisToRecon(statusBar(), connection->millisToReconnect());
+        if (c->millisToReconnect() > 0)
+            showMillisToRecon(c);
         else
         {
             statusBar()->showMessage(tr("Reconnecting..."), 5000);
@@ -330,7 +340,9 @@ void MainWindow::networkError()
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-    setConnection(nullptr);
+    for (auto c: connections)
+        dropConnection(c);
     saveSettings();
     event->accept();
 }
+
