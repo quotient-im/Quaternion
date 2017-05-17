@@ -126,7 +126,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         if( event->type() == EventType::RoomMessage )
         {
             RoomMessageEvent* e = static_cast<RoomMessageEvent*>(event);
-            return QString("%1: %2").arg(senderName, e->body());
+            return QString("%1: %2").arg(senderName, e->plainBody());
         }
         if( event->type() == EventType::RoomMember )
         {
@@ -234,13 +234,13 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
                 {
                     auto fileInfo = static_cast<FileInfo*>(e->content());
                     if (role == ContentRole)
-                        return e->body(); // TODO
+                        return e->plainBody(); // TODO
                     else
                         return fileInfo ? fileInfo->mimetype.name() : "unknown";
                 }
             default:
                 if (role == ContentRole)
-                    return e->body();
+                    return e->plainBody();
                 else
                     return "unknown";
             }

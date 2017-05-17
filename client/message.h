@@ -17,6 +17,8 @@
  *                                                                        *
  **************************************************************************/
 
+#pragma once
+
 #include <QtCore/QDateTime>
 
 namespace QMatrixClient
@@ -35,7 +37,6 @@ class Message
         virtual ~Message();
 
         QMatrixClient::Event* messageEvent() const;
-        QDateTime timestamp() const;
 
         bool highlight() const;
         bool isStatusMessage() const;

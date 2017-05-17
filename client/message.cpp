@@ -41,14 +41,14 @@ Message::Message(QMatrixClient::Connection* connection,
         // Only highlight messages from other users
         if (messageEvent->senderId() != localUser->id())
         {
-            if( messageEvent->body().contains(localUser->id()) )
+            if( messageEvent->plainBody().contains(localUser->id()) )
             {
                 m_isHighlight = true;
             }
             if (room)
             {
                 QString ownDisplayname = room->roomMembername(localUser);
-                if (messageEvent->body().contains(ownDisplayname))
+                if (messageEvent->plainBody().contains(ownDisplayname))
                     m_isHighlight = true;
             }
         }
@@ -62,11 +62,6 @@ Message::~Message()
 QMatrixClient::Event* Message::messageEvent() const
 {
     return m_event;
-}
-
-QDateTime Message::timestamp() const
-{
-    return m_event->timestamp();
 }
 
 bool Message::highlight() const
