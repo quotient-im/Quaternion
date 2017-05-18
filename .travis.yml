@@ -1,13 +1,18 @@
-dist: trusty
 language: cpp
-compiler:
- - gcc
- - clang
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      compiler: gcc
+    - os: linux
+      dist: trusty
+      compiler: clang
+    - os: osx
 install:
- - sudo apt-get update -qq
- - sudo apt-get install -y qt5-default qtdeclarative5-dev
-script:
+ - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; else sudo apt-get update -qq; fi
+ - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install qt5; export PATH="$PATH:/usr/local/opt/qt/bin"; else sudo apt-get install -y qt5-default; fi
  - mkdir build && cd build
+script:
  - cmake ..
  - cmake --build . --target all
 notifications:
