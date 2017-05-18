@@ -10,9 +10,9 @@ matrix:
     - os: osx
 install:
  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; else sudo apt-get update -qq; fi
- - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install qt5; export PATH="$PATH:/usr/local/opt/qt/bin"; else sudo apt-get install -y qt5-default; fi
- - mkdir build && cd build
+ - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install qt5; export PATH="$PATH:/usr/local/opt/qt/bin"; else sudo apt-get install -y qt5-default qtdeclarative5-dev; fi
 script:
+ - mkdir build && cd build
  - cmake ..
  - cmake --build . --target all
 notifications:
