@@ -84,13 +84,13 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
     {
         using namespace QMatrixClient;
         connect(m_currentRoom, &Room::aboutToAddNewMessages,
-                [=](const Events& events)
+                [=](const RoomEvents& events)
                 {
                     beginInsertRows(QModelIndex(),
                                     rowCount(), rowCount() + events.size() - 1);
                 });
         connect(m_currentRoom, &Room::aboutToAddHistoricalMessages,
-                [=](const Events& events)
+                [=](const RoomEvents& events)
                 {
                     beginInsertRows(QModelIndex(), 0, events.size() - 1);
                 });
@@ -117,7 +117,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         return QVariant();
 
     const Message* message = m_currentRoom->messages().at(index.row());;
-    Event* event = message->messageEvent();
+    RoomEvent* event = message->messageEvent();
     // FIXME: Rewind to the name that was at the time of this event
     QString senderName = m_currentRoom->roomMembername(event->senderId());
 
@@ -212,7 +212,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
                 if (role == ContentTypeRole)
                     return "text/html";
                 else {
-                    auto textContent = static_cast<TextContent*>(e->content());
+                    auto textContent = static_cast<const TextContent*>(e->content());
                     if (textContent && textContent->mimeType.inherits("text/html"))
                         return textContent->body;
 
@@ -220,7 +220,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
                 }
             case MessageEventType::Image:
                 {
-                    auto content = static_cast<ImageContent*>(e->content());
+                    auto content = static_cast<const ImageContent*>(e->content());
                     if (role == ContentRole)
                         return QUrl("image://mtx/" +
                                     content->url.host() + content->url.path());
@@ -232,7 +232,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
             case MessageEventType::Video:
             case MessageEventType::Audio:
                 {
-                    auto fileInfo = static_cast<FileInfo*>(e->content());
+                    auto fileInfo = static_cast<const FileInfo*>(e->content());
                     if (role == ContentRole)
                         return e->plainBody(); // TODO
                     else

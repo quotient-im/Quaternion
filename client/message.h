@@ -24,7 +24,7 @@
 namespace QMatrixClient
 {
     class Connection;
-    class Event;
+    class RoomEvent;
     class Room;
 }
 
@@ -32,17 +32,15 @@ class Message
 {
     public:
         Message(QMatrixClient::Connection* connection,
-                QMatrixClient::Event* event,
+                QMatrixClient::RoomEvent* event,
                 QMatrixClient::Room* room);
-        virtual ~Message();
 
-        QMatrixClient::Event* messageEvent() const;
-
+        QMatrixClient::RoomEvent* messageEvent() const;
         bool highlight() const;
         bool isStatusMessage() const;
 
     private:
-        QMatrixClient::Event* m_event;
+        QMatrixClient::RoomEvent* m_event;
         bool m_isHighlight;
         bool m_isStatusMessage;
 };

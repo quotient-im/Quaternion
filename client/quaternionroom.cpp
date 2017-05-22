@@ -32,9 +32,6 @@ QuaternionRoom::QuaternionRoom(QMatrixClient::Connection* connection, QString ro
     connect( this, &QuaternionRoom::highlightCountChanged, this, &QuaternionRoom::countChanged );
 }
 
-QuaternionRoom::~QuaternionRoom()
-{ }
-
 void QuaternionRoom::setShown(bool shown)
 {
     if( shown == m_shown )
@@ -57,12 +54,12 @@ const QuaternionRoom::Timeline& QuaternionRoom::messages() const
     return m_messages;
 }
 
-inline Message* QuaternionRoom::makeMessage(QMatrixClient::Event* e)
+inline Message* QuaternionRoom::makeMessage(QMatrixClient::RoomEvent* e)
 {
     return new Message(connection(), e, this);
 }
 
-void QuaternionRoom::doAddNewMessageEvents(const QMatrixClient::Events& events)
+void QuaternionRoom::doAddNewMessageEvents(const QMatrixClient::RoomEvents& events)
 {
     Room::doAddNewMessageEvents(events);
 
@@ -71,7 +68,7 @@ void QuaternionRoom::doAddNewMessageEvents(const QMatrixClient::Events& events)
         m_messages.push_back(makeMessage(e));
 }
 
-void QuaternionRoom::doAddHistoricalMessageEvents(const QMatrixClient::Events& events)
+void QuaternionRoom::doAddHistoricalMessageEvents(const QMatrixClient::RoomEvents& events)
 {
     Room::doAddHistoricalMessageEvents(events);
 

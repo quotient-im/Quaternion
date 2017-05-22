@@ -26,7 +26,7 @@
 #include "lib/room.h"
 
 Message::Message(QMatrixClient::Connection* connection,
-                 QMatrixClient::Event* event,
+                 QMatrixClient::RoomEvent* event,
                  QMatrixClient::Room* room)
     : m_event(event)
     , m_isHighlight(false)
@@ -55,11 +55,7 @@ Message::Message(QMatrixClient::Connection* connection,
     }
 }
 
-Message::~Message()
-{
-}
-
-QMatrixClient::Event* Message::messageEvent() const
+QMatrixClient::RoomEvent* Message::messageEvent() const
 {
     return m_event;
 }
