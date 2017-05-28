@@ -54,18 +54,13 @@ const QuaternionRoom::Timeline& QuaternionRoom::messages() const
     return m_messages;
 }
 
-inline Message QuaternionRoom::makeMessage(QMatrixClient::RoomEvent* e)
-{
-    return { connection(), e, this };
-}
-
 void QuaternionRoom::doAddNewMessageEvents(const QMatrixClient::RoomEvents& events)
 {
     Room::doAddNewMessageEvents(events);
 
     m_messages.reserve(m_messages.size() + events.size());
     for (auto e: events)
-        m_messages.push_back(makeMessage(e));
+        m_messages.push_back(Message(e, this));
 }
 
 void QuaternionRoom::doAddHistoricalMessageEvents(const QMatrixClient::RoomEvents& events)
@@ -74,7 +69,7 @@ void QuaternionRoom::doAddHistoricalMessageEvents(const QMatrixClient::RoomEvent
 
     m_messages.reserve(m_messages.size() + events.size());
     for (auto e: events)
-        m_messages.push_front(makeMessage(e));
+        m_messages.push_front(Message(e, this));
 }
 
 void QuaternionRoom::countChanged()

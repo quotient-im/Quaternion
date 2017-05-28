@@ -19,15 +19,12 @@
 
 #include "message.h"
 
-#include "lib/events/event.h"
 #include "lib/events/roommessageevent.h"
 #include "lib/user.h"
 #include "lib/connection.h"
 #include "lib/room.h"
 
-Message::Message(QMatrixClient::Connection* connection,
-                 QMatrixClient::RoomEvent* event,
-                 QMatrixClient::Room* room)
+Message::Message(QMatrixClient::RoomEvent* event, QMatrixClient::Room* room)
     : m_event(event)
     , m_isHighlight(false)
     , m_isStatusMessage(true)
@@ -36,22 +33,15 @@ Message::Message(QMatrixClient::Connection* connection,
     if( event->type() == EventType::RoomMessage )
     {
         m_isStatusMessage = false;
-        RoomMessageEvent* messageEvent = static_cast<RoomMessageEvent*>(event);
-        User* localUser = connection->user();
+        Q_ASSERT(room);
+
+        auto* msgEvent = static_cast<RoomMessageEvent*>(event);
+        User* localUser = room->connection()->user();
         // Only highlight messages from other users
-        if (messageEvent->senderId() != localUser->id())
-        {
-            if( messageEvent->plainBody().contains(localUser->id()) )
-            {
-                m_isHighlight = true;
-            }
-            if (room)
-            {
-                QString ownDisplayname = room->roomMembername(localUser);
-                if (messageEvent->plainBody().contains(ownDisplayname))
-                    m_isHighlight = true;
-            }
-        }
+        m_isHighlight = msgEvent->senderId() != localUser->id() &&
+            (msgEvent->plainBody().contains(localUser->id()) ||
+             msgEvent->plainBody().contains(room->roomMembername(localUser))
+            );
     }
 }
 

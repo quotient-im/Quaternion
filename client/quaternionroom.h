@@ -59,6 +59,4 @@ class QuaternionRoom: public QMatrixClient::Room
         Timeline m_messages;
         bool m_shown;
         QString m_cachedInput;
-
-        Message makeMessage(QMatrixClient::RoomEvent* e);
 };
