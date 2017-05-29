@@ -26,8 +26,6 @@
 
 Message::Message(QMatrixClient::RoomEvent* event, QMatrixClient::Room* room)
     : m_event(event)
-    , m_isHighlight(false)
-    , m_isStatusMessage(true)
 {
     using namespace QMatrixClient;
     if( event->type() == EventType::RoomMessage )

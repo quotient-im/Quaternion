@@ -38,8 +38,8 @@ class Message
         bool isStatusMessage() const;
 
     private:
-        QMatrixClient::RoomEvent* m_event;
-        bool m_isHighlight;
-        bool m_isStatusMessage;
+        QMatrixClient::RoomEvent* m_event = nullptr;
+        bool m_isHighlight = false;
+        bool m_isStatusMessage = true;
 };
 Q_DECLARE_TYPEINFO(Message, Q_MOVABLE_TYPE);
