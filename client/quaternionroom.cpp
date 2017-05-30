@@ -21,7 +21,7 @@
 
 #include <QtCore/QRegularExpression>
 
-#include "message.h"
+#include "lib/connection.h"
 
 QuaternionRoom::QuaternionRoom(QMatrixClient::Connection* connection, QString roomId)
     : QMatrixClient::Room(connection, roomId)
@@ -31,9 +31,6 @@ QuaternionRoom::QuaternionRoom(QMatrixClient::Connection* connection, QString ro
     connect( this, &QuaternionRoom::notificationCountChanged, this, &QuaternionRoom::countChanged );
     connect( this, &QuaternionRoom::highlightCountChanged, this, &QuaternionRoom::countChanged );
 }
-
-QuaternionRoom::~QuaternionRoom()
-{ }
 
 void QuaternionRoom::setShown(bool shown)
 {
@@ -57,27 +54,22 @@ const QuaternionRoom::Timeline& QuaternionRoom::messages() const
     return m_messages;
 }
 
-inline Message* QuaternionRoom::makeMessage(QMatrixClient::Event* e)
-{
-    return new Message(connection(), e, this);
-}
-
-void QuaternionRoom::doAddNewMessageEvents(const QMatrixClient::Events& events)
+void QuaternionRoom::doAddNewMessageEvents(const QMatrixClient::RoomEvents& events)
 {
     Room::doAddNewMessageEvents(events);
 
     m_messages.reserve(m_messages.size() + events.size());
     for (auto e: events)
-        m_messages.push_back(makeMessage(e));
+        m_messages.push_back(Message(e, this));
 }
 
-void QuaternionRoom::doAddHistoricalMessageEvents(const QMatrixClient::Events& events)
+void QuaternionRoom::doAddHistoricalMessageEvents(const QMatrixClient::RoomEvents& events)
 {
     Room::doAddHistoricalMessageEvents(events);
 
     m_messages.reserve(m_messages.size() + events.size());
     for (auto e: events)
-        m_messages.push_front(makeMessage(e));
+        m_messages.push_front(Message(e, this));
 }
 
 void QuaternionRoom::countChanged()

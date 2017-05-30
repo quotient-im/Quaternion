@@ -19,18 +19,16 @@
 
 #pragma once
 
+#include "message.h"
 #include "lib/room.h"
-
-class Message;
 
 class QuaternionRoom: public QMatrixClient::Room
 {
         Q_OBJECT
     public:
-        using Timeline = QMatrixClient::Owning< QList<Message*> >;
+        using Timeline = QVector<Message>;
 
         QuaternionRoom(QMatrixClient::Connection* connection, QString roomId);
-        ~QuaternionRoom();
 
         /**
          * set/get whether this room is currently show to the user.
@@ -51,8 +49,8 @@ class QuaternionRoom: public QMatrixClient::Room
         QString prettyPrint(const QString& plainText) const;
 
     protected:
-        virtual void doAddNewMessageEvents(const QMatrixClient::Events& events) override;
-        virtual void doAddHistoricalMessageEvents(const QMatrixClient::Events& events) override;
+        void doAddNewMessageEvents(const QMatrixClient::RoomEvents& events) override;
+        void doAddHistoricalMessageEvents(const QMatrixClient::RoomEvents& events) override;
 
     private slots:
         void countChanged();
@@ -61,6 +59,4 @@ class QuaternionRoom: public QMatrixClient::Room
         Timeline m_messages;
         bool m_shown;
         QString m_cachedInput;
-
-        Message* makeMessage(QMatrixClient::Event* e);
 };
