@@ -32,13 +32,6 @@ int main( int argc, char* argv[] )
     QApplication::setApplicationDisplayName("Quaternion");
     QApplication::setApplicationVersion("0.0");
 
-    QObject::connect(&app, &QApplication::lastWindowClosed, []{
-        qDebug() << "Last window closed!";
-        // We should not need to do the following, as quitOnLastWindowClosed is set to "true"
-        // might be a bug, see https://forum.qt.io/topic/71112/application-does-not-quit
-        QApplication::postEvent(qApp, new QEvent(QEvent::Quit));
-    });
-
     QCommandLineParser parser;
     parser.setApplicationDescription(QApplication::translate("main", "An IM client for the Matrix protocol"));
     parser.addHelpOption();
