@@ -2,13 +2,11 @@ import QtQuick 2.2
 import QtQuick.Controls 1.0
 import QtQuick.Layouts 1.1
 
-Rectangle {
+Item {
     id: root
 
     SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
     SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
-
-    color: defaultPalette.base
 
     Timer {
         id: scrollTimer
@@ -262,6 +260,7 @@ Rectangle {
                 }
             }
             Rectangle {
+                id: readMarker
                 color: defaultPalette.highlight
                 width: messageModel.room.readMarkerEventId === eventId ? parent.width : 0
                 height: 1
