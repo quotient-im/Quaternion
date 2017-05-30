@@ -21,10 +21,13 @@
 
 #include <QtWidgets/QMainWindow>
 
+namespace QMatrixClient {
+    class Connection;
+}
+
 class RoomListDock;
 class UserListDock;
 class ChatRoomWidget;
-class QuaternionConnection;
 class SystemTray;
 
 class QAction;
@@ -38,13 +41,15 @@ class MainWindow: public QMainWindow
 {
         Q_OBJECT
     public:
+        using Connection = QMatrixClient::Connection;
+
         MainWindow();
         virtual ~MainWindow();
 
         void enableDebug();
 
-        void addConnection(QuaternionConnection* c);
-        void dropConnection(QuaternionConnection* c);
+        void addConnection(Connection* c);
+        void dropConnection(Connection* c);
 
         ChatRoomWidget* getChatRoomWidget() const;
 
@@ -53,21 +58,22 @@ class MainWindow: public QMainWindow
 
     private slots:
         void initialize();
-        void onConnected(QuaternionConnection* c);
+        void onConnected(Connection* c);
         void joinRoom(const QString& roomAlias = {});
-        void getNewEvents(QuaternionConnection* c);
-        void gotEvents(QuaternionConnection* c);
-        void loginError(QuaternionConnection* c, const QString& message = {});
+        void getNewEvents(Connection* c);
+        void gotEvents(Connection* c);
+        void loginError(Connection* c, const QString& message = {});
 
-        void networkError(QuaternionConnection* c);
+        void networkError(Connection* c);
 
         void showLoginWindow(const QString& statusMessage = {});
-        void logout(QuaternionConnection* c);
+        void logout(Connection* c);
     private:
+        QList<Connection*> connections;
+
         RoomListDock* roomListDock = nullptr;
         UserListDock* userListDock = nullptr;
         ChatRoomWidget* chatRoomWidget = nullptr;
-        QList<QuaternionConnection*> connections;
 
         QMovie* busyIndicator = nullptr;
         QLabel* busyLabel = nullptr;
@@ -81,5 +87,5 @@ class MainWindow: public QMainWindow
         void invokeLogin();
         void loadSettings();
         void saveSettings() const;
-        void showMillisToRecon(QuaternionConnection* c);
+        void showMillisToRecon(Connection* c);
 };

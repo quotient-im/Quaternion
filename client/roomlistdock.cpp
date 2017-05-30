@@ -89,7 +89,7 @@ RoomListDock::RoomListDock(QWidget* parent)
     connect(this, &QWidget::customContextMenuRequested, this, &RoomListDock::showContextMenu);
 }
 
-void RoomListDock::addConnection(QuaternionConnection* connection)
+void RoomListDock::addConnection(QMatrixClient::Connection* connection)
 {
     model->addConnection(connection);
 }

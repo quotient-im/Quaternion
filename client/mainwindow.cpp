@@ -145,7 +145,7 @@ void MainWindow::initialize()
     invokeLogin();
 }
 
-void MainWindow::addConnection(QuaternionConnection* c)
+void MainWindow::addConnection(Connection* c)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Attempt to add a null connection");
 
@@ -163,7 +163,7 @@ void MainWindow::addConnection(QuaternionConnection* c)
     connect( c, &Connection::newRoom, systemTray, &SystemTray::newRoom );
 }
 
-void MainWindow::dropConnection(QuaternionConnection* c)
+void MainWindow::dropConnection(Connection* c)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Attempt to drop a null connection");
 
@@ -211,7 +211,7 @@ void MainWindow::invokeLogin()
         showLoginWindow();
 }
 
-void MainWindow::loginError(QuaternionConnection* c, const QString& message)
+void MainWindow::loginError(Connection* c, const QString& message)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Login error on a null connection");
     // FIXME: Make ConnectionManager instead of such hacks
@@ -219,7 +219,7 @@ void MainWindow::loginError(QuaternionConnection* c, const QString& message)
     showLoginWindow(message);
 }
 
-void MainWindow::logout(QuaternionConnection* c)
+void MainWindow::logout(Connection* c)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Logout on a null connection");
 
@@ -230,7 +230,7 @@ void MainWindow::logout(QuaternionConnection* c)
     c->logout();
 }
 
-void MainWindow::onConnected(QuaternionConnection* c)
+void MainWindow::onConnected(Connection* c)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Null connection");
     auto logoutAction = new QAction(tr("Logout %1").arg(c->userId()), c);
@@ -292,13 +292,13 @@ void MainWindow::joinRoom(const QString& roomAlias)
     });
 }
 
-void MainWindow::getNewEvents(QuaternionConnection* c)
+void MainWindow::getNewEvents(Connection* c)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Attempt to sync on null connection");
     c->sync(30*1000);
 }
 
-void MainWindow::gotEvents(QuaternionConnection* c)
+void MainWindow::gotEvents(Connection* c)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Null connection");
     if( busyLabel->isVisible() )
@@ -310,7 +310,7 @@ void MainWindow::gotEvents(QuaternionConnection* c)
     getNewEvents(c);
 }
 
-void MainWindow::showMillisToRecon(QuaternionConnection* c)
+void MainWindow::showMillisToRecon(Connection* c)
 {
     // TODO: when there are several connections and they are failing, these
     // notifications render a mess, fighting for the same status bar. Either
@@ -321,7 +321,7 @@ void MainWindow::showMillisToRecon(QuaternionConnection* c)
         .arg(c->userId()).arg((c->millisToReconnect() + 999) / 1000)); // Integer ceiling
 }
 
-void MainWindow::networkError(QuaternionConnection* c)
+void MainWindow::networkError(Connection* c)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Network error on a null connection");
     auto timer = new QTimer(this);

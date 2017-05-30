@@ -23,15 +23,16 @@
 
 namespace QMatrixClient
 {
+    class Connection;
     class Room;
 }
 
-class QuaternionConnection;
 class QuaternionRoom;
 
 class RoomListModel: public QAbstractListModel
 {
         Q_OBJECT
+        using Connection = QMatrixClient::Connection;
     public:
         enum Roles {
             HasUnreadRole = Qt::UserRole + 1,
@@ -40,8 +41,8 @@ class RoomListModel: public QAbstractListModel
 
         explicit RoomListModel(QObject* parent = nullptr);
 
-        void addConnection(QuaternionConnection* connection);
-        void deleteConnection(QuaternionConnection* connection);
+        void addConnection(Connection* connection);
+        void deleteConnection(Connection* connection);
         QuaternionRoom* roomAt(int row);
 
         QVariant data(const QModelIndex& index, int role) const override;
@@ -53,7 +54,7 @@ class RoomListModel: public QAbstractListModel
         void addRoom(QMatrixClient::Room* room);
 
     private:
-        QList<QuaternionConnection*> m_connections;
+        QList<Connection*> m_connections;
         QList<QuaternionRoom*> m_rooms;
 
         void doAddRoom(QMatrixClient::Room* r);

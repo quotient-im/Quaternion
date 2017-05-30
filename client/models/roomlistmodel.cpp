@@ -19,32 +19,32 @@
 
 #include "roomlistmodel.h"
 
-#include <QtGui/QIcon>
-#include <QtCore/QDebug>
-
-#include "../quaternionconnection.h"
 #include "../quaternionroom.h"
+
+#include "lib/connection.h"
+
+#include <QtGui/QIcon>
 
 RoomListModel::RoomListModel(QObject* parent)
     : QAbstractListModel(parent)
 { }
 
-void RoomListModel::addConnection(QuaternionConnection* connection)
+void RoomListModel::addConnection(Connection* connection)
 {
     Q_ASSERT(connection);
 
     beginResetModel();
     m_connections.push_back(connection);
-    connect( connection, &QuaternionConnection::newRoom,
+    connect( connection, &Connection::newRoom,
              this, &RoomListModel::addRoom );
-    connect( connection, &QuaternionConnection::loggedOut,
+    connect( connection, &Connection::loggedOut,
              this, [=]{ deleteConnection(connection); } );
     for( auto r: connection->roomMap() )
         doAddRoom(r);
     endResetModel();
 }
 
-void RoomListModel::deleteConnection(QuaternionConnection* connection)
+void RoomListModel::deleteConnection(Connection* connection)
 {
     Q_ASSERT(connection);
 
