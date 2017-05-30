@@ -63,7 +63,6 @@ include_directories(lib)
 
 # Set up source files
 set(quaternion_SRCS
-    client/quaternionconnection.cpp
     client/quaternionroom.cpp
     client/message.cpp
     client/imageprovider.cpp

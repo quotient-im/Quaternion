@@ -44,7 +44,6 @@ class MainWindow: public QMainWindow
         using Connection = QMatrixClient::Connection;
 
         MainWindow();
-        virtual ~MainWindow();
 
         void enableDebug();
 
@@ -68,6 +67,7 @@ class MainWindow: public QMainWindow
 
         void showLoginWindow(const QString& statusMessage = {});
         void logout(Connection* c);
+
     private:
         QList<Connection*> connections;
 

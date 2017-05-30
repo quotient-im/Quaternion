@@ -31,7 +31,7 @@
 #include <QtGui/QCloseEvent>
 
 #include "jobs/joinroomjob.h"
-#include "quaternionconnection.h"
+#include "lib/connection.h"
 #include "roomlistdock.h"
 #include "userlistdock.h"
 #include "chatroomwidget.h"
@@ -43,6 +43,7 @@ class QuaternionRoom;
 
 MainWindow::MainWindow()
 {
+    Connection::setRoomType<QuaternionRoom>();
     setWindowIcon(QIcon(":/icon.png"));
     roomListDock = new RoomListDock(this);
     addDockWidget(Qt::LeftDockWidgetArea, roomListDock);
@@ -65,10 +66,6 @@ MainWindow::MainWindow()
     show();
     systemTray->show();
     QTimer::singleShot(0, this, SLOT(initialize()));
-}
-
-MainWindow::~MainWindow()
-{
 }
 
 ChatRoomWidget* MainWindow::getChatRoomWidget() const
@@ -153,7 +150,6 @@ void MainWindow::addConnection(Connection* c)
 
     roomListDock->addConnection(c);
 
-    using QMatrixClient::Connection;
     connect( c, &Connection::connected, this, [=]{ onConnected(c); } );
     connect( c, &Connection::syncDone, this, [=]{ gotEvents(c); } );
     connect( c, &Connection::loggedOut, this, [=]{ dropConnection(c); } );
@@ -202,7 +198,7 @@ void MainWindow::invokeLogin()
         AccountSettings account { accountId };
         if (!account.accessToken().isEmpty())
         {
-            auto c = new QuaternionConnection(account.homeserver());
+            auto c = new Connection(account.homeserver());
             addConnection(c);
             c->connectWithToken(account.userId(), account.accessToken());
         }
@@ -236,7 +232,7 @@ void MainWindow::onConnected(Connection* c)
     auto logoutAction = new QAction(tr("Logout %1").arg(c->userId()), c);
     connectionMenu->insertAction(accountListGrowthPoint, logoutAction);
     connect( logoutAction, &QAction::triggered, this, [=]{ logout(c); } );
-    connect( c, &QMatrixClient::Connection::destroyed, this, [=]
+    connect( c, &Connection::destroyed, this, [=]
     {
         connectionMenu->removeAction(logoutAction);
     } );

@@ -115,7 +115,7 @@ void LoginDialog::login()
     QString user = userEdit->text();
     QString password = passwordEdit->text();
 
-    m_connection.reset(new QuaternionConnection(url));
+    m_connection.reset(new Connection(url));
 
     connect( m_connection.data(), &Connection::connected,
              this, &QDialog::accept );
