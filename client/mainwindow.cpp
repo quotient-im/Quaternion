@@ -178,7 +178,7 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
     dialog.setStatusMessage(statusMessage);
     if( dialog.exec() )
     {
-        auto connection = dialog.connection();
+        auto connection = dialog.releaseConnection();
         QMatrixClient::AccountSettings account(connection->userId());
         account.setKeepLoggedIn(dialog.keepLoggedIn());
         if (dialog.keepLoggedIn())

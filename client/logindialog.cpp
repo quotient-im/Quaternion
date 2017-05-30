@@ -32,7 +32,6 @@
 
 LoginDialog::LoginDialog(QWidget* parent)
     : QDialog(parent)
-    , m_connection(nullptr)
 {
     serverEdit = new QLineEdit("https://matrix.org");
     userEdit = new QLineEdit();
@@ -98,9 +97,9 @@ void LoginDialog::setStatusMessage(const QString& msg)
     statusLabel->setText(msg);
 }
 
-QuaternionConnection* LoginDialog::connection() const
+QMatrixClient::Connection* LoginDialog::releaseConnection()
 {
-    return m_connection;
+    return m_connection.take();
 }
 
 bool LoginDialog::keepLoggedIn() const
@@ -116,25 +115,19 @@ void LoginDialog::login()
     QString user = userEdit->text();
     QString password = passwordEdit->text();
 
-    setConnection(new QuaternionConnection(url));
+    m_connection.reset(new QuaternionConnection(url));
 
-    connect( m_connection, &QMatrixClient::Connection::connected, this, &QDialog::accept );
-    connect( m_connection, &QMatrixClient::Connection::loginError, this, &LoginDialog::error );
+    connect( m_connection.data(), &Connection::connected,
+             this, &QDialog::accept );
+    connect( m_connection.data(), &Connection::loginError,
+             this, &LoginDialog::error );
     m_connection->connectToServer(user, password);
 }
 
 void LoginDialog::error(QString error)
 {
-    setStatusMessage( error );
-    setConnection(nullptr);
+    setStatusMessage(error);
+    m_connection.reset();
     setDisabled(false);
 }
 
-void LoginDialog::setConnection(QuaternionConnection* connection)
-{
-    if (m_connection != nullptr) {
-        m_connection->deleteLater();
-    }
-
-    m_connection = connection;
-}

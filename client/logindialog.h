@@ -19,22 +19,25 @@
 
 #pragma once
 
+#include "lib/connection.h"
+
 #include <QtWidgets/QDialog>
 
 class QLineEdit;
 class QPushButton;
 class QLabel;
 class QCheckBox;
-class QuaternionConnection;
 
 class LoginDialog : public QDialog
 {
         Q_OBJECT
     public:
-        LoginDialog(QWidget* parent = nullptr);
+        using Connection = QMatrixClient::Connection;
+
+        explicit LoginDialog(QWidget* parent = nullptr);
 
         void setStatusMessage(const QString& msg);
-        QuaternionConnection* connection() const;
+        QMatrixClient::Connection* releaseConnection();
         bool keepLoggedIn() const;
 
     private slots:
@@ -49,7 +52,5 @@ class LoginDialog : public QDialog
         QLabel* statusLabel;
         QCheckBox* saveTokenCheck;
         
-        QuaternionConnection* m_connection;
-
-        void setConnection(QuaternionConnection* connection);
+        QScopedPointer<Connection, QScopedPointerDeleteLater> m_connection;
 };
