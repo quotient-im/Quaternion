@@ -79,7 +79,7 @@ If your run Linux and your distribution supports flatpak, you can easily build a
 ```
 git clone https://github.com/Fxrh/Quaternion.git --recursive
 cd Quaternion/flatpak
-./setup_repo.sh
+./setup_runtime.sh
 ./build.sh
 flatpak --user install quaternion-nightly com.github.quaternion
 ```
