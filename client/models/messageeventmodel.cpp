@@ -197,7 +197,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         return senderName;
     }
 
-    if (role == ContentTypeRole  || role == ContentRole)
+    if (role == ContentTypeRole || role == ContentRole)
     {
         if( event->type() == EventType::RoomMessage )
         {
@@ -227,24 +227,15 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
                     else
                         return content->mimetype.name();
                 }
-            case MessageEventType::File:
-            case MessageEventType::Location:
-            case MessageEventType::Video:
-            case MessageEventType::Audio:
-                {
-                    auto fileInfo = static_cast<const FileInfo*>(e->content());
-                    if (role == ContentRole)
-                        return e->plainBody(); // TODO
-                    else
-                        return fileInfo ? fileInfo->mimetype.name() : "unknown";
-                }
             default:
                 if (role == ContentRole)
                     return e->plainBody();
                 else
-                    return "unknown";
+                    return "text/plain";
             }
         }
+        if (role == ContentTypeRole)
+            return "text/plain";
         if( event->type() == EventType::RoomMember )
         {
             RoomMemberEvent* e = static_cast<RoomMemberEvent*>(event);
