@@ -27,6 +27,7 @@
 #include <QtQuick/QQuickView>
 #include <QtQuick/QQuickItem>
 
+#include "lib/events/roommessageevent.h"
 #include "lib/user.h"
 #include "lib/connection.h"
 #include "models/messageeventmodel.h"
@@ -198,6 +199,7 @@ void ChatRoomWidget::sendInput()
     else // Commands available only in the room context
         if (m_currentRoom)
         {
+            using MsgType = QMatrixClient::RoomMessageEvent::MsgType;
             if( text.startsWith("/leave") )
             {
                 m_currentRoom->leaveRoom();
@@ -205,12 +207,12 @@ void ChatRoomWidget::sendInput()
             else if( text.startsWith("/me") )
             {
                 text.remove(0, 3);
-                m_currentRoom->postMessage("m.emote", text);
+                m_currentRoom->postMessage(text, MsgType::Emote);
             }
             else if( text.startsWith("//") )
             {
                 text.remove(0, 1);
-                m_currentRoom->postMessage("m.text", text);
+                m_currentRoom->postMessage(text);
             }
             else if( text.startsWith('/') )
             {
@@ -218,7 +220,7 @@ void ChatRoomWidget::sendInput()
                     tr("Unknown command. Use // to send this line literally"), 5000);
                 return;
             } else
-                m_currentRoom->postMessage("m.text", text);
+                m_currentRoom->postMessage(text);
         }
     m_chatEdit->saveInput();
 }

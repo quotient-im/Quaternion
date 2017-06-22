@@ -197,7 +197,14 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         return senderName;
     }
 
-    if (role == ContentTypeRole || role == ContentRole)
+    if (role == ContentTypeRole)
+    {
+        if (event->type() == EventType::RoomMessage)
+            return static_cast<RoomMessageEvent*>(event)->mimeType().name();
+        return "text/plain";
+    }
+
+    if (role == ContentRole)
     {
         if( event->type() == EventType::RoomMessage )
         {
@@ -209,9 +216,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
             case MessageEventType::Emote:
             case MessageEventType::Text:
             case MessageEventType::Notice:
-                if (role == ContentTypeRole)
-                    return "text/html";
-                else {
+                {
                     auto textContent = static_cast<const TextContent*>(e->content());
                     if (textContent && textContent->mimeType.inherits("text/html"))
                         return textContent->body;
@@ -221,21 +226,13 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
             case MessageEventType::Image:
                 {
                     auto content = static_cast<const ImageContent*>(e->content());
-                    if (role == ContentRole)
-                        return QUrl("image://mtx/" +
-                                    content->url.host() + content->url.path());
-                    else
-                        return content->mimetype.name();
+                    return QUrl("image://mtx/" +
+                                content->url.host() + content->url.path());
                 }
             default:
-                if (role == ContentRole)
-                    return e->plainBody();
-                else
-                    return "text/plain";
+                return e->plainBody();
             }
         }
-        if (role == ContentTypeRole)
-            return "text/plain";
         if( event->type() == EventType::RoomMember )
         {
             RoomMemberEvent* e = static_cast<RoomMemberEvent*>(event);
