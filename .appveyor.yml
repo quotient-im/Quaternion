@@ -11,21 +11,21 @@ environment:
     PLATFORM: x86
 
 init:
-  - call "%QTDIR%\bin\qtenv2.bat"
-  - set PATH=C:\Qt\Tools\QtCreator\bin;%PATH%
-  - call "%ProgramFiles(x86)%\%VS_FOLDER%\VC\vcvarsall.bat" %platform%
-  - cd /D "%APPVEYOR_BUILD_FOLDER%"
+- call "%QTDIR%\bin\qtenv2.bat"
+- set PATH=C:\Qt\Tools\QtCreator\bin;%PATH%
+- call "%ProgramFiles(x86)%\%VS_FOLDER%\VC\vcvarsall.bat" %platform%
+- cd /D "%APPVEYOR_BUILD_FOLDER%"
 
 before_build:
-  - git submodule update --init --recursive
-  - cmake -G "NMake Makefiles JOM" -H. -Bbuild -DCMAKE_CXX_FLAGS="/EHsc /W3" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="%DEPLOY_DIR%"
+- git submodule update --init --recursive
+- cmake -G "NMake Makefiles JOM" -H. -Bbuild -DCMAKE_CXX_FLAGS="/EHsc /W3" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="%DEPLOY_DIR%"
 
 build_script:
-  - cmake --build build
+- cmake --build build
 
 after_build:
-  - cmake --build build --target install
-  - 7z a quaternion.zip "%DEPLOY_DIR%\"
+- cmake --build build --target install
+- 7z a quaternion.zip "%DEPLOY_DIR%\"
 
 # Uncomment this to connect to the AppVeyor build worker
 #on_finish:
