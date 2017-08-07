@@ -23,16 +23,13 @@
 #include <QtCore/QDebug>
 
 #include "../quaternionroom.h"
-#include "../message.h"
 #include "lib/connection.h"
 #include "lib/user.h"
-#include "lib/events/roommessageevent.h"
 #include "lib/events/roommemberevent.h"
 #include "lib/events/roomnameevent.h"
 #include "lib/events/roomaliasesevent.h"
 #include "lib/events/roomcanonicalaliasevent.h"
 #include "lib/events/roomtopicevent.h"
-#include "lib/events/unknownevent.h"
 
 enum EventRoles {
     EventTypeRole = Qt::UserRole + 1,
@@ -62,9 +59,6 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
 MessageEventModel::MessageEventModel(QObject* parent)
     : QAbstractListModel(parent)
     , m_currentRoom(nullptr)
-{ }
-
-MessageEventModel::~MessageEventModel()
 { }
 
 void MessageEventModel::changeRoom(QuaternionRoom* room)
@@ -200,7 +194,12 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     if (role == ContentTypeRole)
     {
         if (event->type() == EventType::RoomMessage)
-            return static_cast<RoomMessageEvent*>(event)->mimeType().name();
+        {
+            auto rme = static_cast<RoomMessageEvent*>(event);
+            if (rme->mimeType().name() == "text/plain")
+                return "text/html";
+            return rme->mimeType().name();
+        }
         return "text/plain";
     }
 
@@ -210,18 +209,17 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         {
             using namespace MessageEventContent;
 
-            RoomMessageEvent* e = static_cast<RoomMessageEvent*>(event);
+            auto e = static_cast<RoomMessageEvent*>(event);
             switch (e->msgtype())
             {
             case MessageEventType::Emote:
             case MessageEventType::Text:
             case MessageEventType::Notice:
                 {
-                    auto textContent = static_cast<const TextContent*>(e->content());
-                    if (textContent && textContent->mimeType.inherits("text/html"))
-                        return textContent->body;
+                    if (e->mimeType().name() == "text/plain")
+                        return m_currentRoom->prettyPrint(e->plainBody());
 
-                    return m_currentRoom->prettyPrint(e->plainBody());
+                    return static_cast<const TextContent*>(e->content())->body;
                 }
             case MessageEventType::Image:
                 {

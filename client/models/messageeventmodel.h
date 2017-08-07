@@ -33,8 +33,7 @@ class MessageEventModel: public QAbstractListModel
         // itself, leaving only representation of the model to a client.
         Q_PROPERTY(QuaternionRoom* room MEMBER m_currentRoom CONSTANT)
     public:
-        MessageEventModel(QObject* parent = nullptr);
-        virtual ~MessageEventModel();
+        explicit MessageEventModel(QObject* parent = nullptr);
 
         void changeRoom(QuaternionRoom* room);
 
