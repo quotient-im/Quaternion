@@ -30,6 +30,7 @@ Item {
     ListView {
         id: chatView
         anchors.fill: parent
+        anchors.rightMargin: chatViewScroller.width
 
         model: messageModel
         delegate: messageDelegate
@@ -83,7 +84,7 @@ Item {
             labelPositioning: ViewSection.InlineLabels | ViewSection.CurrentLabelAtStart
 
             delegate: Rectangle {
-                width:parent.width
+                width: root.width
                 height: childrenRect.height
                 color: defaultPalette.window
                 Label { text: section.toLocaleString("dd.MM.yyyy") }
@@ -112,7 +113,7 @@ Item {
     Slider {
         id: chatViewScroller
         orientation: Qt.Vertical
-        anchors.horizontalCenter: chatView.right
+        anchors.left: chatView.right
         anchors.verticalCenter: chatView.verticalCenter
         height: chatView.height / 2
 
@@ -135,6 +136,10 @@ Item {
         Component.onCompleted: {
             // This will cause continuous scrolling while the scroller is out of 0
             chatView.flickEnded.connect(chatViewScroller.valueChanged)
+            // Fix ugly Slider on Windows.
+            if (applicationStyle === "windows") {
+                width = 10
+            }
         }
     }
 
@@ -143,7 +148,7 @@ Item {
 
         Rectangle {
             color: defaultPalette.base
-            width: chatView.width
+            width: root.width
             height: childrenRect.height
 
             // A message is considered shown if its bottom is within the
@@ -257,6 +262,10 @@ Item {
                         tooltip: "Show source"
                         checkable: true
                     }
+                }
+                // Spacer for the chatView Slider
+                Item {
+                    width: chatViewScroller.width
                 }
             }
             Rectangle {
