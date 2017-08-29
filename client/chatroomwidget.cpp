@@ -19,6 +19,8 @@
 
 #include "chatroomwidget.h"
 
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QStyle>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QLabel>
 
@@ -63,6 +65,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     ctxt->setContextProperty("messageModel", m_messageModel);
     ctxt->setContextProperty("controller", this);
     ctxt->setContextProperty("debug", QVariant(false));
+    ctxt->setContextProperty("applicationStyle", QApplication::style()->objectName());
     m_quickView->setSource(QUrl("qrc:///qml/chat.qml"));
     m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
 

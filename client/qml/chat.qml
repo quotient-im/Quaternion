@@ -136,6 +136,10 @@ Item {
         Component.onCompleted: {
             // This will cause continuous scrolling while the scroller is out of 0
             chatView.flickEnded.connect(chatViewScroller.valueChanged)
+            // Fix ugly Slider on Windows.
+            if (applicationStyle === "windows") {
+                width = 10
+            }
         }
     }
 
