@@ -31,7 +31,6 @@ Item {
     ListView {
         id: chatView
         anchors.fill: parent
-        anchors.rightMargin: chatViewScroller.width
 
         model: messageModel
         delegate: messageDelegate
@@ -114,9 +113,29 @@ Item {
     Slider {
         id: chatViewScroller
         orientation: Qt.Vertical
-        anchors.left: chatView.right
+        anchors.right: chatView.right
         anchors.verticalCenter: chatView.verticalCenter
-        height: chatView.height / 2
+
+        style: SliderStyle {
+            // Width and height are swapped below because SliderStyle assumes
+            // a horizontal slider
+            groove: Rectangle {
+                implicitHeight: 3
+                implicitWidth: chatView.height / 2
+                anchors.horizontalCenter: parent.horizontalCenter
+                color: defaultPalette.highlight
+                radius: 3
+            }
+            handle: Rectangle {
+                anchors.centerIn: parent
+                color: defaultPalette.button
+                border.color: defaultPalette.buttonText
+                border.width: 1
+                implicitWidth: 21
+                implicitHeight: 9
+                radius: 9
+            }
+        }
 
         maximumValue: 10.0
         minimumValue: -10.0
@@ -124,13 +143,21 @@ Item {
         activeFocusOnPress: false
         activeFocusOnTab: false
 
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.NoButton
+            onWheel: { } // Disable wheel on the slider
+        }
+
         onPressedChanged: {
-            if (!pressed)
+            if (pressed)
+                chatView.stickToBottom = false
+            else
                 value = 0
         }
 
         onValueChanged: {
-            if (pressed && value)
+            if (value)
                 chatView.flick(0, chatView.height * value)
         }
         Component.onCompleted: {
@@ -144,7 +171,7 @@ Item {
 
         Rectangle {
             color: defaultPalette.base
-            width: root.width
+            width: root.width - chatViewScroller.width
             height: childrenRect.height
 
             // A message is considered shown if its bottom is within the
@@ -258,10 +285,6 @@ Item {
                         tooltip: "Show source"
                         checkable: true
                     }
-                }
-                // Spacer for the chatView Slider
-                Item {
-                    width: chatViewScroller.width
                 }
             }
             Rectangle {
