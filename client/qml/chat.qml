@@ -1,5 +1,6 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.0
+import QtQuick.Controls.Styles 1.0
 import QtQuick.Layouts 1.1
 
 Item {
@@ -117,7 +118,6 @@ Item {
         anchors.verticalCenter: chatView.verticalCenter
         height: chatView.height / 2
 
-        value: -chatView.verticalVelocity / chatView.height
         maximumValue: 10.0
         minimumValue: -10.0
 
