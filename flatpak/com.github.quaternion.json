@@ -4,7 +4,7 @@
     "rename-icon": "quaternion",
     "rename-desktop-file": "quaternion.desktop",
     "runtime": "org.kde.Platform",
-    "runtime-version": "master",
+    "runtime-version": "5.9",
     "sdk": "org.kde.Sdk",
     "command": "quaternion",
     "tags": ["nightly"],
