@@ -230,9 +230,8 @@ QStringList ChatRoomWidget::findCompletionMatches(const QString& pattern) const
     QStringList matches;
     if (m_currentRoom)
     {
-        for(auto user: m_currentRoom->users() )
+        for(auto name: m_currentRoom->memberNames() )
         {
-            QString name = m_currentRoom->roomMembername(user);
             if ( name.startsWith(pattern, Qt::CaseInsensitive) )
             {
                 int ircSuffixPos = name.indexOf(" (IRC)");

@@ -124,7 +124,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
     if( role == Qt::ToolTipRole )
     {
         QString result = QString("<b>%1</b><br>").arg(room->canonicalAlias());
-        result += tr("Room users: %1<br>").arg(room->users().count());
+        result += tr("Room users: %1<br>").arg(room->memberCount());
         if (room->highlightCount() > 0)
             result += tr("Unread mentions: %1<br>").arg(room->highlightCount());
         result += tr("Room ID: %1<br>").arg(room->id());
