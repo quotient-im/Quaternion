@@ -109,7 +109,7 @@ int UserListModel::rowCount(const QModelIndex& parent) const
 
 void UserListModel::userAdded(QMatrixClient::User* user)
 {
-    auto pos = m_currentRoom->memberSorter().lowerBoundIndex(m_users, user);
+    auto pos = findUserPos(user);
     beginInsertRows(QModelIndex(), pos, pos);
     m_users.insert(pos, user);
     endInsertRows();
@@ -118,32 +118,38 @@ void UserListModel::userAdded(QMatrixClient::User* user)
 
 void UserListModel::userRemoved(QMatrixClient::User* user)
 {
-    auto pos = m_currentRoom->memberSorter().lowerBoundIndex(m_users, user);
+    auto pos = findUserPos(user);
     if (pos != m_users.size())
     {
         beginRemoveRows(QModelIndex(), pos, pos);
         m_users.removeAt(pos);
         endRemoveRows();
-        disconnect( user, &QMatrixClient::User::avatarChanged, this, &UserListModel::avatarChanged );
+        user->disconnect(this);
     } else
         qWarning() << "Trying to remove a room member not in the user list";
 }
 
-void UserListModel::memberRenamed(QMatrixClient::User *user)
+void UserListModel::refresh(QMatrixClient::User* user, QVector<int> roles)
 {
-    auto pos = m_currentRoom->memberSorter().lowerBoundIndex(m_users, user);
+    auto pos = findUserPos(user);
     if ( pos != m_users.size() )
-        emit dataChanged(index(pos), index(pos), {Qt::DisplayRole} );
+        emit dataChanged(index(pos), index(pos), roles);
     else
         qWarning() << "Trying to access a room member not in the user list";
 }
 
+void UserListModel::memberRenamed(QMatrixClient::User *user)
+{
+    refresh(user, {Qt::DisplayRole});
+}
+
 void UserListModel::avatarChanged(QMatrixClient::User* user)
 {
-    auto pos = m_currentRoom->memberSorter().lowerBoundIndex(m_users, user);
-    if ( pos != m_users.size() )
-        emit dataChanged(index(pos), index(pos), {Qt::DecorationRole} );
-    else
-        qWarning() << "Trying to access a room member not in the user list";
+    refresh(user, {Qt::DecorationRole});
+}
+
+int UserListModel::findUserPos(QMatrixClient::User* user) const
+{
+    return m_currentRoom->memberSorter().lowerBoundIndex(m_users, user);
 }
 

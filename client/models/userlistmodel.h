@@ -43,10 +43,13 @@ class UserListModel: public QAbstractListModel
     private slots:
         void userAdded(QMatrixClient::User* user);
         void userRemoved(QMatrixClient::User* user);
+        void refresh(QMatrixClient::User* user, QVector<int> roles = {});
         void memberRenamed(QMatrixClient::User* user);
         void avatarChanged(QMatrixClient::User* user);
 
     private:
         QMatrixClient::Room* m_currentRoom;
         QList<QMatrixClient::User*> m_users;
+
+        int findUserPos(QMatrixClient::User* user) const;
 };
