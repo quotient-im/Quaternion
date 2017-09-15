@@ -74,15 +74,15 @@ void ImageProvider::doRequest(QString id, QSize requestedSize, QPixmap* pixmap,
         return;
     }
 
-    auto job = m_connection->getThumbnail(QUrl(id), requestedSize.expandedTo({100,100}));
-    connect( job, &QMatrixClient::MediaThumbnailJob::success, this, [=]()
+    using QMatrixClient::MediaThumbnailJob;
+    auto job = m_connection->callApi<MediaThumbnailJob>(QUrl(id),
+                requestedSize.expandedTo({100,100}));
+    connect( job, &MediaThumbnailJob::success, this, [=]()
     {
         // No need to lock because we don't deal with the ImageProvider state
         qDebug() << "gotImage";
 
-        *pixmap =
-            job->thumbnail().scaled(requestedSize,
-                                    Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        *pixmap = job->scaledThumbnail(requestedSize);
         condition->wakeAll();
     } );
 }
