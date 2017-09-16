@@ -33,12 +33,18 @@ void RoomListModel::addConnection(Connection* connection)
 {
     Q_ASSERT(connection);
 
+    using QMatrixClient::Room;
     beginResetModel();
     m_connections.push_back(connection);
-    connect( connection, &Connection::newRoom,
-             this, &RoomListModel::addRoom );
     connect( connection, &Connection::loggedOut,
              this, [=]{ deleteConnection(connection); } );
+    connect( connection, &Connection::invitedRoom,
+             this, &RoomListModel::updateRoom);
+    connect( connection, &Connection::joinedRoom,
+             this, &RoomListModel::updateRoom);
+    connect( connection, &Connection::leftRoom,
+             this, &RoomListModel::updateRoom);
+
     for( auto r: connection->roomMap() )
         doAddRoom(r);
     endResetModel();
@@ -64,23 +70,66 @@ QuaternionRoom* RoomListModel::roomAt(int row)
     return m_rooms.at(row);
 }
 
-void RoomListModel::addRoom(QMatrixClient::Room* room)
+void RoomListModel::updateRoom(QMatrixClient::Room* room,
+                               QMatrixClient::Room* prev)
 {
-    beginInsertRows(QModelIndex(), m_rooms.count(), m_rooms.count());
-    doAddRoom(room);
-    endInsertRows();
+    // There are two cases when this method is called:
+    // 1. (prev == nullptr) adding a new room to the room list
+    // 2. (prev != nullptr) accepting/rejecting an invitation or inviting to
+    //    the previously left room (in both cases prev has the previous state).
+    if (prev == room)
+    {
+        qCritical() << "RoomListModel::updateRoom: room tried to replace itself";
+        refresh(static_cast<QuaternionRoom*>(room));
+        return;
+    }
+    if (prev && room->id() != prev->id())
+    {
+        qCritical() << "RoomListModel::updateRoom: attempt to update room"
+                    << room->id() << "to" << prev->id();
+        // That doesn't look right but technically we still can do it.
+    }
+    // Ok, we're through with pre-checks, now for the real thing.
+    auto* newRoom = static_cast<QuaternionRoom*>(room);
+    const auto it = std::find_if(m_rooms.begin(), m_rooms.end(),
+          [=](const QuaternionRoom* r) { return r == prev || r == newRoom; });
+    if (it != m_rooms.end())
+    {
+        const int row = it - m_rooms.begin();
+        // There's no guarantee that prev != newRoom
+        if (*it == prev && *it != newRoom)
+        {
+            prev->disconnect(this);
+            m_rooms.replace(row, newRoom);
+            connectRoomSignals(newRoom);
+        }
+        emit dataChanged(index(row), index(row));
+    }
+    else
+    {
+        beginInsertRows(QModelIndex(), m_rooms.count(), m_rooms.count());
+        doAddRoom(newRoom);
+        endInsertRows();
+    }
 }
 
 void RoomListModel::doAddRoom(QMatrixClient::Room* r)
 {
-    QuaternionRoom* room = static_cast<QuaternionRoom*>(r);
+    auto* room = static_cast<QuaternionRoom*>(r);
     m_rooms.append(room);
-    connect( room, &QuaternionRoom::displaynameChanged,
-             this, [=]{ displaynameChanged(room); } );
+    connectRoomSignals(room);
+}
+
+void RoomListModel::connectRoomSignals(QuaternionRoom* room)
+{
+    connect(room, &QuaternionRoom::displaynameChanged,
+            this, [=]{ displaynameChanged(room); } );
     connect( room, &QuaternionRoom::unreadMessagesChanged,
              this, [=]{ unreadMessagesChanged(room); } );
     connect( room, &QuaternionRoom::notificationCountChanged,
              this, [=]{ unreadMessagesChanged(room); } );
+    connect( room, &QuaternionRoom::joinStateChanged,
+             this, [=]{ refresh(room); });
 }
 
 int RoomListModel::rowCount(const QModelIndex& parent) const
@@ -141,13 +190,20 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
 
 void RoomListModel::displaynameChanged(QuaternionRoom* room)
 {
-    int row = m_rooms.indexOf(room);
-    emit dataChanged(index(row), index(row));
+    refresh(room);
 }
 
 void RoomListModel::unreadMessagesChanged(QuaternionRoom* room)
 {
+    refresh(room);
+}
+
+void RoomListModel::refresh(QuaternionRoom* room, const QVector<int>& roles)
+{
     int row = m_rooms.indexOf(room);
-    emit dataChanged(index(row), index(row));
+    if (row == -1)
+        qCritical() << "Room" << room->id() << "not found in the room list";
+    else
+        emit dataChanged(index(row), index(row), roles);
 }
 

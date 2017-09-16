@@ -23,8 +23,10 @@
 
 #include "lib/connection.h"
 
-QuaternionRoom::QuaternionRoom(QMatrixClient::Connection* connection, QString roomId)
-    : QMatrixClient::Room(connection, roomId)
+QuaternionRoom::QuaternionRoom(QMatrixClient::Connection* connection,
+                               QString roomId,
+                               QMatrixClient::JoinState joinState)
+    : QMatrixClient::Room(connection, roomId, joinState)
 {
     m_shown = false;
     m_cachedInput = "";
