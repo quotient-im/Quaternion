@@ -46,7 +46,7 @@ class ChatRoomWidget: public QWidget
 
     signals:
         void joinCommandEntered(const QString& roomAlias);
-        void showStatusMessage(const QString& message, int timeout = 0);
+        void showStatusMessage(const QString& message, int timeout = 0) const;
         void readMarkerMoved();
         void readMarkerCandidateMoved();
 
@@ -81,4 +81,7 @@ class ChatRoomWidget: public QWidget
         QMap<QuaternionRoom*, QVector<QTextDocument*>> roomHistories;
 
         void reStartShownTimer();
+        bool checkArg(const QString& text, const QString& pattern,
+                      const QString& errorMessage) const;
+        bool doSendInput();
 };

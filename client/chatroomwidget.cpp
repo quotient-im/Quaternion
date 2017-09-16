@@ -26,6 +26,8 @@
 #include <QtQml/QQmlEngine>
 #include <QtQuick/QQuickView>
 #include <QtQuick/QQuickItem>
+#include <QtCore/QRegularExpression>
+#include <QtCore/QStringBuilder>
 
 #include "lib/events/roommessageevent.h"
 #include "lib/user.h"
@@ -183,62 +185,120 @@ void ChatRoomWidget::topicChanged()
         m_topicLabel->clear();
 }
 
-QString slashArg(const QString& text, int argNumber = 1)
+bool ChatRoomWidget::checkArg(const QString& text, const QString& pattern,
+                              const QString& errorMessage) const
 {
-    return text.section(' ', argNumber, argNumber, QString::SectionSkipEmpty);
+    if (QRegularExpression(pattern).match(text).hasMatch())
+        return true;
+
+    emit showStatusMessage(errorMessage, 5000);
+    return false;
+}
+
+bool ChatRoomWidget::doSendInput()
+{
+    QString text = m_chatEdit->toPlainText();
+    if ( text.isEmpty() )
+        return false;
+
+    if (!text.startsWith('/'))
+    {
+        m_currentRoom->postMessage(text);
+        return true;
+    }
+    if (text[1] == '/')
+    {
+        text.remove(0, 1);
+        m_currentRoom->postMessage(text);
+        return true;
+    }
+
+    // Process a command
+    static const QRegularExpression re("^/([^ ]+)( (.*))?$");
+    const auto matches = re.match(text);
+    const auto command = matches.capturedRef(1);
+    const auto args = matches.captured(3);
+
+    static const auto ROOM_ID = QStringLiteral("^[#!][-0-9a-z._=]+:.+$");
+    static const auto USER_ID = QStringLiteral("^@[-0-9a-z._=]+:.+$");
+    if (command == "join") // Commands available without current room
+    {
+        if (checkArg(args, ROOM_ID,
+                     tr("/join argument doesn't look like a room ID or alias")))
+        {
+            emit joinCommandEntered(args);
+            return true;
+        }
+        return false;
+    }
+    // --- Add more roomless commands here
+    if (!m_currentRoom) // Commands available only in the room context
+    {
+        emit showStatusMessage(
+            tr("There's no such /command outside of room."
+                   " Start with // to send this line literally"), 5000);
+        return false;
+    }
+    if (command == "leave")
+    {
+        m_currentRoom->leaveRoom();
+        return true;
+    }
+    if (command == "invite")
+    {
+        if (checkArg(args, USER_ID,
+                     tr("/invite argument doesn't look like a user ID")))
+        {
+            m_currentRoom->inviteToRoom(args);
+            return true;
+        }
+        return false;
+    }
+    if (command == "kick")
+    {
+        const auto nextSpacePos = args.indexOf(' ', 1);
+        const auto member = args.left(nextSpacePos);
+        const auto reason = args.mid(nextSpacePos + 1).trimmed();
+        if (checkArg(member, USER_ID,
+                     tr("The first /kick argument doesn't look like a user ID")))
+        {
+            m_currentRoom->kickMember(member, reason);
+            return true;
+        }
+        return false;
+    }
+    using MsgType = QMatrixClient::RoomMessageEvent::MsgType;
+    if (command == "me")
+    {
+        m_currentRoom->postMessage(args, MsgType::Emote);
+        return true;
+    }
+    if (command == "notice")
+    {
+        m_currentRoom->postMessage(args, MsgType::Notice);
+        return true;
+    }
+    if (command == "shrug") // Peeked at Discord
+    {
+        m_currentRoom->postMessage("¯\\_(ツ)_/¯");
+        return true;
+    }
+    if (command == "topic")
+    {
+        m_currentRoom->setTopic(args);
+        return true;
+    }
+    // --- Add more room commands here
+    qDebug() << "Unknown command:" << command;
+    emit showStatusMessage(
+        tr("Unknown /command. Use // to send this line literally"), 5000);
+    return false;
 }
 
 void ChatRoomWidget::sendInput()
 {
-    qDebug() << "sendLine";
-    QString text = m_chatEdit->toPlainText();
-    if ( text.isEmpty() )
-        return;
-
-    // Commands available without current room
-    if( text.startsWith("/join") )
-    {
-        const auto roomName = slashArg(text);
-        emit joinCommandEntered(roomName);
-    }
-    else // Commands available only in the room context
-        if (m_currentRoom)
-        {
-            using MsgType = QMatrixClient::RoomMessageEvent::MsgType;
-            if( text.startsWith("/leave") )
-            {
-                m_currentRoom->leaveRoom();
-            }
-            else if( text.startsWith("/invite") )
-            {
-                const auto member = slashArg(text);
-                m_currentRoom->inviteToRoom(member);
-            }
-            else if( text.startsWith("/kick") )
-            {
-                const auto member = slashArg(text);
-                const auto reason = text.section(' ', 2, -1, QString::SectionSkipEmpty);
-                m_currentRoom->kickMember(member, reason);
-            }
-            else if( text.startsWith("/me") )
-            {
-                text.remove(0, 3);
-                m_currentRoom->postMessage(text, MsgType::Emote);
-            }
-            else if( text.startsWith("//") )
-            {
-                text.remove(0, 1);
-                m_currentRoom->postMessage(text);
-            }
-            else if( text.startsWith('/') )
-            {
-                emit showStatusMessage(
-                    tr("Unknown command. Use // to send this line literally"), 5000);
-                return;
-            } else
-                m_currentRoom->postMessage(text);
-        }
-    m_chatEdit->saveInput();
+    if (doSendInput())
+        m_chatEdit->saveInput();
 }
 
 QStringList ChatRoomWidget::findCompletionMatches(const QString& pattern) const
