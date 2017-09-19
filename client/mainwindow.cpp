@@ -151,7 +151,18 @@ void MainWindow::addConnection(Connection* c)
     roomListDock->addConnection(c);
 
     connect( c, &Connection::connected, this, [=]{ onConnected(c); } );
-    connect( c, &Connection::syncDone, this, [=]{ gotEvents(c); } );
+    connect( c, &Connection::syncDone, this, [=]
+    {
+        gotEvents(c);
+
+        // Borrowed the logic from Quiark's code in Tensor to cache not too
+        // aggressively and not on the first sync. The static variable instance
+        // is created per-closure, meaning per-connection (which is why this
+        // code is not in gotEvents() ).
+        static int counter = 0;
+        if (++counter % 17 == 2)
+            c->saveState();
+    } );
     connect( c, &Connection::loggedOut, this, [=]{ dropConnection(c); } );
     connect( c, &Connection::networkError, this, [=]{ networkError(c); } );
     connect( c, &Connection::loginError,
@@ -240,6 +251,7 @@ void MainWindow::onConnected(Connection* c)
     busyLabel->show();
     busyIndicator->start();
     statusBar()->showMessage("Syncing, please wait...");
+    c->loadState();
     getNewEvents(c);
 }
 
