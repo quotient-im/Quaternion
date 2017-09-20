@@ -18,6 +18,7 @@
  **************************************************************************/
 
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QSplashScreen>
 #include <QtCore/QCommandLineParser>
 #include <QtCore/QDebug>
 
@@ -51,10 +52,17 @@ int main( int argc, char* argv[] )
     bool debugEnabled = parser.isSet(debug);
     qDebug() << "Debug: " << debugEnabled;
 
+    QSplashScreen splash(QPixmap(":/icon.png"));
+    splash.show();
+    app.processEvents();
+
     MainWindow window;
     if( debugEnabled )
         window.enableDebug();
+    splash.finish(&window); // calls app.processEvents()
+
     ActivityDetector ad(app, window); Q_UNUSED(ad);
+    qDebug() << "--- Show time!";
     window.show();
 
     return app.exec();
