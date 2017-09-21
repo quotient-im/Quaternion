@@ -107,18 +107,10 @@ void RoomListDock::showContextMenu(const QPoint& pos)
         return;
     auto room = model->roomAt(index.row());
 
-    if( room->joinState() == QMatrixClient::JoinState::Join )
-    {
-        joinAction->setEnabled(false);
-        leaveAction->setEnabled(true);
-        markAsReadAction->setEnabled(true);
-    }
-    else
-    {
-        joinAction->setEnabled(true);
-        leaveAction->setEnabled(false);
-        markAsReadAction->setEnabled(false);
-    }
+    using QMatrixClient::JoinState;
+    joinAction->setEnabled(room->joinState() != JoinState::Join);
+    leaveAction->setEnabled(room->joinState() != JoinState::Leave);
+    markAsReadAction->setEnabled(room->joinState() == JoinState::Join);
 
     contextMenu->popup(mapToGlobal(pos));
 }

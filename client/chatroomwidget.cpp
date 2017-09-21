@@ -183,6 +183,11 @@ void ChatRoomWidget::topicChanged()
         m_topicLabel->clear();
 }
 
+QString slashArg(const QString& text, int argNumber = 1)
+{
+    return text.section(' ', argNumber, argNumber, QString::SectionSkipEmpty);
+}
+
 void ChatRoomWidget::sendInput()
 {
     qDebug() << "sendLine";
@@ -193,7 +198,7 @@ void ChatRoomWidget::sendInput()
     // Commands available without current room
     if( text.startsWith("/join") )
     {
-        const QString roomName = text.section(' ', 1, 1, QString::SectionSkipEmpty);
+        const auto roomName = slashArg(text);
         emit joinCommandEntered(roomName);
     }
     else // Commands available only in the room context
@@ -203,6 +208,17 @@ void ChatRoomWidget::sendInput()
             if( text.startsWith("/leave") )
             {
                 m_currentRoom->leaveRoom();
+            }
+            else if( text.startsWith("/invite") )
+            {
+                const auto member = slashArg(text);
+                m_currentRoom->inviteToRoom(member);
+            }
+            else if( text.startsWith("/kick") )
+            {
+                const auto member = slashArg(text);
+                const auto reason = text.section(' ', 2, -1, QString::SectionSkipEmpty);
+                m_currentRoom->kickMember(member, reason);
             }
             else if( text.startsWith("/me") )
             {

@@ -28,7 +28,7 @@ class QuaternionRoom: public QMatrixClient::Room
     public:
         using Timeline = QVector<Message>;
 
-        QuaternionRoom(QMatrixClient::Connection* connection, QString roomId);
+        QuaternionRoom(QMatrixClient::Connection* connection, QString roomId, QMatrixClient::JoinState joinState);
 
         /**
          * set/get whether this room is currently show to the user.
