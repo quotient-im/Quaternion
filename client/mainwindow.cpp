@@ -45,6 +45,8 @@ MainWindow::MainWindow()
 {
     Connection::setRoomType<QuaternionRoom>();
     setWindowIcon(QIcon(":/icon.png"));
+    loadSettings();
+
     roomListDock = new RoomListDock(this);
     addDockWidget(Qt::LeftDockWidgetArea, roomListDock);
     userListDock = new UserListDock(this);
@@ -59,13 +61,19 @@ MainWindow::MainWindow()
         userListDock->setRoom(r);
     } );
     connect( chatRoomWidget, &ChatRoomWidget::showStatusMessage, statusBar(), &QStatusBar::showMessage );
-    systemTray = new SystemTray(this);
+
     createMenu();
-    loadSettings();
-    statusBar(); // Make sure it is displayed from the start
-    show();
+    statusBar()->setSizeGripEnabled(false);
+    statusBar()->addPermanentWidget(busyLabel);
+    systemTray = new SystemTray(this);
     systemTray->show();
-    QTimer::singleShot(0, this, SLOT(initialize()));
+
+    busyIndicator = new QMovie(":/busy.gif");
+    busyLabel = new QLabel(this);
+    busyLabel->setMovie(busyIndicator);
+    busyLabel->hide();
+
+    QTimer::singleShot(0, this, SLOT(invokeLogin()));
 }
 
 ChatRoomWidget* MainWindow::getChatRoomWidget() const
@@ -85,7 +93,7 @@ void MainWindow::createMenu()
 #endif
 
     connectionMenu->addSeparator();
-    // Logout actions will be added between these two separators - see onConnected()
+    // Logout actions will be added between these two separators - see addConnection()
     accountListGrowthPoint = connectionMenu->addSeparator();
 
     auto quitAction = connectionMenu->addAction(tr("&Quit"));
@@ -130,18 +138,6 @@ void MainWindow::enableDebug()
     chatRoomWidget->enableDebug();
 }
 
-void MainWindow::initialize()
-{
-    busyIndicator = new QMovie(":/busy.gif");
-    busyLabel = new QLabel(this);
-    busyLabel->setMovie(busyIndicator);
-    busyLabel->hide();
-    statusBar()->setSizeGripEnabled(false);
-    statusBar()->addPermanentWidget(busyLabel);
-
-    invokeLogin();
-}
-
 void MainWindow::addConnection(Connection* c)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Attempt to add a null connection");
@@ -150,13 +146,33 @@ void MainWindow::addConnection(Connection* c)
 
     roomListDock->addConnection(c);
 
-    connect( c, &Connection::connected, this, [=]{ onConnected(c); } );
-    connect( c, &Connection::syncDone, this, [=]{ gotEvents(c); } );
+    connect( c, &Connection::syncDone, this, [=]
+    {
+        gotEvents(c);
+
+        // Borrowed the logic from Quiark's code in Tensor to cache not too
+        // aggressively and not on the first sync. The static variable instance
+        // is created per-closure, meaning per-connection (which is why this
+        // code is not in gotEvents() ).
+        static int counter = 0;
+        if (++counter % 17 == 2)
+            c->saveState();
+    } );
     connect( c, &Connection::loggedOut, this, [=]{ dropConnection(c); } );
     connect( c, &Connection::networkError, this, [=]{ networkError(c); } );
     connect( c, &Connection::loginError,
              this, [=](const QString& msg){ loginError(c, msg); } );
     connect( c, &Connection::newRoom, systemTray, &SystemTray::newRoom );
+
+    auto logoutAction = new QAction(tr("Logout %1").arg(c->userId()), c);
+    connectionMenu->insertAction(accountListGrowthPoint, logoutAction);
+    connect( logoutAction, &QAction::triggered, this, [=]{ logout(c); } );
+    connect( c, &Connection::destroyed, this, [=]
+    {
+        connectionMenu->removeAction(logoutAction);
+    } );
+
+    getNewEvents(c);
 }
 
 void MainWindow::dropConnection(Connection* c)
@@ -185,7 +201,6 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
         account.sync();
 
         addConnection(connection);
-        onConnected(connection);
     }
 }
 
@@ -193,18 +208,25 @@ void MainWindow::invokeLogin()
 {
     using namespace QMatrixClient;
     SettingsGroup settings("Accounts");
-    for(auto accountId: settings.childGroups())
+    for(const auto& accountId: settings.childGroups())
     {
         AccountSettings account { accountId };
         if (!account.accessToken().isEmpty())
         {
             auto c = new Connection(account.homeserver());
-            addConnection(c);
             c->connectWithToken(account.userId(), account.accessToken());
+            c->loadState();
+            addConnection(c);
         }
     }
     if (connections.isEmpty())
-        showLoginWindow();
+        QTimer::singleShot(0, this, SLOT(showLoginWindow()));
+    else
+    {
+        busyLabel->show();
+        busyIndicator->start();
+        statusBar()->showMessage("Syncing, please wait...");
+    }
 }
 
 void MainWindow::loginError(Connection* c, const QString& message)
@@ -224,23 +246,6 @@ void MainWindow::logout(Connection* c)
     account.sync();
 
     c->logout();
-}
-
-void MainWindow::onConnected(Connection* c)
-{
-    Q_ASSERT_X(c, __FUNCTION__, "Null connection");
-    auto logoutAction = new QAction(tr("Logout %1").arg(c->userId()), c);
-    connectionMenu->insertAction(accountListGrowthPoint, logoutAction);
-    connect( logoutAction, &QAction::triggered, this, [=]{ logout(c); } );
-    connect( c, &Connection::destroyed, this, [=]
-    {
-        connectionMenu->removeAction(logoutAction);
-    } );
-
-    busyLabel->show();
-    busyIndicator->start();
-    statusBar()->showMessage("Syncing, please wait...");
-    getNewEvents(c);
 }
 
 void MainWindow::joinRoom(const QString& roomAlias)

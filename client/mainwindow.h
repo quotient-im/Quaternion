@@ -56,8 +56,7 @@ class MainWindow: public QMainWindow
         void closeEvent(QCloseEvent* event) override;
 
     private slots:
-        void initialize();
-        void onConnected(Connection* c);
+        void invokeLogin();
         void joinRoom(const QString& roomAlias = {});
         void getNewEvents(Connection* c);
         void gotEvents(Connection* c);
@@ -84,7 +83,6 @@ class MainWindow: public QMainWindow
         SystemTray* systemTray = nullptr;
 
         void createMenu();
-        void invokeLogin();
         void loadSettings();
         void saveSettings() const;
         void showMillisToRecon(Connection* c);

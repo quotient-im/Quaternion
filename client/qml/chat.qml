@@ -62,6 +62,8 @@ Item {
         function onModelReset() {
             if (model.room)
             {
+                if (contentHeight <= height)
+                    model.room.getPreviousContent(100)
                 contentYChanged.connect(ensurePreviousContent)
                 console.log("Chat: getPreviousContent enabled")
             }
