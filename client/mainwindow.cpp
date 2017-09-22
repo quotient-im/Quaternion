@@ -63,8 +63,6 @@ MainWindow::MainWindow()
     connect( chatRoomWidget, &ChatRoomWidget::showStatusMessage, statusBar(), &QStatusBar::showMessage );
 
     createMenu();
-    statusBar()->setSizeGripEnabled(false);
-    statusBar()->addPermanentWidget(busyLabel);
     systemTray = new SystemTray(this);
     systemTray->show();
 
@@ -72,6 +70,8 @@ MainWindow::MainWindow()
     busyLabel = new QLabel(this);
     busyLabel->setMovie(busyIndicator);
     busyLabel->hide();
+    statusBar()->setSizeGripEnabled(false);
+    statusBar()->addPermanentWidget(busyLabel);
 
     QTimer::singleShot(0, this, SLOT(invokeLogin()));
 }
