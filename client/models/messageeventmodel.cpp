@@ -30,6 +30,7 @@
 #include "lib/events/roomaliasesevent.h"
 #include "lib/events/roomcanonicalaliasevent.h"
 #include "lib/events/roomtopicevent.h"
+#include "lib/events/encryptedevent.h"
 
 enum EventRoles {
     EventTypeRole = Qt::UserRole + 1,
@@ -156,6 +157,8 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     {
         switch (event->type())
         {
+            // FIXME: There should be a flag inside RoomEvent hierarchy whether
+            // a particular event is a state event or not.
             case EventType::RoomMessage:
             {
                 auto msgType = static_cast<RoomMessageEvent*>(event)->msgtype();
@@ -170,6 +173,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
             case EventType::RoomCanonicalAlias:
             case EventType::RoomName:
             case EventType::RoomTopic:
+            case EventType::RoomEncryption:
                 return "state";
             default:
                 return "other";
@@ -276,6 +280,12 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         {
             auto e = static_cast<RoomTopicEvent*>(event);
             return tr("set the topic to: %1").arg(e->topic());
+        }
+        if( event->type() == EventType::RoomEncryption )
+        {
+            auto e = static_cast<EncryptionEvent*>(event);
+            return tr("activated End-to-End Encryption (algorithm: %1)")
+                .arg(e->algorithm());
         }
         return "Unknown Event";
     }

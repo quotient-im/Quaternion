@@ -1,6 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.11)
 
-project(quaternion CXX)
+project(quaternion)
 
 if(UNIX AND NOT APPLE)
     set(LINUX 1)

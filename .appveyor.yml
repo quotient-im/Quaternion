@@ -17,8 +17,10 @@ init:
 - cd /D "%APPVEYOR_BUILD_FOLDER%"
 
 before_build:
+- git clone https://matrix.org/git/olm.git
 - git submodule update --init --recursive
-- cmake -G "NMake Makefiles JOM" -H. -Bbuild -DCMAKE_CXX_FLAGS="/EHsc /W3" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="%DEPLOY_DIR%"
+- cmake -G "NMake Makefiles JOM" -H. -Bbuild -DCMAKE_CXX_FLAGS="/EHsc /W3" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="%DEPLOY_DIR%" -DOlm_INCLUDE_DIR="../olm/include" -DBUILD_OLM=1
+- cmake --build build --target olm
 
 build_script:
 - cmake --build build
