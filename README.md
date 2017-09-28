@@ -76,7 +76,7 @@ sudo apt-get install git cmake qtdeclarative5-dev qtdeclarative5-qtquick2-plugin
 ```
 On Fedora 26, the following command should be enough for building and running:
 ```
-yum install git cmake qt5-qtdeclarative-devel qt5-qtquickcontrols
+dnf install git cmake qt5-qtdeclarative-devel qt5-qtquickcontrols
 ```
 
 #### OS X
