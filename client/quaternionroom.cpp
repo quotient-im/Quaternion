@@ -115,10 +115,11 @@ void QuaternionRoom::linkifyUrls(QString& text) const
     // Relative URLs require two dots in the series of characters. This is a bit
     // overly restrictive but eliminates dubious cases like command.com
     static const QRegularExpression urlDetectorRelative {
-        QStringLiteral("(^|\\s)(" "(\\w[-\\w]*\\.)" FQDN "\\b)"), RegExpOptions
+        QStringLiteral("((^|\\s)(" "(\\w[-\\w]*\\.)" FQDN "\\b)"
+                       "|(&lt;)(" "(\\w[-\\w]*\\.)" FQDN "\\b)" "(&gt;))"), RegExpOptions
     };
     static const QRegularExpression urlDetectorAbsolute {
-        QStringLiteral("(^|\\s)(" // Criteria to match the beginning of the URL
+        QStringLiteral("((^|\\s)(" // Criteria to match the beginning of the URL
             "(?!file)([a-z][-.+\\w]+:(//)?)" // scheme
             "(\\w[^@/#\\s]*@)?" // optional authentication (the part before @)
             "(" FQDN // host name
@@ -127,7 +128,17 @@ void QuaternionRoom::linkifyUrls(QString& text) const
             ")"
             "(:\\d{1,5})?" // optional port
             "(/[^\\s]*)?" // optional query and fragment
-        "\\b)"), // Criteria to match the end of the URL
+        "\\b)"
+        "|(&lt;)(" // Criteria to match '<' symbol in HTML plaintext
+            "(?!file)([a-z][-.+\\w]+:(//)?)" // scheme
+            "(\\w[^@/#\\s]*@)?" // optional authentication (the part before @)
+            "(" FQDN // host name
+                "|(\\d{1,3}\\.){3}\\d{1,3}" // or IPv4 address (not very strict)
+                "|\\[[\\d:a-f]+\\]" // or IPv6 address (very lazy and not strict)
+            ")"
+            "(:\\d{1,5})?" // optional port
+            "(/[^\\s]*)?" // optional query and fragment
+        "\\b)(&gt;))"), // Criteria to match the end of the URL and '>' in HTML
         RegExpOptions
     };
 #undef FQDN
@@ -136,9 +147,9 @@ void QuaternionRoom::linkifyUrls(QString& text) const
     text.replace(urlDetectorMail,
                  QStringLiteral("\\1<a href=\"mailto:\\2\">\\2</a>"));
     text.replace(urlDetectorRelative,
-                 QStringLiteral("\\1<a href=\"http://\\2\">\\2</a>"));
+                 QStringLiteral("\\2<a href=\"http://\\3\\7\">\\3\\6\\7\\10</a>"));
     text.replace(urlDetectorAbsolute,
-                 QStringLiteral("\\1<a href=\"\\2\">\\2</a>"));
+                 QStringLiteral("\\2<a href=\"\\3\\13\">\\3\\12\\13\\22</a>"));
 }
 
 QString QuaternionRoom::prettyPrint(const QString& plainText) const
