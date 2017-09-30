@@ -134,8 +134,8 @@ void QuaternionRoom::linkifyUrls(QString& text) const
         RegExpOptions
     };
     // The absaolute paths need a separate regex for with angle brackets since the ending URI
-    // can contain the characters '&' 'g' 't' ';', but this string will be appended to URI
-    // when in HTML format
+    // can contain the characters '&' 'g' 't', but "&gt;" will be appended to the URL
+    // when <URL> is converted to HTML format
     static const QRegularExpression urlDetectorAbsoluteWithAngleBrackets {
         QStringLiteral("(&lt;)(" // Criteria to match the beginning '<'
             "(?!file)([a-z][-.+\\w]+:(//)?)" // scheme
