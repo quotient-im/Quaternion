@@ -106,7 +106,7 @@ void QuaternionRoom::linkifyUrls(QString& text) const
 // starting with a letter (not a digit).
 #define FQDN "(\\w[-\\w]*\\.)+(?!\\d)\\w[-\\w]+"
 // https://stackoverflow.com/a/7109208
-#define VALID_URI "[A-Za-z0-9\\.\\/_~:%?#\\[\\]@!$&'\\(\\)*+,;=]*"
+#define VALID_URI "[A-Za-z0-9%\\._~:\\/?#\\[\\]@!$&'\\(\\)*+,\\;=-]*"
     static const QRegularExpression urlDetectorMail {
         QStringLiteral("(^|\\s)(" // Criteria to match the beginning of the URL
             "\\w[^@/#\\s]*@" // authentication (the part before @)
@@ -117,11 +117,12 @@ void QuaternionRoom::linkifyUrls(QString& text) const
     // Relative URLs require two dots in the series of characters. This is a bit
     // overly restrictive but eliminates dubious cases like command.com
     static const QRegularExpression urlDetectorRelative {
-        QStringLiteral("(^|\\s|&lt;(?=[^\\s]*&gt;))(" "(\\w[-\\w]*\\.)" FQDN "\\b)"), RegExpOptions
+        QStringLiteral("(^(?![^\\s]*&gt;)|\\s(?![^\\s]*&gt;)|&lt;(?=[^\\s]*&gt;))("
+                       "(\\w[-\\w]*\\.)" FQDN "(\\s|$|&gt;))"), RegExpOptions
     };
     static const QRegularExpression urlDetectorAbsolute {
-        QStringLiteral("(^|\\s)(" // Criteria to match the beginning of the URL
-                                                      // (and end of url if needs matching bracket)
+        QStringLiteral("(^(?![^\\s]*&gt;)"       // Criteria to match the beginning of the URL
+                       "|\\s(?![^\\s]*&gt;))("   // (ensure doesn't end with unpaired '>' bracket)
             "(?!file)([a-z][-.+\\w]+:(//)?)" // scheme
             "(\\w[^@/#\\s]*@)?" // optional authentication (the part before @)
             "(" FQDN // host name
@@ -129,12 +130,12 @@ void QuaternionRoom::linkifyUrls(QString& text) const
                 "|\\[[\\d:a-f]+\\]" // or IPv6 address (very lazy and not strict)
             ")"
             "(:\\d{1,5})?" // optional port
-            "(" VALID_URI ")?" // optional query and fragment
-        "\\b)"), // Criteria to match the end of the URL and '>' in HTML
+            "(\\/" VALID_URI ")?" // optional query and fragment
+        "(\\s|$))"), // Criteria to match the end of the URL
         RegExpOptions
     };
     // The absaolute paths need a separate regex for with angle brackets since the ending URI
-    // can contain the characters '&' 'g' 't', but "&gt;" will be appended to the URL
+    // can contain the characters '&' 'g' 't' ';', but "&gt;" will be appended to the URL
     // when <URL> is converted to HTML format
     static const QRegularExpression urlDetectorAbsoluteWithAngleBrackets {
         QStringLiteral("(&lt;)(" // Criteria to match the beginning '<'
