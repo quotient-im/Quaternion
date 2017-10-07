@@ -125,7 +125,7 @@ void QuaternionRoom::linkifyUrls(QString& text) const
             ")"
             "(:\\d{1,5})?" // optional port
             "(\\/" VALID_URI ")?" // optional query and fragment
-        ")(&gt;|$|\\b)"), // Criteria to match the end of the URL
+        ")(?=(&gt;|$|\\b))"), // Criteria to match the end of the URL
         RegExpOptions
     };
 #undef FQDN
@@ -134,7 +134,7 @@ void QuaternionRoom::linkifyUrls(QString& text) const
     text.replace(urlDetectorMail,
                  QStringLiteral("\\1<a href=\"mailto:\\2\">\\2</a>"));
     text.replace(urlDetectorAbsolute,
-                 QStringLiteral("\\1<a href=\"\\2\">\\2</a>\\14"));
+                 QStringLiteral("\\1<a href=\"\\2\">\\2</a>"));
 }
 
 QString QuaternionRoom::prettyPrint(const QString& plainText) const
