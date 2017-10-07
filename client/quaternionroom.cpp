@@ -117,11 +117,11 @@ void QuaternionRoom::linkifyUrls(QString& text) const
     // Relative URLs require two dots in the series of characters. This is a bit
     // overly restrictive but eliminates dubious cases like command.com
     static const QRegularExpression urlDetectorRelative {
-        QStringLiteral("(^|\\s|\\b)("
-                       "(\\w[-\\w]*\\.)" FQDN ")(\\s|\\b|$)"), RegExpOptions
+        QStringLiteral("(^|\\s|&lt;)("
+                       "(\\w[-\\w]*\\.)" FQDN ")(\\s|&gt;|$)"), RegExpOptions
     };
     static const QRegularExpression urlDetectorAbsolute {
-        QStringLiteral("(^|\\s|\\b)("       // Criteria to match the beginning of the URL
+        QStringLiteral("(^|\\s|&lt;)("       // Criteria to match the beginning of the URL
             "(?!file)([a-z][-.+\\w]+:(//)?)" // scheme
             "(\\w[^@/#\\s]*@)?" // optional authentication (the part before @)
             "(" FQDN // host name
@@ -130,7 +130,7 @@ void QuaternionRoom::linkifyUrls(QString& text) const
             ")"
             "(:\\d{1,5})?" // optional port
             "(\\/" VALID_URI ")?" // optional query and fragment
-        ")(\\s|\\b|)"), // Criteria to match the end of the URL
+        ")(\\s|&gt;|$)"), // Criteria to match the end of the URL
         RegExpOptions
     };
 #undef FQDN
@@ -141,7 +141,7 @@ void QuaternionRoom::linkifyUrls(QString& text) const
     text.replace(urlDetectorRelative,
                  QStringLiteral("\\1<a href=\"http://\\2\">\\2</a>"));
     text.replace(urlDetectorAbsolute,
-                 QStringLiteral("\\1<a href=\"\\2\">\\2</a>"));
+                 QStringLiteral("\\1<a href=\"\\2\">\\2</a>\\12"));
 }
 
 QString QuaternionRoom::prettyPrint(const QString& plainText) const
