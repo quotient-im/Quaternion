@@ -104,7 +104,9 @@ void QuaternionRoom::linkifyUrls(QString& text) const
 // A regexp for a full-qualified domain name: at least two labels
 // (including TLD), with TLD having at least two characters and
 // starting with a letter (not a digit).
-#define FQDN "(\\w[-\\w]*\\.)+(?!\\d)\\w[-\\w]+"
+#define FQDN "(localhost|(\\w[-\\w]*\\.)+(?!\\d)\\w[-\\w]+)"
+// https://stackoverflow.com/a/7109208
+#define VALID_URI "((?!&gt;)[A-Za-z0-9%\\._~:\\/?#\\[\\]@!$&'\\(\\)*+,\\;=-])*"
     static const QRegularExpression urlDetectorMail {
         QStringLiteral("(^|\\s)(" // Criteria to match the beginning of the URL
             "\\w[^@/#\\s]*@" // authentication (the part before @)
@@ -112,22 +114,18 @@ void QuaternionRoom::linkifyUrls(QString& text) const
         "\\b)"), // Criteria to match the end of the URL
         RegExpOptions
     };
-    // Relative URLs require two dots in the series of characters. This is a bit
-    // overly restrictive but eliminates dubious cases like command.com
-    static const QRegularExpression urlDetectorRelative {
-        QStringLiteral("(^|\\s)(" "(\\w[-\\w]*\\.)" FQDN "\\b)"), RegExpOptions
-    };
+
     static const QRegularExpression urlDetectorAbsolute {
-        QStringLiteral("(^|\\s)(" // Criteria to match the beginning of the URL
-            "(?!file)([a-z][-.+\\w]+:(//)?)" // scheme
+        QStringLiteral("(^|&lt;|\\b)("       // Criteria to match the beginning of the URL
+            "((?!file)([a-z][-.+\\w]+:(//)?)|www\\.)" // scheme or identify http with "www"
             "(\\w[^@/#\\s]*@)?" // optional authentication (the part before @)
             "(" FQDN // host name
                 "|(\\d{1,3}\\.){3}\\d{1,3}" // or IPv4 address (not very strict)
                 "|\\[[\\d:a-f]+\\]" // or IPv6 address (very lazy and not strict)
             ")"
             "(:\\d{1,5})?" // optional port
-            "(/[^\\s]*)?" // optional query and fragment
-        "\\b)"), // Criteria to match the end of the URL
+            "(\\/" VALID_URI ")?" // optional query and fragment
+        ")(?=(&gt;|$|\\b))"), // Criteria to match the end of the URL
         RegExpOptions
     };
 #undef FQDN
@@ -135,8 +133,6 @@ void QuaternionRoom::linkifyUrls(QString& text) const
     // avoid repeated substitutions.
     text.replace(urlDetectorMail,
                  QStringLiteral("\\1<a href=\"mailto:\\2\">\\2</a>"));
-    text.replace(urlDetectorRelative,
-                 QStringLiteral("\\1<a href=\"http://\\2\">\\2</a>"));
     text.replace(urlDetectorAbsolute,
                  QStringLiteral("\\1<a href=\"\\2\">\\2</a>"));
 }
