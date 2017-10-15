@@ -75,15 +75,21 @@ RoomListDock::RoomListDock(QWidget* parent)
     setWidget(view);
 
     contextMenu = new QMenu(this);
+    markAsReadAction = new QAction(tr("Mark room as read"), this);
+    connect(markAsReadAction, &QAction::triggered, this, &RoomListDock::menuMarkReadSelected);
+    contextMenu->addAction(markAsReadAction);
+    contextMenu->addSeparator();
     joinAction = new QAction(tr("Join Room"), this);
     connect(joinAction, &QAction::triggered, this, &RoomListDock::menuJoinSelected);
     contextMenu->addAction(joinAction);
     leaveAction = new QAction(tr("Leave Room"), this);
     connect(leaveAction, &QAction::triggered, this, &RoomListDock::menuLeaveSelected);
     contextMenu->addAction(leaveAction);
-    markAsReadAction = new QAction(tr("Mark room as read"), this);
-    connect(markAsReadAction, &QAction::triggered, this, &RoomListDock::menuMarkReadSelected);
-    contextMenu->addAction(markAsReadAction);
+    contextMenu->addSeparator();
+    forgetAction = new QAction(tr("Forget Room"), this);
+    connect(forgetAction, &QAction::triggered, this, &RoomListDock::menuForgetSelected);
+    contextMenu->addAction(forgetAction);
+
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested, this, &RoomListDock::showContextMenu);
@@ -135,6 +141,12 @@ void RoomListDock::menuLeaveSelected()
 {
     if (auto room = getSelectedRoom())
         room->leaveRoom();
+}
+
+void RoomListDock::menuForgetSelected()
+{
+    if (auto room = getSelectedRoom())
+        room->connection()->forgetRoom(room->id());
 }
 
 void RoomListDock::menuMarkReadSelected()
