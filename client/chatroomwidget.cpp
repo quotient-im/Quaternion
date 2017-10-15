@@ -27,7 +27,6 @@
 #include <QtQuick/QQuickView>
 #include <QtQuick/QQuickItem>
 #include <QtCore/QRegularExpression>
-#include <QtCore/QStringBuilder>
 
 #include "lib/events/roommessageevent.h"
 #include "lib/user.h"
@@ -185,14 +184,37 @@ void ChatRoomWidget::topicChanged()
         m_topicLabel->clear();
 }
 
-bool ChatRoomWidget::checkArg(const QString& text, const QString& pattern,
-                              const QString& errorMessage) const
+bool ChatRoomWidget::checkAndRun(const QString& checkArg, const QString& pattern,
+                                 std::function<void()> fn,
+                                 const QString& errorMsg) const
 {
-    if (QRegularExpression(pattern).match(text).hasMatch())
+    if (QRegularExpression(pattern).match(checkArg).hasMatch())
+    {
+        fn();
         return true;
+    }
 
-    emit showStatusMessage(errorMessage, 5000);
+    emit showStatusMessage(errorMsg, 5000);
     return false;
+}
+
+bool ChatRoomWidget::checkAndRun1(const QString& args, const QString& pattern,
+    std::function<void(QMatrixClient::Room*, QString)> fn1,
+    const QString& errorMsg) const
+{
+    return checkAndRun(args, pattern,
+                       std::bind(fn1, m_currentRoom, args), errorMsg);
+}
+
+bool ChatRoomWidget::checkAndRun2(const QString& args, const QString& pattern1,
+    std::function<void(QMatrixClient::Room*, QString, QString)> fn2,
+    const QString& errorMsg) const
+{
+    const auto nextSpacePos = args.indexOf(' ', 1);
+    const auto arg1 = args.left(nextSpacePos);
+    const auto arg2 = args.mid(nextSpacePos + 1).trimmed();
+    return checkAndRun(arg1, pattern1,
+                       std::bind(fn2, m_currentRoom, arg1, arg2), errorMsg);
 }
 
 bool ChatRoomWidget::doSendInput()
@@ -221,51 +243,61 @@ bool ChatRoomWidget::doSendInput()
 
     static const auto ROOM_ID = QStringLiteral("^[#!][-0-9a-z._=]+:.+$");
     static const auto USER_ID = QStringLiteral("^@[-0-9a-z._=]+:.+$");
-    if (command == "join") // Commands available without current room
+
+    using QMatrixClient::Room;
+    // Commands available without a current room
+    if (command == "join")
     {
-        if (checkArg(args, ROOM_ID,
-                     tr("/join argument doesn't look like a room ID or alias")))
-        {
-            emit joinCommandEntered(args);
-            return true;
-        }
-        return false;
+        return checkAndRun(args, ROOM_ID,
+            [=] { emit joinCommandEntered(args); },
+            tr("/join argument doesn't look like a room ID or alias"));
     }
     // --- Add more roomless commands here
-    if (!m_currentRoom) // Commands available only in the room context
+    if (!m_currentRoom)
     {
         emit showStatusMessage(
             tr("There's no such /command outside of room."
                    " Start with // to send this line literally"), 5000);
         return false;
     }
+    // Commands available only in the room context
     if (command == "leave")
     {
         m_currentRoom->leaveRoom();
         return true;
     }
+    if (command == "forget")
+    {
+        if (args.isEmpty())
+        {
+            emit showStatusMessage(
+                tr("/forget should be followed by the room id,"
+                   " even for the current room"));
+            return false;
+        }
+        return checkAndRun(args, ROOM_ID,
+            [=] { m_currentRoom->connection()->forgetRoom(args); },
+            tr("/forget should be followed by the room id"));
+    }
     if (command == "invite")
     {
-        if (checkArg(args, USER_ID,
-                     tr("/invite argument doesn't look like a user ID")))
-        {
-            m_currentRoom->inviteToRoom(args);
-            return true;
-        }
-        return false;
+        return checkAndRun1(args, USER_ID, &Room::inviteToRoom,
+            tr("/invite argument doesn't look like a user ID"));
     }
     if (command == "kick")
     {
-        const auto nextSpacePos = args.indexOf(' ', 1);
-        const auto member = args.left(nextSpacePos);
-        const auto reason = args.mid(nextSpacePos + 1).trimmed();
-        if (checkArg(member, USER_ID,
-                     tr("The first /kick argument doesn't look like a user ID")))
-        {
-            m_currentRoom->kickMember(member, reason);
-            return true;
-        }
-        return false;
+        return checkAndRun2(args, USER_ID, &Room::kickMember,
+            tr("The first /kick argument doesn't look like a user ID"));
+    }
+    if (command == "ban")
+    {
+        return checkAndRun2(args, USER_ID, &Room::ban,
+            tr("The first /ban argument doesn't look like a user ID"));
+    }
+    if (command == "unban")
+    {
+        return checkAndRun1(args, USER_ID, &Room::unban,
+            tr("/unban argument doesn't look like a user ID"));
     }
     using MsgType = QMatrixClient::RoomMessageEvent::MsgType;
     if (command == "me")
@@ -286,6 +318,15 @@ bool ChatRoomWidget::doSendInput()
     if (command == "topic")
     {
         m_currentRoom->setTopic(args);
+        return true;
+    }
+    if (command == "nick")
+    {
+        // Technically, it's legitimate to change the displayname outside of
+        // any room; however, since Quaternion allows having several connections,
+        // it needs to understand which connection to engage, and there's no good
+        // way so far to determine the connection outside of a room.
+        m_currentRoom->localUser()->rename(args);
         return true;
     }
     // --- Add more room commands here
