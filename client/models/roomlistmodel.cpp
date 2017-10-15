@@ -130,6 +130,16 @@ void RoomListModel::connectRoomSignals(QuaternionRoom* room)
              this, [=]{ unreadMessagesChanged(room); } );
     connect( room, &QuaternionRoom::joinStateChanged,
              this, [=]{ refresh(room); });
+    connect( room->connection(), &Connection::aboutToDeleteRoom, this, [=]
+    {
+        auto i = m_rooms.indexOf(room);
+        if (i == -1)
+            return;
+
+        beginRemoveRows(QModelIndex(), i, i);
+        m_rooms.removeAt(i);
+        endRemoveRows();
+    });
 }
 
 int RoomListModel::rowCount(const QModelIndex& parent) const
