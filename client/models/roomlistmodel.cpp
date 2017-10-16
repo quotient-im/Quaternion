@@ -44,6 +44,8 @@ void RoomListModel::addConnection(Connection* connection)
              this, &RoomListModel::updateRoom);
     connect( connection, &Connection::leftRoom,
              this, &RoomListModel::updateRoom);
+    connect( connection, &Connection::aboutToDeleteRoom,
+             this, &RoomListModel::deleteRoom);
 
     for( auto r: connection->roomMap() )
         doAddRoom(r);
@@ -113,6 +115,17 @@ void RoomListModel::updateRoom(QMatrixClient::Room* room,
     }
 }
 
+void RoomListModel::deleteRoom(QMatrixClient::Room* room)
+{
+    auto i = m_rooms.indexOf(static_cast<QuaternionRoom*>(room));
+    if (i == -1)
+        return; // Already deleted, nothing to do
+
+    beginRemoveRows(QModelIndex(), i, i);
+    m_rooms.removeAt(i);
+    endRemoveRows();
+}
+
 void RoomListModel::doAddRoom(QMatrixClient::Room* r)
 {
     auto* room = static_cast<QuaternionRoom*>(r);
@@ -130,16 +143,6 @@ void RoomListModel::connectRoomSignals(QuaternionRoom* room)
              this, [=]{ unreadMessagesChanged(room); } );
     connect( room, &QuaternionRoom::joinStateChanged,
              this, [=]{ refresh(room); });
-    connect( room->connection(), &Connection::aboutToDeleteRoom, this, [=]
-    {
-        auto i = m_rooms.indexOf(room);
-        if (i == -1)
-            return;
-
-        beginRemoveRows(QModelIndex(), i, i);
-        m_rooms.removeAt(i);
-        endRemoveRows();
-    });
 }
 
 int RoomListModel::rowCount(const QModelIndex& parent) const

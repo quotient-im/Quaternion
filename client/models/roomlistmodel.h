@@ -55,6 +55,7 @@ class RoomListModel: public QAbstractListModel
 
         void updateRoom(QMatrixClient::Room* room,
                         QMatrixClient::Room* prev);
+        void deleteRoom(QMatrixClient::Room* room);
 
     private:
         QList<Connection*> m_connections;
