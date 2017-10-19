@@ -37,7 +37,8 @@ class LoginDialog : public QDialog
         explicit LoginDialog(QWidget* parent = nullptr);
 
         void setStatusMessage(const QString& msg);
-        QMatrixClient::Connection* releaseConnection();
+        Connection* releaseConnection();
+        QString deviceName() const;
         bool keepLoggedIn() const;
 
     private slots:
@@ -48,9 +49,10 @@ class LoginDialog : public QDialog
         QLineEdit* serverEdit;
         QLineEdit* userEdit;
         QLineEdit* passwordEdit;
+        QLineEdit* initialDeviceName;
         QPushButton* loginButton;
-        QLabel* statusLabel;
         QCheckBox* saveTokenCheck;
-        
+        QLabel* statusLabel;
+
         QScopedPointer<Connection, QScopedPointerDeleteLater> m_connection;
 };

@@ -47,7 +47,7 @@ class MainWindow: public QMainWindow
 
         void enableDebug();
 
-        void addConnection(Connection* c);
+        void addConnection(Connection* c, const QString& deviceName);
         void dropConnection(Connection* c);
 
         ChatRoomWidget* getChatRoomWidget() const;

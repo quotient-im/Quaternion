@@ -138,7 +138,7 @@ void MainWindow::enableDebug()
     chatRoomWidget->enableDebug();
 }
 
-void MainWindow::addConnection(Connection* c)
+void MainWindow::addConnection(Connection* c, const QString& deviceName)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Attempt to add a null connection");
 
@@ -164,7 +164,10 @@ void MainWindow::addConnection(Connection* c)
              this, [=](const QString& msg){ loginError(c, msg); } );
     connect( c, &Connection::newRoom, systemTray, &SystemTray::newRoom );
 
-    auto logoutAction = new QAction(tr("Logout %1").arg(c->userId()), c);
+    const QString logoutCaption = deviceName.isEmpty() ?
+                tr("Logout %1").arg(c->userId()) :
+                tr("Logout %1/%2").arg(c->userId(), deviceName);
+    const auto logoutAction = new QAction(logoutCaption, c);
     connectionMenu->insertAction(accountListGrowthPoint, logoutAction);
     connect( logoutAction, &QAction::triggered, this, [=]{ logout(c); } );
     connect( c, &Connection::destroyed, this, [=]
@@ -196,11 +199,14 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
         if (dialog.keepLoggedIn())
         {
             account.setHomeserver(connection->homeserver());
+            // FIXME: #181
             account.setAccessToken(connection->accessToken());
+            account.setDeviceId(connection->deviceId());
+            account.setDeviceName(dialog.deviceName());
         }
         account.sync();
 
-        addConnection(connection);
+        addConnection(connection, dialog.deviceName());
     }
 }
 
@@ -214,9 +220,10 @@ void MainWindow::invokeLogin()
         if (!account.accessToken().isEmpty())
         {
             auto c = new Connection(account.homeserver());
-            c->connectWithToken(account.userId(), account.accessToken());
+            c->connectWithToken(account.userId(), account.accessToken(),
+                                account.deviceId());
             c->loadState();
-            addConnection(c);
+            addConnection(c, account.deviceName());
         }
     }
     if (connections.isEmpty())

@@ -27,27 +27,28 @@
 
 #include <QtCore/QUrl>
 
-#include "quaternionconnection.h"
 #include "settings.h"
 
 LoginDialog::LoginDialog(QWidget* parent)
     : QDialog(parent)
+    , serverEdit(new QLineEdit("https://matrix.org"))
+    , userEdit(new QLineEdit())
+    , passwordEdit(new QLineEdit())
+    , initialDeviceName(new QLineEdit())
+    , loginButton(new QPushButton(tr("Login")))
+    , saveTokenCheck(new QCheckBox(tr("Stay logged in")))
+    , statusLabel(new QLabel(tr("Welcome to Quaternion")))
 {
-    serverEdit = new QLineEdit("https://matrix.org");
-    userEdit = new QLineEdit();
-    passwordEdit = new QLineEdit();
     passwordEdit->setEchoMode( QLineEdit::Password );
-    saveTokenCheck = new QCheckBox(tr("Stay logged in"));
-    statusLabel = new QLabel(tr("Welcome to Quaternion"));
-    loginButton = new QPushButton(tr("Login"));
 
-    QFormLayout* formLayout = new QFormLayout();
+    auto* formLayout = new QFormLayout();
     formLayout->addRow(tr("Server"), serverEdit);
     formLayout->addRow(tr("User"), userEdit);
     formLayout->addRow(tr("Password"), passwordEdit);
+    formLayout->addRow(tr("Device name"), initialDeviceName);
     formLayout->addRow(saveTokenCheck);
-    
-    QVBoxLayout* mainLayout = new QVBoxLayout();
+
+    auto* mainLayout = new QVBoxLayout();
     mainLayout->addLayout(formLayout);
     mainLayout->addWidget(loginButton);
     mainLayout->addWidget(statusLabel);
@@ -97,9 +98,14 @@ void LoginDialog::setStatusMessage(const QString& msg)
     statusLabel->setText(msg);
 }
 
-QMatrixClient::Connection* LoginDialog::releaseConnection()
+LoginDialog::Connection* LoginDialog::releaseConnection()
 {
     return m_connection.take();
+}
+
+QString LoginDialog::deviceName() const
+{
+    return initialDeviceName->text();
 }
 
 bool LoginDialog::keepLoggedIn() const
@@ -121,7 +127,7 @@ void LoginDialog::login()
              this, &QDialog::accept );
     connect( m_connection.data(), &Connection::loginError,
              this, &LoginDialog::error );
-    m_connection->connectToServer(user, password);
+    m_connection->connectToServer(user, password, initialDeviceName->text());
 }
 
 void LoginDialog::error(QString error)
