@@ -145,6 +145,12 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
             qWarning() << "Logged out, escaping the room";
             setRoom(nullptr);
         });
+        connect(m_currentRoom->connection(), &Connection::joinedRoom,
+                this, [=] (Room* room, Room* prev)
+        {
+            if (m_currentRoom == prev)
+                setRoom(static_cast<QuaternionRoom*>(room));
+        });
 
         m_currentRoom->setShown(true);
     } else
