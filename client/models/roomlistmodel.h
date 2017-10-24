@@ -36,7 +36,7 @@ class RoomListModel: public QAbstractListModel
     public:
         enum Roles {
             HasUnreadRole = Qt::UserRole + 1,
-            HighlightCountRole,
+            HighlightCountRole, JoinStateRole
         };
 
         explicit RoomListModel(QObject* parent = nullptr);

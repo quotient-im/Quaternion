@@ -59,6 +59,13 @@ void RoomListItemDelegate::paint(QPainter* painter,
         o.font.setItalic(true);
     }
 
+    using QMatrixClient::JoinState;
+    QString joinState = index.data(RoomListModel::JoinStateRole).toString();
+    if (joinState == toCString(JoinState::Invite))
+        o.font.setItalic(true);
+    else if (joinState == toCString(JoinState::Leave))
+        o.font.setStrikeOut(true);
+
     QStyledItemDelegate::paint(painter, o, index);
 }
 

@@ -162,43 +162,47 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         qDebug() << "UserListModel: something wrong here...";
         return QVariant();
     }
-    QuaternionRoom* room = m_rooms.at(index.row());
-    if( role == Qt::DisplayRole )
+    auto room = m_rooms.at(index.row());
+    switch (role)
     {
-        return room->displayName();
-    }
-    if( role == HasUnreadRole )
-        return room->hasUnreadMessages();
-    if( role == HighlightCountRole )
-        return room->highlightCount();
-    if( role == Qt::DecorationRole )
-    {
-        switch( room->joinState() )
+        case Qt::DisplayRole:
+            return room->displayName();
+        case Qt::DecorationRole:
         {
-            case QMatrixClient::JoinState::Join:
-                return QIcon(":/irc-channel-joined.svg");
-            case QMatrixClient::JoinState::Invite:
-                return QIcon(":/irc-channel-invited.svg");
-            case QMatrixClient::JoinState::Leave:
-                return QIcon(":/irc-channel-parted.svg");
+            switch( room->joinState() )
+            {
+                case QMatrixClient::JoinState::Join:
+                    return QIcon(":/irc-channel-joined.svg");
+                case QMatrixClient::JoinState::Invite:
+                    return QIcon(":/irc-channel-invited.svg");
+                case QMatrixClient::JoinState::Leave:
+                    return QIcon(":/irc-channel-parted.svg");
+            }
         }
+        case Qt::ToolTipRole:
+        {
+            QString result = QString("<b>%1</b><br>").arg(room->canonicalAlias());
+            result += tr("Room members: %1<br>").arg(room->memberCount());
+            if (room->highlightCount() > 0)
+                result += tr("Unread mentions: %1<br>").arg(room->highlightCount());
+            result += tr("Room ID: %1<br>").arg(room->id());
+            if( room->joinState() == QMatrixClient::JoinState::Join )
+                result += tr("You joined this room");
+            else if( room->joinState() == QMatrixClient::JoinState::Leave )
+                result += tr("You left this room");
+            else
+                result += tr("You were invited into this room");
+            return result;
+        }
+        case HasUnreadRole:
+            return room->hasUnreadMessages();
+        case HighlightCountRole:
+            return room->highlightCount();
+        case JoinStateRole:
+            return toCString(room->joinState()); // FIXME: better make the enum QVariant-convertible
+        default:
+            return QVariant();
     }
-    if( role == Qt::ToolTipRole )
-    {
-        QString result = QString("<b>%1</b><br>").arg(room->canonicalAlias());
-        result += tr("Room users: %1<br>").arg(room->memberCount());
-        if (room->highlightCount() > 0)
-            result += tr("Unread mentions: %1<br>").arg(room->highlightCount());
-        result += tr("Room ID: %1<br>").arg(room->id());
-        if( room->joinState() == QMatrixClient::JoinState::Join )
-            result += tr("You joined this room");
-        else if( room->joinState() == QMatrixClient::JoinState::Leave )
-            result += tr("You left this room");
-        else
-            result += tr("You were invited into this room");
-        return result;
-    }
-    return QVariant();
 }
 
 void RoomListModel::displaynameChanged(QuaternionRoom* room)
