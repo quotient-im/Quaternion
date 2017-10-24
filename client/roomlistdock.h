@@ -46,7 +46,6 @@ class RoomListDock : public QDockWidget
         void menuJoinSelected();
         void menuLeaveSelected();
         void menuForgetSelected();
-        void refreshTitle();
 
     private:
         QListView* view;
