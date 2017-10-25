@@ -79,6 +79,12 @@ RoomListDock::RoomListDock(QWidget* parent)
     view->setItemDelegate(new RoomListItemDelegate(this));
     connect( view, &QListView::activated, this, &RoomListDock::rowSelected );
     connect( view, &QListView::clicked, this, &RoomListDock::rowSelected);
+    connect( model, &RoomListModel::rowsInserted,
+             this, &RoomListDock::refreshTitle );
+    connect( model, &RoomListModel::rowsRemoved,
+             this, &RoomListDock::refreshTitle );
+    connect( model, &RoomListModel::modelReset,
+             this, &RoomListDock::refreshTitle );
     setWidget(view);
 
     contextMenu = new QMenu(this);
@@ -96,7 +102,6 @@ RoomListDock::RoomListDock(QWidget* parent)
     forgetAction = new QAction(tr("Forget Room"), this);
     connect(forgetAction, &QAction::triggered, this, &RoomListDock::menuForgetSelected);
     contextMenu->addAction(forgetAction);
-
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested, this, &RoomListDock::showContextMenu);
@@ -160,4 +165,9 @@ void RoomListDock::menuMarkReadSelected()
 {
     if (auto room = getSelectedRoom())
         room->markAllMessagesAsRead();
+}
+
+void RoomListDock::refreshTitle()
+{
+    setWindowTitle(tr("Rooms (%1)").arg(model->rowCount(QModelIndex())));
 }
