@@ -23,7 +23,6 @@
 
 namespace QMatrixClient
 {
-    class Connection;
     class Room;
 }
 
@@ -34,10 +33,12 @@ class UserListDock: public QDockWidget
 {
         Q_OBJECT
     public:
-        UserListDock(QWidget* parent = nullptr);
-        virtual ~UserListDock();
+        explicit UserListDock(QWidget* parent = nullptr);
 
-    void setRoom( QMatrixClient::Room* room );
+        void setRoom( QMatrixClient::Room* room );
+
+    private slots:
+        void refreshTitle();
 
     private:
         QTableView* m_view;

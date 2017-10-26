@@ -39,13 +39,21 @@ UserListDock::UserListDock(QWidget* parent)
 
     m_model = new UserListModel();
     m_view->setModel(m_model);
-}
 
-UserListDock::~UserListDock()
-{
+    connect( m_model, &QAbstractListModel::rowsInserted,
+             this, &UserListDock::refreshTitle );
+    connect( m_model, &QAbstractListModel::rowsRemoved,
+             this, &UserListDock::refreshTitle );
+    connect( m_model, &QAbstractListModel::modelReset,
+             this, &UserListDock::refreshTitle );
 }
 
 void UserListDock::setRoom(QMatrixClient::Room* room)
 {
     m_model->setRoom(room);
+}
+
+void UserListDock::refreshTitle()
+{
+    setWindowTitle(tr("Users (%1)").arg(m_model->rowCount(QModelIndex())));
 }
