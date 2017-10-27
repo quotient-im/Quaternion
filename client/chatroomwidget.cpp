@@ -27,6 +27,7 @@
 #include <QtQuick/QQuickView>
 #include <QtQuick/QQuickItem>
 #include <QtCore/QRegularExpression>
+#include <QtCore/QStringBuilder>
 
 #include "lib/events/roommessageevent.h"
 #include "lib/user.h"
@@ -42,6 +43,10 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
 {
     qmlRegisterType<QuaternionRoom>();
     m_messageModel = new MessageEventModel(this);
+
+    m_roomAvatar = new QLabel();
+    m_roomAvatar->setPixmap({});
+    m_roomAvatar->setFrameStyle(QFrame::Sunken);
 
     m_topicLabel = new QLabel();
     m_topicLabel->setTextFormat(Qt::RichText);
@@ -83,8 +88,13 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     connect(m_chatEdit, &ChatEdit::cancelledCompletion,
             this, &ChatRoomWidget::typingChanged);
 
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(m_topicLabel);
+    auto layout = new QVBoxLayout();
+
+    auto headerLayout = new QHBoxLayout;
+    headerLayout->addWidget(m_roomAvatar);
+    headerLayout->addWidget(m_topicLabel, 1);
+    layout->addLayout(headerLayout);
+
     layout->addWidget(topicSeparator);
     layout->addWidget(container);
     layout->addWidget(m_currentlyTyping);
@@ -129,8 +139,12 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
         m_chatEdit->moveCursor(QTextCursor::End);
         connect( m_currentRoom, &Room::typingChanged,
                  this, &ChatRoomWidget::typingChanged );
+        connect( m_currentRoom, &Room::namesChanged,
+                 this, &ChatRoomWidget::updateHeader );
         connect( m_currentRoom, &Room::topicChanged,
-                 this, &ChatRoomWidget::topicChanged );
+                 this, &ChatRoomWidget::updateHeader );
+        connect( m_currentRoom, &Room::avatarChanged,
+                 this, &ChatRoomWidget::updateHeader );
         connect( m_currentRoom, &Room::readMarkerMoved, this, [this] {
             const auto rm = m_currentRoom->readMarker();
             readMarkerOnScreen =
@@ -155,7 +169,7 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
         m_currentRoom->setShown(true);
     } else
         m_imageProvider->setConnection(nullptr);
-    topicChanged();
+    updateHeader();
     typingChanged();
     m_messageModel->changeRoom( m_currentRoom );
     QObject* rootItem = m_quickView->rootObject();
@@ -178,16 +192,23 @@ void ChatRoomWidget::typingChanged()
                                .arg( typingNames.join(", ") ) );
 }
 
-void ChatRoomWidget::topicChanged()
+void ChatRoomWidget::updateHeader()
 {
     if (m_currentRoom)
     {
         auto topic = m_currentRoom->topic();
-        m_topicLabel->setText(topic.isEmpty() ? tr("(no topic)") :
-                              m_currentRoom->prettyPrint(topic));
+        auto prettyTopic = topic.isEmpty() ?
+                tr("(no topic)") : m_currentRoom->prettyPrint(topic);
+        m_topicLabel->setText("<strong>" % m_currentRoom->name() %
+                              "</strong><br />" % prettyTopic);
+        auto avatarSize = m_topicLabel->heightForWidth(width());
+        m_roomAvatar->setPixmap(m_currentRoom->avatar(avatarSize, avatarSize));
     }
     else
+    {
+        m_roomAvatar->clear();
         m_topicLabel->clear();
+    }
 }
 
 bool ChatRoomWidget::checkAndRun(const QString& checkArg, const QString& pattern,

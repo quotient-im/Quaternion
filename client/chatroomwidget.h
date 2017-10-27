@@ -52,7 +52,7 @@ class ChatRoomWidget: public QWidget
 
     public slots:
         void setRoom(QuaternionRoom* room);
-        void topicChanged();
+        void updateHeader();
         void typingChanged();
         void onMessageShownChanged(QString eventId, bool shown);
         void markShownAsRead();
@@ -72,6 +72,7 @@ class ChatRoomWidget: public QWidget
         ChatEdit* m_chatEdit;
         QLabel* m_currentlyTyping;
         QLabel* m_topicLabel;
+        QLabel* m_roomAvatar;
 
         using timeline_index_t = QMatrixClient::TimelineItem::index_t;
         QVector<timeline_index_t> indicesOnScreen;
