@@ -143,6 +143,8 @@ void RoomListModel::connectRoomSignals(QuaternionRoom* room)
              this, [=]{ unreadMessagesChanged(room); } );
     connect( room, &QuaternionRoom::joinStateChanged,
              this, [=]{ refresh(room); });
+    connect( room, &QuaternionRoom::avatarChanged,
+             this, [=]{ refresh(room, { Qt::DecorationRole }); });
 }
 
 int RoomListModel::rowCount(const QModelIndex& parent) const
@@ -169,6 +171,9 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
             return room->displayName();
         case Qt::DecorationRole:
         {
+            auto avatar = room->avatar(16, 16);
+            if (!avatar.isNull())
+                return avatar;
             switch( room->joinState() )
             {
                 case QMatrixClient::JoinState::Join:
