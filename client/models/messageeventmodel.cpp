@@ -26,11 +26,7 @@
 #include "lib/connection.h"
 #include "lib/user.h"
 #include "lib/events/roommemberevent.h"
-#include "lib/events/roomnameevent.h"
-#include "lib/events/roomaliasesevent.h"
-#include "lib/events/roomcanonicalaliasevent.h"
-#include "lib/events/roomtopicevent.h"
-#include "lib/events/encryptedevent.h"
+#include "lib/events/simplestateevents.h"
 
 enum EventRoles {
     EventTypeRole = Qt::UserRole + 1,
@@ -113,7 +109,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 
     const Message& message = m_currentRoom->messages().at(index.row());;
     auto* event = message.messageEvent();
-    // FIXME: Rewind to the name that was at the time of this event
+    // FIXME: Rewind to the name that was right before this event
     QString senderName = m_currentRoom->roomMembername(event->senderId());
 
     if( role == Qt::DisplayRole )
@@ -155,29 +151,20 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 
     if( role == EventTypeRole )
     {
-        switch (event->type())
+        if (event->isStateEvent())
+            return "state";
+
+        if (event->type() == EventType::RoomMessage)
         {
-            // FIXME: There should be a flag inside RoomEvent hierarchy whether
-            // a particular event is a state event or not.
-            case EventType::RoomMessage:
-            {
-                auto msgType = static_cast<RoomMessageEvent*>(event)->msgtype();
-                if( msgType == MessageEventType::Image )
-                    return "image";
-                else if( msgType == MessageEventType::Emote )
-                    return "emote";
-                return "message";
-            }
-            case EventType::RoomMember:
-            case EventType::RoomAliases:
-            case EventType::RoomCanonicalAlias:
-            case EventType::RoomName:
-            case EventType::RoomTopic:
-            case EventType::RoomEncryption:
-                return "state";
-            default:
-                return "other";
+            auto msgType = static_cast<RoomMessageEvent*>(event)->msgtype();
+            if( msgType == MessageEventType::Image )
+                return "image";
+            else if( msgType == MessageEventType::Emote )
+                return "emote";
+            return "message";
         }
+
+        return "other";
     }
 
     if( role == TimeRole )
@@ -192,6 +179,15 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 
     if( role == AuthorRole )
     {
+        // FIXME: This will go away after senderName is generated correctly
+        // (see the FIXME in the beginning of the method).
+        if (event->type() == EventType::RoomMember)
+        {
+            const auto e = static_cast<RoomMemberEvent*>(event);
+            if (e->prev_content() &&
+                    e->displayName() != e->prev_content()->displayName)
+                return e->prev_content()->displayName;
+        }
         return senderName;
     }
 
@@ -199,10 +195,9 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     {
         if (event->type() == EventType::RoomMessage)
         {
-            auto rme = static_cast<RoomMessageEvent*>(event);
-            if (rme->mimeType().name() == "text/plain")
-                return "text/html";
-            return rme->mimeType().name();
+            const auto& contentType =
+                static_cast<RoomMessageEvent*>(event)->mimeType().name();
+            return contentType == "text/plain" ? "text/html" : contentType;
         }
         return "text/plain";
     }
@@ -237,14 +232,42 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         }
         if( event->type() == EventType::RoomMember )
         {
-            RoomMemberEvent* e = static_cast<RoomMemberEvent*>(event);
+            auto e = static_cast<RoomMemberEvent*>(event);
             // FIXME: Rewind to the name that was at the time of this event
             QString subjectName = m_currentRoom->roomMembername(e->userId());
             // The below code assumes senderName output in AuthorRole
             switch( e->membership() )
             {
+                case MembershipType::Invite:
                 case MembershipType::Join:
-                    return tr("joined the room");
+                {
+                    if (!e->prev_content() ||
+                            e->membership() != e->prev_content()->membership)
+                    {
+                        return e->membership() == MembershipType::Invite
+                                ? tr("invited %1 to the room").arg(subjectName)
+                                : tr("joined the room");
+                    }
+                    QString text {};
+                    if (e->displayName() != e->prev_content()->displayName)
+                    {
+                        if (e->displayName().isEmpty())
+                            text = tr("cleared the display name");
+                        else
+                            text = tr("changed the display name to %1")
+                                        .arg(e->displayName());
+                    }
+                    if (e->avatarUrl() != e->prev_content()->avatarUrl)
+                    {
+                        if (!text.isEmpty())
+                            text += " and ";
+                        if (e->avatarUrl().isEmpty())
+                            text += tr("cleared the avatar");
+                        else
+                            text += tr("updated the avatar");
+                    }
+                    return text;
+                }
                 case MembershipType::Leave:
                     if (e->senderId() != e->userId())
                         return tr("doesn't want %1 in the room anymore").arg(subjectName);
@@ -255,8 +278,6 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
                         return tr("banned %1 from the room").arg(subjectName);
                     else
                         return tr("self-banned from the room");
-                case MembershipType::Invite:
-                    return tr("invited %1 to the room").arg(subjectName);
                 case MembershipType::Knock:
                     return tr("knocked");
             }
