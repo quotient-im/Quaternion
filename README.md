@@ -5,12 +5,12 @@
 
 Quaternion is a cross-platform desktop IM client for the [Matrix](https://matrix.org) protocol in development.
 
-## Version 0.0.1 out now!
-The release (including binaries for Windows) can be found [here](https://github.com/QMatrixClient/Quaternion/releases/tag/v0.0.1).
+## Version 0.0.4 out now!
+The release (including binaries for Windows) can be found [here](https://github.com/QMatrixClient/Quaternion/releases/tag/v0.0.4).
 
 ## Download
 ### Binaries
-There's no official packaging at the moment. Some links to unofficial packages follow:
+There are no official packaging at the moment. Some links to unofficial packages follow:
 Arch Linux: https://aur.archlinux.org/packages/quaternion/
 
 Windows: automatic builds are packaged upon every commit (CI) at https://ci.appveyor.com/project/QMatrixClient/quaternion (go to "Jobs", select the job for your architecture, then "Artifacts")
