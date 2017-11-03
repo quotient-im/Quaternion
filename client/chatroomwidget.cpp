@@ -32,6 +32,7 @@
 #include "lib/events/roommessageevent.h"
 #include "lib/user.h"
 #include "lib/connection.h"
+#include "lib/settings.h"
 #include "models/messageeventmodel.h"
 #include "imageprovider.h"
 #include "chatedit.h"
@@ -42,6 +43,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     , readMarkerOnScreen(false)
 {
     qmlRegisterType<QuaternionRoom>();
+    qmlRegisterType<QMatrixClient::Settings>("QMatrixClient", 1, 0, "Settings");
     m_messageModel = new MessageEventModel(this);
 
     m_roomAvatar = new QLabel();

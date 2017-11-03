@@ -2,15 +2,14 @@ import QtQuick 2.2
 import QtQuick.Controls 1.0
 import QtQuick.Controls.Styles 1.0
 import QtQuick.Layouts 1.1
-import Qt.labs.settings 1.0
+import QMatrixClient 1.0
 
 Item {
     id: root
 
     Settings {
-        id: uiSettings
-        category: "UI"
-        property bool condense_chat: false
+        id: settings
+        property bool condense_chat: value("UI/condense_chat", false)
     }
     SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
     SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
@@ -286,7 +285,7 @@ Item {
                 ToolButton {
                     id: showSourceButton
                     text: "..."
-                    Layout.maximumHeight: uiSettings.condense_chat ?
+                    Layout.maximumHeight: settings.condense_chat ?
                                           contentRect.height : implicitHeight
                     Layout.alignment: Qt.AlignTop
 
