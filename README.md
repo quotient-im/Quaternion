@@ -43,23 +43,6 @@ You can also file issues at [the project's issue tracker](https://github.com/QMa
 
 ## Building
 
-### Flatpak
-
-If you run Linux and your distribution supports flatpak, you can easily build and install Quaternion as a flatpak package:
-
-```
-git clone https://github.com/QMatrixClient/Quaternion.git --recursive
-cd Quaternion/flatpak
-./setup_runtime.sh
-./build.sh
-flatpak --user install quaternion-nightly com.github.quaternion
-```
-Whenever you want to update your Quaternion package, just run again the `build.sh` script and then use:
-
-```
-flatpak --user update
-```
-
 ### Pre-requisites
 - a Linux, MacOS or Windows system (desktop versions tried; mobile Linux/Windows might work too)
   - For Ubuntu flavours - Trusty Tar or later (or a derivative) is good enough; older ones will need PPAs at least for a newer Qt
@@ -72,7 +55,7 @@ flatpak --user update
 #### Linux
 Just install things from the list above using your preferred package manager. If your Qt package base is fine-grained you might want to take a look at `CMakeLists.txt` to figure out which specific libraries Quaternion uses (or blindly run cmake and look at error messages). Note also that you'll need several Qt Quick plugins for Quaternion to work (without them, it will compile and run but won't show the messages timeline). In case of Trusty Tar the following line will get you everything necessary to build and run Quaternion (thanks to `@onlnr:matrix.org`):
 ```
-sudo apt-get install git cmake qtdeclarative5-dev qtdeclarative5-qtquick2-plugin qtdeclarative5-controls-plugin qtdeclarative5-settings-plugin
+sudo apt-get install git cmake qtdeclarative5-dev qtdeclarative5-qtquick2-plugin qtdeclarative5-controls-plugin
 ```
 On Fedora 26, the following command should be enough for building and running:
 ```
@@ -99,15 +82,45 @@ cmake --build . --target all
 ```
 This will get you an executable in `build_dir` inside your project sources. `CMAKE_INSTALL_PREFIX` variable of CMake controls where Quaternion will be installed - pass it to `cmake ..` above if you wish to alter the default (see the output from `cmake ..` to find out the configured values).
 
-### Running
-Linux, MacOS: Just start the executable in your most preferred way.
-
-Windows: the same but make sure that Qt5 dlls and their dependencies are either in your PATH (see the note about `qtenv2.bat` in "Pre-requisites" above) or next to the executable. See also "OpenSSL on Windows" section above).
-
 ### Installation
 In the root directory of the project sources: `cmake --build build_dir --target install`.
 
 On Linux, `make install` (with `sudo` if needed) will work equally well.
+
+### Flatpak
+If you run Linux and your distribution supports flatpak, you can easily build and install Quaternion as a flatpak package:
+
+```
+git clone https://github.com/QMatrixClient/Quaternion.git --recursive
+cd Quaternion/flatpak
+./setup_runtime.sh
+./build.sh
+flatpak --user install quaternion-nightly com.github.quaternion
+```
+Whenever you want to update your Quaternion package, do the following from the flatpak directory:
+
+```
+./build.sh
+flatpak --user update
+```
+
+## Running
+Just start the executable in your most preferred way - either from build_dir and from the installed location. Especially on Windows, make sure that Qt5 dynamic libraries and their dependencies are either in your PATH (see the note about `qtenv2.bat` in "Pre-requisites" above) or next to the executable. See also "OpenSSL on Windows" section above.
+
+### Configuration and cache files
+Quaternion stores its configuration in a way standard for Qt applications. It will read and write the configuration in the user-specific location (creating it if non-existent) and will only read the system-wide location with reasonable defaults if the configuration is nowhere to be found.
+- Linux: files under $XDG_CONFIG_DIR/QMatrixClient/quaternion or /etc/xdg/QMatrixClient/quaternion (system-wide) and $HOME/.config/QMatrixClient/quaternion (user-specific)
+- OSX: /Library/Preferences/com.QMatrixClient.quaternion.plist (system-wide) and $HOME/Library/Preferences/com.QMatrixClient.quaternion.plist (user-specific)
+- Windows: registry keys under HKEY_LOCAL_MACHINE\Software\QMatrixClient\quaternion (system-wide) and HKEY_CURRENT_USER\Software\QMatrixClient\quaternion (user-specific)
+
+NOTE: as of 0.0.4, your access tokens are stored in the configuration as well; this means that unless your HKEY_USERS registry nodes (Windows)/$HOME files (Linux, OSX) are inaccessible to other users on the same computer, another user can take your access token and impersonate you on Matrix. This is [a known issue](https://github.com/QMatrixClient/Quaternion/issues/181). A workaround is to not set "Stay logged in" flag upon login; in that case access tokens are only stored in memory but you have to login at each Quaternion startup.
+
+Quaternion caches the rooms state on the file system - also in a location standard for your platform, as follows:
+- Linux: $HOME/.cache/QMatrixClient/quaternion
+- OSX: $HOME/Library/Cache/QMatrixClient/quaternion
+- Windows: %LOCALAPPDATA%/QMatrixClient/quaternion
+
+Cache files are safe to delete at any time. If Quaternion doesn't find them it downloads the whole state from Matrix servers upon its startup, which can take much time (up to a minute and even more, depending on the number of rooms and the number of users in them). Deleting cache files may help to fix problems such as missing avatars, rooms stuck in a wrong state etc.
 
 ## Troubleshooting
 
@@ -131,11 +144,13 @@ CMake Error at CMakeLists.txt:30 (add_subdirectory):
 ```
 ...then you don't have libqmatrixclient sources - most likely because you didn't do the `git submodule init && git submodule update` dance.
 
-If Quaternion runs but you can't see any messages in the chat (though you can type them in) - you have a problem with Qt Quick. Most likely, you don't have Qt Quick libraries and/or plugins installed. On Linux, double check "Pre-requisites" above and also see the stdout/stderr logs, they are quite clear in such cases. On Windows and Mac, just open an issue (see "Contacts" section in the beginning of this README), because most likely not all necessary Qt parts got copied along with Quaternion (which is a bug).
+If you have made sure that your toolchain is in order (versions of compilers and Qt are among supported ones, PATH is set correctly etc.) but building fails with strange Qt-related errors such as not found symbols or undefined references, double-check that you don't have Qt 4.x packages around ([here is a typical example](https://github.com/QMatrixClient/Quaternion/issues/185)). If you need those packages reinstalling them may help; but if you use Qt4 by default you have to explicitly pass Qt5 location to CMake (see notes about CMAKE_PREFIX_PATH in "Building").
+
+If Quaternion runs but you can't see any messages in the chat (though you can type them in) - you have a problem with Qt Quick. Most likely, you don't have Qt Quick libraries and/or plugins installed. On Linux, double check "Pre-requisites" above and also see the stdout/stderr logs, they are quite clear in such cases. On Windows and Mac, just open an issue (see "Contacts" in the beginning of this README), because most likely not all necessary Qt parts got copied along with Quaternion (which is a bug).
 
 Especially on Windows, if Quaternion starts up but upon an attempt to connect returns a message like "Failed to make SSL context" - you haven't made sure that SSL libraries are reachable buy the Quaternion binary. See the "OpenSSL on Windows" section above for details.
 
-When chasing bugs and investigating crashes, it helps to increase the debug level. Thanks to @eang:matrix.org, libqmatrixclient uses Qt logging categories - the "Troubleshooting" section of `lib/README.md` elaborates on how to setup logging.
+When chasing bugs and investigating crashes, it helps to increase the debug level. Thanks to @eang:matrix.org, libqmatrixclient uses Qt logging categories - the "Troubleshooting" section of `lib/README.md` elaborates on how to setup logging. Note that Quaternion itself doesn't use Qt logging categories yet, only the library does.
 
 ## Screenshot
 ![Screenshot](quaternion.png)
