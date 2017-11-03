@@ -24,19 +24,23 @@
 
 #include "mainwindow.h"
 #include "activitydetector.h"
+#include "lib/settings.h"
 
 int main( int argc, char* argv[] )
 {
     QApplication app(argc, argv);
-    QApplication::setOrganizationName("Quaternion");
+    QApplication::setOrganizationName("QMatrixClient");
     QApplication::setApplicationName("quaternion");
     QApplication::setApplicationDisplayName("Quaternion");
-    QApplication::setApplicationVersion("0.0");
+    QApplication::setApplicationVersion("0.0.4");
 
+    QMatrixClient::Settings::setLegacyNames("Quaternion", "quaternion");
+
+    // We should not need to do the following, as quitOnLastWindowClosed is
+    // set to "true" by default; might be a bug, see
+    // https://forum.qt.io/topic/71112/application-does-not-quit
     QObject::connect(&app, &QApplication::lastWindowClosed, []{
         qDebug() << "Last window closed!";
-        // We should not need to do the following, as quitOnLastWindowClosed is set to "true"
-        // might be a bug, see https://forum.qt.io/topic/71112/application-does-not-quit
         QApplication::postEvent(qApp, new QEvent(QEvent::Quit));
     });
 
