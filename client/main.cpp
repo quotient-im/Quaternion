@@ -57,8 +57,11 @@ int main( int argc, char* argv[] )
     qDebug() << "Debug: " << debugEnabled;
 
     QSplashScreen splash(QPixmap(":/icon.png"));
-    splash.show();
-    app.processEvents();
+    if (!QSettings().value("UI/suppress_splash").toBool())
+    {
+        splash.show();
+        app.processEvents();
+    }
 
     MainWindow window;
     if( debugEnabled )
