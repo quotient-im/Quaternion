@@ -93,7 +93,8 @@ void QuaternionRoom::setCachedInput(const QString& input)
     m_cachedInput = input;
 }
 
-void QuaternionRoom::linkifyUrls(QString& text) const
+/** Converts all that looks like a URL into HTML links */
+void linkifyUrls(QString& htmlEscapedText)
 {
     static const auto RegExpOptions =
         QRegularExpression::CaseInsensitiveOption
@@ -106,34 +107,35 @@ void QuaternionRoom::linkifyUrls(QString& text) const
 // starting with a letter (not a digit).
 #define FQDN "(localhost|(\\w[-\\w]*\\.)+(?!\\d)\\w[-\\w]+)"
 // https://stackoverflow.com/a/7109208
-#define VALID_URI "((?!&gt;)[A-Za-z0-9%\\._~:\\/?#\\[\\]@!$&'\\(\\)*+,\\;=-])*"
+#define VALID_URI_CHARS "((&amp;)|[A-Za-z0-9%\\._~:\\/?#\\[\\]@!$'\\(\\)*+,\\;=-])*"
     static const QRegularExpression urlDetectorMail {
-        QStringLiteral("(^|\\s)(" // Criteria to match the beginning of the URL
-            "\\w[^@/#\\s]*@" // authentication (the part before @)
+        QStringLiteral("(^|\\b)(mailto:)?(" // Beginning criteria of the URL
+            "\\w[^@/#\\s]*@" // Authentication (the part before @)
             FQDN
-        "\\b)"), // Criteria to match the end of the URL
+        "\\b)"), // End criteria of the URL
         RegExpOptions
     };
 
-    static const QRegularExpression urlDetectorAbsolute {
-        QStringLiteral("(^|&lt;|\\b)("       // Criteria to match the beginning of the URL
-            "((?!file)([a-z][-.+\\w]+:(//)?)|www\\.)" // scheme or identify http with "www"
+    static const QRegularExpression urlDetectorGeneric {
+        QStringLiteral("(^|&lt;|\\s|\\(|\\[)("       // Beginning criteria of the URL
+            "((?!file|mailto)([a-z][-.+\\w]+:(//)?)|www\\.)" // scheme or identify http(s) with "www"
             "(\\w[^@/#\\s]*@)?" // optional authentication (the part before @)
             "(" FQDN // host name
                 "|(\\d{1,3}\\.){3}\\d{1,3}" // or IPv4 address (not very strict)
                 "|\\[[\\d:a-f]+\\]" // or IPv6 address (very lazy and not strict)
             ")"
             "(:\\d{1,5})?" // optional port
-            "(\\/" VALID_URI ")?" // optional query and fragment
-        ")(?=(&gt;|$|\\b))"), // Criteria to match the end of the URL
+            "(\\/" VALID_URI_CHARS ")?" // optional query and fragment
+        ")(?=(&gt;|\\W?( |$)))"), // End criteria of the URL
         RegExpOptions
     };
 #undef FQDN
-    // mail regex is the least specific because of [^@\\s], run it first to
-    // avoid repeated substitutions.
-    text.replace(urlDetectorMail,
-                 QStringLiteral("\\1<a href=\"mailto:\\2\">\\2</a>"));
-    text.replace(urlDetectorAbsolute,
+#undef VALID_URI
+    // mail regex is less specific because of [^@/#\\s]* part; run it first to avoid
+    // repeated substitutions.
+    htmlEscapedText.replace(urlDetectorMail,
+                 QStringLiteral("\\1<a href=\"mailto:\\3\">\\2\\3</a>"));
+    htmlEscapedText.replace(urlDetectorGeneric,
                  QStringLiteral("\\1<a href=\"\\2\">\\2</a>"));
 }
 

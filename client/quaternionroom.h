@@ -42,10 +42,9 @@ class QuaternionRoom: public QMatrixClient::Room
 
         const Timeline& messages() const;
 
-        /** Converts all that looks like a URL into HTML links */
-        void linkifyUrls(QString& text) const;
-
-        /** Returns the passed plain text pretty-printed in HTML */
+        /** Pretty-prints plain text into HTML
+         * This includes HTML escaping of <,>,",& and URLs linkification.
+         */
         QString prettyPrint(const QString& plainText) const;
 
     protected:
