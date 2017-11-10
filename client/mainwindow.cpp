@@ -349,7 +349,10 @@ void MainWindow::networkError(Connection* c)
 void MainWindow::closeEvent(QCloseEvent* event)
 {
     for (auto c: connections)
+    {
+        c->saveState();
         dropConnection(c);
+    }
     saveSettings();
     event->accept();
 }
