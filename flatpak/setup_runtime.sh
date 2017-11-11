@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-flatpak --user remote-add kderuntime --if-not-exists --from https://distribute.kde.org/kderuntime.flatpakrepo
-flatpak --user install kderuntime org.kde.Platform
-flatpak --user install kderuntime org.kde.Sdk
+flatpak --user remote-add flathub --if-not-exists --from https://flathub.org/repo/flathub.flatpakrepo
+flatpak --user install flathub org.kde.Platform
+flatpak --user install flathub org.kde.Sdk
