@@ -75,6 +75,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
 
     m_currentlyTyping = new QLabel();
+    m_currentlyTyping->setWordWrap(true);
 
     m_chatEdit = new ChatEdit(this);
     m_chatEdit->setPlaceholderText(tr("Send a message (unencrypted)..."));
