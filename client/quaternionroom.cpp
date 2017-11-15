@@ -141,7 +141,8 @@ void linkifyUrls(QString& htmlEscapedText)
 
 QString QuaternionRoom::prettyPrint(const QString& plainText) const
 {
-    auto pt = plainText.toHtmlEscaped();
+    auto pt = QStringLiteral("<span style='white-space:pre-wrap'>") +
+            plainText.toHtmlEscaped() + QStringLiteral("</span>");
     pt.replace('\n', "<br/>");
 
     linkifyUrls(pt);
