@@ -351,7 +351,8 @@ void MainWindow::closeEvent(QCloseEvent* event)
     for (auto c: connections)
     {
         c->saveState();
-        dropConnection(c);
+        c->stopSync(); // Instead of deleting the connection, merely stop it
+//        dropConnection(c);
     }
     saveSettings();
     event->accept();
