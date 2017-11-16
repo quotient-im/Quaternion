@@ -45,7 +45,6 @@ MainWindow::MainWindow()
 {
     Connection::setRoomType<QuaternionRoom>();
     setWindowIcon(QIcon(":/icon.png"));
-    loadSettings();
 
     roomListDock = new RoomListDock(this);
     addDockWidget(Qt::LeftDockWidgetArea, roomListDock);
@@ -72,6 +71,7 @@ MainWindow::MainWindow()
     busyLabel->hide();
     statusBar()->setSizeGripEnabled(false);
     statusBar()->addPermanentWidget(busyLabel);
+    loadSettings();
 
     QTimer::singleShot(0, this, SLOT(invokeLogin()));
 }
