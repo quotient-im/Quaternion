@@ -106,6 +106,9 @@ if(LINUX)
     install(FILES linux/quaternion.desktop
             DESTINATION  ${CMAKE_INSTALL_DATADIR}/applications
             )
+    install(FILES linux/com.github.quaternion.appdata.xml
+            DESTINATION  ${CMAKE_INSTALL_DATADIR}/metainfo
+            )
     file(GLOB quaternion_icons icons/quaternion/*-apps-quaternion.png)
     ecm_install_icons(ICONS ${quaternion_icons} icons/quaternion/sc-apps-quaternion.svgz
                       DESTINATION ${CMAKE_INSTALL_DATADIR}/icons
