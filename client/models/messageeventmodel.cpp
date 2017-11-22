@@ -184,8 +184,8 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         if (event->type() == EventType::RoomMember)
         {
             const auto e = static_cast<RoomMemberEvent*>(event);
-            if (e->prev_content() &&
-                    e->displayName() != e->prev_content()->displayName)
+            if (e->prev_content() && !e->prev_content()->displayName.isEmpty()
+                    && e->displayName() != e->prev_content()->displayName)
                 return e->prev_content()->displayName;
         }
         return senderName;
