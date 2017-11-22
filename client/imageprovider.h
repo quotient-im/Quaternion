@@ -21,30 +21,22 @@
 
 #include <QtQuick/QQuickImageProvider>
 #include <QtCore/QMutex>
-#include <QtCore/QWaitCondition>
 
 namespace QMatrixClient {
     class Connection;
 }
 
-class ImageProvider: public QObject, public QQuickImageProvider
+class ImageProvider: public QQuickImageProvider
 {
-        Q_OBJECT
     public:
         explicit ImageProvider(QMatrixClient::Connection* connection);
 
-        QPixmap requestPixmap(const QString& id, QSize* size,
+        QPixmap requestPixmap(const QString& id, QSize* pSize,
                               const QSize& requestedSize) override;
 
-        void setConnection(const QMatrixClient::Connection* connection);
+        void setConnection(QMatrixClient::Connection* connection);
 
     private:
-        Q_INVOKABLE void doRequest(QString id, QSize requestedSize,
-                                   QPixmap* pixmap, QWaitCondition* condition);
-
-        const QMatrixClient::Connection* m_connection;
+        QMatrixClient::Connection* m_connection;
         QMutex m_mutex;
 };
-
-Q_DECLARE_METATYPE(QPixmap*)
-Q_DECLARE_METATYPE(QWaitCondition*)

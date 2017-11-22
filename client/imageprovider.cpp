@@ -22,68 +22,61 @@
 #include "lib/connection.h"
 #include "jobs/mediathumbnailjob.h"
 
+#include <QtCore/QWaitCondition>
 #include <QtCore/QDebug>
 
+using QMatrixClient::MediaThumbnailJob;
+
 ImageProvider::ImageProvider(QMatrixClient::Connection* connection)
-    : QQuickImageProvider(QQmlImageProviderBase::Pixmap, QQmlImageProviderBase::ForceAsynchronousImageLoading)
+    : QQuickImageProvider(QQmlImageProviderBase::Pixmap,
+                          QQmlImageProviderBase::ForceAsynchronousImageLoading)
     , m_connection(connection)
 {
-    qRegisterMetaType<QPixmap*>();
-    qRegisterMetaType<QWaitCondition*>();
+#if (QT_VERSION < QT_VERSION_CHECK(5, 10, 0))
+    qRegisterMetaType<MediaThumbnailJob*>();
+#endif
 }
 
 QPixmap ImageProvider::requestPixmap(const QString& id,
-                                     QSize* size, const QSize& requestedSize)
+                                     QSize* pSize, const QSize& requestedSize)
 {
     QMutexLocker locker(&m_mutex);
     qDebug() << "ImageProvider::requestPixmap:" << id;
 
-    QWaitCondition condition;
-    QPixmap result;
-    QMetaObject::invokeMethod(this, "doRequest", Qt::QueuedConnection,
-                              Q_ARG(QString, id), Q_ARG(QSize, requestedSize),
-                              Q_ARG(QPixmap*, &result),
-                              Q_ARG(QWaitCondition*, &condition));
-    condition.wait(&m_mutex);
-
-    if( size != nullptr )
+    MediaThumbnailJob* job = nullptr;
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+    QMetaObject::invokeMethod(m_connection,
+        [=] { return m_connection->getThumbnail(id, requestedSize); },
+        Qt::BlockingQueuedConnection, &job);
+#else
+    QMetaObject::invokeMethod(m_connection, "getThumbnail",
+        Qt::BlockingQueuedConnection, Q_RETURN_ARG(MediaThumbnailJob*, job),
+        Q_ARG(QUrl, id), Q_ARG(QSize, requestedSize));
+#endif
+    if (!job)
     {
-        *size = result.size();
+        qDebug() << "ImageProvider: failed to send a request";
+        return {};
     }
+    QPixmap result;
+    {
+        QWaitCondition condition; // The most compact way to block on a signal
+        job->connect(job, &MediaThumbnailJob::finished, job, [&] {
+            result = job->thumbnail();
+            condition.wakeAll();
+        });
+        condition.wait(&m_mutex);
+    }
+
+    if( pSize != nullptr )
+        *pSize = result.size();
+
     return result;
 }
 
-void ImageProvider::setConnection(const QMatrixClient::Connection* connection)
+void ImageProvider::setConnection(QMatrixClient::Connection* connection)
 {
     QMutexLocker locker(&m_mutex);
 
     m_connection = connection;
 }
-
-void ImageProvider::doRequest(QString id, QSize requestedSize, QPixmap* pixmap,
-                              QWaitCondition* condition)
-{
-    Q_ASSERT(pixmap);
-    Q_ASSERT(condition);
-    QMutexLocker locker(&m_mutex);
-    if( !m_connection )
-    {
-        qDebug() << "ImageProvider::requestPixmap: no connection!";
-        *pixmap = QPixmap();
-        condition->wakeAll();
-        return;
-    }
-
-    using QMatrixClient::MediaThumbnailJob;
-    auto job = m_connection->callApi<MediaThumbnailJob>(QUrl(id),
-                requestedSize.expandedTo({100,100}));
-    connect( job, &MediaThumbnailJob::success, this, [=]()
-    {
-        // No need to lock because we don't deal with the ImageProvider state
-        qDebug() << "gotImage";
-
-        *pixmap = job->scaledThumbnail(requestedSize);
-        condition->wakeAll();
-    } );
-}
-
