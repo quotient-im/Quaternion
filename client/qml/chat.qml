@@ -271,30 +271,46 @@ Item {
                             sourceSize.width: parent.width
                             source: eventType == "image" ? content : ""
                         }
-                        Loader {
-                            asynchronous: true
-                            visible: status == Loader.Ready
-                            width: parent.width
-                            property string sourceText: toolTip
-
-                            sourceComponent: showSource.checked ? sourceArea : undefined
-                        }
                     }
                 }
                 ToolButton {
-                    id: showSourceButton
+                    id: showDetailsButton
+
                     text: "..."
                     Layout.maximumHeight: settings.condense_chat ?
                                           contentRect.height : implicitHeight
                     Layout.alignment: Qt.AlignTop
 
+
                     action: Action {
-                        id: showSource
+                        id: showDetails
 
                         tooltip: "Show source"
                         checkable: true
+                        onCheckedChanged: {
+                            if (checked)
+                                chatView.stickToBottom = false
+                            else
+                                chatView.stickToBottom = chatView.nowAtYEnd
+                        }
                     }
                 }
+            }
+            Loader {
+                asynchronous: true
+                visible: status == Loader.Ready
+                anchors.left: message.left
+                anchors.right: message.right
+                anchors.rightMargin: showDetailsButton.width
+                height: childrenRect.height
+
+                property string evtId: eventId
+                property url evtLink:
+                    "https://matrix.to/#/" + messageModel.room.id + "/" + eventId
+                property var timestamp: time
+                property string sourceText: toolTip
+
+                sourceComponent: showDetails.checked ? detailsArea : undefined
             }
             Rectangle {
                 id: readMarker
@@ -311,11 +327,80 @@ Item {
     }
 
     Component {
-        id: sourceArea
+        id: detailsArea
 
-        TextArea {
-            selectByMouse: true; readOnly: true; font.family: "Monospace"
-            text: sourceText
+        Rectangle {
+            height: childrenRect.height
+            radius: 5
+
+            color: defaultPalette.button
+            border.color: defaultPalette.mid
+
+            Item {
+                id: header
+                width: parent.width
+                height: childrenRect.height
+                anchors.top: parent.top
+
+                TextEdit {
+                    text: "<" + timestamp.toLocaleString(Qt.locale(), Locale.ShortFormat) + ">"
+                    font.bold: true
+                    readOnly: true
+                    selectByKeyboard: true; selectByMouse: true
+
+                    anchors.left: parent.left
+                    anchors.leftMargin: 3
+                    anchors.verticalCenter: copyLinkButton.verticalCenter
+                    z: 1
+                }
+                TextEdit {
+                    text: "<a href=\""+ evtLink + "\">"+ evtId + "</a>"
+                    textFormat: Text.RichText
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                    readOnly: true
+                    selectByKeyboard: true; selectByMouse: true
+
+                    width: parent.width
+                    anchors.verticalCenter: copyLinkButton.verticalCenter
+
+                    onLinkActivated: Qt.openUrlExternally(link)
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: parent.hoveredLink ?
+                                         Qt.PointingHandCursor :
+                                         Qt.IBeamCursor
+                        acceptedButtons: Qt.NoButton
+                    }
+                }
+                Button {
+                    id: copyLinkButton
+
+                    text: "Copy link to clipboard"
+
+                    anchors.right: parent.right
+                    z: 1
+
+                    onClicked: { permalink.selectAll(); permalink.copy() }
+                }
+                TextEdit {
+                    id: permalink
+                    text: evtLink
+                    width: 0; height: 0; visible: false
+                }
+            }
+
+            TextArea {
+                text: sourceText;
+                textFormat: Text.PlainText
+                readOnly: true;
+                font.family: "Monospace"
+                selectByKeyboard: true; selectByMouse: true;
+
+                width: parent.width
+                anchors.top: header.bottom
+            }
         }
     }
     Rectangle {
