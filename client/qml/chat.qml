@@ -267,9 +267,8 @@ Item {
                         Image {
                             id: imageField
                             fillMode: Image.PreserveAspectFit
-                            width: eventType == "image" ? parent.width : 0
-
-                            sourceSize: eventType == "image" ? "500x500" : "0x0"
+                            width: parent.width
+                            sourceSize.width: parent.width
                             source: eventType == "image" ? content : ""
                         }
                         Loader {
