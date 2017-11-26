@@ -214,26 +214,32 @@ void MainWindow::invokeLogin()
 {
     using namespace QMatrixClient;
     SettingsGroup settings("Accounts");
+    bool autoLoggedIn = false;
     for(const auto& accountId: settings.childGroups())
     {
         AccountSettings account { accountId };
         if (!account.accessToken().isEmpty())
         {
+            autoLoggedIn = true;
             auto c = new Connection(account.homeserver());
+            auto deviceName = account.deviceName();
+            connect(c, &Connection::connected, this,
+                [=] {
+                    c->loadState();
+                    addConnection(c, deviceName);
+                });
             c->connectWithToken(account.userId(), account.accessToken(),
                                 account.deviceId());
-            c->loadState();
-            addConnection(c, account.deviceName());
         }
     }
-    if (connections.isEmpty())
-        QTimer::singleShot(0, this, SLOT(showLoginWindow()));
-    else
+    if (autoLoggedIn)
     {
         busyLabel->show();
         busyIndicator->start();
         statusBar()->showMessage("Syncing, please wait...");
     }
+    else
+        QTimer::singleShot(0, this, SLOT(showLoginWindow()));
 }
 
 void MainWindow::loginError(Connection* c, const QString& message)

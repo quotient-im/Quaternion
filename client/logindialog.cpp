@@ -25,8 +25,6 @@
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFormLayout>
 
-#include <QtCore/QUrl>
-
 #include "settings.h"
 
 LoginDialog::LoginDialog(QWidget* parent)
@@ -38,14 +36,15 @@ LoginDialog::LoginDialog(QWidget* parent)
     , loginButton(new QPushButton(tr("Login")))
     , saveTokenCheck(new QCheckBox(tr("Stay logged in")))
     , statusLabel(new QLabel(tr("Welcome to Quaternion")))
+    , m_connection(new Connection())
 {
     passwordEdit->setEchoMode( QLineEdit::Password );
 
     auto* formLayout = new QFormLayout();
-    formLayout->addRow(tr("Server"), serverEdit);
-    formLayout->addRow(tr("User"), userEdit);
+    formLayout->addRow(tr("Matrix ID"), userEdit);
     formLayout->addRow(tr("Password"), passwordEdit);
     formLayout->addRow(tr("Device name"), initialDeviceName);
+    formLayout->addRow(tr("Connect to server"), serverEdit);
     formLayout->addRow(saveTokenCheck);
 
     auto* mainLayout = new QVBoxLayout();
@@ -55,6 +54,19 @@ LoginDialog::LoginDialog(QWidget* parent)
     
     setLayout(mainLayout);
 
+    connect( userEdit, &QLineEdit::textChanged, m_connection.data(),
+             [=] {
+                 auto userId = userEdit->text();
+                 if (userId.startsWith('@') && userId.indexOf(':') != -1)
+                     m_connection->resolveServer(userId);
+             });
+    connect( m_connection.data(), &Connection::homeserverChanged, serverEdit,
+             [=] (QUrl newUrl)
+             {
+                 serverEdit->setText(newUrl.toString());
+             });
+    connect( loginButton, &QPushButton::clicked, this, &LoginDialog::login );
+
     {
         // Fill defaults
         using namespace QMatrixClient;
@@ -62,35 +74,21 @@ LoginDialog::LoginDialog(QWidget* parent)
         if ( !accounts.empty() )
         {
             AccountSettings account { accounts.front() };
-            QUrl homeserver = account.homeserver();
-            QString username = account.userId();
-            if (username.startsWith('@'))
-            {
-                QString serverpart = ":" + homeserver.host();
-                if (homeserver.port() != -1)
-                    serverpart += ":" + QString::number(homeserver.port());
-                if (username.endsWith(serverpart))
-                {
-                    // Keep only the local part of the user id
-                    username.remove(0, 1).chop(serverpart.size());
-                }
-            }
-            serverEdit->setText(homeserver.toString());
-            userEdit->setText(username);
+            userEdit->setText(account.userId());
+
+            auto homeserver = account.homeserver();
+            if (!homeserver.isEmpty())
+                m_connection->setHomeserver(homeserver);
+            initialDeviceName->setText(account.deviceName());
             saveTokenCheck->setChecked(account.keepLoggedIn());
+            passwordEdit->setFocus();
         }
         else
         {
-            serverEdit->setText("https://matrix.org");
             saveTokenCheck->setChecked(false);
+            userEdit->setFocus();
         }
     }
-    if (userEdit->text().isEmpty())
-        userEdit->setFocus();
-    else
-        passwordEdit->setFocus();
-
-    connect( loginButton, &QPushButton::clicked, this, &LoginDialog::login );
 }
 
 void LoginDialog::setStatusMessage(const QString& msg)
@@ -117,23 +115,22 @@ void LoginDialog::login()
 {
     setStatusMessage(tr("Connecting and logging in, please wait"));
     setDisabled(true);
-    QUrl url = QUrl::fromUserInput(serverEdit->text());
-    QString user = userEdit->text();
-    QString password = passwordEdit->text();
 
-    m_connection.reset(new Connection(url));
-
+    auto url = QUrl::fromUserInput(serverEdit->text());
+    if (!serverEdit->text().isEmpty() && !serverEdit->text().startsWith("http"))
+        url.setScheme("https"); // Qt defaults to http (or even ftp for some)
+    m_connection->setHomeserver(url);
     connect( m_connection.data(), &Connection::connected,
              this, &QDialog::accept );
     connect( m_connection.data(), &Connection::loginError,
              this, &LoginDialog::error );
-    m_connection->connectToServer(user, password, initialDeviceName->text());
+    m_connection->connectToServer(userEdit->text(), passwordEdit->text(),
+                                  initialDeviceName->text());
 }
 
 void LoginDialog::error(QString error)
 {
     setStatusMessage(error);
-    m_connection.reset();
     setDisabled(false);
 }
 
