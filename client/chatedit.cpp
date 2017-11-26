@@ -61,22 +61,22 @@ void ChatEdit::startNewCompletion()
     if ( !completionMatches.isEmpty() )
     {
         matchesListPosition = 0;
-        if ( completionCursor.atStart() )
+        auto lookBehindCursor = completionCursor;
+        if ( lookBehindCursor.atStart() )
         {
             appendTextAtCursor(": ", false);
             return;
         }
         for (auto stringBefore: {":", ": "})
         {
-            completionCursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
-            if ( completionCursor.selectedText().startsWith(stringBefore) )
+            lookBehindCursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
+            if ( lookBehindCursor.selectedText().startsWith(stringBefore) )
             {
-                completionCursor.insertText(", ");
+                lookBehindCursor.insertText(", ");
                 appendTextAtCursor(": ", false);
                 return;
             }
         }
-        completionCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, 2);
         appendTextAtCursor(" ", false);
     }
 }
