@@ -34,6 +34,7 @@ class Message
         Message(QMatrixClient::RoomEvent* event, QMatrixClient::Room* room);
 
         QMatrixClient::RoomEvent* messageEvent() const;
+        void setEvent(QMatrixClient::RoomEvent* newEvent);
         bool highlight() const;
         bool isStatusMessage() const;
 

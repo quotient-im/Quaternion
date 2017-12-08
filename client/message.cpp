@@ -27,6 +27,7 @@
 Message::Message(QMatrixClient::RoomEvent* event, QMatrixClient::Room* room)
     : m_event(event)
 {
+    Q_ASSERT(event);
     using namespace QMatrixClient;
     if( event->type() == EventType::RoomMessage )
     {
@@ -56,4 +57,10 @@ bool Message::highlight() const
 bool Message::isStatusMessage() const
 {
     return m_isStatusMessage;
+}
+
+void Message::setEvent(QMatrixClient::RoomEvent* newEvent)
+{
+    Q_ASSERT(newEvent);
+    m_event = newEvent;
 }
