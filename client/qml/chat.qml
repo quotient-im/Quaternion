@@ -1,6 +1,6 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.0
-import QtQuick.Controls.Styles 1.0
+import QtQuick.Controls.Styles 1.4
 import QtQuick.Layouts 1.1
 import QMatrixClient 1.0
 
@@ -281,6 +281,12 @@ Item {
                                           contentRect.height : implicitHeight
                     Layout.alignment: Qt.AlignTop
 
+                    style: ButtonStyle {
+                        background: Rectangle {
+                            color: defaultPalette.button
+                            radius: 4
+                        }
+                    }
 
                     action: Action {
                         id: showDetails
