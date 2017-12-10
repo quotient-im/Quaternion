@@ -104,7 +104,14 @@ QDateTime MessageEventModel::makeMessageTimestamp(int baseIndex) const
 
     // The event is most likely redacted or just invalid.
     // Look for the nearest date around and slap zero time to it.
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
+    using rev_iter_t =
+        std::reverse_iterator<QuaternionRoom::Timeline::const_iterator>;
+    for (auto it = rev_iter_t(messages.begin());
+         it != rev_iter_t(messages.begin()); ++it)
+#else
     for (auto it = messages.rend() - baseIndex; it != messages.rend(); ++it)
+#endif
     {
         ts = it->messageEvent()->timestamp();
         if (ts.isValid())
