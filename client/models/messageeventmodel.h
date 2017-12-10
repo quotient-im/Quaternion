@@ -43,4 +43,6 @@ class MessageEventModel: public QAbstractListModel
 
     private:
         QuaternionRoom* m_currentRoom;
+
+        QDateTime makeMessageTimestamp(int baseIndex) const;
 };
