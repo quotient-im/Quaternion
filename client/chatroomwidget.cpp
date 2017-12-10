@@ -85,7 +85,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
             [=](const QStringList& matches, int pos)
             {
                 m_currentlyTyping->setText(
-                    tr("<i>Tab Completion (next: %1)</i>")
+                    tr("<i>Next completion: %1</i>")
                     .arg( QStringList(matches.mid(pos, 5)).join(", ") ) );
             });
     connect(m_chatEdit, &ChatEdit::cancelledCompletion,
