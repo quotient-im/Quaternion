@@ -202,6 +202,7 @@ Item {
 
                 property string textColor:
                         if (highlight) decoration
+                        else if (redacted) disabledPalette.text
                         else if (eventType == "state" || eventType == "other") disabledPalette.text
                         else defaultPalette.text
 
@@ -363,7 +364,7 @@ Item {
                     selectByKeyboard: true; selectByMouse: true
 
                     width: parent.width
-                    anchors.verticalCenter: copyLinkButton.verticalCenter
+                    anchors.top: copyLinkButton.bottom
 
                     onLinkActivated: Qt.openUrlExternally(link)
 
@@ -373,6 +374,19 @@ Item {
                                          Qt.PointingHandCursor :
                                          Qt.IBeamCursor
                         acceptedButtons: Qt.NoButton
+                    }
+                }
+                Button {
+                    id: redactButton
+
+                    text: "Redact"
+
+                    anchors.right: copyLinkButton.left
+                    z: 1
+
+                    onClicked: {
+                        messageModel.room.redactEvent(evtId)
+                        showDetails.checked = false
                     }
                 }
                 Button {

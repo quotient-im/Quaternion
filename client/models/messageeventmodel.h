@@ -21,6 +21,11 @@
 
 #include <QtCore/QAbstractListModel>
 
+namespace QMatrixClient
+{
+    class RoomEvent;
+}
+
 class QuaternionRoom;
 
 class MessageEventModel: public QAbstractListModel
@@ -40,6 +45,9 @@ class MessageEventModel: public QAbstractListModel
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
         QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
         QHash<int, QByteArray> roleNames() const override;
+
+    private slots:
+        void refreshEvent(const QMatrixClient::RoomEvent* event);
 
     private:
         QuaternionRoom* m_currentRoom;

@@ -47,10 +47,6 @@ class QuaternionRoom: public QMatrixClient::Room
          */
         QString prettyPrint(const QString& plainText) const;
 
-    protected:
-        void doAddNewMessageEvents(const QMatrixClient::RoomEvents& events) override;
-        void doAddHistoricalMessageEvents(const QMatrixClient::RoomEvents& events) override;
-
     private slots:
         void countChanged();
 
@@ -58,4 +54,10 @@ class QuaternionRoom: public QMatrixClient::Room
         Timeline m_messages;
         bool m_shown;
         QString m_cachedInput;
+
+        using EventsView = QMatrixClient::RoomEventsView;
+        void doAddNewMessageEvents(EventsView events) override;
+        void doAddHistoricalMessageEvents(EventsView events) override;
+        void onRedaction(QMatrixClient::RoomEvent* before,
+                         QMatrixClient::TimelineItem& after) override;
 };

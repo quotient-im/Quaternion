@@ -27,6 +27,7 @@
 #include "lib/user.h"
 #include "lib/events/roommemberevent.h"
 #include "lib/events/simplestateevents.h"
+#include "lib/events/redactionevent.h"
 
 enum EventRoles {
     EventTypeRole = Qt::UserRole + 1,
@@ -37,6 +38,7 @@ enum EventRoles {
     ContentRole,
     ContentTypeRole,
     HighlightRole,
+    RedactedRole,
 };
 
 QHash<int, QByteArray> MessageEventModel::roleNames() const
@@ -50,6 +52,7 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
     roles[ContentRole] = "content";
     roles[ContentTypeRole] = "contentType";
     roles[HighlightRole] = "highlight";
+    roles[RedactedRole] = "redacted";
     return roles;
 }
 
@@ -74,23 +77,38 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
     if( room )
     {
         using namespace QMatrixClient;
-        connect(m_currentRoom, &Room::aboutToAddNewMessages,
-                [=](const RoomEvents& events)
+        connect(m_currentRoom, &Room::aboutToAddNewMessages, this,
+                [=](RoomEventsView events)
                 {
-                    beginInsertRows(QModelIndex(),
-                                    rowCount(), rowCount() + events.size() - 1);
+                    beginInsertRows(QModelIndex(), rowCount(),
+                                    rowCount() + int(events.size()) - 1);
                 });
-        connect(m_currentRoom, &Room::aboutToAddHistoricalMessages,
-                [=](const RoomEvents& events)
+        connect(m_currentRoom, &Room::aboutToAddHistoricalMessages, this,
+                [=](RoomEventsView events)
                 {
-                    beginInsertRows(QModelIndex(), 0, events.size() - 1);
+                    beginInsertRows(QModelIndex(), 0, int(events.size()) - 1);
                 });
         connect(m_currentRoom, &Room::addedMessages,
                 this, &MessageEventModel::endInsertRows);
+        connect(m_currentRoom, &Room::replacedEvent, this,
+                [=] (RoomEvent*, RoomEvent* newEvt) { refreshEvent(newEvt); });
         qDebug() << "Connected to room" << room->id()
                  << "as" << room->connection()->userId();
     }
     endResetModel();
+}
+
+void MessageEventModel::refreshEvent(const QMatrixClient::RoomEvent* event)
+{
+    // FIXME: Avoid repetetive searching in QuaternionRoom and here.
+    // The right way will be to get rid of QuaternionRoom altogether.
+    const auto it = std::find_if(
+        m_currentRoom->messages().begin(), m_currentRoom->messages().end(),
+        [=](const Message& m) { return m.messageEvent() == event; });
+    if (it == m_currentRoom->messages().end())
+        return;
+    const auto row = it - m_currentRoom->messages().begin();
+    emit dataChanged(index(row), index(row));
 }
 
 QDateTime MessageEventModel::makeMessageTimestamp(int baseIndex) const
@@ -235,6 +253,16 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 
     if (role == ContentRole)
     {
+        if (event->isRedacted())
+        {
+            auto reason = event->redactedBecause()->reason();
+            if (reason.isEmpty())
+                return tr("Redacted");
+            else
+                return tr("Redacted: %1")
+                    .arg(event->redactedBecause()->reason());
+        }
+
         if( event->type() == EventType::RoomMessage )
         {
             using namespace MessageEventContent;
@@ -346,6 +374,9 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     {
         return message.highlight();
     }
+
+    if( role == RedactedRole )
+        return message.messageEvent()->isRedacted();
 
     if( role == Qt::DecorationRole )
     {

@@ -56,7 +56,7 @@ const QuaternionRoom::Timeline& QuaternionRoom::messages() const
     return m_messages;
 }
 
-void QuaternionRoom::doAddNewMessageEvents(const QMatrixClient::RoomEvents& events)
+void QuaternionRoom::doAddNewMessageEvents(EventsView events)
 {
     Room::doAddNewMessageEvents(events);
 
@@ -65,13 +65,23 @@ void QuaternionRoom::doAddNewMessageEvents(const QMatrixClient::RoomEvents& even
         m_messages.push_back(Message(e, this));
 }
 
-void QuaternionRoom::doAddHistoricalMessageEvents(const QMatrixClient::RoomEvents& events)
+void QuaternionRoom::doAddHistoricalMessageEvents(EventsView events)
 {
     Room::doAddHistoricalMessageEvents(events);
 
     m_messages.reserve(m_messages.size() + events.size());
     for (auto e: events)
         m_messages.push_front(Message(e, this));
+}
+
+void QuaternionRoom::onRedaction(QMatrixClient::RoomEvent* before,
+                                 QMatrixClient::TimelineItem& after)
+{
+    Room::onRedaction(before, after);
+    const auto it = std::find_if(m_messages.begin(), m_messages.end(),
+        [=](const Message& m) { return m.messageEvent() == before; });
+    if (it != m_messages.end())
+        it->setEvent(after.event());
 }
 
 void QuaternionRoom::countChanged()
