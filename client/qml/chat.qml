@@ -285,7 +285,7 @@ Item {
                     action: Action {
                         id: showDetails
 
-                        tooltip: "Show source"
+                        tooltip: "Show details and actions"
                         checkable: true
                         onCheckedChanged: {
                             if (checked)
@@ -308,6 +308,7 @@ Item {
                 property url evtLink:
                     "https://matrix.to/#/" + messageModel.room.id + "/" + eventId
                 property var timestamp: time
+                property var showDetails: showDetails
                 property string sourceText: toolTip
 
                 sourceComponent: showDetails.checked ? detailsArea : undefined
@@ -382,7 +383,11 @@ Item {
                     anchors.right: parent.right
                     z: 1
 
-                    onClicked: { permalink.selectAll(); permalink.copy() }
+                    onClicked: {
+                        permalink.selectAll()
+                        permalink.copy()
+                        showDetails.checked = false
+                    }
                 }
                 TextEdit {
                     id: permalink
