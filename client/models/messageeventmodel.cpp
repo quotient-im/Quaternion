@@ -32,7 +32,7 @@ enum EventRoles {
     EventTypeRole = Qt::UserRole + 1,
     EventIdRole,
     TimeRole,
-    DateRole,
+    SectionRole,
     AuthorRole,
     ContentRole,
     ContentTypeRole,
@@ -45,7 +45,7 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
     roles[EventTypeRole] = "eventType";
     roles[EventIdRole] = "eventId";
     roles[TimeRole] = "time";
-    roles[DateRole] = "date";
+    roles[SectionRole] = "section";
     roles[AuthorRole] = "author";
     roles[ContentRole] = "content";
     roles[ContentTypeRole] = "contentType";
@@ -91,6 +91,34 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                  << "as" << room->connection()->userId();
     }
     endResetModel();
+}
+
+QDateTime MessageEventModel::makeMessageTimestamp(int baseIndex) const
+{
+    Q_ASSERT(m_currentRoom &&
+             baseIndex >= 0 && baseIndex < m_currentRoom->messages().count());
+    const auto& messages = m_currentRoom->messages();
+    auto ts = messages[baseIndex].messageEvent()->timestamp();
+    if (ts.isValid())
+        return ts;
+
+    // The event is most likely redacted or just invalid.
+    // Look for the nearest date around and slap zero time to it.
+    for (auto it = messages.rend() - baseIndex; it != messages.rend(); ++it)
+    {
+        ts = it->messageEvent()->timestamp();
+        if (ts.isValid())
+            return { ts.date(), {0,0}, Qt::LocalTime };
+    }
+    for (auto it = messages.begin() + baseIndex + 1; it != messages.end(); ++it)
+    {
+        ts = it->messageEvent()->timestamp();
+        if (ts.isValid())
+            return { ts.date(), {0,0}, Qt::LocalTime };
+    }
+    // What kind of room is that?..
+    qCritical() << "No valid timestamps in the room timeline!";
+    return {};
 }
 
 int MessageEventModel::rowCount(const QModelIndex& parent) const
@@ -168,14 +196,10 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     }
 
     if( role == TimeRole )
-    {
-        return event->timestamp();
-    }
+        return makeMessageTimestamp(index.row());
 
-    if( role == DateRole )
-    {
-        return event->timestamp().toLocalTime().date();
-    }
+    if( role == SectionRole )
+        return makeMessageTimestamp(index.row()).toLocalTime().date();
 
     if( role == AuthorRole )
     {

@@ -87,7 +87,7 @@ Item {
         }
 
         section {
-            property: "date"
+            property: "section"
             labelPositioning: ViewSection.InlineLabels | ViewSection.CurrentLabelAtStart
 
             delegate: Rectangle {
