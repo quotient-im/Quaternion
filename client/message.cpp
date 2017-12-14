@@ -24,7 +24,8 @@
 #include "lib/connection.h"
 #include "lib/room.h"
 
-Message::Message(QMatrixClient::RoomEvent* event, QMatrixClient::Room* room)
+Message::Message(const QMatrixClient::RoomEvent* event,
+                 const QMatrixClient::Room* room)
     : m_event(event)
 {
     Q_ASSERT(event);
@@ -34,8 +35,8 @@ Message::Message(QMatrixClient::RoomEvent* event, QMatrixClient::Room* room)
         m_isStatusMessage = false;
         Q_ASSERT(room);
 
-        auto* msgEvent = static_cast<RoomMessageEvent*>(event);
-        User* localUser = room->connection()->user();
+        auto* msgEvent = static_cast<const RoomMessageEvent*>(event);
+        User* localUser = room->localUser();
         // Only highlight messages from other users
         m_isHighlight = msgEvent->senderId() != localUser->id() &&
             (msgEvent->plainBody().contains(localUser->id()) ||
@@ -44,7 +45,7 @@ Message::Message(QMatrixClient::RoomEvent* event, QMatrixClient::Room* room)
     }
 }
 
-QMatrixClient::RoomEvent* Message::messageEvent() const
+const QMatrixClient::RoomEvent* Message::messageEvent() const
 {
     return m_event;
 }
@@ -59,7 +60,7 @@ bool Message::isStatusMessage() const
     return m_isStatusMessage;
 }
 
-void Message::setEvent(QMatrixClient::RoomEvent* newEvent)
+void Message::setEvent(const QMatrixClient::RoomEvent* newEvent)
 {
     Q_ASSERT(newEvent);
     m_event = newEvent;

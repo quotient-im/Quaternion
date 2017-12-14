@@ -56,32 +56,32 @@ const QuaternionRoom::Timeline& QuaternionRoom::messages() const
     return m_messages;
 }
 
-void QuaternionRoom::doAddNewMessageEvents(EventsView events)
-{
-    Room::doAddNewMessageEvents(events);
+using QMatrixClient::TimelineItem;
 
-    m_messages.reserve(m_messages.size() + events.size());
-    for (auto e: events)
-        m_messages.push_back(Message(e, this));
+void QuaternionRoom::onAddNewTimelineEvents(timeline_iter_t from)
+{
+    m_messages.reserve(std::distance(from, messageEvents().cend()));
+    std::transform(from, messageEvents().cend(),
+        std::back_inserter(m_messages),
+        [=] (const TimelineItem& ti) { return Message(ti.event(), this); });
 }
 
-void QuaternionRoom::doAddHistoricalMessageEvents(EventsView events)
+void QuaternionRoom::onAddHistoricalTimelineEvents(rev_iter_t from)
 {
-    Room::doAddHistoricalMessageEvents(events);
-
-    m_messages.reserve(m_messages.size() + events.size());
-    for (auto e: events)
-        m_messages.push_front(Message(e, this));
+    m_messages.reserve(std::distance(from, messageEvents().crend()));
+    std::transform(from, messageEvents().crend(),
+        std::front_inserter(m_messages),
+        [=] (const TimelineItem& ti) { return Message(ti.event(), this); });
 }
 
-void QuaternionRoom::onRedaction(QMatrixClient::RoomEvent* before,
-                                 QMatrixClient::TimelineItem& after)
+void QuaternionRoom::onRedaction(const QMatrixClient::RoomEvent* before,
+                                 const QMatrixClient::RoomEvent* after)
 {
-    Room::onRedaction(before, after);
+    Q_ASSERT(before && after);
     const auto it = std::find_if(m_messages.begin(), m_messages.end(),
         [=](const Message& m) { return m.messageEvent() == before; });
     if (it != m_messages.end())
-        it->setEvent(after.event());
+        it->setEvent(after);
 }
 
 void QuaternionRoom::countChanged()

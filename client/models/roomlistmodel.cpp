@@ -186,10 +186,12 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         }
         case Qt::ToolTipRole:
         {
-            QString result = QString("<b>%1</b><br>").arg(room->canonicalAlias());
+            auto result =
+                    QStringLiteral("<b>%1</b><br>").arg(room->canonicalAlias());
             result += tr("Room members: %1<br>").arg(room->memberCount());
             if (room->highlightCount() > 0)
-                result += tr("Unread mentions: %1<br>").arg(room->highlightCount());
+                result +=
+                        tr("Unread mentions: %1<br>").arg(room->highlightCount());
             result += tr("Room ID: %1<br>").arg(room->id());
             if( room->joinState() == QMatrixClient::JoinState::Join )
                 result += tr("You joined this room");

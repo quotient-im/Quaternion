@@ -78,20 +78,20 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
     {
         using namespace QMatrixClient;
         connect(m_currentRoom, &Room::aboutToAddNewMessages, this,
-                [=](RoomEventsView events)
+                [=](RoomEventsRange events)
                 {
                     beginInsertRows(QModelIndex(), rowCount(),
                                     rowCount() + int(events.size()) - 1);
                 });
         connect(m_currentRoom, &Room::aboutToAddHistoricalMessages, this,
-                [=](RoomEventsView events)
+                [=](RoomEventsRange events)
                 {
                     beginInsertRows(QModelIndex(), 0, int(events.size()) - 1);
                 });
         connect(m_currentRoom, &Room::addedMessages,
                 this, &MessageEventModel::endInsertRows);
-        connect(m_currentRoom, &Room::replacedEvent, this,
-                [=] (RoomEvent*, RoomEvent* newEvt) { refreshEvent(newEvt); });
+        connect(m_currentRoom, &Room::replacedEvent,
+                this, &MessageEventModel::refreshEvent);
         qDebug() << "Connected to room" << room->id()
                  << "as" << room->connection()->userId();
     }
@@ -169,12 +169,12 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     {
         if( event->type() == EventType::RoomMessage )
         {
-            RoomMessageEvent* e = static_cast<RoomMessageEvent*>(event);
+            auto* e = static_cast<const RoomMessageEvent*>(event);
             return QString("%1: %2").arg(senderName, e->plainBody());
         }
         if( event->type() == EventType::RoomMember )
         {
-            RoomMemberEvent* e = static_cast<RoomMemberEvent*>(event);
+            auto* e = static_cast<const RoomMemberEvent*>(event);
             switch( e->membership() )
             {
                 case MembershipType::Join:
@@ -191,7 +191,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         }
         if( event->type() == EventType::RoomAliases )
         {
-            RoomAliasesEvent* e = static_cast<RoomAliasesEvent*>(event);
+            auto* e = static_cast<const RoomAliasesEvent*>(event);
             return QString("Current aliases: %1").arg(e->aliases().join(", "));
         }
         return "Unknown Event";
@@ -209,7 +209,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 
         if (event->type() == EventType::RoomMessage)
         {
-            auto msgType = static_cast<RoomMessageEvent*>(event)->msgtype();
+            auto msgType = static_cast<const RoomMessageEvent*>(event)->msgtype();
             if( msgType == MessageEventType::Image )
                 return "image";
             else if( msgType == MessageEventType::Emote )
@@ -232,7 +232,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         // (see the FIXME in the beginning of the method).
         if (event->type() == EventType::RoomMember)
         {
-            const auto e = static_cast<RoomMemberEvent*>(event);
+            const auto* e = static_cast<const RoomMemberEvent*>(event);
             if (e->prev_content() && !e->prev_content()->displayName.isEmpty()
                     && e->displayName() != e->prev_content()->displayName)
                 return e->prev_content()->displayName;
@@ -245,7 +245,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         if (event->type() == EventType::RoomMessage)
         {
             const auto& contentType =
-                static_cast<RoomMessageEvent*>(event)->mimeType().name();
+                static_cast<const RoomMessageEvent*>(event)->mimeType().name();
             return contentType == "text/plain" ? "text/html" : contentType;
         }
         return "text/plain";
@@ -267,7 +267,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         {
             using namespace MessageEventContent;
 
-            auto e = static_cast<RoomMessageEvent*>(event);
+            auto* e = static_cast<const RoomMessageEvent*>(event);
             switch (e->msgtype())
             {
             case MessageEventType::Emote:
@@ -291,7 +291,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         }
         if( event->type() == EventType::RoomMember )
         {
-            auto e = static_cast<RoomMemberEvent*>(event);
+            auto* e = static_cast<const RoomMemberEvent*>(event);
             // FIXME: Rewind to the name that was at the time of this event
             QString subjectName = m_currentRoom->roomMembername(e->userId());
             // The below code assumes senderName output in AuthorRole
@@ -343,27 +343,27 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         }
         if( event->type() == EventType::RoomAliases )
         {
-            auto e = static_cast<RoomAliasesEvent*>(event);
+            auto* e = static_cast<const RoomAliasesEvent*>(event);
             return tr("set aliases to: %1").arg(e->aliases().join(", "));
         }
         if( event->type() == EventType::RoomCanonicalAlias )
         {
-            auto e = static_cast<RoomCanonicalAliasEvent*>(event);
+            auto* e = static_cast<const RoomCanonicalAliasEvent*>(event);
             return tr("set the room main alias to: %1").arg(e->alias());
         }
         if( event->type() == EventType::RoomName )
         {
-            auto e = static_cast<RoomNameEvent*>(event);
+            auto* e = static_cast<const RoomNameEvent*>(event);
             return tr("set the room name to: %1").arg(e->name());
         }
         if( event->type() == EventType::RoomTopic )
         {
-            auto e = static_cast<RoomTopicEvent*>(event);
+            auto* e = static_cast<const RoomTopicEvent*>(event);
             return tr("set the topic to: %1").arg(e->topic());
         }
         if( event->type() == EventType::RoomEncryption )
         {
-            auto e = static_cast<EncryptionEvent*>(event);
+            auto* e = static_cast<const EncryptionEvent*>(event);
             return tr("activated End-to-End Encryption (algorithm: %1)")
                 .arg(e->algorithm());
         }

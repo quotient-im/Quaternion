@@ -425,7 +425,12 @@ void ChatRoomWidget::onMessageShownChanged(QString eventId, bool shown)
     }
 
     const auto iter = m_currentRoom->findInTimeline(eventId);
-    Q_ASSERT(iter != m_currentRoom->timelineEdge());
+    if (iter == m_currentRoom->timelineEdge())
+    {
+        qCritical() <<  "Event" << eventId << "is not in the timeline";
+        Q_ASSERT(false);
+        return;
+    }
     const auto timelineIndex = iter->index();
     auto pos = std::lower_bound(indicesOnScreen.begin(), indicesOnScreen.end(),
                                 timelineIndex);

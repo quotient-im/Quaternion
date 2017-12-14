@@ -31,15 +31,16 @@ class Message
 {
     public:
         Message() = default;
-        Message(QMatrixClient::RoomEvent* event, QMatrixClient::Room* room);
+        Message(const QMatrixClient::RoomEvent* event,
+                const QMatrixClient::Room* room);
 
-        QMatrixClient::RoomEvent* messageEvent() const;
-        void setEvent(QMatrixClient::RoomEvent* newEvent);
+        const QMatrixClient::RoomEvent* messageEvent() const;
+        void setEvent(const QMatrixClient::RoomEvent* newEvent);
         bool highlight() const;
         bool isStatusMessage() const;
 
     private:
-        QMatrixClient::RoomEvent* m_event = nullptr;
+        const QMatrixClient::RoomEvent* m_event = nullptr;
         bool m_isHighlight = false;
         bool m_isStatusMessage = true;
 };

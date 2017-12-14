@@ -55,9 +55,8 @@ class QuaternionRoom: public QMatrixClient::Room
         bool m_shown;
         QString m_cachedInput;
 
-        using EventsView = QMatrixClient::RoomEventsView;
-        void doAddNewMessageEvents(EventsView events) override;
-        void doAddHistoricalMessageEvents(EventsView events) override;
-        void onRedaction(QMatrixClient::RoomEvent* before,
-                         QMatrixClient::TimelineItem& after) override;
+        void onAddNewTimelineEvents(timeline_iter_t from) override;
+        void onAddHistoricalTimelineEvents(rev_iter_t from) override;
+        void onRedaction(const QMatrixClient::RoomEvent* before,
+                         const QMatrixClient::RoomEvent* after) override;
 };
