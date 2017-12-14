@@ -201,9 +201,10 @@ Item {
                 spacing: 3
 
                 property string textColor:
-                        if (highlight) decoration
-                        else if (redacted) disabledPalette.text
-                        else if (eventType == "state" || eventType == "other") disabledPalette.text
+                        if (redacted) disabledPalette.text
+                        else if (highlight) decoration
+                        else if (["state", "notice", "other"]
+                                 .indexOf(eventType) >= 0) disabledPalette.text
                         else defaultPalette.text
 
                 Label {

@@ -209,12 +209,17 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 
         if (event->type() == EventType::RoomMessage)
         {
-            auto msgType = static_cast<const RoomMessageEvent*>(event)->msgtype();
-            if( msgType == MessageEventType::Image )
-                return "image";
-            else if( msgType == MessageEventType::Emote )
-                return "emote";
-            return "message";
+            switch (static_cast<const RoomMessageEvent*>(event)->msgtype())
+            {
+                case MessageEventType::Image:
+                    return "image";
+                case MessageEventType::Emote:
+                    return "emote";
+                case MessageEventType::Notice:
+                    return "notice";
+            default:
+                return "message";
+            }
         }
 
         return "other";
