@@ -27,6 +27,7 @@
 #include <QtWidgets/QInputDialog>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QPushButton>
 #include <QtGui/QMovie>
 #include <QtGui/QCloseEvent>
 
@@ -39,8 +40,6 @@
 #include "systemtray.h"
 #include "settings.h"
 
-class QuaternionRoom;
-
 MainWindow::MainWindow()
 {
     Connection::setRoomType<QuaternionRoom>();
@@ -52,9 +51,11 @@ MainWindow::MainWindow()
     addDockWidget(Qt::RightDockWidgetArea, userListDock);
     chatRoomWidget = new ChatRoomWidget(this);
     setCentralWidget(chatRoomWidget);
-    connect( chatRoomWidget, &ChatRoomWidget::joinCommandEntered, this, &MainWindow::joinRoom );
+    connect( chatRoomWidget, &ChatRoomWidget::joinCommandEntered,
+             this, [=] (QString roomIdOrAlias)  { joinRoom(roomIdOrAlias); });
     connect( roomListDock, &RoomListDock::roomSelected, [=](QuaternionRoom *r)
     {
+        currentRoom = r;
         setWindowTitle(r->displayName());
         chatRoomWidget->setRoom(r);
         userListDock->setRoom(r);
@@ -261,7 +262,28 @@ void MainWindow::logout(Connection* c)
     c->logout();
 }
 
-void MainWindow::joinRoom(const QString& roomAlias)
+QMatrixClient::Connection* MainWindow::chooseConnection()
+{
+    Connection* connection = nullptr;
+    QStringList names; names.reserve(connections.size());
+    for (auto c: connections)
+        names.push_back(c->userId());
+    const auto choice = QInputDialog::getItem(this,
+            tr("Choose the account to join the room"), "", names, -1, false);
+    if (choice.isEmpty())
+        return nullptr;
+
+    for (auto c: connections)
+        if (c->userId() == choice)
+        {
+            connection = c;
+            break;
+        }
+    Q_ASSERT(connection);
+    return connection;
+}
+
+void MainWindow::joinRoom(const QString& roomAlias, Connection* connection)
 {
     if (connections.isEmpty())
     {
@@ -271,19 +293,70 @@ void MainWindow::joinRoom(const QString& roomAlias)
         return;
     }
 
-    QString room = roomAlias;
-    if (room.isEmpty())
-        room = QInputDialog::getText(this, tr("Enter room alias to join"),
-                tr("Enter an alias of the room, including the server part"));
+    if (!connection)
+    {
+        if (currentRoom && !roomAlias.isEmpty())
+        {
+            connection = currentRoom->connection();
+            if (connections.size() > 1)
+            {
+                // Double check the user intention
+                QMessageBox confirmBox(QMessageBox::Question,
+                    tr("Joining %1 as %2").arg(roomAlias, connection->userId()),
+                    tr("Join room %1 under account %2?")
+                        .arg(roomAlias, connection->userId()),
+                    QMessageBox::Ok|QMessageBox::Cancel, this);
+                confirmBox.setButtonText(QMessageBox::Ok, tr("Join"));
+                auto* chooseAccountButton =
+                    confirmBox.addButton(tr("Choose account..."),
+                                         QMessageBox::ActionRole);
 
-    // Dialog rejected, nothing to do.
-    if (room.isEmpty())
-        return;
+                if (confirmBox.exec() == QMessageBox::Cancel)
+                    return;
+                if (confirmBox.clickedButton() == chooseAccountButton)
+                    connection = chooseConnection();
+            }
+        } else
+            connection = connections.size() == 1 ? connections.front() :
+                         chooseConnection();
+    }
+    if (!connection)
+        return; // No default connection and the user discarded the dialog
+
+    QString room = roomAlias;
+    while (room.isEmpty())
+    {
+        QInputDialog roomInput (this);
+        roomInput.setWindowTitle(tr("Enter room id or alias to join"));
+        roomInput.setLabelText(
+            tr("Enter an id or alias of the room. You will join as %1")
+                .arg(connection->userId()));
+        roomInput.setOkButtonText(tr("Join"));
+        roomInput.setSizeGripEnabled(true);
+        // TODO: Provide a button to select the joining account
+        if (roomInput.exec() == QDialog::Rejected)
+            return;
+        // TODO: Check validity, not only non-emptyness
+        if (!roomInput.textValue().isEmpty())
+            room = roomInput.textValue();
+        else
+            QMessageBox::warning(this, tr("No room id or alias specified"),
+                                 tr("Please specify non-empty id or alias"),
+                                 QMessageBox::Close, QMessageBox::Close);
+    }
 
     using QMatrixClient::JoinRoomJob;
-    // FIXME: only the first account is used to join a room
-    auto job = connections.front()->joinRoom(room);
-    connect(job, &QMatrixClient::BaseJob::failure, this, [=] {
+    auto job = connection->joinRoom(room);
+    // Connection::joinRoom() already connected to success() the code that
+    // initialises the room in the library, which in turn causes RoomListModel
+    // to update the room list. So the below connection to success() will be
+    // triggered after all the initialisation have happened.
+    connect(job, &JoinRoomJob::success, this, [=]
+    {
+        statusBar()->showMessage(tr("Joined %1 as %2")
+                                 .arg(roomAlias, connection->userId()));
+    });
+    connect(job, &JoinRoomJob::failure, this, [=] {
         QMessageBox messageBox(QMessageBox::Warning,
                                tr("Failed to join room"),
                                tr("Joining request returned an error"),
@@ -294,13 +367,14 @@ void MainWindow::joinRoom(const QString& roomAlias)
         switch (job->error()) {
             case JoinRoomJob::NotFoundError:
                 messageBox.setText(
-                    tr("Room with id or alias %1 does not seem to exist").arg(roomAlias));
+                    tr("Room %1 not found on the server").arg(roomAlias));
                 break;
             case JoinRoomJob::IncorrectRequestError:
                 messageBox.setText(
                     tr("Incorrect id or alias: %1").arg(roomAlias));
                 break;
-            default:;
+            default:
+                messageBox.setText(tr("Error joining %1: %2"));
         }
         messageBox.exec();
     });
@@ -332,7 +406,7 @@ void MainWindow::showMillisToRecon(Connection* c)
     // notifications engine already instead of the status bar.
     statusBar()->showMessage(
         tr("Couldn't connect to the server as %1; will retry within %2 seconds")
-        .arg(c->userId()).arg((c->millisToReconnect() + 999) / 1000)); // Integer ceiling
+                .arg(c->userId()).arg((c->millisToReconnect() + 999) / 1000)); // Integer ceiling
 }
 
 void MainWindow::networkError(Connection* c)

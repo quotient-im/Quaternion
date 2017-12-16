@@ -29,6 +29,7 @@ class RoomListDock;
 class UserListDock;
 class ChatRoomWidget;
 class SystemTray;
+class QuaternionRoom;
 
 class QAction;
 class QMenu;
@@ -57,7 +58,8 @@ class MainWindow: public QMainWindow
 
     private slots:
         void invokeLogin();
-        void joinRoom(const QString& roomAlias = {});
+        void joinRoom(const QString& roomAlias = {},
+                      Connection* connection = nullptr);
         void getNewEvents(Connection* c);
         void gotEvents(Connection* c);
         void loginError(Connection* c, const QString& message = {});
@@ -82,8 +84,13 @@ class MainWindow: public QMainWindow
 
         SystemTray* systemTray = nullptr;
 
+        // FIXME: This will be a problem when we get ability to show
+        // several rooms at once.
+        QuaternionRoom* currentRoom = nullptr;
+
         void createMenu();
         void loadSettings();
         void saveSettings() const;
+        Connection* chooseConnection();
         void showMillisToRecon(Connection* c);
 };
