@@ -73,9 +73,13 @@ RoomListDock::RoomListDock(QWidget* parent)
     : QDockWidget("Rooms", parent)
 {
     setObjectName("RoomsDock");
-    model = new RoomListModel(this);
-    view = new QListView();
-    view->setModel(model);
+    model      = new RoomListModel(this);
+    view       = new QListView();
+    proxyModel = new QSortFilterProxyModel();
+    proxyModel->setDynamicSortFilter(true);
+    proxyModel->setSourceModel(model);
+    proxyModel->sort(0);
+    view->setModel(proxyModel);
     view->setItemDelegate(new RoomListItemDelegate(this));
     connect( view, &QListView::activated, this, &RoomListDock::rowSelected );
     connect( view, &QListView::clicked, this, &RoomListDock::rowSelected);
@@ -115,7 +119,7 @@ void RoomListDock::addConnection(QMatrixClient::Connection* connection)
 void RoomListDock::rowSelected(const QModelIndex& index)
 {
     if (index.isValid())
-        emit roomSelected( model->roomAt(index.row()) );
+        emit roomSelected( model->roomAt(proxyModel->mapToSource(index).row()));
 }
 
 void RoomListDock::showContextMenu(const QPoint& pos)
@@ -123,7 +127,7 @@ void RoomListDock::showContextMenu(const QPoint& pos)
     QModelIndex index = view->indexAt(view->mapFromParent(pos));
     if( !index.isValid() )
         return;
-    auto room = model->roomAt(index.row());
+    auto room = model->roomAt(proxyModel->mapToSource(index).row());
 
     using QMatrixClient::JoinState;
     joinAction->setEnabled(room->joinState() != JoinState::Join);
@@ -136,7 +140,7 @@ void RoomListDock::showContextMenu(const QPoint& pos)
 QuaternionRoom* RoomListDock::getSelectedRoom() const
 {
     QModelIndex index = view->currentIndex();
-    return !index.isValid() ? nullptr : model->roomAt(index.row());
+    return !index.isValid() ? nullptr : model->roomAt(proxyModel->mapToSource(index).row());
 }
 
 void RoomListDock::menuJoinSelected()
