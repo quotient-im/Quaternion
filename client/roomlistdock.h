@@ -24,6 +24,7 @@
 #include <QtWidgets/QDockWidget>
 #include <QtWidgets/QListView>
 #include <QtCore/QStringListModel>
+#include <QSortFilterProxyModel>
 
 class RoomListModel;
 class QuaternionRoom;
@@ -51,6 +52,7 @@ class RoomListDock : public QDockWidget
     private:
         QListView* view;
         RoomListModel* model;
+        QSortFilterProxyModel* proxyModel;
         QMenu* contextMenu;
         QAction* markAsReadAction;
         QAction* joinAction;
