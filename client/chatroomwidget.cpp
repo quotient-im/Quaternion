@@ -157,16 +157,23 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
             reStartShownTimer();
             emit readMarkerMoved();
         });
-        connect(m_currentRoom->connection(), &Connection::loggedOut, this, [=]
+        connect(m_currentRoom->connection(), &Connection::loggedOut,
+                this, [this]
         {
             qWarning() << "Logged out, escaping the room";
             setRoom(nullptr);
         });
         connect(m_currentRoom->connection(), &Connection::joinedRoom,
-                this, [=] (Room* room, Room* prev)
+                this, [this] (Room* r, Room* prev)
         {
             if (m_currentRoom == prev)
-                setRoom(static_cast<QuaternionRoom*>(room));
+                setRoom(static_cast<QuaternionRoom*>(r));
+        });
+        connect(m_currentRoom->connection(), &Connection::aboutToDeleteRoom,
+                this, [this] (Room* r)
+        {
+            if (m_currentRoom == r)
+                setRoom(nullptr);
         });
 
         m_currentRoom->setShown(true);
