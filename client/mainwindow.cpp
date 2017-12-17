@@ -53,13 +53,8 @@ MainWindow::MainWindow()
     setCentralWidget(chatRoomWidget);
     connect( chatRoomWidget, &ChatRoomWidget::joinCommandEntered,
              this, [=] (QString roomIdOrAlias)  { joinRoom(roomIdOrAlias); });
-    connect( roomListDock, &RoomListDock::roomSelected, [=](QuaternionRoom *r)
-    {
-        currentRoom = r;
-        setWindowTitle(r ? r->displayName() : QString());
-        chatRoomWidget->setRoom(r);
-        userListDock->setRoom(r);
-    } );
+    connect( roomListDock, &RoomListDock::roomSelected,
+             this, &MainWindow::selectRoom);
     connect( chatRoomWidget, &ChatRoomWidget::showStatusMessage, statusBar(), &QStatusBar::showMessage );
 
     createMenu();
@@ -164,6 +159,12 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     connect( c, &Connection::loginError,
              this, [=](const QString& msg){ loginError(c, msg); } );
     connect( c, &Connection::newRoom, systemTray, &SystemTray::newRoom );
+    connect( c, &Connection::aboutToDeleteRoom,
+             this, [this] (QMatrixClient::Room* r)
+    {
+        if (currentRoom == r)
+            selectRoom(nullptr);
+    });
 
     const QString logoutCaption = deviceName.isEmpty() ?
                 tr("Logout %1").arg(c->userId()) :
@@ -183,6 +184,8 @@ void MainWindow::dropConnection(Connection* c)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Attempt to drop a null connection");
 
+    if (currentRoom->connection() == c)
+        selectRoom(nullptr);
     connections.removeOne(c);
     Q_ASSERT(!connections.contains(c));
     c->deleteLater();
@@ -260,6 +263,14 @@ void MainWindow::logout(Connection* c)
     account.sync();
 
     c->logout();
+}
+
+void MainWindow::selectRoom(QuaternionRoom* r)
+{
+    currentRoom = r;
+    setWindowTitle(r ? r->displayName() : QString());
+    chatRoomWidget->setRoom(r);
+    userListDock->setRoom(r);
 }
 
 QMatrixClient::Connection* MainWindow::chooseConnection()

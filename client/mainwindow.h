@@ -67,6 +67,7 @@ class MainWindow: public QMainWindow
         void networkError(Connection* c);
 
         void showLoginWindow(const QString& statusMessage = {});
+        void selectRoom(QuaternionRoom* r);
         void logout(Connection* c);
 
     private:

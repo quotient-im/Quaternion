@@ -56,6 +56,7 @@ void RoomListModel::deleteConnection(Connection* connection)
 {
     Q_ASSERT(connection);
 
+    // TODO: Save selection
     beginResetModel();
     connection->disconnect(this);
     for( QuaternionRoom* room: m_rooms )
@@ -65,6 +66,7 @@ void RoomListModel::deleteConnection(Connection* connection)
             [=](const QuaternionRoom* r) { return r->connection() == connection; }),
         m_rooms.end());
     endResetModel();
+    // TODO: Restore selection
 }
 
 QuaternionRoom* RoomListModel::roomAt(int row)
