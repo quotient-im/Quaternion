@@ -56,7 +56,7 @@ MainWindow::MainWindow()
     connect( roomListDock, &RoomListDock::roomSelected, [=](QuaternionRoom *r)
     {
         currentRoom = r;
-        setWindowTitle(r->displayName());
+        setWindowTitle(r ? r->displayName() : QString());
         chatRoomWidget->setRoom(r);
         userListDock->setRoom(r);
     } );
