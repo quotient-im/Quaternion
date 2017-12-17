@@ -366,6 +366,10 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
             auto* e = static_cast<const RoomTopicEvent*>(event);
             return tr("set the topic to: %1").arg(e->topic());
         }
+        if( event->type() == EventType::RoomAvatar )
+        {
+            return tr("changed the room avatar");
+        }
         if( event->type() == EventType::RoomEncryption )
         {
             auto* e = static_cast<const EncryptionEvent*>(event);
