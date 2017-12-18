@@ -108,45 +108,26 @@ void linkifyUrls(QString& htmlEscapedText)
 {
     static const auto RegExpOptions =
         QRegularExpression::CaseInsensitiveOption
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
-        | QRegularExpression::OptimizeOnFirstUsageOption
-#endif
+        #if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
+            | QRegularExpression::OptimizeOnFirstUsageOption
+        #endif
         | QRegularExpression::UseUnicodePropertiesOption;
-// A regexp for a full-qualified domain name: at least two labels
-// (including TLD), with TLD having at least two characters and
-// starting with a letter (not a digit).
-#define FQDN "(localhost|(\\w[-\\w]*\\.)+(?!\\d)\\w[-\\w]+)"
-// https://stackoverflow.com/a/7109208
-#define VALID_URI_CHARS "((&amp;)|[A-Za-z0-9%\\._~:\\/?#\\[\\]@!$'\\(\\)*+,\\;=-])*"
-    static const QRegularExpression urlDetectorMail {
-        QStringLiteral("(^|\\b)(mailto:)?(" // Beginning criteria of the URL
-            "\\w[^@/#\\s]*@" // Authentication (the part before @)
-            FQDN
-        "\\b)"), // End criteria of the URL
-        RegExpOptions
-    };
 
-    static const QRegularExpression urlDetectorGeneric {
-        QStringLiteral("(^|&lt;|\\s|\\(|\\[)("       // Beginning criteria of the URL
-            "((?!file|mailto)([a-z][-.+\\w]+:(//)?)|www\\.)" // scheme or identify http(s) with "www"
-            "(\\w[^@/#\\s]*@)?" // optional authentication (the part before @)
-            "(" FQDN // host name
-                "|(\\d{1,3}\\.){3}\\d{1,3}" // or IPv4 address (not very strict)
-                "|\\[[\\d:a-f]+\\]" // or IPv6 address (very lazy and not strict)
-            ")"
-            "(:\\d{1,5})?" // optional port
-            "(\\/" VALID_URI_CHARS ")?" // optional query and fragment
-        ")(?=(&gt;|\\W?( |$)))"), // End criteria of the URL
-        RegExpOptions
-    };
-#undef FQDN
-#undef VALID_URI
-    // mail regex is less specific because of [^@/#\\s]* part; run it first to avoid
-    // repeated substitutions.
-    htmlEscapedText.replace(urlDetectorMail,
-                 QStringLiteral("\\1<a href=\"mailto:\\3\">\\2\\3</a>"));
-    htmlEscapedText.replace(urlDetectorGeneric,
-                 QStringLiteral("\\1<a href=\"\\2\">\\2</a>"));
+    // regexp extracted from Konsole (https://github.com/KDE/konsole)
+    // full url:
+    // protocolname:// or www. followed by anything other than whitespaces, <, >, ' or ", and ends before whitespaces, <, >, ', ", ], !, ), :, comma and dot
+    const QRegularExpression FullUrlRegExp(QStringLiteral("((www\\.(?!\\.)|[a-z][a-z0-9+.-]*://)[^\\s<>'\"]+[^!,\\.\\s<>'\"\\]\\)\\:])"),
+                                                      RegExpOptions);
+    // email address:
+    // [word chars, dots or dashes]@[word chars, dots or dashes].[word chars]
+    const QRegularExpression EmailAddressRegExp(QStringLiteral("(\\b(\\w|\\.|-)+@(\\w|\\.|-)+\\.\\w+\\b)"),
+                                                           RegExpOptions);
+
+    htmlEscapedText.replace(EmailAddressRegExp,
+                 QStringLiteral("<a href=\"mailto:\\1\">\\1</a>"));
+    htmlEscapedText.replace(FullUrlRegExp,
+                 QStringLiteral("<a href=\"\\1\">\\1</a>"));
+
 }
 
 QString QuaternionRoom::prettyPrint(const QString& plainText) const
