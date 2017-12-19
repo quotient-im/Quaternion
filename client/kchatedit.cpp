@@ -24,29 +24,19 @@
 class KChatEdit::KChatEditPrivate
 {
 public:
-    KChatEditPrivate(KChatEdit *parent)
-        : q(parent)
-        , index(0)
-        , maxHistorySize(100)
-    {}
-
-    void init();
     void emitReturnPressed();
     void rewindHistory();
     void forwardHistory();
     void saveInput();
 
-    KChatEdit *q;
-    QVector<QTextDocument*> history;
-    int index;
-    int maxHistorySize;
+    KChatEdit *q = nullptr;
+    // History always ends with a placeholder string that is initially empty
+    // but may be filled with tentative input when the user entered something
+    // and then went out for history.
+    QVector<QTextDocument*> history { 1, new QTextDocument() };
+    int index = 0;
+    int maxHistorySize = 100;
 };
-
-void KChatEdit::KChatEditPrivate::init()
-{
-    // History always ends with a dummy placeholder string.
-    history << new QTextDocument(q);
-}
 
 void KChatEdit::KChatEditPrivate::emitReturnPressed()
 {
@@ -110,16 +100,14 @@ void KChatEdit::KChatEditPrivate::saveInput()
 }
 
 KChatEdit::KChatEdit(QWidget *parent)
-    : QTextEdit(parent), d(new KChatEditPrivate(this))
+    : QTextEdit(parent), d(new KChatEditPrivate)
 {
-    d->init();
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
     connect(this, &QTextEdit::textChanged, this, &QWidget::updateGeometry);
+    d->q = this; // KChatEdit initialization complete, pimpl can use it
 }
 
-KChatEdit::~KChatEdit()
-{
-}
+KChatEdit::~KChatEdit() = default;
 
 QTextDocument* KChatEdit::savedInput() const
 {
@@ -127,7 +115,7 @@ QTextDocument* KChatEdit::savedInput() const
         return d->history.at(d->history.size() - 2);
 
     Q_ASSERT(d->history.size() == 1);
-    return d->history.last();
+    return d->history.front();
 }
 
 void KChatEdit::saveInput()
