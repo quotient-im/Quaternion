@@ -4,7 +4,7 @@ import QtQuick.Controls.Styles 1.0
 import QtQuick.Layouts 1.1
 import QMatrixClient 1.0
 
-Item {
+Rectangle {
     id: root
 
     Settings {
@@ -19,6 +19,8 @@ Item {
         interval: 0
         onTriggered: reallyScrollToBottom()
     }
+
+    color:  defaultPalette.base
 
     function reallyScrollToBottom() {
         if (chatView.stickToBottom && !chatView.nowAtYEnd)
