@@ -120,11 +120,11 @@ void linkifyUrls(QString& htmlEscapedText)
                                                       RegExpOptions);
     // email address:
     // [word chars, dots or dashes]@[word chars, dots or dashes].[word chars]
-    const QRegularExpression EmailAddressRegExp(QStringLiteral("(\\b(\\w|\\.|-)+@(\\w|\\.|-)+\\.\\w+\\b)"),
+    const QRegularExpression EmailAddressRegExp(QStringLiteral("(mailto:)?(\\b(\\w|\\.|-)+@(\\w|\\.|-)+\\.\\w+\\b)"),
                                                            RegExpOptions);
 
     htmlEscapedText.replace(EmailAddressRegExp,
-                 QStringLiteral("<a href=\"mailto:\\1\">\\1</a>"));
+                 QStringLiteral("<a href=\"mailto:\\2\">\\1\\2</a>"));
     htmlEscapedText.replace(FullUrlRegExp,
                  QStringLiteral("<a href=\"\\1\">\\1</a>"));
 
