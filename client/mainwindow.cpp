@@ -138,7 +138,12 @@ inline QString accessTokenFileName(const QMatrixClient::AccountSettings& account
     QString fileName = account.userId();
     fileName.replace(':', '_');
     return QStandardPaths::writableLocation(
-                QStandardPaths::AppLocalDataLocation) % '/' % fileName;
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
+                QStandardPaths::AppLocalDataLocation
+#else
+                QStandardPaths::DataLocation
+#endif
+                ) % '/' % fileName;
 }
 
 QByteArray MainWindow::loadAccessToken(const QMatrixClient::AccountSettings& account)
