@@ -108,9 +108,9 @@ void linkifyUrls(QString& htmlEscapedText)
 {
     static const auto RegExpOptions =
         QRegularExpression::CaseInsensitiveOption
-        #if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
-            | QRegularExpression::OptimizeOnFirstUsageOption
-        #endif
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
+        | QRegularExpression::OptimizeOnFirstUsageOption
+#endif
         | QRegularExpression::UseUnicodePropertiesOption;
 
     // regexp extracted from Konsole (https://github.com/KDE/konsole)
