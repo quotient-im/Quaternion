@@ -57,10 +57,9 @@ QString KChatEdit::KChatEditPrivate::getDocumentText(QTextDocument* doc) const
 
 void KChatEdit::KChatEditPrivate::updateAndMoveInHistory(int increment)
 {
+    Q_ASSERT(index >= 0 && index < history.size());
     // Only save input if different from the latest one.
-    const auto input = getDocumentText(q->document());
-    const auto historyInput = getDocumentText(history[index]);
-    if (input != historyInput)
+    if (getDocumentText(q->document()) != getDocumentText(history[index]))
     {
         history[index] = q->document();
         history[index]->setParent(nullptr);
@@ -91,20 +90,21 @@ void KChatEdit::KChatEditPrivate::saveInput()
 
     // Only save input if different from the latest one or from the history.
     const auto input = getDocumentText(q->document());
-    const auto historyInput = index == history.size() - 1 ? QString() :
-                                        getDocumentText(history[index]);
-    const auto previousInput = getDocumentText(q->savedInput());
-    qDebug() << input << "|||" << historyInput << "|||" <<  previousInput;
-    if (input == historyInput) {
+    if (index < history.size() - 1 &&
+            input == getDocumentText(history[index])) {
         // Take the history entry and move it to the most recent position (but
         // before the placeholder).
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
         history.move(index, history.size() - 2);
+#else
+        history.insert(history.size() - 2, history.takeAt(index));
+#endif
         emit q->savedInputChanged();
-    } else if (input != previousInput) {
+    } else if (input != getDocumentText(q->savedInput())) {
         // Replace the placeholder with the new input.
         history.back() = q->document()->clone();
 
-        while(history.size() >= maxHistorySize) {
+        if (history.size() >= maxHistorySize) {
             delete history.takeFirst();
         }
         // Make a new placeholder.
