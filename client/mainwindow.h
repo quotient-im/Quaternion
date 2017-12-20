@@ -23,6 +23,7 @@
 
 namespace QMatrixClient {
     class Connection;
+    class AccountSettings;
 }
 
 class RoomListDock;
@@ -92,6 +93,9 @@ class MainWindow: public QMainWindow
         void createMenu();
         void loadSettings();
         void saveSettings() const;
+        QByteArray loadAccessToken(const QMatrixClient::AccountSettings& account);
+        bool saveAccessToken(const QMatrixClient::AccountSettings& account,
+                             const QByteArray& accessToken);
         Connection* chooseConnection();
         void showMillisToRecon(Connection* c);
 };

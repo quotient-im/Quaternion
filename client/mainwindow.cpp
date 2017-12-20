@@ -21,6 +21,8 @@
 
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>
+#include <QtCore/QStandardPaths>
+#include <QtCore/QStringBuilder>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QMessageBox>
@@ -129,6 +131,75 @@ void MainWindow::saveSettings() const
     sg.sync();
 }
 
+inline QString accessTokenFileName(const QMatrixClient::AccountSettings& account)
+{
+    QString fileName = account.userId();
+    fileName.replace(':', '_');
+    return QStandardPaths::writableLocation(
+                QStandardPaths::AppLocalDataLocation) % '/' % fileName;
+}
+
+QByteArray MainWindow::loadAccessToken(const QMatrixClient::AccountSettings& account)
+{
+    QFile accountTokenFile { accessTokenFileName(account) };
+    if (accountTokenFile.open(QFile::ReadOnly))
+    {
+        if (accountTokenFile.size() < 1024)
+            return accountTokenFile.readAll();
+
+        qWarning() << "File" << accountTokenFile.fileName()
+                   << "is" << accountTokenFile.size()
+                   << "bytes long - too long for a token, ignoring it.";
+    }
+    qWarning() << "Could not open access token file"
+               << accountTokenFile.fileName();
+
+    return {};
+}
+
+bool MainWindow::saveAccessToken(const QMatrixClient::AccountSettings& account,
+                                 const QByteArray& accessToken)
+{
+    // Make a separate file for access_token and try to set special
+    // permissions to it - that's the best that can be done
+    // cross-platform, cross-filesystem. A better way would use
+    // system-specific API to ensure proper ACLs. For the record,
+    // the below code is useless on Windows.
+    QFile accountTokenFile { accessTokenFileName(account) };
+
+    accountTokenFile.remove(); // Just in case
+    if (!accountTokenFile.open(QFile::WriteOnly))
+    {
+        QMessageBox::warning(this,
+            tr("Couldn't open a file to save access token"),
+            tr("Quaternion couldn't open a file to write the"
+               " access token to. You're logged in but will have"
+               " to provide your password again when you restart"
+               " the application."), QMessageBox::Close);
+    } else {
+        // Try to restrict permissions and check that they actually got
+        // restricted; if not, ask the user if it's fine to save the token to
+        // a file readable by others.
+        if ((accountTokenFile.setPermissions(
+                    QFile::ReadOwner|QFile::WriteOwner) &&
+            !(accountTokenFile.permissions() &
+                    (QFile::ReadGroup|QFile::ReadOther)))
+                ||
+            QMessageBox::warning(this,
+                    tr("Couldn't set access token file permissions"),
+                    tr("Quaternion couldn't restrict permissions on the"
+                       " access token file. Do you still want to save"
+                       " the access token to it?"),
+                    QMessageBox::Yes|QMessageBox::No
+                ) == QMessageBox::Yes)
+        {
+            accountTokenFile.write(accessToken);
+            return true;
+        }
+    }
+    return false;
+}
+
 void MainWindow::enableDebug()
 {
     chatRoomWidget->enableDebug();
@@ -203,10 +274,11 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
         if (dialog.keepLoggedIn())
         {
             account.setHomeserver(connection->homeserver());
-            // FIXME: #181
-            account.setAccessToken(connection->accessToken());
             account.setDeviceId(connection->deviceId());
             account.setDeviceName(dialog.deviceName());
+            account.clearAccessToken(); // Drop the legacy - just in case
+            if (!saveAccessToken(account, connection->accessToken()))
+                qWarning() << "Couldn't save access token";
         }
         account.sync();
 
@@ -222,8 +294,21 @@ void MainWindow::invokeLogin()
     for(const auto& accountId: settings.childGroups())
     {
         AccountSettings account { accountId };
-        if (!account.accessToken().isEmpty())
+        if (!account.homeserver().isEmpty())
         {
+            auto accessToken = loadAccessToken(account);
+            if (accessToken.isEmpty())
+            {
+                // Try to look in the legacy location (QSettings) and if found,
+                // migrate it from there to a file.
+                accessToken = account.accessToken().toLatin1();
+                if (accessToken.isEmpty())
+                    continue; // No access token anywhere, no autologin
+
+                saveAccessToken(account, accessToken);
+                account.clearAccessToken(); // Clean the old place
+            }
+
             autoLoggedIn = true;
             auto c = new Connection(account.homeserver());
             auto deviceName = account.deviceName();
@@ -232,7 +317,7 @@ void MainWindow::invokeLogin()
                     c->loadState();
                     addConnection(c, deviceName);
                 });
-            c->connectWithToken(account.userId(), account.accessToken(),
+            c->connectWithToken(account.userId(), accessToken,
                                 account.deviceId());
         }
     }
@@ -259,8 +344,7 @@ void MainWindow::logout(Connection* c)
     Q_ASSERT_X(c, __FUNCTION__, "Logout on a null connection");
 
     QMatrixClient::AccountSettings account { c->userId() };
-    account.clearAccessToken();
-    account.sync();
+    QFile(accessTokenFileName(account)).remove();
 
     c->logout();
 }
