@@ -184,7 +184,7 @@ void MainWindow::dropConnection(Connection* c)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Attempt to drop a null connection");
 
-    if (currentRoom->connection() == c)
+    if (currentRoom && currentRoom->connection() == c)
         selectRoom(nullptr);
     connections.removeOne(c);
     Q_ASSERT(!connections.contains(c));
