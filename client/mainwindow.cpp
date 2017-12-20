@@ -23,6 +23,8 @@
 #include <QtCore/QDebug>
 #include <QtCore/QStandardPaths>
 #include <QtCore/QStringBuilder>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QMessageBox>
@@ -160,15 +162,13 @@ QByteArray MainWindow::loadAccessToken(const QMatrixClient::AccountSettings& acc
 bool MainWindow::saveAccessToken(const QMatrixClient::AccountSettings& account,
                                  const QByteArray& accessToken)
 {
-    // Make a separate file for access_token and try to set special
-    // permissions to it - that's the best that can be done
-    // cross-platform, cross-filesystem. A better way would use
-    // system-specific API to ensure proper ACLs. For the record,
-    // the below code is useless on Windows.
+    // (Re-)Make a dedicated file for access_token.
     QFile accountTokenFile { accessTokenFileName(account) };
-
     accountTokenFile.remove(); // Just in case
-    if (!accountTokenFile.open(QFile::WriteOnly))
+
+    auto fileDir = QFileInfo(accountTokenFile).dir();
+    if (!(fileDir.exists() || fileDir.mkpath(".")) &&
+            accountTokenFile.open(QFile::WriteOnly))
     {
         QMessageBox::warning(this,
             tr("Couldn't open a file to save access token"),
@@ -177,9 +177,12 @@ bool MainWindow::saveAccessToken(const QMatrixClient::AccountSettings& account,
                " to provide your password again when you restart"
                " the application."), QMessageBox::Close);
     } else {
-        // Try to restrict permissions and check that they actually got
-        // restricted; if not, ask the user if it's fine to save the token to
-        // a file readable by others.
+        // Try to restrict access rights to the file. The below is useless
+        // on Windows: FAT doesn't control access at all and NTFS is
+        // incompatible with the UNIX perms model used by Qt. If the attempt
+        // didn't have the effect, at least ask the user if it's fine to save
+        // the token to a file readable by others.
+        // TODO: use system-specific API to ensure proper access.
         if ((accountTokenFile.setPermissions(
                     QFile::ReadOwner|QFile::WriteOwner) &&
             !(accountTokenFile.permissions() &
