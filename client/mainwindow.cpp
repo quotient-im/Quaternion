@@ -233,7 +233,11 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
         if (++counter % 17 == 2)
             c->saveState();
     } );
-    connect( c, &Connection::loggedOut, this, [=]{ dropConnection(c); } );
+    connect( c, &Connection::loggedOut, this, [=]
+    {
+        statusBar()->showMessage(tr("Logged out as %1").arg(c->userId()), 3000);
+        dropConnection(c);
+    });
     connect( c, &Connection::networkError, this, [=]{ networkError(c); } );
     connect( c, &Connection::loginError,
              this, [=](const QString& msg){ loginError(c, msg); } );
@@ -266,13 +270,16 @@ void MainWindow::dropConnection(Connection* c)
     if (currentRoom && currentRoom->connection() == c)
         selectRoom(nullptr);
     connections.removeOne(c);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
+    logoutOnExit.removeOne(c);
+#else
     const auto i = logoutOnExit.indexOf(c);
     if (i >= 0)
-    {
-        c->logout();
         logoutOnExit.remove(i);
-    }
-    Q_ASSERT(!connections.contains(c) && !logoutOnExit.contains(c));
+#endif
+
+    Q_ASSERT(!connections.contains(c) && !logoutOnExit.contains(c) &&
+             !c->syncJob());
     c->deleteLater();
 }
 
