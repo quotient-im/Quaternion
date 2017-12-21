@@ -172,8 +172,8 @@ bool MainWindow::saveAccessToken(const QMatrixClient::AccountSettings& account,
     accountTokenFile.remove(); // Just in case
 
     auto fileDir = QFileInfo(accountTokenFile).dir();
-    if (!(fileDir.exists() || fileDir.mkpath(".")) &&
-            accountTokenFile.open(QFile::WriteOnly))
+    if (!( (fileDir.exists() || fileDir.mkpath(".")) &&
+            accountTokenFile.open(QFile::WriteOnly) ))
     {
         QMessageBox::warning(this,
             tr("Couldn't open a file to save access token"),
