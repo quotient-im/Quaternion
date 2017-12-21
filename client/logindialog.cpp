@@ -54,7 +54,7 @@ LoginDialog::LoginDialog(QWidget* parent)
     
     setLayout(mainLayout);
 
-    connect( userEdit, &QLineEdit::textChanged, m_connection.data(),
+    connect( userEdit, &QLineEdit::editingFinished, m_connection.data(),
              [=] {
                  auto userId = userEdit->text();
                  if (userId.startsWith('@') && userId.indexOf(':') != -1)
