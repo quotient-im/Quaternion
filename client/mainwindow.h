@@ -92,6 +92,7 @@ class MainWindow: public QMainWindow
         QuaternionRoom* currentRoom = nullptr;
 
         void createMenu();
+        void showFirstSyncIndicator();
         void loadSettings();
         void saveSettings() const;
         QByteArray loadAccessToken(const QMatrixClient::AccountSettings& account);

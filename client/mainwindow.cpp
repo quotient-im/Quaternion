@@ -283,6 +283,13 @@ void MainWindow::dropConnection(Connection* c)
     c->deleteLater();
 }
 
+void MainWindow::showFirstSyncIndicator()
+{
+    busyLabel->show();
+    busyIndicator->start();
+    statusBar()->showMessage("Syncing, please wait");
+}
+
 void MainWindow::showLoginWindow(const QString& statusMessage)
 {
     LoginDialog dialog(this);
@@ -304,6 +311,7 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
             logoutOnExit.push_back(connection);
         account.sync();
 
+        showFirstSyncIndicator();
         addConnection(connection, dialog.deviceName());
     }
 }
@@ -344,11 +352,7 @@ void MainWindow::invokeLogin()
         }
     }
     if (autoLoggedIn)
-    {
-        busyLabel->show();
-        busyIndicator->start();
-        statusBar()->showMessage("Syncing, please wait...");
-    }
+        showFirstSyncIndicator();
     else
         QTimer::singleShot(0, this, SLOT(showLoginWindow()));
 }
@@ -510,7 +514,7 @@ void MainWindow::gotEvents(Connection* c)
     {
         busyLabel->hide();
         busyIndicator->stop();
-        statusBar()->showMessage(tr("Connected as %1").arg(c->userId()), 5000);
+        statusBar()->showMessage(tr("Sync completed - have a good chat"), 3000);
     }
     getNewEvents(c);
 }
