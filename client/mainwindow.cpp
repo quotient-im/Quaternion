@@ -266,7 +266,12 @@ void MainWindow::dropConnection(Connection* c)
     if (currentRoom && currentRoom->connection() == c)
         selectRoom(nullptr);
     connections.removeOne(c);
-    Q_ASSERT(!connections.contains(c));
+    if (logoutOnExit.contains(c))
+    {
+        c->logout();
+        logoutOnExit.removeOne(c);
+    }
+    Q_ASSERT(!connections.contains(c) && !logoutOnExit.contains(c));
     c->deleteLater();
 }
 
@@ -287,7 +292,8 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
             account.clearAccessToken(); // Drop the legacy - just in case
             if (!saveAccessToken(account, connection->accessToken()))
                 qWarning() << "Couldn't save access token";
-        }
+        } else
+            logoutOnExit.push_back(connection);
         account.sync();
 
         addConnection(connection, dialog.deviceName());
@@ -537,6 +543,8 @@ void MainWindow::closeEvent(QCloseEvent* event)
         c->stopSync(); // Instead of deleting the connection, merely stop it
 //        dropConnection(c);
     }
+    for (auto c: logoutOnExit)
+        c->logout(); // For the record, dropConnection() does it automatically
     saveSettings();
     event->accept();
 }
