@@ -266,10 +266,11 @@ void MainWindow::dropConnection(Connection* c)
     if (currentRoom && currentRoom->connection() == c)
         selectRoom(nullptr);
     connections.removeOne(c);
-    if (logoutOnExit.contains(c))
+    const auto i = logoutOnExit.indexOf(c);
+    if (i >= 0)
     {
         c->logout();
-        logoutOnExit.removeOne(c);
+        logoutOnExit.remove(i);
     }
     Q_ASSERT(!connections.contains(c) && !logoutOnExit.contains(c));
     c->deleteLater();
