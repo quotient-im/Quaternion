@@ -113,20 +113,28 @@ void linkifyUrls(QString& htmlEscapedText)
 #endif
         | QRegularExpression::UseUnicodePropertiesOption;
 
-    // regexp extracted from Konsole (https://github.com/KDE/konsole)
+    // NOTE: htmlEscapedText is already HTML-escaped (no literal <,>,&)!
+
+    // regexp is originally taken from Konsole (https://github.com/KDE/konsole)
     // full url:
-    // protocolname:// or www. followed by anything other than whitespaces, <, >, ' or ", and ends before whitespaces, <, >, ', ", ], !, ), :, comma and dot
-    const QRegularExpression FullUrlRegExp(QStringLiteral("((www\\.(?!\\.)|[a-z][a-z0-9+.-]*://)[^\\s<>'\"]+[^!,\\.\\s<>'\"\\]\\)\\:])"),
-                                                      RegExpOptions);
+    // protocolname:// or www. followed by anything other than whitespaces,
+    // <, >, ' or ", and ends before whitespaces, <, >, ', ", ], !, ), :,
+    // comma or dot
+    // Note: outer parentheses are a part of C++ raw string delimiters, not of
+    // the regex (see http://en.cppreference.com/w/cpp/language/string_literal).
+    const QRegularExpression FullUrlRegExp(QStringLiteral(
+            R"(((www\.(?!\.)|[a-z][a-z0-9+.-]*://)[^\s<>'"]+[^!,.\s<>'"\]):]))"
+        ), RegExpOptions);
     // email address:
     // [word chars, dots or dashes]@[word chars, dots or dashes].[word chars]
-    const QRegularExpression EmailAddressRegExp(QStringLiteral("(mailto:)?(\\b(\\w|\\.|-)+@(\\w|\\.|-)+\\.\\w+\\b)"),
-                                                           RegExpOptions);
+    const QRegularExpression EmailAddressRegExp(QStringLiteral(
+            R"((mailto:)?(\b(\w|\.|-)+@(\w|\.|-)+\.\w+\b))"
+        ), RegExpOptions);
 
     htmlEscapedText.replace(EmailAddressRegExp,
-                 QStringLiteral("<a href=\"mailto:\\2\">\\1\\2</a>"));
+                 QStringLiteral(R"(<a href="mailto:\2">\1\2</a>)"));
     htmlEscapedText.replace(FullUrlRegExp,
-                 QStringLiteral("<a href=\"\\1\">\\1</a>"));
+                 QStringLiteral(R"(<a href="\1">\1</a>)"));
 
 }
 
