@@ -1,4 +1,4 @@
-# Building Quaternion
+# Building and Packaging Quaternion
 
 [![Quaternion-master@Travis](https://img.shields.io/travis/QMatrixClient/Quaternion/master.svg)](https://travis-ci.org/QMatrixClient/Quaternion/branches)
 [![Quaternion-master@AppVeyor](https://img.shields.io/appveyor/ci/QMatrixClient/quaternion/master.svg?logo=appveyor)](https://ci.appveyor.com/project/QMatrixClient/quaternion)
@@ -6,14 +6,18 @@
 [![Chat](https://img.shields.io/badge/chat-%23quaternion-blue.svg)](https://matrix.to/#/#quaternion:matrix.org)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-Quaternion source code is hosted at GitHub: https://github.com/QMatrixClient/Quaternion - checking out a certain commit or tag from GitHub (rather than downloading the archive) is the recommended way for packagers.
 
-Quaternion uses libqmatrixclient that is developed in a separate GitHub repo and is fetched as a git submodule. To get all necessary sources:
-- if you haven't cloned the Quaternion sources yet:
+### Getting the source code
+
+The source code is hosted at GitHub: https://github.com/QMatrixClient/Quaternion. Checking out a certain _commit_ or _tag_ from GitHub is the recommended way for one-off building; but if you want to hack on Quaternion, feel free to fork/clone the repo and check out the master branch.
+
+In any case do not download a sources archive from GitHub Releases - it's incomplete because GitHub Releases doesn't include source trees of submodules.
+
+Quaternion builds (so far statically, see [#239](https://github.com/QMatrixClient/Quaternion/issues/239)) with libqmatrixclient that is developed in a separate GitHub repo and is fetched as a git submodule. If you haven't cloned the Quaternion sources yet, the following will get you all sources in one go:
 ```
 git clone --recursive https://github.com/QMatrixClient/Quaternion.git
 ```
-- if you already have cloned Quaternion, do the following in the top-level directory (NOT in lib subdirectory):
+If you already have cloned Quaternion, do the following in the top-level directory (NOT in `lib` subdirectory):
 ```
 git submodule init
 git submodule update
@@ -22,13 +26,14 @@ git submodule update
 There are few tags so far; there will be more, as new versions are released.
 
 ### Pre-requisites
-- a Linux, MacOS or Windows system (desktop versions tried; mobile Linux/Windows might work too)
-  - For Ubuntu flavours - Trusty Tar or later (or a derivative) is good enough; older ones will need PPAs at least for a newer Qt
+- a Linux, OSX or Windows system (desktop versions tried; mobile Linux/Windows might work too)
+  - For Ubuntu flavours - zesty or later (or a derivative) is good enough out of the box; older ones will need PPAs at least for a newer Qt; in particular, if you have xenial you're advised to add Kubuntu Backports PPA for it
 - a Git client to check out this repo
 - CMake (from your package management system or [the official website](https://cmake.org/download/))
-- Qt 5 (either Open Source or Commercial), version 5.2.1 or higher as of this writing (check the CMakeLists.txt for most up-to-date information). Qt 5.3 or higher recommended on Windows.
+- Qt 5 (either Open Source or Commercial), version 5.6 or higher
 - a C++ toolchain supported by your version of Qt (see a link for your platform at [the Qt's platform requirements page](http://doc.qt.io/qt-5/gettingstarted.html#platform-requirements))
-  - GCC 4.8, Clang 3.5.0, Visual C++ 2015 are the oldest officially supported as of this writing
+  - GCC 5 (Windows, Linux, OSX), Clang 5 (Linux), Apple Clang 8.1 (OSX) and Visual C++ 2015 (Windows) are the oldest officially supported
+  - any build system that works with CMake should be fine: GNU Make, ninja (any platform), NMake, jom (Windows) are known to work.
 
 #### Linux
 Just install things from the list above using your preferred package manager. If your Qt package base is fine-grained you might want to take a look at `CMakeLists.txt` to figure out which specific libraries Quaternion uses (or blindly run cmake and look at error messages). Note also that you'll need several Qt Quick plugins for Quaternion to work (without them, it will compile and run but won't show the messages timeline). In case of Trusty Tar the following line will get you everything necessary to build and run Quaternion (thanks to `@onlnr:matrix.org`):
@@ -48,7 +53,7 @@ dnf install git cmake qt5-qtdeclarative-devel qt5-qtquickcontrols
 1. Install Qt5, using their official installer. If for some reason you need to use Qt 5.2.1, select its Add-ons component in the installer as well; for later versions, no extras are needed. If you don't have a toolchain and/or IDE, you can easily get one by selecting Qt Creator and at least one toolchain under Qt Creator. At least Qt 5.3 is recommended on Windows; `windeployqt` in Qt 5.2.1 is not functional enough to provide a standalone installation for Quaternion though you can still compile and run from your build directory.
 1. Make sure CMake knows about Qt and the toolchain - the easiest way is to run a qtenv2.bat script that can be found in `C:\Qt\<Qt version>\<toolchain>\bin` (assuming you installed Qt to `C:\Qt`). The only thing it does is adding necessary paths to PATH - you might not want to run it on system startup but it's very handy to setup environment before building. Setting CMAKE_PREFIX_PATH, the same way as for OS X (see above), also helps.
 
-There are no official MinGW-based 64-bit packages for Qt. If you're determined to build 64-bit Quaternion, either use a Visual Studio toolchain or build Qt5 yourself as described in Qt documentation.
+There are no official MinGW-based 64-bit packages for Qt. If you're determined to build 64-bit Quaternion, either use a Visual Studio toolchain or build Qt5 yourself as described in Qt documentation. Be prepared that a VS 64-bit build won't give you a working Quaternion - the last time checked Quaternion ran but could not get anything from the network. PRs are welcome.
 
 ### Build
 In the root directory of the project sources:
@@ -60,10 +65,11 @@ cmake --build . --target all
 ```
 This will get you an executable in `build_dir` inside your project sources. `CMAKE_INSTALL_PREFIX` variable of CMake controls where Quaternion will be installed - pass it to `cmake ..` above if you wish to alter the default (see the output from `cmake ..` to find out the configured values).
 
+
 ### Install
 In the root directory of the project sources: `cmake --build build_dir --target install`.
 
-On Linux, `make install` (with `sudo` if needed) will work equally well.
+If you use GNU Make, `make install` (with `sudo` if needed) will work equally well.
 
 ### Package
 Packagers are very scarce so far, so please step up and support your favourite system! Notably, we still need a MacOS maintainer - Quaternion sees no actual usage/testing on this platform yet.
@@ -94,7 +100,7 @@ CMake Warning at CMakeLists.txt:11 (find_package):
   has asked CMake to find a package configuration file provided by
   "Qt5Widgets", but CMake did not find one.
 ```
-...then you need to set the right -DCMAKE_PREFIX_PATH variable, see above.
+...then you need to set the right `CMAKE_PREFIX_PATH` variable, see above.
 
 If `cmake` fails with...
 ```
@@ -107,6 +113,6 @@ CMake Error at CMakeLists.txt:30 (add_subdirectory):
 ```
 ...then you don't have libqmatrixclient sources - most likely because you didn't do the `git submodule init && git submodule update` dance.
 
-If you have made sure that your toolchain is in order (versions of compilers and Qt are among supported ones, PATH is set correctly etc.) but building fails with strange Qt-related errors such as not found symbols or undefined references, double-check that you don't have Qt 4.x packages around ([here is a typical example](https://github.com/QMatrixClient/Quaternion/issues/185)). If you need those packages reinstalling them may help; but if you use Qt4 by default you have to explicitly pass Qt5 location to CMake (see notes about CMAKE_PREFIX_PATH in "Building").
+If you have made sure that your toolchain is in order (versions of compilers and Qt are among supported ones, `PATH` is set correctly etc.) but building fails with strange Qt-related errors such as not found symbols or undefined references, double-check that you don't have Qt 4.x packages around ([here is a typical example](https://github.com/QMatrixClient/Quaternion/issues/185)). If you need those packages reinstalling them may help; but if you use Qt4 by default you have to explicitly pass Qt5 location to CMake (see notes about `CMAKE_PREFIX_PATH` in "Building").
 
 See also the Troubleshooting section in [README.md](./README.md)

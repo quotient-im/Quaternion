@@ -18,18 +18,18 @@ The latest release (with links to cross-platform source code archives, as well a
 
 Packagers are very scarce so far, so please step up and support your favourite system! Notably, we still need a MacOS maintainer - Quaternion sees no actual usage/testing on this platform yet. Build instructions for the source code can be found in BUILDING.md.
 
-#### Windows
-The archives published on the GitHub Releases page already include the necessary subset of Qt; you don't need to additionally download and install anything.
+### Requirements
+Quaternion needs Qt version 5.6 or higher. On Linux, this is compatible with Debian Stretch and Ubuntu Xenial Xerus with Kubuntu Backports overlay. On Windows, all needed libraries are included in the archive - you don't need to separately install anything.
 
-For those who want the very latest version (beware, you are very likely to find it not working), automatic builds for Windows are packaged by AppVeyor CI upon every commit. To get an archive, surf to the [AppVeyor CI page for Quaternion](https://ci.appveyor.com/project/QMatrixClient/quaternion), then go to "Jobs", click on a job for your architecture and find the archive in "Artifacts". Once you unpack the archive, **delete or rename** the "bearer" directory (see "Troubleshooting" below for details).
+#### Windows
+The archives published on the GitHub Releases page already include the necessary subset of Qt; normally you don't need to additionally download and install anything.
+
+For those who want the very latest version (beware, you may find it not working at times), automatic builds for Windows are packaged by AppVeyor CI upon every commit. To get an archive, surf to the [AppVeyor CI page for Quaternion](https://ci.appveyor.com/project/QMatrixClient/quaternion), then go to "Jobs", click on a job for your architecture and find the archive in "Artifacts". Once you unpack the archive, **delete or rename** the "bearer" directory (see "Troubleshooting" below for details).
 
 #### Linux
 Unofficial package for Arch Linux: https://aur.archlinux.org/packages/quaternion/
 
-Quaternion is at Flathub - to install, use `flatpak --install https://flathub.org/repo/appstream/com.github.quaternion`. This is still experimental - please make issues at https://github.com/flathub/com.github.quaternion if you find that Quaternion doesn't work from a Flatpak.
-
-## Requirements
-Quaternion only depends on Qt libraries version 5.2.1 or higher. On Linux, this matches the package base of Debian Jessie and Ubuntu Trusty Tar. On Windows, all needed libraries are included in the archive - you don't need to separately install anything.
+Flatpaks for Quaternion are available from Flathub. To install, use `flatpak --install https://flathub.org/repo/appstream/com.github.quaternion`. This is still experimental - please file issues at https://github.com/flathub/com.github.quaternion if you believe there's a problem with Flatpakaging.
 
 ## Running
 Just start the executable in your most preferred way - either from build directory or from the installed location.
@@ -82,7 +82,7 @@ Especially on Windows, if Quaternion starts up but upon an attempt to connect re
 If you have troubles with dynamic libraries on Windows, [the Dependencies Walker tool aka depends.exe](http://www.dependencywalker.com/) helps a lot in navigating the DLL hell - especially when you have a mixed 32/64-bit environment or have different versions of the same library scattered around. OpenSSL, in particular, is notoriously often dragged along by all kinds of software; and you may have other copies of Qt around which you didn't even know about - e.g., with CMake GUI.
 
 #### Logging categories
-When chasing bugs and investigating crashes, it helps to increase the debug level. Thanks to @eang:matrix.org, libqmatrixclient uses Qt logging categories - the "Troubleshooting" section of `lib/README.md` elaborates on how to setup logging. Note that Quaternion itself doesn't use Qt logging categories yet, only the library does.
+When chasing bugs and investigating crashes, it helps to increase the debug level. Thanks to [@eang:matrix.org](https://matrix.to/#/@eang:matrix.org]), libqmatrixclient uses Qt logging categories - the "Troubleshooting" section of `lib/README.md` elaborates on how to setup logging. Note that Quaternion itself doesn't use Qt logging categories yet, only the library does.
 
 ## Screenshot
 ![Screenshot](quaternion.png)
