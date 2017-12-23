@@ -1,20 +1,30 @@
 language: cpp
+
+os: [ linux, osx ]
+
+compiler: [ gcc, clang ]
+
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    - sourceline: 'ppa:beineri/opt-qt563-trusty'
+    packages:
+    - g++-5
+    - qt56-meta-minimal
+
 matrix:
-  include:
-  - os: linux
-    dist: trusty
-    compiler: gcc
-  - os: linux
-    dist: trusty
-    compiler: clang
-  - os: osx
+  exclude: [ { os: osx, compiler: gcc } ]
+
 install:
-- if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; else sudo apt-get update -qq; fi
-- if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install qt5; export PATH="$PATH:/usr/local/opt/qt/bin"; else sudo apt-get install -y qt5-default qtdeclarative5-dev; fi
+- if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; brew install qt5; export PATH="$PATH:/usr/local/opt/qt/bin"; fi
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; then . /opt/qt56/bin/qt56-env.sh; fi
+
 script:
 - mkdir build && cd build
 - cmake ..
 - cmake --build . --target all
+
 notifications:
   webhooks:
     urls:
