@@ -3,17 +3,18 @@ image: Visual Studio 2015
 environment:
   DEPLOY_DIR: Quaternion-%APPVEYOR_BUILD_VERSION%
   matrix:
-  - QTDIR: C:\Qt\5.8\msvc2015_64
-    VS_FOLDER: Microsoft Visual Studio 14.0
-    PLATFORM: x64
-  - QTDIR: C:\Qt\5.6\msvc2015
-    VS_FOLDER: Microsoft Visual Studio 14.0
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    QTDIR: C:\Qt\5.9\msvc2017_64
+    VCVARS: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
+    PLATFORM:
+  - QTDIR: C:\Qt\5.9\msvc2015
+    VCVARS: "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\vcvarsall.bat"
     PLATFORM: x86
 
 init:
 - call "%QTDIR%\bin\qtenv2.bat"
 - set PATH=C:\Qt\Tools\QtCreator\bin;%PATH%
-- call "%ProgramFiles(x86)%\%VS_FOLDER%\VC\vcvarsall.bat" %platform%
+- call "%VCVARS%" %platform%
 - cd /D "%APPVEYOR_BUILD_FOLDER%"
 
 before_build:
