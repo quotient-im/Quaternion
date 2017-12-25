@@ -1,9 +1,5 @@
 language: cpp
 
-os: [ linux, osx ]
-
-compiler: [ gcc, clang ]
-
 addons:
   apt:
     sources:
@@ -14,10 +10,17 @@ addons:
     - qt56-meta-minimal
 
 matrix:
-  exclude: [ { os: osx, compiler: gcc } ]
+  include:
+  - os: linux
+    compiler: gcc
+    env: [ ENV_EVAL="CC=gcc-5 && CXX=g++-5" ]
+  - os: linux
+    compiler: clang
+  - os: osx
+    env: [ ENV_EVAL="brew update && brew install qt5 && PATH=/usr/local/opt/qt/bin" ]
 
 install:
-- if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; brew install qt5; export PATH="$PATH:/usr/local/opt/qt/bin"; fi
+- eval "${ENV_EVAL}"
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then . /opt/qt56/bin/qt56-env.sh; fi
 
 script:

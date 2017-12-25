@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.11)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
 project(quaternion CXX)
 
@@ -27,22 +27,17 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Setup command line parameters for the compiler and linker
-CHECK_CXX_COMPILER_FLAG("-Wall" WALL_FLAG_SUPPORTED)
-if ( WALL_FLAG_SUPPORTED )
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-endif ( WALL_FLAG_SUPPORTED )
+foreach (FLAG "" all pedantic extra no-unused-parameter)
+    CHECK_CXX_COMPILER_FLAG("-W${FLAG}" WARN_${FLAG}_SUPPORTED)
+    if ( WARN_${FLAG}_SUPPORTED AND NOT CMAKE_CXX_FLAGS MATCHES "(^| )-W?${FLAG}($| )")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W${FLAG}")
+    endif ()
+endforeach ()
 
-if ( CMAKE_VERSION VERSION_LESS "3.1" )
-    CHECK_CXX_COMPILER_FLAG("-std=c++11" STD_FLAG_SUPPORTED)
-    if ( STD_FLAG_SUPPORTED )
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-    endif ( STD_FLAG_SUPPORTED )
-else ( CMAKE_VERSION VERSION_LESS "3.1" )
-    set(CMAKE_CXX_STANDARD 11)
-endif ( CMAKE_VERSION VERSION_LESS "3.1" )
+set(CMAKE_CXX_STANDARD 14)
 
 # Find the libraries
-find_package(Qt5 5.2.1 REQUIRED Widgets Network Quick Qml Gui)
+find_package(Qt5 5.6 REQUIRED Widgets Network Quick Qml Gui)
 get_filename_component(Qt5_Prefix "${Qt5_DIR}/../../../.." ABSOLUTE)
 
 message( STATUS )
