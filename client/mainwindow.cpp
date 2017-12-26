@@ -86,19 +86,14 @@ void MainWindow::createMenu()
     // Connection menu
     connectionMenu = menuBar()->addMenu(tr("&Accounts"));
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
     connectionMenu->addAction(tr("&Login..."), this, [=]{ showLoginWindow(); } );
-#else
-    connectionMenu->addAction(tr("&Login..."), this, SLOT(showLoginWindow()));
-#endif
 
     connectionMenu->addSeparator();
-    // Logout actions will be added between these two separators - see addConnection()
+    // Account submenus will be added in this place - see addConnection()
     accountListGrowthPoint = connectionMenu->addSeparator();
 
-    auto quitAction = connectionMenu->addAction(tr("&Quit"));
-    quitAction->setShortcut(QKeySequence::Quit);
-    connect( quitAction, &QAction::triggered, qApp, &QApplication::closeAllWindows );
+    connectionMenu->addAction(tr("&Quit"),
+        qApp, &QApplication::closeAllWindows, QKeySequence::Quit);
 
     // View menu
     auto viewMenu = menuBar()->addMenu(tr("&View"));
@@ -109,8 +104,10 @@ void MainWindow::createMenu()
     // Room menu
     auto roomMenu = menuBar()->addMenu(tr("&Room"));
 
-    auto joinRoomAction = roomMenu->addAction(tr("&Join Room..."));
-    connect( joinRoomAction, &QAction::triggered, this, [=]{ joinRoom(); } );
+    roomMenu->addAction(tr("&Join Room..."), this, [=]{ joinRoom(); } );
+    roomMenu->addSeparator();
+    roomMenu->addAction(tr("&Close current room"),
+        this, [this] { selectRoom(nullptr); }, QKeySequence::Close);
 }
 
 void MainWindow::loadSettings()
@@ -249,16 +246,37 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
             selectRoom(nullptr);
     });
 
-    const QString logoutCaption = deviceName.isEmpty() ?
-                tr("Logout %1").arg(c->userId()) :
-                tr("Logout %1/%2").arg(c->userId(), deviceName);
-    const auto logoutAction = new QAction(logoutCaption, c);
-    connectionMenu->insertAction(accountListGrowthPoint, logoutAction);
-    connect( logoutAction, &QAction::triggered, this, [=]{ logout(c); } );
-    connect( c, &Connection::destroyed, this, [=]
+    QString accountCaption = c->userId();
+    if (!deviceName.isEmpty())
+        accountCaption += '/' % deviceName;
+    QString menuCaption = accountCaption;
+    if (connections.size() < 10)
+        menuCaption.prepend('&' % QString::number(connections.size()) % ' ');
+    auto accountMenu = new QMenu(menuCaption, connectionMenu);
+    accountMenu->addAction(tr("Show &access token"), this, [=]
     {
-        connectionMenu->removeAction(logoutAction);
-    } );
+        const QString aToken = c->accessToken();
+        auto accountTokenBox = new QMessageBox(QMessageBox::Information,
+            tr("Access token for %1").arg(accountCaption),
+            tr("Your access token is %1...%2;"
+               " click \"Show details...\" for the full token")
+               .arg(aToken.left(5), aToken.right(5)),
+            QMessageBox::Close, this, Qt::Dialog);
+        accountTokenBox->setModal(false);
+        accountTokenBox->setTextInteractionFlags(
+                    Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
+        accountTokenBox->setDetailedText(aToken);
+        connect(accountTokenBox, &QDialog::finished,
+                accountTokenBox, &QObject::deleteLater);
+        accountTokenBox->show();
+    });
+    accountMenu->addAction(tr("&Logout"), this, [=] { logout(c); });
+    auto menuAction =
+            connectionMenu->insertMenu(accountListGrowthPoint, accountMenu);
+    connect( c, &Connection::destroyed, connectionMenu, [this, menuAction]
+    {
+        connectionMenu->removeAction(menuAction);
+    });
 
     getNewEvents(c);
 }
