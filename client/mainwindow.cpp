@@ -266,8 +266,7 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
         accountTokenBox->setTextInteractionFlags(
                     Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
         accountTokenBox->setDetailedText(aToken);
-        connect(accountTokenBox, &QDialog::finished,
-                accountTokenBox, &QObject::deleteLater);
+        accountTokenBox->setAttribute(Qt::WA_DeleteOnClose);
         accountTokenBox->show();
     });
     accountMenu->addAction(tr("&Logout"), this, [=] { logout(c); });
