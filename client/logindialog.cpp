@@ -21,6 +21,7 @@
 
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QDialogButtonBox>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFormLayout>
@@ -33,12 +34,15 @@ LoginDialog::LoginDialog(QWidget* parent)
     , userEdit(new QLineEdit())
     , passwordEdit(new QLineEdit())
     , initialDeviceName(new QLineEdit())
-    , loginButton(new QPushButton(tr("Login")))
     , saveTokenCheck(new QCheckBox(tr("Stay logged in")))
     , statusLabel(new QLabel(tr("Welcome to Quaternion")))
     , m_connection(new Connection())
 {
     passwordEdit->setEchoMode( QLineEdit::Password );
+
+    auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok|
+                                        QDialogButtonBox::Cancel);
+    buttons->button(QDialogButtonBox::Ok)->setText(tr("Login"));
 
     auto* formLayout = new QFormLayout();
     formLayout->addRow(tr("Matrix ID"), userEdit);
@@ -49,7 +53,7 @@ LoginDialog::LoginDialog(QWidget* parent)
 
     auto* mainLayout = new QVBoxLayout();
     mainLayout->addLayout(formLayout);
-    mainLayout->addWidget(loginButton);
+    mainLayout->addWidget(buttons);
     mainLayout->addWidget(statusLabel);
     
     setLayout(mainLayout);
@@ -65,7 +69,8 @@ LoginDialog::LoginDialog(QWidget* parent)
              {
                  serverEdit->setText(newUrl.toString());
              });
-    connect( loginButton, &QPushButton::clicked, this, &LoginDialog::login );
+    connect( buttons, &QDialogButtonBox::accepted, this, &LoginDialog::login );
+    connect( buttons, &QDialogButtonBox::rejected, this, &LoginDialog::reject );
 
     {
         // Fill defaults

@@ -50,7 +50,6 @@ class LoginDialog : public QDialog
         QLineEdit* userEdit;
         QLineEdit* passwordEdit;
         QLineEdit* initialDeviceName;
-        QPushButton* loginButton;
         QCheckBox* saveTokenCheck;
         QLabel* statusLabel;
 
