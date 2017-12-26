@@ -63,6 +63,7 @@ set(quaternion_SRCS
     client/imageprovider.cpp
     client/activitydetector.cpp
     client/logindialog.cpp
+    client/networkconfigdialog.cpp
     client/mainwindow.cpp
     client/roomlistdock.cpp
     client/userlistdock.cpp

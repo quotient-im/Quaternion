@@ -19,6 +19,17 @@
 
 #include "mainwindow.h"
 
+#include "roomlistdock.h"
+#include "userlistdock.h"
+#include "chatroomwidget.h"
+#include "logindialog.h"
+#include "networkconfigdialog.h"
+#include "systemtray.h"
+
+#include "lib/jobs/joinroomjob.h"
+#include "lib/connection.h"
+#include "lib/settings.h"
+
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>
 #include <QtCore/QStandardPaths>
@@ -34,15 +45,6 @@
 #include <QtWidgets/QPushButton>
 #include <QtGui/QMovie>
 #include <QtGui/QCloseEvent>
-
-#include "jobs/joinroomjob.h"
-#include "lib/connection.h"
-#include "roomlistdock.h"
-#include "userlistdock.h"
-#include "chatroomwidget.h"
-#include "logindialog.h"
-#include "systemtray.h"
-#include "settings.h"
 
 MainWindow::MainWindow()
 {
@@ -104,10 +106,20 @@ void MainWindow::createMenu()
     // Room menu
     auto roomMenu = menuBar()->addMenu(tr("&Room"));
 
-    roomMenu->addAction(tr("&Join Room..."), this, [=]{ joinRoom(); } );
+    roomMenu->addAction(tr("&Join Room..."), [=]{ joinRoom(); } );
     roomMenu->addSeparator();
     roomMenu->addAction(tr("&Close current room"),
-        this, [this] { selectRoom(nullptr); }, QKeySequence::Close);
+        [this] { selectRoom(nullptr); }, QKeySequence::Close);
+
+    // Settings menu
+    auto settingsMenu = menuBar()->addMenu(tr("&Settings"));
+
+    settingsMenu->addAction(tr("Configure &network proxy..."), [this]
+    {
+        static NetworkConfigDialog* const dlg = new NetworkConfigDialog(this);
+
+        dlg->reactivate();
+    });
 }
 
 void MainWindow::loadSettings()
