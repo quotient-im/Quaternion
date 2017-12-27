@@ -52,6 +52,7 @@ Quaternion stores its configuration in a way standard for Qt applications. It wi
 Several settings are not exposed in the UI:
 - `UI/suppress_splash` - set this to 1 if you don't want a splash screen
 - `UI/condense_chat` - set this to 1 to make the timeline rendered tighter, without gaps between messages
+- `UI/show_noop_events` - set this to 1 to show state events that do not alter the state (you'll see "(repeated)" next to most of those)
 
 Since version 0.0.5, Quaternion tries to store your access tokens in a dedicated file with restricted access rights so that only the owner can access them. Every access token is stored in a separate file matching your user id in the following directory:
 - Linux: `$HOME/.local/share/QMatrixClient/quaternion`

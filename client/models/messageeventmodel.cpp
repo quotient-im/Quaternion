@@ -38,7 +38,7 @@ enum EventRoles {
     ContentRole,
     ContentTypeRole,
     HighlightRole,
-    RedactedRole,
+    SpecialMarksRole,
 };
 
 QHash<int, QByteArray> MessageEventModel::roleNames() const
@@ -52,7 +52,7 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
     roles[ContentRole] = "content";
     roles[ContentTypeRole] = "contentType";
     roles[HighlightRole] = "highlight";
-    roles[RedactedRole] = "redacted";
+    roles[SpecialMarksRole] = "marks";
     return roles;
 }
 
@@ -303,8 +303,13 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
             switch( e->membership() )
             {
                 case MembershipType::Invite:
+                    if (e->repeatsState())
+                        return tr("reinvited %1 to the room").arg(subjectName);
+                    // [[fallthrough]]
                 case MembershipType::Join:
                 {
+                    if (e->repeatsState())
+                        return tr("joined the room (repeated)");
                     if (!e->prev_content() ||
                             e->membership() != e->prev_content()->membership)
                     {
@@ -384,8 +389,14 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         return message.highlight();
     }
 
-    if( role == RedactedRole )
-        return message.messageEvent()->isRedacted();
+    if( role == SpecialMarksRole )
+    {
+        auto* e = message.messageEvent();
+        if (e->isStateEvent() &&
+                static_cast<const StateEventBase*>(e)->repeatsState())
+            return "hidden";
+        return e->isRedacted() ? "redacted" : "";
+    }
 
     if( role == Qt::DecorationRole )
     {

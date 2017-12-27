@@ -10,6 +10,7 @@ Rectangle {
     Settings {
         id: settings
         property bool condense_chat: value("UI/condense_chat", false)
+        property bool show_noop_events: value("UI/show_noop_events")
     }
     SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
     SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
@@ -179,9 +180,13 @@ Rectangle {
         id: messageDelegate
 
         Rectangle {
+            property bool redacted: marks == "redacted"
+            property bool hidden: marks == "hidden" && !settings.show_noop_events
+
             color: defaultPalette.base
             width: root.width - chatViewScroller.width
-            height: childrenRect.height
+            height: hidden ? 0 : childrenRect.height
+            visible: !hidden
 
             // A message is considered shown if its bottom is within the
             // viewing area of the timeline.
