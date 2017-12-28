@@ -22,6 +22,7 @@
 #include <QtCore/QCommandLineParser>
 #include <QtCore/QDebug>
 
+#include "networksettings.h"
 #include "mainwindow.h"
 #include "activitydetector.h"
 #include "lib/settings.h"
@@ -66,6 +67,8 @@ int main( int argc, char* argv[] )
         splash.show();
         app.processEvents();
     }
+
+    QMatrixClient::NetworkSettings().setupApplicationProxy();
 
     MainWindow window;
     if( debugEnabled )
