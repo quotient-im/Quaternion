@@ -62,6 +62,7 @@ set(quaternion_SRCS
     client/message.cpp
     client/imageprovider.cpp
     client/activitydetector.cpp
+    client/dialog.cpp
     client/logindialog.cpp
     client/networkconfigdialog.cpp
     client/mainwindow.cpp

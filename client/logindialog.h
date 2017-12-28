@@ -19,16 +19,16 @@
 
 #pragma once
 
-#include "lib/connection.h"
+#include "dialog.h"
 
-#include <QtWidgets/QDialog>
+#include "lib/connection.h"
 
 class QLineEdit;
 class QPushButton;
 class QLabel;
 class QCheckBox;
 
-class LoginDialog : public QDialog
+class LoginDialog : public Dialog
 {
         Q_OBJECT
     public:

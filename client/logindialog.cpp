@@ -29,13 +29,13 @@
 #include "settings.h"
 
 LoginDialog::LoginDialog(QWidget* parent)
-    : QDialog(parent)
+    : Dialog(tr("Login"), parent)
     , serverEdit(new QLineEdit("https://matrix.org"))
-    , userEdit(new QLineEdit())
-    , passwordEdit(new QLineEdit())
-    , initialDeviceName(new QLineEdit())
-    , saveTokenCheck(new QCheckBox(tr("Stay logged in")))
-    , statusLabel(new QLabel(tr("Welcome to Quaternion")))
+    , userEdit(new QLineEdit(this))
+    , passwordEdit(new QLineEdit(this))
+    , initialDeviceName(new QLineEdit(this))
+    , saveTokenCheck(new QCheckBox(tr("Stay logged in"), this))
+    , statusLabel(new QLabel(tr("Welcome to Quaternion"), this))
     , m_connection(new Connection())
 {
     passwordEdit->setEchoMode( QLineEdit::Password );
