@@ -20,7 +20,7 @@
 #pragma once
 
 #include <QtQuick/QQuickImageProvider>
-#include <QtCore/QMutex>
+#include <QtCore/QReadWriteLock>
 
 namespace QMatrixClient {
     class Connection;
@@ -31,12 +31,12 @@ class ImageProvider: public QQuickImageProvider
     public:
         explicit ImageProvider(QMatrixClient::Connection* connection);
 
-        QPixmap requestPixmap(const QString& id, QSize* pSize,
+        QImage requestImage(const QString& id, QSize* pSize,
                               const QSize& requestedSize) override;
 
         void setConnection(QMatrixClient::Connection* connection);
 
     private:
         QMatrixClient::Connection* m_connection;
-        QMutex m_mutex;
+        QReadWriteLock m_lock;
 };

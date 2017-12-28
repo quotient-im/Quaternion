@@ -37,13 +37,13 @@ ImageProvider::ImageProvider(QMatrixClient::Connection* connection)
 #endif
 }
 
-QPixmap ImageProvider::requestPixmap(const QString& id,
-                                     QSize* pSize, const QSize& requestedSize)
+QImage ImageProvider::requestImage(const QString& id,
+                                   QSize* pSize, const QSize& requestedSize)
 {
-    QMutexLocker locker(&m_mutex);
     qDebug() << "ImageProvider::requestPixmap:" << id;
 
     MediaThumbnailJob* job = nullptr;
+    QReadLocker locker(&m_lock);
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
     QMetaObject::invokeMethod(m_connection,
         [=] { return m_connection->getThumbnail(id, requestedSize); },
@@ -58,14 +58,14 @@ QPixmap ImageProvider::requestPixmap(const QString& id,
         qDebug() << "ImageProvider: failed to send a request";
         return {};
     }
-    QPixmap result;
+    QImage result;
     {
         QWaitCondition condition; // The most compact way to block on a signal
         job->connect(job, &MediaThumbnailJob::finished, job, [&] {
             result = job->thumbnail();
             condition.wakeAll();
         });
-        condition.wait(&m_mutex);
+        condition.wait(&m_lock);
     }
 
     if( pSize != nullptr )
@@ -76,7 +76,7 @@ QPixmap ImageProvider::requestPixmap(const QString& id,
 
 void ImageProvider::setConnection(QMatrixClient::Connection* connection)
 {
-    QMutexLocker locker(&m_mutex);
+    QWriteLocker locker(&m_lock);
 
     m_connection = connection;
 }

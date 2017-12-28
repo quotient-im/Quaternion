@@ -212,7 +212,8 @@ void ChatRoomWidget::updateHeader()
         m_topicLabel->setText("<strong>" % m_currentRoom->name() %
                               "</strong><br />" % prettyTopic);
         auto avatarSize = m_topicLabel->heightForWidth(width());
-        m_roomAvatar->setPixmap(m_currentRoom->avatar(avatarSize, avatarSize));
+        m_roomAvatar->setPixmap(
+                QPixmap::fromImage(m_currentRoom->avatar(avatarSize)));
     }
     else
     {
