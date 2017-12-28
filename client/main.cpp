@@ -56,6 +56,10 @@ int main( int argc, char* argv[] )
     bool debugEnabled = parser.isSet(debug);
     qDebug() << "Debug: " << debugEnabled;
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+    app.setAttribute(Qt::AA_DisableWindowContextHelpButton);
+#endif
+
     QSplashScreen splash(QPixmap(":/icon.png"));
     if (!QSettings().value("UI/suppress_splash").toBool())
     {
