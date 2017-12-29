@@ -18,14 +18,14 @@
 
 #pragma once
 
-#include <QtWidgets/QDialog>
+#include "dialog.h"
 
 class QGroupBox;
 class QButtonGroup;
 class QLineEdit;
 class QSpinBox;
 
-class NetworkConfigDialog : public QDialog
+class NetworkConfigDialog : public Dialog
 {
         Q_OBJECT
     public:
@@ -37,11 +37,13 @@ class NetworkConfigDialog : public QDialog
         void loadSettings();
         void reactivate();
 
+    private slots:
+        void maybeDisableControls();
+
     private:
-        template <typename T>
-        using QObjectScopedPtr = QScopedPointer<T, QScopedPointerDeleteLater>;
-        const QObjectScopedPtr<QGroupBox> useProxyBox;
-        const QObjectScopedPtr<QButtonGroup> proxyTypeGroup;
-        const QObjectScopedPtr<QLineEdit> proxyHostName;
-        const QObjectScopedPtr<QSpinBox> proxyPort;
+        QGroupBox* useProxyBox;
+        QButtonGroup* proxyTypeGroup;
+        QLineEdit* proxyHostName;
+        QSpinBox* proxyPort;
+        QLineEdit* proxyUserName;
 };

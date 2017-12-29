@@ -1,3 +1,21 @@
+/******************************************************************************
+ * Copyright (C) 2017 Kitsune Ral <kitsune-ral@users.sf.net>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 #include "networkconfigdialog.h"
 
 #include "networksettings.h"
@@ -11,33 +29,50 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QDialogButtonBox>
 #include <QtWidgets/QBoxLayout>
+#include <QtWidgets/QGridLayout>
+
+QLabel* makeBuddyLabel(QString labelText, QWidget* field)
+{
+    auto label = new QLabel(labelText);
+    label->setBuddy(field);
+    return label;
+}
 
 NetworkConfigDialog::NetworkConfigDialog(QWidget* parent)
-    : QDialog(parent)
-    , useProxyBox(new QGroupBox(tr("&Use proxy")))
-    , proxyTypeGroup(new QButtonGroup)
-    , proxyHostName(new QLineEdit)
-    , proxyPort(new QSpinBox)
+    : Dialog(tr("Network proxy settings"), parent)
+    , useProxyBox(new QGroupBox(tr("&Override system defaults"), this))
+    , proxyTypeGroup(new QButtonGroup(this))
+    , proxyHostName(new QLineEdit(this))
+    , proxyPort(new QSpinBox(this))
+    , proxyUserName(new QLineEdit(this))
 {
-    setModal(false);
-    setWindowTitle("Network proxy settings");
-
     // Create and configure all the controls
 
     useProxyBox->setCheckable(true);
     useProxyBox->setChecked(false);
+    connect(useProxyBox, &QGroupBox::toggled,
+            this, &NetworkConfigDialog::maybeDisableControls);
 
-    proxyTypeGroup->addButton(new QRadioButton(tr("&HTTP proxy")),
+    auto noProxyButton = new QRadioButton(tr("&No proxy"));
+    noProxyButton->setChecked(true);
+    proxyTypeGroup->addButton(noProxyButton,
+                              QNetworkProxy::NoProxy);
+    proxyTypeGroup->addButton(new QRadioButton(tr("&HTTP(S) proxy")),
                               QNetworkProxy::HttpProxy);
     proxyTypeGroup->addButton(new QRadioButton(tr("&SOCKS5 proxy")),
                               QNetworkProxy::Socks5Proxy);
+    connect(proxyTypeGroup,
+            QOverload<int,bool>::of(&QButtonGroup::buttonToggled),
+            this, &NetworkConfigDialog::maybeDisableControls);
 
-    auto hostLabel = new QLabel(tr("Host &name"));
-    hostLabel->setBuddy(proxyHostName.data());
+    maybeDisableControls();
+
+    auto hostLabel = makeBuddyLabel(tr("Host"), proxyHostName);
+    auto portLabel = makeBuddyLabel(tr("Port"), proxyPort);
+    auto userLabel = makeBuddyLabel(tr("User name"), proxyUserName);
+
     proxyPort->setRange(0, 65535);
     proxyPort->setSpecialValueText(QStringLiteral(" "));
-    auto portLabel = new QLabel(tr("&Port"));
-    portLabel->setBuddy(proxyPort.data());
 
     auto pushButtons = new QDialogButtonBox(QDialogButtonBox::Ok|
                                             QDialogButtonBox::Cancel);
@@ -50,9 +85,11 @@ NetworkConfigDialog::NetworkConfigDialog(QWidget* parent)
 
     // Now laying all this out
 
-    auto proxyTypeLayout = new QHBoxLayout;
-    for (auto btn: proxyTypeGroup->buttons())
-        proxyTypeLayout->addWidget(btn);
+    auto proxyTypeLayout = new QGridLayout;
+    auto radios = proxyTypeGroup->buttons();
+    proxyTypeLayout->addWidget(radios[0], 0, 0);
+    for (int i = 2; i <= radios.size(); ++i) // Consider i as 1-based index
+        proxyTypeLayout->addWidget(radios[i - 1], i / 2, i % 2);
 
     auto hostPortLayout = new QHBoxLayout;
     for (auto l: { hostLabel, portLabel })
@@ -60,14 +97,18 @@ NetworkConfigDialog::NetworkConfigDialog(QWidget* parent)
         hostPortLayout->addWidget(l);
         hostPortLayout->addWidget(l->buddy());
     }
+    auto userNameLayout = new QHBoxLayout;
+    userNameLayout->addWidget(userLabel);
+    userNameLayout->addWidget(userLabel->buddy());
 
     auto proxySettingsLayout = new QVBoxLayout;
     proxySettingsLayout->addLayout(proxyTypeLayout);
     proxySettingsLayout->addLayout(hostPortLayout);
+    proxySettingsLayout->addLayout(userNameLayout);
     useProxyBox->setLayout(proxySettingsLayout);
 
     auto mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(useProxyBox.data());
+    mainLayout->addWidget(useProxyBox);
     mainLayout->addWidget(pushButtons);
     setLayout(mainLayout);
 
@@ -75,25 +116,37 @@ NetworkConfigDialog::NetworkConfigDialog(QWidget* parent)
 
 NetworkConfigDialog::~NetworkConfigDialog() = default;
 
+void NetworkConfigDialog::maybeDisableControls()
+{
+    if (useProxyBox->isChecked())
+    {
+        bool disable = proxyTypeGroup->checkedId() == -1 ||
+            proxyTypeGroup->checkedId() == QNetworkProxy::NoProxy;
+        proxyHostName->setDisabled(disable);
+        proxyPort->setDisabled(disable);
+        proxyUserName->setDisabled(disable);
+    }
+}
+
 void NetworkConfigDialog::applySettings()
 {
     QMatrixClient::NetworkSettings networkSettings;
 
     auto proxyType = useProxyBox->isChecked() ?
                 QNetworkProxy::ProxyType(proxyTypeGroup->checkedId()) :
-                QNetworkProxy::NoProxy;
+                QNetworkProxy::DefaultProxy;
     networkSettings.setProxyType(proxyType);
     networkSettings.setProxyHostName(proxyHostName->text());
-    networkSettings.setProxyPort(proxyPort->value());
-    QNetworkProxy::setApplicationProxy(
-        { proxyType, proxyHostName->text(), quint16(proxyPort->value()) });
+    networkSettings.setProxyPort(quint16(proxyPort->value()));
+    networkSettings.setupApplicationProxy();
+    // Should we do something for authentication at all?..
 }
 
 void NetworkConfigDialog::loadSettings()
 {
     QMatrixClient::NetworkSettings networkSettings;
     auto proxyType = networkSettings.proxyType();
-    if (proxyType == QNetworkProxy::NoProxy)
+    if (proxyType == QNetworkProxy::DefaultProxy)
     {
         useProxyBox->setChecked(false);
     } else {

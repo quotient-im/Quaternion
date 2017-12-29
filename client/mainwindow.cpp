@@ -116,7 +116,13 @@ void MainWindow::createMenu()
 
     settingsMenu->addAction(tr("Configure &network proxy..."), [this]
     {
-        static NetworkConfigDialog* const dlg = new NetworkConfigDialog(this);
+        static QPointer<NetworkConfigDialog> dlg;
+        if (!dlg)
+        {
+            dlg = new NetworkConfigDialog(this);
+            dlg->setModal(false);
+            dlg->setAttribute(Qt::WA_DeleteOnClose);
+        }
 
         dlg->reactivate();
     });
