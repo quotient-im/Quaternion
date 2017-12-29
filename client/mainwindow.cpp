@@ -28,6 +28,7 @@
 
 #include "lib/jobs/joinroomjob.h"
 #include "lib/connection.h"
+#include "lib/connectiondata.h"
 #include "lib/settings.h"
 
 #include <QtCore/QTimer>
@@ -36,6 +37,9 @@
 #include <QtCore/QStringBuilder>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
+#include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QNetworkReply>
+#include <QtNetwork/QAuthenticator>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QMessageBox>
@@ -43,12 +47,21 @@
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QDialogButtonBox>
+#include <QtWidgets/QFormLayout>
 #include <QtGui/QMovie>
 #include <QtGui/QCloseEvent>
 
 MainWindow::MainWindow()
 {
     Connection::setRoomType<QuaternionRoom>();
+
+    QMatrixClient::ConnectionData::customizeNetworkAccess(
+        [this](QNetworkAccessManager* nam)
+        {
+            connect(nam, &QNetworkAccessManager::proxyAuthenticationRequired,
+                this, &MainWindow::proxyAuthenticationRequired);
+        });
     setWindowIcon(QIcon(":/icon.png"));
 
     roomListDock = new RoomListDock(this);
@@ -580,6 +593,29 @@ void MainWindow::networkError(Connection* c)
             timer->deleteLater();
         }
     });
+}
+
+void MainWindow::proxyAuthenticationRequired(const QNetworkProxy&, QAuthenticator* auth)
+{
+    Dialog authDialog(tr("Proxy needs authentication"), this);
+    auto layout = new QFormLayout;
+    auto userEdit = new QLineEdit;
+    layout->addRow(tr("User name"), userEdit);
+    auto pwdEdit = new QLineEdit;
+    pwdEdit->setEchoMode(QLineEdit::Password);
+    layout->addRow(tr("Password"), pwdEdit);
+    auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok|
+                                        QDialogButtonBox::Cancel);
+    buttons->button(QDialogButtonBox::Ok)->setText(tr("Connect"));
+    connect(buttons, &QDialogButtonBox::accepted, &authDialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &authDialog, &QDialog::reject);
+    layout->addWidget(buttons);
+    authDialog.setLayout(layout);
+    if (authDialog.exec() == QDialog::Accepted)
+    {
+        auth->setUser(userEdit->text());
+        auth->setPassword(pwdEdit->text());
+    }
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)

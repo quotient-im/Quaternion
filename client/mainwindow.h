@@ -39,6 +39,11 @@ class QSystemTrayIcon;
 class QMovie;
 class QLabel;
 
+class QNetworkReply;
+class QSslError;
+class QNetworkProxy;
+class QAuthenticator;
+
 class MainWindow: public QMainWindow
 {
         Q_OBJECT
@@ -63,9 +68,12 @@ class MainWindow: public QMainWindow
                       Connection* connection = nullptr);
         void getNewEvents(Connection* c);
         void gotEvents(Connection* c);
-        void loginError(Connection* c, const QString& message = {});
 
+        void loginError(Connection* c, const QString& message = {});
         void networkError(Connection* c);
+        void sslErrors(QNetworkReply* reply, const QList<QSslError>& errors);
+        void proxyAuthenticationRequired(const QNetworkProxy& /* unused */,
+                                         QAuthenticator* auth);
 
         void showLoginWindow(const QString& statusMessage = {});
         void selectRoom(QuaternionRoom* r);
