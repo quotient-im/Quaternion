@@ -19,6 +19,8 @@
 
 #include "logindialog.h"
 
+#include "lib/connection.h"
+
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QDialogButtonBox>
@@ -28,6 +30,8 @@
 
 #include "settings.h"
 
+using QMatrixClient::Connection;
+
 LoginDialog::LoginDialog(QWidget* parent)
     : Dialog(tr("Login"), parent)
     , serverEdit(new QLineEdit("https://matrix.org"))
@@ -36,7 +40,7 @@ LoginDialog::LoginDialog(QWidget* parent)
     , initialDeviceName(new QLineEdit(this))
     , saveTokenCheck(new QCheckBox(tr("Stay logged in"), this))
     , statusLabel(new QLabel(tr("Welcome to Quaternion"), this))
-    , m_connection(new Connection())
+    , m_connection(new Connection)
 {
     passwordEdit->setEchoMode( QLineEdit::Password );
 
@@ -99,12 +103,14 @@ LoginDialog::LoginDialog(QWidget* parent)
     }
 }
 
+LoginDialog::~LoginDialog() = default;
+
 void LoginDialog::setStatusMessage(const QString& msg)
 {
     statusLabel->setText(msg);
 }
 
-LoginDialog::Connection* LoginDialog::releaseConnection()
+Connection* LoginDialog::releaseConnection()
 {
     return m_connection.take();
 }

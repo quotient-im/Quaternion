@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include "lib/connection.h"
-
 #include <QtWidgets/QDockWidget>
 #include <QtWidgets/QListView>
 #include <QtCore/QStringListModel>
@@ -28,6 +26,10 @@
 
 class RoomListModel;
 class QuaternionRoom;
+
+namespace QMatrixClient {
+    class Connection;
+}
 
 class RoomListDock : public QDockWidget
 {

@@ -21,23 +21,24 @@
 
 #include "dialog.h"
 
-#include "lib/connection.h"
-
 class QLineEdit;
 class QPushButton;
 class QLabel;
 class QCheckBox;
 
+namespace QMatrixClient {
+    class Connection;
+}
+
 class LoginDialog : public Dialog
 {
         Q_OBJECT
     public:
-        using Connection = QMatrixClient::Connection;
-
         explicit LoginDialog(QWidget* parent = nullptr);
+        ~LoginDialog() override;
 
         void setStatusMessage(const QString& msg);
-        Connection* releaseConnection();
+        QMatrixClient::Connection* releaseConnection();
         QString deviceName() const;
         bool keepLoggedIn() const;
 
@@ -53,5 +54,6 @@ class LoginDialog : public Dialog
         QCheckBox* saveTokenCheck;
         QLabel* statusLabel;
 
-        QScopedPointer<Connection, QScopedPointerDeleteLater> m_connection;
+        QScopedPointer<QMatrixClient::Connection, QScopedPointerDeleteLater>
+            m_connection;
 };
