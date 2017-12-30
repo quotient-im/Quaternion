@@ -28,7 +28,7 @@
 
 #include "lib/jobs/joinroomjob.h"
 #include "lib/connection.h"
-#include "lib/connectiondata.h"
+#include "lib/networkaccessmanager.h"
 #include "lib/settings.h"
 
 #include <QtCore/QTimer>
@@ -37,7 +37,6 @@
 #include <QtCore/QStringBuilder>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
-#include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QAuthenticator>
 #include <QtWidgets/QApplication>
@@ -52,16 +51,20 @@
 #include <QtGui/QMovie>
 #include <QtGui/QCloseEvent>
 
+using QMatrixClient::NetworkAccessManager;
+
 MainWindow::MainWindow()
 {
     Connection::setRoomType<QuaternionRoom>();
 
-    QMatrixClient::ConnectionData::customizeNetworkAccess(
-        [this](QNetworkAccessManager* nam)
-        {
-            connect(nam, &QNetworkAccessManager::proxyAuthenticationRequired,
-                this, &MainWindow::proxyAuthenticationRequired);
-        });
+    // Bind callbacks to signals from NetworkAccessManager
+
+    auto nam = NetworkAccessManager::instance();
+    connect(nam, &QNetworkAccessManager::proxyAuthenticationRequired,
+        this, &MainWindow::proxyAuthenticationRequired);
+    connect(nam, &QNetworkAccessManager::sslErrors,
+            this, &MainWindow::sslErrors);
+
     setWindowIcon(QIcon(":/icon.png"));
 
     roomListDock = new RoomListDock(this);
@@ -408,7 +411,6 @@ void MainWindow::invokeLogin()
 void MainWindow::loginError(Connection* c, const QString& message)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Login error on a null connection");
-    // FIXME: Make ConnectionManager instead of such hacks
     emit c->loggedOut(); // Short circuit login error to logged-out event
     showLoginWindow(message);
 }
@@ -595,7 +597,24 @@ void MainWindow::networkError(Connection* c)
     });
 }
 
-void MainWindow::proxyAuthenticationRequired(const QNetworkProxy&, QAuthenticator* auth)
+void MainWindow::sslErrors(QNetworkReply* reply, const QList<QSslError>& errors)
+{
+    for (const auto& error: errors)
+    {
+        QMessageBox msgBox(QMessageBox::Warning, tr("SSL error"),
+                           error.errorString(),
+                           QMessageBox::Abort|QMessageBox::Ignore, this);
+        if (!error.certificate().isNull())
+            msgBox.setDetailedText(error.certificate().toText());
+        if (msgBox.exec() == QMessageBox::Abort)
+            return;
+        NetworkAccessManager::instance()->addIgnoredSslError(error);
+    }
+    reply->ignoreSslErrors(errors);
+}
+
+void MainWindow::proxyAuthenticationRequired(const QNetworkProxy&,
+                                             QAuthenticator* auth)
 {
     Dialog authDialog(tr("Proxy needs authentication"), this);
     auto layout = new QFormLayout;
