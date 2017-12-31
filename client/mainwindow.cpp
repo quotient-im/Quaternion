@@ -601,6 +601,21 @@ void MainWindow::sslErrors(QNetworkReply* reply, const QList<QSslError>& errors)
 {
     for (const auto& error: errors)
     {
+        if (error.error() == QSslError::NoSslSupport)
+        {
+            static bool showMsgBox = true;
+            if (showMsgBox)
+            {
+                QMessageBox msgBox(QMessageBox::Critical, tr("No SSL support"),
+                                   error.errorString(), QMessageBox::Close, this);
+                msgBox.setInformativeText(
+                    tr("Your SSL configuration does not allow Quaternion"
+                       " to establish secure connections."));
+                msgBox.exec();
+                showMsgBox = false;
+            }
+            return;
+        }
         QMessageBox msgBox(QMessageBox::Warning, tr("SSL error"),
                            error.errorString(),
                            QMessageBox::Abort|QMessageBox::Ignore, this);
