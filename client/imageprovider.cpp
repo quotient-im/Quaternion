@@ -28,7 +28,7 @@
 using QMatrixClient::MediaThumbnailJob;
 
 ImageProvider::ImageProvider(QMatrixClient::Connection* connection)
-    : QQuickImageProvider(QQmlImageProviderBase::Pixmap,
+    : QQuickImageProvider(QQmlImageProviderBase::Image,
                           QQmlImageProviderBase::ForceAsynchronousImageLoading)
     , m_connection(connection)
 {
@@ -40,18 +40,19 @@ ImageProvider::ImageProvider(QMatrixClient::Connection* connection)
 QImage ImageProvider::requestImage(const QString& id,
                                    QSize* pSize, const QSize& requestedSize)
 {
-    qDebug() << "ImageProvider::requestPixmap:" << id;
+    QUrl mxcUri { "mxc://" + id };
+    qDebug() << "ImageProvider::requestPixmap:" << mxcUri.toString();
 
     MediaThumbnailJob* job = nullptr;
     QReadLocker locker(&m_lock);
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
     QMetaObject::invokeMethod(m_connection,
-        [=] { return m_connection->getThumbnail(id, requestedSize); },
+        [=] { return m_connection->getThumbnail(mxcUri, requestedSize); },
         Qt::BlockingQueuedConnection, &job);
 #else
     QMetaObject::invokeMethod(m_connection, "getThumbnail",
         Qt::BlockingQueuedConnection, Q_RETURN_ARG(MediaThumbnailJob*, job),
-        Q_ARG(QUrl, id), Q_ARG(QSize, requestedSize));
+        Q_ARG(QUrl, mxcUri), Q_ARG(QSize, requestedSize));
 #endif
     if (!job)
     {
