@@ -26,6 +26,8 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     "MinSizeRel" "RelWithDebInfo")
 endif()
 
+set(CMAKE_CXX_STANDARD 14)
+
 # Setup command line parameters for the compiler and linker
 foreach (FLAG "" all pedantic extra no-unused-parameter)
     CHECK_CXX_COMPILER_FLAG("-W${FLAG}" WARN_${FLAG}_SUPPORTED)
@@ -33,8 +35,6 @@ foreach (FLAG "" all pedantic extra no-unused-parameter)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W${FLAG}")
     endif ()
 endforeach ()
-
-set(CMAKE_CXX_STANDARD 14)
 
 # Find the libraries
 find_package(Qt5 5.6 REQUIRED Widgets Network Quick Qml Gui)
