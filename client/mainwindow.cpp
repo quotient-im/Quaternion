@@ -284,7 +284,7 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     if (!deviceName.isEmpty())
         accountCaption += '/' % deviceName;
     QString menuCaption = accountCaption;
-    if (connections.size() < 10)
+    if (connections.size() > 1 && connections.size() < 10)
         menuCaption.prepend('&' % QString::number(connections.size()) % ' ');
     auto accountMenu = new QMenu(menuCaption, connectionMenu);
     accountMenu->addAction(tr("Show &access token"), this, [=]
