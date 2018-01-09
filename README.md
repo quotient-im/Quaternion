@@ -29,7 +29,7 @@ For those who want the very latest version (beware, you may find it not working 
 #### Linux
 Unofficial package for Arch Linux: https://aur.archlinux.org/packages/quaternion/
 
-Flatpaks for Quaternion are available from Flathub. To install, use `flatpak --install https://flathub.org/repo/appstream/com.github.quaternion`. This is still experimental - please file issues at https://github.com/flathub/com.github.quaternion if you believe there's a problem with Flatpakaging.
+Flatpaks for Quaternion are available from Flathub. To install, use `flatpak --install https://flathub.org/repo/appstream/com.github.quaternion.flatpakref`. This is still experimental - please file issues at https://github.com/flathub/com.github.quaternion if you believe there's a problem with Flatpakaging.
 
 ## Running
 Just start the executable in your most preferred way - either from build directory or from the installed location.
