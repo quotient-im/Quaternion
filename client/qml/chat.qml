@@ -325,10 +325,10 @@ Rectangle {
             Rectangle {
                 id: readMarker
                 color: defaultPalette.highlight
-                width: messageModel.room.readMarkerEventId === eventId ? parent.width : 0
+                width: messageModel.room.readMarkerEventId === eventId &&
+                           root.width
                 height: 1
                 anchors.bottom: message.bottom
-                anchors.horizontalCenter: message.horizontalCenter
                 Behavior on width {
                     NumberAnimation { duration: 500; easing.type: Easing.OutQuad }
                 }
