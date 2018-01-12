@@ -377,9 +377,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         }
         if( event->type() == EventType::RoomEncryption )
         {
-            auto* e = static_cast<const EncryptionEvent*>(event);
-            return tr("activated End-to-End Encryption (algorithm: %1)")
-                .arg(e->algorithm());
+            return tr("activated End-to-End Encryption");
         }
         return "Unknown Event";
     }
