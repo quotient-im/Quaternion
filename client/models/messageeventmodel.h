@@ -21,6 +21,8 @@
 
 #include <QtCore/QAbstractListModel>
 
+#include <functional>
+
 class QuaternionRoom;
 class Message;
 
