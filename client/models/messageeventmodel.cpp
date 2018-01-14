@@ -21,6 +21,7 @@
 
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
+#include <QtQml/QQmlEngine>
 
 #include "../quaternionroom.h"
 #include "lib/connection.h"
@@ -39,6 +40,7 @@ enum EventRoles {
     ContentTypeRole,
     HighlightRole,
     SpecialMarksRole,
+    LongOperationRole,
 };
 
 QHash<int, QByteArray> MessageEventModel::roleNames() const
@@ -53,13 +55,17 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
     roles[ContentTypeRole] = "contentType";
     roles[HighlightRole] = "highlight";
     roles[SpecialMarksRole] = "marks";
+    roles[LongOperationRole] = "progressInfo";
     return roles;
 }
 
 MessageEventModel::MessageEventModel(QObject* parent)
     : QAbstractListModel(parent)
     , m_currentRoom(nullptr)
-{ }
+{
+    qmlRegisterType<QMatrixClient::FileTransferInfo>();
+    qRegisterMetaType<QMatrixClient::FileTransferInfo>();
+}
 
 void MessageEventModel::changeRoom(QuaternionRoom* room)
 {
@@ -91,6 +97,18 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
         connect(m_currentRoom, &Room::addedMessages,
                 this, &MessageEventModel::endInsertRows);
         connect(m_currentRoom, &Room::replacedEvent,
+                this, [this](const RoomEvent* e) {
+                    doRefreshEvent([e](const Message& m) {
+                        return m.messageEvent() == e;
+                    });
+                });
+        connect(m_currentRoom, &Room::fileTransferProgress,
+                this, &MessageEventModel::refreshEvent);
+        connect(m_currentRoom, &Room::fileTransferCompleted,
+                this, &MessageEventModel::refreshEvent);
+        connect(m_currentRoom, &Room::fileTransferFailed,
+                this, &MessageEventModel::refreshEvent);
+        connect(m_currentRoom, &Room::fileTransferCancelled,
                 this, &MessageEventModel::refreshEvent);
         qDebug() << "Connected to room" << room->id()
                  << "as" << room->connection()->userId();
@@ -98,13 +116,21 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
     endResetModel();
 }
 
-void MessageEventModel::refreshEvent(const QMatrixClient::RoomEvent* event)
+void MessageEventModel::refreshEvent(const QString& eventId)
 {
-    // FIXME: Avoid repetetive searching in QuaternionRoom and here.
-    // The right way will be to get rid of QuaternionRoom altogether.
-    const auto it = std::find_if(
-        m_currentRoom->messages().begin(), m_currentRoom->messages().end(),
-        [=](const Message& m) { return m.messageEvent() == event; });
+    doRefreshEvent([eventId](const Message& m) {
+        return m.messageEvent()->id() == eventId;
+    });
+}
+
+void MessageEventModel::doRefreshEvent(
+        std::function<bool (const Message&)> predicate)
+{
+    // FIXME: Avoid repetetive searching in QuaternionRoom.
+    // The right way will be to get rid of QuaternionRoom altogether and use
+    // Room::findTimelineItem() instead.
+    const auto it = std::find_if(m_currentRoom->messages().begin(),
+                                 m_currentRoom->messages().end(), predicate);
     if (it == m_currentRoom->messages().end())
         return;
     const auto row = it - m_currentRoom->messages().begin();
@@ -167,34 +193,9 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 
     if( role == Qt::DisplayRole )
     {
-        if( event->type() == EventType::RoomMessage )
-        {
-            auto* e = static_cast<const RoomMessageEvent*>(event);
-            return QString("%1: %2").arg(senderName, e->plainBody());
-        }
-        if( event->type() == EventType::RoomMember )
-        {
-            auto* e = static_cast<const RoomMemberEvent*>(event);
-            switch( e->membership() )
-            {
-                case MembershipType::Join:
-                    return QString("%1 (%2) joined the room").arg(e->displayName(), e->userId());
-                case MembershipType::Leave:
-                    return QString("%1 (%2) left the room").arg(e->displayName(), e->userId());
-                case MembershipType::Ban:
-                    return QString("%1 (%2) was banned from the room").arg(e->displayName(), e->userId());
-                case MembershipType::Invite:
-                    return QString("%1 (%2) was invited to the room").arg(e->displayName(), e->userId());
-                case MembershipType::Knock:
-                    return QString("%1 (%2) knocked").arg(e->displayName(), e->userId());
-            }
-        }
-        if( event->type() == EventType::RoomAliases )
-        {
-            auto* e = static_cast<const RoomAliasesEvent*>(event);
-            return QString("Current aliases: %1").arg(e->aliases().join(", "));
-        }
-        return "Unknown Event";
+        if (event->type() == EventType::RoomMessage)
+            return static_cast<const RoomMessageEvent*>(event)->plainBody();
+        return {};
     }
 
     if( role == Qt::ToolTipRole )
@@ -211,12 +212,16 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         {
             switch (static_cast<const RoomMessageEvent*>(event)->msgtype())
             {
-                case MessageEventType::Image:
-                    return "image";
                 case MessageEventType::Emote:
                     return "emote";
                 case MessageEventType::Notice:
                     return "notice";
+                case MessageEventType::Image:
+                    return "image";
+                case MessageEventType::File:
+                case MessageEventType::Audio:
+                case MessageEventType::Video:
+                    return "file";
             default:
                 return "message";
             }
@@ -285,11 +290,10 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
                     return static_cast<const TextContent*>(e->content())->body;
                 }
             case MessageEventType::Image:
-                {
-                    auto content = static_cast<const ImageContent*>(e->content());
-                    return QUrl("image://mtx/" +
-                                content->url.host() + content->url.path());
-                }
+            case MessageEventType::File:
+            case MessageEventType::Audio:
+            case MessageEventType::Video:
+                    return QVariant::fromValue(e->content()->originalJson);
             default:
                 return e->plainBody();
             }
@@ -406,6 +410,16 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     if( role == EventIdRole )
     {
         return event->id();
+    }
+    if( role == LongOperationRole )
+    {
+        if (event->type() == EventType::RoomMessage &&
+                static_cast<const RoomMessageEvent*>(event)->hasFileContent())
+        {
+            auto info = m_currentRoom->fileTransferInfo(event->id());
+            qDebug() << info.progress << "bytes of" << info.localPath << "downloaded";
+            return QVariant::fromValue(info);
+        }
     }
 
     return QVariant();

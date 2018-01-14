@@ -21,12 +21,8 @@
 
 #include <QtCore/QAbstractListModel>
 
-namespace QMatrixClient
-{
-    class RoomEvent;
-}
-
 class QuaternionRoom;
+class Message;
 
 class MessageEventModel: public QAbstractListModel
 {
@@ -47,10 +43,11 @@ class MessageEventModel: public QAbstractListModel
         QHash<int, QByteArray> roleNames() const override;
 
     private slots:
-        void refreshEvent(const QMatrixClient::RoomEvent* event);
+        void refreshEvent(const QString& eventId);
 
     private:
         QuaternionRoom* m_currentRoom;
 
         QDateTime makeMessageTimestamp(int baseIndex) const;
+        void doRefreshEvent(std::function<bool(const Message&)> predicate);
 };

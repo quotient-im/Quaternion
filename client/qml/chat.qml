@@ -1,6 +1,7 @@
 import QtQuick 2.2
-import QtQuick.Controls 1.0
+import QtQuick.Controls 1.4
 import QtQuick.Controls.Styles 1.0
+import QtQuick.Dialogs 1.0
 import QtQuick.Layouts 1.1
 import QMatrixClient 1.0
 
@@ -34,6 +35,19 @@ Rectangle {
     function scrollToBottom() {
         chatView.stickToBottom = true
         scrollTimer.running = true
+    }
+
+    function humanSize(bytes)
+    {
+        if (bytes < 4000)
+            return qsTr("%1 bytes").arg(bytes)
+        bytes = Math.round(bytes / 100) / 10
+        if (bytes < 2000)
+            return qsTr("%1 KB").arg(bytes)
+        bytes = Math.round(bytes / 100) / 10
+        if (bytes < 2000)
+            return qsTr("%1 MB").arg(bytes)
+        return qsTr("%1 GB").arg(Math.round(bytes / 100) / 10)
     }
 
     ListView {
@@ -235,51 +249,17 @@ Rectangle {
                     id: contentRect
                     color: defaultPalette.base
                     Layout.fillWidth: true
-                    Layout.minimumHeight: childrenRect.height
+                    Layout.preferredHeight: childrenRect.height
                     Layout.alignment: Qt.AlignTop | Qt.AlignLeft
 
-                    Column {
-                        spacing: 0
+                    Loader {
+                        asynchronous: true
+                        visible: status == Loader.Ready
                         width: parent.width
 
-                        TextEdit {
-                            id: contentField
-                            selectByMouse: true; readOnly: true; font: timelabel.font
-                            textFormat: contentType == "text/html" ? TextEdit.RichText
-                                                                   : TextEdit.PlainText
-                            text: eventType != "image" ? content : ""
-                            height: eventType != "image" ? implicitHeight : 0
-                            wrapMode: Text.Wrap; width: parent.width
-                            color: message.textColor
-
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.IBeamCursor
-                                acceptedButtons: Qt.NoButton
-                            }
-
-                            // TODO: In the code below, links should be resolved
-                            // with Qt.resolvedLink, once we figure out what
-                            // to do with relative URLs (note: www.google.com
-                            // is a relative URL, https://www.google.com is not).
-                            // Instead of Qt.resolvedUrl (and, most likely,
-                            // QQmlAbstractUrlInterceptor to convert URLs)
-                            // we might just prefer to do the whole resolving
-                            // in C++.
-                            onHoveredLinkChanged:
-                                controller.showStatusMessage(hoveredLink)
-
-                            onLinkActivated: {
-                                Qt.openUrlExternally(link)
-                            }
-                        }
-                        Image {
-                            id: imageField
-                            fillMode: Image.PreserveAspectFit
-                            width: parent.width
-                            sourceSize.width: parent.width
-                            source: eventType == "image" ? content : ""
-                        }
+                        sourceComponent:
+                            eventType == "file" ? downloadControls :
+                            eventType == "image" ? imageField : textField
                     }
                 }
                 ToolButton {
@@ -313,11 +293,6 @@ Rectangle {
                 anchors.rightMargin: showDetailsButton.width
                 height: childrenRect.height
 
-                property string evtId: eventId
-                property url evtLink:
-                    "https://matrix.to/#/" + messageModel.room.id + "/" + eventId
-                property var timestamp: time
-                property var showDetails: showDetails
                 property string sourceText: toolTip
 
                 sourceComponent: showDetails.checked ? detailsArea : undefined
@@ -333,103 +308,263 @@ Rectangle {
                     NumberAnimation { duration: 500; easing.type: Easing.OutQuad }
                 }
             }
-        }
-    }
 
-    Component {
-        id: detailsArea
+            // Components loaded on demand
 
-        Rectangle {
-            height: childrenRect.height
-            radius: 5
-
-            color: defaultPalette.button
-            border.color: defaultPalette.mid
-
-            Item {
-                id: header
-                width: parent.width
-                height: childrenRect.height
-                anchors.top: parent.top
-
+            Component {
+                id: textField
                 TextEdit {
-                    text: "<" + timestamp.toLocaleString(Qt.locale(), Locale.ShortFormat) + ">"
-                    font.bold: true
-                    readOnly: true
-                    selectByKeyboard: true; selectByMouse: true
-
-                    anchors.left: parent.left
-                    anchors.leftMargin: 3
-                    anchors.verticalCenter: copyLinkButton.verticalCenter
-                    z: 1
-                }
-                TextEdit {
-                    text: "<a href=\""+ evtLink + "\">"+ evtId + "</a>"
-                    textFormat: Text.RichText
-                    font.bold: true
-                    horizontalAlignment: Text.AlignHCenter
-                    readOnly: true
-                    selectByKeyboard: true; selectByMouse: true
-
-                    width: parent.width
-                    anchors.top: copyLinkButton.bottom
-
-                    onLinkActivated: Qt.openUrlExternally(link)
+                    selectByMouse: true;
+                    readOnly: true;
+                    font: timelabel.font
+                    textFormat: contentType == "text/html" ?
+                                    TextEdit.RichText : TextEdit.PlainText
+                    text: content
+                    wrapMode: Text.Wrap;
+                    color: message.textColor
 
                     MouseArea {
                         anchors.fill: parent
-                        cursorShape: parent.hoveredLink ?
-                                         Qt.PointingHandCursor :
-                                         Qt.IBeamCursor
+                        cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.IBeamCursor
                         acceptedButtons: Qt.NoButton
                     }
-                }
-                Button {
-                    id: redactButton
 
-                    text: "Redact"
+                    // TODO: In the code below, links should be resolved
+                    // with Qt.resolvedLink, once we figure out what
+                    // to do with relative URLs (note: www.google.com
+                    // is a relative URL, https://www.google.com is not).
+                    // Instead of Qt.resolvedUrl (and, most likely,
+                    // QQmlAbstractUrlInterceptor to convert URLs)
+                    // we might just prefer to do the whole resolving
+                    // in C++.
+                    onHoveredLinkChanged:
+                        controller.showStatusMessage(hoveredLink)
 
-                    anchors.right: copyLinkButton.left
-                    z: 1
-
-                    onClicked: {
-                        messageModel.room.redactEvent(evtId)
-                        showDetails.checked = false
-                    }
-                }
-                Button {
-                    id: copyLinkButton
-
-                    text: "Copy link to clipboard"
-
-                    anchors.right: parent.right
-                    z: 1
-
-                    onClicked: {
-                        permalink.selectAll()
-                        permalink.copy()
-                        showDetails.checked = false
-                    }
-                }
-                TextEdit {
-                    id: permalink
-                    text: evtLink
-                    width: 0; height: 0; visible: false
+                    onLinkActivated: Qt.openUrlExternally(link)
                 }
             }
 
-            TextArea {
-                text: sourceText;
-                textFormat: Text.PlainText
-                readOnly: true;
-                font.family: "Monospace"
-                selectByKeyboard: true; selectByMouse: true;
+            Component {
+                id: imageField
+                Image {
+                    fillMode: Image.PreserveAspectFit
+                    sourceSize: content.imageSize
+                    source: "image://mtx/" + content.info.mediaId
+                }
+            }
 
-                width: parent.width
-                anchors.top: header.bottom
+            Component {
+                id: downloadControls
+
+                Column {
+                    function openSavedFile()
+                    {
+                        if (Qt.openUrlExternally(progressInfo.localPath))
+                            return;
+
+                        controller.showStatusMessage(
+                            "Couldn't determine how to open the file, " +
+                            "opening its folder instead", 5000)
+                        if (Qt.openUrlExternally(progressInfo.localDir))
+                            return;
+
+                        controller.showStatusMessage(
+                            "Couldn't determine how to open the file or its folder.",
+                            5000)
+                    }
+
+                    property bool finished: progressInfo.completed
+
+                    onFinishedChanged: {
+                        if (finished && openOnFinished.checked)
+                            openSavedFile()
+                    }
+
+                    Rectangle {
+                        width: parent.width
+                        height: downloadInfo.height
+                        ProgressBar {
+                            id: downloadProgress
+                            value: progressInfo.progress / progressInfo.total
+                            indeterminate: progressInfo.progress < 0
+                            visible: progressInfo.active && !finished
+                            anchors.fill: downloadInfo
+                        }
+                        TextEdit {
+                            id: downloadInfo
+                            selectByMouse: true;
+                            readOnly: true;
+                            font: timelabel.font
+                            color: message.textColor
+                            text:
+                                qsTr("%1 (%2), declared type: %3%4")
+                                .arg(content.filename || display ||
+                                     qsTr("a file"))
+                                .arg(humanSize(content.info.size))
+                                .arg(content.info.mimetype)
+                                .arg(finished
+                                     ? qsTr(" (downloaded%1)")
+                                       .arg(progressInfo.filePath ?
+                                            " as " + progressInfo.filePath : "")
+                                     : "")
+                            textFormat: TextEdit.PlainText
+                            wrapMode: Text.Wrap;
+                            width: parent.width
+                        }
+                    }
+                    RowLayout {
+                        width: parent.width
+                        spacing: 2
+
+                        CheckBox {
+                            id: openOnFinished
+                            text: "Open after downloading"
+                            visible: downloadProgress.visible
+                        }
+                        Button {
+                            text: "Cancel"
+                            visible: downloadProgress.visible
+                            onClicked: {
+                                messageModel.room.cancelFileTransfer(eventId)
+                            }
+                        }
+
+                        Button {
+                            text: "Open"
+                            visible: !openOnFinished.visible
+                            onClicked: {
+                                if (finished)
+                                    openSavedFile()
+                                else
+                                {
+                                    openOnFinished.checked = true
+                                    messageModel.room.downloadFile(eventId)
+                                }
+                            }
+                        }
+                        Button {
+                            text: "Save as..."
+                            visible: !progressInfo.active
+                            onClicked: saveAsDialog.open()
+
+                            FileDialog {
+                                id: saveAsDialog
+                                title: "Save the file as"
+                                selectExisting: false
+
+                                onAccepted: messageModel.room
+                                            .downloadFile(eventId, fileUrl)
+                            }
+                        }
+                        Button {
+                            text: "Open folder"
+                            visible: progressInfo.active
+                            onClicked:
+                                Qt.openUrlExternally(progressInfo.localDir)
+                        }
+                    }
+                }
+            }
+
+            Component {
+                id: detailsArea
+
+                Rectangle {
+                    height: childrenRect.height
+                    radius: 5
+
+                    color: defaultPalette.button
+                    border.color: defaultPalette.mid
+
+                    Item {
+                        id: detailsHeader
+                        width: parent.width
+                        height: childrenRect.height
+                        anchors.top: parent.top
+
+                        TextEdit {
+                            text: "<" + time.toLocaleString(Qt.locale(), Locale.ShortFormat) + ">"
+                            font.bold: true
+                            readOnly: true
+                            selectByKeyboard: true; selectByMouse: true
+
+                            anchors.left: parent.left
+                            anchors.leftMargin: 3
+                            anchors.verticalCenter: copyLinkButton.verticalCenter
+                            z: 1
+                        }
+                        TextEdit {
+                            text: "<a href=\"https://matrix.to/#/"+
+                                  messageModel.room.id + "/" + eventId +
+                                  "\">"+ eventId + "</a>"
+                            textFormat: Text.RichText
+                            font.bold: true
+                            horizontalAlignment: Text.AlignHCenter
+                            readOnly: true
+                            selectByKeyboard: true; selectByMouse: true
+
+                            width: parent.width
+                            anchors.top: copyLinkButton.bottom
+
+                            onLinkActivated: Qt.openUrlExternally(link)
+
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: parent.hoveredLink ?
+                                                 Qt.PointingHandCursor :
+                                                 Qt.IBeamCursor
+                                acceptedButtons: Qt.NoButton
+                            }
+                        }
+                        Button {
+                            id: redactButton
+
+                            text: "Redact"
+
+                            anchors.right: copyLinkButton.left
+                            z: 1
+
+                            onClicked: {
+                                messageModel.room.redactEvent(evtId)
+                                showDetails.checked = false
+                            }
+                        }
+                        Button {
+                            id: copyLinkButton
+
+                            text: "Copy link to clipboard"
+
+                            anchors.right: parent.right
+                            z: 1
+
+                            onClicked: {
+                                permalink.selectAll()
+                                permalink.copy()
+                                showDetails.checked = false
+                            }
+                        }
+                        TextEdit {
+                            id: permalink
+                            text: evtLink
+                            width: 0; height: 0; visible: false
+                        }
+                    }
+
+                    TextArea {
+                        text: sourceText;
+                        textFormat: Text.PlainText
+                        readOnly: true;
+                        font.family: "Monospace"
+                        selectByKeyboard: true; selectByMouse: true;
+
+                        width: parent.width
+                        anchors.top: detailsHeader.bottom
+                    }
+                }
             }
         }
     }
+
     Rectangle {
         id: scrollindicator
         opacity: chatView.nowAtYEnd ? 0 : 0.5
