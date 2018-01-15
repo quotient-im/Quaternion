@@ -263,7 +263,7 @@ Rectangle {
                         Layout.alignment: Qt.AlignTop | Qt.AlignLeft
 
                         Loader {
-                            asynchronous: true
+//                            asynchronous: true // https://bugreports.qt.io/browse/QTBUG-50992
                             visible: status == Loader.Ready
                             width: parent.width
 
@@ -296,7 +296,7 @@ Rectangle {
                     }
                 }
                 Loader {
-                    asynchronous: true
+//                    asynchronous: true // https://bugreports.qt.io/browse/QTBUG-50992
                     visible: status == Loader.Ready
                     width: parent.width
                     height: childrenRect.height
