@@ -16,26 +16,7 @@ Rectangle {
     SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
     SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
 
-    Timer {
-        id: scrollTimer
-        interval: 0
-        onTriggered: reallyScrollToBottom()
-    }
-
     color:  defaultPalette.base
-
-    function reallyScrollToBottom() {
-        if (chatView.stickToBottom && !chatView.nowAtYEnd)
-        {
-            chatView.positionViewAtEnd()
-            scrollToBottom()
-        }
-    }
-
-    function scrollToBottom() {
-        chatView.stickToBottom = true
-        scrollTimer.running = true
-    }
 
     function humanSize(bytes)
     {
@@ -88,12 +69,33 @@ Rectangle {
                     model.room.getPreviousContent(100)
                 contentYChanged.connect(ensurePreviousContent)
                 console.log("Chat: getPreviousContent enabled")
+                scrollToBottom()
+            }
+        }
+
+        Timer {
+            id: scrollTimer
+            interval: 0
+            onTriggered: chatView.reallyScrollToBottom()
+        }
+
+        function scrollToBottom() {
+            stickToBottom = true
+            scrollTimer.running = true
+            reallyScrollToBottom()
+        }
+
+        function reallyScrollToBottom() {
+            if (stickToBottom && !nowAtYEnd)
+            {
+                positionViewAtEnd()
+                scrollToBottom()
             }
         }
 
         function rowsInserted() {
             if( stickToBottom )
-                root.scrollToBottom()
+                scrollToBottom()
         }
 
         Component.onCompleted: {
@@ -117,12 +119,12 @@ Rectangle {
 
         onHeightChanged: {
             if( stickToBottom )
-                root.scrollToBottom()
+                scrollToBottom()
         }
 
         onContentHeightChanged: {
             if( stickToBottom )
-                root.scrollToBottom()
+                scrollToBottom()
         }
 
         onMovementStarted: {
@@ -588,7 +590,7 @@ Rectangle {
         }
         MouseArea {
             anchors.fill: parent
-            onClicked: root.scrollToBottom()
+            onClicked: chatView.scrollToBottom()
             cursorShape: Qt.PointingHandCursor
         }
     }
