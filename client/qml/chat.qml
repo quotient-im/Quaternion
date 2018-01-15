@@ -204,6 +204,15 @@ Rectangle {
             height: hidden ? 0 : childrenRect.height
             visible: !hidden
 
+            property string textColor:
+                    if (redacted) disabledPalette.text
+                    else if (highlight)
+                        decoration
+                    else if (["state", "notice", "other"]
+                             .indexOf(eventType) >= 0)
+                        disabledPalette.text
+                    else defaultPalette.text
+
             // A message is considered shown if its bottom is within the
             // viewing area of the timeline.
             property bool shown:
@@ -218,86 +227,84 @@ Rectangle {
             onShownChanged:
                 controller.onMessageShownChanged(eventId, shown)
 
-            RowLayout {
-                id: message
+            Column {
+                id: fullMessage
                 width: parent.width
-                spacing: 3
 
-                property string textColor:
-                        if (redacted) disabledPalette.text
-                        else if (highlight) decoration
-                        else if (["state", "notice", "other"]
-                                 .indexOf(eventType) >= 0) disabledPalette.text
-                        else defaultPalette.text
+                RowLayout {
+                    id: message
+                    width: parent.width
+                    spacing: 3
 
-                Label {
-                    Layout.alignment: Qt.AlignTop
-                    id: timelabel
-                    text: "<" + time.toLocaleTimeString(Qt.locale(), Locale.ShortFormat) + ">"
-                    color: disabledPalette.text
-                }
-                Label {
-                    Layout.alignment: Qt.AlignTop | Qt.AlignLeft
-                    Layout.preferredWidth: 120
-                    elide: Text.ElideRight
-                    text: eventType == "state" || eventType == "emote" ? "* " + author :
-                          eventType != "other" ? author : "***"
-                    horizontalAlignment: if( ["other", "emote", "state"]
-                                                 .indexOf(eventType) >= 0 )
-                                         { Text.AlignRight }
-                    color: message.textColor
-                }
-                Rectangle {
-                    id: contentRect
-                    color: defaultPalette.base
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: childrenRect.height
-                    Layout.alignment: Qt.AlignTop | Qt.AlignLeft
-
-                    Loader {
-                        asynchronous: true
-                        visible: status == Loader.Ready
-                        width: parent.width
-
-                        sourceComponent:
-                            eventType == "file" ? downloadControls :
-                            eventType == "image" ? imageField : textField
+                    Label {
+                        Layout.alignment: Qt.AlignTop
+                        id: timelabel
+                        text: "<" + time.toLocaleTimeString(
+                                        Qt.locale(), Locale.ShortFormat) + ">"
+                        color: disabledPalette.text
                     }
-                }
-                ToolButton {
-                    id: showDetailsButton
+                    Label {
+                        Layout.alignment: Qt.AlignTop | Qt.AlignLeft
+                        Layout.preferredWidth: 120
+                        elide: Text.ElideRight
+                        text: eventType == "state" || eventType == "emote" ?
+                                  "* " + author :
+                              eventType != "other" ? author : "***"
+                        horizontalAlignment: if( ["other", "emote", "state"]
+                                                     .indexOf(eventType) >= 0 )
+                                             { Text.AlignRight }
+                        color: textColor
+                    }
+                    Rectangle {
+                        id: contentRect
+                        color: defaultPalette.base
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: childrenRect.height
+                        Layout.alignment: Qt.AlignTop | Qt.AlignLeft
 
-                    text: "..."
-                    Layout.maximumHeight: settings.condense_chat ?
-                                          contentRect.height : implicitHeight
-                    Layout.alignment: Qt.AlignTop
+                        Loader {
+                            asynchronous: true
+                            visible: status == Loader.Ready
+                            width: parent.width
+
+                            sourceComponent:
+                                eventType == "file" ? downloadControls :
+                                eventType == "image" ? imageField : textField
+                        }
+                    }
+                    ToolButton {
+                        id: showDetailsButton
+
+                        text: "..."
+                        Layout.maximumHeight: settings.condense_chat ?
+                                              contentRect.height : implicitHeight
+                        Layout.alignment: Qt.AlignTop
 
 
-                    action: Action {
-                        id: showDetails
+                        action: Action {
+                            id: showDetails
 
-                        tooltip: "Show details and actions"
-                        checkable: true
-                        onCheckedChanged: {
-                            if (checked)
-                                chatView.stickToBottom = false
-                            else
-                                chatView.stickToBottom = chatView.nowAtYEnd
+                            tooltip: "Show details and actions"
+                            checkable: true
+                            onCheckedChanged: {
+                                if (checked)
+                                    chatView.stickToBottom = false
+                                else
+                                    chatView.stickToBottom = chatView.nowAtYEnd
+                            }
                         }
                     }
                 }
-            }
-            Loader {
-                asynchronous: true
-                visible: status == Loader.Ready
-                anchors.left: message.left
-                anchors.right: message.right
-                anchors.rightMargin: showDetailsButton.width
-                height: childrenRect.height
+                Loader {
+                    asynchronous: true
+                    visible: status == Loader.Ready
+                    width: parent.width
+                    height: childrenRect.height
 
-                property string sourceText: toolTip
+                    property string sourceText: toolTip
 
-                sourceComponent: showDetails.checked ? detailsArea : undefined
+                    sourceComponent: showDetails.checked ? detailsArea : undefined
+                }
             }
             Rectangle {
                 id: readMarker
@@ -305,7 +312,7 @@ Rectangle {
                 width: messageModel.room.readMarkerEventId === eventId &&
                            root.width
                 height: 1
-                anchors.bottom: message.bottom
+                anchors.bottom: fullMessage.bottom
                 Behavior on width {
                     NumberAnimation { duration: 500; easing.type: Easing.OutQuad }
                 }
@@ -323,7 +330,7 @@ Rectangle {
                                     TextEdit.RichText : TextEdit.PlainText
                     text: content
                     wrapMode: Text.Wrap;
-                    color: message.textColor
+                    color: textColor
 
                     MouseArea {
                         anchors.fill: parent
@@ -397,7 +404,7 @@ Rectangle {
                             selectByMouse: true;
                             readOnly: true;
                             font: timelabel.font
-                            color: message.textColor
+                            color: textColor
                             text:
                                 qsTr("%1 (%2), declared type: %3%4")
                                 .arg(content.filename || display ||
