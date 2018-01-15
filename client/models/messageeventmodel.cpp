@@ -21,7 +21,7 @@
 
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
-#include <QtQml/QQmlEngine>
+#include <QtQml> // for qmlRegisterType()
 
 #include "../quaternionroom.h"
 #include "lib/connection.h"
