@@ -17,27 +17,27 @@
  *                                                                        *
  **************************************************************************/
 
-#include "systemtray.h"
+#include "systemtrayicon.h"
 
 #include <QtWidgets/QWidget>
 
 #include "lib/connection.h"
 #include "lib/room.h"
 
-SystemTray::SystemTray(QWidget* parent)
+SystemTrayIcon::SystemTrayIcon(QWidget* parent)
     : QSystemTrayIcon(parent)
     , m_parent(parent)
 {
     setIcon(QIcon(":/icon.png"));
 }
 
-void SystemTray::newRoom(QMatrixClient::Room* room)
+void SystemTrayIcon::newRoom(QMatrixClient::Room* room)
 {
     connect(room, &QMatrixClient::Room::highlightCountChanged,
-            this, &SystemTray::highlightCountChanged);
+            this, &SystemTrayIcon::highlightCountChanged);
 }
 
-void SystemTray::highlightCountChanged(QMatrixClient::Room* room)
+void SystemTrayIcon::highlightCountChanged(QMatrixClient::Room* room)
 {
     if( room->highlightCount() > 0 )
     {

@@ -27,11 +27,11 @@ namespace QMatrixClient
     class Room;
 }
 
-class SystemTray: public QSystemTrayIcon
+class SystemTrayIcon: public QSystemTrayIcon
 {
         Q_OBJECT
     public:
-        explicit SystemTray(QWidget* parent = nullptr);
+        explicit SystemTrayIcon(QWidget* parent = nullptr);
 
     public slots:
         void newRoom(QMatrixClient::Room* room);
