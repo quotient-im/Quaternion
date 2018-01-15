@@ -417,7 +417,6 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
                 static_cast<const RoomMessageEvent*>(event)->hasFileContent())
         {
             auto info = m_currentRoom->fileTransferInfo(event->id());
-            qDebug() << info.progress << "bytes of" << info.localPath << "downloaded";
             return QVariant::fromValue(info);
         }
     }
