@@ -349,7 +349,7 @@ Rectangle {
                 Image {
                     fillMode: Image.PreserveAspectFit
                     sourceSize: content.imageSize
-                    source: "image://mtx/" + content.info.mediaId
+                    source: "image://mtx/" + content.mediaId
                 }
             }
 

@@ -41,7 +41,7 @@ QImage ImageProvider::requestImage(const QString& id,
                                    QSize* pSize, const QSize& requestedSize)
 {
     QUrl mxcUri { "mxc://" + id };
-    qDebug() << "ImageProvider::requestPixmap:" << mxcUri.toString();
+    qDebug() << "ImageProvider::requestImage:" << mxcUri.toString();
 
     MediaThumbnailJob* job = nullptr;
     QReadLocker locker(&m_lock);
