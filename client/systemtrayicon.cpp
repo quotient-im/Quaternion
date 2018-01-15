@@ -29,6 +29,7 @@ SystemTrayIcon::SystemTrayIcon(QWidget* parent)
     , m_parent(parent)
 {
     setIcon(QIcon(":/icon.png"));
+    connect( this, &SystemTrayIcon::activated, this, &SystemTrayIcon::systemTrayIconAction);
 }
 
 void SystemTrayIcon::newRoom(QMatrixClient::Room* room)
@@ -43,5 +44,32 @@ void SystemTrayIcon::highlightCountChanged(QMatrixClient::Room* room)
     {
         showMessage(tr("Highlight!"), tr("%1: %2 highlight(s)").arg(room->displayName()).arg(room->highlightCount()));
         m_parent->activateWindow();
+    }
+}
+
+void SystemTrayIcon::systemTrayIconAction(QSystemTrayIcon::ActivationReason reason)
+{
+    switch (reason)
+    {
+        case QSystemTrayIcon::Trigger:
+        case QSystemTrayIcon::DoubleClick:
+            this->showHide();
+            break;
+        default:
+            ;
+    }
+}
+
+void SystemTrayIcon::showHide()
+{
+    if( m_parent->isVisible() )
+    {
+        m_parent->hide();
+    }
+    else
+    {
+        m_parent->show();
+        m_parent->raise();
+        m_parent->setFocus();
     }
 }

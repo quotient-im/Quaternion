@@ -38,7 +38,9 @@ class SystemTrayIcon: public QSystemTrayIcon
 
     private slots:
         void highlightCountChanged(QMatrixClient::Room* room);
+        void systemTrayIconAction(QSystemTrayIcon::ActivationReason reason);
 
     private:
         QWidget* m_parent;
+        void showHide();
 };
