@@ -320,6 +320,31 @@ Rectangle {
 
             // Components loaded on demand
 
+            function openSavedFile()
+            {
+                if (Qt.openUrlExternally(progressInfo.localPath))
+                    return;
+
+                controller.showStatusMessage(
+                    "Couldn't determine how to open the file, " +
+                    "opening its folder instead", 5000)
+                if (Qt.openUrlExternally(progressInfo.localDir))
+                    return;
+
+                controller.showStatusMessage(
+                    "Couldn't determine how to open the file or its folder.",
+                    5000)
+            }
+
+            property bool openOnFinished: false
+            property bool downloaded: progressInfo &&
+                                      progressInfo.completed || false
+
+            onDownloadedChanged: {
+                if (downloaded && openOnFinished)
+                    openSavedFile()
+            }
+
             Component {
                 id: textField
                 TextEdit {
@@ -355,10 +380,59 @@ Rectangle {
 
             Component {
                 id: imageField
-                Image {
-                    fillMode: Image.PreserveAspectFit
-                    sourceSize: content.imageSize
-                    source: "image://mtx/" + content.mediaId
+                Column {
+                    width: parent.width
+
+                    Image {
+                        width: parent.width
+                        fillMode: Image.PreserveAspectFit
+                        source: downloaded ? progressInfo.localPath :
+                                           "image://mtx/" + content.mediaId
+                    }
+                    RowLayout {
+                        width: parent.width
+                        spacing: 2
+
+                        Button {
+                            text: "Cancel downloading"
+                            visible: progressInfo.active && !downloaded
+                            onClicked: {
+                                messageModel.room.cancelFileTransfer(eventId)
+                            }
+                        }
+
+                        Button {
+                            text: "Open in image viewer"
+                            onClicked: {
+                                if (downloaded)
+                                    openSavedFile()
+                                else
+                                {
+                                    openOnFinished = true
+                                    messageModel.room.downloadFile(eventId)
+                                }
+                            }
+                        }
+                        Button {
+                            text: "Download full size"
+                            visible: !progressInfo.active
+
+                            onClicked: messageModel.room.downloadFile(eventId)
+                        }
+                        Button {
+                            text: "Save as..."
+                            onClicked: saveAsDialog.open()
+
+                            FileDialog {
+                                id: saveAsDialog
+                                title: "Save the file as"
+                                selectExisting: false
+
+                                onAccepted: messageModel.room
+                                            .downloadFile(eventId, fileUrl)
+                            }
+                        }
+                    }
                 }
             }
 
@@ -366,28 +440,6 @@ Rectangle {
                 id: downloadControls
 
                 Column {
-                    function openSavedFile()
-                    {
-                        if (Qt.openUrlExternally(progressInfo.localPath))
-                            return;
-
-                        controller.showStatusMessage(
-                            "Couldn't determine how to open the file, " +
-                            "opening its folder instead", 5000)
-                        if (Qt.openUrlExternally(progressInfo.localDir))
-                            return;
-
-                        controller.showStatusMessage(
-                            "Couldn't determine how to open the file or its folder.",
-                            5000)
-                    }
-
-                    property bool finished: progressInfo.completed
-
-                    onFinishedChanged: {
-                        if (finished && openOnFinished.checked)
-                            openSavedFile()
-                    }
 
                     Rectangle {
                         width: parent.width
@@ -396,7 +448,7 @@ Rectangle {
                             id: downloadProgress
                             value: progressInfo.progress / progressInfo.total
                             indeterminate: progressInfo.progress < 0
-                            visible: progressInfo.active && !finished
+                            visible: progressInfo.active && !downloaded
                             anchors.fill: downloadInfo
                         }
                         TextEdit {
@@ -411,7 +463,7 @@ Rectangle {
                                      qsTr("a file"))
                                 .arg(humanSize(content.info.size))
                                 .arg(content.info.mimetype)
-                                .arg(finished
+                                .arg(downloaded
                                      ? qsTr(" (downloaded%1)")
                                        .arg(progressInfo.filePath ?
                                             " as " + progressInfo.filePath : "")
@@ -426,9 +478,10 @@ Rectangle {
                         spacing: 2
 
                         CheckBox {
-                            id: openOnFinished
+                            id: openOnFinishedFlag
                             text: "Open after downloading"
                             visible: downloadProgress.visible
+                            checked: openOnFinished
                         }
                         Button {
                             text: "Cancel"
@@ -440,13 +493,13 @@ Rectangle {
 
                         Button {
                             text: "Open"
-                            visible: !openOnFinished.visible
+                            visible: !openOnFinishedFlag.visible
                             onClicked: {
-                                if (finished)
+                                if (downloaded)
                                     openSavedFile()
                                 else
                                 {
-                                    openOnFinished.checked = true
+                                    openOnFinished = true
                                     messageModel.room.downloadFile(eventId)
                                 }
                             }
