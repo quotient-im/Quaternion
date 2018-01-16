@@ -17,28 +17,59 @@
  *                                                                        *
  **************************************************************************/
 
-#pragma once
+#include "systemtrayicon.h"
 
-#include <QtWidgets/QSystemTrayIcon>
+#include <QtWidgets/QWidget>
 
-namespace QMatrixClient
+#include "lib/connection.h"
+#include "lib/room.h"
+
+SystemTrayIcon::SystemTrayIcon(QWidget* parent)
+    : QSystemTrayIcon(parent)
+    , m_parent(parent)
 {
-    class Connection;
-    class Room;
+    setIcon(QIcon(":/icon.png"));
+    connect( this, &SystemTrayIcon::activated, this, &SystemTrayIcon::systemTrayIconAction);
 }
 
-class SystemTray: public QSystemTrayIcon
+void SystemTrayIcon::newRoom(QMatrixClient::Room* room)
 {
-        Q_OBJECT
-    public:
-        explicit SystemTray(QWidget* parent = nullptr);
+    connect(room, &QMatrixClient::Room::highlightCountChanged,
+            this, &SystemTrayIcon::highlightCountChanged);
+}
 
-    public slots:
-        void newRoom(QMatrixClient::Room* room);
+void SystemTrayIcon::highlightCountChanged(QMatrixClient::Room* room)
+{
+    if( room->highlightCount() > 0 )
+    {
+        showMessage(tr("Highlight!"), tr("%1: %2 highlight(s)").arg(room->displayName()).arg(room->highlightCount()));
+        m_parent->activateWindow();
+    }
+}
 
-    private slots:
-        void highlightCountChanged(QMatrixClient::Room* room);
+void SystemTrayIcon::systemTrayIconAction(QSystemTrayIcon::ActivationReason reason)
+{
+    switch (reason)
+    {
+        case QSystemTrayIcon::Trigger:
+        case QSystemTrayIcon::DoubleClick:
+            this->showHide();
+            break;
+        default:
+            ;
+    }
+}
 
-    private:
-        QWidget* m_parent;
-};
+void SystemTrayIcon::showHide()
+{
+    if( m_parent->isVisible() )
+    {
+        m_parent->hide();
+    }
+    else
+    {
+        m_parent->show();
+        m_parent->raise();
+        m_parent->setFocus();
+    }
+}

@@ -29,7 +29,7 @@ namespace QMatrixClient {
 class RoomListDock;
 class UserListDock;
 class ChatRoomWidget;
-class SystemTray;
+class SystemTrayIcon;
 class QuaternionRoom;
 
 class QAction;
@@ -93,7 +93,7 @@ class MainWindow: public QMainWindow
         QMenu* connectionMenu = nullptr;
         QAction* accountListGrowthPoint = nullptr;
 
-        SystemTray* systemTray = nullptr;
+        SystemTrayIcon* systemTrayIcon = nullptr;
 
         // FIXME: This will be a problem when we get ability to show
         // several rooms at once.

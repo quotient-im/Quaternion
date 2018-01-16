@@ -24,7 +24,7 @@
 #include "chatroomwidget.h"
 #include "logindialog.h"
 #include "networkconfigdialog.h"
-#include "systemtray.h"
+#include "systemtrayicon.h"
 
 #include "lib/jobs/joinroomjob.h"
 #include "lib/connection.h"
@@ -80,8 +80,8 @@ MainWindow::MainWindow()
     connect( chatRoomWidget, &ChatRoomWidget::showStatusMessage, statusBar(), &QStatusBar::showMessage );
 
     createMenu();
-    systemTray = new SystemTray(this);
-    systemTray->show();
+    systemTrayIcon = new SystemTrayIcon(this);
+    systemTrayIcon->show();
 
     busyIndicator = new QMovie(":/busy.gif");
     busyLabel = new QLabel(this);
@@ -272,7 +272,7 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     connect( c, &Connection::networkError, this, [=]{ networkError(c); } );
     connect( c, &Connection::loginError,
              this, [=](const QString& msg){ loginError(c, msg); } );
-    connect( c, &Connection::newRoom, systemTray, &SystemTray::newRoom );
+    connect( c, &Connection::newRoom, systemTrayIcon, &SystemTrayIcon::newRoom );
     connect( c, &Connection::aboutToDeleteRoom,
              this, [this] (QMatrixClient::Room* r)
     {

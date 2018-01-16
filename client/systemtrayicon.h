@@ -17,31 +17,30 @@
  *                                                                        *
  **************************************************************************/
 
-#include "systemtray.h"
+#pragma once
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/QSystemTrayIcon>
 
-#include "lib/connection.h"
-#include "lib/room.h"
-
-SystemTray::SystemTray(QWidget* parent)
-    : QSystemTrayIcon(parent)
-    , m_parent(parent)
+namespace QMatrixClient
 {
-    setIcon(QIcon(":/icon.png"));
+    class Connection;
+    class Room;
 }
 
-void SystemTray::newRoom(QMatrixClient::Room* room)
+class SystemTrayIcon: public QSystemTrayIcon
 {
-    connect(room, &QMatrixClient::Room::highlightCountChanged,
-            this, &SystemTray::highlightCountChanged);
-}
+        Q_OBJECT
+    public:
+        explicit SystemTrayIcon(QWidget* parent = nullptr);
 
-void SystemTray::highlightCountChanged(QMatrixClient::Room* room)
-{
-    if( room->highlightCount() > 0 )
-    {
-        showMessage(tr("Highlight!"), tr("%1: %2 highlight(s)").arg(room->displayName()).arg(room->highlightCount()));
-        m_parent->activateWindow();
-    }
-}
+    public slots:
+        void newRoom(QMatrixClient::Room* room);
+
+    private slots:
+        void highlightCountChanged(QMatrixClient::Room* room);
+        void systemTrayIconAction(QSystemTrayIcon::ActivationReason reason);
+
+    private:
+        QWidget* m_parent;
+        void showHide();
+};
