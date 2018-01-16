@@ -195,11 +195,10 @@ Rectangle {
     Component {
         id: messageDelegate
 
-        Rectangle {
+        Item {
             property bool redacted: marks == "redacted"
             property bool hidden: marks == "hidden" && !settings.show_noop_events
 
-            color: defaultPalette.base
             width: root.width - chatViewScroller.width
             height: hidden ? 0 : childrenRect.height
             visible: !hidden
@@ -328,6 +327,7 @@ Rectangle {
                 controller.showStatusMessage(
                     "Couldn't determine how to open the file, " +
                     "opening its folder instead", 5000)
+
                 if (Qt.openUrlExternally(progressInfo.localDir))
                     return;
 
@@ -387,12 +387,13 @@ Rectangle {
                         width: parent.width
                         fillMode: Image.PreserveAspectFit
                         source: downloaded ? progressInfo.localPath :
-                                           "image://mtx/" + content.mediaId
+                                           "image://mtx/" + content.thumbnailMediaId
 
                         Component.onCompleted:
                             if (settings.autoload_images)
                                 messageModel.room.downloadFile(eventId)
                     }
+
                     RowLayout {
                         width: parent.width
                         spacing: 2
