@@ -21,6 +21,7 @@
 
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QFileDialog>
 
 #include <QtQml/QQmlContext>
 #include <QtQml/QQmlEngine>
@@ -401,6 +402,19 @@ QStringList ChatRoomWidget::findCompletionMatches(const QString& pattern) const
         matches.removeDuplicates();
     }
     return matches;
+}
+
+void ChatRoomWidget::saveFileAs(QString eventId)
+{
+    if (!m_currentRoom)
+    {
+        qWarning()
+            << "ChatRoomWidget::saveFileAs without an active room ignored";
+        return;
+    }
+    auto fileName = QFileDialog::getSaveFileName(this, tr("Save file as"));
+    if (!fileName.isEmpty())
+        m_currentRoom->downloadFile(eventId, QUrl::fromLocalFile(fileName));
 }
 
 void ChatRoomWidget::onMessageShownChanged(QString eventId, bool shown)

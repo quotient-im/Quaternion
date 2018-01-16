@@ -56,6 +56,7 @@ class ChatRoomWidget: public QWidget
         void typingChanged();
         void onMessageShownChanged(QString eventId, bool shown);
         void markShownAsRead();
+        void saveFileAs(QString eventId);
 
     protected:
         void timerEvent(QTimerEvent* event) override;

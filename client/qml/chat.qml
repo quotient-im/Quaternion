@@ -1,7 +1,6 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.4
 import QtQuick.Controls.Styles 1.0
-import QtQuick.Dialogs 1.0
 import QtQuick.Layouts 1.1
 import QMatrixClient 1.0
 
@@ -427,16 +426,7 @@ Rectangle {
                         }
                         Button {
                             text: "Save as..."
-                            onClicked: saveAsDialog.open()
-
-                            FileDialog {
-                                id: saveAsDialog
-                                title: "Save the file as"
-                                selectExisting: false
-
-                                onAccepted: messageModel.room
-                                            .downloadFile(eventId, fileUrl)
-                            }
+                            onClicked: controller.saveFileAs(eventId)
                         }
                     }
                 }
@@ -513,16 +503,7 @@ Rectangle {
                         Button {
                             text: "Save as..."
                             visible: !progressInfo.active
-                            onClicked: saveAsDialog.open()
-
-                            FileDialog {
-                                id: saveAsDialog
-                                title: "Save the file as"
-                                selectExisting: false
-
-                                onAccepted: messageModel.room
-                                            .downloadFile(eventId, fileUrl)
-                            }
+                            onClicked: controller.saveFileAs(eventId)
                         }
                         Button {
                             text: "Open folder"
