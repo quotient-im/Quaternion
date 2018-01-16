@@ -194,19 +194,24 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         }
         case Qt::ToolTipRole:
         {
-            auto result =
-                    QStringLiteral("<b>%1</b><br>").arg(room->canonicalAlias());
-            result += tr("Room members: %1<br>").arg(room->memberCount());
-            if (room->highlightCount() > 0)
-                result +=
-                        tr("Unread mentions: %1<br>").arg(room->highlightCount());
-            result += tr("Room ID: %1<br>").arg(room->id());
-            if( room->joinState() == QMatrixClient::JoinState::Join )
-                result += tr("You joined this room");
-            else if( room->joinState() == QMatrixClient::JoinState::Leave )
-                result += tr("You left this room");
-            else
-                result += tr("You were invited into this room");
+            int hlCount = room->highlightCount();
+            auto result = QStringLiteral("<b>%1</b><br>").arg(room->displayName());
+            result += tr("Main alias: %1<br>").arg(room->canonicalAlias());
+            result += tr("Members: %1<br>").arg(room->memberCount());
+            if (hlCount > 0)
+                result += tr("Unread mentions: %1<br>").arg(hlCount);
+            result += tr("ID: %1<br>").arg(room->id());
+            switch (room->joinState())
+            {
+                case QMatrixClient::JoinState::Join:
+                    result += tr("You joined this room");
+                    break;
+                case QMatrixClient::JoinState::Leave:
+                    result += tr("You left this room");
+                    break;
+                default:
+                    result += tr("You were invited into this room");
+            }
             return result;
         }
         case HasUnreadRole:
