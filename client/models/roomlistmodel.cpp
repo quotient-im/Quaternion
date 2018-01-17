@@ -130,9 +130,15 @@ void RoomListModel::deleteRoom(QMatrixClient::Room* room)
 
 void RoomListModel::doAddRoom(QMatrixClient::Room* r)
 {
-    auto* room = static_cast<QuaternionRoom*>(r);
-    m_rooms.append(room);
-    connectRoomSignals(room);
+    if (auto* room = static_cast<QuaternionRoom*>(r))
+    {
+        m_rooms.append(room);
+        connectRoomSignals(room);
+    } else
+    {
+        qCritical() << "Attempt to add nullptr to the room list";
+        Q_ASSERT(false);
+    }
 }
 
 void RoomListModel::connectRoomSignals(QuaternionRoom* room)
