@@ -34,6 +34,8 @@ class ChatEdit : public KChatEdit
         void triggerCompletion();
         void cancelCompletion();
 
+        void insertMention(QString author);
+
     signals:
         void proposedCompletion(const QStringList& allCompletions, int curIndex);
         void cancelledCompletion();
@@ -47,6 +49,8 @@ class ChatEdit : public KChatEdit
         QTextCursor completionCursor;
         QStringList completionMatches;
         int matchesListPosition;
+
+        bool pickingMentions = false;
 
         void startNewCompletion();
         void appendTextAtCursor(const QString& text, bool select = false);

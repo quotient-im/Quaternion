@@ -253,6 +253,15 @@ Rectangle {
                                                      .indexOf(eventType) >= 0 )
                                              { Text.AlignRight }
                         color: textColor
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                controller.insertMention(author)
+                                controller.focusInput()
+                            }
+                        }
                     }
                     Rectangle {
                         id: contentRect

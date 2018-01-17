@@ -27,6 +27,7 @@ ChatEdit::ChatEdit(ChatRoomWidget* c) : KChatEdit(c), chatRoomWidget(c) { }
 
 void ChatEdit::keyPressEvent(QKeyEvent* event)
 {
+    pickingMentions = false;
     if (event->key() == Qt::Key_Tab) {
         triggerCompletion();
         return;
@@ -105,3 +106,36 @@ void ChatEdit::cancelCompletion()
     emit cancelledCompletion();
 }
 
+void ChatEdit::insertMention(QString author)
+{
+    // The order of inserting text below is such to be convenient for the user
+    // to undo in case the primitive intelligence below fails.
+    auto cursor = textCursor();
+    insertPlainText(author);
+    cursor.movePosition(QTextCursor::PreviousCharacter,
+                        QTextCursor::MoveAnchor, author.size());
+
+    // Add spaces and a colon around the inserted string if necessary.
+    if (cursor.position() > 0 &&
+            document()->characterAt(cursor.position() - 1).isLetterOrNumber())
+        cursor.insertText(" ");
+
+    while (cursor.movePosition(QTextCursor::PreviousCharacter) &&
+           document()->characterAt(cursor.position()).isSpace());
+    QString postfix;
+    if (cursor.atStart())
+        postfix = ":";
+    if (pickingMentions && document()->characterAt(cursor.position()) == ':')
+    {
+        cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+        cursor.insertText(",");
+        postfix = ":";
+    }
+    auto currentChar = document()->characterAt(textCursor().position());
+    if (textCursor().atBlockEnd() ||
+            currentChar.isLetterOrNumber() || currentChar == '.')
+        postfix.push_back(' ');
+    if (!postfix.isEmpty())
+        insertPlainText(postfix);
+    pickingMentions = true;
+}

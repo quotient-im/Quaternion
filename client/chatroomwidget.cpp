@@ -223,6 +223,16 @@ void ChatRoomWidget::updateHeader()
     }
 }
 
+void ChatRoomWidget::insertMention(QString author)
+{
+    m_chatEdit->insertMention(author);
+}
+
+void ChatRoomWidget::focusInput()
+{
+    m_chatEdit->setFocus();
+}
+
 bool ChatRoomWidget::checkAndRun(const QString& checkArg, const QString& pattern,
                                  std::function<void()> fn,
                                  const QString& errorMsg) const

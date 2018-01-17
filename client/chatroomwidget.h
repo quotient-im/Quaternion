@@ -53,6 +53,10 @@ class ChatRoomWidget: public QWidget
     public slots:
         void setRoom(QuaternionRoom* room);
         void updateHeader();
+
+        void insertMention(QString author);
+        void focusInput();
+
         void typingChanged();
         void onMessageShownChanged(QString eventId, bool shown);
         void markShownAsRead();
