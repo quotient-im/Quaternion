@@ -535,6 +535,9 @@ Rectangle {
                     color: defaultPalette.button
                     border.color: defaultPalette.mid
 
+                    property url evtLink:
+                        "https://matrix.to/#/" + model.room.id + "/" + eventId
+
                     Item {
                         id: detailsHeader
                         width: parent.width
@@ -553,9 +556,7 @@ Rectangle {
                             z: 1
                         }
                         TextEdit {
-                            text: "<a href=\"https://matrix.to/#/"+
-                                  messageModel.room.id + "/" + eventId +
-                                  "\">"+ eventId + "</a>"
+                            text: "<a href=\"" + evtLink + "\">"+ eventId + "</a>"
                             textFormat: Text.RichText
                             font.bold: true
                             horizontalAlignment: Text.AlignHCenter
