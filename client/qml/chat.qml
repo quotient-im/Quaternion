@@ -154,7 +154,8 @@ Rectangle {
                     border.color: defaultPalette.midlight
                     implicitHeight: 8
                     Rectangle {
-                        anchors.centerIn: parent
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.top: parent.top
                         implicitHeight: 2
                         width: chatView.height *
                            ((chatView.largestVisibleIndex + 1) / chatView.count)
@@ -284,29 +285,62 @@ Rectangle {
                             }
                         }
                     }
-                    Rectangle {
-                        id: contentRect
-                        color: defaultPalette.base
+                    TextEdit {
+                        id: textField
+                        visible: eventType != "file" && eventType != "image"
+                        enabled: visible
                         Layout.fillWidth: true
-                        Layout.preferredHeight: childrenRect.height
+                        Layout.alignment: Qt.AlignTop | Qt.AlignLeft
+                        selectByMouse: true;
+                        readOnly: true;
+                        font: timelabel.font
+                        textFormat: contentType == "text/html" ?
+                                        TextEdit.RichText : TextEdit.PlainText
+                        text: visible ? content : ""
+                        wrapMode: Text.Wrap;
+                        color: textColor
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.IBeamCursor
+                            acceptedButtons: Qt.NoButton
+                        }
+
+                        // TODO: In the code below, links should be resolved
+                        // with Qt.resolvedLink, once we figure out what
+                        // to do with relative URLs (note: www.google.com
+                        // is a relative URL, https://www.google.com is not).
+                        // Instead of Qt.resolvedUrl (and, most likely,
+                        // QQmlAbstractUrlInterceptor to convert URLs)
+                        // we might just prefer to do the whole resolving
+                        // in C++.
+                        onHoveredLinkChanged:
+                            controller.showStatusMessage(hoveredLink)
+
+                        onLinkActivated: Qt.openUrlExternally(link)
+                    }
+                    Loader {
+//                            asynchronous: true // https://bugreports.qt.io/browse/QTBUG-50992
+                        id: contentLoader
+                        active: eventType == "file" || eventType == "image"
+                        visible: status == Loader.Ready
+                        Layout.fillWidth: true
+                        Layout.minimumHeight: childrenRect.height
+                        Layout.maximumHeight: childrenRect.height
                         Layout.alignment: Qt.AlignTop | Qt.AlignLeft
 
-                        Loader {
-//                            asynchronous: true // https://bugreports.qt.io/browse/QTBUG-50992
-                            visible: status == Loader.Ready
-                            width: parent.width
-
-                            sourceComponent:
-                                eventType == "file" ? downloadControls :
-                                eventType == "image" ? imageField : textField
-                        }
+                        sourceComponent:
+                            eventType == "file" ? downloadControls :
+                            eventType == "image" ? imageField : undefined
                     }
                     ToolButton {
                         id: showDetailsButton
 
                         text: "..."
-                        Layout.maximumHeight: settings.condense_chat ?
-                                              contentRect.height : implicitHeight
+                        Layout.maximumHeight:
+                            !settings.condense_chat ? implicitHeight :
+                            textField.visible ? textField.height :
+                                                contentLoader.height
                         Layout.alignment: Qt.AlignTop
 
 
@@ -329,8 +363,6 @@ Rectangle {
                     visible: status == Loader.Ready
                     width: parent.width
                     height: childrenRect.height
-
-                    property string sourceText: toolTip
 
                     sourceComponent: showDetails.checked ? detailsArea : undefined
                 }
@@ -373,39 +405,6 @@ Rectangle {
             onDownloadedChanged: {
                 if (downloaded && openOnFinished)
                     openSavedFile()
-            }
-
-            Component {
-                id: textField
-                TextEdit {
-                    selectByMouse: true;
-                    readOnly: true;
-                    font: timelabel.font
-                    textFormat: contentType == "text/html" ?
-                                    TextEdit.RichText : TextEdit.PlainText
-                    text: content
-                    wrapMode: Text.Wrap;
-                    color: textColor
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.IBeamCursor
-                        acceptedButtons: Qt.NoButton
-                    }
-
-                    // TODO: In the code below, links should be resolved
-                    // with Qt.resolvedLink, once we figure out what
-                    // to do with relative URLs (note: www.google.com
-                    // is a relative URL, https://www.google.com is not).
-                    // Instead of Qt.resolvedUrl (and, most likely,
-                    // QQmlAbstractUrlInterceptor to convert URLs)
-                    // we might just prefer to do the whole resolving
-                    // in C++.
-                    onHoveredLinkChanged:
-                        controller.showStatusMessage(hoveredLink)
-
-                    onLinkActivated: Qt.openUrlExternally(link)
-                }
             }
 
             Component {
@@ -476,7 +475,6 @@ Rectangle {
                 id: downloadControls
 
                 Column {
-
                     Rectangle {
                         width: parent.width
                         height: downloadInfo.height
@@ -567,6 +565,7 @@ Rectangle {
 
                     property url evtLink:
                         "https://matrix.to/#/" + model.room.id + "/" + eventId
+                    property string sourceText: toolTip
 
                     Item {
                         id: detailsHeader
