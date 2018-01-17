@@ -44,6 +44,7 @@ Rectangle {
         // FIXME: atYEnd is glitchy on Qt 5.2.1
         property bool nowAtYEnd: contentY - originY + height >= contentHeight
         property bool stickToBottom: true
+        property int largestVisibleIndex: indexAt(1, contentY + height - 1)
 
         function ensurePreviousContent() {
             // Check whether we're about to bump into the ceiling in 2 seconds
@@ -134,61 +135,81 @@ Rectangle {
         onMovementEnded: {
             stickToBottom = nowAtYEnd
         }
-    }
 
-    Slider {
-        id: chatViewScroller
-        orientation: Qt.Vertical
-        anchors.right: chatView.right
-        anchors.verticalCenter: chatView.verticalCenter
+        // Scrolling controls
 
-        style: SliderStyle {
-            // Width and height are swapped below because SliderStyle assumes
-            // a horizontal slider
-            groove: Rectangle {
-                implicitHeight: 3
-                implicitWidth: chatView.height / 2
-                anchors.horizontalCenter: parent.horizontalCenter
-                color: defaultPalette.highlight
-                radius: 3
+        Slider {
+            id: chatViewScroller
+            orientation: Qt.Vertical
+            height: parent.height
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            z: 3
+
+            style: SliderStyle {
+                // Width and height are swapped below because SliderStyle assumes
+                // a horizontal slider - but anchors are not :-\
+                groove: Rectangle {
+                    color: defaultPalette.window
+                    border.color: defaultPalette.midlight
+                    implicitHeight: 8
+                    Rectangle {
+                        anchors.centerIn: parent
+                        implicitHeight: 2
+                        width: chatView.height *
+                           ((chatView.largestVisibleIndex + 1) / chatView.count)
+
+                        color: defaultPalette.highlight
+                    }
+                }
+                handle: Rectangle {
+                    anchors.centerIn: parent
+                    color: defaultPalette.button
+                    border.color: defaultPalette.buttonText
+                    border.width: 1
+                    implicitWidth: 14
+                    implicitHeight: 8
+                    visible: chatView.count > 0
+                }
             }
-            handle: Rectangle {
-                anchors.centerIn: parent
-                color: defaultPalette.button
-                border.color: defaultPalette.buttonText
-                border.width: 1
-                implicitWidth: 21
-                implicitHeight: 9
-                radius: 9
+
+            maximumValue: 10.0
+            minimumValue: -10.0
+
+            activeFocusOnPress: false
+            activeFocusOnTab: false
+            // wheelEnabled: false // Only available in QQC 1.6, Qt 5.10
+
+            MouseArea {
+                anchors.fill: parent
+                acceptedButtons: Qt.NoButton
+                onWheel: { } // FIXME: propagate wheel event to chatView
+            }
+
+            onPressedChanged: {
+                if (pressed)
+                    parent.stickToBottom = false
+                else
+                    value = 0
+            }
+
+            onValueChanged: {
+                if (value)
+                    parent.flick(0, parent.height * value)
+            }
+            Component.onCompleted: {
+                // This will cause continuous scrolling while the scroller is out of 0
+                parent.flickEnded.connect(chatViewScroller.valueChanged)
             }
         }
-
-        maximumValue: 10.0
-        minimumValue: -10.0
-
-        activeFocusOnPress: false
-        activeFocusOnTab: false
-
-        MouseArea {
-            anchors.fill: parent
-            acceptedButtons: Qt.NoButton
-            onWheel: { } // Disable wheel on the slider
-        }
-
-        onPressedChanged: {
-            if (pressed)
-                chatView.stickToBottom = false
-            else
-                value = 0
-        }
-
-        onValueChanged: {
-            if (value)
-                chatView.flick(0, chatView.height * value)
-        }
-        Component.onCompleted: {
-            // This will cause continuous scrolling while the scroller is out of 0
-            chatView.flickEnded.connect(chatViewScroller.valueChanged)
+        Label {
+            anchors.right: chatViewScroller.left
+            anchors.top: parent.top
+            visible: chatView.largestVisibleIndex < chatView.count - 5
+            z: 3 // On top of ListView sections that have z=2
+            text: qsTr("%1 events back from now (%2 cached)")
+                    .arg(chatView.count - chatView.largestVisibleIndex - 1)
+                    .arg(chatView.count)
         }
     }
 
