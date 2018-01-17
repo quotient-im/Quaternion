@@ -393,13 +393,22 @@ Rectangle {
                     width: parent.width
 
                     Image {
+                        sourceSize.height: progressInfo.active ?
+                                               content.info.h :
+                                               content.info.thumbnail_info.h
+                        sourceSize.width: progressInfo.active ?
+                                              content.info.w :
+                                              content.info.thumbnail_info.w
                         width: parent.width
+                        height: sourceSize.height *
+                                (width < sourceSize.width ?
+                                     width / sourceSize.width : 1)
                         fillMode: Image.PreserveAspectFit
                         source: downloaded ? progressInfo.localPath :
                                            "image://mtx/" + content.thumbnailMediaId
 
                         Component.onCompleted:
-                            if (settings.autoload_images)
+                            if (settings.autoload_images && !downloaded)
                                 messageModel.room.downloadFile(eventId)
                     }
 
