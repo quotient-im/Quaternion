@@ -65,7 +65,7 @@ Rectangle {
         function onModelReset() {
             if (model.room)
             {
-                if (contentHeight <= height)
+                if (contentY < originY + 10)
                     model.room.getPreviousContent(100)
                 contentYChanged.connect(ensurePreviousContent)
                 console.log("Chat: getPreviousContent enabled")
