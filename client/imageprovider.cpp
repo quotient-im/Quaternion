@@ -40,6 +40,12 @@ ImageProvider::ImageProvider(QMatrixClient::Connection* connection)
 QImage ImageProvider::requestImage(const QString& id,
                                    QSize* pSize, const QSize& requestedSize)
 {
+    if (id.isEmpty() || id == "undefined")
+    {
+        qWarning() << "ImageProvider: id is empty or undefined; nothing to fetch";
+        return {};
+    }
+
     QUrl mxcUri { "mxc://" + id };
     qDebug() << "ImageProvider::requestImage:" << mxcUri.toString();
 
