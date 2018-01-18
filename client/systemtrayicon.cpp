@@ -19,16 +19,15 @@
 
 #include "systemtrayicon.h"
 
-#include <QtWidgets/QWidget>
+#include "mainwindow.h"
+#include "quaternionroom.h"
 
-#include "lib/connection.h"
-#include "lib/room.h"
-
-SystemTrayIcon::SystemTrayIcon(QWidget* parent)
+SystemTrayIcon::SystemTrayIcon(MainWindow* parent)
     : QSystemTrayIcon(parent)
     , m_parent(parent)
 {
     setIcon(QIcon(":/icon.png"));
+    setToolTip("Quaternion");
     connect( this, &SystemTrayIcon::activated, this, &SystemTrayIcon::systemTrayIconAction);
 }
 
@@ -44,6 +43,11 @@ void SystemTrayIcon::highlightCountChanged(QMatrixClient::Room* room)
     {
         showMessage(tr("Highlight!"), tr("%1: %2 highlight(s)").arg(room->displayName()).arg(room->highlightCount()));
         m_parent->activateWindow();
+        auto* qRoom = static_cast<QuaternionRoom*>(room);
+        connect(this, &SystemTrayIcon::messageClicked, m_parent, [this,qRoom] {
+            m_parent->selectRoom(qRoom);
+            disconnect(this, &SystemTrayIcon::messageClicked, nullptr, nullptr);
+        });
     }
 }
 

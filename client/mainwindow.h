@@ -59,6 +59,9 @@ class MainWindow: public QMainWindow
 
         ChatRoomWidget* getChatRoomWidget() const;
 
+    public slots:
+        void selectRoom(QuaternionRoom* r);
+
     protected:
         void closeEvent(QCloseEvent* event) override;
 
@@ -76,7 +79,6 @@ class MainWindow: public QMainWindow
                                          QAuthenticator* auth);
 
         void showLoginWindow(const QString& statusMessage = {});
-        void selectRoom(QuaternionRoom* r);
         void logout(Connection* c);
 
     private:

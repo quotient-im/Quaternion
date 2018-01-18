@@ -431,6 +431,11 @@ void MainWindow::selectRoom(QuaternionRoom* r)
     setWindowTitle(r ? r->displayName() : QString());
     chatRoomWidget->setRoom(r);
     userListDock->setRoom(r);
+    if (r && !isActiveWindow())
+    {
+        show();
+        activateWindow();
+    }
 }
 
 QMatrixClient::Connection* MainWindow::chooseConnection()

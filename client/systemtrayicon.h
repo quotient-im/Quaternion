@@ -23,15 +23,16 @@
 
 namespace QMatrixClient
 {
-    class Connection;
     class Room;
 }
+
+class MainWindow;
 
 class SystemTrayIcon: public QSystemTrayIcon
 {
         Q_OBJECT
     public:
-        explicit SystemTrayIcon(QWidget* parent = nullptr);
+        explicit SystemTrayIcon(MainWindow* parent = nullptr);
 
     public slots:
         void newRoom(QMatrixClient::Room* room);
@@ -41,6 +42,6 @@ class SystemTrayIcon: public QSystemTrayIcon
         void systemTrayIconAction(QSystemTrayIcon::ActivationReason reason);
 
     private:
-        QWidget* m_parent;
+        MainWindow* m_parent;
         void showHide();
 };
