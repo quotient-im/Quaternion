@@ -301,7 +301,8 @@ Rectangle {
                         font: timelabel.font
                         textFormat: contentType == "text/html" ?
                                         TextEdit.RichText : TextEdit.PlainText
-                        text: eventType != "image" && eventType != "file" && content
+                        text: eventType == "image" && eventType == "file"
+                              ? display : content
                         wrapMode: Text.Wrap;
                         color: textColor
 
