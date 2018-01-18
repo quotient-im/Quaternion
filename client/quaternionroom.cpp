@@ -19,78 +19,18 @@
 
 #include "quaternionroom.h"
 
-#include <QtCore/QRegularExpression>
+#include "lib/user.h"
+#include "lib/events/roommessageevent.h"
 
-#include "lib/connection.h"
+using namespace QMatrixClient;
 
-QuaternionRoom::QuaternionRoom(QMatrixClient::Connection* connection,
-                               QString roomId,
-                               QMatrixClient::JoinState joinState)
-    : QMatrixClient::Room(connection, roomId, joinState)
+QuaternionRoom::QuaternionRoom(Connection* connection, QString roomId,
+                               JoinState joinState)
+    : Room(connection, roomId, joinState)
 {
-    m_shown = false;
     m_cachedInput = "";
     connect( this, &QuaternionRoom::notificationCountChanged, this, &QuaternionRoom::countChanged );
     connect( this, &QuaternionRoom::highlightCountChanged, this, &QuaternionRoom::countChanged );
-}
-
-void QuaternionRoom::setShown(bool shown)
-{
-    if( shown == m_shown )
-        return;
-    m_shown = shown;
-    if( m_shown )
-    {
-        resetHighlightCount();
-        resetNotificationCount();
-    }
-}
-
-bool QuaternionRoom::isShown()
-{
-    return m_shown;
-}
-
-const QuaternionRoom::Timeline& QuaternionRoom::messages() const
-{
-    return m_messages;
-}
-
-using QMatrixClient::TimelineItem;
-
-void QuaternionRoom::onAddNewTimelineEvents(timeline_iter_t from)
-{
-    m_messages.reserve(std::distance(from, messageEvents().cend()));
-    std::transform(from, messageEvents().cend(),
-        std::back_inserter(m_messages),
-        [=] (const TimelineItem& ti) { return Message(ti.event(), this); });
-}
-
-void QuaternionRoom::onAddHistoricalTimelineEvents(rev_iter_t from)
-{
-    m_messages.reserve(std::distance(from, messageEvents().crend()));
-    std::transform(from, messageEvents().crend(),
-        std::front_inserter(m_messages),
-        [=] (const TimelineItem& ti) { return Message(ti.event(), this); });
-}
-
-void QuaternionRoom::onRedaction(const QMatrixClient::RoomEvent* before,
-                                 const QMatrixClient::RoomEvent* after)
-{
-    Q_ASSERT(before && after);
-    const auto it = std::find_if(m_messages.begin(), m_messages.end(),
-        [=](const Message& m) { return m.messageEvent() == before; });
-    if (it != m_messages.end())
-        it->setEvent(after);
-}
-
-void QuaternionRoom::countChanged()
-{
-    if( m_shown )
-    {
-        resetNotificationCount();
-        resetHighlightCount();
-    }
 }
 
 const QString& QuaternionRoom::cachedInput() const
@@ -103,47 +43,42 @@ void QuaternionRoom::setCachedInput(const QString& input)
     m_cachedInput = input;
 }
 
-/** Converts all that looks like a URL into HTML links */
-void linkifyUrls(QString& htmlEscapedText)
+bool QuaternionRoom::isEventHighlighted(RoomEvent* e) const
 {
-    static const auto RegExpOptions =
-        QRegularExpression::CaseInsensitiveOption
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
-        | QRegularExpression::OptimizeOnFirstUsageOption
-#endif
-        | QRegularExpression::UseUnicodePropertiesOption;
-
-    // NOTE: htmlEscapedText is already HTML-escaped (no literal <,>,&)!
-
-    // regexp is originally taken from Konsole (https://github.com/KDE/konsole)
-    // full url:
-    // protocolname:// or www. followed by anything other than whitespaces,
-    // <, >, ' or ", and ends before whitespaces, <, >, ', ", ], !, ), :,
-    // comma or dot
-    // Note: outer parentheses are a part of C++ raw string delimiters, not of
-    // the regex (see http://en.cppreference.com/w/cpp/language/string_literal).
-    const QRegularExpression FullUrlRegExp(QStringLiteral(
-            R"(((www\.(?!\.)|[a-z][a-z0-9+.-]*://)(&(?![lg]t;)|[^&\s<>'"])+(&(?![lg]t;)|[^&!,.\s<>'"\]):])))"
-        ), RegExpOptions);
-    // email address:
-    // [word chars, dots or dashes]@[word chars, dots or dashes].[word chars]
-    const QRegularExpression EmailAddressRegExp(QStringLiteral(
-            R"((mailto:)?(\b(\w|\.|-)+@(\w|\.|-)+\.\w+\b))"
-        ), RegExpOptions);
-
-    htmlEscapedText.replace(EmailAddressRegExp,
-                 QStringLiteral(R"(<a href="mailto:\2">\1\2</a>)"));
-    htmlEscapedText.replace(FullUrlRegExp,
-                 QStringLiteral(R"(<a href="\1">\1</a>)"));
-
+    return highlights.contains(e);
 }
 
-QString QuaternionRoom::prettyPrint(const QString& plainText) const
+void QuaternionRoom::countChanged()
 {
-    auto pt = QStringLiteral("<span style='white-space:pre-wrap'>") +
-            plainText.toHtmlEscaped() + QStringLiteral("</span>");
-    pt.replace('\n', "<br/>");
+    if( displayed() )
+    {
+        resetNotificationCount();
+        resetHighlightCount();
+    }
+}
 
-    linkifyUrls(pt);
-    return pt;
+void QuaternionRoom::onAddNewTimelineEvents(timeline_iter_t from)
+{
+    std::for_each(from, messageEvents().cend(),
+                  [this] (const TimelineItem& ti) { checkForHighlights(ti); });
+}
+
+void QuaternionRoom::onAddHistoricalTimelineEvents(rev_iter_t from)
+{
+    std::for_each(from, messageEvents().crend(),
+                  [this] (const TimelineItem& ti) { checkForHighlights(ti); });
+}
+
+void QuaternionRoom::checkForHighlights(const QMatrixClient::TimelineItem& ti)
+{
+    auto localUserId = localUser()->id();
+    if (ti->senderId() == localUserId)
+        return;
+    if (ti->type() == EventType::RoomMessage)
+    {
+        auto* rme = static_cast<const RoomMessageEvent*>(ti.event());
+        if (rme->plainBody().contains(localUserId) ||
+                rme->plainBody().contains(roomMembername(localUserId)))
+            highlights.insert(ti.event());
+    }
 }

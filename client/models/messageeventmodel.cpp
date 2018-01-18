@@ -96,11 +96,9 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                 });
         connect(m_currentRoom, &Room::addedMessages,
                 this, &MessageEventModel::endInsertRows);
-        connect(m_currentRoom, &Room::replacedEvent,
-                this, [this](const RoomEvent* e) {
-                    doRefreshEvent([e](const Message& m) {
-                        return m.messageEvent() == e;
-                    });
+        connect(m_currentRoom, &Room::replacedEvent, this,
+                [this] (const RoomEvent* newEvent) {
+                    refreshEvent(newEvent->id());
                 });
         connect(m_currentRoom, &Room::fileTransferProgress,
                 this, &MessageEventModel::refreshEvent);
@@ -118,55 +116,35 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
 
 void MessageEventModel::refreshEvent(const QString& eventId)
 {
-    doRefreshEvent([eventId](const Message& m) {
-        return m.messageEvent()->id() == eventId;
-    });
-}
-
-void MessageEventModel::doRefreshEvent(
-        std::function<bool (const Message&)> predicate)
-{
-    // FIXME: Avoid repetetive searching in QuaternionRoom.
-    // The right way will be to get rid of QuaternionRoom altogether and use
-    // Room::findTimelineItem() instead.
-    const auto it = std::find_if(m_currentRoom->messages().begin(),
-                                 m_currentRoom->messages().end(), predicate);
-    if (it == m_currentRoom->messages().end())
-        return;
-    const auto row = it - m_currentRoom->messages().begin();
+    const auto it = m_currentRoom->findInTimeline(eventId);
+    Q_ASSERT(it != m_currentRoom->timelineEdge());
+    const auto row = m_currentRoom->maxTimelineIndex() - it->index();
     emit dataChanged(index(row), index(row));
 }
 
-QDateTime MessageEventModel::makeMessageTimestamp(int baseIndex) const
+inline bool hasValidTimestamp(const QMatrixClient::TimelineItem& ti)
 {
-    Q_ASSERT(m_currentRoom &&
-             baseIndex >= 0 && baseIndex < m_currentRoom->messages().count());
-    const auto& messages = m_currentRoom->messages();
-    auto ts = messages[baseIndex].messageEvent()->timestamp();
+    return ti->timestamp().isValid();
+}
+
+QDateTime MessageEventModel::makeMessageTimestamp(QuaternionRoom::rev_iter_t baseIt) const
+{
+    const auto& timeline = m_currentRoom->messageEvents();
+    auto ts = baseIt->event()->timestamp();
     if (ts.isValid())
         return ts;
 
     // The event is most likely redacted or just invalid.
     // Look for the nearest date around and slap zero time to it.
-#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
-    using rev_iter_t =
-        std::reverse_iterator<QuaternionRoom::Timeline::const_iterator>;
-    for (auto it = rev_iter_t(messages.begin());
-         it != rev_iter_t(messages.begin()); ++it)
-#else
-    for (auto it = messages.rend() - baseIndex; it != messages.rend(); ++it)
-#endif
-    {
-        ts = it->messageEvent()->timestamp();
-        if (ts.isValid())
-            return { ts.date(), {0,0}, Qt::LocalTime };
-    }
-    for (auto it = messages.begin() + baseIndex + 1; it != messages.end(); ++it)
-    {
-        ts = it->messageEvent()->timestamp();
-        if (ts.isValid())
-            return { ts.date(), {0,0}, Qt::LocalTime };
-    }
+    using QMatrixClient::TimelineItem;
+    auto rit = std::find_if(baseIt, timeline.rend(),
+                      hasValidTimestamp);
+    if (rit != timeline.rend())
+        return { rit->event()->timestamp().date(), {0,0}, Qt::LocalTime };
+    auto it = std::find_if(baseIt.base(), timeline.end(), hasValidTimestamp);
+    if (it != timeline.end())
+        return { it->event()->timestamp().date(), {0,0}, Qt::LocalTime };
+
     // What kind of room is that?..
     qCritical() << "No valid timestamps in the room timeline!";
     return {};
@@ -176,18 +154,18 @@ int MessageEventModel::rowCount(const QModelIndex& parent) const
 {
     if( !m_currentRoom || parent.isValid() )
         return 0;
-    return m_currentRoom->messages().count();
+    return m_currentRoom->timelineSize();
 }
 
 QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 {
     using namespace QMatrixClient;
     if( !m_currentRoom ||
-            index.row() < 0 || index.row() >= m_currentRoom->messages().count())
+            index.row() < 0 || index.row() >= m_currentRoom->timelineSize())
         return QVariant();
 
-    const Message& message = m_currentRoom->messages().at(index.row());;
-    auto* event = message.messageEvent();
+    const auto eventIt = m_currentRoom->timelineEdge() - index.row() - 1;
+    auto* event = eventIt->event();
     // FIXME: Rewind to the name that was right before this event
     QString senderName = m_currentRoom->roomMembername(event->senderId());
 
@@ -335,10 +313,10 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     }
 
     if( role == TimeRole )
-        return makeMessageTimestamp(index.row());
+        return makeMessageTimestamp(eventIt);
 
     if( role == SectionRole )
-        return makeMessageTimestamp(index.row()).toLocalTime().date();
+        return makeMessageTimestamp(eventIt).toLocalTime().date();
 
     if( role == AuthorRole )
     {
@@ -396,30 +374,19 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     }
 
     if( role == HighlightRole )
-    {
-        return message.highlight();
-    }
+        return m_currentRoom->isEventHighlighted(event);
 
     if( role == SpecialMarksRole )
     {
-        auto* e = message.messageEvent();
-        if (e->isStateEvent() &&
-                static_cast<const StateEventBase*>(e)->repeatsState())
+        if (event->isStateEvent() &&
+                static_cast<const StateEventBase*>(event)->repeatsState())
             return "hidden";
-        return e->isRedacted() ? "redacted" : "";
+        return event->isRedacted() ? "redacted" : "";
     }
 
-    if( role == Qt::DecorationRole )
-    {
-        if (message.highlight())
-        {
-            return QSettings().value("UI/highlight_color", "orange");
-        }
-    }
     if( role == EventIdRole )
-    {
         return event->id();
-    }
+
     if( role == LongOperationRole )
     {
         if (event->type() == EventType::RoomMessage &&

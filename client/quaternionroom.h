@@ -19,44 +19,29 @@
 
 #pragma once
 
-#include "message.h"
 #include "lib/room.h"
 
 class QuaternionRoom: public QMatrixClient::Room
 {
         Q_OBJECT
     public:
-        using Timeline = QVector<Message>;
+        QuaternionRoom(QMatrixClient::Connection* connection,
+                       QString roomId, QMatrixClient::JoinState joinState);
 
-        QuaternionRoom(QMatrixClient::Connection* connection, QString roomId, QMatrixClient::JoinState joinState);
-
-        /**
-         * set/get whether this room is currently show to the user.
-         * This is used to mark messages as read.
-         */
-        void setShown(bool shown);
-        bool isShown();
-
-        void setCachedInput(const QString& input);
         const QString& cachedInput() const;
+        void setCachedInput(const QString& input);
 
-        const Timeline& messages() const;
-
-        /** Pretty-prints plain text into HTML
-         * This includes HTML escaping of <,>,",& and URLs linkification.
-         */
-        QString prettyPrint(const QString& plainText) const;
+        bool isEventHighlighted(QMatrixClient::RoomEvent* e) const;
 
     private slots:
         void countChanged();
 
     private:
-        Timeline m_messages;
-        bool m_shown;
+        QSet<QMatrixClient::RoomEvent*> highlights;
         QString m_cachedInput;
 
         void onAddNewTimelineEvents(timeline_iter_t from) override;
         void onAddHistoricalTimelineEvents(rev_iter_t from) override;
-        void onRedaction(const QMatrixClient::RoomEvent* before,
-                         const QMatrixClient::RoomEvent* after) override;
+
+        void checkForHighlights(const QMatrixClient::TimelineItem& ti);
 };

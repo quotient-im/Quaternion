@@ -59,7 +59,6 @@ include_directories(lib)
 # Set up source files
 set(quaternion_SRCS
     client/quaternionroom.cpp
-    client/message.cpp
     client/imageprovider.cpp
     client/activitydetector.cpp
     client/dialog.cpp

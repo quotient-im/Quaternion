@@ -19,12 +19,9 @@
 
 #pragma once
 
+#include "../quaternionroom.h"
+
 #include <QtCore/QAbstractListModel>
-
-#include <functional>
-
-class QuaternionRoom;
-class Message;
 
 class MessageEventModel: public QAbstractListModel
 {
@@ -50,6 +47,6 @@ class MessageEventModel: public QAbstractListModel
     private:
         QuaternionRoom* m_currentRoom;
 
-        QDateTime makeMessageTimestamp(int baseIndex) const;
-        void doRefreshEvent(std::function<bool(const Message&)> predicate);
+        QDateTime makeMessageTimestamp(QuaternionRoom::rev_iter_t baseIt) const;
+        QString makeDateString(QuaternionRoom::rev_iter_t baseIt) const;
 };
