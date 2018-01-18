@@ -12,6 +12,7 @@ Rectangle {
         property bool condense_chat: value("UI/condense_chat", false)
         property bool show_noop_events: value("UI/show_noop_events")
         property bool autoload_images: value("UI/autoload_images", true)
+        property string highlight_color: value("UI/highlight_color", "orange")
     }
     SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
     SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
@@ -226,13 +227,10 @@ Rectangle {
             visible: !hidden
 
             property string textColor:
-                    if (redacted) disabledPalette.text
-                    else if (highlight)
-                        decoration
-                    else if (["state", "notice", "other"]
-                             .indexOf(eventType) >= 0)
-                        disabledPalette.text
-                    else defaultPalette.text
+                redacted ? disabledPalette.text :
+                highlight ? settings.highlight_color :
+                (["state", "notice", "other"].indexOf(eventType) >= 0) ?
+                        disabledPalette.text : defaultPalette.text
 
             // A message is considered shown if its bottom is within the
             // viewing area of the timeline.
