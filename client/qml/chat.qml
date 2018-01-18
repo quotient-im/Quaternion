@@ -155,8 +155,8 @@ Rectangle {
                     border.color: defaultPalette.midlight
                     implicitHeight: 8
                     Rectangle {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.top: parent.top
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.right: parent.right
                         implicitHeight: 2
                         width: chatView.height *
                            ((chatView.largestVisibleIndex + 1) / chatView.count)
