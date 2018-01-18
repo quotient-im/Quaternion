@@ -250,21 +250,27 @@ Rectangle {
                 id: fullMessage
                 width: parent.width
 
-                RowLayout {
+                Item {
                     id: message
                     width: parent.width
-                    spacing: 3
+                    height: childrenRect.height
 
                     Label {
-                        Layout.alignment: Qt.AlignTop
                         id: timelabel
+                        anchors.top: textField.top
+                        anchors.left: parent.left
+
                         text: "<" + time.toLocaleTimeString(
                                         Qt.locale(), Locale.ShortFormat) + ">"
                         color: disabledPalette.text
                     }
                     Label {
-                        Layout.alignment: Qt.AlignTop | Qt.AlignLeft
-                        Layout.preferredWidth: 120
+                        id: authorLabel
+                        width: 120
+                        anchors.top: textField.top
+                        anchors.left: timelabel.right
+                        anchors.leftMargin: 3
+
                         elide: Text.ElideRight
                         text: eventType == "state" || eventType == "emote" ?
                                   "* " + author :
@@ -285,16 +291,17 @@ Rectangle {
                     }
                     TextEdit {
                         id: textField
-                        visible: eventType != "file" && eventType != "image"
-                        enabled: visible
-                        Layout.fillWidth: true
-                        Layout.alignment: Qt.AlignTop | Qt.AlignLeft
+                        anchors.left: authorLabel.right
+                        anchors.leftMargin: 3
+                        anchors.right: showDetailsButton.left
+                        anchors.rightMargin: 3
+
                         selectByMouse: true;
                         readOnly: true;
                         font: timelabel.font
                         textFormat: contentType == "text/html" ?
                                         TextEdit.RichText : TextEdit.PlainText
-                        text: visible ? content : ""
+                        text: eventType != "image" && eventType != "file" && content
                         wrapMode: Text.Wrap;
                         color: textColor
 
@@ -322,10 +329,9 @@ Rectangle {
                         id: contentLoader
                         active: eventType == "file" || eventType == "image"
                         visible: status == Loader.Ready
-                        Layout.fillWidth: true
-                        Layout.minimumHeight: childrenRect.height
-                        Layout.maximumHeight: childrenRect.height
-                        Layout.alignment: Qt.AlignTop | Qt.AlignLeft
+                        anchors.top: textField.bottom
+                        anchors.left: textField.left
+                        anchors.right: textField.right
 
                         sourceComponent:
                             eventType == "file" ? downloadControls :
@@ -333,14 +339,15 @@ Rectangle {
                     }
                     ToolButton {
                         id: showDetailsButton
+                        anchors.top: textField.top
+                        anchors.right: parent.right
+                        height:
+                            !settings.condense_chat ? implicitHeight :
+                            Math.min(implicitHeight,
+                                textField.visible ? textField.height :
+                                                    contentLoader.height)
 
                         text: "..."
-                        Layout.maximumHeight:
-                            !settings.condense_chat ? implicitHeight :
-                            textField.visible ? textField.height :
-                                                contentLoader.height
-                        Layout.alignment: Qt.AlignTop
-
 
                         action: Action {
                             id: showDetails
