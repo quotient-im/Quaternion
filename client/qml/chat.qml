@@ -219,14 +219,13 @@ Rectangle {
         id: messageDelegate
 
         Item {
-            property bool redacted: marks == "redacted"
-            property bool hidden: marks == "hidden" && !settings.show_noop_events
-
             width: root.width - chatViewScroller.width
             height: hidden ? 0 : childrenRect.height
             visible: !hidden
 
-            property string textColor:
+            readonly property bool redacted: marks == "redacted"
+            readonly property bool hidden: marks == "hidden" && !settings.show_noop_events
+            readonly property string textColor:
                 redacted ? disabledPalette.text :
                 highlight ? settings.highlight_color :
                 (["state", "notice", "other"].indexOf(eventType) >= 0) ?
@@ -234,17 +233,17 @@ Rectangle {
 
             // A message is considered shown if its bottom is within the
             // viewing area of the timeline.
-            property bool shown:
+            readonly property bool shown:
                 y + message.height - 1 > chatView.contentY &&
                 y + message.height - 1 < chatView.contentY + chatView.height
+
+            onShownChanged:
+                controller.onMessageShownChanged(eventId, shown)
 
             Component.onCompleted: {
                 if (shown)
                     shownChanged(true);
             }
-
-            onShownChanged:
-                controller.onMessageShownChanged(eventId, shown)
 
             Column {
                 id: fullMessage
