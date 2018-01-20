@@ -220,6 +220,7 @@ Rectangle {
         id: messageDelegate
 
         Item {
+            id: delegateItem
             width: root.width - chatViewScroller.width
             height: hidden ? 0 : childrenRect.height
             visible: !hidden
