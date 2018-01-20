@@ -191,77 +191,8 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     // FIXME: Rewind to the name that was right before this event
     QString senderName = m_currentRoom->roomMembername(event->senderId());
 
+    using namespace QMatrixClient;
     if( role == Qt::DisplayRole )
-    {
-        if (event->type() == EventType::RoomMessage)
-            return static_cast<const RoomMessageEvent*>(event)->plainBody();
-        return {};
-    }
-
-    if( role == Qt::ToolTipRole )
-    {
-        return event->originalJson();
-    }
-
-    if( role == EventTypeRole )
-    {
-        if (event->isStateEvent())
-            return "state";
-
-        if (event->type() == EventType::RoomMessage)
-        {
-            switch (static_cast<const RoomMessageEvent*>(event)->msgtype())
-            {
-                case MessageEventType::Emote:
-                    return "emote";
-                case MessageEventType::Notice:
-                    return "notice";
-                case MessageEventType::Image:
-                    return "image";
-                case MessageEventType::File:
-                case MessageEventType::Audio:
-                case MessageEventType::Video:
-                    return "file";
-            default:
-                return "message";
-            }
-        }
-
-        return "other";
-    }
-
-    if( role == TimeRole )
-        return makeMessageTimestamp(index.row());
-
-    if( role == SectionRole )
-        return makeMessageTimestamp(index.row()).toLocalTime().date();
-
-    if( role == AuthorRole )
-    {
-        // FIXME: This will go away after senderName is generated correctly
-        // (see the FIXME in the beginning of the method).
-        if (event->type() == EventType::RoomMember)
-        {
-            const auto* e = static_cast<const RoomMemberEvent*>(event);
-            if (e->prev_content() && !e->prev_content()->displayName.isEmpty()
-                    && e->displayName() != e->prev_content()->displayName)
-                return e->prev_content()->displayName;
-        }
-        return senderName;
-    }
-
-    if (role == ContentTypeRole)
-    {
-        if (event->type() == EventType::RoomMessage)
-        {
-            const auto& contentType =
-                static_cast<const RoomMessageEvent*>(event)->mimeType().name();
-            return contentType == "text/plain" ? "text/html" : contentType;
-        }
-        return "text/plain";
-    }
-
-    if (role == ContentRole)
     {
         if (event->isRedacted())
         {
@@ -278,25 +209,10 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
             using namespace MessageEventContent;
 
             auto* e = static_cast<const RoomMessageEvent*>(event);
-            switch (e->msgtype())
-            {
-            case MessageEventType::Emote:
-            case MessageEventType::Text:
-            case MessageEventType::Notice:
-                {
-                    if (e->mimeType().name() == "text/plain")
-                        return m_currentRoom->prettyPrint(e->plainBody());
-
-                    return static_cast<const TextContent*>(e->content())->body;
-                }
-            case MessageEventType::Image:
-            case MessageEventType::File:
-            case MessageEventType::Audio:
-            case MessageEventType::Video:
-                    return QVariant::fromValue(e->content()->originalJson);
-            default:
-                return e->plainBody();
-            }
+            return
+                (e->hasTextContent() && e->mimeType().name() != "text/plain") ?
+                    static_cast<const TextContent*>(e->content())->body :
+                    m_currentRoom->prettyPrint(e->plainBody());
         }
         if( event->type() == EventType::RoomMember )
         {
@@ -383,7 +299,100 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         {
             return tr("activated End-to-End Encryption");
         }
-        return "Unknown Event";
+        return tr("Unknown Event");
+    }
+
+    if( role == Qt::ToolTipRole )
+    {
+        return event->originalJson();
+    }
+
+    if( role == EventTypeRole )
+    {
+        if (event->isStateEvent())
+            return "state";
+
+        if (event->type() == EventType::RoomMessage)
+        {
+            switch (static_cast<const RoomMessageEvent*>(event)->msgtype())
+            {
+                case MessageEventType::Emote:
+                    return "emote";
+                case MessageEventType::Notice:
+                    return "notice";
+                case MessageEventType::Image:
+                    return "image";
+                case MessageEventType::File:
+                case MessageEventType::Audio:
+                case MessageEventType::Video:
+                    return "file";
+            default:
+                return "message";
+            }
+        }
+
+        return "other";
+    }
+
+    if( role == TimeRole )
+        return makeMessageTimestamp(index.row());
+
+    if( role == SectionRole )
+        return makeMessageTimestamp(index.row()).toLocalTime().date();
+
+    if( role == AuthorRole )
+    {
+        // FIXME: This will go away after senderName is generated correctly
+        // (see the FIXME in the beginning of the method).
+        if (event->type() == EventType::RoomMember)
+        {
+            const auto* e = static_cast<const RoomMemberEvent*>(event);
+            if (e->prev_content() && !e->prev_content()->displayName.isEmpty()
+                    && e->displayName() != e->prev_content()->displayName)
+                return e->prev_content()->displayName;
+        }
+        return senderName;
+    }
+
+    if (role == ContentTypeRole)
+    {
+        if (event->type() == EventType::RoomMessage)
+        {
+            const auto& contentType =
+                static_cast<const RoomMessageEvent*>(event)->mimeType().name();
+            return contentType == "text/plain" ? "text/html" : contentType;
+        }
+        return "text/plain";
+    }
+
+    if (role == ContentRole)
+    {
+        if (event->isRedacted())
+        {
+            auto reason = event->redactedBecause()->reason();
+            if (reason.isEmpty())
+                return tr("Redacted");
+            else
+                return tr("Redacted: %1")
+                    .arg(event->redactedBecause()->reason());
+        }
+
+        if( event->type() == EventType::RoomMessage )
+        {
+            using namespace MessageEventContent;
+
+            auto* e = static_cast<const RoomMessageEvent*>(event);
+            switch (e->msgtype())
+            {
+                case MessageEventType::Image:
+                case MessageEventType::File:
+                case MessageEventType::Audio:
+                case MessageEventType::Video:
+                    return QVariant::fromValue(e->content()->originalJson);
+            default:
+                ;
+            }
+        }
     }
 
     if( role == HighlightRole )

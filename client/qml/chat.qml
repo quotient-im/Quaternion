@@ -264,9 +264,11 @@ Rectangle {
                         anchors.top: textField.top
                         anchors.left: parent.left
 
+                        color: disabledPalette.text
+                        renderType: settings.render_type
+
                         text: "<" + time.toLocaleTimeString(
                                         Qt.locale(), Locale.ShortFormat) + ">"
-                        color: disabledPalette.text
                     }
                     Label {
                         id: authorLabel
@@ -274,15 +276,17 @@ Rectangle {
                         anchors.top: textField.top
                         anchors.left: timelabel.right
                         anchors.leftMargin: 3
-
-                        elide: Text.ElideRight
-                        text: eventType == "state" || eventType == "emote" ?
-                                  "* " + author :
-                              eventType != "other" ? author : "***"
                         horizontalAlignment: if( ["other", "emote", "state"]
                                                      .indexOf(eventType) >= 0 )
                                              { Text.AlignRight }
+                        elide: Text.ElideRight
+
                         color: textColor
+                        renderType: settings.render_type
+
+                        text: eventType == "state" || eventType == "emote" ?
+                                  "* " + author :
+                              eventType != "other" ? author : "***"
 
                         MouseArea {
                             anchors.fill: parent
@@ -302,13 +306,11 @@ Rectangle {
 
                         selectByMouse: true;
                         readOnly: true;
-                        font: timelabel.font
-                        textFormat: contentType == "text/html" ?
-                                        TextEdit.RichText : TextEdit.PlainText
-                        text: eventType == "image" && eventType == "file"
-                              ? display : content
+                        textFormat: TextEdit.RichText
+                        text: display
                         wrapMode: Text.Wrap;
                         color: textColor
+                        renderType: settings.render_type
 
                         MouseArea {
                             anchors.fill: parent
