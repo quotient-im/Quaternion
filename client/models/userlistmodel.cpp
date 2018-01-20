@@ -19,6 +19,7 @@
 
 #include "userlistmodel.h"
 
+#include <QElapsedTimer>
 #include <QtCore/QDebug>
 #include <QtGui/QPixmap>
 
@@ -58,8 +59,10 @@ void UserListModel::setRoom(QMatrixClient::Room* room)
         connect( m_currentRoom, &Room::userAdded, this, &UserListModel::userAdded );
         connect( m_currentRoom, &Room::userRemoved, this, &UserListModel::userRemoved );
         connect( m_currentRoom, &Room::memberRenamed, this, &UserListModel::memberRenamed );
+        QElapsedTimer et; et.start();
         m_users = m_currentRoom->users();
         std::sort(m_users.begin(), m_users.end(), room->memberSorter());
+        qDebug() << et.elapsed() << "ms to sort users in" << m_currentRoom->displayName();
         for( User* user: m_users )
         {
             connect( user, &User::avatarChanged, this, &UserListModel::avatarChanged );

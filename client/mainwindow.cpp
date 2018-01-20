@@ -37,6 +37,7 @@
 #include <QtCore/QStringBuilder>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
+#include <QtCore/QElapsedTimer>
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QAuthenticator>
 #include <QtWidgets/QApplication>
@@ -427,6 +428,7 @@ void MainWindow::logout(Connection* c)
 
 void MainWindow::selectRoom(QuaternionRoom* r)
 {
+    QElapsedTimer et; et.start();
     currentRoom = r;
     setWindowTitle(r ? r->displayName() : QString());
     chatRoomWidget->setRoom(r);
@@ -436,6 +438,8 @@ void MainWindow::selectRoom(QuaternionRoom* r)
         show();
         activateWindow();
     }
+    qDebug().noquote() << et.elapsed() << "ms to "
+        << (r ? "select room " + r->canonicalAlias() : "close the room");
 }
 
 QMatrixClient::Connection* MainWindow::chooseConnection()
