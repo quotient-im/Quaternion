@@ -245,6 +245,11 @@ Rectangle {
                     shownChanged(true);
             }
 
+            ListView.onAdd: NumberAnimation {
+                target: delegateItem; properties: "opacity"
+                from: 0.01; to: 1; duration: 300; easing.type: Easing.InOutQuad
+            }
+
             Column {
                 id: fullMessage
                 width: parent.width
