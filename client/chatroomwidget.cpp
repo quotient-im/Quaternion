@@ -261,7 +261,8 @@ bool ChatRoomWidget::checkAndRun2(const QString& args, const QString& pattern1,
 {
     const auto nextSpacePos = args.indexOf(' ', 1);
     const auto arg1 = args.left(nextSpacePos);
-    const auto arg2 = args.mid(nextSpacePos + 1).trimmed();
+    const auto arg2 =
+            nextSpacePos != -1 ? args.mid(nextSpacePos + 1).trimmed() : "";
     return checkAndRun(arg1, pattern1,
                        std::bind(fn2, m_currentRoom, arg1, arg2), errorMsg);
 }
