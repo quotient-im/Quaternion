@@ -236,8 +236,16 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
                     return text;
                 }
                 case MembershipType::Leave:
+                    if (e->prev_content() &&
+                            e->prev_content()->membership == MembershipType::Ban)
+                    {
+                        if (e->senderId() != e->userId())
+                            return tr("unbanned %1").arg(subjectName);
+                        else
+                            return tr("self-unbanned");
+                    }
                     if (e->senderId() != e->userId())
-                        return tr("doesn't want %1 in the room anymore").arg(subjectName);
+                        return tr("has put %1 out of the room").arg(subjectName);
                     else
                         return tr("left the room");
                 case MembershipType::Ban:
