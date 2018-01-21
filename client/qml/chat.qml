@@ -489,7 +489,7 @@ Rectangle {
                 id: downloadControls
 
                 Column {
-                    Rectangle {
+                    Item {
                         width: parent.width
                         height: downloadInfo.height
                         ProgressBar {
