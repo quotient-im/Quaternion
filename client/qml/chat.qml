@@ -13,7 +13,7 @@ Rectangle {
         readonly property bool show_noop_events: value("UI/show_noop_events")
         readonly property bool autoload_images: value("UI/autoload_images", true)
         readonly property string highlight_color: value("UI/highlight_color", "orange")
-        readonly property string render_type: value("UI/Fonts/render_type", "QtRendering")
+        readonly property string render_type: value("UI/Fonts/render_type", "NativeRendering")
     }
     SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
     SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
