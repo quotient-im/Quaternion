@@ -123,7 +123,6 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
     if( m_currentRoom )
     {
         m_currentRoom->setCachedInput( m_chatEdit->toPlainText() );
-        m_currentRoom->setDisplayed(false);
         roomHistories.insert(m_currentRoom, m_chatEdit->history());
         m_currentRoom->connection()->disconnect(this);
         m_currentRoom->disconnect( this );
@@ -177,8 +176,6 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
             if (m_currentRoom == r)
                 setRoom(nullptr);
         });
-
-        m_currentRoom->setDisplayed(true);
     } else
         m_imageProvider->setConnection(nullptr);
     updateHeader();

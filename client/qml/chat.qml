@@ -61,6 +61,7 @@ Rectangle {
 
         function onModelAboutToReset() {
             if (model.room) {
+                model.room.displayed = false
                 contentYChanged.disconnect(ensurePreviousContent)
                 console.log("Chat: getPreviousContent disabled")
             }
@@ -75,6 +76,7 @@ Rectangle {
                 positionViewAtBeginning()
                 if (contentY < originY + 10)
                     model.room.getPreviousContent(100)
+                model.room.displayed = true
             }
         }
 
