@@ -28,7 +28,6 @@ QuaternionRoom::QuaternionRoom(Connection* connection, QString roomId,
                                JoinState joinState)
     : Room(connection, roomId, joinState)
 {
-    m_cachedInput = "";
     connect( this, &QuaternionRoom::notificationCountChanged, this, &QuaternionRoom::countChanged );
     connect( this, &QuaternionRoom::highlightCountChanged, this, &QuaternionRoom::countChanged );
 }

@@ -40,12 +40,13 @@
 
 ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     : QWidget(parent)
+    , m_messageModel(new MessageEventModel(this))
     , m_currentRoom(nullptr)
     , readMarkerOnScreen(false)
 {
-    qmlRegisterType<QuaternionRoom>();
+    qmlRegisterUncreatableType<QuaternionRoom>("QMatrixClient", 1, 0, "Room",
+        "Room objects can only be created by libqmatrixclient");
     qmlRegisterType<QMatrixClient::Settings>("QMatrixClient", 1, 0, "Settings");
-    m_messageModel = new MessageEventModel(this);
 
     m_roomAvatar = new QLabel();
     m_roomAvatar->setPixmap({});
