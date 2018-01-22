@@ -14,6 +14,8 @@ Rectangle {
         readonly property bool autoload_images: value("UI/autoload_images", true)
         readonly property string highlight_color: value("UI/highlight_color", "orange")
         readonly property string render_type: value("UI/Fonts/render_type", "NativeRendering")
+        readonly property int animations_duration_ms: value("UI/animations_duration_ms", 300)
+        readonly property int fast_animations_duration_ms: animations_duration_ms * 3 / 2
     }
     SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
     SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
@@ -85,6 +87,11 @@ Rectangle {
             model.modelAboutToBeReset.connect(onModelAboutToReset)
             model.modelReset.connect(onModelReset)
         }
+
+        displaced: Transition { NumberAnimation {
+            property: "y"; duration: settings.animations_duration_ms
+            easing.type: Easing.InQuad
+        }}
 
         // Scrolling controls
 
@@ -197,11 +204,10 @@ Rectangle {
         Item {
             id: delegateItem
             width: root.width - chatViewScroller.width
-            height: hidden ? 0 : childrenRect.height
-            visible: !hidden
+            height: childrenRect.height
+            visible: marks != "hidden" || settings.show_noop_events
 
             readonly property bool redacted: marks == "redacted"
-            readonly property bool hidden: marks == "hidden" && !settings.show_noop_events
             readonly property string textColor:
                 redacted ? disabledPalette.text :
                 highlight ? settings.highlight_color :
@@ -222,9 +228,15 @@ Rectangle {
                     shownChanged(true);
             }
 
-            ListView.onAdd: NumberAnimation {
-                target: delegateItem; properties: "opacity"
-                from: 0.01; to: 1; duration: 300; easing.type: Easing.InOutQuad
+            NumberAnimation on opacity {
+                from: 0; to: 1;
+                duration: settings.animations_duration_ms
+                easing.type: Easing.OutQuad
+            }
+            NumberAnimation on height {
+                from: 0; to: childrenRect.height
+                duration: settings.fast_animations_duration_ms
+                easing.type: Easing.OutQuad
             }
 
             Column {
@@ -241,6 +253,16 @@ Rectangle {
                         renderType: settings.render_type
                         text: section
                     }
+                }
+                Loader {
+                    id: detailsAreaLoader
+//                    asynchronous: true // https://bugreports.qt.io/browse/QTBUG-50992
+                    active: visible
+                    visible: false // Controlled by showDetailsButton
+                    opacity: 0
+                    width: parent.width
+
+                    sourceComponent: detailsArea
                 }
 
                 Item {
@@ -351,15 +373,24 @@ Rectangle {
                             tooltip: "Show details and actions"
                             checkable: true
                         }
-                    }
-                }
-                Loader {
-//                    asynchronous: true // https://bugreports.qt.io/browse/QTBUG-50992
-                    visible: status == Loader.Ready
-                    width: parent.width
-                    height: childrenRect.height
 
-                    sourceComponent: showDetails.checked ? detailsArea : undefined
+                        onCheckedChanged: SequentialAnimation {
+                            PropertyAction {
+                                target: detailsAreaLoader; property: "visible"
+                                value: true
+                            }
+                            NumberAnimation {
+                                target: detailsAreaLoader; property: "opacity"
+                                to: showDetails.checked
+                                duration: settings.animations_duration_ms
+                                easing.type: Easing.OutQuad
+                            }
+                            PropertyAction {
+                                target: detailsAreaLoader; property: "visible"
+                                value: showDetails.checked
+                            }
+                        }
+                    }
                 }
             }
             Rectangle {
