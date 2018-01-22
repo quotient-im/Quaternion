@@ -505,6 +505,7 @@ Rectangle {
                             readOnly: true;
                             font: timelabel.font
                             color: textColor
+                            renderType: settings.render_type
                             text:
                                 qsTr("Size: %1, declared type: %2%3")
                                 .arg(humanSize(content.info.size))
@@ -588,6 +589,7 @@ Rectangle {
                         TextEdit {
                             text: "<" + time.toLocaleString(Qt.locale(), Locale.ShortFormat) + ">"
                             font.bold: true
+                            renderType: settings.render_type
                             readOnly: true
                             selectByKeyboard: true; selectByMouse: true
 
@@ -600,6 +602,7 @@ Rectangle {
                             text: "<a href=\"" + evtLink + "\">"+ eventId + "</a>"
                             textFormat: Text.RichText
                             font.bold: true
+                            renderType: settings.render_type
                             horizontalAlignment: Text.AlignHCenter
                             readOnly: true
                             selectByKeyboard: true; selectByMouse: true
@@ -647,6 +650,7 @@ Rectangle {
                         TextEdit {
                             id: permalink
                             text: evtLink
+                            renderType: settings.render_type
                             width: 0; height: 0; visible: false
                         }
                     }
@@ -656,6 +660,10 @@ Rectangle {
                         textFormat: Text.PlainText
                         readOnly: true;
                         font.family: "Monospace"
+                        // FIXME: make settings.render_type an integer (but store as string to stay human-friendly)
+//                        style: TextAreaStyle {
+//                            renderType: settings.render_type
+//                        }
                         selectByKeyboard: true; selectByMouse: true;
 
                         width: parent.width
