@@ -628,7 +628,7 @@ Rectangle {
                             z: 1
 
                             onClicked: {
-                                messageModel.room.redactEvent(evtId)
+                                messageModel.room.redactEvent(eventId)
                                 showDetails.checked = false
                             }
                         }
