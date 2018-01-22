@@ -26,6 +26,7 @@
 #include "../quaternionroom.h"
 #include "lib/connection.h"
 #include "lib/user.h"
+#include "lib/settings.h"
 #include "lib/events/roommemberevent.h"
 #include "lib/events/simplestateevents.h"
 #include "lib/events/redactionevent.h"
@@ -39,6 +40,7 @@ enum EventRoles {
     ContentRole,
     ContentTypeRole,
     HighlightRole,
+    ReadMarkerRole,
     SpecialMarksRole,
     LongOperationRole,
 };
@@ -54,6 +56,7 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
     roles[ContentRole] = "content";
     roles[ContentTypeRole] = "contentType";
     roles[HighlightRole] = "highlight";
+    roles[ReadMarkerRole] = "readMarker";
     roles[SpecialMarksRole] = "marks";
     roles[LongOperationRole] = "progressInfo";
     return roles;
@@ -86,16 +89,25 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
         connect(m_currentRoom, &Room::aboutToAddNewMessages, this,
                 [=](RoomEventsRange events)
                 {
-                    beginInsertRows(QModelIndex(), rowCount(),
-                                    rowCount() + int(events.size()) - 1);
+                    beginInsertRows(QModelIndex(), 0, int(events.size()) - 1);
                 });
         connect(m_currentRoom, &Room::aboutToAddHistoricalMessages, this,
                 [=](RoomEventsRange events)
                 {
-                    beginInsertRows(QModelIndex(), 0, int(events.size()) - 1);
+                    beginInsertRows(QModelIndex(), rowCount(),
+                                    rowCount() + int(events.size()) - 1);
                 });
         connect(m_currentRoom, &Room::addedMessages,
                 this, &MessageEventModel::endInsertRows);
+        connect(m_currentRoom, &Room::firstDisplayedEventChanged,
+                this, &MessageEventModel::bannerChanged);
+        connect(m_currentRoom, &Room::readMarkerMoved, this, [this] {
+            refreshEventRoles(
+                std::exchange(lastReadEventId,
+                              m_currentRoom->readMarkerEventId()),
+                {ReadMarkerRole});
+            refreshEventRoles(lastReadEventId, {ReadMarkerRole});
+        });
         connect(m_currentRoom, &Room::replacedEvent, this,
                 [this] (const RoomEvent* newEvent) {
                     refreshEvent(newEvent->id());
@@ -111,15 +123,26 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
         qDebug() << "Connected to room" << room->id()
                  << "as" << room->connection()->userId();
     }
+    lastReadEventId = room ? room->readMarkerEventId() : "";
+    emit bannerChanged();
     endResetModel();
 }
 
 void MessageEventModel::refreshEvent(const QString& eventId)
 {
+    refreshEventRoles(eventId, {});
+}
+
+void MessageEventModel::refreshEventRoles(const QString& eventId,
+                                     const QVector<int> roles)
+{
     const auto it = m_currentRoom->findInTimeline(eventId);
-    Q_ASSERT(it != m_currentRoom->timelineEdge());
-    const auto row = m_currentRoom->maxTimelineIndex() - it->index();
-    emit dataChanged(index(row), index(row));
+    if (it != m_currentRoom->timelineEdge())
+    {
+        const auto row = it - m_currentRoom->messageEvents().rbegin();
+        qDebug() << "Refreshing event" << eventId << " at QML index" << row;
+        emit dataChanged(index(row), index(row), roles);
+    }
 }
 
 inline bool hasValidTimestamp(const QMatrixClient::TimelineItem& ti)
@@ -150,6 +173,24 @@ QDateTime MessageEventModel::makeMessageTimestamp(QuaternionRoom::rev_iter_t bas
     return {};
 }
 
+QString MessageEventModel::makeDateString(QuaternionRoom::rev_iter_t baseIt) const
+{
+    auto date = makeMessageTimestamp(baseIt).toLocalTime().date();
+    if (QMatrixClient::SettingsGroup("UI")
+            .value("banner_human_friendly_date", true).toBool())
+    {
+        if (date == QDate::currentDate())
+            return tr("Today");
+        if (date == QDate::currentDate().addDays(-1))
+            return tr("Yesterday");
+        if (date == QDate::currentDate().addDays(-2))
+            return tr("The day before yesterday");
+        if (date > QDate::currentDate().addDays(-7))
+            return date.toString("dddd");
+    }
+    return date.toString(Qt::DefaultLocaleShortDate);
+}
+
 int MessageEventModel::rowCount(const QModelIndex& parent) const
 {
     if( !m_currentRoom || parent.isValid() )
@@ -159,12 +200,11 @@ int MessageEventModel::rowCount(const QModelIndex& parent) const
 
 QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 {
-    using namespace QMatrixClient;
     if( !m_currentRoom ||
             index.row() < 0 || index.row() >= m_currentRoom->timelineSize())
         return QVariant();
 
-    const auto eventIt = m_currentRoom->timelineEdge() - index.row() - 1;
+    const auto eventIt = m_currentRoom->messageEvents().rbegin() + index.row();
     auto* event = eventIt->event();
     // FIXME: Rewind to the name that was right before this event
     QString senderName = m_currentRoom->roomMembername(event->senderId());
@@ -331,7 +371,12 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         return makeMessageTimestamp(eventIt);
 
     if( role == SectionRole )
-        return makeMessageTimestamp(eventIt).toLocalTime().date();
+    {
+        auto dateText = makeDateString(eventIt);
+        auto olderEventIt = eventIt + 1;
+        return (olderEventIt == m_currentRoom->timelineEdge() ||
+                makeDateString(olderEventIt) != dateText) ? dateText : "";
+    }
 
     if( role == AuthorRole )
     {
@@ -391,6 +436,9 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     if( role == HighlightRole )
         return m_currentRoom->isEventHighlighted(event);
 
+    if( role == ReadMarkerRole )
+        return event->id() == lastReadEventId;
+
     if( role == SpecialMarksRole )
     {
         if (event->isStateEvent() &&
@@ -413,4 +461,12 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     }
 
     return QVariant();
+}
+
+QString MessageEventModel::bannerText() const
+{
+    if (!m_currentRoom)
+        return tr("No room selected");
+    auto it = m_currentRoom->firstDisplayedMarker();
+    return it != m_currentRoom->timelineEdge() ? makeDateString(it) : "";
 }

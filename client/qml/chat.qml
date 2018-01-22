@@ -39,13 +39,12 @@ Rectangle {
 
         model: messageModel
         delegate: messageDelegate
+        verticalLayoutDirection: ListView.BottomToTop
         flickableDirection: Flickable.VerticalFlick
         flickDeceleration: 9001
         boundsBehavior: Flickable.StopAtBounds
         pixelAligned: true
-        // FIXME: atYEnd is glitchy on Qt 5.2.1
-        property bool nowAtYEnd: contentY - originY + height >= contentHeight
-        property bool stickToBottom: true
+
         property int largestVisibleIndex: indexAt(1, contentY + height - 1)
 
         function ensurePreviousContent() {
@@ -61,81 +60,28 @@ Rectangle {
         }
 
         function onModelAboutToReset() {
-            contentYChanged.disconnect(ensurePreviousContent)
-            console.log("Chat: getPreviousContent disabled")
+            if (model.room) {
+                contentYChanged.disconnect(ensurePreviousContent)
+                console.log("Chat: getPreviousContent disabled")
+            }
         }
 
         function onModelReset() {
             if (model.room)
             {
-                if (contentY < originY + 10)
-                    model.room.getPreviousContent(100)
                 contentYChanged.connect(ensurePreviousContent)
                 console.log("Chat: getPreviousContent enabled")
-                scrollToBottom()
+                // TODO, #111: Scroll to the saved scroll position (room.lastDisplayedEventId)
+                positionViewAtBeginning()
+                if (contentY < originY + 10)
+                    model.room.getPreviousContent(100)
             }
-        }
-
-        Timer {
-            id: scrollTimer
-            interval: 0
-            onTriggered: chatView.reallyScrollToBottom()
-        }
-
-        function scrollToBottom() {
-            stickToBottom = true
-            scrollTimer.running = true
-            reallyScrollToBottom()
-        }
-
-        function reallyScrollToBottom() {
-            if (stickToBottom && !nowAtYEnd)
-            {
-                positionViewAtEnd()
-                scrollToBottom()
-            }
-        }
-
-        function rowsInserted() {
-            if( stickToBottom )
-                scrollToBottom()
         }
 
         Component.onCompleted: {
             console.log("onCompleted")
             model.modelAboutToBeReset.connect(onModelAboutToReset)
             model.modelReset.connect(onModelReset)
-            model.rowsInserted.connect(rowsInserted)
-        }
-
-        section {
-            property: "section"
-            labelPositioning: ViewSection.InlineLabels | ViewSection.CurrentLabelAtStart
-
-            delegate: Rectangle {
-                width: root.width
-                height: childrenRect.height
-                color: defaultPalette.window
-                Label { text: section.toLocaleString("dd.MM.yyyy") }
-            }
-        }
-
-        onHeightChanged: {
-            if( stickToBottom )
-                scrollToBottom()
-        }
-
-        onContentHeightChanged: {
-            if( stickToBottom )
-                scrollToBottom()
-        }
-
-        onMovementStarted: {
-            stickToBottom = false
-        }
-
-        onMovementEnded: {
-            stickToBottom = nowAtYEnd
         }
 
         // Scrolling controls
@@ -159,8 +105,9 @@ Rectangle {
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.right: parent.right
                         implicitHeight: 2
-                        width: chatView.height *
-                           ((chatView.largestVisibleIndex + 1) / chatView.count)
+                        width: chatView.count == 0 ? parent.width :
+                            chatView.height *
+                                (1 - chatView.largestVisibleIndex / chatView.count)
 
                         color: defaultPalette.highlight
                     }
@@ -184,15 +131,16 @@ Rectangle {
             // wheelEnabled: false // Only available in QQC 1.6, Qt 5.10
 
             MouseArea {
+                id: scrollerArea
                 anchors.fill: parent
                 acceptedButtons: Qt.NoButton
                 onWheel: { } // FIXME: propagate wheel event to chatView
+
+                hoverEnabled: true
             }
 
             onPressedChanged: {
-                if (pressed)
-                    parent.stickToBottom = false
-                else
+                if (!pressed)
                     value = 0
             }
 
@@ -205,14 +153,39 @@ Rectangle {
                 parent.flickEnded.connect(chatViewScroller.valueChanged)
             }
         }
-        Label {
-            anchors.right: chatViewScroller.left
-            anchors.top: parent.top
-            visible: chatView.largestVisibleIndex < chatView.count - 5
+        Rectangle {
             z: 3 // On top of ListView sections that have z=2
-            text: qsTr("%1 events back from now (%2 cached)")
-                    .arg(chatView.count - chatView.largestVisibleIndex - 1)
-                    .arg(chatView.count)
+            anchors.left: parent.left
+            anchors.top: parent.top
+            width: childrenRect.width + 3
+            height: childrenRect.height + 3
+            visible: chatView.contentHeight >= chatView.height
+            color: defaultPalette.window
+            opacity: 0.9
+            Label {
+                id: bannerLabel
+                font.bold: true
+                color: disabledPalette.text
+                renderType: settings.render_type
+                text: messageModel.bannerText
+            }
+        }
+
+        Rectangle {
+            z: 3 // On top of ListView sections that have z=2
+            anchors.right: chatViewScroller.left
+            anchors.bottom: parent.bottom
+            width: childrenRect.width + 3
+            height: childrenRect.height + 3
+            visible: scrollerArea.containsMouse
+            color: defaultPalette.window
+            opacity: 0.9
+            Label {
+                id: eventMeter
+                renderType: settings.render_type
+                text: qsTr("%1 events back from now (%2 cached)")
+                        .arg(chatView.largestVisibleIndex).arg(chatView.count)
+            }
         }
     }
 
@@ -255,6 +228,18 @@ Rectangle {
             Column {
                 id: fullMessage
                 width: parent.width
+
+                Rectangle {
+                    width: parent.width
+                    height: childrenRect.height
+                    color: defaultPalette.window
+                    Label {
+                        height: section ? implicitHeight : 0
+                        font.bold: true
+                        renderType: settings.render_type
+                        text: section
+                    }
+                }
 
                 Item {
                     id: message
@@ -363,12 +348,6 @@ Rectangle {
 
                             tooltip: "Show details and actions"
                             checkable: true
-                            onCheckedChanged: {
-                                if (checked)
-                                    chatView.stickToBottom = false
-                                else
-                                    chatView.stickToBottom = chatView.nowAtYEnd
-                            }
                         }
                     }
                 }
@@ -382,10 +361,9 @@ Rectangle {
                 }
             }
             Rectangle {
-                id: readMarker
+                id: readMarkerLine
                 color: defaultPalette.highlight
-                width: messageModel.room.readMarkerEventId === eventId &&
-                           root.width
+                width: readMarker && root.width
                 height: 1
                 anchors.bottom: fullMessage.bottom
                 Behavior on width {
@@ -676,7 +654,7 @@ Rectangle {
 
     Rectangle {
         id: scrollindicator
-        opacity: chatView.nowAtYEnd ? 0 : 0.5
+        opacity: chatView.atYEnd ? 0 : 0.5
         color: defaultPalette.text
         height: 30
         radius: height/2
@@ -684,7 +662,7 @@ Rectangle {
         anchors.left: parent.left
         anchors.bottom: parent.bottom
         anchors.leftMargin: width/2
-        anchors.bottomMargin: chatView.nowAtYEnd ? -height : height/2
+        anchors.bottomMargin: chatView.atYEnd ? -height : height/2
         Behavior on opacity {
             NumberAnimation { duration: 300 }
         }
@@ -697,7 +675,7 @@ Rectangle {
         }
         MouseArea {
             anchors.fill: parent
-            onClicked: chatView.scrollToBottom()
+            onClicked: chatView.positionViewAtBeginning()
             cursorShape: Qt.PointingHandCursor
         }
     }

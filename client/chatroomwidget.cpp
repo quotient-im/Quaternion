@@ -184,8 +184,6 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
     updateHeader();
     typingChanged();
     m_messageModel->changeRoom( m_currentRoom );
-//    QObject* rootItem = m_quickView->rootObject();
-//    QMetaObject::invokeMethod(rootItem, "scrollToBottom");
 }
 
 void ChatRoomWidget::typingChanged()
