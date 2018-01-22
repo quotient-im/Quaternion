@@ -506,9 +506,7 @@ Rectangle {
                             font: timelabel.font
                             color: textColor
                             text:
-                                qsTr("%1 (%2), declared type: %3%4")
-                                .arg(content.filename || display ||
-                                     qsTr("a file"))
+                                qsTr("Size: %1, declared type: %2%3")
                                 .arg(humanSize(content.info.size))
                                 .arg(content.info.mimetype)
                                 .arg(downloaded

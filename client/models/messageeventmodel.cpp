@@ -187,10 +187,17 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
             using namespace MessageEventContent;
 
             auto* e = static_cast<const RoomMessageEvent*>(event);
-            return
-                (e->hasTextContent() && e->mimeType().name() != "text/plain") ?
-                    static_cast<const TextContent*>(e->content())->body :
-                    m_currentRoom->prettyPrint(e->plainBody());
+            if (e->hasTextContent() && e->mimeType().name() != "text/plain")
+                return static_cast<const TextContent*>(e->content())->body;
+            if (e->hasFileContent())
+            {
+                auto fileCaption = e->content()->fileInfo()->originalName;
+                if (fileCaption.isEmpty())
+                    fileCaption = m_currentRoom->prettyPrint(e->plainBody());
+                if (fileCaption.isEmpty())
+                    return tr("a file");
+            }
+            return m_currentRoom->prettyPrint(e->plainBody());
         }
         if( event->type() == EventType::RoomMember )
         {
