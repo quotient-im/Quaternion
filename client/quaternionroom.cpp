@@ -47,6 +47,32 @@ bool QuaternionRoom::isEventHighlighted(RoomEvent* e) const
     return highlights.contains(e);
 }
 
+int QuaternionRoom::savedTopVisibleIndex() const
+{
+    qDebug() << "Retrieved top visible index:" << firstDisplayedMarker() - messageEvents().rbegin();
+    return firstDisplayedMarker() == timelineEdge() ? 0 :
+                firstDisplayedMarker() - messageEvents().rbegin();
+}
+
+int QuaternionRoom::savedBottomVisibleIndex() const
+{
+    qDebug() << "Retrieved bottom visible index:" << lastDisplayedMarker() - messageEvents().rbegin();
+    return lastDisplayedMarker() == timelineEdge() ? 0 :
+                lastDisplayedMarker() - messageEvents().rbegin();
+}
+
+void QuaternionRoom::saveViewport(int topIndex, int bottomIndex)
+{
+    if (bottomIndex == 0)
+    {
+        qDebug() << "Saving viewport as the latest available";
+        setFirstDisplayedEventId({}); setLastDisplayedEventId({});
+    }
+    qDebug() << "Saving viewport:" << topIndex << "thru" << bottomIndex;
+    setFirstDisplayedEvent(maxTimelineIndex() - topIndex);
+    setLastDisplayedEvent(maxTimelineIndex() - bottomIndex);
+}
+
 void QuaternionRoom::countChanged()
 {
     if( displayed() )

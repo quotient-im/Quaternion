@@ -33,6 +33,10 @@ class QuaternionRoom: public QMatrixClient::Room
 
         bool isEventHighlighted(QMatrixClient::RoomEvent* e) const;
 
+        Q_INVOKABLE int savedTopVisibleIndex() const;
+        Q_INVOKABLE int savedBottomVisibleIndex() const;
+        Q_INVOKABLE void saveViewport(int topIndex, int bottomIndex);
+
     private slots:
         void countChanged();
 

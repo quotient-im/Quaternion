@@ -73,10 +73,11 @@ Rectangle {
         function onModelReset() {
             if (model.room)
             {
+                var lastScrollPosition = model.room.savedTopVisibleIndex()
                 contentYChanged.connect(ensurePreviousContent)
                 console.log("Chat: getPreviousContent enabled")
-                // TODO, #111: Scroll to the saved scroll position (room.lastDisplayedEventId)
-                positionViewAtBeginning()
+                console.log("Scrolling to position", lastScrollPosition)
+                positionViewAtIndex(lastScrollPosition, ListView.Contain)
                 if (contentY < originY + 10)
                     model.room.getPreviousContent(100)
                 model.room.displayed = true
@@ -88,6 +89,9 @@ Rectangle {
             model.modelAboutToBeReset.connect(onModelAboutToReset)
             model.modelReset.connect(onModelReset)
         }
+
+        onMovementEnded:
+            model.room.saveViewport(indexAt(1, contentY), largestVisibleIndex)
 
         displaced: Transition { NumberAnimation {
             property: "y"; duration: settings.animations_duration_ms
