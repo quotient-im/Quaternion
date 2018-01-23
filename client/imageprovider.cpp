@@ -40,9 +40,10 @@ ImageProvider::ImageProvider(QMatrixClient::Connection* connection)
 QImage ImageProvider::requestImage(const QString& id,
                                    QSize* pSize, const QSize& requestedSize)
 {
-    if (id.isEmpty() || id == "undefined")
+    if (id.count('/') != 2)
     {
-        qWarning() << "ImageProvider: id is empty or undefined; nothing to fetch";
+        qWarning() << "ImageProvider: won't fetch an invalid id:" << id
+                   << "doesn't follow server/mediaId pattern";
         return {};
     }
 
