@@ -233,11 +233,11 @@ Rectangle {
                 duration: settings.animations_duration_ms
                 easing.type: Easing.OutQuad
             }
-            NumberAnimation on height {
-                from: 0; to: childrenRect.height
-                duration: settings.fast_animations_duration_ms
-                easing.type: Easing.OutQuad
-            }
+//            NumberAnimation on height {
+//                from: 0; to: childrenRect.height
+//                duration: settings.fast_animations_duration_ms
+//                easing.type: Easing.OutQuad
+//            }
 
             Column {
                 id: fullMessage
