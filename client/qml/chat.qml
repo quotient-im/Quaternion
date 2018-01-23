@@ -46,6 +46,7 @@ Rectangle {
         flickDeceleration: 9001
         boundsBehavior: Flickable.StopAtBounds
         pixelAligned: true
+        cacheBuffer: 200
 
         property int largestVisibleIndex: indexAt(1, contentY + height - 1)
 
