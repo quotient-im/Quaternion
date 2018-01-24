@@ -32,7 +32,6 @@ class MessageEventModel: public QAbstractListModel
         // XXX: A better way would be to make [Room::]Timeline a list model
         // itself, leaving only representation of the model to a client.
         Q_PROPERTY(QuaternionRoom* room MEMBER m_currentRoom CONSTANT)
-        Q_PROPERTY(QString bannerText READ bannerText NOTIFY bannerChanged)
     public:
         explicit MessageEventModel(QObject* parent = nullptr);
 
@@ -41,11 +40,6 @@ class MessageEventModel: public QAbstractListModel
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
         QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
         QHash<int, QByteArray> roleNames() const override;
-
-        QString bannerText() const;
-
-    signals:
-        void bannerChanged();
 
     private slots:
         void refreshEvent(const QString& eventId);

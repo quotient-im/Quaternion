@@ -99,8 +99,6 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                 });
         connect(m_currentRoom, &Room::addedMessages,
                 this, &MessageEventModel::endInsertRows);
-        connect(m_currentRoom, &Room::firstDisplayedEventChanged,
-                this, &MessageEventModel::bannerChanged);
         connect(m_currentRoom, &Room::readMarkerMoved, this, [this] {
             refreshEventRoles(
                 std::exchange(lastReadEventId,
@@ -124,7 +122,6 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                  << "as" << room->connection()->userId();
     }
     lastReadEventId = room ? room->readMarkerEventId() : "";
-    emit bannerChanged();
     endResetModel();
 }
 
@@ -371,12 +368,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         return makeMessageTimestamp(eventIt);
 
     if( role == SectionRole )
-    {
-        auto dateText = makeDateString(eventIt);
-        auto olderEventIt = eventIt + 1;
-        return (olderEventIt == m_currentRoom->timelineEdge() ||
-                makeDateString(olderEventIt) != dateText) ? dateText : "";
-    }
+        return makeDateString(eventIt); // FIXME: move date rendering to QML
 
     if( role == AuthorRole )
     {
@@ -461,12 +453,4 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     }
 
     return QVariant();
-}
-
-QString MessageEventModel::bannerText() const
-{
-    if (!m_currentRoom)
-        return tr("No room selected");
-    auto it = m_currentRoom->firstDisplayedMarker();
-    return it != m_currentRoom->timelineEdge() ? makeDateString(it) : "";
 }

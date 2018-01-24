@@ -48,7 +48,10 @@ Rectangle {
         pixelAligned: true
         cacheBuffer: 200
 
-        property int largestVisibleIndex: indexAt(1, contentY + height - 1)
+        section { property: "section" }
+
+        property int largestVisibleIndex:
+            indexAt(contentX, contentY + height - 1)
 
         function ensurePreviousContent() {
             // Check whether we're about to bump into the ceiling in 2 seconds
@@ -167,21 +170,30 @@ Rectangle {
                 parent.flickEnded.connect(chatViewScroller.valueChanged)
             }
         }
+
+        // itemAt is a function, not a property so is not bound to new items
+        // showing up underneath; contentHeight is used for that instead.
+        readonly property var underlayingItem: contentHeight >= height &&
+            itemAt(contentX, contentY + sectionBanner.height - 2)
+        readonly property bool sectionBannerVisible: underlayingItem &&
+            (!underlayingItem.sectionVisible || underlayingItem.y < contentY)
+
         Rectangle {
+            id: sectionBanner
             z: 3 // On top of ListView sections that have z=2
             anchors.left: parent.left
             anchors.top: parent.top
-            width: childrenRect.width + 3
-            height: childrenRect.height + 3
-            visible: chatView.contentHeight >= chatView.height
+            width: childrenRect.width + 2
+            height: childrenRect.height + 2
+            visible: chatView.sectionBannerVisible
             color: defaultPalette.window
             opacity: 0.9
             Label {
-                id: bannerLabel
                 font.bold: true
                 color: disabledPalette.text
                 renderType: settings.render_type
-                text: messageModel.bannerText
+                text: chatView.underlayingItem ?
+                          chatView.underlayingItem.ListView.section : ""
             }
         }
 
@@ -212,6 +224,8 @@ Rectangle {
             height: childrenRect.height
             visible: marks != "hidden" || settings.show_noop_events
 
+            readonly property bool sectionVisible:
+                ListView.section !== ListView.nextSection
             readonly property bool redacted: marks == "redacted"
             readonly property string textColor:
                 redacted ? disabledPalette.text :
@@ -251,10 +265,11 @@ Rectangle {
 
                 Rectangle {
                     width: parent.width
-                    height: childrenRect.height
+                    height: childrenRect.height + 2
+                    visible: sectionVisible
                     color: defaultPalette.window
                     Label {
-                        height: section ? implicitHeight : 0
+                        height: implicitHeight
                         font.bold: true
                         renderType: settings.render_type
                         text: section
