@@ -14,8 +14,8 @@ Rectangle {
         readonly property bool autoload_images: value("UI/autoload_images", true)
         readonly property string highlight_color: value("UI/highlight_color", "orange")
         readonly property string render_type: value("UI/Fonts/render_type", "NativeRendering")
-        readonly property int animations_duration_ms: value("UI/animations_duration_ms", 300)
-        readonly property int fast_animations_duration_ms: animations_duration_ms * 3 / 2
+        readonly property int animations_duration_ms: value("UI/animations_duration_ms", 400)
+        readonly property int fast_animations_duration_ms: animations_duration_ms / 2
     }
     SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
     SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
@@ -94,8 +94,8 @@ Rectangle {
             model.room.saveViewport(indexAt(1, contentY), largestVisibleIndex)
 
         displaced: Transition { NumberAnimation {
-            property: "y"; duration: settings.animations_duration_ms
-            easing.type: Easing.InQuad
+            property: "y"; duration: settings.fast_animations_duration_ms
+            easing.type: Easing.OutQuad
         }}
 
         // Scrolling controls
@@ -236,7 +236,8 @@ Rectangle {
             NumberAnimation on opacity {
                 from: 0; to: 1;
                 duration: settings.animations_duration_ms
-                easing.type: Easing.OutQuad
+                // Give time for chatView.displaced to complete
+                easing.type: Easing.InExpo
             }
 //            NumberAnimation on height {
 //                from: 0; to: childrenRect.height
@@ -387,7 +388,7 @@ Rectangle {
                             NumberAnimation {
                                 target: detailsAreaLoader; property: "opacity"
                                 to: showDetails.checked
-                                duration: settings.animations_duration_ms
+                                duration: settings.fast_animations_duration_ms
                                 easing.type: Easing.OutQuad
                             }
                             PropertyAction {
@@ -404,9 +405,10 @@ Rectangle {
                 width: readMarker && root.width
                 height: 1
                 anchors.bottom: fullMessage.bottom
-                Behavior on width {
-                    NumberAnimation { duration: 500; easing.type: Easing.OutQuad }
-                }
+                Behavior on width { NumberAnimation {
+                    duration: settings.animations_duration_ms
+                    easing.type: Easing.OutQuad
+                }}
             }
 
             // Components loaded on demand
@@ -701,12 +703,14 @@ Rectangle {
         anchors.bottom: parent.bottom
         anchors.leftMargin: width/2
         anchors.bottomMargin: chatView.atYEnd ? -height : height/2
-        Behavior on opacity {
-            NumberAnimation { duration: 300 }
-        }
-        Behavior on anchors.bottomMargin {
-            NumberAnimation { duration: 300 }
-        }
+        Behavior on opacity { NumberAnimation {
+            duration: settings.animations_duration_ms
+            easing.type: Easing.OutQuad
+        }}
+        Behavior on anchors.bottomMargin { NumberAnimation {
+            duration: settings.animations_duration_ms
+            easing.type: Easing.OutQuad
+        }}
         Image {
             anchors.fill: parent
             source: "qrc:///scrolldown.svg"
