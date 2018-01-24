@@ -50,8 +50,8 @@ Rectangle {
 
         section { property: "section" }
 
-        property int largestVisibleIndex:
-            indexAt(contentX, contentY + height - 1)
+        property int largestVisibleIndex: count > 0 ?
+            indexAt(contentX, contentY + height - 1) : -1
 
         function ensurePreviousContent() {
             // Check whether we're about to bump into the ceiling in 2 seconds
@@ -94,7 +94,7 @@ Rectangle {
         }
 
         onMovementEnded:
-            model.room.saveViewport(indexAt(1, contentY), largestVisibleIndex)
+            model.room.saveViewport(indexAt(contentX, contentY), largestVisibleIndex)
 
         displaced: Transition { NumberAnimation {
             property: "y"; duration: settings.fast_animations_duration_ms
@@ -122,7 +122,7 @@ Rectangle {
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.right: parent.right
                         implicitHeight: 2
-                        width: chatView.count == 0 ? parent.width :
+                        width: chatView.largestVisibleIndex < 0 ? 0 :
                             chatView.height *
                                 (1 - chatView.largestVisibleIndex / chatView.count)
 
@@ -200,14 +200,15 @@ Rectangle {
         Rectangle {
             z: 3 // On top of ListView sections that have z=2
             anchors.right: chatViewScroller.left
-            anchors.bottom: parent.bottom
+            anchors.top: parent.top
             width: childrenRect.width + 3
             height: childrenRect.height + 3
-            visible: scrollerArea.containsMouse
+            visible: chatView.largestVisibleIndex >= 0 && scrollerArea.containsMouse
             color: defaultPalette.window
             opacity: 0.9
             Label {
-                id: eventMeter
+                font.bold: true
+                color: disabledPalette.text
                 renderType: settings.render_type
                 text: qsTr("%1 events back from now (%2 cached)")
                         .arg(chatView.largestVisibleIndex).arg(chatView.count)
