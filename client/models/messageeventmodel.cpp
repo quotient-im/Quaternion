@@ -372,6 +372,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 
     if( role == AuthorRole )
     {
+        auto userId = event->senderId();
         // FIXME: This will go away after senderName is generated correctly
         // (see the FIXME in the beginning of the method).
         if (event->type() == EventType::RoomMember)
@@ -379,9 +380,9 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
             const auto* e = static_cast<const RoomMemberEvent*>(event);
             if (e->senderId() == e->userId() && e->prev_content()
                     && !e->prev_content()->displayName.isEmpty())
-                return e->prev_content()->displayName;
+                userId = e->prevSenderId();
         }
-        return senderName;
+        return QVariant::fromValue(m_currentRoom->connection()->user(userId));
     }
 
     if (role == ContentTypeRole)

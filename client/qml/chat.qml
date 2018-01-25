@@ -306,11 +306,22 @@ Rectangle {
                         text: "<" + time.toLocaleTimeString(
                                         Qt.locale(), Locale.ShortFormat) + ">"
                     }
-                    Label {
-                        id: authorLabel
-                        width: 120
+                    Image {
+                        id: authorAvatar
+                        visible: author.avatarMediaId
                         anchors.top: textField.top
                         anchors.left: timelabel.right
+                        anchors.leftMargin: 3
+                        width: 16 * visible; height: 16
+                        source: visible ? "image://mtx/" + author.avatarMediaId :
+                                          undefined
+                    }
+
+                    Label {
+                        id: authorLabel
+                        width: authorAvatar.visible ? 101 : 120
+                        anchors.top: textField.top
+                        anchors.left: authorAvatar.right
                         anchors.leftMargin: 3
                         horizontalAlignment: if( ["other", "emote", "state"]
                                                      .indexOf(eventType) >= 0 )
@@ -320,15 +331,18 @@ Rectangle {
                         color: textColor
                         renderType: settings.render_type
 
+                        readonly property string authorName:
+                            room.roomMembername(author.id)
+
                         text: eventType == "state" || eventType == "emote" ?
-                                  "* " + author :
-                              eventType != "other" ? author : "***"
+                                  "* " + authorName :
+                              eventType != "other" ? authorName : "***"
 
                         MouseArea {
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
-                                controller.insertMention(author)
+                                controller.insertMention(parent.authorName)
                                 controller.focusInput()
                             }
                         }

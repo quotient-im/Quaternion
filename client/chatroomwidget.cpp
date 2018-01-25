@@ -44,9 +44,14 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     , m_currentRoom(nullptr)
     , readMarkerOnScreen(false)
 {
-    qmlRegisterUncreatableType<QuaternionRoom>("QMatrixClient", 1, 0, "Room",
-        "Room objects can only be created by libqmatrixclient");
-    qmlRegisterType<QMatrixClient::Settings>("QMatrixClient", 1, 0, "Settings");
+    {
+        using namespace QMatrixClient;
+        qmlRegisterUncreatableType<QuaternionRoom>("QMatrixClient", 1, 0, "Room",
+            "Room objects can only be created by libqmatrixclient");
+        qmlRegisterUncreatableType<User>("QMatrixClient", 1, 0, "User",
+            "User objects can only be created by libqmatrixclient");
+        qmlRegisterType<Settings>("QMatrixClient", 1, 0, "Settings");
+    }
 
     m_roomAvatar = new QLabel();
     m_roomAvatar->setPixmap({});
