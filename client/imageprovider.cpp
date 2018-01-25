@@ -40,7 +40,7 @@ ImageProvider::ImageProvider(QMatrixClient::Connection* connection)
 QImage ImageProvider::requestImage(const QString& id,
                                    QSize* pSize, const QSize& requestedSize)
 {
-    if (id.count('/') != 2)
+    if (id.count('/') != 1)
     {
         qWarning() << "ImageProvider: won't fetch an invalid id:" << id
                    << "doesn't follow server/mediaId pattern";
