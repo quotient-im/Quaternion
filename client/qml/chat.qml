@@ -61,29 +61,29 @@ Rectangle {
                 // Request the amount of messages enough to scroll at this
                 // rate for 3 more seconds
                 var avgHeight = contentHeight / count
-                model.room.getPreviousContent(-curVelocity*3 / avgHeight);
+                room.getPreviousContent(-curVelocity*3 / avgHeight);
             }
         }
 
         function onModelAboutToReset() {
-            if (model.room) {
-                model.room.displayed = false
+            if (room) {
+                room.displayed = false
                 contentYChanged.disconnect(ensurePreviousContent)
                 console.log("Chat: getPreviousContent disabled")
             }
         }
 
         function onModelReset() {
-            if (model.room)
+            if (room)
             {
-                var lastScrollPosition = model.room.savedTopVisibleIndex()
+                var lastScrollPosition = room.savedTopVisibleIndex()
                 contentYChanged.connect(ensurePreviousContent)
                 console.log("Chat: getPreviousContent enabled")
                 console.log("Scrolling to position", lastScrollPosition)
                 positionViewAtIndex(lastScrollPosition, ListView.Contain)
                 if (contentY < originY + 10)
-                    model.room.getPreviousContent(100)
-                model.room.displayed = true
+                    room.getPreviousContent(100)
+                room.displayed = true
             }
         }
 
@@ -94,7 +94,7 @@ Rectangle {
         }
 
         onMovementEnded:
-            model.room.saveViewport(indexAt(contentX, contentY), largestVisibleIndex)
+            room.saveViewport(indexAt(contentX, contentY), largestVisibleIndex)
 
         displaced: Transition { NumberAnimation {
             property: "y"; duration: settings.fast_animations_duration_ms
@@ -480,7 +480,7 @@ Rectangle {
 
                         Component.onCompleted:
                             if (settings.autoload_images && !downloaded)
-                                messageModel.room.downloadFile(eventId)
+                                room.downloadFile(eventId)
                     }
 
                     RowLayout {
@@ -490,9 +490,7 @@ Rectangle {
                         Button {
                             text: "Cancel downloading"
                             visible: progressInfo.active && !downloaded
-                            onClicked: {
-                                messageModel.room.cancelFileTransfer(eventId)
-                            }
+                            onClicked: room.cancelFileTransfer(eventId)
                         }
 
                         Button {
@@ -503,7 +501,7 @@ Rectangle {
                                 else
                                 {
                                     openOnFinished = true
-                                    messageModel.room.downloadFile(eventId)
+                                    room.downloadFile(eventId)
                                 }
                             }
                         }
@@ -512,7 +510,7 @@ Rectangle {
                             visible: !settings.autoload_images &&
                                      !progressInfo.active
 
-                            onClicked: messageModel.room.downloadFile(eventId)
+                            onClicked: room.downloadFile(eventId)
                         }
                         Button {
                             text: "Save as..."
@@ -570,9 +568,7 @@ Rectangle {
                         Button {
                             text: "Cancel"
                             visible: downloadProgress.visible
-                            onClicked: {
-                                messageModel.room.cancelFileTransfer(eventId)
-                            }
+                            onClicked: room.cancelFileTransfer(eventId)
                         }
 
                         Button {
@@ -584,7 +580,7 @@ Rectangle {
                                 else
                                 {
                                     openOnFinished = true
-                                    messageModel.room.downloadFile(eventId)
+                                    room.downloadFile(eventId)
                                 }
                             }
                         }
@@ -614,7 +610,7 @@ Rectangle {
                     border.color: defaultPalette.mid
 
                     readonly property url evtLink:
-                        "https://matrix.to/#/" + messageModel.room.id + "/" + eventId
+                        "https://matrix.to/#/" + room.id + "/" + eventId
                     property string sourceText: toolTip
 
                     Item {
@@ -666,7 +662,7 @@ Rectangle {
                             z: 1
 
                             onClicked: {
-                                messageModel.room.redactEvent(eventId)
+                                room.redactEvent(eventId)
                                 showDetails.checked = false
                             }
                         }

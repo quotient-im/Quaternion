@@ -133,6 +133,7 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
     m_chatEdit->cancelCompletion();
 
     m_currentRoom = room;
+    m_quickView->rootContext()->setContextProperty("room", room);
     if( m_currentRoom )
     {
         using namespace QMatrixClient;
