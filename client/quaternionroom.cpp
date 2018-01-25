@@ -67,6 +67,7 @@ void QuaternionRoom::saveViewport(int topIndex, int bottomIndex)
     {
         qDebug() << "Saving viewport as the latest available";
         setFirstDisplayedEventId({}); setLastDisplayedEventId({});
+        return;
     }
     qDebug() << "Saving viewport:" << topIndex << "thru" << bottomIndex;
     setFirstDisplayedEvent(maxTimelineIndex() - topIndex);
