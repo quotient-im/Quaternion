@@ -16,6 +16,7 @@ Rectangle {
         readonly property string render_type: value("UI/Fonts/render_type", "NativeRendering")
         readonly property int animations_duration_ms: value("UI/animations_duration_ms", 400)
         readonly property int fast_animations_duration_ms: animations_duration_ms / 2
+        readonly property bool show_author_avatars: value("UI/show_author_avatars", false)
     }
     SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
     SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
@@ -308,18 +309,22 @@ Rectangle {
                     }
                     Image {
                         id: authorAvatar
-                        visible: author.avatarMediaId
+                        visible:
+                            settings.show_author_avatars && author.avatarMediaId
                         anchors.top: textField.top
                         anchors.left: timelabel.right
                         anchors.leftMargin: 3
-                        width: 16 * visible; height: 16
-                        source: visible ? "image://mtx/" + author.avatarMediaId :
-                                          undefined
+                        height: showDetailsButton.height
+                        fillMode: Image.PreserveAspectFit
+
+                        sourceSize.height: showDetailsButton.height
+                        source: visible ?
+                                    "image://mtx/" + author.avatarMediaId : ""
                     }
 
                     Label {
                         id: authorLabel
-                        width: authorAvatar.visible ? 101 : 120
+                        width: 120 - authorAvatar.width
                         anchors.top: textField.top
                         anchors.left: authorAvatar.right
                         anchors.leftMargin: 3
@@ -337,14 +342,16 @@ Rectangle {
                         text: eventType == "state" || eventType == "emote" ?
                                   "* " + authorName :
                               eventType != "other" ? authorName : "***"
-
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: {
-                                controller.insertMention(parent.authorName)
-                                controller.focusInput()
-                            }
+                    }
+                    MouseArea {
+                        anchors.left: authorAvatar.left
+                        anchors.right: authorLabel.right
+                        anchors.top: authorLabel.top
+                        anchors.bottom:  authorLabel.bottom
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            controller.insertMention(parent.authorName)
+                            controller.focusInput()
                         }
                     }
                     TextEdit {
