@@ -80,8 +80,13 @@ Rectangle {
                 var lastScrollPosition = room.savedTopVisibleIndex()
                 contentYChanged.connect(ensurePreviousContent)
                 console.log("Chat: getPreviousContent enabled")
-                console.log("Scrolling to position", lastScrollPosition)
-                positionViewAtIndex(lastScrollPosition, ListView.Contain)
+                if (lastScrollPosition === 0)
+                    positionViewAtBeginning()
+                else
+                {
+                    console.log("Scrolling to position", lastScrollPosition)
+                    positionViewAtIndex(lastScrollPosition, ListView.Contain)
+                }
                 if (contentY < originY + 10)
                     room.getPreviousContent(100)
                 room.displayed = true
