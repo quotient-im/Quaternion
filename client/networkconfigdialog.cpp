@@ -78,15 +78,6 @@ NetworkConfigDialog::NetworkConfigDialog(QWidget* parent)
     proxyPort->setRange(0, 65535);
     proxyPort->setSpecialValueText(QStringLiteral(" "));
 
-    auto pushButtons = new QDialogButtonBox(QDialogButtonBox::Ok|
-                                            QDialogButtonBox::Cancel);
-    connect( pushButtons, &QDialogButtonBox::accepted, this, [this]
-    {
-        applySettings();
-        accept();
-    });
-    connect( pushButtons, &QDialogButtonBox::rejected, this, &QDialog::reject );
-
     // Now laying all this out
 
     auto proxyTypeLayout = new QGridLayout;
@@ -105,17 +96,12 @@ NetworkConfigDialog::NetworkConfigDialog(QWidget* parent)
     userNameLayout->addWidget(userLabel);
     userNameLayout->addWidget(userLabel->buddy());
 
-    auto proxySettingsLayout = new QVBoxLayout;
+    auto proxySettingsLayout = new QVBoxLayout(useProxyBox);
     proxySettingsLayout->addLayout(proxyTypeLayout);
     proxySettingsLayout->addLayout(hostPortLayout);
     proxySettingsLayout->addLayout(userNameLayout);
-    useProxyBox->setLayout(proxySettingsLayout);
 
-    auto mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(useProxyBox);
-    mainLayout->addWidget(pushButtons);
-    setLayout(mainLayout);
-
+    addWidget(useProxyBox);
 }
 
 NetworkConfigDialog::~NetworkConfigDialog() = default;
@@ -132,7 +118,7 @@ void NetworkConfigDialog::maybeDisableControls()
     }
 }
 
-void NetworkConfigDialog::applySettings()
+void NetworkConfigDialog::apply()
 {
     QMatrixClient::NetworkSettings networkSettings;
 
@@ -144,9 +130,10 @@ void NetworkConfigDialog::applySettings()
     networkSettings.setProxyPort(quint16(proxyPort->value()));
     networkSettings.setupApplicationProxy();
     // Should we do something for authentication at all?..
+    accept();
 }
 
-void NetworkConfigDialog::loadSettings()
+void NetworkConfigDialog::load()
 {
     QMatrixClient::NetworkSettings networkSettings;
     auto proxyType = networkSettings.proxyType();
@@ -162,15 +149,4 @@ void NetworkConfigDialog::loadSettings()
     auto port = networkSettings.proxyPort();
     if (port > 0)
         proxyPort->setValue(port);
-}
-
-void NetworkConfigDialog::reactivate()
-{
-    if (!isVisible())
-    {
-        loadSettings();
-        show();
-    }
-    raise();
-    activateWindow();
 }

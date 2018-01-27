@@ -22,8 +22,6 @@
 #include "dialog.h"
 
 class QLineEdit;
-class QPushButton;
-class QLabel;
 class QCheckBox;
 
 namespace QMatrixClient {
@@ -37,13 +35,12 @@ class LoginDialog : public Dialog
         explicit LoginDialog(QWidget* parent = nullptr);
         ~LoginDialog() override;
 
-        void setStatusMessage(const QString& msg);
         QMatrixClient::Connection* releaseConnection();
         QString deviceName() const;
         bool keepLoggedIn() const;
 
     private slots:
-        void login();
+        void apply() override;
         void error(QString error);
         
     private:
@@ -52,7 +49,6 @@ class LoginDialog : public Dialog
         QLineEdit* passwordEdit;
         QLineEdit* initialDeviceName;
         QCheckBox* saveTokenCheck;
-        QLabel* statusLabel;
 
         QScopedPointer<QMatrixClient::Connection, QScopedPointerDeleteLater>
             m_connection;

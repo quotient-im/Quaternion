@@ -32,12 +32,9 @@ class NetworkConfigDialog : public Dialog
         explicit NetworkConfigDialog(QWidget* parent = nullptr);
         ~NetworkConfigDialog();
 
-    public slots:
-        void applySettings();
-        void loadSettings();
-        void reactivate();
-
     private slots:
+        void apply() override;
+        void load() override;
         void maybeDisableControls();
 
     private:

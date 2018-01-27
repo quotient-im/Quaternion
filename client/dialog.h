@@ -19,10 +19,55 @@
 #pragma once
 
 #include <QtWidgets/QDialog>
+#include <QtWidgets/QDialogButtonBox>
+#include <QtWidgets/QVBoxLayout>
+
+class QAbstractButton;
+class QLabel;
 
 class Dialog : public QDialog
 {
         Q_OBJECT
     public:
-        explicit Dialog(const QString& title, QWidget *parent = nullptr);
+        enum ApplyLatency { InstantApply, LongApply };
+        static const auto NoExtraButtons = QDialogButtonBox::NoButton;
+
+        explicit Dialog(const QString& title, QWidget *parent = nullptr,
+            ApplyLatency applyLatency = InstantApply,
+            const QString& applyTitle = {},
+            QDialogButtonBox::StandardButtons addButtons = QDialogButtonBox::Reset);
+
+        template <typename LayoutT>
+        LayoutT* addLayout()
+        {
+            auto l = new LayoutT;
+            addLayout(l);
+            return l;
+        }
+        void addLayout(QLayout* l);
+        void addWidget(QWidget* w);
+
+    public slots:
+        void reactivate();
+        void setStatusMessage(const QString& msg);
+
+    protected:
+        virtual void load() { }
+        virtual void apply() { accept(); }
+        virtual void buttonClicked(QAbstractButton* button);
+
+        QDialogButtonBox* buttonBox() const { return buttons; }
+        QLabel* statusLine() const { return statusLabel; }
+
+        void setPendingApplyMessage(const QString& msg)
+        { pendingApplyMessage = msg; }
+
+    private:
+        ApplyLatency applyLatency;
+        QString pendingApplyMessage;
+
+        QDialogButtonBox* buttons;
+        QLabel* statusLabel;
+
+        QVBoxLayout outerLayout;
 };
