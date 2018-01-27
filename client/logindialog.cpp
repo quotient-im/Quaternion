@@ -51,7 +51,6 @@ LoginDialog::LoginDialog(QWidget* parent)
     formLayout->addRow(tr("Connect to server"), serverEdit);
     formLayout->addRow(saveTokenCheck);
 
-    statusLine()->setText(tr("Welcome to Matrix"));
     setPendingApplyMessage(tr("Connecting and logging in, please wait"));
 
     connect( userEdit, &QLineEdit::editingFinished, m_connection.data(),

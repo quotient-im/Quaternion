@@ -412,7 +412,8 @@ void MainWindow::invokeLogin()
     if (autoLoggedIn)
         showFirstSyncIndicator();
     else
-        QTimer::singleShot(0, this, SLOT(showLoginWindow()));
+        QTimer::singleShot(0, this,
+            [this] { showLoginWindow(tr("Welcome to Quaternion")); });
 }
 
 void MainWindow::loginError(Connection* c, const QString& message)
