@@ -105,7 +105,7 @@ void summon(QPointer<DialogT>& dlg, DialogArgTs&&... dialogArgs)
 {
     if (!dlg)
     {
-        dlg = new DialogT(dialogArgs...);
+        dlg = new DialogT(std::forward<DialogArgTs>(dialogArgs)...);
         dlg->setModal(false);
         dlg->setAttribute(Qt::WA_DeleteOnClose);
     }
