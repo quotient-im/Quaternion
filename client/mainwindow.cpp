@@ -100,6 +100,19 @@ ChatRoomWidget* MainWindow::getChatRoomWidget() const
    return chatRoomWidget;
 }
 
+template <typename DialogT, typename... DialogArgTs>
+void summon(QPointer<DialogT>& dlg, DialogArgTs&&... dialogArgs)
+{
+    if (!dlg)
+    {
+        dlg = new DialogT(std::forward<DialogArgTs>(dialogArgs)...);
+        dlg->setModal(false);
+        dlg->setAttribute(Qt::WA_DeleteOnClose);
+    }
+
+    dlg->reactivate();
+}
+
 void MainWindow::createMenu()
 {
     // Connection menu
@@ -134,14 +147,7 @@ void MainWindow::createMenu()
     settingsMenu->addAction(tr("Configure &network proxy..."), [this]
     {
         static QPointer<NetworkConfigDialog> dlg;
-        if (!dlg)
-        {
-            dlg = new NetworkConfigDialog(this);
-            dlg->setModal(false);
-            dlg->setAttribute(Qt::WA_DeleteOnClose);
-        }
-
-        dlg->reactivate();
+        summon(dlg, this);
     });
 }
 
@@ -406,7 +412,8 @@ void MainWindow::invokeLogin()
     if (autoLoggedIn)
         showFirstSyncIndicator();
     else
-        QTimer::singleShot(0, this, SLOT(showLoginWindow()));
+        QTimer::singleShot(0, this,
+            [this] { showLoginWindow(tr("Welcome to Quaternion")); });
 }
 
 void MainWindow::loginError(Connection* c, const QString& message)
@@ -640,20 +647,16 @@ void MainWindow::sslErrors(QNetworkReply* reply, const QList<QSslError>& errors)
 void MainWindow::proxyAuthenticationRequired(const QNetworkProxy&,
                                              QAuthenticator* auth)
 {
-    Dialog authDialog(tr("Proxy needs authentication"), this);
-    auto layout = new QFormLayout;
+    Dialog authDialog(tr("Proxy needs authentication"), this,
+                      Dialog::InstantApply, tr("Authenticate"),
+                      Dialog::NoExtraButtons);
+    auto layout = authDialog.addLayout<QFormLayout>();
     auto userEdit = new QLineEdit;
     layout->addRow(tr("User name"), userEdit);
     auto pwdEdit = new QLineEdit;
     pwdEdit->setEchoMode(QLineEdit::Password);
     layout->addRow(tr("Password"), pwdEdit);
-    auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok|
-                                        QDialogButtonBox::Cancel);
-    buttons->button(QDialogButtonBox::Ok)->setText(tr("Connect"));
-    connect(buttons, &QDialogButtonBox::accepted, &authDialog, &QDialog::accept);
-    connect(buttons, &QDialogButtonBox::rejected, &authDialog, &QDialog::reject);
-    layout->addWidget(buttons);
-    authDialog.setLayout(layout);
+
     if (authDialog.exec() == QDialog::Accepted)
     {
         auth->setUser(userEdit->text());

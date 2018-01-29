@@ -82,7 +82,7 @@ class MainWindow: public QMainWindow
         void logout(Connection* c);
 
     private:
-        QList<Connection*> connections;
+        QVector<Connection*> connections;
         QVector<Connection*> logoutOnExit;
 
         RoomListDock* roomListDock = nullptr;

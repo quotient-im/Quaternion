@@ -23,7 +23,6 @@
 
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
-#include <QtWidgets/QDialogButtonBox>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFormLayout>
@@ -33,34 +32,26 @@
 using QMatrixClient::Connection;
 
 LoginDialog::LoginDialog(QWidget* parent)
-    : Dialog(tr("Login"), parent)
+    : Dialog(tr("Login"), parent, Dialog::LongApply, tr("Login"),
+             Dialog::NoExtraButtons)
     , serverEdit(new QLineEdit("https://matrix.org"))
     , userEdit(new QLineEdit(this))
     , passwordEdit(new QLineEdit(this))
     , initialDeviceName(new QLineEdit(this))
     , saveTokenCheck(new QCheckBox(tr("Stay logged in"), this))
-    , statusLabel(new QLabel(tr("Welcome to Quaternion"), this))
     , m_connection(new Connection)
 {
+
     passwordEdit->setEchoMode( QLineEdit::Password );
 
-    auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok|
-                                        QDialogButtonBox::Cancel);
-    buttons->button(QDialogButtonBox::Ok)->setText(tr("Login"));
-
-    auto* formLayout = new QFormLayout();
+    auto* formLayout = addLayout<QFormLayout>();
     formLayout->addRow(tr("Matrix ID"), userEdit);
     formLayout->addRow(tr("Password"), passwordEdit);
     formLayout->addRow(tr("Device name"), initialDeviceName);
     formLayout->addRow(tr("Connect to server"), serverEdit);
     formLayout->addRow(saveTokenCheck);
 
-    auto* mainLayout = new QVBoxLayout();
-    mainLayout->addLayout(formLayout);
-    mainLayout->addWidget(buttons);
-    mainLayout->addWidget(statusLabel);
-    
-    setLayout(mainLayout);
+    setPendingApplyMessage(tr("Connecting and logging in, please wait"));
 
     connect( userEdit, &QLineEdit::editingFinished, m_connection.data(),
              [=] {
@@ -73,8 +64,6 @@ LoginDialog::LoginDialog(QWidget* parent)
              {
                  serverEdit->setText(newUrl.toString());
              });
-    connect( buttons, &QDialogButtonBox::accepted, this, &LoginDialog::login );
-    connect( buttons, &QDialogButtonBox::rejected, this, &LoginDialog::reject );
 
     {
         // Fill defaults
@@ -105,11 +94,6 @@ LoginDialog::LoginDialog(QWidget* parent)
 
 LoginDialog::~LoginDialog() = default;
 
-void LoginDialog::setStatusMessage(const QString& msg)
-{
-    statusLabel->setText(msg);
-}
-
 Connection* LoginDialog::releaseConnection()
 {
     return m_connection.take();
@@ -125,26 +109,16 @@ bool LoginDialog::keepLoggedIn() const
     return saveTokenCheck->isChecked();
 }
 
-void LoginDialog::login()
+void LoginDialog::apply()
 {
-    setStatusMessage(tr("Connecting and logging in, please wait"));
-    setDisabled(true);
-
     auto url = QUrl::fromUserInput(serverEdit->text());
     if (!serverEdit->text().isEmpty() && !serverEdit->text().startsWith("http"))
         url.setScheme("https"); // Qt defaults to http (or even ftp for some)
     m_connection->setHomeserver(url);
     connect( m_connection.data(), &Connection::connected,
-             this, &QDialog::accept );
+             this, &Dialog::accept );
     connect( m_connection.data(), &Connection::loginError,
-             this, &LoginDialog::error );
+             this, &Dialog::applyFailed);
     m_connection->connectToServer(userEdit->text(), passwordEdit->text(),
                                   initialDeviceName->text());
 }
-
-void LoginDialog::error(QString error)
-{
-    setStatusMessage(error);
-    setDisabled(false);
-}
-

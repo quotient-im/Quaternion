@@ -239,6 +239,8 @@ Rectangle {
                 highlight ? settings.highlight_color :
                 (["state", "notice", "other"].indexOf(eventType) >= 0) ?
                         disabledPalette.text : defaultPalette.text
+            readonly property string authorName:
+                room.roomMembername(author.id)
 
             // A message is considered shown if its bottom is within the
             // viewing area of the timeline.
@@ -341,9 +343,6 @@ Rectangle {
                         color: textColor
                         renderType: settings.render_type
 
-                        readonly property string authorName:
-                            room.roomMembername(author.id)
-
                         text: eventType == "state" || eventType == "emote" ?
                                   "* " + authorName :
                               eventType != "other" ? authorName : "***"
@@ -355,7 +354,7 @@ Rectangle {
                         anchors.bottom:  authorLabel.bottom
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
-                            controller.insertMention(parent.authorName)
+                            controller.insertMention(authorName)
                             controller.focusInput()
                         }
                     }
