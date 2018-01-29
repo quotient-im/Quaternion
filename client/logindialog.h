@@ -41,7 +41,6 @@ class LoginDialog : public Dialog
 
     private slots:
         void apply() override;
-        void error(QString error);
         
     private:
         QLineEdit* serverEdit;

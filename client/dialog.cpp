@@ -73,7 +73,14 @@ void Dialog::reactivate()
 
 void Dialog::setStatusMessage(const QString& msg)
 {
+    Q_ASSERT(statusLabel);
     statusLabel->setText(msg);
+}
+
+void Dialog::applyFailed(const QString& errorMessage)
+{
+    setStatusMessage(errorMessage);
+    setDisabled(false);
 }
 
 void Dialog::buttonClicked(QAbstractButton* button)

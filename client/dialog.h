@@ -50,6 +50,7 @@ class Dialog : public QDialog
     public slots:
         void reactivate();
         void setStatusMessage(const QString& msg);
+        void applyFailed(const QString& errorMessage);
 
     protected:
         virtual void load() { }

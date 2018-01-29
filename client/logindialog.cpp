@@ -116,16 +116,9 @@ void LoginDialog::apply()
         url.setScheme("https"); // Qt defaults to http (or even ftp for some)
     m_connection->setHomeserver(url);
     connect( m_connection.data(), &Connection::connected,
-             this, &QDialog::accept );
+             this, &Dialog::accept );
     connect( m_connection.data(), &Connection::loginError,
-             this, &LoginDialog::error );
+             this, &Dialog::applyFailed);
     m_connection->connectToServer(userEdit->text(), passwordEdit->text(),
                                   initialDeviceName->text());
 }
-
-void LoginDialog::error(QString error)
-{
-    setStatusMessage(error);
-    setDisabled(false);
-}
-
