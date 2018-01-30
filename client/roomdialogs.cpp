@@ -175,8 +175,13 @@ CreateRoomDialog::CreateRoomDialog(const connections_t& connections,
 {
     Q_ASSERT(!connections.isEmpty());
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
     connect(account, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &CreateRoomDialog::updateUserList);
+#else
+    connect(account, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &CreateRoomDialog::updateUserList);
+#endif
 
     nextInvitee->setEditable(true);
     nextInvitee->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
