@@ -19,6 +19,8 @@
 
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QSplashScreen>
+#include <QtCore/QTranslator>
+#include <QtCore/QLibraryInfo>
 #include <QtCore/QCommandLineParser>
 #include <QtCore/QDebug>
 
@@ -44,6 +46,17 @@ int main( int argc, char* argv[] )
         qDebug() << "Last window closed!";
         QApplication::postEvent(qApp, new QEvent(QEvent::Quit));
     });
+
+    {
+        QTranslator qtTranslator;
+        qtTranslator.load(QLocale(), "qt", "_",
+                          QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+        app.installTranslator(&qtTranslator);
+
+        QTranslator appTranslator;
+        appTranslator.load(QLocale(), "quaternion", ".", "i18n");
+        app.installTranslator(&appTranslator);
+    }
 
     QCommandLineParser parser;
     parser.setApplicationDescription(QApplication::translate("main", "An IM client for the Matrix protocol"));
