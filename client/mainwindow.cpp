@@ -87,11 +87,13 @@ MainWindow::MainWindow()
     busyIndicator = new QMovie(":/busy.gif");
     busyLabel = new QLabel(this);
     busyLabel->setMovie(busyIndicator);
-    busyLabel->hide();
     statusBar()->setSizeGripEnabled(false);
     statusBar()->addPermanentWidget(busyLabel);
-    loadSettings();
+    statusBar()->showMessage(tr("Loading..."));
+    loadSettings(); // Only GUI, account settings will be loaded in invokeLogin
 
+    busyLabel->show();
+    busyIndicator->start();
     QTimer::singleShot(0, this, SLOT(invokeLogin()));
 }
 

@@ -74,8 +74,9 @@ int main( int argc, char* argv[] )
     app.setAttribute(Qt::AA_DisableWindowContextHelpButton);
 #endif
 
+    bool splashEnabled = !QSettings().value("UI/suppress_splash").toBool();
     QSplashScreen splash(QPixmap(":/icon.png"));
-    if (!QSettings().value("UI/suppress_splash").toBool())
+    if (splashEnabled)
     {
         splash.show();
         app.processEvents();
@@ -86,7 +87,9 @@ int main( int argc, char* argv[] )
     MainWindow window;
     if( debugEnabled )
         window.enableDebug();
-    splash.finish(&window); // calls app.processEvents()
+
+    if (splashEnabled)
+        splash.finish(&window); // calls app.processEvents()
 
     ActivityDetector ad(app, window); Q_UNUSED(ad);
     qDebug() << "--- Show time!";
