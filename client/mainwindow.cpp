@@ -24,6 +24,7 @@
 #include "chatroomwidget.h"
 #include "logindialog.h"
 #include "networkconfigdialog.h"
+#include "roomdialogs.h"
 #include "systemtrayicon.h"
 
 #include "lib/jobs/joinroomjob.h"
@@ -138,7 +139,22 @@ void MainWindow::createMenu()
     // Room menu
     auto roomMenu = menuBar()->addMenu(tr("&Room"));
 
-    roomMenu->addAction(tr("&Join Room..."), [=]{ joinRoom(); } );
+    roomSettingsAction =
+        roomMenu->addAction(tr("Change room &settings..."), [this]
+        {
+            static QHash<QuaternionRoom*, QPointer<RoomSettingsDialog>> dlgs;
+            summon(dlgs[currentRoom], currentRoom, this);
+        });
+    roomSettingsAction->setDisabled(true);
+    roomMenu->addSeparator();
+    createRoomAction =
+        roomMenu->addAction(tr("Create &new room..."), [this]
+        {
+            static QPointer<CreateRoomDialog> dlg;
+            summon(dlg, connections, this);
+        });
+    createRoomAction->setDisabled(true);
+    roomMenu->addAction(tr("&Join room..."), [=]{ joinRoom(); } );
     roomMenu->addSeparator();
     roomMenu->addAction(tr("&Close current room"),
         [this] { selectRoom(nullptr); }, QKeySequence::Close);
@@ -319,6 +335,7 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     {
         connectionMenu->removeAction(menuAction);
     });
+    createRoomAction->setEnabled(true);
 
     getNewEvents(c);
 }
@@ -330,13 +347,8 @@ void MainWindow::dropConnection(Connection* c)
     if (currentRoom && currentRoom->connection() == c)
         selectRoom(nullptr);
     connections.removeOne(c);
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
     logoutOnExit.removeOne(c);
-#else
-    const auto i = logoutOnExit.indexOf(c);
-    if (i >= 0)
-        logoutOnExit.remove(i);
-#endif
+    createRoomAction->setDisabled(connections.isEmpty());
 
     Q_ASSERT(!connections.contains(c) && !logoutOnExit.contains(c) &&
              !c->syncJob());
@@ -442,6 +454,7 @@ void MainWindow::selectRoom(QuaternionRoom* r)
     setWindowTitle(r ? r->displayName() : QString());
     chatRoomWidget->setRoom(r);
     userListDock->setRoom(r);
+    roomSettingsAction->setEnabled(r != nullptr);
     if (r && !isActiveWindow())
     {
         show();

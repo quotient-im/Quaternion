@@ -64,6 +64,7 @@ set(quaternion_SRCS
     client/dialog.cpp
     client/logindialog.cpp
     client/networkconfigdialog.cpp
+    client/roomdialogs.cpp
     client/mainwindow.cpp
     client/roomlistdock.cpp
     client/userlistdock.cpp

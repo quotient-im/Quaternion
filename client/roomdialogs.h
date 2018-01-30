@@ -32,16 +32,52 @@ class QPlainTextEdit;
 class QCheckBox;
 class QPushButton;
 class QListWidget;
+class QFormLayout;
 
-class RoomSettingsDialog : public Dialog
+class RoomDialogBase : public Dialog
+{
+        Q_OBJECT
+    protected:
+        using connections_t = QVector<QMatrixClient::Connection*>;
+
+        RoomDialogBase(const QString& title, const QString& applyButtonText,
+            QuaternionRoom* r, QWidget* parent, const connections_t& cs = {},
+            QDialogButtonBox::StandardButtons extraButtons = QDialogButtonBox::Reset);
+
+    protected:
+        const connections_t connections;
+        QuaternionRoom* room;
+
+        QLabel* avatar;
+        QComboBox* account;
+        QLineEdit* roomName;
+        QLineEdit* alias;
+        QPlainTextEdit* topic;
+        QCheckBox* publishRoom;
+        QCheckBox* guestCanJoin;
+        QFormLayout* formLayout;
+};
+
+class RoomSettingsDialog : public RoomDialogBase
 {
         Q_OBJECT
     public:
-        using connections_t = QVector<QMatrixClient::Connection*>;
-
-        RoomSettingsDialog(const connections_t& connections,
-                           QWidget* parent = nullptr);
         RoomSettingsDialog(QuaternionRoom* room, QWidget* parent = nullptr);
+
+    private slots:
+        void load() override;
+        void apply() override;
+
+    private:
+        bool userChangedAvatar = false;
+};
+
+class CreateRoomDialog : public RoomDialogBase
+{
+        Q_OBJECT
+    public:
+        CreateRoomDialog(const connections_t& connections,
+                         QWidget* parent = nullptr);
 
     public slots:
         void updatePushButtons();
@@ -49,22 +85,9 @@ class RoomSettingsDialog : public Dialog
     private slots:
         void load() override;
         void apply() override;
+        void updateUserList();
 
     private:
-        RoomSettingsDialog(const QString& title, const QString& applyButtonText,
-            QuaternionRoom* r, QWidget* parent, const connections_t& cs = {},
-            QDialogButtonBox::StandardButtons extraButtons = QDialogButtonBox::Reset);
-
-        const connections_t connections;
-        QuaternionRoom* room;
-
-        QComboBox* account;
-        QLabel* avatar;
-        QLineEdit* roomName;
-        QLineEdit* alias;
-        QPlainTextEdit* topic;
-        QCheckBox* publishRoom;
-        QCheckBox* guestCanJoin;
         QComboBox* nextInvitee;
         QPushButton* inviteButton;
         QListWidget* invitees;

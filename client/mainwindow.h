@@ -94,6 +94,8 @@ class MainWindow: public QMainWindow
 
         QMenu* connectionMenu = nullptr;
         QAction* accountListGrowthPoint = nullptr;
+        QAction* roomSettingsAction = nullptr;
+        QAction* createRoomAction = nullptr;
 
         SystemTrayIcon* systemTrayIcon = nullptr;
 
