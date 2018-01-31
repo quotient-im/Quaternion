@@ -41,7 +41,7 @@ RoomDialogBase::RoomDialogBase(const QString& title,
         const QString& applyButtonText,
         QuaternionRoom* r, QWidget* parent, const connections_t& cs,
         QDialogButtonBox::StandardButtons extraButtons)
-    : Dialog(title, parent, Dialog::LongApply, applyButtonText, extraButtons)
+    : Dialog(title, parent, StatusLine, applyButtonText, extraButtons)
     , connections(cs), room(r), avatar(new QLabel)
     , account(r ? nullptr : new QComboBox)
     , roomName(new QLineEdit), alias(new QLineEdit), topic(new QPlainTextEdit)
@@ -168,7 +168,7 @@ class InviteeList : public QListWidget
 CreateRoomDialog::CreateRoomDialog(const connections_t& connections,
                                    QWidget* parent)
     : RoomDialogBase(tr("Create room"), tr("Create room"),
-                     nullptr, parent, connections, Dialog::NoExtraButtons)
+                     nullptr, parent, connections, NoExtraButtons)
     , nextInvitee(new NextInvitee)
     , inviteButton(new QPushButton(tr("Add")))
     , invitees(new QListWidget)

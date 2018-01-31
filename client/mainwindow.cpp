@@ -666,7 +666,7 @@ void MainWindow::proxyAuthenticationRequired(const QNetworkProxy&,
                                              QAuthenticator* auth)
 {
     Dialog authDialog(tr("Proxy needs authentication"), this,
-                      Dialog::InstantApply, tr("Authenticate"),
+                      Dialog::NoStatusLine, tr("Authenticate"),
                       Dialog::NoExtraButtons);
     auto layout = authDialog.addLayout<QFormLayout>();
     auto userEdit = new QLineEdit;

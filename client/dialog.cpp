@@ -22,15 +22,15 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QVBoxLayout>
 
-Dialog::Dialog(const QString& title, QWidget *parent, ApplyLatency applyLatency,
-               const QString& applyTitle,
+Dialog::Dialog(const QString& title, QWidget *parent,
+               UseStatusLine useStatusLine, const QString& applyTitle,
                QDialogButtonBox::StandardButtons addButtons)
     : QDialog(parent)
-    , applyLatency(applyLatency)
+    , applyLatency(useStatusLine)
     , pendingApplyMessage(tr("Applying changes, please wait"))
     , buttons(new QDialogButtonBox(QDialogButtonBox::Ok|
                                    QDialogButtonBox::Cancel|addButtons))
-    , statusLabel(applyLatency == InstantApply ? nullptr : new QLabel)
+    , statusLabel(useStatusLine == NoStatusLine ? nullptr : new QLabel)
     , outerLayout(this)
 {
     setWindowTitle(title);

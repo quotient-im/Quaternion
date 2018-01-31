@@ -32,7 +32,7 @@
 using QMatrixClient::Connection;
 
 LoginDialog::LoginDialog(QWidget* parent)
-    : Dialog(tr("Login"), parent, Dialog::LongApply, tr("Login"),
+    : Dialog(tr("Login"), parent, Dialog::StatusLine, tr("Login"),
              Dialog::NoExtraButtons)
     , serverEdit(new QLineEdit("https://matrix.org"))
     , userEdit(new QLineEdit(this))

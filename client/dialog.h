@@ -29,11 +29,11 @@ class Dialog : public QDialog
 {
         Q_OBJECT
     public:
-        enum ApplyLatency { InstantApply, LongApply };
+        enum UseStatusLine { NoStatusLine, StatusLine };
         static const auto NoExtraButtons = QDialogButtonBox::NoButton;
 
         explicit Dialog(const QString& title, QWidget *parent = nullptr,
-            ApplyLatency applyLatency = InstantApply,
+            UseStatusLine useStatusLine = NoStatusLine,
             const QString& applyTitle = {},
             QDialogButtonBox::StandardButtons addButtons = QDialogButtonBox::Reset);
 
@@ -64,7 +64,7 @@ class Dialog : public QDialog
         { pendingApplyMessage = msg; }
 
     private:
-        ApplyLatency applyLatency;
+        UseStatusLine applyLatency;
         QString pendingApplyMessage;
 
         QDialogButtonBox* buttons;
