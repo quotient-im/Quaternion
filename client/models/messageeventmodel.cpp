@@ -36,6 +36,7 @@ enum EventRoles {
     EventIdRole,
     TimeRole,
     SectionRole,
+    AboveSectionRole,
     AuthorRole,
     ContentRole,
     ContentTypeRole,
@@ -52,6 +53,7 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
     roles[EventIdRole] = "eventId";
     roles[TimeRole] = "time";
     roles[SectionRole] = "section";
+    roles[AboveSectionRole] = "aboveSection";
     roles[AuthorRole] = "author";
     roles[ContentRole] = "content";
     roles[ContentTypeRole] = "contentType";
@@ -369,6 +371,13 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 
     if( role == SectionRole )
         return makeDateString(eventIt); // FIXME: move date rendering to QML
+
+    if( role == AboveSectionRole )
+    {
+        auto aboveEventIt = eventIt + 1;
+        if (aboveEventIt != m_currentRoom->timelineEdge())
+            return makeDateString(aboveEventIt);
+    }
 
     if( role == AuthorRole )
     {

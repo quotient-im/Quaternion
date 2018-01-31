@@ -231,8 +231,7 @@ Rectangle {
             height: childrenRect.height
             visible: marks != "hidden" || settings.show_noop_events
 
-            readonly property bool sectionVisible:
-                ListView.section !== ListView.nextSection
+            readonly property bool sectionVisible: section !== aboveSection
             readonly property bool redacted: marks == "redacted"
             readonly property string textColor:
                 redacted ? disabledPalette.text :
@@ -281,7 +280,6 @@ Rectangle {
                     visible: sectionVisible
                     color: defaultPalette.window
                     Label {
-                        height: implicitHeight
                         font.bold: true
                         renderType: settings.render_type
                         text: section
