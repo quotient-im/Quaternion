@@ -228,6 +228,8 @@ CreateRoomDialog::CreateRoomDialog(const connections_t& connections,
 
     formLayout->addRow(tr("Invite user(s)"), inviteLayout);
     formLayout->addRow("", invitees);
+
+    setPendingApplyMessage(tr("Creating the room, please wait"));
 }
 
 void CreateRoomDialog::updatePushButtons()
