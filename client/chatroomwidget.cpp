@@ -22,6 +22,7 @@
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QFileDialog>
+#include <QtWidgets/QApplication>
 
 #include <QtQml/QQmlContext>
 #include <QtQml/QQmlEngine>
@@ -296,13 +297,17 @@ bool ChatRoomWidget::doSendInput()
     static const auto ROOM_ID = QStringLiteral("^[#!][-0-9a-z._=]+:.+$");
     static const auto USER_ID = QStringLiteral("^@[-0-9a-z._=]+:.+$");
 
-    using QMatrixClient::Room;
     // Commands available without a current room
     if (command == "join")
     {
         return checkAndRun(args, ROOM_ID,
             [=] { emit joinCommandEntered(args); },
             tr("/join argument doesn't look like a room ID or alias"));
+    }
+    if (command == "quit")
+    {
+        qApp->closeAllWindows();
+        return true;
     }
     // --- Add more roomless commands here
     if (!m_currentRoom)
@@ -313,7 +318,8 @@ bool ChatRoomWidget::doSendInput()
         return false;
     }
     // Commands available only in the room context
-    if (command == "leave")
+    using QMatrixClient::Room;
+    if (command == "leave" || command == "part")
     {
         m_currentRoom->leaveRoom();
         return true;
