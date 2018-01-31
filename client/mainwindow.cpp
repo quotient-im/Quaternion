@@ -298,12 +298,15 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     connect( c, &Connection::loginError,
              this, [=](const QString& msg){ loginError(c, msg); } );
     connect( c, &Connection::newRoom, systemTrayIcon, &SystemTrayIcon::newRoom );
-    connect( c, &Connection::aboutToDeleteRoom,
-             this, [this] (QMatrixClient::Room* r)
-    {
-        if (currentRoom == r)
-            selectRoom(nullptr);
-    });
+    connect( c, &Connection::createdRoom, this,
+             [this] (QMatrixClient::Room* r) {
+                 selectRoom(static_cast<QuaternionRoom*>(r));
+             });
+    connect( c, &Connection::aboutToDeleteRoom, this,
+             [this] (QMatrixClient::Room* r) {
+                 if (currentRoom == r)
+                    selectRoom(nullptr);
+             });
 
     QString accountCaption = c->userId();
     if (!deviceName.isEmpty())
