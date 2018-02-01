@@ -431,7 +431,9 @@ void ChatRoomWidget::saveFileAs(QString eventId)
             << "ChatRoomWidget::saveFileAs without an active room ignored";
         return;
     }
-    auto fileName = QFileDialog::getSaveFileName(this, tr("Save file as"));
+    auto fileName = QFileDialog::getSaveFileName(
+                this, tr("Save file as"),
+                m_currentRoom->fileNameToDownload(eventId));
     if (!fileName.isEmpty())
         m_currentRoom->downloadFile(eventId, QUrl::fromLocalFile(fileName));
 }
