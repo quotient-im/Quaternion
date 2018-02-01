@@ -139,7 +139,6 @@ void MessageEventModel::refreshEventRoles(const QString& eventId,
     if (it != m_currentRoom->timelineEdge())
     {
         const auto row = it - m_currentRoom->messageEvents().rbegin();
-        qDebug() << "Refreshing event" << eventId << " at QML index" << row;
         emit dataChanged(index(row), index(row), roles);
     }
 }
