@@ -79,7 +79,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     ctxt->setContextProperty("messageModel", m_messageModel);
     ctxt->setContextProperty("controller", this);
     ctxt->setContextProperty("debug", QVariant(false));
-    m_quickView->setSource(QUrl("qrc:///qml/chat.qml"));
+    m_quickView->setSource(QUrl("qrc:///qml/Timeline.qml"));
     m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
 
     m_currentlyTyping = new QLabel();
