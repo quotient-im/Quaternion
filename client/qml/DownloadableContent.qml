@@ -6,12 +6,22 @@ Item {
     height: visible ? childrenRect.height : 0
 
     property bool openOnFinished: false
-    readonly property bool downloaded: progressInfo &&
-                              progressInfo.completed || false
+    readonly property bool downloaded: progressInfo && progressInfo.completed
 
     onDownloadedChanged: {
         if (downloaded && openOnFinished)
             openSavedFile()
+    }
+
+    function downloadAndOpen()
+    {
+        if (downloaded)
+            openSavedFile()
+        else
+        {
+            openOnFinished = true
+            room.downloadFile(eventId)
+        }
     }
 
     function openSavedFile()

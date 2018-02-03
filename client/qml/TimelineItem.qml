@@ -193,7 +193,6 @@ Item {
                 anchors.top: textField.bottom
                 anchors.left: textField.left
                 anchors.right: textField.right
-                height: childrenRect.height
 
                 sourceComponent: ImageContent {
                     imageSourceSize:

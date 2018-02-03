@@ -35,15 +35,7 @@ DownloadableContent {
 
         Button {
             text: "Open in image viewer"
-            onClicked: {
-                if (downloaded)
-                    openSavedFile()
-                else
-                {
-                    openOnFinished = true
-                    room.downloadFile(eventId)
-                }
-            }
+            onClicked: downloadAndOpen()
         }
         Button {
             text: "Download full size"

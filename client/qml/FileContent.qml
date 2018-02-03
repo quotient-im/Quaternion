@@ -48,15 +48,7 @@ DownloadableContent {
         Button {
             text: "Open"
             visible: !openOnFinishedFlag.visible
-            onClicked: {
-                if (downloaded)
-                    openSavedFile()
-                else
-                {
-                    openOnFinished = true
-                    room.downloadFile(eventId)
-                }
-            }
+            onClicked: downloadAndOpen()
         }
         Button {
             text: "Save as..."
