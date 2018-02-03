@@ -17,6 +17,18 @@ DownloadableContent {
         source: imageSource
         sourceSize: imageSourceSize
 
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.LeftButton
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+
+            onContainsMouseChanged:
+                controller.showStatusMessage(containsMouse ?
+                                                room.urlToDownload(eventId) : "")
+            onClicked: downloadAndOpen()
+        }
+
         Component.onCompleted:
             if (visible && autoload && !downloaded)
                 room.downloadFile(eventId)

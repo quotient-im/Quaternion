@@ -19,6 +19,17 @@ DownloadableContent {
                   qsTr(" (downloaded to %1)").arg(progressInfo.localPath))
         textFormat: TextEdit.PlainText
         wrapMode: Text.Wrap;
+
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.NoButton
+            hoverEnabled: true
+            cursorShape: Qt.IBeamCursor
+
+            onContainsMouseChanged:
+                controller.showStatusMessage(containsMouse ?
+                                                room.urlToDownload(eventId) : "")
+        }
     }
     ProgressBar {
         id: downloadProgress
