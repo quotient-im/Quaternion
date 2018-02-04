@@ -51,6 +51,7 @@ class RoomDialogBase : public Dialog
         QLabel* avatar;
         QComboBox* account;
         QLineEdit* roomName;
+        QLabel* aliasServer;
         QLineEdit* alias;
         QPlainTextEdit* topic;
         QCheckBox* publishRoom;
@@ -85,7 +86,7 @@ class CreateRoomDialog : public RoomDialogBase
     private slots:
         void load() override;
         void apply() override;
-        void updateUserList();
+        void accountSwitched();
 
     private:
         QComboBox* nextInvitee;

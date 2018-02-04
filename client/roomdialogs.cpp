@@ -44,7 +44,9 @@ RoomDialogBase::RoomDialogBase(const QString& title,
     : Dialog(title, parent, StatusLine, applyButtonText, extraButtons)
     , connections(cs), room(r), avatar(new QLabel)
     , account(r ? nullptr : new QComboBox)
-    , roomName(new QLineEdit), alias(new QLineEdit), topic(new QPlainTextEdit)
+    , roomName(new QLineEdit)
+    , aliasServer(new QLabel), alias(new QLineEdit)
+    , topic(new QPlainTextEdit)
     , publishRoom(new QCheckBox(tr("Publish room in room directory")))
     , guestCanJoin(new QCheckBox(tr("Allow guest accounts to join the room")))
     , formLayout(addLayout<QFormLayout>())
@@ -81,7 +83,11 @@ RoomDialogBase::RoomDialogBase(const QString& title,
             if (connections.size() > 1)
                 formLayout->addRow(tr("Account"), account);
             formLayout->addRow(tr("Room name"), roomName);
-            formLayout->addRow(tr("Primary alias"), alias);
+            auto* aliasLayout = new QHBoxLayout;
+            aliasLayout->addWidget(new QLabel("#"));
+            aliasLayout->addWidget(alias);
+            aliasLayout->addWidget(aliasServer);
+            formLayout->addRow(tr("Primary alias"), aliasLayout);
         }
     }
     formLayout->addRow(tr("Topic"), topic);
@@ -177,10 +183,10 @@ CreateRoomDialog::CreateRoomDialog(const connections_t& connections,
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
     connect(account, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &CreateRoomDialog::updateUserList);
+            this, &CreateRoomDialog::accountSwitched);
 #else
     connect(account, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this, &CreateRoomDialog::updateUserList);
+            this, &CreateRoomDialog::accountSwitched);
 #endif
 
     nextInvitee->setEditable(true);
@@ -251,7 +257,7 @@ void CreateRoomDialog::load()
     alias->clear();
     topic->clear();
     nextInvitee->clear();
-    updateUserList();
+    accountSwitched();
     invitees->clear();
 }
 
@@ -280,8 +286,12 @@ void CreateRoomDialog::apply()
     });
 }
 
-void CreateRoomDialog::updateUserList()
+void CreateRoomDialog::accountSwitched()
 {
+    auto* connection = account->currentData(Qt::UserRole)
+                                    .value<QMatrixClient::Connection*>();
+    aliasServer->setText(':' + connection->homeserver().authority());
+
     auto* completer = nextInvitee->completer();
     Q_ASSERT(completer != nullptr);
     auto* model = new QStandardItemModel(completer);
@@ -291,8 +301,6 @@ void CreateRoomDialog::updateUserList()
 //            savedCurrentText.midRef(savedCurrentText.startsWith('@') ? 1 : 0);
 //    if (prefix.size() >= 3)
 //    {
-        auto* connection = account->currentData(Qt::UserRole)
-                                        .value<QMatrixClient::Connection*>();
         Q_ASSERT(connection != nullptr);
         QElapsedTimer et; et.start();
         for (auto* u: connection->users())
