@@ -13,6 +13,7 @@ DownloadableContent {
         height: imageSourceSize.height *
                 (width < imageSourceSize.width ?
                      width / imageSourceSize.width : 1)
+        fillMode: Image.PreserveAspectFit
 
         source: imageSource
         sourceSize: imageSourceSize
