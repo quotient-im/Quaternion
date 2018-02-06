@@ -7,12 +7,14 @@ DownloadableContent {
     property url imageSource
     property bool autoload
 
+    readonly property real sizeFactor:
+        Math.min((chatView.height - buttons.height) / imageSourceSize.height * 0.9,
+                 Math.min(width / imageSourceSize.width, 1))
+
     Image {
         id: imageContent
         width: parent.width
-        height: imageSourceSize.height *
-                (width < imageSourceSize.width ?
-                     width / imageSourceSize.width : 1)
+        height: imageSourceSize.height * sizeFactor
         fillMode: Image.PreserveAspectFit
 
         source: imageSource
@@ -36,6 +38,7 @@ DownloadableContent {
     }
 
     RowLayout {
+        id: buttons
         anchors.top: imageContent.bottom
         width: parent.width
         spacing: 2
