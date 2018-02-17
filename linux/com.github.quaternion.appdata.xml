@@ -1,22 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<component type="desktop">
-  <id>com.github.quaternion.desktop</id>
-  <metadata_license>CC0-1.0</metadata_license>
+<component type="desktop-application">
+  <id>com.github.quaternion</id>
+  <metadata_license>CC-BY-4.0</metadata_license>
   <project_license>GPL-3.0+</project_license>
   <name>Quaternion</name>
-  <summary>Matrix Client</summary>
+  <summary>Qt5-based client for Matrix networks</summary>
+
   <description>
     <p>
       Quaternion is a cross-platform desktop IM client for the Matrix protocol.
     </p>
   </description>
+
+  <launchable type="desktop-id">quaternion.desktop</launchable>
+
   <screenshots>
     <screenshot type="default">
       <image width="1300" height="740">https://raw.githubusercontent.com/QMatrixClient/Quaternion/master/quaternion.png</image>
     </screenshot>
   </screenshots>
+
   <url type="homepage">https://github.com/QMatrixClient/Quaternion</url>
+  <url type="bugtracker">https://github.com/QMatrixClient/Quaternion/issues</url>
+  <url type="help">https://github.com/QMatrixClient/Quaternion/blob/master/README.md</url>
+
   <provides>
     <binary>quaternion</binary>
   </provides>
+
+  <releases>
+    <release version="0.1-pre" />
+    <release version="0.0.5" date="2017-12-22" />
+  </releases>
+
+  <developer_name>Kitsune Ral et al.</developer_name>
+  <content_rating type="oars-1.0">
+    <content_attribute id="violence-cartoon">none</content_attribute>
+    <content_attribute id="violence-fantasy">none</content_attribute>
+    <content_attribute id="violence-realistic">none</content_attribute>
+    <content_attribute id="violence-bloodshed">none</content_attribute>
+    <content_attribute id="violence-sexual">none</content_attribute>
+    <content_attribute id="drugs-alcohol">none</content_attribute>
+    <content_attribute id="drugs-narcotics">none</content_attribute>
+    <content_attribute id="drugs-tobacco">none</content_attribute>
+    <content_attribute id="sex-nudity">none</content_attribute>
+    <content_attribute id="sex-themes">none</content_attribute>
+    <content_attribute id="language-profanity">none</content_attribute>
+    <content_attribute id="language-humor">none</content_attribute>
+    <content_attribute id="language-discrimination">none</content_attribute>
+    <content_attribute id="social-chat">intense</content_attribute>
+    <content_attribute id="social-info">none</content_attribute>
+    <content_attribute id="social-audio">intense</content_attribute>
+    <content_attribute id="social-location">none</content_attribute>
+    <content_attribute id="social-contacts">intense</content_attribute>
+    <content_attribute id="money-purchasing">none</content_attribute>
+    <content_attribute id="money-gambling">none</content_attribute>
+  </content_rating>
 </component>
