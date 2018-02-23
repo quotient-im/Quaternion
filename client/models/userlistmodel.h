@@ -32,6 +32,8 @@ class UserListModel: public QAbstractListModel
 {
         Q_OBJECT
     public:
+        using User = QMatrixClient::User;
+
         UserListModel(QObject* parent = nullptr);
         virtual ~UserListModel();
 
@@ -41,15 +43,15 @@ class UserListModel: public QAbstractListModel
         int rowCount(const QModelIndex& parent=QModelIndex()) const override;
 
     private slots:
-        void userAdded(QMatrixClient::User* user);
-        void userRemoved(QMatrixClient::User* user);
-        void refresh(QMatrixClient::User* user, QVector<int> roles = {});
-        void memberRenamed(QMatrixClient::User* user);
-        void avatarChanged(QMatrixClient::User* user);
+        void userAdded(User* user);
+        void userRemoved(User* user);
+        void refresh(User* user, QVector<int> roles = {});
+        void memberRenamed(User* user);
+        void avatarChanged(User* user, const QMatrixClient::Room* context);
 
     private:
         QMatrixClient::Room* m_currentRoom;
-        QList<QMatrixClient::User*> m_users;
+        QList<User*> m_users;
 
-        int findUserPos(QMatrixClient::User* user) const;
+        int findUserPos(User* user) const;
 };

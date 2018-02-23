@@ -84,19 +84,20 @@ QVariant UserListModel::data(const QModelIndex& index, int role) const
         qDebug() << "UserListModel, something's wrong: index.row() >= m_users.count()";
         return QVariant();
     }
-    QMatrixClient::User* user = m_users.at(index.row());
+    auto user = m_users.at(index.row());
     if( role == Qt::DisplayRole )
     {
-        return m_currentRoom->roomMembername(user);
+        return user->displayname(m_currentRoom);
     }
     if( role == Qt::DecorationRole )
     {
-        return user->avatar(25,25);
+        return user->avatar(25,25, m_currentRoom);
     }
 
     if (role == Qt::ToolTipRole)
     {
-        return QStringLiteral("<b>%1</b><br>%2").arg(user->name(), user->id());
+        return QStringLiteral("<b>%1</b><br>%2")
+                .arg(user->name(m_currentRoom), user->id());
     }
 
     return QVariant();
@@ -146,9 +147,11 @@ void UserListModel::memberRenamed(QMatrixClient::User *user)
     refresh(user, {Qt::DisplayRole});
 }
 
-void UserListModel::avatarChanged(QMatrixClient::User* user)
+void UserListModel::avatarChanged(QMatrixClient::User* user,
+                                  const QMatrixClient::Room* context)
 {
-    refresh(user, {Qt::DecorationRole});
+    if (context == m_currentRoom)
+        refresh(user, {Qt::DecorationRole});
 }
 
 int UserListModel::findUserPos(QMatrixClient::User* user) const
