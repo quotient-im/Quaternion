@@ -373,7 +373,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     if( role == SectionRole )
         return makeDateString(eventIt); // FIXME: move date rendering to QML
 
-    if( role == AboveSectionRole )
+    if( role == AboveSectionRole ) // FIXME: shouldn't be here, because #312
     {
         auto aboveEventIt = eventIt + 1;
         if (aboveEventIt != m_currentRoom->timelineEdge())
@@ -385,13 +385,13 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         auto userId = event->senderId();
         // FIXME: This will go away after senderName is generated correctly
         // (see the FIXME in the beginning of the method).
-        if (event->type() == EventType::RoomMember)
-        {
-            const auto* e = static_cast<const RoomMemberEvent*>(event);
-            if (e->senderId() == e->userId() && e->prev_content()
-                    && !e->prev_content()->displayName.isEmpty())
-                userId = e->prevSenderId();
-        }
+//        if (event->type() == EventType::RoomMember)
+//        {
+//            const auto* e = static_cast<const RoomMemberEvent*>(event);
+//            if (e->senderId() == e->userId() /*???*/ && e->prev_content()
+//                    && !e->prev_content()->displayName.isEmpty())
+//                userId = e->prevSenderId();
+//        }
         return QVariant::fromValue(m_currentRoom->connection()->user(userId));
     }
 
