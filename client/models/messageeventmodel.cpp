@@ -121,7 +121,7 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
         connect(m_currentRoom, &Room::fileTransferCancelled,
                 this, &MessageEventModel::refreshEvent);
         qDebug() << "Connected to room" << room->id()
-                 << "as" << room->connection()->userId();
+                 << "as" << room->localUser()->id();
     }
     lastReadEventId = room ? room->readMarkerEventId() : "";
     endResetModel();
@@ -300,6 +300,8 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
                         return tr("self-banned from the room");
                 case MembershipType::Knock:
                     return tr("knocked");
+                case MembershipType::Undefined:
+                    return tr("made something unknown");
             }
         }
         if( event->type() == EventType::RoomAliases )

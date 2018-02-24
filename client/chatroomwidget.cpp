@@ -387,6 +387,11 @@ bool ChatRoomWidget::doSendInput()
         m_currentRoom->localUser()->rename(args);
         return true;
     }
+    if (command == "roomnick")
+    {
+        m_currentRoom->localUser()->rename(args, m_currentRoom);
+        return true;
+    }
     // --- Add more room commands here
     qDebug() << "Unknown command:" << command;
     emit showStatusMessage(
