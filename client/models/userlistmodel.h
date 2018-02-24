@@ -46,7 +46,6 @@ class UserListModel: public QAbstractListModel
         void userAdded(User* user);
         void userRemoved(User* user);
         void refresh(User* user, QVector<int> roles = {});
-        void memberRenamed(User* user);
         void avatarChanged(User* user, const QMatrixClient::Room* context);
 
     private:
@@ -54,4 +53,5 @@ class UserListModel: public QAbstractListModel
         QList<User*> m_users;
 
         int findUserPos(User* user) const;
+        int findUserPos(const QString& username) const;
 };

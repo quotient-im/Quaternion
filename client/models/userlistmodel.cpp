@@ -58,11 +58,14 @@ void UserListModel::setRoom(QMatrixClient::Room* room)
     {
         connect( m_currentRoom, &Room::userAdded, this, &UserListModel::userAdded );
         connect( m_currentRoom, &Room::userRemoved, this, &UserListModel::userRemoved );
-        connect( m_currentRoom, &Room::memberRenamed, this, &UserListModel::memberRenamed );
-        QElapsedTimer et; et.start();
-        m_users = m_currentRoom->users();
-        std::sort(m_users.begin(), m_users.end(), room->memberSorter());
-        qDebug() << et.elapsed() << "ms to sort users in" << m_currentRoom->displayName();
+        connect( m_currentRoom, &Room::memberAboutToRename, this, &UserListModel::userRemoved );
+        connect( m_currentRoom, &Room::memberRenamed, this, &UserListModel::userAdded );
+        {
+            QElapsedTimer et; et.start();
+            m_users = m_currentRoom->users();
+            std::sort(m_users.begin(), m_users.end(), room->memberSorter());
+            qDebug() << et.elapsed() << "ms to sort users in" << m_currentRoom->displayName();
+        }
         for( User* user: m_users )
         {
             connect( user, &User::avatarChanged, this, &UserListModel::avatarChanged );
@@ -142,11 +145,6 @@ void UserListModel::refresh(QMatrixClient::User* user, QVector<int> roles)
         qWarning() << "Trying to access a room member not in the user list";
 }
 
-void UserListModel::memberRenamed(QMatrixClient::User *user)
-{
-    refresh(user, {Qt::DisplayRole});
-}
-
 void UserListModel::avatarChanged(QMatrixClient::User* user,
                                   const QMatrixClient::Room* context)
 {
@@ -154,8 +152,13 @@ void UserListModel::avatarChanged(QMatrixClient::User* user,
         refresh(user, {Qt::DecorationRole});
 }
 
-int UserListModel::findUserPos(QMatrixClient::User* user) const
+int UserListModel::findUserPos(User* user) const
 {
-    return m_currentRoom->memberSorter().lowerBoundIndex(m_users, user);
+    return findUserPos(m_currentRoom->roomMembername(user));
+}
+
+int UserListModel::findUserPos(const QString& username) const
+{
+    return m_currentRoom->memberSorter().lowerBoundIndex(m_users, username);
 }
 
