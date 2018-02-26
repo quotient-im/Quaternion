@@ -77,7 +77,7 @@ void QuaternionRoom::saveViewport(int topIndex, int bottomIndex)
 
 void QuaternionRoom::countChanged()
 {
-    if( displayed() )
+    if( displayed() && !hasUnreadMessages() )
     {
         resetNotificationCount();
         resetHighlightCount();
