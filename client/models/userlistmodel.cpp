@@ -30,13 +30,10 @@
 
 UserListModel::UserListModel(QObject* parent)
     : QAbstractListModel(parent)
-{
-    m_currentRoom = nullptr;
-}
+    , m_currentRoom(nullptr)
+{ }
 
-UserListModel::~UserListModel()
-{
-}
+UserListModel::~UserListModel() = default;
 
 void UserListModel::setRoom(QMatrixClient::Room* room)
 {
@@ -64,7 +61,8 @@ void UserListModel::setRoom(QMatrixClient::Room* room)
             QElapsedTimer et; et.start();
             m_users = m_currentRoom->users();
             std::sort(m_users.begin(), m_users.end(), room->memberSorter());
-            qDebug() << et.elapsed() << "ms to sort users in" << m_currentRoom->displayName();
+            qDebug() << et.elapsed() << "ms to sort" << m_users.size()
+                     << "user(s) in" << m_currentRoom->displayName();
         }
         for( User* user: m_users )
         {
@@ -75,6 +73,13 @@ void UserListModel::setRoom(QMatrixClient::Room* room)
         qDebug() << m_users.count() << "user(s) in the room";
     }
     endResetModel();
+}
+
+QMatrixClient::User* UserListModel::userAt(QModelIndex index)
+{
+    if (index.row() < 0 || index.row() >= m_users.size())
+        return nullptr;
+    return m_users.at(index.row());
 }
 
 QVariant UserListModel::data(const QModelIndex& index, int role) const

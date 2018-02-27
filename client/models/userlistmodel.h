@@ -37,7 +37,8 @@ class UserListModel: public QAbstractListModel
         UserListModel(QObject* parent = nullptr);
         virtual ~UserListModel();
 
-    void setRoom(QMatrixClient::Room* room);
+        void setRoom(QMatrixClient::Room* room);
+        User* userAt(QModelIndex index);
 
         QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
         int rowCount(const QModelIndex& parent=QModelIndex()) const override;
