@@ -173,9 +173,19 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         return QVariant();
     }
     auto room = m_rooms.at(index.row());
+    using QMatrixClient::JoinState;
     switch (role)
     {
         case Qt::DisplayRole:
+            for (auto c: m_connections)
+            {
+                if (c == room->connection())
+                    continue;
+                if (c->roomMap().contains(
+                        {room->id(), room->joinState() == JoinState::Invite}))
+                    return tr("%1 (as %2)")
+                            .arg(room->displayName(), room->connection()->userId());
+            }
             return room->displayName();
         case Qt::DecorationRole:
         {
@@ -184,11 +194,11 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
                 return avatar;
             switch( room->joinState() )
             {
-                case QMatrixClient::JoinState::Join:
+                case JoinState::Join:
                     return QIcon(":/irc-channel-joined.svg");
-                case QMatrixClient::JoinState::Invite:
+                case JoinState::Invite:
                     return QIcon(":/irc-channel-invited.svg");
-                case QMatrixClient::JoinState::Leave:
+                case JoinState::Leave:
                     return QIcon(":/irc-channel-parted.svg");
             }
         }
@@ -203,10 +213,10 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
             result += tr("ID: %1<br>").arg(room->id());
             switch (room->joinState())
             {
-                case QMatrixClient::JoinState::Join:
+                case JoinState::Join:
                     result += tr("You joined this room");
                     break;
-                case QMatrixClient::JoinState::Leave:
+                case JoinState::Leave:
                     result += tr("You left this room");
                     break;
                 default:
