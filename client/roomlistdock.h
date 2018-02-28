@@ -60,6 +60,7 @@ class RoomListDock : public QDockWidget
         QAction* joinAction;
         QAction* leaveAction;
         QAction* forgetAction;
+        QuaternionRoom* selectedRoomCache;
 
         QuaternionRoom* getSelectedRoom() const;
 };

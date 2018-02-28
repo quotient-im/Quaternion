@@ -72,6 +72,7 @@ void RoomListItemDelegate::paint(QPainter* painter,
 
 RoomListDock::RoomListDock(QWidget* parent)
     : QDockWidget("Rooms", parent)
+    , selectedRoomCache(nullptr)
 {
     setObjectName("RoomsDock");
     model      = new RoomListModel(this);
@@ -88,8 +89,14 @@ RoomListDock::RoomListDock(QWidget* parent)
              this, &RoomListDock::refreshTitle );
     connect( model, &RoomListModel::rowsRemoved,
              this, &RoomListDock::refreshTitle );
-    connect( model, &RoomListModel::modelReset,
-             this, &RoomListDock::refreshTitle );
+    connect( model, &RoomListModel::modelAboutToBeReset, this, [this] {
+        selectedRoomCache = getSelectedRoom();
+    });
+    connect( model, &RoomListModel::modelReset, this, [this] {
+        view->setCurrentIndex(
+            proxyModel->mapFromSource(model->indexOf(selectedRoomCache)));
+        selectedRoomCache = nullptr;
+    });
     setWidget(view);
 
     contextMenu = new QMenu(this);
@@ -120,7 +127,7 @@ void RoomListDock::addConnection(QMatrixClient::Connection* connection)
 void RoomListDock::rowSelected(const QModelIndex& index)
 {
     if (index.isValid())
-        emit roomSelected( model->roomAt(proxyModel->mapToSource(index).row()));
+        emit roomSelected( model->roomAt(proxyModel->mapToSource(index)));
 }
 
 void RoomListDock::showContextMenu(const QPoint& pos)
@@ -128,7 +135,7 @@ void RoomListDock::showContextMenu(const QPoint& pos)
     QModelIndex index = view->indexAt(view->mapFromParent(pos));
     if( !index.isValid() )
         return;
-    auto room = model->roomAt(proxyModel->mapToSource(index).row());
+    auto room = model->roomAt(proxyModel->mapToSource(index));
 
     using QMatrixClient::JoinState;
     joinAction->setEnabled(room->joinState() != JoinState::Join);
@@ -145,7 +152,7 @@ void RoomListDock::showContextMenu(const QPoint& pos)
 QuaternionRoom* RoomListDock::getSelectedRoom() const
 {
     QModelIndex index = view->currentIndex();
-    return !index.isValid() ? nullptr : model->roomAt(proxyModel->mapToSource(index).row());
+    return !index.isValid() ? nullptr : model->roomAt(proxyModel->mapToSource(index));
 }
 
 void RoomListDock::menuJoinSelected()

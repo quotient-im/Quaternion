@@ -43,7 +43,9 @@ class RoomListModel: public QAbstractListModel
 
         void addConnection(Connection* connection);
         void deleteConnection(Connection* connection);
-        QuaternionRoom* roomAt(int row);
+
+        QuaternionRoom* roomAt(QModelIndex index) const;
+        QModelIndex indexOf(QuaternionRoom* room) const;
 
         QVariant data(const QModelIndex& index, int role) const override;
         int rowCount(const QModelIndex& parent) const override;

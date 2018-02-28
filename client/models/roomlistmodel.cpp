@@ -70,9 +70,14 @@ void RoomListModel::deleteConnection(Connection* connection)
     // TODO: Restore selection
 }
 
-QuaternionRoom* RoomListModel::roomAt(int row)
+QuaternionRoom* RoomListModel::roomAt(QModelIndex index) const
 {
-    return m_rooms.at(row);
+    return m_rooms.at(index.row());
+}
+
+QModelIndex RoomListModel::indexOf(QuaternionRoom* room) const
+{
+    return index(m_rooms.indexOf(room), 0);
 }
 
 void RoomListModel::updateRoom(QMatrixClient::Room* room,
