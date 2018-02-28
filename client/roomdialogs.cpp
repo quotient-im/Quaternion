@@ -22,6 +22,7 @@
 #include "lib/user.h"
 #include "lib/connection.h"
 #include "lib/jobs/generated/create_room.h"
+#include "lib/logging.h"
 
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QLineEdit>
@@ -314,7 +315,7 @@ void CreateRoomDialog::accountSwitched()
         }
         qDebug() << "Completion candidates:" << model->rowCount()
                  << "out of" << connection->users().size()
-                 << "(filtered in" << et.elapsed() << "ms)";
+                 << "filtered in" << et;
 //    }
     nextInvitee->setModel(model);
     nextInvitee->setEditText(savedCurrentText);

@@ -31,6 +31,7 @@
 #include "lib/connection.h"
 #include "lib/networkaccessmanager.h"
 #include "lib/settings.h"
+#include "lib/logging.h"
 
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>
@@ -463,7 +464,7 @@ void MainWindow::selectRoom(QuaternionRoom* r)
         show();
         activateWindow();
     }
-    qDebug().noquote() << et.elapsed() << "ms to "
+    qDebug().noquote() << et << "to "
         << (r ? "select room " + r->canonicalAlias() : "close the room");
 }
 

@@ -61,8 +61,8 @@ void UserListModel::setRoom(QMatrixClient::Room* room)
             QElapsedTimer et; et.start();
             m_users = m_currentRoom->users();
             std::sort(m_users.begin(), m_users.end(), room->memberSorter());
-            qDebug() << et.elapsed() << "ms to sort" << m_users.size()
-                     << "user(s) in" << m_currentRoom->displayName();
+            qDebug() << "Sorting" << m_users.size() << "user(s) in"
+                     << m_currentRoom->displayName() << "took" << et;
         }
         for( User* user: m_users )
         {
