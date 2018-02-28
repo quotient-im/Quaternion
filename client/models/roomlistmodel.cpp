@@ -65,6 +65,7 @@ void RoomListModel::deleteConnection(Connection* connection)
         std::remove_if(m_rooms.begin(), m_rooms.end(),
             [=](const QuaternionRoom* r) { return r->connection() == connection; }),
         m_rooms.end());
+    m_connections.removeOne(connection);
     endResetModel();
     // TODO: Restore selection
 }
