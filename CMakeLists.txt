@@ -84,10 +84,8 @@ set(quaternion_QRC
 
 QT5_ADD_RESOURCES(quaternion_QRC_SRC ${quaternion_QRC})
 
-# Tell CMake to create the executable
-# (and that on Windows it should be a GUI executable)
-# TODO: MacOS builders, should MACOSX_BUNDLE be specified here as well?
-add_executable(quaternion WIN32 ${quaternion_SRCS} ${quaternion_QRC_SRC})
+# Windows, this is a GUI executable; OSX, make a bundle
+add_executable(quaternion WIN32 MACOSX_BUNDLE ${quaternion_SRCS} ${quaternion_QRC_SRC})
 
 target_link_libraries(quaternion qmatrixclient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
 
