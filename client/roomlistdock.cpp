@@ -22,6 +22,7 @@
 #include <QtCore/QSettings>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QStyledItemDelegate>
+#include <QtWidgets/QInputDialog>
 
 #include "models/roomlistmodel.h"
 #include "quaternionroom.h"
@@ -104,6 +105,10 @@ RoomListDock::RoomListDock(QWidget* parent)
     connect(markAsReadAction, &QAction::triggered, this, &RoomListDock::menuMarkReadSelected);
     contextMenu->addAction(markAsReadAction);
     contextMenu->addSeparator();
+    addTagsAction = new QAction(tr("Add tags..."), this);
+    connect(addTagsAction, &QAction::triggered, this, &RoomListDock::addTagsSelected);
+    contextMenu->addAction(addTagsAction);
+    contextMenu->addSeparator();
     joinAction = new QAction(tr("Join room"), this);
     connect(joinAction, &QAction::triggered, this, &RoomListDock::menuJoinSelected);
     contextMenu->addAction(joinAction);
@@ -138,13 +143,15 @@ void RoomListDock::showContextMenu(const QPoint& pos)
     auto room = model->roomAt(proxyModel->mapToSource(index));
 
     using QMatrixClient::JoinState;
-    joinAction->setEnabled(room->joinState() != JoinState::Join);
+    bool joined = room->joinState() == JoinState::Join;
+    markAsReadAction->setEnabled(joined);
+    addTagsAction->setEnabled(joined);
+    joinAction->setEnabled(!joined);
     leaveAction->setText(room->joinState() == JoinState::Invite ?
                              tr("Reject invitation") : tr("Leave room"));
     leaveAction->setEnabled(room->joinState() != JoinState::Leave);
     forgetAction->setText(room->joinState() == JoinState::Invite ?
                               tr("Forget invitation") : tr("Forget room"));
-    markAsReadAction->setEnabled(room->joinState() == JoinState::Join);
 
     contextMenu->popup(mapToGlobal(pos));
 }
@@ -181,6 +188,28 @@ void RoomListDock::menuMarkReadSelected()
 {
     if (auto room = getSelectedRoom())
         room->markAllMessagesAsRead();
+}
+
+void RoomListDock::addTagsSelected()
+{
+    if (auto room = getSelectedRoom())
+    {
+        auto tagsInput = QInputDialog::getMultiLineText(this,
+                tr("Enter new tags for the room"),
+                tr("Enter tags to add to this room, one tag per line"));
+        if (tagsInput.isEmpty())
+            return;
+
+        auto tags = room->tags();
+        for (const auto& tag: tagsInput.split('\n'))
+        {
+            // No overwriting, just ensure the tag exists
+            tags[tag == tr("Favourite") ? QMatrixClient::FavouriteTag :
+                 tag == tr("Low priority") ? QMatrixClient::LowPriorityTag :
+                 tag];
+        }
+        room->setTags(tags);
+    }
 }
 
 void RoomListDock::refreshTitle()

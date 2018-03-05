@@ -70,6 +70,7 @@ class RoomSettingsDialog : public RoomDialogBase
         void apply() override;
 
     private:
+        QListWidget* tagsList;
         bool userChangedAvatar = false;
 };
 

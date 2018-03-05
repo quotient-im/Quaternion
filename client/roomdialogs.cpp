@@ -108,6 +108,7 @@ RoomDialogBase::RoomDialogBase(const QString& title,
 RoomSettingsDialog::RoomSettingsDialog(QuaternionRoom* room, QWidget* parent)
     : RoomDialogBase(tr("Room settings: %1").arg(room->displayName()),
                      tr("Update room"), room, parent)
+    , tagsList(new QListWidget)
 {
     Q_ASSERT(room != nullptr);
     connect(room, &QuaternionRoom::avatarChanged, this, [this, room] {
@@ -115,7 +116,12 @@ RoomSettingsDialog::RoomSettingsDialog(QuaternionRoom* room, QWidget* parent)
             avatar->setPixmap(QPixmap::fromImage(room->avatar(64)));
     });
     avatar->setPixmap(QPixmap::fromImage(room->avatar(64)));
-    // TODO: Make same for other fields
+    tagsList->setSizeAdjustPolicy(
+                QAbstractScrollArea::AdjustToContentsOnFirstShow);
+    tagsList->setUniformItemSizes(true);
+    tagsList->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+    formLayout->addRow(tr("Tags"), tagsList);
 }
 
 void RoomSettingsDialog::load()
@@ -123,6 +129,22 @@ void RoomSettingsDialog::load()
     roomName->setText(room->name());
     alias->setText(room->canonicalAlias());
     topic->setPlainText(room->topic());
+
+    tagsList->clear();
+    auto roomTags = room->tagNames();
+    for (const auto& tag: room->connection()->tagNames())
+    {
+        auto tagDisplayName =
+                tag == QMatrixClient::FavouriteTag ? tr("Favourite") :
+                tag == QMatrixClient::LowPriorityTag ? tr("Low priority") :
+                tag;
+        auto* item = new QListWidgetItem(tagDisplayName, tagsList);
+        item->setData(Qt::UserRole, tag);
+        item->setFlags(Qt::ItemIsEnabled|Qt::ItemIsUserCheckable);
+        item->setCheckState(
+                    roomTags.contains(tag) ? Qt::Checked : Qt::Unchecked);
+        tagsList->addItem(item);
+    }
 }
 
 void RoomSettingsDialog::apply()
@@ -133,6 +155,17 @@ void RoomSettingsDialog::apply()
         room->setCanonicalAlias(alias->text());
     if (topic->toPlainText() != room->topic())
         room->setTopic(topic->toPlainText());
+    auto tags = room->tags();
+    for (int i = 0; i < tagsList->count(); ++i)
+    {
+        const auto* item = tagsList->item(i);
+        const auto tagName = item->data(Qt::UserRole).toString();
+        if (item->checkState() == Qt::Checked)
+            tags[tagName]; // Just ensure the tag is there, no overwriting
+        else
+            tags.remove(tagName);
+    }
+    room->setTags(tags);
     accept();
 }
 

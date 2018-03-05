@@ -46,6 +46,7 @@ class RoomListDock : public QDockWidget
         void rowSelected(const QModelIndex& index);
         void showContextMenu(const QPoint& pos);
         void menuMarkReadSelected();
+        void addTagsSelected();
         void menuJoinSelected();
         void menuLeaveSelected();
         void menuForgetSelected();
@@ -57,6 +58,7 @@ class RoomListDock : public QDockWidget
         QSortFilterProxyModel* proxyModel;
         QMenu* contextMenu;
         QAction* markAsReadAction;
+        QAction* addTagsAction;
         QAction* joinAction;
         QAction* leaveAction;
         QAction* forgetAction;
