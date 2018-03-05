@@ -50,7 +50,7 @@ Quaternion stores its configuration in a way standard for Qt applications. It wi
   - system-wide: `HKEY_LOCAL_MACHINE\Software\QMatrixClient\quaternion`
   - user-specific: `HKEY_CURRENT_USER\Software\QMatrixClient\quaternion`
 
-Several settings are not exposed in the UI:
+Several settings not exposed yet in the UI:
 - `UI/suppress_splash` - set this to 1 if you don't want a splash screen
 - `UI/condense_chat` - set this to 1 to make the timeline rendered tighter, without gaps between messages
 - `UI/show_noop_events` - set this to 1 to show state events that do not alter the state (you'll see "(repeated)" next to most of those)
@@ -70,9 +70,11 @@ Quaternion caches the rooms state on the file system in a conventional location 
 - OSX: `$HOME/Library/Cache/QMatrixClient/quaternion`
 - Windows: `%LOCALAPPDATA%/QMatrixClient/quaternion/cache`
 
-Cache files are safe to delete at any time. If Quaternion doesn't find them when starting up it downloads the whole state from Matrix servers, which can take much time (up to a minute and even more, depending on the number of rooms and the number of users in them). Deleting cache files may help with problems such as missing avatars, rooms stuck in a wrong state etc.
+Cache files are safe to delete at any time but Quaternion only looks for them when starting up and overwrites them regularly while running; so it only makes sense to delete cache files when Quaternion is not running. If Quaternion doesn't find cache files at startup it downloads the whole state from Matrix servers, which can take much time (up to a minute and even more, depending on the number of rooms and the number of users in them). Deleting cache files may help with problems such as missing avatars, rooms stuck in a wrong state etc.
 
 ## Troubleshooting
+
+libqmatrixclient has its own section on troubleshooting - in case of trouble make sure to look into lib/README.md too.
 
 #### Ever reconnecting though the network is fine
 If Quaternion starts displaying the message that it couldn't connect to the server and retries more than a couple of times without success, while you're sure you have the network connection - double-check that you don't have Qt bearer management libraries: they cause issues with some WiFi networks. Try to find "bearer" directory where your Qt is installed (on Windows it's next to Quaternion executable; on Linux it's a part of Qt installation in `/usr/lib/qt5/plugins`). Then delete or rename it (on Windows) or delete the package that this directory is in (on Linux).
