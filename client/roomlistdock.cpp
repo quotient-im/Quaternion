@@ -97,6 +97,7 @@ RoomListDock::RoomListDock(QWidget* parent)
         view->setCurrentIndex(
             proxyModel->mapFromSource(model->indexOf(selectedRoomCache)));
         selectedRoomCache = nullptr;
+        refreshTitle();
     });
     setWidget(view);
 
