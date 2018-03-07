@@ -55,16 +55,16 @@ DownloadableContent {
             visible: downloadProgress.visible
             onClicked: room.cancelFileTransfer(eventId)
         }
+        Button {
+            text: "Save as..."
+            visible: !downloadProgress.visible
+            onClicked: controller.saveFileAs(eventId)
+        }
 
         Button {
             text: "Open"
             visible: !openOnFinishedFlag.visible
             onClicked: downloadAndOpen()
-        }
-        Button {
-            text: "Save as..."
-            visible: !progressInfo.active
-            onClicked: controller.saveFileAs(eventId)
         }
         Button {
             text: "Open folder"
