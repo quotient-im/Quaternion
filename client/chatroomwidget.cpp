@@ -289,7 +289,9 @@ bool ChatRoomWidget::doSendInput()
     }
 
     // Process a command
-    static const QRegularExpression re("^/([^ ]+)( (.*))?$");
+    static const QRegularExpression re("^/([^ ]+)( (.*))?$",
+            QRegularExpression::DotMatchesEverythingOption|
+            QRegularExpression::OptimizeOnFirstUsageOption);
     const auto matches = re.match(text);
     const auto command = matches.capturedRef(1);
     const auto args = matches.captured(3);
