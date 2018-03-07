@@ -51,12 +51,13 @@ Quaternion stores its configuration in a way standard for Qt applications. It wi
   - user-specific: `HKEY_CURRENT_USER\Software\QMatrixClient\quaternion`
 
 Several settings not exposed yet in the UI:
-- `UI/suppress_splash` - set this to 1 if you don't want a splash screen
-- `UI/condense_chat` - set this to 1 to make the timeline rendered tighter, without gaps between messages
-- `UI/show_noop_events` - set this to 1 to show state events that do not alter the state (you'll see "(repeated)" next to most of those)
-- `UI/highlight_color` - set this to the color name you prefer for highlighted rooms/messages; HTML color names and `#codes` are supported; by default it's `orange`
-- `UI/use_human_friendly_dates` - set this to false (or 0) if you do NOT want usage of human-friendly dates ("Today", "Monday" instead of the standard day-month-year triad) in the UI; the default is true
+- `UI/suppress_splash` - set this to 1 if you don't want a splash screen.
+- `UI/condense_chat` - set this to 1 to make the timeline rendered tighter, without gaps between messages.
+- `UI/show_noop_events` - set this to 1 to show state events that do not alter the state (you'll see "(repeated)" next to most of those).
+- `UI/highlight_color` - set this to the color name you prefer for highlighted rooms/messages; HTML color names and `#codes` are supported; by default it's `orange`.
+- `UI/use_human_friendly_dates` - set this to false (or 0) if you do NOT want usage of human-friendly dates ("Today", "Monday" instead of the standard day-month-year triad) in the UI; the default is true.
 - `UI/Fonts/render_type` - select how to render fonts in Quaternion timeline; possible values are "NativeRendering" (default) and "QtRendering".
+- `UI/notifications` - a general setting whether Quaternion should distract the user with notifications and how. `none` suppresses notifications entirely (rooms and messages are still hightlighted but the tray icon is muted); `non-intrusive` allows the tray icon show notification popups; `intrusive` (default) adds to that activation of Quaternion window (i.e. the application blinking in the task bar, or getting raised, or otherwise demands attention in an environment-specific way).
 
 Since version 0.0.5, Quaternion tries to store your access tokens in a dedicated file with restricted access rights so that only the owner can access them. Every access token is stored in a separate file matching your user id in the following directory:
 - Linux: `$HOME/.local/share/QMatrixClient/quaternion`

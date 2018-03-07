@@ -21,6 +21,7 @@
 
 #include "mainwindow.h"
 #include "quaternionroom.h"
+#include "lib/settings.h"
 
 SystemTrayIcon::SystemTrayIcon(MainWindow* parent)
     : QSystemTrayIcon(parent)
@@ -39,10 +40,15 @@ void SystemTrayIcon::newRoom(QMatrixClient::Room* room)
 
 void SystemTrayIcon::highlightCountChanged(QMatrixClient::Room* room)
 {
+    auto mode = QMatrixClient::SettingsGroup("UI")
+                                .value("notifications", "intrusive");
+    if (mode == "none")
+        return;
     if( room->highlightCount() > 0 )
     {
         showMessage(tr("Highlight!"), tr("%1: %2 highlight(s)").arg(room->displayName()).arg(room->highlightCount()));
-        m_parent->activateWindow();
+        if (mode != "non-intrusive")
+            m_parent->activateWindow();
         auto* qRoom = static_cast<QuaternionRoom*>(room);
         connect(this, &SystemTrayIcon::messageClicked, m_parent, [this,qRoom] {
             m_parent->selectRoom(qRoom);
