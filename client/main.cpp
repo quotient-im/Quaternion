@@ -74,13 +74,13 @@ int main( int argc, char* argv[] )
     app.setAttribute(Qt::AA_DisableWindowContextHelpButton);
 #endif
 
-    bool splashEnabled = !QSettings().value("UI/suppress_splash").toBool();
-    QSplashScreen splash(QPixmap(":/icon.png"));
-    if (splashEnabled)
-    {
-        splash.show();
-        app.processEvents();
-    }
+//    bool splashEnabled = !QSettings().value("UI/suppress_splash").toBool();
+//    QSplashScreen splash(QPixmap(":/icon.png"));
+//    if (splashEnabled)
+//    {
+//        splash.show();
+//        app.processEvents();
+//    }
 
     QMatrixClient::NetworkSettings().setupApplicationProxy();
 
@@ -88,8 +88,8 @@ int main( int argc, char* argv[] )
     if( debugEnabled )
         window.enableDebug();
 
-    if (splashEnabled)
-        splash.finish(&window); // calls app.processEvents()
+//    if (splashEnabled)
+//        splash.finish(&window); // calls app.processEvents()
 
     ActivityDetector ad(app, window); Q_UNUSED(ad);
     qDebug() << "--- Show time!";
