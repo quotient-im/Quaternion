@@ -22,6 +22,7 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QStyledItemDelegate>
 #include <QtWidgets/QInputDialog>
+#include <QtWidgets/QMessageBox>
 
 #include "models/roomlistmodel.h"
 #include "quaternionroom.h"
@@ -186,10 +187,15 @@ RoomListDock::RoomListDock(QWidget* parent)
     forgetAction =
         roomContextMenu->addAction(QIcon::fromTheme("irc-remove-operator"),
         tr("Forget room"), this, [this] {
-            if (auto room = getSelectedRoom())
-            {
-                Q_ASSERT(room->connection());
-                room->connection()->forgetRoom(room->id());
+            if (auto room = getSelectedRoom()) {
+              QMessageBox confirmBox(QMessageBox::Question,
+                  tr("Are you sure?"),
+                  tr("Do you want to forget the room %1").arg(room->displayName()),
+                  QMessageBox::Yes|QMessageBox::No, this);
+              if (confirmBox.exec() == QMessageBox::No)
+                  ;
+              else
+                  room->connection()->forgetRoom(room->id());
             }
         });
 
