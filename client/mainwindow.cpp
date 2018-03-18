@@ -55,6 +55,7 @@
 #include <QtGui/QCloseEvent>
 
 using QMatrixClient::NetworkAccessManager;
+using QMatrixClient::AccountSettings;
 
 MainWindow::MainWindow()
 {
@@ -190,20 +191,15 @@ void MainWindow::saveSettings() const
     sg.sync();
 }
 
-inline QString accessTokenFileName(const QMatrixClient::AccountSettings& account)
+inline QString accessTokenFileName(const AccountSettings& account)
 {
     QString fileName = account.userId();
     fileName.replace(':', '_');
-    return QStandardPaths::writableLocation(
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
-                QStandardPaths::AppLocalDataLocation
-#else
-                QStandardPaths::DataLocation
-#endif
-                ) % '/' % fileName;
+    return QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)
+            % '/' % fileName;
 }
 
-QByteArray MainWindow::loadAccessToken(const QMatrixClient::AccountSettings& account)
+QByteArray MainWindow::loadAccessToken(const AccountSettings& account)
 {
     QFile accountTokenFile { accessTokenFileName(account) };
     if (accountTokenFile.open(QFile::ReadOnly))
@@ -221,7 +217,7 @@ QByteArray MainWindow::loadAccessToken(const QMatrixClient::AccountSettings& acc
     return {};
 }
 
-bool MainWindow::saveAccessToken(const QMatrixClient::AccountSettings& account,
+bool MainWindow::saveAccessToken(const AccountSettings& account,
                                  const QByteArray& accessToken)
 {
     // (Re-)Make a dedicated file for access_token.
@@ -373,14 +369,14 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
     if( dialog.exec() )
     {
         auto connection = dialog.releaseConnection();
-        QMatrixClient::AccountSettings account(connection->userId());
+        AccountSettings account(connection->userId());
         account.setKeepLoggedIn(dialog.keepLoggedIn());
+        account.clearAccessToken(); // Drop the legacy - just in case
         if (dialog.keepLoggedIn())
         {
             account.setHomeserver(connection->homeserver());
             account.setDeviceId(connection->deviceId());
             account.setDeviceName(dialog.deviceName());
-            account.clearAccessToken(); // Drop the legacy - just in case
             if (!saveAccessToken(account, connection->accessToken()))
                 qWarning() << "Couldn't save access token";
         } else
@@ -395,9 +391,9 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
 void MainWindow::invokeLogin()
 {
     using namespace QMatrixClient;
-    SettingsGroup settings("Accounts");
+    const auto accounts = SettingsGroup("Accounts").childGroups();
     bool autoLoggedIn = false;
-    for(const auto& accountId: settings.childGroups())
+    for(const auto& accountId: accounts)
     {
         AccountSettings account { accountId };
         if (!account.homeserver().isEmpty())
@@ -430,8 +426,7 @@ void MainWindow::invokeLogin()
     if (autoLoggedIn)
         showFirstSyncIndicator();
     else
-        QTimer::singleShot(0, this,
-            [this] { showLoginWindow(tr("Welcome to Quaternion")); });
+        showLoginWindow(tr("Welcome to Quaternion"));
 }
 
 void MainWindow::loginError(Connection* c, const QString& message)
@@ -445,8 +440,7 @@ void MainWindow::logout(Connection* c)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Logout on a null connection");
 
-    QMatrixClient::AccountSettings account { c->userId() };
-    QFile(accessTokenFileName(account)).remove();
+    QFile(accessTokenFileName(AccountSettings(c->userId()))).remove();
 
     c->logout();
 }
