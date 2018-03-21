@@ -87,14 +87,5 @@ class ChatRoomWidget: public QWidget
         QMap<QuaternionRoom*, QVector<QTextDocument*>> roomHistories;
 
         void reStartShownTimer();
-        bool doSendInput();
-
-        bool checkAndRun(const QString& args, const QString& pattern,
-            std::function<void()> fn, const QString& errorMsg) const;
-        bool checkAndRun1(const QString& args, const QString& pattern,
-            std::function<void(QMatrixClient::Room*, QString)> fn1,
-            const QString& errorMsg) const;
-        bool checkAndRun2(const QString& args, const QString& pattern1,
-            std::function<void(QMatrixClient::Room*, QString, QString)> fn2,
-            const QString& errorMsg) const;
+        QString doSendInput();
 };

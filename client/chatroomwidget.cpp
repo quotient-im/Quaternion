@@ -236,149 +236,156 @@ void ChatRoomWidget::focusInput()
     m_chatEdit->setFocus();
 }
 
-bool ChatRoomWidget::checkAndRun(const QString& checkArg, const QString& pattern,
-                                 std::function<void()> fn,
-                                 const QString& errorMsg) const
+/**
+ * \brief Split the string into no more than specified numbers of parts
+ * The function takes \p s and splits it into at most \p maxParts parts
+ * using \p sep for the separator. Empty parts are skipped. If there are more
+ * than \p maxParts parts in the string, the last returned part includes
+ * the remainder of the string.
+ * \return the vector of references to the original string, one reference for
+ * each part.
+ */
+QVector<QStringRef> lazySplitRef(const QString& s, QChar sep, int maxParts)
 {
-    if (QRegularExpression(pattern).match(checkArg).hasMatch())
+    QVector<QStringRef> parts;
+    int pos = 0;
+    while (true)
     {
-        fn();
-        return true;
+        auto nextPos = s.indexOf(sep, pos);
+        if (nextPos == -1 || maxParts <= 1)
+        {
+            parts.push_back(s.midRef(pos));
+            break;
+        }
+        parts.push_back({&s, pos, nextPos - pos});
+        while (s[++nextPos] == sep)
+            ;
+        pos = nextPos;
     }
-
-    emit showStatusMessage(errorMsg, 5000);
-    return false;
+    return parts;
 }
 
-bool ChatRoomWidget::checkAndRun1(const QString& args, const QString& pattern,
-    std::function<void(QMatrixClient::Room*, QString)> fn1,
-    const QString& errorMsg) const
-{
-    return checkAndRun(args, pattern,
-                       std::bind(fn1, m_currentRoom, args), errorMsg);
-}
-
-bool ChatRoomWidget::checkAndRun2(const QString& args, const QString& pattern1,
-    std::function<void(QMatrixClient::Room*, QString, QString)> fn2,
-    const QString& errorMsg) const
-{
-    const auto nextSpacePos = args.indexOf(' ', 1);
-    const auto arg1 = args.left(nextSpacePos);
-    const auto arg2 =
-            nextSpacePos != -1 ? args.mid(nextSpacePos + 1).trimmed() : "";
-    return checkAndRun(arg1, pattern1,
-                       std::bind(fn2, m_currentRoom, arg1, arg2), errorMsg);
-}
-
-bool ChatRoomWidget::doSendInput()
+QString ChatRoomWidget::doSendInput()
 {
     QString text = m_chatEdit->toPlainText();
     if ( text.isEmpty() )
-        return false;
+        return tr("There's nothing to send");
 
     if (!text.startsWith('/'))
     {
         m_currentRoom->postMessage(text);
-        return true;
+        return {};
     }
     if (text[1] == '/')
     {
         text.remove(0, 1);
         m_currentRoom->postMessage(text);
-        return true;
+        return {};
     }
 
-    // Process a command
-    static const QRegularExpression re("^/([^ ]+)( (.*))?$",
+    static const auto ReFlags =
             QRegularExpression::DotMatchesEverythingOption|
-            QRegularExpression::OptimizeOnFirstUsageOption);
-    const auto matches = re.match(text);
-    const auto command = matches.capturedRef(1);
-    const auto args = matches.captured(3);
+            QRegularExpression::OptimizeOnFirstUsageOption;
 
-    static const auto ROOM_ID = QStringLiteral("^[#!][-0-9a-z._=]+:.+$");
-    static const auto USER_ID = QStringLiteral("^@[-0-9a-z._=]+:.+$");
+    static const QRegularExpression
+            CommandRe { "^/([^ ]+)( (.*))?$", ReFlags },
+            RoomIdRE { "^[#!][-0-9a-z._=]+:.+$", ReFlags },
+            UserIdRE { "^@[-0-9a-z._=]+:.+$", ReFlags };
+
+    // Process a command
+    const auto matches = CommandRe.match(text);
+    const auto command = matches.capturedRef(1);
+    const auto argString = matches.captured(3);
 
     // Commands available without a current room
     if (command == "join")
     {
-        return checkAndRun(args, ROOM_ID,
-            [=] { emit joinCommandEntered(args); },
-            tr("/join argument doesn't look like a room ID or alias"));
+        if (!argString.contains(RoomIdRE))
+            return tr("/join argument doesn't look like a room ID or alias");
+        emit joinCommandEntered(argString);
     }
     if (command == "quit")
     {
         qApp->closeAllWindows();
-        return true;
+        return {};
     }
     // --- Add more roomless commands here
     if (!m_currentRoom)
-    {
-        emit showStatusMessage(
-            tr("There's no such /command outside of room."
-                   " Start with // to send this line literally"), 5000);
-        return false;
-    }
+        return tr("There's no such /command outside of room."
+                  " Start with // to send this line literally");
+
     // Commands available only in the room context
     using QMatrixClient::Room;
     if (command == "leave" || command == "part")
     {
         m_currentRoom->leaveRoom();
-        return true;
+        return {};
     }
     if (command == "forget")
     {
-        if (args.isEmpty())
-        {
-            emit showStatusMessage(
-                tr("/forget should be followed by the room id,"
-                   " even for the current room"));
-            return false;
-        }
-        return checkAndRun(args, ROOM_ID,
-            [=] { m_currentRoom->connection()->forgetRoom(args); },
-            tr("/forget should be followed by the room id"));
+        if (argString.isEmpty())
+            return tr("/forget should be followed by the room id,"
+                      " even for the current room");
+        if (!argString.contains(RoomIdRE))
+            return tr("%1 doesn't look like a room id or alias").arg(argString);
+
+        m_currentRoom->connection()->forgetRoom(argString);
+        return {};
     }
     if (command == "invite")
     {
-        return checkAndRun1(args, USER_ID, &Room::inviteToRoom,
-            tr("/invite argument doesn't look like a user ID"));
+        if (!argString.contains(UserIdRE))
+            return tr("%1 doesn't look like a user ID").arg(argString);
+
+        m_currentRoom->inviteToRoom(argString);
+        return {};
     }
-    if (command == "kick")
+    if (command == "kick" || command == "ban")
     {
-        return checkAndRun2(args, USER_ID, &Room::kickMember,
-            tr("The first /kick argument doesn't look like a user ID"));
-    }
-    if (command == "ban")
-    {
-        return checkAndRun2(args, USER_ID, &Room::ban,
-            tr("The first /ban argument doesn't look like a user ID"));
+        const auto args = lazySplitRef(argString, ' ', 2);
+        if (!UserIdRE.match(args.front()).hasMatch())
+            return tr("%1 doesn't look like a user id").arg(args.front());
+
+        auto* user = m_currentRoom->user(args.front().toString());
+        if (m_currentRoom->memberJoinState(user)
+                != QMatrixClient::JoinState::Join)
+            return tr("%1 is not a member of this room")
+                    .arg(user->fullName(m_currentRoom));
+
+        if (command == "ban")
+            m_currentRoom->ban(user->id(), args.back().toString());
+        else
+            m_currentRoom->kickMember(user->id(), args.back().toString());
+        return {};
     }
     if (command == "unban")
     {
-        return checkAndRun1(args, USER_ID, &Room::unban,
-            tr("/unban argument doesn't look like a user ID"));
+        if (!argString.contains(UserIdRE))
+            return tr("/unban argument doesn't look like a user ID");
+
+        m_currentRoom->unban(argString);
+        return {};
     }
     using MsgType = QMatrixClient::RoomMessageEvent::MsgType;
     if (command == "me")
     {
-        m_currentRoom->postMessage(args, MsgType::Emote);
-        return true;
+        m_currentRoom->postMessage(argString, MsgType::Emote);
+        return {};
     }
     if (command == "notice")
     {
-        m_currentRoom->postMessage(args, MsgType::Notice);
-        return true;
+        m_currentRoom->postMessage(argString, MsgType::Notice);
+        return {};
     }
     if (command == "shrug") // Peeked at Discord
     {
         m_currentRoom->postMessage("¯\\_(ツ)_/¯");
-        return true;
+        return {};
     }
     if (command == "topic")
     {
-        m_currentRoom->setTopic(args);
-        return true;
+        m_currentRoom->setTopic(argString);
+        return {};
     }
     if (command == "nick")
     {
@@ -386,25 +393,26 @@ bool ChatRoomWidget::doSendInput()
         // any room; however, since Quaternion allows having several connections,
         // it needs to understand which connection to engage, and there's no good
         // way so far to determine the connection outside of a room.
-        m_currentRoom->localUser()->rename(args);
-        return true;
+        m_currentRoom->localUser()->rename(argString);
+        return {};
     }
     if (command == "roomnick")
     {
-        m_currentRoom->localUser()->rename(args, m_currentRoom);
-        return true;
+        m_currentRoom->localUser()->rename(argString, m_currentRoom);
+        return {};
     }
     // --- Add more room commands here
     qDebug() << "Unknown command:" << command;
-    emit showStatusMessage(
-        tr("Unknown /command. Use // to send this line literally"), 5000);
-    return false;
+    return tr("Unknown /command. Use // to send this line literally");
 }
 
 void ChatRoomWidget::sendInput()
 {
-    if (doSendInput())
+    auto result = doSendInput();
+    if (result.isEmpty())
         m_chatEdit->saveInput();
+    else
+        emit showStatusMessage(result, 5000);
 }
 
 QStringList ChatRoomWidget::findCompletionMatches(const QString& pattern) const
