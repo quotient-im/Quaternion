@@ -117,7 +117,7 @@ RoomListDock::RoomListDock(QWidget* parent)
     connect(leaveAction, &QAction::triggered, this, &RoomListDock::menuLeaveSelected);
     contextMenu->addAction(leaveAction);
     contextMenu->addSeparator();
-    forgetAction = new QAction(tr("Forget"), this);
+    forgetAction = new QAction(tr("Forget room"), this);
     connect(forgetAction, &QAction::triggered, this, &RoomListDock::menuForgetSelected);
     contextMenu->addAction(forgetAction);
 
@@ -145,14 +145,13 @@ void RoomListDock::showContextMenu(const QPoint& pos)
 
     using QMatrixClient::JoinState;
     bool joined = room->joinState() == JoinState::Join;
+    bool invited = room->joinState() == JoinState::Invite;
     markAsReadAction->setEnabled(joined);
     addTagsAction->setEnabled(joined);
     joinAction->setEnabled(!joined);
-    leaveAction->setText(room->joinState() == JoinState::Invite ?
-                             tr("Reject invitation") : tr("Leave room"));
+    leaveAction->setText(invited ? tr("Reject invitation") : tr("Leave room"));
     leaveAction->setEnabled(room->joinState() != JoinState::Leave);
-    forgetAction->setText(room->joinState() == JoinState::Invite ?
-                              tr("Forget invitation") : tr("Forget room"));
+    forgetAction->setVisible(!invited);
 
     contextMenu->popup(mapToGlobal(pos));
 }
