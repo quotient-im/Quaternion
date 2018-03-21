@@ -248,20 +248,15 @@ void ChatRoomWidget::focusInput()
 QVector<QStringRef> lazySplitRef(const QString& s, QChar sep, int maxParts)
 {
     QVector<QStringRef> parts;
-    int pos = 0;
-    while (true)
+    int pos = 0, nextPos = 0;
+    for (; maxParts > 1 && (nextPos = s.indexOf(sep, pos)) > -1; --maxParts)
     {
-        auto nextPos = s.indexOf(sep, pos);
-        if (nextPos == -1 || maxParts <= 1)
-        {
-            parts.push_back(s.midRef(pos));
-            break;
-        }
         parts.push_back({&s, pos, nextPos - pos});
         while (s[++nextPos] == sep)
             ;
         pos = nextPos;
     }
+    parts.push_back(s.midRef(pos));
     return parts;
 }
 
@@ -288,7 +283,7 @@ QString ChatRoomWidget::doSendInput()
             QRegularExpression::OptimizeOnFirstUsageOption;
 
     static const QRegularExpression
-            CommandRe { "^/([^ ]+)( (.*))?$", ReFlags },
+            CommandRe { "^/([^ ]+)( +(.*))?\\s*$", ReFlags },
             RoomIdRE { "^[#!][-0-9a-z._=]+:.+$", ReFlags },
             UserIdRE { "^@[-0-9a-z._=]+:.+$", ReFlags };
 
@@ -318,22 +313,30 @@ QString ChatRoomWidget::doSendInput()
     using QMatrixClient::Room;
     if (command == "leave" || command == "part")
     {
+        if (!argString.isEmpty())
+            return tr("Sending a farewell message is not supported yet."
+                      " If you intended to leave another room, switch to it"
+                      " and type /leave there.");
+
         m_currentRoom->leaveRoom();
         return {};
     }
     if (command == "forget")
     {
         if (argString.isEmpty())
-            return tr("/forget should be followed by the room id,"
+            return tr("/forget must be followed by the room id/alias,"
                       " even for the current room");
         if (!argString.contains(RoomIdRE))
             return tr("%1 doesn't look like a room id or alias").arg(argString);
 
+        // Forget the specified room using the current room's connection
         m_currentRoom->connection()->forgetRoom(argString);
         return {};
     }
     if (command == "invite")
     {
+        if (argString.isEmpty())
+            return tr("/invite <memberId>");
         if (!argString.contains(UserIdRE))
             return tr("%1 doesn't look like a user ID").arg(argString);
 
@@ -343,8 +346,11 @@ QString ChatRoomWidget::doSendInput()
     if (command == "kick" || command == "ban")
     {
         const auto args = lazySplitRef(argString, ' ', 2);
+        if (args.front().isEmpty())
+            return tr("/%1 <memberId> <reason>").arg(command.toString());
         if (!UserIdRE.match(args.front()).hasMatch())
-            return tr("%1 doesn't look like a user id").arg(args.front());
+            return tr("%1 doesn't look like a user id")
+                    .arg(args.front().toString());
 
         auto* user = m_currentRoom->user(args.front().toString());
         if (m_currentRoom->memberJoinState(user)
@@ -360,6 +366,8 @@ QString ChatRoomWidget::doSendInput()
     }
     if (command == "unban")
     {
+        if (argString.isEmpty())
+            return tr("/unban <memberId>");
         if (!argString.contains(UserIdRE))
             return tr("/unban argument doesn't look like a user ID");
 
@@ -369,11 +377,15 @@ QString ChatRoomWidget::doSendInput()
     using MsgType = QMatrixClient::RoomMessageEvent::MsgType;
     if (command == "me")
     {
+        if (argString.isEmpty())
+            return tr("/me needs an argument");
         m_currentRoom->postMessage(argString, MsgType::Emote);
         return {};
     }
     if (command == "notice")
     {
+        if (argString.isEmpty())
+            return tr("/notice needs an argument");
         m_currentRoom->postMessage(argString, MsgType::Notice);
         return {};
     }
@@ -389,10 +401,6 @@ QString ChatRoomWidget::doSendInput()
     }
     if (command == "nick")
     {
-        // Technically, it's legitimate to change the displayname outside of
-        // any room; however, since Quaternion allows having several connections,
-        // it needs to understand which connection to engage, and there's no good
-        // way so far to determine the connection outside of a room.
         m_currentRoom->localUser()->rename(argString);
         return {};
     }
