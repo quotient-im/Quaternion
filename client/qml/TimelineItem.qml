@@ -10,7 +10,7 @@ Item {
     Settings {
         id: settings
         readonly property bool condense_chat: value("UI/condense_chat", false)
-        readonly property bool show_noop_events: value("UI/show_noop_events")
+        readonly property bool show_noop_events: value("UI/show_noop_events", false)
         readonly property bool autoload_images: value("UI/autoload_images", true)
         readonly property string highlight_color: value("UI/highlight_color", "orange")
         readonly property string render_type: value("UI/Fonts/render_type", "NativeRendering")
