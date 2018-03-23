@@ -83,6 +83,7 @@ set(quaternion_QRC
     )
 
 QT5_ADD_RESOURCES(quaternion_QRC_SRC ${quaternion_QRC})
+set_property(SOURCE qrc_resources.cpp PROPERTY SKIP_AUTOMOC ON)
 
 # Windows, this is a GUI executable; OSX, make a bundle
 add_executable(quaternion WIN32 MACOSX_BUNDLE ${quaternion_SRCS} ${quaternion_QRC_SRC})
