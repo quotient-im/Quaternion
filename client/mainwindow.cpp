@@ -295,10 +295,8 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     connect( c, &Connection::loginError,
              this, [=](const QString& msg){ loginError(c, msg); } );
     connect( c, &Connection::newRoom, systemTrayIcon, &SystemTrayIcon::newRoom );
-    connect( c, &Connection::createdRoom, this,
-             [this] (QMatrixClient::Room* r) {
-                 selectRoom(static_cast<QuaternionRoom*>(r));
-             });
+    connect( c, &Connection::createdRoom, this, &MainWindow::selectRoom);
+    connect( c, &Connection::directChatAvailable, this, &MainWindow::selectRoom);
     connect( c, &Connection::aboutToDeleteRoom, this,
              [this] (QMatrixClient::Room* r) {
                  if (currentRoom == r)
@@ -445,13 +443,13 @@ void MainWindow::logout(Connection* c)
     c->logout();
 }
 
-void MainWindow::selectRoom(QuaternionRoom* r)
+void MainWindow::selectRoom(QMatrixClient::Room* r)
 {
     QElapsedTimer et; et.start();
-    currentRoom = r;
+    currentRoom = static_cast<QuaternionRoom*>(r);
     setWindowTitle(r ? r->displayName() : QString());
-    chatRoomWidget->setRoom(r);
-    userListDock->setRoom(r);
+    chatRoomWidget->setRoom(currentRoom);
+    userListDock->setRoom(currentRoom);
     roomSettingsAction->setEnabled(r != nullptr);
     if (r && !isActiveWindow())
     {
