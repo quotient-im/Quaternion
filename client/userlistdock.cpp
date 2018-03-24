@@ -21,13 +21,16 @@
 
 #include <QtWidgets/QTableView>
 #include <QtWidgets/QHeaderView>
+#include <QtWidgets/QMenu>
 
 #include "lib/connection.h"
 #include "lib/room.h"
+#include "lib/user.h"
 #include "models/userlistmodel.h"
 
 UserListDock::UserListDock(QWidget* parent)
     : QDockWidget("Users", parent)
+    , contextMenu(new QMenu(this))
 {
     setObjectName("UsersDock");
     m_view = new QTableView();
@@ -46,6 +49,14 @@ UserListDock::UserListDock(QWidget* parent)
              this, &UserListDock::refreshTitle );
     connect( m_model, &QAbstractListModel::modelReset,
              this, &UserListDock::refreshTitle );
+
+    startChatAction = new QAction(tr("Open direct chat"), this);
+    connect(startChatAction, &QAction::triggered, this, &UserListDock::startChatSelected);
+    contextMenu->addAction(startChatAction);
+
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, &QWidget::customContextMenuRequested,
+            this, &UserListDock::showContextMenu);
 }
 
 void UserListDock::setRoom(QMatrixClient::Room* room)
@@ -56,4 +67,19 @@ void UserListDock::setRoom(QMatrixClient::Room* room)
 void UserListDock::refreshTitle()
 {
     setWindowTitle(tr("Users (%1)").arg(m_model->rowCount(QModelIndex())));
+}
+
+void UserListDock::showContextMenu(const QPoint& pos)
+{
+    contextMenu->popup(mapToGlobal(pos));
+}
+
+void UserListDock::startChatSelected()
+{
+    QModelIndex index = m_view->currentIndex();
+    if (!index.isValid())
+        return;
+    auto user = m_model->userAt(index);
+    Q_ASSERT(user);
+    user->requestDirectChat();
 }

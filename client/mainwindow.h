@@ -22,6 +22,7 @@
 #include <QtWidgets/QMainWindow>
 
 namespace QMatrixClient {
+    class Room;
     class Connection;
     class AccountSettings;
 }
@@ -60,7 +61,7 @@ class MainWindow: public QMainWindow
         ChatRoomWidget* getChatRoomWidget() const;
 
     public slots:
-        void selectRoom(QuaternionRoom* r);
+        void selectRoom(QMatrixClient::Room* r);
 
     protected:
         void closeEvent(QCloseEvent* event) override;

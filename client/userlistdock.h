@@ -28,6 +28,7 @@ namespace QMatrixClient
 
 class UserListModel;
 class QTableView;
+class QMenu;
 
 class UserListDock: public QDockWidget
 {
@@ -39,8 +40,13 @@ class UserListDock: public QDockWidget
 
     private slots:
         void refreshTitle();
+        void showContextMenu(const QPoint& pos);
+        void startChatSelected();
 
     private:
         QTableView* m_view;
         UserListModel* m_model;
+
+        QMenu* contextMenu;
+        QAction* startChatAction;
 };
