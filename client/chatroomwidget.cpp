@@ -409,6 +409,17 @@ QString ChatRoomWidget::doSendInput()
         m_currentRoom->localUser()->rename(argString, m_currentRoom);
         return {};
     }
+    if (command == "pm" || command == "query" || command == "dc")
+    {
+        if (argString.isEmpty())
+            return tr("/%1 <memberId>").arg(command.toString());
+        if (!argString.contains(UserIdRE))
+            return tr("/%1 argument doesn't look like a user ID")
+                    .arg(command.toString());
+
+        m_currentRoom->user(argString)->requestDirectChat();
+        return {};
+    }
     // --- Add more room commands here
     qDebug() << "Unknown command:" << command;
     return tr("Unknown /command. Use // to send this line literally");
