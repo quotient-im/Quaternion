@@ -186,10 +186,13 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         case Qt::DisplayRole:
         {
             const auto unreadCount = room->unreadMessagesCount();
+            const bool readMarkerValid =
+                    room->readMarker() != room->timelineEdge();
             const auto postfix =
-                room->readMarker() != room->timelineEdge()
-                    ? (unreadCount > 0 ? tr(" [%1]").arg(unreadCount) : "")
-                    : (unreadCount > 0 ? tr(" [%1+]").arg(unreadCount) : " [?]");
+                unreadCount == 0 ? (readMarkerValid ? "" : " [?]") :
+                (readMarkerValid ?
+                     QStringLiteral(" [%1]") : QStringLiteral(" [%1+]"))
+                .arg(unreadCount);
             for (auto c: m_connections)
             {
                 if (c == room->connection())
