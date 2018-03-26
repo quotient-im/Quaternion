@@ -21,6 +21,7 @@
 
 #include "../quaternionroom.h"
 
+#include "lib/user.h"
 #include "lib/connection.h"
 
 #include <QtGui/QIcon>
@@ -183,15 +184,23 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
     switch (role)
     {
         case Qt::DisplayRole:
+        {
+            const auto unreadCount = room->unreadMessagesCount();
+            const auto postfix =
+                room->readMarker() != room->timelineEdge()
+                    ? (unreadCount > 0 ? tr(" [%1]").arg(unreadCount) : "")
+                    : (unreadCount > 0 ? tr(" [%1+]").arg(unreadCount) : " [?]");
             for (auto c: m_connections)
             {
                 if (c == room->connection())
                     continue;
                 if (c->room(room->id(), room->joinState()))
-                    return tr("%1 (as %2)")
-                            .arg(room->displayName(), room->connection()->userId());
+                    return tr("%1 (as %2)").arg(room->displayName(),
+                                                room->connection()->userId())
+                           + postfix;
             }
-            return room->displayName();
+            return room->displayName() + postfix;
+        }
         case Qt::DecorationRole:
         {
             auto avatar = room->avatar(16, 16);
@@ -209,13 +218,35 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         }
         case Qt::ToolTipRole:
         {
-            int hlCount = room->highlightCount();
             auto result = QStringLiteral("<b>%1</b><br>").arg(room->displayName());
             result += tr("Main alias: %1<br>").arg(room->canonicalAlias());
             result += tr("Members: %1<br>").arg(room->memberCount());
+
+            auto unreadCount = room->unreadMessagesCount();
+            if (unreadCount > 0)
+            {
+                const auto unreadLine =
+                    room->readMarker() == room->timelineEdge()
+                        ? tr("Unread messages: %1+<br>")
+                        : tr("Unread messages: %1<br>");
+                result += unreadLine.arg(unreadCount);
+            }
+
+            auto hlCount = room->highlightCount();
             if (hlCount > 0)
-                result += tr("Unread mentions: %1<br>").arg(hlCount);
+                result += tr("Unread highlights: %1<br>").arg(hlCount);
+
             result += tr("ID: %1<br>").arg(room->id());
+
+            auto directChatUsers = room->directChatUsers();
+            if (!directChatUsers.isEmpty())
+            {
+                QStringList userNames;
+                for (auto* user: directChatUsers)
+                    userNames.push_back(user->displayname(room));
+                result += tr("This room is a direct chat with %1<br>")
+                            .arg(userNames.join(','));
+            }
             switch (room->joinState())
             {
                 case JoinState::Join:
@@ -234,7 +265,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         case HighlightCountRole:
             return room->highlightCount();
         case JoinStateRole:
-            return toCString(room->joinState()); // FIXME: better make the enum QVariant-convertible
+            return toCString(room->joinState()); // FIXME: better make the enum QVariant-convertible (only possible from Qt 5.8, see Q_ENUM_NS)
         default:
             return QVariant();
     }
