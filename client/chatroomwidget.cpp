@@ -245,18 +245,18 @@ void ChatRoomWidget::focusInput()
  * \return the vector of references to the original string, one reference for
  * each part.
  */
-QVector<QStringRef> lazySplitRef(const QString& s, QChar sep, int maxParts)
+QVector<QString> lazySplitRef(const QString& s, QChar sep, int maxParts)
 {
-    QVector<QStringRef> parts;
+    QVector<QString> parts;
     int pos = 0, nextPos = 0;
     for (; maxParts > 1 && (nextPos = s.indexOf(sep, pos)) > -1; --maxParts)
     {
-        parts.push_back({&s, pos, nextPos - pos});
+        parts.push_back(s.mid(pos, nextPos - pos));
         while (s[++nextPos] == sep)
             ;
         pos = nextPos;
     }
-    parts.push_back(s.midRef(pos));
+    parts.push_back(s.mid(pos));
     return parts;
 }
 
@@ -298,6 +298,7 @@ QString ChatRoomWidget::doSendInput()
         if (!argString.contains(RoomIdRE))
             return tr("/join argument doesn't look like a room ID or alias");
         emit joinCommandEntered(argString);
+        return {};
     }
     if (command == "quit")
     {
@@ -350,18 +351,18 @@ QString ChatRoomWidget::doSendInput()
             return tr("/%1 <memberId> <reason>").arg(command.toString());
         if (!UserIdRE.match(args.front()).hasMatch())
             return tr("%1 doesn't look like a user id")
-                    .arg(args.front().toString());
+                    .arg(args.front());
 
-        auto* user = m_currentRoom->user(args.front().toString());
+        auto* user = m_currentRoom->user(args.front());
         if (m_currentRoom->memberJoinState(user)
                 != QMatrixClient::JoinState::Join)
             return tr("%1 is not a member of this room")
                     .arg(user->fullName(m_currentRoom));
 
         if (command == "ban")
-            m_currentRoom->ban(user->id(), args.back().toString());
+            m_currentRoom->ban(user->id(), args.back());
         else
-            m_currentRoom->kickMember(user->id(), args.back().toString());
+            m_currentRoom->kickMember(user->id(), args.back());
         return {};
     }
     if (command == "unban")
@@ -409,15 +410,41 @@ QString ChatRoomWidget::doSendInput()
         m_currentRoom->localUser()->rename(argString, m_currentRoom);
         return {};
     }
-    if (command == "pm" || command == "query" || command == "dc")
+    if (command == "pm" || command == "msg")
+    {
+        const auto args = lazySplitRef(argString, ' ', 2);
+        if (args.front().isEmpty())
+            return tr("/%1 <memberId> <message>").arg(command.toString());
+        if (RoomIdRE.match(args.front()).hasMatch() && command == "msg")
+        {
+            if (auto* room = m_currentRoom->connection()->room(args.front()))
+            {
+                room->postMessage(args.back());
+                return {};
+            }
+            else
+                return tr("%1 doesn't seem to have joined room %2")
+                        .arg(m_currentRoom->localUser()->id(),
+                             args.front());
+        }
+        if (UserIdRE.match(args.front()).hasMatch())
+        {
+            m_currentRoom->connection()->doInDirectChat(args.front(),
+                [msg=args.back()] (Room* dc) { dc->postMessage(msg); });
+            return {};
+        }
+
+        return tr("%1 doesn't look like a user id or room alias")
+                .arg(args.front());
+    }
+    if (command == "query" || command == "dc")
     {
         if (argString.isEmpty())
             return tr("/%1 <memberId>").arg(command.toString());
         if (!argString.contains(UserIdRE))
-            return tr("/%1 argument doesn't look like a user ID")
-                    .arg(command.toString());
+            return tr("%1 doesn't look like a user id").arg(argString);
 
-        m_currentRoom->user(argString)->requestDirectChat();
+        m_currentRoom->connection()->requestDirectChat(argString);
         return {};
     }
     // --- Add more room commands here
