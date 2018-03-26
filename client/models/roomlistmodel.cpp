@@ -187,8 +187,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
             {
                 if (c == room->connection())
                     continue;
-                if (c->roomMap().contains(
-                        {room->id(), room->joinState() == JoinState::Invite}))
+                if (c->room(room->id(), room->joinState()))
                     return tr("%1 (as %2)")
                             .arg(room->displayName(), room->connection()->userId());
             }
