@@ -185,14 +185,11 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
     {
         case Qt::DisplayRole:
         {
-            const auto unreadCount = room->unreadMessagesCount();
-            const bool readMarkerValid =
-                    room->readMarker() != room->timelineEdge();
-            const auto postfix =
-                unreadCount == 0 ? (readMarkerValid ? "" : " [?]") :
-                (readMarkerValid ?
-                     QStringLiteral(" [%1]") : QStringLiteral(" [%1+]"))
-                .arg(unreadCount);
+            const auto unreadCount = room->unreadCount();
+            const auto postfix = unreadCount == -1 ? QString() :
+                room->readMarker() != room->timelineEdge()
+                    ? QStringLiteral(" [%1]").arg(unreadCount)
+                    : QStringLiteral(" [%1+]").arg(unreadCount);
             for (auto c: m_connections)
             {
                 if (c == room->connection())
@@ -225,8 +222,8 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
             result += tr("Main alias: %1<br>").arg(room->canonicalAlias());
             result += tr("Members: %1<br>").arg(room->memberCount());
 
-            auto unreadCount = room->unreadMessagesCount();
-            if (unreadCount > 0)
+            auto unreadCount = room->unreadCount();
+            if (unreadCount >= 0)
             {
                 const auto unreadLine =
                     room->readMarker() == room->timelineEdge()
