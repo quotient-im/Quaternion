@@ -222,6 +222,19 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
             result += tr("Main alias: %1<br>").arg(room->canonicalAlias());
             result += tr("Members: %1<br>").arg(room->memberCount());
 
+            auto directChatUsers = room->directChatUsers();
+            if (!directChatUsers.isEmpty())
+            {
+                QStringList userNames;
+                for (auto* user: directChatUsers)
+                    userNames.push_back(user->displayname(room));
+                result += tr("Direct chat with %1<br>")
+                            .arg(userNames.join(','));
+            }
+
+            if (room->usesEncryption())
+                result += tr("The room enforces encryption<br>");
+
             auto unreadCount = room->unreadCount();
             if (unreadCount >= 0)
             {
@@ -237,16 +250,6 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
                 result += tr("Unread highlights: %1<br>").arg(hlCount);
 
             result += tr("ID: %1<br>").arg(room->id());
-
-            auto directChatUsers = room->directChatUsers();
-            if (!directChatUsers.isEmpty())
-            {
-                QStringList userNames;
-                for (auto* user: directChatUsers)
-                    userNames.push_back(user->displayname(room));
-                result += tr("This room is a direct chat with %1<br>")
-                            .arg(userNames.join(','));
-            }
             switch (room->joinState())
             {
                 case JoinState::Join:

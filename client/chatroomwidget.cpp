@@ -165,6 +165,11 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
             reStartShownTimer();
             emit readMarkerMoved();
         });
+        connect( m_currentRoom, &Room::encryption, m_chatEdit, [this] {
+            m_chatEdit->setDisabled(true);
+            m_chatEdit->setPlaceholderText(
+                tr("Sending encrypted messages is not supported yet"));
+        });
         connect(m_currentRoom->connection(), &Connection::loggedOut,
                 this, [this]
         {
@@ -187,6 +192,13 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
         m_imageProvider->setConnection(nullptr);
     updateHeader();
     typingChanged();
+    if (m_currentRoom->usesEncryption())
+    {
+        m_chatEdit->setDisabled(true);
+        m_chatEdit->setPlaceholderText(
+            tr("Sending encrypted messages is not supported yet"));
+    }
+
     m_messageModel->changeRoom( m_currentRoom );
 }
 
