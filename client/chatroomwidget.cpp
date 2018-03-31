@@ -1,3 +1,5 @@
+#include <utility>
+
 /**************************************************************************
  *                                                                        *
  * Copyright (C) 2015 Felix Rohrbach <kde@fxrh.de>                        *
@@ -38,6 +40,9 @@
 #include "models/messageeventmodel.h"
 #include "imageprovider.h"
 #include "chatedit.h"
+
+static const auto DefaultPlaceholderText =
+        ChatRoomWidget::tr("Choose a room to send messages or enter a command...");
 
 ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     : QWidget(parent)
@@ -86,7 +91,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     m_currentlyTyping->setWordWrap(true);
 
     m_chatEdit = new ChatEdit(this);
-    m_chatEdit->setPlaceholderText(tr("Send a message (unencrypted)..."));
+    m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
     m_chatEdit->setAcceptRichText(false);
     connect( m_chatEdit, &KChatEdit::returnPressed, this, &ChatRoomWidget::sendInput );
     connect(m_chatEdit, &ChatEdit::proposedCompletion, this,
@@ -165,39 +170,19 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
             reStartShownTimer();
             emit readMarkerMoved();
         });
-        connect( m_currentRoom, &Room::encryption, m_chatEdit, [this] {
-            m_chatEdit->setDisabled(true);
-            m_chatEdit->setPlaceholderText(
-                tr("Sending encrypted messages is not supported yet"));
-        });
+        connect( m_currentRoom, &Room::encryption,
+                 this, &ChatRoomWidget::encryptionChanged);
         connect(m_currentRoom->connection(), &Connection::loggedOut,
                 this, [this]
         {
             qWarning() << "Logged out, escaping the room";
             setRoom(nullptr);
         });
-        connect(m_currentRoom->connection(), &Connection::joinedRoom,
-                this, [this] (Room* r, Room* prev)
-        {
-            if (m_currentRoom == prev)
-                setRoom(static_cast<QuaternionRoom*>(r));
-        });
-        connect(m_currentRoom->connection(), &Connection::aboutToDeleteRoom,
-                this, [this] (Room* r)
-        {
-            if (m_currentRoom == r)
-                setRoom(nullptr);
-        });
     } else
         m_imageProvider->setConnection(nullptr);
     updateHeader();
     typingChanged();
-    if (m_currentRoom->usesEncryption())
-    {
-        m_chatEdit->setDisabled(true);
-        m_chatEdit->setPlaceholderText(
-            tr("Sending encrypted messages is not supported yet"));
-    }
+    encryptionChanged();
 
     m_messageModel->changeRoom( m_currentRoom );
 }
@@ -238,9 +223,20 @@ void ChatRoomWidget::updateHeader()
     }
 }
 
+void ChatRoomWidget::encryptionChanged()
+{
+    m_chatEdit->setReadOnly(m_currentRoom && m_currentRoom->usesEncryption());
+    m_chatEdit->setPlaceholderText(
+        m_currentRoom
+            ? m_currentRoom->usesEncryption()
+                ? tr("Sending encrypted messages is not supported yet")
+                : tr("Send a message (unencrypted) or enter a command...")
+            : DefaultPlaceholderText);
+}
+
 void ChatRoomWidget::insertMention(QString author)
 {
-    m_chatEdit->insertMention(author);
+    m_chatEdit->insertMention(std::move(author));
 }
 
 void ChatRoomWidget::focusInput()

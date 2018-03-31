@@ -67,6 +67,7 @@ class ChatRoomWidget: public QWidget
 
     private slots:
         void sendInput();
+        void encryptionChanged();
 
     private:
         MessageEventModel* m_messageModel;
