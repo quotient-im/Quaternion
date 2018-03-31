@@ -270,6 +270,8 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Attempt to add a null connection");
 
+    using Room = QMatrixClient::Room;
+
     connections.push_back(c);
 
     roomListDock->addConnection(c);
@@ -296,9 +298,14 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
              this, [=](const QString& msg){ loginError(c, msg); } );
     connect( c, &Connection::newRoom, systemTrayIcon, &SystemTrayIcon::newRoom );
     connect( c, &Connection::createdRoom, this, &MainWindow::selectRoom);
+    connect( c, &Connection::joinedRoom, this, [this] (Room* r, Room* prev)
+        {
+            if (currentRoom == prev)
+                selectRoom(r);
+        });
     connect( c, &Connection::directChatAvailable, this, &MainWindow::selectRoom);
     connect( c, &Connection::aboutToDeleteRoom, this,
-             [this] (QMatrixClient::Room* r) {
+             [this] (Room* r) {
                  if (currentRoom == r)
                     selectRoom(nullptr);
              });
