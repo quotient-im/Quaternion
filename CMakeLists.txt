@@ -40,6 +40,9 @@ endforeach ()
 find_package(Qt5 5.6 REQUIRED Widgets Network Quick Qml Gui)
 get_filename_component(Qt5_Prefix "${Qt5_DIR}/../../../.." ABSOLUTE)
 
+add_subdirectory(lib)
+include_directories(lib)
+
 message( STATUS )
 message( STATUS "=============================================================================" )
 message( STATUS "                          Quaternion Build Information" )
@@ -52,9 +55,6 @@ message( STATUS "Using Qt ${Qt5_VERSION} at ${Qt5_Prefix}" )
 message( STATUS "Quaternion install prefix: ${CMAKE_INSTALL_PREFIX}" )
 message( STATUS "=============================================================================" )
 message( STATUS )
-
-add_subdirectory(lib)
-include_directories(lib)
 
 # Set up source files
 set(quaternion_SRCS
@@ -88,7 +88,7 @@ set_property(SOURCE qrc_resources.cpp PROPERTY SKIP_AUTOMOC ON)
 # Windows, this is a GUI executable; OSX, make a bundle
 add_executable(quaternion WIN32 MACOSX_BUNDLE ${quaternion_SRCS} ${quaternion_QRC_SRC})
 
-target_link_libraries(quaternion qmatrixclient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
+target_link_libraries(quaternion QMatrixClient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
 
 # Installation
 
