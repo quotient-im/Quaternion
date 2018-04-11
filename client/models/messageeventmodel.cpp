@@ -87,6 +87,7 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
     m_currentRoom = room;
     if( room )
     {
+        lastReadEventId = room->readMarkerEventId();
         using namespace QMatrixClient;
         connect(m_currentRoom, &Room::aboutToAddNewMessages, this,
                 [=](RoomEventsRange events)
@@ -122,8 +123,8 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                 this, &MessageEventModel::refreshEvent);
         qDebug() << "Connected to room" << room->id()
                  << "as" << room->localUser()->id();
-    }
-    lastReadEventId = room ? room->readMarkerEventId() : "";
+    } else
+        lastReadEventId.clear();
     endResetModel();
 }
 
