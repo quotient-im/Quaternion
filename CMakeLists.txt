@@ -90,6 +90,9 @@ add_executable(quaternion WIN32 MACOSX_BUNDLE ${quaternion_SRCS} ${quaternion_QR
 
 target_link_libraries(quaternion QMatrixClient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
 
+# macOS specific config for bundling
+set_target_properties(quaternion PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake/MacOSXBundleInfo.plist.in")
+
 # Installation
 
 if (NOT CMAKE_INSTALL_BINDIR)
@@ -97,7 +100,8 @@ if (NOT CMAKE_INSTALL_BINDIR)
 endif()
 
 install(TARGETS quaternion
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR})
 if(LINUX)
     install(FILES linux/quaternion.desktop
             DESTINATION  ${CMAKE_INSTALL_DATADIR}/applications
