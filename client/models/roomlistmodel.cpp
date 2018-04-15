@@ -57,10 +57,9 @@ void RoomListModel::deleteConnection(Connection* connection)
 {
     Q_ASSERT(connection);
 
-    // TODO: Save selection
     beginResetModel();
     connection->disconnect(this);
-    for( QuaternionRoom* room: m_rooms )
+    for( auto* room: qAsConst(m_rooms) )
         room->disconnect( this );
     m_rooms.erase(
         std::remove_if(m_rooms.begin(), m_rooms.end(),
@@ -68,7 +67,6 @@ void RoomListModel::deleteConnection(Connection* connection)
         m_rooms.end());
     m_connections.removeOne(connection);
     endResetModel();
-    // TODO: Restore selection
 }
 
 QuaternionRoom* RoomListModel::roomAt(QModelIndex index) const

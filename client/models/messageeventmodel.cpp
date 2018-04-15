@@ -393,15 +393,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     if( role == AuthorRole )
     {
         auto userId = event->senderId();
-        // FIXME: This will go away after senderName is generated correctly
-        // (see the FIXME in the beginning of the method).
-//        if (event->type() == EventType::RoomMember)
-//        {
-//            const auto* e = static_cast<const RoomMemberEvent*>(event);
-//            if (e->senderId() == e->userId() /*???*/ && e->prev_content()
-//                    && !e->prev_content()->displayName.isEmpty())
-//                userId = e->prevSenderId();
-//        }
+        // FIXME: It shouldn't be User, it should be its "current" state
         return QVariant::fromValue(m_currentRoom->connection()->user(userId));
     }
 
