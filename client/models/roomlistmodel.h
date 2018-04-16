@@ -60,8 +60,8 @@ class RoomListModel: public QAbstractListModel
         void deleteRoom(QMatrixClient::Room* room);
 
     private:
-        QList<Connection*> m_connections;
-        QList<QuaternionRoom*> m_rooms;
+        std::vector<Connection*> m_connections;
+        std::vector<QuaternionRoom*> m_rooms;
 
         void doAddRoom(QMatrixClient::Room* r);
         void connectRoomSignals(QuaternionRoom* room);

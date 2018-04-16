@@ -56,6 +56,14 @@ void RoomListModel::addConnection(Connection* connection)
 void RoomListModel::deleteConnection(Connection* connection)
 {
     Q_ASSERT(connection);
+    const auto connIt =
+            find(m_connections.begin(), m_connections.end(), connection);
+    if (connIt == m_connections.end())
+    {
+        Q_ASSERT_X(connIt == m_connections.end(), __FUNCTION__,
+                   "Connection is missing in the rooms model");
+        return;
+    }
 
     beginResetModel();
     connection->disconnect(this);
@@ -65,18 +73,21 @@ void RoomListModel::deleteConnection(Connection* connection)
         std::remove_if(m_rooms.begin(), m_rooms.end(),
             [=](const QuaternionRoom* r) { return r->connection() == connection; }),
         m_rooms.end());
-    m_connections.removeOne(connection);
+    m_connections.erase(connIt);
     endResetModel();
 }
 
 QuaternionRoom* RoomListModel::roomAt(QModelIndex index) const
 {
-    return m_rooms.at(index.row());
+    if (!index.isValid())
+        return nullptr;
+    return m_rooms.at(size_t(index.row()));
 }
 
 QModelIndex RoomListModel::indexOf(QuaternionRoom* room) const
 {
-    return index(m_rooms.indexOf(room), 0);
+    // index() will ensure invalid index if the room is not found.
+    return index(find(m_rooms.begin(), m_rooms.end(), room) - m_rooms.begin());
 }
 
 void RoomListModel::updateRoom(QMatrixClient::Room* room,
@@ -109,14 +120,15 @@ void RoomListModel::updateRoom(QMatrixClient::Room* room,
         if (*it == prev && *it != newRoom)
         {
             prev->disconnect(this);
-            m_rooms.replace(row, newRoom);
+            *it = newRoom;
             connectRoomSignals(newRoom);
         }
         emit dataChanged(index(row), index(row));
     }
     else
     {
-        beginInsertRows(QModelIndex(), m_rooms.count(), m_rooms.count());
+        const auto end = int(m_rooms.size());
+        beginInsertRows(QModelIndex(), end, end);
         doAddRoom(newRoom);
         endInsertRows();
     }
@@ -124,12 +136,13 @@ void RoomListModel::updateRoom(QMatrixClient::Room* room,
 
 void RoomListModel::deleteRoom(QMatrixClient::Room* room)
 {
-    auto i = m_rooms.indexOf(static_cast<QuaternionRoom*>(room));
-    if (i == -1)
+    const auto it = find(m_rooms.begin(), m_rooms.end(), room);
+    if (it == m_rooms.end())
         return; // Already deleted, nothing to do
 
-    beginRemoveRows(QModelIndex(), i, i);
-    m_rooms.removeAt(i);
+    const int row = it - m_rooms.begin();
+    beginRemoveRows(QModelIndex(), row, row);
+    m_rooms.erase(it);
     endRemoveRows();
 }
 
@@ -137,7 +150,7 @@ void RoomListModel::doAddRoom(QMatrixClient::Room* r)
 {
     if (auto* room = static_cast<QuaternionRoom*>(r))
     {
-        m_rooms.append(room);
+        m_rooms.push_back(room);
         connectRoomSignals(room);
     } else
     {
@@ -164,7 +177,7 @@ int RoomListModel::rowCount(const QModelIndex& parent) const
 {
     if( parent.isValid() )
         return 0;
-    return m_rooms.count();
+    return int(m_rooms.size());
 }
 
 QVariant RoomListModel::data(const QModelIndex& index, int role) const
@@ -172,12 +185,12 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
     if( !index.isValid() )
         return QVariant();
 
-    if( index.row() >= m_rooms.count() )
+    if( size_t(index.row()) >= m_rooms.size() )
     {
         qDebug() << "UserListModel: something wrong here...";
         return QVariant();
     }
-    auto room = m_rooms.at(index.row());
+    auto room = m_rooms.at(size_t(index.row()));
     using QMatrixClient::JoinState;
     switch (role)
     {
@@ -284,10 +297,13 @@ void RoomListModel::unreadMessagesChanged(QuaternionRoom* room)
 
 void RoomListModel::refresh(QuaternionRoom* room, const QVector<int>& roles)
 {
-    int row = m_rooms.indexOf(room);
-    if (row == -1)
+    const auto it = find(m_rooms.begin(), m_rooms.end(), room);
+    if (it == m_rooms.end())
+    {
         qCritical() << "Room" << room->id() << "not found in the room list";
-    else
-        emit dataChanged(index(row), index(row), roles);
+        return;
+    }
+    const auto idx = index(it - m_rooms.begin());
+    emit dataChanged(idx, idx, roles);
 }
 
