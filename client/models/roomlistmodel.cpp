@@ -30,13 +30,14 @@ RoomListModel::RoomListModel(QObject* parent)
     : QAbstractListModel(parent)
 { }
 
-void RoomListModel::addConnection(Connection* connection)
+void RoomListModel::addConnection(QMatrixClient::Connection* connection)
 {
     Q_ASSERT(connection);
 
+    using QMatrixClient::Connection;
     using QMatrixClient::Room;
     beginResetModel();
-    m_connections.push_back(connection);
+    m_connections.emplace_back(connection, this);
     connect( connection, &Connection::loggedOut,
              this, [=]{ deleteConnection(connection); } );
     connect( connection, &Connection::invitedRoom,
@@ -53,7 +54,7 @@ void RoomListModel::addConnection(Connection* connection)
     endResetModel();
 }
 
-void RoomListModel::deleteConnection(Connection* connection)
+void RoomListModel::deleteConnection(QMatrixClient::Connection* connection)
 {
     Q_ASSERT(connection);
     const auto connIt =
@@ -66,9 +67,6 @@ void RoomListModel::deleteConnection(Connection* connection)
     }
 
     beginResetModel();
-    connection->disconnect(this);
-    for( auto* room: qAsConst(m_rooms) )
-        room->disconnect( this );
     m_rooms.erase(
         std::remove_if(m_rooms.begin(), m_rooms.end(),
             [=](const QuaternionRoom* r) { return r->connection() == connection; }),
@@ -119,7 +117,6 @@ void RoomListModel::updateRoom(QMatrixClient::Room* room,
         // There's no guarantee that prev != newRoom
         if (*it == prev && *it != newRoom)
         {
-            prev->disconnect(this);
             *it = newRoom;
             connectRoomSignals(newRoom);
         }
@@ -150,7 +147,7 @@ void RoomListModel::doAddRoom(QMatrixClient::Room* r)
 {
     if (auto* room = static_cast<QuaternionRoom*>(r))
     {
-        m_rooms.push_back(room);
+        m_rooms.emplace_back(room, this);
         connectRoomSignals(room);
     } else
     {
@@ -190,7 +187,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         qDebug() << "UserListModel: something wrong here...";
         return QVariant();
     }
-    auto room = m_rooms.at(size_t(index.row()));
+    const auto& room = m_rooms.at(size_t(index.row()));
     using QMatrixClient::JoinState;
     switch (role)
     {
@@ -201,7 +198,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
                 room->readMarker() != room->timelineEdge()
                     ? QStringLiteral(" [%1]").arg(unreadCount)
                     : QStringLiteral(" [%1+]").arg(unreadCount);
-            for (auto c: m_connections)
+            for (const auto& c: m_connections)
             {
                 if (c == room->connection())
                     continue;

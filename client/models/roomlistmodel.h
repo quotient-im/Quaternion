@@ -19,20 +19,17 @@
 
 #pragma once
 
+#include "../quaternionroom.h"
+#include "lib/connection.h"
+#include "lib/util.h"
+
 #include <QtCore/QAbstractListModel>
-
-namespace QMatrixClient
-{
-    class Connection;
-    class Room;
-}
-
-class QuaternionRoom;
 
 class RoomListModel: public QAbstractListModel
 {
         Q_OBJECT
-        using Connection = QMatrixClient::Connection;
+        template <typename T>
+        using ConnectionsGuard = QMatrixClient::ConnectionsGuard<T>;
     public:
         enum Roles {
             HasUnreadRole = Qt::UserRole + 1,
@@ -41,8 +38,8 @@ class RoomListModel: public QAbstractListModel
 
         explicit RoomListModel(QObject* parent = nullptr);
 
-        void addConnection(Connection* connection);
-        void deleteConnection(Connection* connection);
+        void addConnection(QMatrixClient::Connection* connection);
+        void deleteConnection(QMatrixClient::Connection* connection);
 
         QuaternionRoom* roomAt(QModelIndex index) const;
         QModelIndex indexOf(QuaternionRoom* room) const;
@@ -60,8 +57,8 @@ class RoomListModel: public QAbstractListModel
         void deleteRoom(QMatrixClient::Room* room);
 
     private:
-        std::vector<Connection*> m_connections;
-        std::vector<QuaternionRoom*> m_rooms;
+        std::vector<ConnectionsGuard<QMatrixClient::Connection>> m_connections;
+        std::vector<ConnectionsGuard<QuaternionRoom>> m_rooms;
 
         void doAddRoom(QMatrixClient::Room* r);
         void connectRoomSignals(QuaternionRoom* room);
