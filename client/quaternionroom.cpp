@@ -61,8 +61,9 @@ int QuaternionRoom::savedBottomVisibleIndex() const
 
 void QuaternionRoom::saveViewport(int topIndex, int bottomIndex)
 {
-    if (bottomIndex == savedBottomVisibleIndex() &&
-            (bottomIndex == 0 || topIndex == savedTopVisibleIndex()))
+    if (topIndex == -1 || bottomIndex == -1 ||
+            (bottomIndex == savedBottomVisibleIndex() &&
+             (bottomIndex == 0 || topIndex == savedTopVisibleIndex())))
         return;
     if (bottomIndex == 0)
     {
