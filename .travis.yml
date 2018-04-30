@@ -13,7 +13,7 @@ matrix:
   include:
   - os: linux
     compiler: gcc
-    env: [ 'ENV_EVAL="CC=gcc-5 && CXX=g++-5" ]
+    env: [ 'ENV_EVAL="CC=gcc-5 && CXX=g++-5"' ]
   - os: linux
     compiler: clang
   - os: osx
