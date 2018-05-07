@@ -31,6 +31,8 @@
   <releases>
     <release version="0.1-pre" />
     <release version="0.0.5" date="2017-12-22" />
+    <release version="0.0.9" date="2018-04-27" />
+    <release version="0.0.9.1" date="2018-05-07" />
   </releases>
 
   <developer_name>Kitsune Ral et al.</developer_name>
