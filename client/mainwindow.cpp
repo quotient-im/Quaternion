@@ -27,7 +27,7 @@
 #include "roomdialogs.h"
 #include "systemtrayicon.h"
 
-#include "lib/jobs/joinroomjob.h"
+#include "lib/csapi/joining.h"
 #include "lib/connection.h"
 #include "lib/networkaccessmanager.h"
 #include "lib/settings.h"
@@ -550,18 +550,18 @@ void MainWindow::joinRoom(const QString& roomAlias, Connection* connection)
                                  QMessageBox::Close, QMessageBox::Close);
     }
 
-    using QMatrixClient::JoinRoomJob;
-    auto job = connection->joinRoom(room);
+    using QMatrixClient::BaseJob;
+    auto* job = connection->joinRoom(room);
     // Connection::joinRoom() already connected to success() the code that
     // initialises the room in the library, which in turn causes RoomListModel
     // to update the room list. So the below connection to success() will be
     // triggered after all the initialisation have happened.
-    connect(job, &JoinRoomJob::success, this, [=]
+    connect(job, &BaseJob::success, this, [=]
     {
         statusBar()->showMessage(tr("Joined %1 as %2")
                                  .arg(roomAlias, connection->userId()));
     });
-    connect(job, &JoinRoomJob::failure, this, [=] {
+    connect(job, &BaseJob::failure, this, [=] {
         QMessageBox messageBox(QMessageBox::Warning,
                                tr("Failed to join room"),
                                tr("Joining request returned an error"),
@@ -570,11 +570,11 @@ void MainWindow::joinRoom(const QString& roomAlias, Connection* connection)
         messageBox.setTextFormat(Qt::PlainText);
         messageBox.setDetailedText(job->errorString());
         switch (job->error()) {
-            case JoinRoomJob::NotFoundError:
+            case BaseJob::NotFoundError:
                 messageBox.setText(
                     tr("Room %1 not found on the server").arg(roomAlias));
                 break;
-            case JoinRoomJob::IncorrectRequestError:
+            case BaseJob::IncorrectRequestError:
                 messageBox.setText(
                     tr("Incorrect id or alias: %1").arg(roomAlias));
                 break;

@@ -31,7 +31,7 @@ class QuaternionRoom: public QMatrixClient::Room
         const QString& cachedInput() const;
         void setCachedInput(const QString& input);
 
-        bool isEventHighlighted(QMatrixClient::RoomEvent* e) const;
+        bool isEventHighlighted(const QMatrixClient::RoomEvent* e) const;
 
         Q_INVOKABLE int savedTopVisibleIndex() const;
         Q_INVOKABLE int savedBottomVisibleIndex() const;
@@ -41,7 +41,7 @@ class QuaternionRoom: public QMatrixClient::Room
         void countChanged();
 
     private:
-        QSet<QMatrixClient::RoomEvent*> highlights;
+        QSet<const QMatrixClient::RoomEvent*> highlights;
         QString m_cachedInput;
 
         void onAddNewTimelineEvents(timeline_iter_t from) override;

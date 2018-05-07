@@ -21,7 +21,7 @@
 #include "quaternionroom.h"
 #include "lib/user.h"
 #include "lib/connection.h"
-#include "lib/jobs/generated/create_room.h"
+#include "lib/csapi/create_room.h"
 #include "lib/logging.h"
 
 #include <QtWidgets/QComboBox>
@@ -299,7 +299,7 @@ void CreateRoomDialog::apply()
 {
     using namespace QMatrixClient;
     auto* connection = account->currentData(Qt::UserRole).value<Connection*>();
-    QVector<QString> userIds;
+    QStringList userIds;
     for (int i = 0; i < invitees->count(); ++i)
     {
         auto userVar = invitees->item(i)->data(Qt::UserRole);

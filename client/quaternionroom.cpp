@@ -26,7 +26,7 @@ using namespace QMatrixClient;
 
 QuaternionRoom::QuaternionRoom(Connection* connection, QString roomId,
                                JoinState joinState)
-    : Room(connection, roomId, joinState)
+    : Room(connection, std::move(roomId), joinState)
 {
     connect( this, &QuaternionRoom::notificationCountChanged, this, &QuaternionRoom::countChanged );
     connect( this, &QuaternionRoom::highlightCountChanged, this, &QuaternionRoom::countChanged );
@@ -42,7 +42,7 @@ void QuaternionRoom::setCachedInput(const QString& input)
     m_cachedInput = input;
 }
 
-bool QuaternionRoom::isEventHighlighted(RoomEvent* e) const
+bool QuaternionRoom::isEventHighlighted(const RoomEvent* e) const
 {
     return highlights.contains(e);
 }
@@ -104,9 +104,9 @@ void QuaternionRoom::checkForHighlights(const QMatrixClient::TimelineItem& ti)
         return;
     if (ti->type() == EventType::RoomMessage)
     {
-        auto* rme = static_cast<const RoomMessageEvent*>(ti.event());
-        if (rme->plainBody().contains(localUserId) ||
-                rme->plainBody().contains(roomMembername(localUserId)))
+        const auto& text = ti.viewAs<RoomMessageEvent>()->plainBody();
+        if (text.contains(localUserId) ||
+                text.contains(roomMembername(localUserId)))
             highlights.insert(ti.event());
     }
 }
