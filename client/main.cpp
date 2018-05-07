@@ -35,7 +35,7 @@ int main( int argc, char* argv[] )
     QApplication::setOrganizationName("QMatrixClient");
     QApplication::setApplicationName("quaternion");
     QApplication::setApplicationDisplayName("Quaternion");
-    QApplication::setApplicationVersion("0.0.5");
+    QApplication::setApplicationVersion("0.0.9.2");
 
     QMatrixClient::Settings::setLegacyNames("Quaternion", "quaternion");
 
@@ -47,16 +47,14 @@ int main( int argc, char* argv[] )
         QApplication::postEvent(qApp, new QEvent(QEvent::Quit));
     });
 
-    {
-        QTranslator qtTranslator;
-        qtTranslator.load(QLocale(), "qt", "_",
-                          QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-        app.installTranslator(&qtTranslator);
+    QTranslator qtTranslator;
+    qtTranslator.load(QLocale(), "qt", "_",
+                      QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+    app.installTranslator(&qtTranslator);
 
-        QTranslator appTranslator;
-        appTranslator.load(QLocale(), "quaternion", ".", "i18n");
-        app.installTranslator(&appTranslator);
-    }
+    QTranslator appTranslator;
+    appTranslator.load(QLocale(), "quaternion", ".", "i18n");
+    app.installTranslator(&appTranslator);
 
     QCommandLineParser parser;
     parser.setApplicationDescription(QApplication::translate("main", "An IM client for the Matrix protocol"));
