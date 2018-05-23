@@ -294,6 +294,22 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
         dropConnection(c);
     });
     connect( c, &Connection::networkError, this, [=]{ networkError(c); } );
+    connect( c, &Connection::syncError, this,
+        [this,c] (const QString& message, const QByteArray& details) {
+            QMessageBox msgBox(QMessageBox::Warning, tr("Sync failed"),
+                tr("The last sync of account %1 has failed with error: %3")
+                .arg(c->userId()).arg(message),
+                QMessageBox::Retry|QMessageBox::Cancel, this);
+            msgBox.setTextFormat(Qt::PlainText);
+            msgBox.setDefaultButton(QMessageBox::Retry);
+            msgBox.setInformativeText(
+                "Clicking 'Retry' will attempt to resume synchronisation;\n"
+                "Clicking 'Cancel' will stop further synchronisation of this "
+                "account until logout or Quaternion restart.");
+            msgBox.setDetailedText(details);
+            if (msgBox.exec() == QMessageBox::Retry)
+                getNewEvents(c);
+        });
     connect( c, &Connection::loginError,
              this, [=](const QString& msg){ loginError(c, msg); } );
     connect( c, &Connection::newRoom, systemTrayIcon, &SystemTrayIcon::newRoom );
