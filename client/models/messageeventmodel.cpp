@@ -97,11 +97,21 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
         connect(m_currentRoom, &Room::aboutToAddHistoricalMessages, this,
                 [=](RoomEventsRange events)
                 {
+                    if (rowCount() > 0)
+                        nextNewerRow = rowCount() - 1;
                     beginInsertRows(QModelIndex(), rowCount(),
                                     rowCount() + int(events.size()) - 1);
                 });
-        connect(m_currentRoom, &Room::addedMessages,
-                this, &MessageEventModel::endInsertRows);
+        connect(m_currentRoom, &Room::addedMessages, this,
+                [=] {
+                    if (nextNewerRow > -1)
+                    {
+                        const auto idx = index(nextNewerRow);
+                        emit dataChanged(idx, idx);
+                        nextNewerRow = -1;
+                    }
+                    endInsertRows();
+                });
         connect(m_currentRoom, &Room::readMarkerMoved, this, [this] {
             refreshEventRoles(
                 std::exchange(lastReadEventId,
@@ -139,8 +149,8 @@ void MessageEventModel::refreshEventRoles(const QString& eventId,
     const auto it = m_currentRoom->findInTimeline(eventId);
     if (it != m_currentRoom->timelineEdge())
     {
-        const auto row = it - m_currentRoom->messageEvents().rbegin();
-        emit dataChanged(index(row), index(row), roles);
+        const auto idx = index(it - m_currentRoom->messageEvents().rbegin());
+        emit dataChanged(idx, idx, roles);
     }
 }
 

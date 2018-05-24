@@ -47,6 +47,7 @@ class MessageEventModel: public QAbstractListModel
     private:
         QuaternionRoom* m_currentRoom;
         QString lastReadEventId;
+        int nextNewerRow = -1;
 
         QDateTime makeMessageTimestamp(QuaternionRoom::rev_iter_t baseIt) const;
         QString makeDateString(QuaternionRoom::rev_iter_t baseIt) const;
