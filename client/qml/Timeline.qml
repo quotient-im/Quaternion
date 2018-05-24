@@ -94,7 +94,9 @@ Rectangle {
         }
 
         Component.onCompleted: {
-            console.log("onCompleted")
+            console.log("QML view loaded")
+            console.log("Base colours:", defaultPalette.text,
+                        "on", defaultPalette.base)
             model.modelAboutToBeReset.connect(onModelAboutToReset)
             model.modelReset.connect(onModelReset)
         }

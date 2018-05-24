@@ -52,7 +52,10 @@ Item {
         y + message.height - 1 < view.contentY + view.height
 
     onShownChanged:
+    {
+        console.log("onShownChanged(" + eventId + "," + shown + "): y=" + y + ", view.contentY=" + view.contentY + ", view.height=" + view.height)
         controller.onMessageShownChanged(eventId, shown)
+    }
 
     Component.onCompleted: {
         if (shown)
