@@ -38,6 +38,7 @@ enum EventRoles {
     SectionRole,
     AboveSectionRole,
     AuthorRole,
+    AboveAuthorRole,
     ContentRole,
     ContentTypeRole,
     HighlightRole,
@@ -55,6 +56,7 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
     roles[SectionRole] = "section";
     roles[AboveSectionRole] = "aboveSection";
     roles[AuthorRole] = "author";
+    roles[AboveAuthorRole] = "aboveAuthor";
     roles[ContentRole] = "content";
     roles[ContentTypeRole] = "contentType";
     roles[HighlightRole] = "highlight";
@@ -391,13 +393,6 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     if( role == SectionRole )
         return makeDateString(timelineIt); // FIXME: move date rendering to QML
 
-    if( role == AboveSectionRole ) // FIXME: shouldn't be here, because #312
-    {
-        auto aboveEventIt = timelineIt + 1;
-        if (aboveEventIt != m_currentRoom->timelineEdge())
-            return makeDateString(aboveEventIt);
-    }
-
     if( role == AuthorRole )
     {
         auto userId = ti->senderId();
@@ -470,6 +465,17 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
             auto info = m_currentRoom->fileTransferInfo(ti->id());
             return QVariant::fromValue(info);
         }
+    }
+
+    auto aboveEventIt = timelineIt + 1; // FIXME: shouldn't be here, because #312
+    if (aboveEventIt != m_currentRoom->timelineEdge())
+    {
+        if( role == AboveSectionRole )
+            return makeDateString(aboveEventIt);
+
+        if( role == AboveAuthorRole )
+            return QVariant::fromValue(
+                        m_currentRoom->user((*aboveEventIt)->senderId()));
     }
 
     return QVariant();
