@@ -17,6 +17,7 @@ Item {
         readonly property int animations_duration_ms: value("UI/animations_duration_ms", 400)
         readonly property int fast_animations_duration_ms: animations_duration_ms / 2
         readonly property bool show_author_avatars: value("UI/show_author_avatars", false)
+        readonly property string timeline_style: value("UI/timeline_style", "")
     }
 
     // Property interface
@@ -39,6 +40,10 @@ Item {
                 disabledPalette.text : defaultPalette.text
     readonly property string authorName:
         room.roomMembername(author.id)
+
+    readonly property bool xchatStyle: settings.timeline_style === "xchat"
+    readonly property bool actionEvent: eventType == "state" || eventType == "emote"
+    readonly property bool singleRow: xchatStyle || actionEvent
 
     // A message is considered shown if its bottom is within the
     // viewing area of the timeline.
@@ -99,48 +104,52 @@ Item {
             width: parent.width
             height: childrenRect.height
 
-            Label {
-                id: timelabel
-                anchors.top: textField.top
-                anchors.left: parent.left
+            // There are several layout styles (av - author avatar,
+            // al - author label, ts - timestamp, c - content
+            // default (when "timeline_style" is not "xchat"):
+            //   av al
+            //   ts c
+            // state-emote (default for state and emote events):
+            //   ts av (al+c in a single control)
+            // xchat (when "timeline_style" is "xchat"):
+            //   ts av al c
+            // xchat state-emote
+            //   ts av * al c
 
-                color: disabledPalette.text
-                renderType: settings.render_type
-
-                text: "<" +
-                      time.toLocaleTimeString(Qt.locale(), Locale.ShortFormat)
-                      + ">"
-            }
             Image {
                 id: authorAvatar
-                visible: settings.show_author_avatars && author.avatarMediaId
-                anchors.top: textField.top
-                anchors.left: timelabel.right
-                anchors.leftMargin: 3
-                height: showDetailsButton.height
+                visible: settings.show_author_avatars && authorLabel.visible
+                anchors.top: authorLabel.top
+                anchors.left: singleRow ? timelabel.right : parent.left
+                anchors.leftMargin: singleRow * 3
+                width: if (!singleRow) { timelabel.width }
+                height: authorLabel.visible ? authorLabel.height +
+                    (!singleRow) * Math.min(
+                        Math.max(sourceSize.height - authorLabel.height, 0),
+                        showDetailsButton.height
+                            - timelabel.height - timelabel.anchors.topMargin * 2)
+                    : 0
                 fillMode: Image.PreserveAspectFit
 
-                sourceSize.height: showDetailsButton.height
-                source: visible ? "image://mtx/" + author.avatarMediaId : ""
+                source: author.avatarMediaId ?
+                            "image://mtx/" + author.avatarMediaId : ""
             }
-
             Label {
                 id: authorLabel
-                width: 120 - authorAvatar.width
-                anchors.top: textField.top
-                anchors.left: authorAvatar.right
-                anchors.leftMargin: 3
-                horizontalAlignment: if( ["other", "emote", "state"]
-                                             .indexOf(eventType) >= 0 )
-                                     { Text.AlignRight }
+                visible: sectionVisible || actionEvent || author != aboveAuthor
+                anchors.left: singleRow ? authorAvatar.right : textField.left
+                anchors.leftMargin: singleRow * 2
+                width: if (xchatStyle) { 120 - authorAvatar.width }
+                height: if (!visible) { 0 }
+                horizontalAlignment:
+                    xchatStyle && actionEvent ? Text.AlignRight : Text.AlignLeft
                 elide: Text.ElideRight
 
                 color: textColor
+                font.bold: !xchatStyle
                 renderType: settings.render_type
 
-                text: eventType == "state" || eventType == "emote" ?
-                          "* " + authorName :
-                      eventType != "other" ? authorName : "***"
+                text: xchatStyle && actionEvent ? ("* " + authorName) : authorName
             }
             MouseArea {
                 anchors.left: authorAvatar.left
@@ -153,18 +162,35 @@ Item {
                     controller.focusInput()
                 }
             }
+
+            Label {
+                id: timelabel
+                anchors.top: singleRow ? authorLabel.top : authorAvatar.bottom
+                anchors.topMargin: 1
+                anchors.left: parent.left
+
+                color: disabledPalette.text
+                textFormat: Text.RichText
+                renderType: settings.render_type
+
+                text: "<font size=-1>&lt;" +
+                      time.toLocaleTimeString(Qt.locale(), Locale.ShortFormat)
+                      + "&gt;</font>"
+            }
             TextEdit {
                 id: textField
-                anchors.left: authorLabel.right
+                anchors.top: singleRow ? authorLabel.top : authorLabel.bottom
+                anchors.left: singleRow ? authorLabel.right : timelabel.right
                 anchors.leftMargin: 3
                 anchors.right: showDetailsButton.left
                 anchors.rightMargin: 3
 
-                selectByMouse: true;
-                readOnly: true;
+                selectByMouse: true
+                readOnly: true
                 textFormat: TextEdit.RichText
-                text: display
-                wrapMode: Text.Wrap;
+                text: xchatStyle || !singleRow ? display : ' ' + display
+                horizontalAlignment: Text.AlignLeft
+                wrapMode: Text.Wrap
                 color: textColor
                 renderType: settings.render_type
 
