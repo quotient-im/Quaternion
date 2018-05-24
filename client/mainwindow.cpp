@@ -302,10 +302,10 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
                 QMessageBox::Retry|QMessageBox::Cancel, this);
             msgBox.setTextFormat(Qt::PlainText);
             msgBox.setDefaultButton(QMessageBox::Retry);
-            msgBox.setInformativeText(
+            msgBox.setInformativeText(tr(
                 "Clicking 'Retry' will attempt to resume synchronisation;\n"
                 "Clicking 'Cancel' will stop further synchronisation of this "
-                "account until logout or Quaternion restart.");
+                "account until logout or Quaternion restart."));
             msgBox.setDetailedText(details);
             if (msgBox.exec() == QMessageBox::Retry)
                 getNewEvents(c);
