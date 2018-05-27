@@ -163,7 +163,94 @@ void MainWindow::createMenu()
 
     // Settings menu
     auto settingsMenu = menuBar()->addMenu(tr("&Settings"));
+    using QMatrixClient::Settings;
 
+    {
+        auto notifGroup = new QActionGroup(this);
+        connect(notifGroup, &QActionGroup::triggered, this,
+            [] (QAction* notifAction)
+            {
+                notifAction->setChecked(true);
+                Settings().setValue("UI/notifications",
+                                    notifAction->data().toString());
+            });
+
+        auto noNotif = notifGroup->addAction(tr("&Highlight only"));
+        noNotif->setData(QStringLiteral("none"));
+        noNotif->setStatusTip(tr("Notifications are entirely suppressed"));
+        auto gentleNotif = notifGroup->addAction(tr("Non-intrusive"));
+        gentleNotif->setData(QStringLiteral("non-intrusive"));
+        gentleNotif->setStatusTip(
+            tr("Show &notifications but do not activate the window"));
+        auto fullNotif = notifGroup->addAction(tr("Full"));
+        fullNotif->setData(QStringLiteral("intrusive"));
+        fullNotif->setStatusTip(
+            tr("Show notifications and &activate the window"));
+
+        auto notifMenu = settingsMenu->addMenu(tr("Notifications"));
+        for (auto a: {noNotif, gentleNotif, fullNotif})
+        {
+            a->setCheckable(true);
+            notifMenu->addAction(a);
+        }
+
+        const auto curSetting = Settings().value("UI/notifications",
+                                                 fullNotif->data().toString());
+        if (curSetting == noNotif->data().toString())
+            noNotif->setChecked(true);
+        else if (curSetting == gentleNotif->data().toString())
+            gentleNotif->setChecked(true);
+        else
+            fullNotif->setChecked(true);
+    }
+    {
+        auto layoutGroup = new QActionGroup(this);
+        connect(layoutGroup, &QActionGroup::triggered, this,
+            [this] (QAction* action)
+        {
+            action->setChecked(true);
+            Settings().setValue("UI/timeline_style", action->data().toString());
+            chatRoomWidget->setRoom(nullptr);
+            chatRoomWidget->setRoom(currentRoom);
+        });
+
+        auto defaultLayout = layoutGroup->addAction(tr("Default"));
+        defaultLayout->setStatusTip(
+            tr("The layout with author labels above blocks of messages"));
+        auto xchatLayout = layoutGroup->addAction(tr("XChat"));
+        xchatLayout->setData(QStringLiteral("xchat"));
+        xchatLayout->setStatusTip(
+            tr("The layout with author labels to the left from each message"));
+
+        auto layoutMenu = settingsMenu->addMenu(tr("Timeline layout"));
+        for (auto a: {defaultLayout, xchatLayout})
+        {
+            a->setCheckable(true);
+            layoutMenu->addAction(a);
+        }
+
+        const auto curSetting = Settings().value("UI/timeline_style",
+                                                 defaultLayout->data().toString());
+        if (curSetting == xchatLayout->data().toString())
+            xchatLayout->setChecked(true);
+        else
+            defaultLayout->setChecked(true);
+    }
+    auto autoloadImages =
+        settingsMenu->addAction(tr("Load full-size images at once"),
+            [this] (bool checked)
+            {
+                Settings().setValue("UI/autoload_images", checked);
+                chatRoomWidget->setRoom(nullptr);
+                chatRoomWidget->setRoom(currentRoom);
+            });
+    autoloadImages->setStatusTip(
+        tr("Automatically download a full-size image instead of a thumbnail"));
+    autoloadImages->setCheckable(true);
+    autoloadImages->setChecked(
+        Settings().value("UI/autoload_images", true).toBool());
+
+    settingsMenu->addSeparator();
     settingsMenu->addAction(tr("Configure &network proxy..."), [this]
     {
         static QPointer<NetworkConfigDialog> dlg;
