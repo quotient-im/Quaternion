@@ -53,6 +53,7 @@
 #include <QtWidgets/QFormLayout>
 #include <QtGui/QMovie>
 #include <QtGui/QCloseEvent>
+#include <QtGui/QDesktopServices>
 
 using QMatrixClient::NetworkAccessManager;
 using QMatrixClient::AccountSettings;
@@ -384,8 +385,10 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     connect( c, &Connection::syncError, this,
         [this,c] (const QString& message, const QByteArray& details) {
             QMessageBox msgBox(QMessageBox::Warning, tr("Sync failed"),
-                tr("The last sync of account %1 has failed with error: %3")
-                .arg(c->userId()).arg(message),
+                connections.size() > 1
+                    ? tr("The last sync of account %1 has failed with error: %2")
+                        .arg(c->userId(), message)
+                    : tr("The last sync has failed with error: %1").arg(message),
                 QMessageBox::Retry|QMessageBox::Cancel, this);
             msgBox.setTextFormat(Qt::PlainText);
             msgBox.setDefaultButton(QMessageBox::Retry);
@@ -396,6 +399,31 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
             msgBox.setDetailedText(details);
             if (msgBox.exec() == QMessageBox::Retry)
                 getNewEvents(c);
+        });
+    connect( c, &Connection::requestFailed, this,
+        [this] (QMatrixClient::BaseJob* job)
+        {
+            if (job->isBackground())
+                return;
+            QMessageBox msgBox(QMessageBox::Warning, job->errorCaption(),
+                QMatrixClient::prettyPrint(job->errorString()),
+                QMessageBox::Close, this);
+            msgBox.setTextFormat(Qt::RichText);
+            msgBox.setDetailedText(
+                "Request URL: " + job->requestUrl().toDisplayString() +
+                "\nResponse:\n" + job->errorRawData());
+            QPushButton* openUrlButton = nullptr;
+            if (job->errorUrl().isEmpty())
+                msgBox.setDefaultButton(QMessageBox::Close);
+            else
+            {
+                openUrlButton =
+                    msgBox.addButton(tr("Open URL"), QMessageBox::ActionRole);
+                openUrlButton->setDefault(true);
+            }
+            msgBox.exec();
+            if (msgBox.clickedButton() == openUrlButton)
+                QDesktopServices::openUrl(job->errorUrl());
         });
     connect( c, &Connection::loginError,
              this, [=](const QString& msg){ loginError(c, msg); } );
