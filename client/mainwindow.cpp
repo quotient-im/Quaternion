@@ -400,14 +400,20 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
             if (msgBox.exec() == QMessageBox::Retry)
                 getNewEvents(c);
         });
+    using namespace QMatrixClient;
     connect( c, &Connection::requestFailed, this,
-        [this] (QMatrixClient::BaseJob* job)
+        [this] (BaseJob* job)
         {
             if (job->isBackground())
                 return;
+            auto message = job->error() == BaseJob::UserConsentRequiredError
+                ? tr("Before this server can process your information, you have"
+                     " to agree with its terms and conditions; please click the"
+                     " button below to open the web page where you can do that")
+                : prettyPrint(job->errorString());
+
             QMessageBox msgBox(QMessageBox::Warning, job->errorCaption(),
-                QMatrixClient::prettyPrint(job->errorString()),
-                QMessageBox::Close, this);
+                message, QMessageBox::Close, this);
             msgBox.setTextFormat(Qt::RichText);
             msgBox.setDetailedText(
                 "Request URL: " + job->requestUrl().toDisplayString() +
@@ -418,7 +424,7 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
             else
             {
                 openUrlButton =
-                    msgBox.addButton(tr("Open URL"), QMessageBox::ActionRole);
+                    msgBox.addButton(tr("Open web page"), QMessageBox::ActionRole);
                 openUrlButton->setDefault(true);
             }
             msgBox.exec();
@@ -691,28 +697,6 @@ void MainWindow::joinRoom(const QString& roomAlias, Connection* connection)
     {
         statusBar()->showMessage(tr("Joined %1 as %2")
                                  .arg(roomAlias, connection->userId()));
-    });
-    connect(job, &BaseJob::failure, this, [=] {
-        QMessageBox messageBox(QMessageBox::Warning,
-                               tr("Failed to join room"),
-                               tr("Joining request returned an error"),
-                               QMessageBox::Close, this);
-        messageBox.setWindowModality(Qt::WindowModal);
-        messageBox.setTextFormat(Qt::PlainText);
-        messageBox.setDetailedText(job->errorString());
-        switch (job->error()) {
-            case BaseJob::NotFoundError:
-                messageBox.setText(
-                    tr("Room %1 not found on the server").arg(roomAlias));
-                break;
-            case BaseJob::IncorrectRequestError:
-                messageBox.setText(
-                    tr("Incorrect id or alias: %1").arg(roomAlias));
-                break;
-            default:
-                messageBox.setText(tr("Error joining %1: %2"));
-        }
-        messageBox.exec();
     });
 }
 
