@@ -412,12 +412,12 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
                      " button below to open the web page where you can do that")
                 : prettyPrint(job->errorString());
 
-            QMessageBox msgBox(QMessageBox::Warning, job->errorCaption(),
+            QMessageBox msgBox(QMessageBox::Warning, job->statusCaption(),
                 message, QMessageBox::Close, this);
             msgBox.setTextFormat(Qt::RichText);
             msgBox.setDetailedText(
                 "Request URL: " + job->requestUrl().toDisplayString() +
-                "\nResponse:\n" + job->errorRawData());
+                "\nResponse:\n" + job->rawData());
             QPushButton* openUrlButton = nullptr;
             if (job->errorUrl().isEmpty())
                 msgBox.setDefaultButton(QMessageBox::Close);
