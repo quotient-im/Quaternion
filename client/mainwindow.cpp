@@ -608,14 +608,14 @@ QMatrixClient::Connection* MainWindow::chooseConnection()
 {
     Connection* connection = nullptr;
     QStringList names; names.reserve(connections.size());
-    for (auto c: connections)
+    for (auto c: qAsConst(connections))
         names.push_back(c->userId());
     const auto choice = QInputDialog::getItem(this,
             tr("Choose the account to join the room"), "", names, -1, false);
     if (choice.isEmpty())
         return nullptr;
 
-    for (auto c: connections)
+    for (auto c: qAsConst(connections))
         if (c->userId() == choice)
         {
             connection = c;
@@ -735,7 +735,7 @@ void MainWindow::networkError(Connection* c)
     auto timer = new QTimer(this);
     timer->start(1000);
     showMillisToRecon(c);
-    timer->connect(timer, &QTimer::timeout, [=] {
+    timer->connect(timer, &QTimer::timeout, this, [=] {
         if (c->millisToReconnect() > 0)
             showMillisToRecon(c);
         else
@@ -799,13 +799,13 @@ void MainWindow::proxyAuthenticationRequired(const QNetworkProxy&,
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-    for (auto c: connections)
+    for (auto c: qAsConst(connections))
     {
         c->saveState();
         c->stopSync(); // Instead of deleting the connection, merely stop it
 //        dropConnection(c);
     }
-    for (auto c: logoutOnExit)
+    for (auto c: qAsConst(logoutOnExit))
         c->logout(); // For the record, dropConnection() does it automatically
     saveSettings();
     event->accept();
