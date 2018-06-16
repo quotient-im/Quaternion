@@ -179,14 +179,14 @@ void MainWindow::createMenu()
         auto noNotif = notifGroup->addAction(tr("&Highlight only"));
         noNotif->setData(QStringLiteral("none"));
         noNotif->setStatusTip(tr("Notifications are entirely suppressed"));
-        auto gentleNotif = notifGroup->addAction(tr("Non-intrusive"));
+        auto gentleNotif = notifGroup->addAction(tr("&Non-intrusive"));
         gentleNotif->setData(QStringLiteral("non-intrusive"));
         gentleNotif->setStatusTip(
-            tr("Show &notifications but do not activate the window"));
-        auto fullNotif = notifGroup->addAction(tr("Full"));
+            tr("Show notifications but do not activate the window"));
+        auto fullNotif = notifGroup->addAction(tr("&Full"));
         fullNotif->setData(QStringLiteral("intrusive"));
         fullNotif->setStatusTip(
-            tr("Show notifications and &activate the window"));
+            tr("Show notifications and activate the window"));
 
         auto notifMenu = settingsMenu->addMenu(tr("Notifications"));
         for (auto a: {noNotif, gentleNotif, fullNotif})
