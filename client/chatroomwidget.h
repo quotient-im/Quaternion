@@ -24,12 +24,20 @@
 
 #include "quaternionroom.h"
 
+#ifndef USE_QQUICKWIDGET
+#define DISABLE_QQUICKWIDGET
+#endif
+
 class ChatEdit;
 class MessageEventModel;
 class ImageProvider;
 
 class QFrame;
+#ifdef DISABLE_QQUICKWIDGET
 class QQuickView;
+#else
+class QQuickWidget;
+#endif
 class QLabel;
 class QTextDocument;
 
@@ -73,7 +81,12 @@ class ChatRoomWidget: public QWidget
         MessageEventModel* m_messageModel;
         QuaternionRoom* m_currentRoom;
 
-        QQuickView* m_quickView;
+#ifdef DISABLE_QQUICKWIDGET
+        using timelineWidget_t = QQuickView;
+#else
+        using timelineWidget_t = QQuickWidget;
+#endif
+        timelineWidget_t* m_timelineWidget;
         ImageProvider* m_imageProvider;
         ChatEdit* m_chatEdit;
         QLabel* m_currentlyTyping;

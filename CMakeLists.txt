@@ -37,7 +37,10 @@ foreach (FLAG "" all pedantic extra no-unused-parameter)
 endforeach ()
 
 # Find the libraries
-find_package(Qt5 5.6 REQUIRED Widgets Network Quick Qml Gui)
+find_package(Qt5 5.6 REQUIRED Widgets Network Quick Qml QuickWidgets Gui)
+if (USE_QQUICKWIDGET)
+    find_package(Qt5 5.6 REQUIRED QuickWidgets)
+endif()
 get_filename_component(Qt5_Prefix "${Qt5_DIR}/../../../.." ABSOLUTE)
 
 add_subdirectory(lib)
@@ -52,6 +55,7 @@ if (CMAKE_BUILD_TYPE)
 endif(CMAKE_BUILD_TYPE)
 message( STATUS "Using compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}" )
 message( STATUS "Using Qt ${Qt5_VERSION} at ${Qt5_Prefix}" )
+message( STATUS "Using QQuickWidget: ${USE_QQUICKWIDGET}")
 message( STATUS "Quaternion install prefix: ${CMAKE_INSTALL_PREFIX}" )
 message( STATUS "=============================================================================" )
 message( STATUS )
@@ -89,6 +93,11 @@ set_property(SOURCE qrc_resources.cpp PROPERTY SKIP_AUTOMOC ON)
 add_executable(quaternion WIN32 MACOSX_BUNDLE ${quaternion_SRCS} ${quaternion_QRC_SRC})
 
 target_link_libraries(quaternion QMatrixClient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
+
+if (USE_QQUICKWIDGET)
+    target_compile_definitions(quaternion PRIVATE USE_QQUICKWIDGET)
+    target_link_libraries(quaternion Qt5::QuickWidgets)
+endif()
 
 # macOS specific config for bundling
 set_target_properties(quaternion PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake/MacOSXBundleInfo.plist.in")

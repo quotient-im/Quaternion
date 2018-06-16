@@ -28,8 +28,11 @@
 
 #include <QtQml/QQmlContext>
 #include <QtQml/QQmlEngine>
+#ifdef DISABLE_QQUICKWIDGET
 #include <QtQuick/QQuickView>
-#include <QtQuick/QQuickItem>
+#else
+#include <QtQuickWidgets/QQuickWidget>
+#endif
 #include <QtCore/QRegularExpression>
 #include <QtCore/QStringBuilder>
 
@@ -73,19 +76,28 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     auto topicSeparator = new QFrame();
     topicSeparator->setFrameShape(QFrame::HLine);
 
-    m_quickView = new QQuickView();
+    m_timelineWidget = new timelineWidget_t;
+#ifdef DISABLE_QQUICKWIDGET
+    qDebug() << "Using QQuickView wrapper instead of QQuickWidget";
+    auto* container = QWidget::createWindowContainer(m_timelineWidget, this);
+    container->
+#else
+    qDebug() << "Using QQuickWidget to render QML";
+    m_timelineWidget->
+#endif // Use different objects but the same method with the same parameters
+            setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    m_timelineWidget->setResizeMode(timelineWidget_t::SizeRootObjectToView);
 
     m_imageProvider = new ImageProvider(nullptr); // No connection yet
-    m_quickView->engine()->addImageProvider("mtx", m_imageProvider);
+    m_timelineWidget->engine()->addImageProvider("mtx", m_imageProvider);
 
-    QWidget* container = QWidget::createWindowContainer(m_quickView, this);
-    container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    QQmlContext* ctxt = m_quickView->rootContext();
+    QQmlContext* ctxt = m_timelineWidget->rootContext();
     ctxt->setContextProperty("messageModel", m_messageModel);
     ctxt->setContextProperty("controller", this);
     ctxt->setContextProperty("debug", QVariant(false));
-    m_quickView->setSource(QUrl("qrc:///qml/Timeline.qml"));
-    m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
+
+    m_timelineWidget->setSource(QUrl("qrc:///qml/Timeline.qml"));
 
     m_currentlyTyping = new QLabel();
     m_currentlyTyping->setWordWrap(true);
@@ -112,7 +124,13 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     layout->addLayout(headerLayout);
 
     layout->addWidget(topicSeparator);
-    layout->addWidget(container);
+    layout->addWidget(
+#ifdef DISABLE_QQUICKWIDGET
+                container
+#else
+                m_timelineWidget
+#endif
+    );
     layout->addWidget(m_currentlyTyping);
     layout->addWidget(m_chatEdit);
     setLayout(layout);
@@ -120,7 +138,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
 
 void ChatRoomWidget::enableDebug()
 {
-    QQmlContext* ctxt = m_quickView->rootContext();
+    QQmlContext* ctxt = m_timelineWidget->rootContext();
     ctxt->setContextProperty("debug", true);
 }
 
@@ -144,7 +162,7 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
     m_chatEdit->cancelCompletion();
 
     m_currentRoom = room;
-    m_quickView->rootContext()->setContextProperty("room", room);
+    m_timelineWidget->rootContext()->setContextProperty("room", room);
     if( m_currentRoom )
     {
         using namespace QMatrixClient;
