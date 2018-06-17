@@ -86,6 +86,8 @@ If Quaternion starts displaying the message that it couldn't connect to the serv
 #### No messages in the timeline
 If Quaternion runs but you can't see any messages in the chat (though you can type them in) - you have a problem with Qt Quick. Most likely, you don't have Qt Quick libraries and/or plugins installed. On Linux, double check "Pre-requisites" above and also see the stdout/stderr logs, they are quite clear in such cases. On Windows and Mac, just open an issue (see "Contacts" in the beginning of this README), because most likely not all necessary Qt parts got copied along with Quaternion (which is a bug).
 
+If the logs confirm that QML is up and running but there's still nothing for the timeline, you might have hit an issue with QML view stacking order, such as #356. As a workaround, you may try to use a highly experimental (=prone to crashes on some platforms) mode: pass `-DUSE_QQUICKWIDGET=ON` to CMake. If you _do_ have crashes in this mode, please take time to report in `#qmatrixclient:matrix.org`.
+
 #### SSL problems
 Especially on Windows, if Quaternion starts up but upon an attempt to connect returns a message like "Failed to make SSL context" - you haven't made sure that SSL libraries are reachable by the Quaternion binary. See the "OpenSSL on Windows" section above for details.
 
