@@ -26,6 +26,7 @@
 #include "networkconfigdialog.h"
 #include "roomdialogs.h"
 #include "systemtrayicon.h"
+#include "aboutdialog.h"
 
 #include "lib/csapi/joining.h"
 #include "lib/connection.h"
@@ -165,6 +166,10 @@ void MainWindow::createMenu()
     // Settings menu
     auto settingsMenu = menuBar()->addMenu(tr("&Settings"));
     using QMatrixClient::Settings;
+
+    // Help menu
+    auto helpMenu = menuBar()->addMenu(tr("&Help"));
+    helpMenu->addAction(tr("&About"), [=]{ showAboutWindow(); });
 
     {
         auto notifGroup = new QActionGroup(this);
@@ -528,6 +533,12 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
         showFirstSyncIndicator();
         addConnection(connection, dialog.deviceName());
     }
+}
+
+void MainWindow::showAboutWindow()
+{
+    AboutDialog dialog(this);
+    dialog.exec();
 }
 
 void MainWindow::invokeLogin()

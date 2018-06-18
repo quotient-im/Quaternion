@@ -80,6 +80,7 @@ class MainWindow: public QMainWindow
                                          QAuthenticator* auth);
 
         void showLoginWindow(const QString& statusMessage = {});
+        void showAboutWindow();
         void logout(Connection* c);
 
     private:

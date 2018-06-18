@@ -63,11 +63,12 @@ class Dialog : public QDialog
         void setPendingApplyMessage(const QString& msg)
         { pendingApplyMessage = msg; }
 
+        QDialogButtonBox* buttons;
+
     private:
         UseStatusLine applyLatency;
         QString pendingApplyMessage;
 
-        QDialogButtonBox* buttons;
         QLabel* statusLabel;
 
         QVBoxLayout outerLayout;

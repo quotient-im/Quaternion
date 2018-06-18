@@ -26,10 +26,10 @@ Dialog::Dialog(const QString& title, QWidget *parent,
                UseStatusLine useStatusLine, const QString& applyTitle,
                QDialogButtonBox::StandardButtons addButtons)
     : QDialog(parent)
-    , applyLatency(useStatusLine)
-    , pendingApplyMessage(tr("Applying changes, please wait"))
     , buttons(new QDialogButtonBox(QDialogButtonBox::Ok|
                                    QDialogButtonBox::Cancel|addButtons))
+    , applyLatency(useStatusLine)
+    , pendingApplyMessage(tr("Applying changes, please wait"))
     , statusLabel(useStatusLine == NoStatusLine ? nullptr : new QLabel)
     , outerLayout(this)
 {

@@ -46,6 +46,18 @@ get_filename_component(Qt5_Prefix "${Qt5_DIR}/../../../.." ABSOLUTE)
 add_subdirectory(lib)
 include_directories(lib)
 
+# Get Git info if possible
+find_package(Git)
+if(GIT_FOUND)
+    execute_process(COMMAND
+        "${GIT_EXECUTABLE}" rev-parse -q HEAD
+        OUTPUT_VARIABLE GIT_SHA1
+        ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif()
+
+# Perform replacement for gitinfo.cpp which lets us access the git SHA1 from in application.
+configure_file("client/gitinfo.cpp.in" "client/gitinfo.cpp" @ONLY)
+
 message( STATUS )
 message( STATUS "=============================================================================" )
 message( STATUS "                          Quaternion Build Information" )
@@ -62,11 +74,13 @@ message( STATUS )
 
 # Set up source files
 set(quaternion_SRCS
+    client/gitinfo.cpp
     client/quaternionroom.cpp
     client/imageprovider.cpp
     client/activitydetector.cpp
     client/dialog.cpp
     client/logindialog.cpp
+    client/aboutdialog.cpp
     client/networkconfigdialog.cpp
     client/roomdialogs.cpp
     client/mainwindow.cpp
