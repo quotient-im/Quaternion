@@ -20,8 +20,8 @@
             "buildsystem": "cmake-ninja",
             "sources": [
                 {
-                    "type": "git",
-                    "url": "git://github.com/QMatrixClient/Quaternion.git"
+                    "type": "dir",
+                    "path": "../"
                 }
             ]
         }
