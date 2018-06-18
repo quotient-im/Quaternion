@@ -1,2 +1,6 @@
 build
 .kdev4
+
+flatpak/app
+flatpak/.flatpak-builder
+flatpak/repo

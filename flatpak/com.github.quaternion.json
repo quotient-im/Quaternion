@@ -1,21 +1,30 @@
+
 {
     "id": "com.github.quaternion",
-    "branch": "master",
     "rename-icon": "quaternion",
     "rename-desktop-file": "quaternion.desktop",
     "runtime": "org.kde.Platform",
     "runtime-version": "5.9",
     "sdk": "org.kde.Sdk",
     "command": "quaternion",
-    "tags": ["nightly"],
-    "desktop-file-name-prefix": "(Nightly) ",
-    "finish-args": ["--share=ipc", "--share=network", "--socket=x11", "--socket=wayland", "--env=QT_QPA_PLATFORM=flatpak", "--device=dri"],
-
+    "finish-args": [
+        "--share=ipc",
+        "--share=network",
+        "--socket=x11",
+        "--socket=wayland",
+        "--device=dri"
+    ],
     "modules": [
         {
             "name": "quaternion",
-            "cmake": true,
-            "sources": [ { "type": "git", "url": "git://github.com/Fxrh/Quaternion.git" } ]
+            "buildsystem": "cmake-ninja",
+            "sources": [
+                {
+                    "type": "dir",
+                    "path": "../"
+                }
+            ]
         }
     ]
 }
+
