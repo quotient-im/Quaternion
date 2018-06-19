@@ -43,6 +43,16 @@ if (USE_QQUICKWIDGET)
 endif()
 get_filename_component(Qt5_Prefix "${Qt5_DIR}/../../../.." ABSOLUTE)
 
+if(WIN32)
+    enable_language(RC)
+    include(CMakeDetermineRCCompiler)
+
+    if(MINGW)
+        set(CMAKE_RC_COMPILER_INIT windres)
+        set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> <FLAGS> -O coff <DEFINES> -I${CMAKE_CURRENT_BINARY_DIR} -i <SOURCE> -o <OBJECT>")
+    endif()
+endif()
+
 add_subdirectory(lib)
 include_directories(lib)
 
@@ -89,8 +99,16 @@ set(quaternion_QRC
 QT5_ADD_RESOURCES(quaternion_QRC_SRC ${quaternion_QRC})
 set_property(SOURCE qrc_resources.cpp PROPERTY SKIP_AUTOMOC ON)
 
+if(WIN32)
+    set(quaternion_WINRC ${CMAKE_CURRENT_SOURCE_DIR}/quaternion_win32.rc)
+    set_property(SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/quaternion_win32.rc
+        APPEND PROPERTY OBJECT_DEPENDS
+            ${CMAKE_CURRENT_SOURCE_DIR}/icons/quaternion.ico
+    )
+endif()
+
 # Windows, this is a GUI executable; OSX, make a bundle
-add_executable(quaternion WIN32 MACOSX_BUNDLE ${quaternion_SRCS} ${quaternion_QRC_SRC})
+add_executable(quaternion WIN32 MACOSX_BUNDLE ${quaternion_SRCS} ${quaternion_QRC_SRC} ${quaternion_WINRC})
 
 target_link_libraries(quaternion QMatrixClient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
 
