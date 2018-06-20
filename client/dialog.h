@@ -37,6 +37,10 @@ class Dialog : public QDialog
             const QString& applyTitle = {},
             QDialogButtonBox::StandardButtons addButtons = QDialogButtonBox::Reset);
 
+        Dialog(const QString& title, QDialogButtonBox::StandardButton buttons,
+            QWidget *parent = nullptr,
+            UseStatusLine useStatusLine = NoStatusLine);
+
         template <typename LayoutT>
         LayoutT* addLayout()
         {
@@ -63,13 +67,13 @@ class Dialog : public QDialog
         void setPendingApplyMessage(const QString& msg)
         { pendingApplyMessage = msg; }
 
-        QDialogButtonBox* buttons;
 
     private:
         UseStatusLine applyLatency;
         QString pendingApplyMessage;
 
         QLabel* statusLabel;
+        QDialogButtonBox* buttons;
 
         QVBoxLayout outerLayout;
 };

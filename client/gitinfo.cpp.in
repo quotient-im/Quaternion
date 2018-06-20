@@ -1,9 +1,0 @@
-/* This file will be alterted by Cmake to
- * contain the SHA1 from the last Git commit
- * assuming that this was built from a git repo.
- * It will write out to `gitinfo.cpp`
- */
-
-#include "gitinfo.h"
-
-const std::string GIT_SHA1 = "@GIT_SHA1@"; // This will be replaced
