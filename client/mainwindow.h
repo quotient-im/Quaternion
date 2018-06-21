@@ -19,6 +19,10 @@
 
 #pragma once
 
+// These are both needed to expand GIT_SHA1 into a char*
+#define STR_EXPAND(tok) #tok
+#define STR(tok) STR_EXPAND(tok)
+
 #include <QtWidgets/QMainWindow>
 
 namespace QMatrixClient {
@@ -80,6 +84,7 @@ class MainWindow: public QMainWindow
                                          QAuthenticator* auth);
 
         void showLoginWindow(const QString& statusMessage = {});
+        void showAboutWindow();
         void logout(Connection* c);
 
     private:

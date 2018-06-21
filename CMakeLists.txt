@@ -56,6 +56,15 @@ endif()
 add_subdirectory(lib)
 include_directories(lib)
 
+# Get Git info if possible
+find_package(Git)
+if(GIT_FOUND)
+    execute_process(COMMAND
+        "${GIT_EXECUTABLE}" rev-parse -q HEAD
+        OUTPUT_VARIABLE GIT_SHA1
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif()
+
 message( STATUS )
 message( STATUS "=============================================================================" )
 message( STATUS "                          Quaternion Build Information" )
@@ -67,6 +76,9 @@ message( STATUS "Using compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_V
 message( STATUS "Using Qt ${Qt5_VERSION} at ${Qt5_Prefix}" )
 message( STATUS "Using QQuickWidget: ${USE_QQUICKWIDGET}")
 message( STATUS "Quaternion install prefix: ${CMAKE_INSTALL_PREFIX}" )
+if(GIT_FOUND)
+    message( STATUS "Git SHA1: ${GIT_SHA1}")
+endif()
 message( STATUS "=============================================================================" )
 message( STATUS )
 
@@ -111,6 +123,7 @@ endif()
 add_executable(quaternion WIN32 MACOSX_BUNDLE ${quaternion_SRCS} ${quaternion_QRC_SRC} ${quaternion_WINRC})
 
 target_link_libraries(quaternion QMatrixClient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
+target_compile_definitions(quaternion PRIVATE GIT_SHA1=${GIT_SHA1})
 
 if (USE_QQUICKWIDGET)
     target_compile_definitions(quaternion PRIVATE USE_QQUICKWIDGET)

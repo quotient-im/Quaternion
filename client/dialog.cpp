@@ -20,17 +20,26 @@
 
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QLabel>
-#include <QtWidgets/QVBoxLayout>
 
 Dialog::Dialog(const QString& title, QWidget *parent,
                UseStatusLine useStatusLine, const QString& applyTitle,
                QDialogButtonBox::StandardButtons addButtons)
+    : Dialog(title
+        , QDialogButtonBox::Ok | QDialogButtonBox::Cancel | addButtons
+        , parent, useStatusLine)
+{
+    if (!applyTitle.isEmpty())
+        buttons->button(QDialogButtonBox::Ok)->setText(applyTitle);
+}
+
+
+Dialog::Dialog(const QString& title, QDialogButtonBox::StandardButtons setButtons,
+    QWidget *parent, UseStatusLine useStatusLine)
     : QDialog(parent)
     , applyLatency(useStatusLine)
     , pendingApplyMessage(tr("Applying changes, please wait"))
-    , buttons(new QDialogButtonBox(QDialogButtonBox::Ok|
-                                   QDialogButtonBox::Cancel|addButtons))
     , statusLabel(useStatusLine == NoStatusLine ? nullptr : new QLabel)
+    , buttons(new QDialogButtonBox(setButtons))
     , outerLayout(this)
 {
     setWindowTitle(title);
@@ -39,8 +48,6 @@ Dialog::Dialog(const QString& title, QWidget *parent,
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 #endif
 
-    if (!applyTitle.isEmpty())
-        buttons->button(QDialogButtonBox::Ok)->setText(applyTitle);
     connect(buttons, &QDialogButtonBox::clicked, this, &Dialog::buttonClicked);
 
     outerLayout.addWidget(buttons);

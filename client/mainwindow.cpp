@@ -52,6 +52,7 @@
 #include <QtWidgets/QDialogButtonBox>
 #include <QtWidgets/QFormLayout>
 #include <QtGui/QMovie>
+#include <QtGui/QPixmap>
 #include <QtGui/QCloseEvent>
 #include <QtGui/QDesktopServices>
 
@@ -165,6 +166,10 @@ void MainWindow::createMenu()
     // Settings menu
     auto settingsMenu = menuBar()->addMenu(tr("&Settings"));
     using QMatrixClient::Settings;
+
+    // Help menu
+    auto helpMenu = menuBar()->addMenu(tr("&Help"));
+    helpMenu->addAction(tr("&About"), [=]{ showAboutWindow(); });
 
     {
         auto notifGroup = new QActionGroup(this);
@@ -528,6 +533,36 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
         showFirstSyncIndicator();
         addConnection(connection, dialog.deviceName());
     }
+}
+
+void MainWindow::showAboutWindow()
+{
+    Dialog aboutDialog(tr("About Quaternion"), QDialogButtonBox::Close, this,
+                      Dialog::NoStatusLine);
+    auto* layout = aboutDialog.addLayout<QVBoxLayout>();
+
+    QLabel* imageLabel = new QLabel();
+    imageLabel->setPixmap(QPixmap(":/icon.png"));
+    imageLabel->setAlignment(Qt::AlignHCenter);
+    layout->addWidget(imageLabel);
+
+    QLabel* labelString = new QLabel("<h1>" + QApplication::applicationDisplayName() + " v"
+                     + QApplication::applicationVersion() + "</h1>");
+    labelString->setAlignment(Qt::AlignHCenter);
+    layout->addWidget(labelString);
+
+    QLabel* linkLabel = new QLabel(tr("<a href=\"https://matrix.org/docs/projects/client/quaternion.html\">Website</a>"));
+    linkLabel->setAlignment(Qt::AlignHCenter);
+    layout->addWidget(linkLabel);
+
+    layout->addWidget(new QLabel(tr("Quaternion Copyright (C) 2018 QMatrixClient project.")));
+
+#ifdef GIT_SHA1
+    layout->addWidget(new QLabel(tr("Built from Git, commit SHA:")));
+    layout->addWidget(new QLabel(STR(GIT_SHA1)));
+#endif
+
+    aboutDialog.exec();
 }
 
 void MainWindow::invokeLogin()

@@ -1,6 +1,14 @@
 build
 .kdev4
+.directory
 
 flatpak/app
 flatpak/.flatpak-builder
 flatpak/repo
+
+CMakeLists.txt.user
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+quaternion_autogen/

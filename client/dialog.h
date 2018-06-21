@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <QtCore/QFlags>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QDialogButtonBox>
 #include <QtWidgets/QVBoxLayout>
@@ -36,6 +37,10 @@ class Dialog : public QDialog
             UseStatusLine useStatusLine = NoStatusLine,
             const QString& applyTitle = {},
             QDialogButtonBox::StandardButtons addButtons = QDialogButtonBox::Reset);
+
+        explicit Dialog(const QString& title, QDialogButtonBox::StandardButtons setButtons,
+            QWidget *parent = nullptr,
+            UseStatusLine useStatusLine = NoStatusLine);
 
         template <typename LayoutT>
         LayoutT* addLayout()
@@ -63,12 +68,13 @@ class Dialog : public QDialog
         void setPendingApplyMessage(const QString& msg)
         { pendingApplyMessage = msg; }
 
+
     private:
         UseStatusLine applyLatency;
         QString pendingApplyMessage;
 
-        QDialogButtonBox* buttons;
         QLabel* statusLabel;
+        QDialogButtonBox* buttons;
 
         QVBoxLayout outerLayout;
 };
