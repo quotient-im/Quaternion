@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <QtCore/QFlags>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QDialogButtonBox>
 #include <QtWidgets/QVBoxLayout>
@@ -37,7 +38,7 @@ class Dialog : public QDialog
             const QString& applyTitle = {},
             QDialogButtonBox::StandardButtons addButtons = QDialogButtonBox::Reset);
 
-        Dialog(const QString& title, QDialogButtonBox::StandardButton buttons,
+        explicit Dialog(const QString& title, QFlags<QDialogButtonBox::StandardButton> setButtons,
             QWidget *parent = nullptr,
             UseStatusLine useStatusLine = NoStatusLine);
 

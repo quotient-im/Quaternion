@@ -20,49 +20,33 @@
 
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QLabel>
-#include <QtWidgets/QVBoxLayout>
 
 Dialog::Dialog(const QString& title, QWidget *parent,
                UseStatusLine useStatusLine, const QString& applyTitle,
                QDialogButtonBox::StandardButtons addButtons)
-    : QDialog(parent)
-    , applyLatency(useStatusLine)
-    , pendingApplyMessage(tr("Applying changes, please wait"))
-    , statusLabel(useStatusLine == NoStatusLine ? nullptr : new QLabel)
-    , buttons(new QDialogButtonBox(QDialogButtonBox::Ok|
-                                   QDialogButtonBox::Cancel|addButtons))
-    , outerLayout(this)
+    : Dialog(title
+        , QDialogButtonBox::Ok | QDialogButtonBox::Cancel | addButtons
+        , parent, useStatusLine)
 {
-    setWindowTitle(title);
-
-#if (QT_VERSION < QT_VERSION_CHECK(5, 10, 0))
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-#endif
-
     if (!applyTitle.isEmpty())
         buttons->button(QDialogButtonBox::Ok)->setText(applyTitle);
-    connect(buttons, &QDialogButtonBox::clicked, this, &Dialog::buttonClicked);
-
-    outerLayout.addWidget(buttons);
-    if (statusLabel)
-        outerLayout.addWidget(statusLabel);
 }
 
 
-Dialog::Dialog(const QString& title, QDialogButtonBox::StandardButton newButtons,
+Dialog::Dialog(const QString& title, QFlags<QDialogButtonBox::StandardButton> setButtons,
     QWidget *parent, UseStatusLine useStatusLine)
     : QDialog(parent)
     , applyLatency(useStatusLine)
     , pendingApplyMessage(tr("Applying changes, please wait"))
     , statusLabel(useStatusLine == NoStatusLine ? nullptr : new QLabel)
-    , buttons(new QDialogButtonBox(newButtons))
+    , buttons(new QDialogButtonBox(setButtons))
     , outerLayout(this)
 {
     setWindowTitle(title);
 
-#if (QT_VERSION < QT_VERSION_CHECK(5, 10, 0))
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-#endif
+    #if (QT_VERSION < QT_VERSION_CHECK(5, 10, 0))
+        setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    #endif
 
     connect(buttons, &QDialogButtonBox::clicked, this, &Dialog::buttonClicked);
 
