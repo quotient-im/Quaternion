@@ -38,7 +38,7 @@ class Dialog : public QDialog
             const QString& applyTitle = {},
             QDialogButtonBox::StandardButtons addButtons = QDialogButtonBox::Reset);
 
-        explicit Dialog(const QString& title, QFlags<QDialogButtonBox::StandardButton> setButtons,
+        explicit Dialog(const QString& title, QDialogButtonBox::StandardButtons setButtons,
             QWidget *parent = nullptr,
             UseStatusLine useStatusLine = NoStatusLine);
 

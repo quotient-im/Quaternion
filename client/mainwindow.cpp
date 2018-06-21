@@ -557,10 +557,10 @@ void MainWindow::showAboutWindow()
 
     layout->addWidget(new QLabel(tr("Quaternion Copyright (C) 2018 QMatrixClient project.")));
 
-    #ifdef GIT_SHA1
-        layout->addWidget(new QLabel(tr("Built from Git, commit SHA:")));
-        layout->addWidget(new QLabel(STR(GIT_SHA1)));
-    #endif
+#ifdef GIT_SHA1
+    layout->addWidget(new QLabel(tr("Built from Git, commit SHA:")));
+    layout->addWidget(new QLabel(STR(GIT_SHA1)));
+#endif
 
     aboutDialog.exec();
 }

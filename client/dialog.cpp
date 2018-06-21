@@ -33,7 +33,7 @@ Dialog::Dialog(const QString& title, QWidget *parent,
 }
 
 
-Dialog::Dialog(const QString& title, QFlags<QDialogButtonBox::StandardButton> setButtons,
+Dialog::Dialog(const QString& title, QDialogButtonBox::StandardButtons setButtons,
     QWidget *parent, UseStatusLine useStatusLine)
     : QDialog(parent)
     , applyLatency(useStatusLine)
@@ -44,9 +44,9 @@ Dialog::Dialog(const QString& title, QFlags<QDialogButtonBox::StandardButton> se
 {
     setWindowTitle(title);
 
-    #if (QT_VERSION < QT_VERSION_CHECK(5, 10, 0))
-        setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    #endif
+#if (QT_VERSION < QT_VERSION_CHECK(5, 10, 0))
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+#endif
 
     connect(buttons, &QDialogButtonBox::clicked, this, &Dialog::buttonClicked);
 
