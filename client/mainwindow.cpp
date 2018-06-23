@@ -32,6 +32,7 @@
 #include "lib/networkaccessmanager.h"
 #include "lib/settings.h"
 #include "lib/logging.h"
+#include "lib/user.h"
 
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>
@@ -158,6 +159,7 @@ void MainWindow::createMenu()
             summon(dlg, connections, this);
         });
     createRoomAction->setDisabled(true);
+    roomMenu->addAction(tr("&Direct chat..."), [=]{ directChat(); });
     roomMenu->addAction(tr("&Join room..."), [=]{ joinRoom(); } );
     roomMenu->addSeparator();
     roomMenu->addAction(tr("&Close current room"),
@@ -733,6 +735,74 @@ void MainWindow::joinRoom(const QString& roomAlias, Connection* connection)
         statusBar()->showMessage(tr("Joined %1 as %2")
                                  .arg(roomAlias, connection->userId()));
     });
+}
+
+void MainWindow::directChat(const QString& userId, Connection* connection) {
+    if (connections.isEmpty())
+    {
+        QMessageBox::warning(this, tr("No connections"),
+            tr("Please connect to a server before joining a room"),
+            QMessageBox::Close, QMessageBox::Close);
+        return;
+    }
+
+    if (!connection)
+    {
+        if (currentRoom && !userId.isEmpty())
+        {
+            connection = currentRoom->connection();
+            if (connections.size() > 1)
+            {
+                // Double check the user intention
+                QMessageBox confirmBox(QMessageBox::Question,
+                    tr("Starting direct chat with %1 as %2").arg(userId, connection->userId()),
+                    tr("Start direct chat with %1 under account %2?")
+                        .arg(userId, connection->userId()),
+                    QMessageBox::Ok|QMessageBox::Cancel, this);
+                confirmBox.setButtonText(QMessageBox::Ok, tr("Start Chat"));
+                auto* chooseAccountButton =
+                    confirmBox.addButton(tr("Choose account..."),
+                                         QMessageBox::ActionRole);
+
+                if (confirmBox.exec() == QMessageBox::Cancel)
+                    return;
+                if (confirmBox.clickedButton() == chooseAccountButton)
+                    connection = chooseConnection();
+            }
+        } else
+            connection = connections.size() == 1 ? connections.front() :
+                         chooseConnection();
+    }
+    if (!connection)
+        return; // No default connection and the user discarded the dialog
+
+    QString userName = userId;
+    while (userName.isEmpty())
+    {
+        QInputDialog userInput (this);
+        userInput.setWindowTitle(tr("Enter user id to start direct chat."));
+        userInput.setLabelText(
+            tr("Enter the user id of who you would like to chat with. You will join as %1")
+                .arg(connection->userId()));
+        userInput.setOkButtonText(tr("Start Chat"));
+        userInput.setSizeGripEnabled(true);
+        // TODO: Provide a button to select the joining account
+        if (userInput.exec() == QDialog::Rejected)
+            return;
+        // TODO: Check validity, not only non-emptyness
+        if (!userInput.textValue().isEmpty())
+            userName = userInput.textValue();
+        else
+            QMessageBox::warning(this, tr("No user id specified"),
+                                 tr("Please specify non-empty user id"),
+                                 QMessageBox::Close, QMessageBox::Close);
+    }
+
+    using QMatrixClient::BaseJob;
+    auto* user = new QMatrixClient::User(userName, connection);
+    user->requestDirectChat();
+    statusBar()->showMessage(tr("Started chat with %1 as %2")
+                                .arg(userId, connection->userId()));
 }
 
 void MainWindow::getNewEvents(Connection* c)
