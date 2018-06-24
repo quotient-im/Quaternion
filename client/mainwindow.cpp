@@ -798,10 +798,8 @@ void MainWindow::directChat(const QString& userId, Connection* connection) {
                                  QMessageBox::Close, QMessageBox::Close);
     }
 
-    using QMatrixClient::BaseJob;
-    auto* user = new QMatrixClient::User(userName, connection);
-    user->requestDirectChat();
-    statusBar()->showMessage(tr("Started chat with %1 as %2")
+    connection->requestDirectChat(userName);
+    statusBar()->showMessage(tr("Starting chat with %1 as %2")
                                 .arg(userId, connection->userId()));
 }
 
