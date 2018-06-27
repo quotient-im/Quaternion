@@ -337,7 +337,7 @@ QString ChatRoomWidget::doSendInput()
                   " Start with // to send this line literally");
 
     // Commands available only in the room context
-    using QMatrixClient::Room;
+    using namespace QMatrixClient;
     if (command == "leave" || command == "part")
     {
         if (!argString.isEmpty())
@@ -379,16 +379,15 @@ QString ChatRoomWidget::doSendInput()
             return tr("%1 doesn't look like a user id")
                     .arg(args.front());
 
-        auto* user = m_currentRoom->user(args.front());
-        if (m_currentRoom->memberJoinState(user)
-                != QMatrixClient::JoinState::Join)
-            return tr("%1 is not a member of this room")
-                    .arg(user->fullName(m_currentRoom));
-
         if (command == "ban")
-            m_currentRoom->ban(user->id(), args.back());
-        else
+            m_currentRoom->ban(args.front(), args.back());
+        else {
+            auto* user = m_currentRoom->user(args.front());
+            if (m_currentRoom->memberJoinState(user) != JoinState::Join)
+                return tr("%1 is not a member of this room")
+                        .arg(user->fullName(m_currentRoom));
             m_currentRoom->kickMember(user->id(), args.back());
+        }
         return {};
     }
     if (command == "unban")
@@ -401,7 +400,7 @@ QString ChatRoomWidget::doSendInput()
         m_currentRoom->unban(argString);
         return {};
     }
-    using MsgType = QMatrixClient::RoomMessageEvent::MsgType;
+    using MsgType = RoomMessageEvent::MsgType;
     if (command == "me")
     {
         if (argString.isEmpty())
