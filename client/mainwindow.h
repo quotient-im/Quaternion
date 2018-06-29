@@ -74,6 +74,8 @@ class MainWindow: public QMainWindow
         void invokeLogin();
         void joinRoom(const QString& roomAlias = {},
                       Connection* connection = nullptr);
+        void directChat(const QString& roomAlias = {},
+                      Connection* connection = nullptr);
         void getNewEvents(Connection* c);
         void gotEvents(Connection* c);
 
