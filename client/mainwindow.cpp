@@ -447,7 +447,11 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
             if (currentRoom == prev)
                 selectRoom(r);
         });
-    connect( c, &Connection::directChatAvailable, this, &MainWindow::selectRoom);
+    connect( c, &Connection::directChatAvailable, this,
+             [this] (Room* r) {
+                 selectRoom(r);
+                 statusBar()->showMessage("Direct chat opened", 2000);
+             });
     connect( c, &Connection::aboutToDeleteRoom, this,
              [this] (Room* r) {
                  if (currentRoom == r)
@@ -800,7 +804,7 @@ void MainWindow::directChat(const QString& userId, Connection* connection) {
 
     connection->requestDirectChat(userName);
     statusBar()->showMessage(tr("Starting chat with %1 as %2")
-                                .arg(userId, connection->userId()));
+                                .arg(userName, connection->userId()), 3000);
 }
 
 void MainWindow::getNewEvents(Connection* c)
