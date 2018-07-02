@@ -30,6 +30,7 @@
 #include "lib/events/roommemberevent.h"
 #include "lib/events/simplestateevents.h"
 #include "lib/events/redactionevent.h"
+#include "lib/events/roomavatarevent.h"
 
 enum EventRoles {
     EventTypeRole = Qt::UserRole + 1,

@@ -374,7 +374,7 @@ QString ChatRoomWidget::doSendInput()
     {
         const auto args = lazySplitRef(argString, ' ', 2);
         if (args.front().isEmpty())
-            return tr("/%1 <memberId> <reason>").arg(command.toString());
+            return tr("/%1 <userId> <reason>").arg(command.toString());
         if (!UserIdRE.match(args.front()).hasMatch())
             return tr("%1 doesn't look like a user id")
                     .arg(args.front());
@@ -393,12 +393,29 @@ QString ChatRoomWidget::doSendInput()
     if (command == "unban")
     {
         if (argString.isEmpty())
-            return tr("/unban <memberId>");
+            return tr("/unban <userId>");
         if (!argString.contains(UserIdRE))
             return tr("/unban argument doesn't look like a user ID");
 
         m_currentRoom->unban(argString);
         return {};
+    }
+    if (command == "ignore" || command == "unignore")
+    {
+        if (argString.isEmpty())
+            return tr("/ignore <userId>");
+        if (!argString.contains(UserIdRE))
+            return tr("/ignore argument doesn't look like a user ID");
+
+        if (auto* user = m_currentRoom->user(argString))
+        {
+            if (command == "ignore")
+                user->ignore();
+            else
+                user->unmarkIgnore();
+            return {};
+        }
+        return tr("Couldn't find user %1 on the server").arg(argString);
     }
     using MsgType = RoomMessageEvent::MsgType;
     if (command == "me")
