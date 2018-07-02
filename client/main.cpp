@@ -18,7 +18,6 @@
  **************************************************************************/
 
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QSplashScreen>
 #include <QtCore/QTranslator>
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QCommandLineParser>
@@ -35,7 +34,7 @@ int main( int argc, char* argv[] )
     QApplication::setOrganizationName("QMatrixClient");
     QApplication::setApplicationName("quaternion");
     QApplication::setApplicationDisplayName("Quaternion");
-    QApplication::setApplicationVersion("0.0.9.2");
+    QApplication::setApplicationVersion("0.0.9.3");
 
     QMatrixClient::Settings::setLegacyNames("Quaternion", "quaternion");
 
@@ -72,22 +71,11 @@ int main( int argc, char* argv[] )
     app.setAttribute(Qt::AA_DisableWindowContextHelpButton);
 #endif
 
-//    bool splashEnabled = !QSettings().value("UI/suppress_splash").toBool();
-//    QSplashScreen splash(QPixmap(":/icon.png"));
-//    if (splashEnabled)
-//    {
-//        splash.show();
-//        app.processEvents();
-//    }
-
     QMatrixClient::NetworkSettings().setupApplicationProxy();
 
     MainWindow window;
     if( debugEnabled )
         window.enableDebug();
-
-//    if (splashEnabled)
-//        splash.finish(&window); // calls app.processEvents()
 
     ActivityDetector ad(app, window); Q_UNUSED(ad);
     qDebug() << "--- Show time!";
