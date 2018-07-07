@@ -252,9 +252,9 @@ void ChatRoomWidget::encryptionChanged()
             : DefaultPlaceholderText);
 }
 
-void ChatRoomWidget::insertMention(QString author)
+void ChatRoomWidget::insertMention(QMatrixClient::User* user)
 {
-    m_chatEdit->insertMention(std::move(author));
+    m_chatEdit->insertMention(user->displayname(m_currentRoom));
 }
 
 void ChatRoomWidget::focusInput()

@@ -62,7 +62,7 @@ class ChatRoomWidget: public QWidget
         void setRoom(QuaternionRoom* room);
         void updateHeader();
 
-        void insertMention(QString author);
+        void insertMention(QMatrixClient::User* user);
         void focusInput();
 
         void typingChanged();

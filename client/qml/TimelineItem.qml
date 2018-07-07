@@ -157,7 +157,7 @@ Item {
                 anchors.bottom:  authorLabel.bottom
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
-                    controller.insertMention(authorName)
+                    controller.insertMention(author)
                     controller.focusInput()
                 }
             }
