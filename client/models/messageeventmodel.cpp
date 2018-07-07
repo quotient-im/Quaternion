@@ -150,7 +150,7 @@ void MessageEventModel::refreshEvent(const QString& eventId)
 }
 
 void MessageEventModel::refreshEventRoles(const QString& eventId,
-                                     const QVector<int> roles)
+                                     const QVector<int>& roles)
 {
     const auto it = m_currentRoom->findInTimeline(eventId);
     if (it != m_currentRoom->timelineEdge())
@@ -165,7 +165,8 @@ inline bool hasValidTimestamp(const QMatrixClient::TimelineItem& ti)
     return ti->timestamp().isValid();
 }
 
-QDateTime MessageEventModel::makeMessageTimestamp(QuaternionRoom::rev_iter_t baseIt) const
+QDateTime MessageEventModel::makeMessageTimestamp(
+            const QuaternionRoom::rev_iter_t& baseIt) const
 {
     const auto& timeline = m_currentRoom->messageEvents();
     auto ts = baseIt->event()->timestamp();
@@ -188,7 +189,8 @@ QDateTime MessageEventModel::makeMessageTimestamp(QuaternionRoom::rev_iter_t bas
     return {};
 }
 
-QString MessageEventModel::makeDateString(QuaternionRoom::rev_iter_t baseIt) const
+QString MessageEventModel::makeDateString(
+            const QuaternionRoom::rev_iter_t& baseIt) const
 {
     auto date = makeMessageTimestamp(baseIt).toLocalTime().date();
     if (QMatrixClient::SettingsGroup("UI")
@@ -230,133 +232,115 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
             auto reason = ti->redactedBecause()->reason();
             if (reason.isEmpty())
                 return tr("Redacted");
-            else
-                return tr("Redacted: %1")
-                    .arg(ti->redactedBecause()->reason());
+
+            return tr("Redacted: %1")
+                .arg(ti->redactedBecause()->reason());
         }
 
-        if( ti->type() == EventType::RoomMessage )
-        {
-            using namespace MessageEventContent;
+        return visit(*ti
+            , [this] (const RoomMessageEvent& e) -> QVariant {
+                using namespace MessageEventContent;
 
-            auto* e = ti.viewAs<RoomMessageEvent>();
-            if (e->hasTextContent() && e->mimeType().name() != "text/plain")
-                return static_cast<const TextContent*>(e->content())->body;
-            if (e->hasFileContent())
-            {
-                auto fileCaption = e->content()->fileInfo()->originalName;
-                if (fileCaption.isEmpty())
-                    fileCaption = m_currentRoom->prettyPrint(e->plainBody());
-                if (fileCaption.isEmpty())
-                    return tr("a file");
-            }
-            return m_currentRoom->prettyPrint(e->plainBody());
-        }
-        if( ti->type() == EventType::RoomMember )
-        {
-            auto* e = ti.viewAs<RoomMemberEvent>();
-            // FIXME: Rewind to the name that was at the time of this event
-            QString subjectName = m_currentRoom->roomMembername(e->userId());
-            // The below code assumes senderName output in AuthorRole
-            switch( e->membership() )
-            {
-                case MembershipType::Invite:
-                    if (e->repeatsState())
-                        return tr("reinvited %1 to the room").arg(subjectName);
-                    // [[fallthrough]]
-                case MembershipType::Join:
+                if (e.hasTextContent() && e.mimeType().name() != "text/plain")
+                    return static_cast<const TextContent*>(e.content())->body;
+                if (e.hasFileContent())
                 {
-                    if (e->repeatsState())
-                        return tr("joined the room (repeated)");
-                    if (!e->prev_content() ||
-                            e->membership() != e->prev_content()->membership)
-                    {
-                        return e->membership() == MembershipType::Invite
-                                ? tr("invited %1 to the room").arg(subjectName)
-                                : tr("joined the room");
-                    }
-                    QString text {};
-                    if (e->displayName() != e->prev_content()->displayName)
-                    {
-                        if (e->displayName().isEmpty())
-                            text = tr("cleared the display name");
-                        else
-                            text = tr("changed the display name to %1")
-                                        .arg(e->displayName());
-                    }
-                    if (e->avatarUrl() != e->prev_content()->avatarUrl)
-                    {
-                        if (!text.isEmpty())
-                            text += " and ";
-                        if (e->avatarUrl().isEmpty())
-                            text += tr("cleared the avatar");
-                        else
-                            text += tr("updated the avatar");
-                    }
-                    return text;
+                    auto fileCaption = e.content()->fileInfo()->originalName;
+                    if (fileCaption.isEmpty())
+                        fileCaption = m_currentRoom->prettyPrint(e.plainBody());
+                    if (fileCaption.isEmpty())
+                        return tr("a file");
                 }
-                case MembershipType::Leave:
-                    if (e->prev_content() &&
-                            e->prev_content()->membership == MembershipType::Ban)
-                    {
-                        if (e->senderId() != e->userId())
-                            return tr("unbanned %1").arg(subjectName);
-                        else
-                            return tr("self-unbanned");
-                    }
-                    if (e->senderId() != e->userId())
-                        return tr("has put %1 out of the room").arg(subjectName);
-                    else
-                        return tr("left the room");
-                case MembershipType::Ban:
-                    if (e->senderId() != e->userId())
-                        return tr("banned %1 from the room").arg(subjectName);
-                    else
-                        return tr("self-banned from the room");
-                case MembershipType::Knock:
-                    return tr("knocked");
-                case MembershipType::Undefined:
-                    return tr("made something unknown");
+                return m_currentRoom->prettyPrint(e.plainBody());
             }
-        }
-        if( ti->type() == EventType::RoomAliases )
-        {
-            auto* e = ti.viewAs<RoomAliasesEvent>();
-            return tr("set aliases to: %1").arg(e->aliases().join(", "));
-        }
-        if( ti->type() == EventType::RoomCanonicalAlias )
-        {
-            auto* e = ti.viewAs<RoomCanonicalAliasEvent>();
-            if (e->alias().isEmpty())
-                return tr("cleared the room main alias");
-            else
-                return tr("set the room main alias to: %1").arg(e->alias());
-        }
-        if( ti->type() == EventType::RoomName )
-        {
-            auto* e = ti.viewAs<RoomNameEvent>();
-            if (e->name().isEmpty())
-                return tr("cleared the room name");
-            else
-                return tr("set the room name to: %1").arg(e->name());
-        }
-        if( ti->type() == EventType::RoomTopic )
-        {
-            auto* e = ti.viewAs<RoomTopicEvent>();
-            if (e->topic().isEmpty())
-                return tr("cleared the topic");
-            else
-                return tr("set the topic to: %1").arg(e->topic());
-        }
-        if( ti->type() == EventType::RoomAvatar )
-        {
-            return tr("changed the room avatar");
-        }
-        if( ti->type() == EventType::RoomEncryption )
-        {
-            return tr("activated End-to-End Encryption");
-        }
-        return tr("Unknown Event");
+            , [this] (const RoomMemberEvent& e) -> QVariant {
+                // FIXME: Rewind to the name that was at the time of this event
+                QString subjectName = m_currentRoom->roomMembername(e.userId());
+                // The below code assumes senderName output in AuthorRole
+                switch( e.membership() )
+                {
+                    case MembershipType::Invite:
+                        if (e.repeatsState())
+                            return tr("reinvited %1 to the room").arg(subjectName);
+                        // [[fallthrough]]
+                    case MembershipType::Join:
+                    {
+                        if (e.repeatsState())
+                            return tr("joined the room (repeated)");
+                        if (!e.prevContent() ||
+                                e.membership() != e.prevContent()->membership)
+                        {
+                            return e.membership() == MembershipType::Invite
+                                    ? tr("invited %1 to the room").arg(subjectName)
+                                    : tr("joined the room");
+                        }
+                        QString text {};
+                        if (e.displayName() != e.prevContent()->displayName)
+                        {
+                            if (e.displayName().isEmpty())
+                                text = tr("cleared the display name");
+                            else
+                                text = tr("changed the display name to %1")
+                                            .arg(e.displayName());
+                        }
+                        if (e.avatarUrl() != e.prevContent()->avatarUrl)
+                        {
+                            if (!text.isEmpty())
+                                text += " and ";
+                            if (e.avatarUrl().isEmpty())
+                                text += tr("cleared the avatar");
+                            else
+                                text += tr("updated the avatar");
+                        }
+                        return text;
+                    }
+                    case MembershipType::Leave:
+                        if (e.prevContent() &&
+                                e.prevContent()->membership == MembershipType::Ban)
+                        {
+                            return (e.senderId() != e.userId())
+                                    ? tr("unbanned %1").arg(subjectName)
+                                    : tr("self-unbanned");
+                        }
+                        return (e.senderId() != e.userId())
+                                ? tr("has put %1 out of the room").arg(subjectName)
+                                : tr("left the room");
+                    case MembershipType::Ban:
+                        return (e.senderId() != e.userId())
+                                ? tr("banned %1 from the room").arg(subjectName)
+                                : tr("self-banned from the room");
+                    case MembershipType::Knock:
+                        return tr("knocked");
+                    case MembershipType::Undefined:
+                        return tr("made something unknown");
+                }
+            }
+            , [] (const RoomAliasesEvent& e) -> QVariant {
+                return tr("set aliases to: %1").arg(e.aliases().join(", "));
+            }
+            , [] (const RoomCanonicalAliasEvent& e) -> QVariant {
+                return (e.alias().isEmpty())
+                        ? tr("cleared the room main alias")
+                        : tr("set the room main alias to: %1").arg(e.alias());
+            }
+            , [] (const RoomNameEvent& e) -> QVariant {
+                return (e.name().isEmpty())
+                        ? tr("cleared the room name")
+                        : tr("set the room name to: %1").arg(e.name());
+            }
+            , [] (const RoomTopicEvent& e) -> QVariant {
+                return (e.topic().isEmpty())
+                        ? tr("cleared the topic")
+                        : tr("set the topic to: %1").arg(e.topic());
+            }
+            , [] (const RoomAvatarEvent&) -> QVariant {
+                return tr("changed the room avatar");
+            }
+            , [] (const EncryptionEvent&) -> QVariant {
+                return tr("activated End-to-End Encryption");
+            }
+            , tr("Unknown Event")
+        );
     }
 
     if( role == Qt::ToolTipRole )
@@ -369,7 +353,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         if (ti->isStateEvent())
             return "state";
 
-        if (ti->type() == EventType::RoomMessage)
+        if (is<RoomMessageEvent>(*ti))
         {
             switch (ti.viewAs<RoomMessageEvent>()->msgtype())
             {
@@ -387,7 +371,6 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
                 return "message";
             }
         }
-
         return "other";
     }
 
@@ -409,7 +392,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 
     if (role == ContentTypeRole)
     {
-        if (ti->type() == EventType::RoomMessage)
+        if (is<RoomMessageEvent>(*ti))
         {
             const auto& contentType =
                 ti.viewAs<RoomMessageEvent>()->mimeType().name();
@@ -423,14 +406,12 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         if (ti->isRedacted())
         {
             auto reason = ti->redactedBecause()->reason();
-            if (reason.isEmpty())
-                return tr("Redacted");
-            else
-                return tr("Redacted: %1")
-                    .arg(ti->redactedBecause()->reason());
+            return (reason.isEmpty())
+                    ? tr("Redacted")
+                    : tr("Redacted: %1").arg(ti->redactedBecause()->reason());
         }
 
-        if( ti->type() == EventType::RoomMessage )
+        if (is<RoomMessageEvent>(*ti))
         {
             using namespace MessageEventContent;
 
@@ -466,7 +447,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 
     if( role == LongOperationRole )
     {
-        if (ti->type() == EventType::RoomMessage &&
+        if (is<RoomMessageEvent>(*ti) &&
                 ti.viewAs<RoomMessageEvent>()->hasFileContent())
         {
             auto info = m_currentRoom->fileTransferInfo(ti->id());

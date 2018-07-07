@@ -49,7 +49,7 @@ class MessageEventModel: public QAbstractListModel
         QString lastReadEventId;
         int nextNewerRow = -1;
 
-        QDateTime makeMessageTimestamp(QuaternionRoom::rev_iter_t baseIt) const;
-        QString makeDateString(QuaternionRoom::rev_iter_t baseIt) const;
-        void refreshEventRoles(const QString& eventId, const QVector<int> roles);
+        QDateTime makeMessageTimestamp(const QMatrixClient::Room::rev_iter_t& baseIt) const;
+        QString makeDateString(const QMatrixClient::Room::rev_iter_t& baseIt) const;
+        void refreshEventRoles(const QString& eventId, const QVector<int>& roles);
 };
