@@ -85,6 +85,8 @@ MainWindow::MainWindow()
     connect( roomListDock, &RoomListDock::roomSelected,
              this, &MainWindow::selectRoom);
     connect( chatRoomWidget, &ChatRoomWidget::showStatusMessage, statusBar(), &QStatusBar::showMessage );
+    connect( userListDock, &UserListDock::userMentionRequested,
+             chatRoomWidget, &ChatRoomWidget::insertMention);
 
     createMenu();
     systemTrayIcon = new SystemTrayIcon(this);

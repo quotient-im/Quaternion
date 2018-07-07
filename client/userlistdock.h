@@ -24,6 +24,7 @@
 namespace QMatrixClient
 {
     class Room;
+    class User;
 }
 
 class UserListModel;
@@ -38,15 +39,20 @@ class UserListDock: public QDockWidget
 
         void setRoom( QMatrixClient::Room* room );
 
+    signals:
+        void userMentionRequested(QMatrixClient::User* u);
+
     private slots:
         void refreshTitle();
         void showContextMenu(QPoint pos);
         void startChatSelected();
+        void requestUserMention();
 
     private:
         QTableView* m_view;
         UserListModel* m_model;
 
         QMenu* contextMenu;
-        QAction* startChatAction;
+
+        QMatrixClient::User* getSelectedUser() const;
 };

@@ -40,6 +40,9 @@ UserListDock::UserListDock(QWidget* parent)
     m_view->verticalHeader()->setVisible(false);
     setWidget(m_view);
 
+    connect(m_view, &QTableView::activated,
+            this, &UserListDock::requestUserMention);
+
     m_model = new UserListModel();
     m_view->setModel(m_model);
 
@@ -50,9 +53,10 @@ UserListDock::UserListDock(QWidget* parent)
     connect( m_model, &QAbstractListModel::modelReset,
              this, &UserListDock::refreshTitle );
 
-    startChatAction = new QAction(tr("Open direct chat"), this);
-    connect(startChatAction, &QAction::triggered, this, &UserListDock::startChatSelected);
-    contextMenu->addAction(startChatAction);
+    contextMenu->addAction(tr("Open direct chat"),
+                           this, &UserListDock::startChatSelected);
+    contextMenu->addAction(tr("Mention user"),
+                           this, &UserListDock::requestUserMention);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested,
@@ -76,10 +80,22 @@ void UserListDock::showContextMenu(QPoint pos)
 
 void UserListDock::startChatSelected()
 {
-    QModelIndex index = m_view->currentIndex();
+    if (auto* user = getSelectedUser())
+        user->requestDirectChat();
+}
+
+void UserListDock::requestUserMention()
+{
+    if (auto* user = getSelectedUser())
+        emit userMentionRequested(user);
+}
+
+QMatrixClient::User* UserListDock::getSelectedUser() const
+{
+    auto index = m_view->currentIndex();
     if (!index.isValid())
-        return;
-    auto user = m_model->userAt(index);
+        return nullptr;
+    auto* const user = m_model->userAt(index);
     Q_ASSERT(user);
-    user->requestDirectChat();
+    return user;
 }
