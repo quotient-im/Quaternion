@@ -23,7 +23,9 @@
 
 #include "chatroomwidget.h"
 
-ChatEdit::ChatEdit(ChatRoomWidget* c) : KChatEdit(c), chatRoomWidget(c) { }
+ChatEdit::ChatEdit(ChatRoomWidget* c)
+    : KChatEdit(c), chatRoomWidget(c), matchesListPosition(0)
+{ }
 
 void ChatEdit::keyPressEvent(QKeyEvent* event)
 {
@@ -65,20 +67,20 @@ void ChatEdit::startNewCompletion()
         auto lookBehindCursor = completionCursor;
         if ( lookBehindCursor.atStart() )
         {
-            appendTextAtCursor(": ", false);
+            appendTextAtCursor(QStringLiteral(": "), false);
             return;
         }
-        for (auto stringBefore: {":", ": "})
+        for (auto stringBefore: {QLatin1String(":"), QLatin1String(": ")})
         {
             lookBehindCursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
             if ( lookBehindCursor.selectedText().startsWith(stringBefore) )
             {
-                lookBehindCursor.insertText(", ");
-                appendTextAtCursor(": ", false);
+                lookBehindCursor.insertText(QStringLiteral(", "));
+                appendTextAtCursor(QStringLiteral(": "), false);
                 return;
             }
         }
-        appendTextAtCursor(" ", false);
+        appendTextAtCursor(QStringLiteral(" "), false);
     }
 }
 
@@ -118,18 +120,18 @@ void ChatEdit::insertMention(QString author)
     // Add spaces and a colon around the inserted string if necessary.
     if (cursor.position() > 0 &&
             document()->characterAt(cursor.position() - 1).isLetterOrNumber())
-        cursor.insertText(" ");
+        cursor.insertText(QStringLiteral(" "));
 
     while (cursor.movePosition(QTextCursor::PreviousCharacter) &&
            document()->characterAt(cursor.position()).isSpace());
     QString postfix;
     if (cursor.atStart())
-        postfix = ":";
+        postfix = QStringLiteral(":");
     if (pickingMentions && document()->characterAt(cursor.position()) == ':')
     {
         cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-        cursor.insertText(",");
-        postfix = ":";
+        cursor.insertText(QStringLiteral(","));
+        postfix = QStringLiteral(":");
     }
     auto currentChar = document()->characterAt(textCursor().position());
     if (textCursor().atBlockEnd() ||
