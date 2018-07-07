@@ -40,7 +40,7 @@ class UserListDock: public QDockWidget
 
     private slots:
         void refreshTitle();
-        void showContextMenu(const QPoint& pos);
+        void showContextMenu(QPoint pos);
         void startChatSelected();
 
     private:

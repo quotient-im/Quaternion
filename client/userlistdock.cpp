@@ -29,10 +29,10 @@
 #include "models/userlistmodel.h"
 
 UserListDock::UserListDock(QWidget* parent)
-    : QDockWidget("Users", parent)
+    : QDockWidget(tr("Users"), parent)
     , contextMenu(new QMenu(this))
 {
-    setObjectName("UsersDock");
+    setObjectName(QStringLiteral("UsersDock"));
     m_view = new QTableView();
     m_view->setShowGrid(false);
     m_view->horizontalHeader()->setStretchLastSection(true);
@@ -69,7 +69,7 @@ void UserListDock::refreshTitle()
     setWindowTitle(tr("Users (%1)").arg(m_model->rowCount(QModelIndex())));
 }
 
-void UserListDock::showContextMenu(const QPoint& pos)
+void UserListDock::showContextMenu(QPoint pos)
 {
     contextMenu->popup(mapToGlobal(pos));
 }
