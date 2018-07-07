@@ -39,6 +39,13 @@ void ChatEdit::keyPressEvent(QKeyEvent* event)
     KChatEdit::keyPressEvent(event);
 }
 
+QString ChatEdit::sanitizeMention(QString mentionText)
+{
+    if (mentionText.startsWith('/'))
+        mentionText.push_front('/');
+    return mentionText;
+}
+
 void ChatEdit::appendTextAtCursor(const QString& text, bool select)
 {
     completionCursor.insertText(text);
@@ -91,9 +98,10 @@ void ChatEdit::triggerCompletion()
 
     if (!completionMatches.isEmpty())
     {
-        appendTextAtCursor(completionMatches.at(matchesListPosition), true);
+        appendTextAtCursor(
+            sanitizeMention(completionMatches.at(matchesListPosition)), true);
         ensureCursorVisible(); // The real one, not completionCursor
-        QTextCharFormat completionHL = completionCursor.charFormat();
+        auto completionHL = completionCursor.charFormat();
         completionHL.setUnderlineStyle(QTextCharFormat::DashUnderline);
         setExtraSelections({ { completionCursor, completionHL } });
         emit proposedCompletion(completionMatches, matchesListPosition);
@@ -113,6 +121,7 @@ void ChatEdit::insertMention(QString author)
     // The order of inserting text below is such to be convenient for the user
     // to undo in case the primitive intelligence below fails.
     auto cursor = textCursor();
+    author = sanitizeMention(author);
     insertPlainText(author);
     cursor.movePosition(QTextCursor::PreviousCharacter,
                         QTextCursor::MoveAnchor, author.size());

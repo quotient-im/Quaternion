@@ -42,6 +42,7 @@ class ChatEdit : public KChatEdit
 
     protected:
         void keyPressEvent(QKeyEvent* event) override;
+        QString sanitizeMention(QString mentionText);
 
     private:
         ChatRoomWidget* chatRoomWidget;
