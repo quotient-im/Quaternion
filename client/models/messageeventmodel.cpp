@@ -46,6 +46,8 @@ enum EventRoles {
     ReadMarkerRole,
     SpecialMarksRole,
     LongOperationRole,
+    // For debugging
+    EventResolvedTypeRole,
 };
 
 QHash<int, QByteArray> MessageEventModel::roleNames() const
@@ -64,6 +66,7 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
     roles[ReadMarkerRole] = "readMarker";
     roles[SpecialMarksRole] = "marks";
     roles[LongOperationRole] = "progressInfo";
+    roles[EventResolvedTypeRole] = "eventResolvedType";
     return roles;
 }
 
@@ -387,6 +390,9 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 
         return "other";
     }
+
+    if (role == EventResolvedTypeRole)
+        return EventTypeRegistry::getMatrixType(ti->type());
 
     if( role == TimeRole )
         return makeMessageTimestamp(timelineIt);

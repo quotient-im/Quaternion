@@ -324,7 +324,8 @@ Item {
                     z: 1
                 }
                 TextEdit {
-                    text: "<a href=\"" + evtLink + "\">"+ eventId + "</a>"
+                    text: "<a href=\"" + evtLink + "\">"+ eventId
+                          + "</a> (" + eventResolvedType + ")"
                     textFormat: Text.RichText
                     font.bold: true
                     renderType: settings.render_type
