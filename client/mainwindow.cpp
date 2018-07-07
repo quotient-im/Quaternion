@@ -424,7 +424,7 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
             msgBox.setTextFormat(Qt::RichText);
             msgBox.setDetailedText(
                 "Request URL: " + job->requestUrl().toDisplayString() +
-                "\nResponse:\n" + job->rawData());
+                "\nResponse:\n" + job->rawData(65535));
             QPushButton* openUrlButton = nullptr;
             if (job->errorUrl().isEmpty())
                 msgBox.setDefaultButton(QMessageBox::Close);
