@@ -262,7 +262,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
                     case MembershipType::Invite:
                         if (e.repeatsState())
                             return tr("reinvited %1 to the room").arg(subjectName);
-                        // [[fallthrough]]
+                        FALLTHROUGH;
                     case MembershipType::Join:
                     {
                         if (e.repeatsState())
@@ -311,9 +311,10 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
                                 : tr("self-banned from the room");
                     case MembershipType::Knock:
                         return tr("knocked");
-                    case MembershipType::Undefined:
-                        return tr("made something unknown");
+                    default:
+                        ;
                 }
+                return tr("made something unknown");
             }
             , [] (const RoomAliasesEvent& e) -> QVariant {
                 return tr("set aliases to: %1").arg(e.aliases().join(", "));
