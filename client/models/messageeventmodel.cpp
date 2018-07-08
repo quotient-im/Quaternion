@@ -238,7 +238,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
         }
 
         return visit(*ti
-            , [this] (const RoomMessageEvent& e) -> QVariant {
+            , [this] (const RoomMessageEvent& e) {
                 using namespace MessageEventContent;
 
                 if (e.hasTextContent() && e.mimeType().name() != "text/plain")
@@ -253,7 +253,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
                 }
                 return m_currentRoom->prettyPrint(e.plainBody());
             }
-            , [this] (const RoomMemberEvent& e) -> QVariant {
+            , [this] (const RoomMemberEvent& e) {
                 // FIXME: Rewind to the name that was at the time of this event
                 QString subjectName = m_currentRoom->roomMembername(e.userId());
                 // The below code assumes senderName output in AuthorRole
@@ -316,28 +316,28 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
                 }
                 return tr("made something unknown");
             }
-            , [] (const RoomAliasesEvent& e) -> QVariant {
+            , [] (const RoomAliasesEvent& e) {
                 return tr("set aliases to: %1").arg(e.aliases().join(", "));
             }
-            , [] (const RoomCanonicalAliasEvent& e) -> QVariant {
+            , [] (const RoomCanonicalAliasEvent& e) {
                 return (e.alias().isEmpty())
                         ? tr("cleared the room main alias")
                         : tr("set the room main alias to: %1").arg(e.alias());
             }
-            , [] (const RoomNameEvent& e) -> QVariant {
+            , [] (const RoomNameEvent& e) {
                 return (e.name().isEmpty())
                         ? tr("cleared the room name")
                         : tr("set the room name to: %1").arg(e.name());
             }
-            , [] (const RoomTopicEvent& e) -> QVariant {
+            , [] (const RoomTopicEvent& e) {
                 return (e.topic().isEmpty())
                         ? tr("cleared the topic")
                         : tr("set the topic to: %1").arg(e.topic());
             }
-            , [] (const RoomAvatarEvent&) -> QVariant {
+            , [] (const RoomAvatarEvent&) {
                 return tr("changed the room avatar");
             }
-            , [] (const EncryptionEvent&) -> QVariant {
+            , [] (const EncryptionEvent&) {
                 return tr("activated End-to-End Encryption");
             }
             , tr("Unknown Event")
