@@ -151,6 +151,7 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
 
     if( m_currentRoom )
     {
+        m_currentRoom->setDisplayed(false);
         m_currentRoom->setCachedInput( m_chatEdit->toPlainText() );
         roomHistories.insert(m_currentRoom, m_chatEdit->history());
         m_currentRoom->connection()->disconnect(this);
@@ -196,6 +197,7 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
             qWarning() << "Logged out, escaping the room";
             setRoom(nullptr);
         });
+        m_currentRoom->setDisplayed(true);
     } else
         m_imageProvider->setConnection(nullptr);
     updateHeader();
@@ -543,7 +545,7 @@ void ChatRoomWidget::saveFileAs(QString eventId)
 
 void ChatRoomWidget::onMessageShownChanged(QString eventId, bool shown)
 {
-    if (!m_currentRoom)
+    if (!m_currentRoom || !m_currentRoom->displayed())
         return;
 
     // A message can be auto-marked as read (as soon as the user is active), if:

@@ -67,11 +67,8 @@ Rectangle {
         }
 
         function onModelAboutToReset() {
-            if (room) {
-                room.displayed = false
-                contentYChanged.disconnect(ensurePreviousContent)
-                console.log("Chat: getPreviousContent disabled")
-            }
+            console.log("Resetting timeline model")
+            contentYChanged.disconnect(ensurePreviousContent)
         }
 
         function onModelReset() {
@@ -79,7 +76,6 @@ Rectangle {
             {
                 var lastScrollPosition = room.savedTopVisibleIndex()
                 contentYChanged.connect(ensurePreviousContent)
-                console.log("Chat: getPreviousContent enabled")
                 if (lastScrollPosition === 0)
                     positionViewAtBeginning()
                 else
@@ -89,8 +85,8 @@ Rectangle {
                 }
                 if (contentY < originY + 10)
                     room.getPreviousContent(100)
-                room.displayed = true
             }
+            console.log("Model timeline reset")
         }
 
         Component.onCompleted: {
