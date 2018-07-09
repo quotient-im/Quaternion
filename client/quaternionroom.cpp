@@ -102,11 +102,11 @@ void QuaternionRoom::checkForHighlights(const QMatrixClient::TimelineItem& ti)
     auto localUserId = localUser()->id();
     if (ti->senderId() == localUserId)
         return;
-    if (ti->type() == EventType::RoomMessage)
+    if (auto* e = ti.viewAs<RoomMessageEvent>())
     {
-        const auto& text = ti.viewAs<RoomMessageEvent>()->plainBody();
+        const auto& text = e->plainBody();
         if (text.contains(localUserId) ||
                 text.contains(roomMembername(localUserId)))
-            highlights.insert(ti.event());
+            highlights.insert(e);
     }
 }
