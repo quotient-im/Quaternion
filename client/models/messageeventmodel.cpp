@@ -104,7 +104,7 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                 [=](RoomEventsRange events)
                 {
                     if (rowCount() > 0)
-                        nextNewerRow = rowCount() - 1;
+                        nextNewerRow = rowCount() - 1; // See #312
                     beginInsertRows(QModelIndex(), rowCount(),
                                     rowCount() + int(events.size()) - 1);
                 });

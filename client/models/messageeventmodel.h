@@ -26,12 +26,6 @@
 class MessageEventModel: public QAbstractListModel
 {
         Q_OBJECT
-        // The below property is marked constant because it only changes
-        // when the whole model is reset (so anything that depends on the model
-        // has to be re-calculated anyway).
-        // XXX: A better way would be to make [Room::]Timeline a list model
-        // itself, leaving only representation of the model to a client.
-        Q_PROPERTY(QuaternionRoom* room MEMBER m_currentRoom CONSTANT)
     public:
         explicit MessageEventModel(QObject* parent = nullptr);
 
