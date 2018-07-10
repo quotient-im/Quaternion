@@ -313,7 +313,8 @@ QString ChatRoomWidget::doSendInput()
     static const QRegularExpression
             CommandRe { "^/([^ ]+)( +(.*))?\\s*$", ReFlags },
             RoomIdRE { "^[#!][-0-9a-z._=]+:\\S+$", ReFlags },
-            UserIdRE { "^@[-0-9a-z._=]+:\\S+$", ReFlags };
+            UserIdRE { "^@[-0-9a-z._=]+:\\S+$", ReFlags },
+            HtmlTagRE { "<[^>]+>", ReFlags };
 
     // Process a command
     const auto matches = CommandRe.match(text);
@@ -466,10 +467,8 @@ QString ChatRoomWidget::doSendInput()
                 room->postMessage(args.back());
                 return {};
             }
-            else
-                return tr("%1 doesn't seem to have joined room %2")
-                        .arg(m_currentRoom->localUser()->id(),
-                             args.front());
+            return tr("%1 doesn't seem to have joined room %2")
+                    .arg(m_currentRoom->localUser()->id(), args.front());
         }
         if (UserIdRE.match(args.front()).hasMatch())
         {
@@ -480,6 +479,14 @@ QString ChatRoomWidget::doSendInput()
 
         return tr("%1 doesn't look like a user id or room alias")
                 .arg(args.front());
+    }
+    if (command == "html")
+    {
+        // Very crude HTML-to-plaintext conversion - just strip all the tags
+        auto plainText = argString;
+        plainText.replace(HtmlTagRE, QString());
+        m_currentRoom->postHtmlMessage(plainText, argString);
+        return {};
     }
     if (command == "query" || command == "dc")
     {
