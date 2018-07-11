@@ -351,9 +351,6 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 
     if( role == EventTypeRole )
     {
-        if (ti->isStateEvent())
-            return "state";
-
         if (auto e = ti.viewAs<RoomMessageEvent>())
         {
             switch (e->msgtype())
@@ -372,6 +369,11 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
                 return "message";
             }
         }
+        if (is<RedactionEvent>(*ti))
+            return "redaction";
+        if (ti->isStateEvent())
+            return "state";
+
         return "other";
     }
 
@@ -440,7 +442,7 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
     {
         if (auto e = ti.viewAs<StateEventBase>())
             if (e->repeatsState())
-                return "hidden";
+                return "noop";
         return ti->isRedacted() ? "redacted" : "";
     }
 

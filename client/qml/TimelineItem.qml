@@ -28,8 +28,9 @@ Item {
 
     // TimelineItem definition
 
-    visible: marks != "hidden" || settings.show_noop_events
-    height: childrenRect.height
+    visible: eventType != "redaction" &&
+             (marks != "noop" || settings.show_noop_events)
+    height: visible ? childrenRect.height : 0
 
     readonly property bool sectionVisible: section !== aboveSection
     readonly property bool redacted: marks == "redacted"
