@@ -21,8 +21,8 @@
 
 #include "../quaternionroom.h"
 
-#include "lib/user.h"
-#include "lib/connection.h"
+#include <user.h>
+#include <connection.h>
 
 #include <QtGui/QIcon>
 

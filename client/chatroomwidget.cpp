@@ -36,10 +36,10 @@
 #include <QtCore/QRegularExpression>
 #include <QtCore/QStringBuilder>
 
-#include "lib/events/roommessageevent.h"
-#include "lib/user.h"
-#include "lib/connection.h"
-#include "lib/settings.h"
+#include <events/roommessageevent.h>
+#include <user.h>
+#include <connection.h>
+#include <settings.h>
 #include "models/messageeventmodel.h"
 #include "imageprovider.h"
 #include "chatedit.h"

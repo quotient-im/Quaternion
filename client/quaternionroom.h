@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "lib/room.h"
+#include <room.h>
 
 class QuaternionRoom: public QMatrixClient::Room
 {

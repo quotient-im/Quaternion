@@ -19,8 +19,8 @@
 
 #include "quaternionroom.h"
 
-#include "lib/user.h"
-#include "lib/events/roommessageevent.h"
+#include <user.h>
+#include <events/roommessageevent.h>
 
 using namespace QMatrixClient;
 

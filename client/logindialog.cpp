@@ -19,7 +19,7 @@
 
 #include "logindialog.h"
 
-#include "lib/connection.h"
+#include <connection.h>
 
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>

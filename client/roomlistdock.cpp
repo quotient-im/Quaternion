@@ -26,7 +26,7 @@
 
 #include "models/roomlistmodel.h"
 #include "quaternionroom.h"
-#include "lib/connection.h"
+#include <connection.h>
 
 class RoomListItemDelegate : public QStyledItemDelegate
 {

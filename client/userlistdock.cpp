@@ -23,9 +23,9 @@
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QMenu>
 
-#include "lib/connection.h"
-#include "lib/room.h"
-#include "lib/user.h"
+#include <connection.h>
+#include <room.h>
+#include <user.h>
 #include "models/userlistmodel.h"
 
 UserListDock::UserListDock(QWidget* parent)
