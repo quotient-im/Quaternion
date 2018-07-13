@@ -27,12 +27,12 @@
 #include "roomdialogs.h"
 #include "systemtrayicon.h"
 
-#include "lib/csapi/joining.h"
-#include "lib/connection.h"
-#include "lib/networkaccessmanager.h"
-#include "lib/settings.h"
-#include "lib/logging.h"
-#include "lib/user.h"
+#include <csapi/joining.h>
+#include <connection.h>
+#include <networkaccessmanager.h>
+#include <settings.h>
+#include <logging.h>
+#include <user.h>
 
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>

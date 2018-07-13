@@ -20,8 +20,8 @@
 #pragma once
 
 #include "../quaternionroom.h"
-#include "lib/connection.h"
-#include "lib/util.h"
+#include <connection.h>
+#include <util.h>
 
 #include <QtCore/QAbstractListModel>
 

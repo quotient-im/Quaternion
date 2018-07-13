@@ -19,8 +19,8 @@
 
 #include "imageprovider.h"
 
-#include "lib/connection.h"
-#include "lib/jobs/mediathumbnailjob.h"
+#include <connection.h>
+#include <jobs/mediathumbnailjob.h>
 
 #include <QtCore/QWaitCondition>
 #include <QtCore/QDebug>

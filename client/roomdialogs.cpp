@@ -19,10 +19,10 @@
 #include "roomdialogs.h"
 
 #include "quaternionroom.h"
-#include "lib/user.h"
-#include "lib/connection.h"
-#include "lib/csapi/create_room.h"
-#include "lib/logging.h"
+#include <user.h>
+#include <connection.h>
+#include <csapi/create_room.h>
+#include <logging.h>
 
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QLineEdit>

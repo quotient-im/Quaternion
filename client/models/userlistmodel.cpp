@@ -23,9 +23,9 @@
 #include <QtCore/QDebug>
 #include <QtGui/QPixmap>
 
-#include "lib/connection.h"
-#include "lib/room.h"
-#include "lib/user.h"
+#include <connection.h>
+#include <room.h>
+#include <user.h>
 
 
 UserListModel::UserListModel(QObject* parent)

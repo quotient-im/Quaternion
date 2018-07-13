@@ -26,7 +26,7 @@
 #include "networksettings.h"
 #include "mainwindow.h"
 #include "activitydetector.h"
-#include "lib/settings.h"
+#include <settings.h>
 
 int main( int argc, char* argv[] )
 {

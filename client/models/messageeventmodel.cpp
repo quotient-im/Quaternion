@@ -24,13 +24,13 @@
 #include <QtQml> // for qmlRegisterType()
 
 #include "../quaternionroom.h"
-#include "lib/connection.h"
-#include "lib/user.h"
-#include "lib/settings.h"
-#include "lib/events/roommemberevent.h"
-#include "lib/events/simplestateevents.h"
-#include "lib/events/redactionevent.h"
-#include "lib/events/roomavatarevent.h"
+#include <connection.h>
+#include <user.h>
+#include <settings.h>
+#include <events/roommemberevent.h>
+#include <events/simplestateevents.h>
+#include <events/redactionevent.h>
+#include <events/roomavatarevent.h>
 
 enum EventRoles {
     EventTypeRole = Qt::UserRole + 1,

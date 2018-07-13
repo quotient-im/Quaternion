@@ -21,7 +21,7 @@
 
 #include "mainwindow.h"
 #include "quaternionroom.h"
-#include "lib/settings.h"
+#include <settings.h>
 
 SystemTrayIcon::SystemTrayIcon(MainWindow* parent)
     : QSystemTrayIcon(parent)

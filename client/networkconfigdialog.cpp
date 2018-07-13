@@ -18,7 +18,7 @@
 
 #include "networkconfigdialog.h"
 
-#include "lib/networksettings.h"
+#include <networksettings.h>
 
 #include <QtGui/QIntValidator>
 #include <QtWidgets/QGroupBox>

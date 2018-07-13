@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "lib/connection.h"
+#include <connection.h>
 
 class QuaternionConnection: public QMatrixClient::Connection
 {
