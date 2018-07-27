@@ -98,7 +98,9 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
         connect(m_currentRoom, &Room::aboutToAddNewMessages, this,
                 [=](RoomEventsRange events)
                 {
-                    beginInsertRows(QModelIndex(), 0, int(events.size()) - 1);
+                    const auto pos = m_currentRoom->pendingEvents().size();
+                    beginInsertRows(QModelIndex(),
+                        int(pos), int(pos + events.size() - 1));
                 });
         connect(m_currentRoom, &Room::aboutToAddHistoricalMessages, this,
                 [=](RoomEventsRange events)
@@ -118,6 +120,32 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                     }
                     endInsertRows();
                 });
+        connect(m_currentRoom, &Room::pendingEventAboutToAdd, this,
+                [this] { beginInsertRows({}, 0, 0); });
+        connect(m_currentRoom, &Room::pendingEventAdded,
+                this, &MessageEventModel::endInsertRows);
+        connect(m_currentRoom, &Room::pendingEventAboutToMerge, this,
+                [this] (RoomEvent*, int i)
+                {
+                    const auto timelineBaseIdx =
+                            int(m_currentRoom->pendingEvents().size());
+                    if (i + 1 == timelineBaseIdx)
+                        return; // No need to move anything
+                    mergingEcho = true;
+                    Q_ASSERT(beginMoveRows({}, i, i, {}, timelineBaseIdx));
+                });
+        connect(m_currentRoom, &Room::pendingEventMerged, this,
+                [this] {
+                    if (mergingEcho)
+                    {
+                        endMoveRows();
+                        mergingEcho = false;
+                    }
+                    refreshEventRoles(int(m_currentRoom->pendingEvents().size()),
+                                      { SpecialMarksRole });
+                });
+        connect(m_currentRoom, &Room::pendingEventChanged, this,
+                [this] (int i) { refreshEventRoles(i, { SpecialMarksRole }); });
         connect(m_currentRoom, &Room::readMarkerMoved, this, [this] {
             refreshEventRoles(
                 std::exchange(lastReadEventId,
@@ -149,15 +177,19 @@ void MessageEventModel::refreshEvent(const QString& eventId)
     refreshEventRoles(eventId, {});
 }
 
+void MessageEventModel::refreshEventRoles(const int row,
+                                          const QVector<int>& roles)
+{
+    const auto idx = index(row);
+    emit dataChanged(idx, idx, roles);
+}
+
 void MessageEventModel::refreshEventRoles(const QString& eventId,
-                                     const QVector<int>& roles)
+                                          const QVector<int>& roles)
 {
     const auto it = m_currentRoom->findInTimeline(eventId);
     if (it != m_currentRoom->timelineEdge())
-    {
-        const auto idx = index(it - m_currentRoom->messageEvents().rbegin());
-        emit dataChanged(idx, idx, roles);
-    }
+        refreshEventRoles(it - m_currentRoom->messageEvents().rbegin(), roles);
 }
 
 inline bool hasValidTimestamp(const QMatrixClient::TimelineItem& ti)
@@ -217,27 +249,34 @@ int MessageEventModel::rowCount(const QModelIndex& parent) const
 
 QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 {
-    if( !m_currentRoom ||
-            index.row() < 0 || index.row() >= m_currentRoom->timelineSize())
-        return QVariant();
+    const auto row = index.row();
 
-    const auto timelineIt = m_currentRoom->messageEvents().rbegin() + index.row();
-    const auto& ti = *timelineIt;
+    if( !m_currentRoom || row < 0 ||
+            row >= int(m_currentRoom->pendingEvents().size()) +
+                       m_currentRoom->timelineSize())
+        return {};
+
+    const auto timelineBaseIdx = int(m_currentRoom->pendingEvents().size());
+    const auto timelineIt = m_currentRoom->messageEvents().crbegin() +
+                                std::max(-1, row - timelineBaseIdx);
+    const auto& evt = row < timelineBaseIdx
+                        ? *m_currentRoom->pendingEvents()[size_t(row)]
+                        : *timelineIt->event();
 
     using namespace QMatrixClient;
     if( role == Qt::DisplayRole )
     {
-        if (ti->isRedacted())
+        if (evt.isRedacted())
         {
-            auto reason = ti->redactedBecause()->reason();
+            auto reason = evt.redactedBecause()->reason();
             if (reason.isEmpty())
                 return tr("Redacted");
 
             return tr("Redacted: %1")
-                .arg(ti->redactedBecause()->reason());
+                .arg(evt.redactedBecause()->reason());
         }
 
-        return visit(*ti
+        return visit(evt
             , [this] (const RoomMessageEvent& e) {
                 using namespace MessageEventContent;
 
@@ -346,12 +385,12 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
 
     if( role == Qt::ToolTipRole )
     {
-        return ti->originalJson();
+        return evt.originalJson();
     }
 
     if( role == EventTypeRole )
     {
-        if (auto e = ti.viewAs<RoomMessageEvent>())
+        if (auto e = eventCast<const RoomMessageEvent>(&evt))
         {
             switch (e->msgtype())
             {
@@ -369,105 +408,106 @@ QVariant MessageEventModel::data(const QModelIndex& index, int role) const
                 return "message";
             }
         }
-        if (is<RedactionEvent>(*ti))
+        if (is<RedactionEvent>(evt))
             return "redaction";
-        if (ti->isStateEvent())
+        if (evt.isStateEvent())
             return "state";
 
         return "other";
     }
 
     if (role == EventResolvedTypeRole)
-        return EventTypeRegistry::getMatrixType(ti->type());
-
-    if( role == TimeRole )
-        return makeMessageTimestamp(timelineIt);
-
-    if( role == SectionRole )
-        return makeDateString(timelineIt); // FIXME: move date rendering to QML
+        return EventTypeRegistry::getMatrixType(evt.type());
 
     if( role == AuthorRole )
     {
-        auto userId = ti->senderId();
         // FIXME: It shouldn't be User, it should be its state "as of event"
-        return QVariant::fromValue(m_currentRoom->user(userId));
+        return QVariant::fromValue(row < timelineBaseIdx
+                                   ? m_currentRoom->localUser()
+                                   : m_currentRoom->user(evt.senderId()));
     }
 
     if (role == ContentTypeRole)
     {
-        if (is<RoomMessageEvent>(*ti))
+        if (auto e = eventCast<const RoomMessageEvent>(&evt))
         {
-            const auto& contentType =
-                ti.viewAs<RoomMessageEvent>()->mimeType().name();
-            return contentType == "text/plain" ? "text/html" : contentType;
+            const auto& contentType = e->mimeType().name();
+            return contentType == "text/plain"
+                    ? QStringLiteral("text/html") : contentType;
         }
-        return "text/plain";
+        return QStringLiteral("text/plain");
     }
 
     if (role == ContentRole)
     {
-        if (ti->isRedacted())
+        if (evt.isRedacted())
         {
-            auto reason = ti->redactedBecause()->reason();
+            auto reason = evt.redactedBecause()->reason();
             return (reason.isEmpty())
                     ? tr("Redacted")
-                    : tr("Redacted: %1").arg(ti->redactedBecause()->reason());
+                    : tr("Redacted: %1").arg(evt.redactedBecause()->reason());
         }
 
-        if (is<RoomMessageEvent>(*ti))
+        if (auto e = eventCast<const RoomMessageEvent>(&evt))
         {
-            using namespace MessageEventContent;
-
-            auto* e = ti.viewAs<RoomMessageEvent>();
-            switch (e->msgtype())
-            {
-                case MessageEventType::Image:
-                case MessageEventType::File:
-                case MessageEventType::Audio:
-                case MessageEventType::Video:
-                    return QVariant::fromValue(e->content()->originalJson);
-            default:
-                ;
-            }
-        }
+            // Cannot use e.contentJson() here because some
+            // EventContent classes inject values into the copy of the
+            // content JSON stored in EventContent::Base
+            return e->hasFileContent()
+                    ? QVariant::fromValue(e->content()->originalJson)
+                    : QVariant();
+        };
     }
 
     if( role == HighlightRole )
-        return m_currentRoom->isEventHighlighted(ti.event());
+        return m_currentRoom->isEventHighlighted(&evt);
 
     if( role == ReadMarkerRole )
-        return ti->id() == lastReadEventId;
+        return evt.id() == lastReadEventId;
 
     if( role == SpecialMarksRole )
     {
-        if (auto e = ti.viewAs<StateEventBase>())
-            if (e->repeatsState())
-                return "noop";
-        return ti->isRedacted() ? "redacted" : "";
+        if (row < timelineBaseIdx)
+            return evt.id().isEmpty() ? "unsent" : "unsynced";
+
+        if (evt.isStateEvent() &&
+                static_cast<const StateEventBase&>(evt).repeatsState())
+            return "noop";
+        return evt.isRedacted() ? "redacted" : "";
     }
 
     if( role == EventIdRole )
-        return ti->id();
+        return evt.id();
 
     if( role == LongOperationRole )
     {
-        if (is<RoomMessageEvent>(*ti) &&
-                ti.viewAs<RoomMessageEvent>()->hasFileContent())
-        {
-            auto info = m_currentRoom->fileTransferInfo(ti->id());
-            return QVariant::fromValue(info);
-        }
+        if (auto e = eventCast<const RoomMessageEvent>(&evt))
+            if (e->hasFileContent())
+                return QVariant::fromValue(
+                            m_currentRoom->fileTransferInfo(e->id()));
     }
 
-    auto aboveEventIt = timelineIt + 1; // FIXME: shouldn't be here, because #312
-    if (aboveEventIt != m_currentRoom->timelineEdge())
+    if (row >= timelineBaseIdx - 1) // The timeline and the topmost unsynced
     {
-        if( role == AboveSectionRole )
-            return makeDateString(aboveEventIt);
+        if( role == TimeRole )
+            return row < timelineBaseIdx ? QDateTime::currentDateTimeUtc()
+                                         : makeMessageTimestamp(timelineIt);
 
-        if( role == AboveAuthorRole )
-            return QVariant::fromValue(
-                        m_currentRoom->user((*aboveEventIt)->senderId()));
+        if( role == SectionRole )
+            return row < timelineBaseIdx ? tr("Today")
+                                         : makeDateString(timelineIt); // FIXME: move date rendering to QML
+
+        // FIXME: shouldn't be here, because #312
+        auto aboveEventIt = timelineIt + 1;
+        if (aboveEventIt != m_currentRoom->timelineEdge())
+        {
+            if( role == AboveSectionRole )
+                return makeDateString(aboveEventIt);
+
+            if( role == AboveAuthorRole )
+                return QVariant::fromValue(
+                            m_currentRoom->user((*aboveEventIt)->senderId()));
+        }
     }
 
     return QVariant();

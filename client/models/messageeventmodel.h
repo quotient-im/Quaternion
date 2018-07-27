@@ -42,8 +42,10 @@ class MessageEventModel: public QAbstractListModel
         QuaternionRoom* m_currentRoom;
         QString lastReadEventId;
         int nextNewerRow = -1;
+        bool mergingEcho = 0;
 
         QDateTime makeMessageTimestamp(const QMatrixClient::Room::rev_iter_t& baseIt) const;
         QString makeDateString(const QMatrixClient::Room::rev_iter_t& baseIt) const;
+        void refreshEventRoles(const int row, const QVector<int>& roles);
         void refreshEventRoles(const QString& eventId, const QVector<int>& roles);
 };

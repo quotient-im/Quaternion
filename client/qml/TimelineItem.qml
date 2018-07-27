@@ -35,6 +35,8 @@ Item {
     readonly property bool sectionVisible: section !== aboveSection
     readonly property bool redacted: marks == "redacted"
     readonly property string textColor:
+        marks == "unsent" ? defaultPalette.mid :
+        marks == "unsynced" ? disabledPalette.text :
         redacted ? disabledPalette.text :
         highlight ? settings.highlight_color :
         (["state", "notice", "other"].indexOf(eventType) >= 0) ?
@@ -52,7 +54,10 @@ Item {
         y + message.height - 1 > view.contentY &&
         y + message.height - 1 < view.contentY + view.height
 
-    onShownChanged: controller.onMessageShownChanged(eventId, shown)
+    onShownChanged: {
+        if (marks != "unsynced" && marks != "unsent")
+            controller.onMessageShownChanged(eventId, shown)
+    }
 
     Component.onCompleted: {
         if (shown)
