@@ -66,7 +66,7 @@ class ChatRoomWidget: public QWidget
         void focusInput();
 
         void typingChanged();
-        void onMessageShownChanged(QString eventId, bool shown);
+        void onMessageShownChanged(const QString& eventId, bool shown);
         void markShownAsRead();
         void saveFileAs(QString eventId);
 

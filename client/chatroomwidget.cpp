@@ -550,7 +550,7 @@ void ChatRoomWidget::saveFileAs(QString eventId)
         m_currentRoom->downloadFile(eventId, QUrl::fromLocalFile(fileName));
 }
 
-void ChatRoomWidget::onMessageShownChanged(QString eventId, bool shown)
+void ChatRoomWidget::onMessageShownChanged(const QString& eventId, bool shown)
 {
     if (!m_currentRoom || !m_currentRoom->displayed())
         return;
@@ -582,8 +582,8 @@ void ChatRoomWidget::onMessageShownChanged(QString eventId, bool shown)
     const auto iter = m_currentRoom->findInTimeline(eventId);
     if (iter == m_currentRoom->timelineEdge())
     {
-        qCritical() <<  "Event" << eventId << "is not in the timeline";
-        Q_ASSERT(false);
+        qWarning() << "Event" << eventId
+                   << "is not in the timeline (local echo?)";
         return;
     }
     const auto timelineIndex = iter->index();
