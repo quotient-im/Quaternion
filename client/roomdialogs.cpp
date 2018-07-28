@@ -137,12 +137,15 @@ void RoomSettingsDialog::load()
         auto tagDisplayName =
                 tag == QMatrixClient::FavouriteTag ? tr("Favourite") :
                 tag == QMatrixClient::LowPriorityTag ? tr("Low priority") :
+                tag.startsWith("u.") ? tag.mid(2) :
                 tag;
         auto* item = new QListWidgetItem(tagDisplayName, tagsList);
-        item->setData(Qt::UserRole, tag);
+        const auto& compliantTag = tag.contains('.') ? tag : "u." + tag;
+        item->setData(Qt::UserRole, compliantTag);
         item->setFlags(Qt::ItemIsEnabled|Qt::ItemIsUserCheckable);
         item->setCheckState(
                     roomTags.contains(tag) ? Qt::Checked : Qt::Unchecked);
+        item->setToolTip(compliantTag);
         tagsList->addItem(item);
     }
 }
