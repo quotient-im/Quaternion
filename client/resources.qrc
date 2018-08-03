@@ -13,5 +13,6 @@
         <file>qml/ImageContent.qml</file>
         <file>qml/FileContent.qml</file>
         <file>qml/TimelineItem.qml</file>
+        <file>qml/ActiveLabel.qml</file>
     </qresource>
 </RCC>

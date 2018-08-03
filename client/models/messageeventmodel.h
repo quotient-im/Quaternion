@@ -37,15 +37,18 @@ class MessageEventModel: public QAbstractListModel
 
     private slots:
         void refreshEvent(const QString& eventId);
+        void refreshRow(int row);
 
     private:
         QuaternionRoom* m_currentRoom;
         QString lastReadEventId;
-        int nextNewerRow = -1;
-        bool mergingEcho = 0;
+        int rowBelowInserted = -1;
+        bool movingEvent = 0;
 
-        QDateTime makeMessageTimestamp(const QMatrixClient::Room::rev_iter_t& baseIt) const;
-        QString makeDateString(const QMatrixClient::Room::rev_iter_t& baseIt) const;
-        void refreshEventRoles(const int row, const QVector<int>& roles);
-        void refreshEventRoles(const QString& eventId, const QVector<int>& roles);
+        int timelineBaseIndex() const;
+        QDateTime makeMessageTimestamp(const QuaternionRoom::rev_iter_t& baseIt) const;
+        QString renderDate(QDateTime timestamp) const;
+        void refreshEventRoles(int row, const QVector<int>& roles = {});
+        void refreshEventRoles(const QString& eventId,
+                               const QVector<int>& roles = {});
 };

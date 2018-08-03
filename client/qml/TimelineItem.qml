@@ -29,20 +29,26 @@ Item {
     // TimelineItem definition
 
     visible: eventType != "redaction" &&
-             (marks != "noop" || settings.show_noop_events)
+             (marks !== EventStatus.Hidden || settings.show_noop_events)
     height: visible ? childrenRect.height : 0
 
     readonly property bool sectionVisible: section !== aboveSection
-    readonly property bool redacted: marks == "redacted"
+    readonly property bool redacted: marks === EventStatus.Redacted
+    readonly property bool pending: [
+                                        EventStatus.Submitted,
+                                        EventStatus.Departed,
+                                        EventStatus.ReachedServer,
+                                        EventStatus.SendingFailed
+                                    ].indexOf(marks) != -1
+    readonly property bool failed: marks === EventStatus.SendingFailed
     readonly property string textColor:
-        marks == "unsent" ? defaultPalette.mid :
-        marks == "unsynced" ? disabledPalette.text :
+        marks === EventStatus.Submitted || failed ? defaultPalette.mid :
+        marks === EventStatus.Departed ? disabledPalette.text :
         redacted ? disabledPalette.text :
         highlight ? settings.highlight_color :
         (["state", "notice", "other"].indexOf(eventType) >= 0) ?
                 disabledPalette.text : defaultPalette.text
-    readonly property string authorName:
-        room.roomMembername(author.id)
+    readonly property string authorName: room.roomMembername(author.id)
 
     readonly property bool xchatStyle: settings.timeline_style === "xchat"
     readonly property bool actionEvent: eventType == "state" || eventType == "emote"
@@ -55,7 +61,7 @@ Item {
         y + message.height - 1 < view.contentY + view.height
 
     onShownChanged: {
-        if (marks != "unsynced" && marks != "unsent")
+        if (!pending)
             controller.onMessageShownChanged(eventId, shown)
     }
 
@@ -177,6 +183,7 @@ Item {
                 color: disabledPalette.text
                 textFormat: Text.RichText
                 renderType: settings.render_type
+                font.italic: pending
 
                 text: "<font size=-1>&lt;" +
                       time.toLocaleTimeString(Qt.locale(), Locale.ShortFormat)
@@ -187,13 +194,14 @@ Item {
                 anchors.top: singleRow ? authorLabel.top : authorLabel.bottom
                 anchors.left: singleRow ? authorLabel.right : timelabel.right
                 anchors.leftMargin: 3
-                anchors.right: showDetailsButton.left
+                anchors.right: resendButton.left
                 anchors.rightMargin: 3
 
                 selectByMouse: true
                 readOnly: true
                 textFormat: TextEdit.RichText
-                text: xchatStyle || !singleRow ? display : ' ' + display
+                text: ((xchatStyle || !singleRow) ? display : ' ' + display) +
+                       (annotation ? "<br><em>" + annotation + "</em>" : "")
                 horizontalAlignment: Text.AlignLeft
                 wrapMode: Text.Wrap
                 color: textColor
@@ -247,6 +255,29 @@ Item {
 
                 sourceComponent: FileContent { }
             }
+            ActiveLabel {
+                id: resendButton
+                visible: failed
+                width: visible * implicitWidth
+                anchors.top: textField.top
+                anchors.right: discardButton.left
+                anchors.rightMargin: 2
+                text: "Resend"
+
+                onClicked: room.retryMessage(eventId)
+            }
+            ActiveLabel {
+                id: discardButton
+                visible: pending && marks !== EventStatus.ReachedServer
+                width: visible * implicitWidth
+                anchors.top: textField.top
+                anchors.right: showDetailsButton.left
+                anchors.rightMargin: 2
+                text: "Discard"
+
+                onClicked: room.discardMessage(eventId)
+            }
+
             ToolButton {
                 id: showDetailsButton
                 anchors.top: textField.top
