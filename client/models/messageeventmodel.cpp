@@ -146,8 +146,8 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                     }
                     refreshRow(timelineBaseIndex()); // Refresh the looks
                     if (m_currentRoom->timelineSize() > 1) // Refresh above
-                        refreshEventRoles(timelineBaseIndex() + 1/*,
-                                          {ReadMarkerRole}*/);
+                        refreshEventRoles(timelineBaseIndex() + 1,
+                                          {ReadMarkerRole});
                     if (timelineBaseIndex() > 0) // Refresh below, see #312
                         refreshEventRoles(timelineBaseIndex() - 1,
                                           {AboveAuthorRole, AboveSectionRole});
@@ -162,9 +162,9 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
             this, [this] {
             refreshEventRoles(
                 std::exchange(lastReadEventId,
-                              m_currentRoom->readMarkerEventId())/*,
-                {ReadMarkerRole}*/);
-            refreshEventRoles(lastReadEventId/*, {ReadMarkerRole}*/);
+                              m_currentRoom->readMarkerEventId()),
+                {ReadMarkerRole});
+            refreshEventRoles(lastReadEventId, {ReadMarkerRole});
         });
         connect(m_currentRoom, &Room::replacedEvent, this,
                 [this] (const RoomEvent* newEvent) {
