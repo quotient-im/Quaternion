@@ -426,16 +426,10 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                     return "notice";
                 case MessageEventType::Image:
                     return "image";
-                case MessageEventType::File:
-                case MessageEventType::Audio:
-                case MessageEventType::Video:
-                    return "file";
-            default:
-                return "message";
+                default:
+                    return e->hasFileContent() ? "file" : "message";
             }
         }
-        if (is<RedactionEvent>(evt))
-            return "redaction";
         if (evt.isStateEvent())
             return "state";
 
@@ -497,8 +491,13 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
             return pendingIt->deliveryStatus();
 
         if (evt.isStateEvent() &&
-                static_cast<const StateEventBase&>(evt).repeatsState())
+                static_cast<const StateEventBase&>(evt).repeatsState() &&
+                !Settings().value("UI/show_noop_events", false).toBool())
             return EventStatus::Hidden;
+
+        if (is<RedactionEvent>(evt))
+            return EventStatus::Hidden;
+
         return evt.isRedacted() ? EventStatus::Redacted : EventStatus::Normal;
     }
 
@@ -525,13 +524,14 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         return role == TimeRole ? QVariant(ts) : renderDate(ts);
     }
 
-    if (role == AboveSectionRole)
-        return data(index(row + 1), SectionRole);
-
-    if( role == AboveAuthorRole )
-        return isPending
-                ? QVariant::fromValue(m_currentRoom->localUser())
-                : data(index(row + 1), AuthorRole);
+    if( role == AboveSectionRole || role == AboveAuthorRole)
+        for (auto r = row + 1; r < rowCount(); ++r)
+        {
+            auto i = index(r);
+            if (data(i, SpecialMarksRole) != EventStatus::Hidden)
+                return data(i, role == AboveSectionRole
+                                ? SectionRole : AuthorRole);
+        }
 
     return {};
 }

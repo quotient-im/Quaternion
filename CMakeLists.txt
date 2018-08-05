@@ -123,7 +123,7 @@ endif()
 add_executable(quaternion WIN32 MACOSX_BUNDLE ${quaternion_SRCS} ${quaternion_QRC_SRC} ${quaternion_WINRC})
 
 target_link_libraries(quaternion QMatrixClient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
-target_compile_definitions(quaternion PRIVATE GIT_SHA1=${GIT_SHA1} KEEP_REDACTIONS_IN_TIMELINE)
+target_compile_definitions(quaternion PRIVATE GIT_SHA1=${GIT_SHA1})
 
 if (USE_QQUICKWIDGET)
     target_compile_definitions(quaternion PRIVATE USE_QQUICKWIDGET)

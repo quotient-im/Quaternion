@@ -60,6 +60,8 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
         qmlRegisterUncreatableType<User>("QMatrixClient", 1, 0, "User",
             "User objects can only be created by libqmatrixclient");
         qmlRegisterType<Settings>("QMatrixClient", 1, 0, "Settings");
+        qmlRegisterUncreatableType<RoomMessageEvent>("QMatrixClient", 1, 0,
+            "RoomMessageEvent", "RoomMessageEvent is uncreatable");
     }
 
     m_roomAvatar = new QLabel();
@@ -290,13 +292,13 @@ QString ChatRoomWidget::doSendInput()
 
     if (!text.startsWith('/'))
     {
-        m_currentRoom->postMessage(text);
+        m_currentRoom->postPlainText(text);
         return {};
     }
     if (text[1] == '/')
     {
         text.remove(0, 1);
-        m_currentRoom->postMessage(text);
+        m_currentRoom->postPlainText(text);
         return {};
     }
 
@@ -431,7 +433,7 @@ QString ChatRoomWidget::doSendInput()
     }
     if (command == "shrug") // Peeked at Discord
     {
-        m_currentRoom->postMessage("¯\\_(ツ)_/¯");
+        m_currentRoom->postPlainText("¯\\_(ツ)_/¯");
         return {};
     }
     if (command == "topic")
@@ -458,7 +460,7 @@ QString ChatRoomWidget::doSendInput()
         {
             if (auto* room = m_currentRoom->connection()->room(args.front()))
             {
-                room->postMessage(args.back());
+                room->postPlainText(args.back());
                 return {};
             }
             return tr("%1 doesn't seem to have joined room %2")
@@ -467,7 +469,7 @@ QString ChatRoomWidget::doSendInput()
         if (UserIdRE.match(args.front()).hasMatch())
         {
             m_currentRoom->connection()->doInDirectChat(args.front(),
-                [msg=args.back()] (Room* dc) { dc->postMessage(msg); });
+                [msg=args.back()] (Room* dc) { dc->postPlainText(msg); });
             return {};
         }
 
@@ -479,7 +481,7 @@ QString ChatRoomWidget::doSendInput()
         // Very crude HTML-to-plaintext conversion - just strip all the tags
         auto plainText = argString;
         plainText.replace(HtmlTagRE, QString());
-        m_currentRoom->postHtmlMessage(plainText, argString);
+        m_currentRoom->postHtmlText(plainText, argString);
         return {};
     }
     if (command == "query" || command == "dc")
