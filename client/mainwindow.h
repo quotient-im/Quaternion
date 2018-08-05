@@ -112,6 +112,9 @@ class MainWindow: public QMainWindow
         QuaternionRoom* currentRoom = nullptr;
 
         void createMenu();
+        QAction* addTimelineOptionCheckbox(QMenu* parent,
+            const QString& text, const QString& statusTip,
+            const QString& settingsKey, bool defaultValue = false);
         void showFirstSyncIndicator();
         void loadSettings();
         void saveSettings() const;

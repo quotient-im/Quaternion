@@ -123,6 +123,26 @@ void summon(QPointer<DialogT>& dlg, DialogArgTs&&... dialogArgs)
     dlg->reactivate();
 }
 
+QAction* MainWindow::addTimelineOptionCheckbox(QMenu* parent,
+    const QString& text, const QString& statusTip, const QString& settingsKey,
+    bool defaultValue)
+{
+    using QMatrixClient::SettingsGroup;
+    auto action =
+        parent->addAction(text,
+            [this,settingsKey] (bool checked)
+            {
+                SettingsGroup("UI").setValue(settingsKey, checked);
+                chatRoomWidget->setRoom(nullptr);
+                chatRoomWidget->setRoom(currentRoom);
+            });
+    action->setStatusTip(statusTip);
+    action->setCheckable(true);
+    action->setChecked(
+        SettingsGroup("UI").value(settingsKey, defaultValue).toBool());
+    return action;
+}
+
 void MainWindow::createMenu()
 {
     using QMatrixClient::Settings;
@@ -254,19 +274,12 @@ void MainWindow::createMenu()
         else
             defaultLayout->setChecked(true);
     }
-    auto autoloadImages =
-        settingsMenu->addAction(tr("Load full-size images at once"),
-            [this] (bool checked)
-            {
-                Settings().setValue("UI/autoload_images", checked);
-                chatRoomWidget->setRoom(nullptr);
-                chatRoomWidget->setRoom(currentRoom);
-            });
-    autoloadImages->setStatusTip(
-        tr("Automatically download a full-size image instead of a thumbnail"));
-    autoloadImages->setCheckable(true);
-    autoloadImages->setChecked(
-        Settings().value("UI/autoload_images", true).toBool());
+    addTimelineOptionCheckbox(
+        settingsMenu,
+        tr("Load full-size images at once"),
+        tr("Automatically download a full-size image instead of a thumbnail"),
+        QStringLiteral("autoload_images"), true
+    );
 
     settingsMenu->addSeparator();
     settingsMenu->addAction(tr("Configure &network proxy..."), [this]
