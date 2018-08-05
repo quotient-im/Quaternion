@@ -19,7 +19,6 @@
 
 #include "messageeventmodel.h"
 
-#include <QtCore/QSettings>
 #include <QtCore/QDebug>
 #include <QtQml> // for qmlRegisterType()
 
@@ -216,9 +215,6 @@ void MessageEventModel::refreshEventRoles(const QString& eventId,
         qWarning() << "Trying to refresh inexistent event:" << eventId;
         return;
     }
-    if (roles.empty() || roles.contains(ReadMarkerRole))
-        qDebug() << "Refreshing" << eventId << ", lREI" << lastReadEventId
-                 << "rMEI" << m_currentRoom->readMarkerEventId();
     refreshEventRoles(it - m_currentRoom->messageEvents().rbegin()
                       + timelineBaseIndex(), roles);
 }
@@ -493,10 +489,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         return m_currentRoom->isEventHighlighted(&evt);
 
     if( role == ReadMarkerRole )
-    {
-        qDebug() << "ReadMarkerRole:" << evt.id() << "vs" << lastReadEventId;
         return evt.id() == lastReadEventId;
-    }
 
     if( role == SpecialMarksRole )
     {

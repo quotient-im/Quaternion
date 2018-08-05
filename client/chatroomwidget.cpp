@@ -77,15 +77,15 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     topicSeparator->setFrameShape(QFrame::HLine);
 
     m_timelineWidget = new timelineWidget_t;
+    qDebug() << "Rendering QML with"
+             << timelineWidget_t::staticMetaObject.className();
+    auto* qmlContainer =
 #ifdef DISABLE_QQUICKWIDGET
-    qDebug() << "Using QQuickView wrapper instead of QQuickWidget";
-    auto* container = QWidget::createWindowContainer(m_timelineWidget, this);
-    container->
+            QWidget::createWindowContainer(m_timelineWidget, this);
 #else
-    qDebug() << "Using QQuickWidget to render QML";
-    m_timelineWidget->
+            m_timelineWidget;
 #endif // Use different objects but the same method with the same parameters
-            setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    qmlContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     m_timelineWidget->setResizeMode(timelineWidget_t::SizeRootObjectToView);
 
@@ -124,13 +124,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     layout->addLayout(headerLayout);
 
     layout->addWidget(topicSeparator);
-    layout->addWidget(
-#ifdef DISABLE_QQUICKWIDGET
-                container
-#else
-                m_timelineWidget
-#endif
-    );
+    layout->addWidget(qmlContainer);
     layout->addWidget(m_currentlyTyping);
     layout->addWidget(m_chatEdit);
     setLayout(layout);
