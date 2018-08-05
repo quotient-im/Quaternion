@@ -125,6 +125,8 @@ void summon(QPointer<DialogT>& dlg, DialogArgTs&&... dialogArgs)
 
 void MainWindow::createMenu()
 {
+    using QMatrixClient::Settings;
+
     // Connection menu
     connectionMenu = menuBar()->addMenu(tr("&Accounts"));
 
@@ -140,8 +142,15 @@ void MainWindow::createMenu()
     // View menu
     auto viewMenu = menuBar()->addMenu(tr("&View"));
 
-    viewMenu->addAction(roomListDock->toggleViewAction());
-    viewMenu->addAction(userListDock->toggleViewAction());
+    auto dockPanesMenu = viewMenu->addMenu(tr("&Dock panels"));
+    roomListDock->toggleViewAction()
+            ->setStatusTip("Show/hide Rooms dock panel");
+    dockPanesMenu->addAction(roomListDock->toggleViewAction());
+    userListDock->toggleViewAction()
+        ->setStatusTip("Show/hide Users dock panel");
+    dockPanesMenu->addAction(userListDock->toggleViewAction());
+
+    viewMenu->addSeparator();
 
     // Room menu
     auto roomMenu = menuBar()->addMenu(tr("&Room"));
@@ -169,7 +178,6 @@ void MainWindow::createMenu()
 
     // Settings menu
     auto settingsMenu = menuBar()->addMenu(tr("&Settings"));
-    using QMatrixClient::Settings;
 
     // Help menu
     auto helpMenu = menuBar()->addMenu(tr("&Help"));
