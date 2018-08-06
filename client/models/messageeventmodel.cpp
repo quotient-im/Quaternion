@@ -266,6 +266,84 @@ QString MessageEventModel::renderDate(QDateTime timestamp) const
     return date.toString(Qt::DefaultLocaleShortDate);
 }
 
+bool MessageEventModel::isUserActivityNotable(
+        const QMatrixClient::Room::rev_iter_t& baseIt) const
+{
+    const auto& senderId = (*baseIt)->senderId();
+
+    // TODO: Go up and down the timeline (limit to 100 events for
+    // the sake of performance) and collect all messages of
+    // this author; find out if there's anything besides joins, leaves
+    // and redactions; if not, double-check whether the current event is
+    // a part of a re-join without following redactions.
+
+    using namespace QMatrixClient;
+    bool joinFound = false, redactionsFound = false;
+    // Find the nearest join of this user above, or a no-nonsense event.
+    for (auto it = baseIt, limit = baseIt +
+                            std::min(m_currentRoom->timelineEdge() - baseIt, 100);
+         it != limit; ++it)
+    {
+        const auto& e = **it;
+        if (e.senderId() != senderId)
+            continue;
+
+        if (e.isRedacted())
+        {
+            redactionsFound = true;
+            continue;
+        }
+
+        if (auto* me = it->viewAs<QMatrixClient::RoomMemberEvent>())
+        {
+            if (me->isJoin())
+            {
+                joinFound = true;
+                break;
+            }
+            continue;
+        }
+        return true; // Consider all other events notable
+    }
+
+    // Find the nearest leave of this user below, or a no-nonsense event
+    bool leaveFound = false;
+    for (auto it = baseIt.base() - 1,
+              limit = baseIt.base() +
+                std::min(m_currentRoom->messageEvents().end() - baseIt.base(),
+                         100);
+         it != limit; ++it)
+    {
+        const auto& e = **it;
+        if (e.senderId() != senderId)
+            continue;
+
+        if (e.isRedacted())
+        {
+            redactionsFound = true;
+            continue;
+        }
+
+        if (auto* me = it->viewAs<RoomMemberEvent>())
+        {
+            if (me->isLeave() || me->membership() == MembershipType::Ban)
+            {
+                leaveFound = true;
+                break;
+            }
+            continue;
+        }
+        return true;
+    }
+    // If we are here, it means that no notable events have been found in
+    // the timeline vicinity, and probably redactions are there. Doesn't look
+    // notable but let's give some benefit of doubt.
+    if (redactionsFound)
+        return false; // Join + redactions or redactions + leave
+
+    return !(joinFound && leaveFound); // Join + (maybe profile changes) + leave
+}
+
 int MessageEventModel::rowCount(const QModelIndex& parent) const
 {
     if( !m_currentRoom || parent.isValid() )
@@ -287,7 +365,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                                 std::max(0, row - timelineBaseIndex());
     const auto pendingIt = m_currentRoom->pendingEvents().crbegin() +
                                 std::min(row, timelineBaseIndex());
-    const auto& evt = isPending ? *pendingIt->event() : *timelineIt->event();
+    const auto& evt = isPending ? **pendingIt : **timelineIt;
 
     using namespace QMatrixClient;
     if( role == Qt::DisplayRole )
@@ -340,7 +418,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                                     : tr("joined the room");
                         }
                         QString text {};
-                        if (e.displayName() != e.prevContent()->displayName)
+                        if (e.isRename())
                         {
                             if (e.displayName().isEmpty())
                                 text = tr("cleared the display name");
@@ -348,7 +426,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                                 text = tr("changed the display name to %1")
                                             .arg(e.displayName());
                         }
-                        if (e.avatarUrl() != e.prevContent()->avatarUrl)
+                        if (e.isAvatarUpdate())
                         {
                             if (!text.isEmpty())
                                 text += " and ";
@@ -490,15 +568,41 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         if (isPending)
             return pendingIt->deliveryStatus();
 
-        if (evt.isStateEvent() &&
-                static_cast<const StateEventBase&>(evt).repeatsState() &&
-                !Settings().value("UI/show_noop_events", false).toBool())
-            return EventStatus::Hidden;
-
         if (is<RedactionEvent>(evt))
             return EventStatus::Hidden;
 
-        return evt.isRedacted() ? EventStatus::Redacted : EventStatus::Normal;
+        auto* memberEvent = timelineIt->viewAs<RoomMemberEvent>();
+        if (memberEvent)
+        {
+            if ((memberEvent->isJoin() || memberEvent->isLeave()) &&
+                    !Settings().value("UI/show_joinleave", true).toBool())
+                return EventStatus::Hidden;
+        }
+        if (evt.isRedacted() || memberEvent)
+        {
+            if (evt.senderId() == m_currentRoom->localUser()->id() ||
+                    Settings().value("UI/show_spammy").toBool())
+            {
+                return EventStatus::Normal;
+            }
+
+            QElapsedTimer et; et.start();
+            auto hide = !isUserActivityNotable(timelineIt);
+            qDebug() << "Checked user activity for" << evt.id() << "in" << et;
+            if (hide)
+                return EventStatus::Hidden;
+        }
+
+        if (evt.isStateEvent() &&
+                static_cast<const StateEventBase&>(evt).repeatsState() &&
+                !Settings().value("UI/show_noop_events").toBool())
+            return EventStatus::Hidden;
+
+        if (evt.isRedacted())
+            return Settings().value("UI/show_redacted").toBool()
+                    ? EventStatus::Redacted : EventStatus::Hidden;
+
+        return EventStatus::Normal;
     }
 
     if( role == EventIdRole )

@@ -162,7 +162,7 @@ void MainWindow::createMenu()
     // View menu
     auto viewMenu = menuBar()->addMenu(tr("&View"));
 
-    auto dockPanesMenu = viewMenu->addMenu(tr("&Dock panels"));
+    auto dockPanesMenu = viewMenu->addMenu(tr("Dock &panels"));
     roomListDock->toggleViewAction()
             ->setStatusTip("Show/hide Rooms dock panel");
     dockPanesMenu->addAction(roomListDock->toggleViewAction());
@@ -171,6 +171,29 @@ void MainWindow::createMenu()
     dockPanesMenu->addAction(userListDock->toggleViewAction());
 
     viewMenu->addSeparator();
+
+    auto showEventsMenu = viewMenu->addMenu(tr("&Display in timeline"));
+    addTimelineOptionCheckbox(
+        showEventsMenu,
+        tr("Normal &join/leave events"),
+        tr("Show join and leave events that don't couple in a no-change pair"),
+        QStringLiteral("show_joinleave"),
+        true
+    );
+    addTimelineOptionCheckbox(
+        showEventsMenu,
+        tr("&Redacted events"),
+        tr("Show redacted events in the timeline as 'Redacted'"
+           " instead of hiding them entirely"),
+        QStringLiteral("show_redacted")
+    );
+    addTimelineOptionCheckbox(
+        showEventsMenu,
+        tr("&No-effect activity"),
+        tr("Show join and leave events that couple in a no-change pair,"
+           " possibly with redactions between"),
+        QStringLiteral("show_spammy")
+    );
 
     // Room menu
     auto roomMenu = menuBar()->addMenu(tr("&Room"));
