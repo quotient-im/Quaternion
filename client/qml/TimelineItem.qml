@@ -27,7 +27,9 @@ Item {
 
     // TimelineItem definition
 
-    height: childrenRect.height * (marks !== EventStatus.Hidden)
+    visible: marks !== EventStatus.Hidden
+    enabled: visible
+    height: childrenRect.height * visible
 
     readonly property bool sectionVisible: section !== aboveSection
     readonly property bool redacted: marks === EventStatus.Redacted
