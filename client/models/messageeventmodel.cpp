@@ -278,15 +278,17 @@ QString MessageEventModel::renderDate(QDateTime timestamp) const
 }
 
 bool MessageEventModel::isUserActivityNotable(
-        const QMatrixClient::Room::rev_iter_t& baseIt) const
+        const QuaternionRoom::rev_iter_t& baseIt) const
 {
-    const auto& senderId = (*baseIt)->senderId();
+    const auto& userId = (*baseIt)->isStateEvent()
+                            ? (*baseIt)->stateKey() : (*baseIt)->senderId();
 
-    // TODO: Go up and down the timeline (limit to 100 events for
-    // the sake of performance) and collect all messages of
-    // this author; find out if there's anything besides joins, leaves
-    // and redactions; if not, double-check whether the current event is
-    // a part of a re-join without following redactions.
+    // Go up to the nearest join and down to the nearest leave of this author
+    // (limit the lookup to 100 events for the sake of performance);
+    // in this range find out if there's any event from that user besides
+    // joins, leaves and redacted (self- or by somebody else); if there's not,
+    // double-check that there are no redactions and that it's not a single
+    // join or leave.
 
     using namespace QMatrixClient;
     bool joinFound = false, redactionsFound = false;
@@ -297,7 +299,7 @@ bool MessageEventModel::isUserActivityNotable(
          it != limit; ++it)
     {
         const auto& e = **it;
-        if (e.senderId() != senderId)
+        if (e.senderId() != userId && e.stateKey() != userId)
             continue;
 
         if (e.isRedacted())
@@ -306,14 +308,15 @@ bool MessageEventModel::isUserActivityNotable(
             continue;
         }
 
-        if (auto* me = it->viewAs<QMatrixClient::RoomMemberEvent>())
+        if (auto* me = it->viewAs<RoomMemberEvent>())
         {
-            if (me->isJoin())
-            {
-                joinFound = true;
-                break;
-            }
-            continue;
+            if (e.stateKey() != userId)
+                return true; // An action on another member is notable
+            if (!me->isJoin())
+                continue;
+
+            joinFound = true;
+            break;
         }
         return true; // Consider all other events notable
     }
@@ -327,7 +330,7 @@ bool MessageEventModel::isUserActivityNotable(
          it != limit; ++it)
     {
         const auto& e = **it;
-        if (e.senderId() != senderId)
+        if (e.senderId() != userId && e.stateKey() != userId)
             continue;
 
         if (e.isRedacted())
@@ -338,12 +341,13 @@ bool MessageEventModel::isUserActivityNotable(
 
         if (auto* me = it->viewAs<RoomMemberEvent>())
         {
-            if (me->isLeave() || me->membership() == MembershipType::Ban)
-            {
-                leaveFound = true;
-                break;
-            }
-            continue;
+            if (e.stateKey() != userId)
+                return true; // An action on another member is notable
+            if (!me->isLeave() && me->membership() != MembershipType::Ban)
+                continue;
+
+            leaveFound = true;
+            break;
         }
         return true;
     }
@@ -613,6 +617,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         if (memberEvent || evt.isRedacted())
         {
             if (evt.senderId() != m_currentRoom->localUser()->id() &&
+                    evt.stateKey() != m_currentRoom->localUser()->id() &&
                     !Settings().value("UI/show_spammy").toBool())
             {
     //            QElapsedTimer et; et.start();
