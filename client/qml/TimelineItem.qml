@@ -15,8 +15,9 @@ Item {
         readonly property string render_type: value("UI/Fonts/render_type", "NativeRendering")
         readonly property int animations_duration_ms: value("UI/animations_duration_ms", 400)
         readonly property int fast_animations_duration_ms: animations_duration_ms / 2
-        readonly property bool show_author_avatars: value("UI/show_author_avatars", false)
         readonly property string timeline_style: value("UI/timeline_style", "")
+        readonly property bool show_author_avatars:
+            value("UI/show_author_avatars", timeline_style != "xchat")
     }
 
     // Property interface
@@ -133,12 +134,13 @@ Item {
                 anchors.left: singleRow ? timelabel.right : parent.left
                 anchors.leftMargin: singleRow * 3
                 width: if (!singleRow) { timelabel.width }
-                height: authorLabel.visible ? authorLabel.height +
-                    (!singleRow) * Math.min(
+                       else if (!visible) { 0 }
+                height: visible *
+                    (authorLabel.height + (!singleRow) * Math.min(
                         Math.max(sourceSize.height - authorLabel.height, 0),
                         showDetailsButton.height
                             - timelabel.height - timelabel.anchors.topMargin * 2)
-                    : 0
+                    )
                 fillMode: Image.PreserveAspectFit
 
                 source: author.avatarMediaId ?
