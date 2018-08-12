@@ -50,17 +50,44 @@ Quaternion stores its configuration in a way standard for Qt applications. It wi
   - system-wide: `HKEY_LOCAL_MACHINE\Software\QMatrixClient\quaternion`
   - user-specific: `HKEY_CURRENT_USER\Software\QMatrixClient\quaternion`
 
-Settings exposed in UI (Settings menu):
-- `UI/notifications` - a general setting whether Quaternion should distract the user with notifications and how. `none` suppresses notifications entirely (rooms and messages are still hightlighted but the tray icon is muted); `non-intrusive` allows the tray icon show notification popups; `intrusive` (default) adds to that activation of Quaternion window (i.e. the application blinking in the task bar, or getting raised, or otherwise demands attention in an environment-specific way).
-- `UI/timeline_layout` - this allows to choose the timeline layout. If this is set to "xchat", Quaternion will show the author to the left of each message, in a xchat/hexchat style (this was also the only available layout on Quaternion before 0.0.9.2). Any other value will select the "default" layout, with author labels above blocks of messages.
-- `UI/autoload_images` - whether full-size images should be loaded immediately once the message is shown on the screen. The default is to automatically load full-size images; set this to false (or 0) to disable that and only load a thumbnail initially.
+Some settings exposed in UI (Settings menu):
+- `UI/notifications` - a general setting whether Quaternion should distract
+  the user with notifications and how.
+  - `none` suppresses notifications entirely (rooms and messages are still
+    hightlighted but the tray icon is muted);
+  - `non-intrusive` allows the tray icon show notification popups;
+  - `intrusive` (default) adds to that activation of Quaternion window
+    (i.e. the application blinking in the task bar, or getting raised,
+    or otherwise demands attention in an environment-specific way).
+- `UI/timeline_layout` - this allows to choose the timeline layout. If this is
+  set to "xchat", Quaternion will show the author to the left of each message,
+  in a xchat/hexchat style (this was also the only available layout on
+  Quaternion before 0.0.9.2). Any other value will select the "default" layout,
+  with author labels above blocks of messages.
+- `UI/autoload_images` - whether full-size images should be loaded immediately
+  once the message is shown on the screen. The default is to automatically load
+  full-size images; set this to false (or 0) to disable that and only load
+  a thumbnail initially.
 
-Several settings not exposed yet in UI:
-- `UI/condense_chat` - set this to 1 to make the timeline rendered tighter, without gaps between messages.
-- `UI/show_noop_events` - set this to 1 to show state events that do not alter the state (you'll see "(repeated)" next to most of those).
-- `UI/highlight_color` - set this to the color name you prefer for highlighted rooms/messages; HTML color names and `#codes` are supported; by default it's `orange`.
-- `UI/use_human_friendly_dates` - set this to false (or 0) if you do NOT want usage of human-friendly dates ("Today", "Monday" instead of the standard day-month-year triad) in the UI; the default is true.
-- `UI/Fonts/render_type` - select how to render fonts in Quaternion timeline; possible values are "NativeRendering" (default) and "QtRendering".
+Settings not exposed in UI:
+- `UI/condense_chat` - set this to 1 to make the timeline rendered tighter,
+  eliminating vertical gaps between messages as much as possible.
+- `UI/show_noop_events` - set this to 1 to show state events that do not alter
+  the state (you'll see "(repeated)" next to most of those).
+- `UI/show_author_avatars` - set this to 1 (or true) to show author avatars in
+  the timeline (default if the timeline layout is set to default); setting this
+  to 0 (or false) will suppress avatars (default for the XChat timeline layout).
+- `UI/highlight_color` - set this to the color name you prefer for highlighted
+  rooms/messages; HTML color names and SVG `#codes` are supported;
+  by default it's `orange`.
+- `UI/highlight_mode` - set this to `text` if you prefer to use the highlight
+  color as the text color (the only option available until 0.0.9.3); the new
+  default is to use the background for highlighting.
+- `UI/use_human_friendly_dates` - set this to false (or 0) if you do NOT want
+  usage of human-friendly dates ("Today", "Monday" instead of the standard
+  day-month-year triad) in the UI; the default is true.
+- `UI/Fonts/render_type` - select how to render fonts in Quaternion timeline;
+  possible values are "NativeRendering" (default) and "QtRendering".
 
 Since version 0.0.5, Quaternion tries to store your access tokens in a dedicated file with restricted access rights so that only the owner can access them. Every access token is stored in a separate file matching your user id in the following directory:
 - Linux: `$HOME/.local/share/QMatrixClient/quaternion`
