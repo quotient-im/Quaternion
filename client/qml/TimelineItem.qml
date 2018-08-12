@@ -1,4 +1,4 @@
-import QtQuick 2.2
+import QtQuick 2.6
 import QtQuick.Controls 1.4
 import QMatrixClient 1.0
 
@@ -11,6 +11,7 @@ Item {
         id: settings
         readonly property bool condense_chat: value("UI/condense_chat", false)
         readonly property bool autoload_images: value("UI/autoload_images", true)
+        readonly property string highlight_mode: value("UI/highlight_mode", "background")
         readonly property string highlight_color: value("UI/highlight_color", "orange")
         readonly property string render_type: value("UI/Fonts/render_type", "NativeRendering")
         readonly property int animations_duration_ms: value("UI/animations_duration_ms", 400)
@@ -45,10 +46,10 @@ Item {
         marks === EventStatus.Submitted || failed ? defaultPalette.mid :
         marks === EventStatus.Departed ? disabledPalette.text :
         redacted ? disabledPalette.text :
-        highlight ? settings.highlight_color :
+        highlight && settings.highlight_mode == "text" ? settings.highlight_color :
         (["state", "notice", "other"].indexOf(eventType) >= 0) ?
                 disabledPalette.text : defaultPalette.text
-    readonly property string authorName: room.roomMembername(author.id)
+    readonly property string authorName: room && room.roomMembername(author.id)
 
     readonly property bool xchatStyle: settings.timeline_style === "xchat"
     readonly property bool actionEvent: eventType == "state" || eventType == "emote"
@@ -190,13 +191,22 @@ Item {
                       time.toLocaleTimeString(Qt.locale(), Locale.ShortFormat)
                       + "&gt;</font>"
             }
+
+            Rectangle {
+                anchors.fill: textField
+                opacity: 0.2 * (highlight && settings.highlight_mode != "text")
+                color: settings.highlight_color
+                radius: 2
+            }
             TextEdit {
                 id: textField
                 anchors.top: singleRow ? authorLabel.top : authorLabel.bottom
                 anchors.left: singleRow ? authorLabel.right : timelabel.right
-                anchors.leftMargin: 3
+                anchors.leftMargin: 1
                 anchors.right: resendButton.left
-                anchors.rightMargin: 3
+                anchors.rightMargin: 1
+                leftPadding: 2
+                rightPadding: 2
 
                 selectByMouse: true
                 readOnly: true
