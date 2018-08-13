@@ -1,5 +1,6 @@
 import QtQuick 2.6
 import QtQuick.Controls 1.4
+//import QtGraphicalEffects 1.0 // For fancy highlighting
 import QMatrixClient 1.0
 
 Item {
@@ -192,11 +193,29 @@ Item {
                       + "&gt;</font>"
             }
 
-            Rectangle {
+            Item {
+                id: highlighter
                 anchors.fill: textField
-                opacity: 0.2 * (highlight && settings.highlight_mode != "text")
-                color: settings.highlight_color
-                radius: 2
+                visible: highlight && settings.highlight_mode != "text"
+                // Uncomment for fancy highlighting
+//                RectangularGlow {
+//                    anchors.fill: parent
+//                    glowRadius: 5
+//                    cornerRadius: 2
+//                    color: settings.highlight_color
+//                    cached: true
+//                }
+//                Rectangle {
+//                    anchors.fill: parent
+//                    border.color: settings.highlight_color
+//                    border.width: 1
+//                }
+                Rectangle {
+                    anchors.fill: parent
+                    opacity: 0.2
+                    color: settings.highlight_color
+                    radius: 2
+                }
             }
             TextEdit {
                 id: textField
