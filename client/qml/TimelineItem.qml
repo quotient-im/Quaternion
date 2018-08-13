@@ -327,14 +327,20 @@ Item {
     }
     Rectangle {
         id: readMarkerLine
-        color: defaultPalette.highlight
+
         width: readMarker && parent.width
-        height: 1
+        height: 3
+        anchors.horizontalCenter: fullMessage.horizontalCenter
         anchors.bottom: fullMessage.bottom
         Behavior on width { NumberAnimation {
             duration: settings.animations_duration_ms
             easing.type: Easing.OutQuad
         }}
+
+        gradient: Gradient {
+            GradientStop { position: 0; color: "transparent" }
+            GradientStop { position: 1; color: defaultPalette.highlight }
+        }
     }
 
     // Components loaded on demand
