@@ -20,7 +20,7 @@
 #pragma once
 
 #include <QtWidgets/QDockWidget>
-#include <QtWidgets/QListView>
+#include <QtWidgets/QTreeView>
 #include <QtCore/QStringListModel>
 #include <QSortFilterProxyModel>
 
@@ -39,6 +39,9 @@ class RoomListDock : public QDockWidget
 
         void addConnection(QMatrixClient::Connection* connection);
 
+    public slots:
+        void updateSortingMode();
+
     signals:
         void roomSelected(QuaternionRoom* room);
 
@@ -53,16 +56,18 @@ class RoomListDock : public QDockWidget
         void refreshTitle();
 
     private:
-        QListView* view;
+        QTreeView* view;
         RoomListModel* model;
-        QSortFilterProxyModel* proxyModel;
+//        QSortFilterProxyModel* proxyModel;
         QMenu* contextMenu;
         QAction* markAsReadAction;
         QAction* addTagsAction;
         QAction* joinAction;
         QAction* leaveAction;
         QAction* forgetAction;
+        QVariant selectedGroupCache;
         QuaternionRoom* selectedRoomCache;
 
+        QVariant getSelectedGroup() const;
         QuaternionRoom* getSelectedRoom() const;
 };
