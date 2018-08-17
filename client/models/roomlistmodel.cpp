@@ -27,6 +27,8 @@
 #include <QtGui/QIcon>
 #include <QtCore/QStringBuilder>
 
+using namespace std::placeholders;
+
 RoomListModel::RoomListModel(QObject* parent)
     : QAbstractItemModel(parent)
 { }
@@ -257,7 +259,6 @@ void RoomListModel::replaceRoom(QMatrixClient::Room* room,
 void RoomListModel::deleteRoom(QMatrixClient::Room* room)
 {
     Q_ASSERT(room);
-    using namespace std::placeholders;
     visitRoom(static_cast<QuaternionRoom*>(room),
               bind(&RoomListModel::doRemoveRoom, this, _1, _2));
 }
@@ -309,24 +310,24 @@ void RoomListModel::insertRoom(QMatrixClient::Room* r, bool notify)
 void RoomListModel::connectRoomSignals(QuaternionRoom* room)
 {
     connect(room, &QuaternionRoom::displaynameChanged,
-            this, [=]{ displaynameChanged(room); } );
-    connect( room, &QuaternionRoom::unreadMessagesChanged,
-             this, [=]{ unreadMessagesChanged(room); } );
-    connect( room, &QuaternionRoom::notificationCountChanged,
-             this, [=]{ unreadMessagesChanged(room); } );
-    connect( room, &QuaternionRoom::joinStateChanged,
-             this, [=]{ refresh(room); });
-    connect( room, &QuaternionRoom::avatarChanged,
-             this, [=]{ refresh(room, { Qt::DecorationRole }); });
-    connect( room, &QuaternionRoom::tagsChanged, this,
-        [this,room] (const auto& additions, const auto& removals) {
-            this->tagsChanged(room, additions, removals);
-    });
+            this, [this,room] { displaynameChanged(room); } );
+    connect(room, &QuaternionRoom::unreadMessagesChanged,
+            this, [this,room] { unreadMessagesChanged(room); } );
+    connect(room, &QuaternionRoom::notificationCountChanged,
+            this, [this,room] { unreadMessagesChanged(room); } );
+    connect(room, &QuaternionRoom::joinStateChanged,
+            this, [this,room] { refresh(room); });
+    connect(room, &QuaternionRoom::avatarChanged,
+            this, [this,room] { refresh(room, { Qt::DecorationRole }); });
+    connect(room, &QuaternionRoom::tagsChanged,
+            this, bind(&RoomListModel::tagsChanged, this, room, _1, _2));
 }
 
 RoomListModel::room_locator_t RoomListModel::doRemoveRoom(group_iter_t gIt,
                                                           room_iter_t rIt)
 {
+    qDebug() << "Removing room" << (*rIt)->displayName()
+             << "from group" << gIt->caption;
     const auto gPos = gIt - m_roomGroups.begin();
     const auto rPos = rIt - gIt->rooms.begin();
     beginRemoveRows(index(gPos, 0), rPos, rPos);
@@ -588,7 +589,7 @@ void RoomListModel::tagsChanged(QuaternionRoom* room,
         beginInsertRows(index(idx, 0), rIdx, rIdx);
         it->rooms.insert(rIt, room);
         endInsertRows();
-        qDebug() << "Added room" << room->displayName() << "to" << t;
+        qDebug() << "Added room" << room->displayName() << "to group" << t;
     }
     for (const auto& t: removals)
     {
