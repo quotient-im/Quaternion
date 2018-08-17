@@ -135,7 +135,7 @@ void RoomSettingsDialog::load()
     for (const auto& tag: room->connection()->tagNames())
     {
         auto tagDisplayName =
-                tag == QMatrixClient::FavouriteTag ? tr("Favourite") :
+                tag == QMatrixClient::FavouriteTag ? tr("Favourites") :
                 tag == QMatrixClient::LowPriorityTag ? tr("Low priority") :
                 tag.startsWith("u.") ? tag.mid(2) :
                 tag;
