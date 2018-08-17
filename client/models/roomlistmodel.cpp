@@ -380,11 +380,12 @@ bool RoomListModel::isValidRoomIndex(QModelIndex i) const
             i.row() < m_roomGroups[i.parent().row()].rooms.size();
 }
 
+static const auto Untagged = QStringLiteral("org.github.qmatrixclient.none");
+
 void RoomListModel::setOrder(Grouping grouping, Sorting sorting)
 {
     Q_ASSERT(grouping == GroupByTag && sorting == SortByName); // Other modes not supported yet
 
-    // TODO: Unify tr() strings to a single place.
     RoomOrder order
     {
         GroupByTag, sorting,
@@ -392,8 +393,8 @@ void RoomListModel::setOrder(Grouping grouping, Sorting sorting)
         {
             const auto ltag = group.caption;
             return (ltag != rtag &&
-                    (ltag.toString() == tr("Favourites") ||
-                     rtag.toString() == tr("Low priority"))) ||
+                    (ltag.toString() == QMatrixClient::FavouriteTag ||
+                     rtag.toString() == QMatrixClient::LowPriorityTag)) ||
                    ltag < rtag;
         },
         [] (const QVariant& tag) -> RoomOrder::room_lessthan_t
@@ -402,24 +403,18 @@ void RoomListModel::setOrder(Grouping grouping, Sorting sorting)
                                          const QuaternionRoom* r2)
             {
                 // Put rooms with empty tag order to the end.
-                const auto& o1 = r1->tag(tag).order;
-                const auto& o2 = r2->tag(tag).order;
-                return (!o1.isEmpty() && (o2.isEmpty() || o1 < o2)) ||
-                    (o2.isEmpty() && r1->id() < r2->id()); // FIXME: Use displayName() once the model learns how to move rooms around due to display name changes
+                auto o1 = r1->tag(tag).order;
+                if (o1.isEmpty()) o1 = "1";
+                auto o2 = r2->tag(tag).order;
+                if (o2.isEmpty()) o2 = "1";
+                return o1 < o2 || (o1 == o2 && r1->id() < r2->id()); // FIXME: Use displayName() once the model learns how to move rooms around due to display name changes
             };
         },
         [] (const QuaternionRoom* r) -> QVariantList
         {
             auto tags = r->tags().keys();
-            for (auto& t: tags)
-            {
-                if (t == QMatrixClient::FavouriteTag)
-                    t = tr("Favourites");
-                else if (t == QMatrixClient::LowPriorityTag)
-                    t = tr("Low priority");
-            }
             if (tags.empty())
-                tags.push_back(tr("Rooms"));
+                tags.push_back(Untagged);
             QVariantList vl; vl.reserve(tags.size());
             std::copy(tags.cbegin(), tags.cend(), std::back_inserter(vl));
             return vl;
@@ -440,7 +435,17 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
     if (isValidGroupIndex(index))
     {
         if (role == Qt::DisplayRole)
-            return roomGroupAt(index);
+        {
+            static const auto FavouritesLabel = tr("Favourites");
+            static const auto LowPriorityLabel = tr("Low priority");
+            static const auto UntaggedRoomsLabel = tr("Rooms");
+
+            const auto c = roomGroupAt(index);
+            return c == Untagged ? UntaggedRoomsLabel :
+                   c == QMatrixClient::FavouriteTag ? FavouritesLabel :
+                   c == QMatrixClient::LowPriorityTag ? LowPriorityLabel :
+                   c;
+        }
         return {};
     }
 
@@ -570,10 +575,9 @@ void RoomListModel::tagsChanged(QuaternionRoom* room,
         return;
 
     if (additions == room->tags())
-        removals.push_back(tr("Rooms"));
+        removals.push_back(Untagged);
     if (room->tags().empty())
-        additions.insert(tr("Rooms"), {});
-
+        additions.insert(Untagged, {});
     for (const auto& t: additions.keys())
     {
         auto it = tryInsertGroup(t, true);
