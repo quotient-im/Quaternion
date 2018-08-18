@@ -268,6 +268,7 @@ void RoomListModel::deleteRoom(QMatrixClient::Room* room)
 RoomListModel::group_iter_t RoomListModel::tryInsertGroup(
         const QVariant& caption, bool notify)
 {
+    Q_ASSERT(!caption.toString().isEmpty());
     auto gIt = lowerBoundGroup(caption);
     if (gIt == m_roomGroups.end() || gIt->caption != caption)
     {
@@ -382,7 +383,8 @@ bool RoomListModel::isValidRoomIndex(QModelIndex i) const
             i.row() < m_roomGroups[i.parent().row()].rooms.size();
 }
 
-static const auto Untagged = QStringLiteral("org.github.qmatrixclient.none");
+static const auto DirectChat = QStringLiteral("pm");
+static const auto Untagged = QStringLiteral("zzz");//QStringLiteral("org.github.qmatrixclient.none");
 
 void RoomListModel::setOrder(Grouping grouping, Sorting sorting)
 {
@@ -391,13 +393,23 @@ void RoomListModel::setOrder(Grouping grouping, Sorting sorting)
     RoomOrder order
     {
         GroupByTag, sorting,
-        [] (const RoomGroup& group, const QVariant& rtag) -> bool
+        [] (const RoomGroup& group, const QVariant& tag) -> bool
         {
-            const auto ltag = group.caption;
-            return (ltag != rtag &&
-                    (ltag.toString() == QMatrixClient::FavouriteTag ||
-                     rtag.toString() == QMatrixClient::LowPriorityTag)) ||
-                   ltag < rtag;
+            // The ordering is:
+            // m.favourite
+            // pm (direct chats)
+            // u.*
+            // _ (no tags)
+            // m.lowpriority
+            // User-defined tags are ensured by the library to have u. prefix.
+            // The chosen special names (pm and _) are naturally ordered
+            const auto ltag = group.caption.toString();
+            const auto rtag = tag.toString();
+            using QMatrixClient::LowPriorityTag;
+            const auto result =
+                    (ltag != rtag && rtag == LowPriorityTag) ||
+                    (ltag != LowPriorityTag && ltag < rtag);
+            return result;
         },
         [] (const QVariant& tag) -> RoomOrder::room_lessthan_t
         {
@@ -415,10 +427,12 @@ void RoomListModel::setOrder(Grouping grouping, Sorting sorting)
         [] (const QuaternionRoom* r) -> QVariantList
         {
             auto tags = r->tags().keys();
-            if (tags.empty())
-                tags.push_back(Untagged);
             QVariantList vl; vl.reserve(tags.size());
             std::copy(tags.cbegin(), tags.cend(), std::back_inserter(vl));
+            if (r->isDirectChat())
+                vl.push_back(DirectChat);
+            if (vl.empty())
+                vl.push_back(Untagged);
             return vl;
         }
     };
@@ -440,13 +454,15 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         {
             static const auto FavouritesLabel = tr("Favourites");
             static const auto LowPriorityLabel = tr("Low priority");
-            static const auto UntaggedRoomsLabel = tr("Rooms");
+            static const auto DirectChatsLabel = tr("Direct chats");
+            static const auto UntaggedRoomsLabel = tr("Ungrouped rooms");
 
             const auto c = roomGroupAt(index);
             return c == Untagged ? UntaggedRoomsLabel :
+                   c == DirectChat ? DirectChatsLabel :
                    c == QMatrixClient::FavouriteTag ? FavouritesLabel :
                    c == QMatrixClient::LowPriorityTag ? LowPriorityLabel :
-                   c;
+                   c.startsWith("u.") ? c.mid(2) : c;
         }
         return {};
     }
