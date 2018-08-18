@@ -462,7 +462,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
                    c == DirectChat ? DirectChatsLabel :
                    c == QMatrixClient::FavouriteTag ? FavouritesLabel :
                    c == QMatrixClient::LowPriorityTag ? LowPriorityLabel :
-                   c.startsWith("u.") ? c.mid(2) : c;
+                   c.toString().startsWith("u.") ? c.toString().mid(2) : c;
         }
         return {};
     }
