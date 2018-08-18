@@ -53,7 +53,7 @@ if(WIN32)
     endif()
 endif()
 
-add_subdirectory(lib)
+add_subdirectory(lib EXCLUDE_FROM_ALL)
 include_directories(lib)
 
 # Get Git info if possible
