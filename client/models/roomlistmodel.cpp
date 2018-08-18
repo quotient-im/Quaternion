@@ -27,6 +27,8 @@
 #include <QtGui/QIcon>
 #include <QtCore/QStringBuilder>
 
+#include <functional>
+
 using namespace std::placeholders;
 
 RoomListModel::RoomListModel(QObject* parent)
