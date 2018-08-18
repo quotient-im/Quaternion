@@ -262,7 +262,7 @@ void RoomListModel::deleteRoom(QMatrixClient::Room* room)
 {
     Q_ASSERT(room);
     visitRoom(static_cast<QuaternionRoom*>(room),
-              bind(&RoomListModel::doRemoveRoom, this, _1, _2));
+              std::bind(&RoomListModel::doRemoveRoom, this, _1, _2));
 }
 
 RoomListModel::group_iter_t RoomListModel::tryInsertGroup(
@@ -322,7 +322,7 @@ void RoomListModel::connectRoomSignals(QuaternionRoom* room)
     connect(room, &QuaternionRoom::avatarChanged,
             this, [this,room] { refresh(room, { Qt::DecorationRole }); });
     connect(room, &QuaternionRoom::tagsChanged,
-            this, bind(&RoomListModel::tagsChanged, this, room, _1, _2));
+            this, std::bind(&RoomListModel::tagsChanged, this, room, _1, _2));
 }
 
 RoomListModel::room_locator_t RoomListModel::doRemoveRoom(group_iter_t gIt,
