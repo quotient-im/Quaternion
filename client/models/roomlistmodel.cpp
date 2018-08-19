@@ -277,7 +277,10 @@ RoomListModel::group_iter_t RoomListModel::tryInsertGroup(
             beginInsertRows({}, gPos, gPos);
         gIt = m_roomGroups.insert(gIt, {caption, {}});
         if (notify)
+        {
             endInsertRows();
+            emit groupAdded(gPos);
+        }
     }
     return gIt;
 }

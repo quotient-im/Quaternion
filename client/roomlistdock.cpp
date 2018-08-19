@@ -19,7 +19,6 @@
 
 #include "roomlistdock.h"
 
-#include <QtCore/QSettings>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QStyledItemDelegate>
 #include <QtWidgets/QInputDialog>
@@ -28,6 +27,8 @@
 #include "quaternionroom.h"
 #include <connection.h>
 #include <settings.h>
+
+using QMatrixClient::SettingsGroup;
 
 class RoomListItemDelegate : public QStyledItemDelegate
 {
@@ -97,9 +98,19 @@ RoomListDock::RoomListDock(QWidget* parent)
     view->setHeaderHidden(true);
     view->setIndentation(0);
     view->setRootIsDecorated(false);
-    view->expandAll();
+
+    static const auto Expanded = QStringLiteral("expand");
+    static const auto Collapsed = QStringLiteral("collapse");
 //    connect( view, &QTreeView::activated, this, &RoomListDock::rowSelected );
     connect( view, &QTreeView::clicked, this, &RoomListDock::rowSelected);
+    connect( view, &QTreeView::expanded, this, [this] (QModelIndex i) {
+        SettingsGroup("UI/RoomsDock")
+        .setValue(model->roomGroupAt(i).toString(), Expanded);
+    });
+    connect( view, &QTreeView::collapsed, this, [this] (QModelIndex i) {
+        SettingsGroup("UI/RoomsDock")
+        .setValue(model->roomGroupAt(i).toString(), Collapsed);
+    });
     connect( model, &RoomListModel::rowsInserted,
              this, &RoomListDock::refreshTitle );
     connect( model, &RoomListModel::rowsRemoved,
@@ -109,12 +120,26 @@ RoomListDock::RoomListDock(QWidget* parent)
         selectedRoomCache = getSelectedRoom();
     });
     connect( model, &RoomListModel::modelReset, this, [this] {
-        view->setCurrentIndex(
-            model->indexOf(selectedGroupCache, selectedRoomCache));
-//            proxyModel->mapFromSource(model->indexOf(selectedRoomCache)));
+        const auto& idx =
+            model->indexOf(selectedGroupCache, selectedRoomCache);
+//            proxyModel->mapFromSource(model->indexOf(selectedRoomCache));
+        view->setCurrentIndex(idx);
         selectedGroupCache.clear();
         selectedRoomCache = nullptr;
         refreshTitle();
+        SettingsGroup sg("UI/RoomsDock");
+        for (int row = 0; row < model->rowCount({}); ++row)
+        {
+            const auto& i = model->index(row, 0);
+            const auto groupKey = model->roomGroupAt(i).toString();
+            const auto expanded = Expanded ==
+                    sg.get(groupKey, groupKey == QMatrixClient::FavouriteTag
+                                     ? Expanded : Collapsed);
+            view->setExpanded(i, expanded);
+        }
+    });
+    connect( model, &RoomListModel::groupAdded, this, [this] (int pos) {
+        view->expand(model->index(pos, 0));
     });
     setWidget(view);
 

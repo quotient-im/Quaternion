@@ -66,6 +66,9 @@ class RoomListModel: public QAbstractItemModel
 
         void setOrder(Grouping grouping, Sorting sorting);
 
+    signals:
+        void groupAdded(int row);
+
     private slots:
         void displaynameChanged(QuaternionRoom* room);
         void unreadMessagesChanged(QuaternionRoom* room);
