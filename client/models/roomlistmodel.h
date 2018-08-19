@@ -131,6 +131,7 @@ class RoomListModel: public QAbstractItemModel
             std::function<QVariantList(const QuaternionRoom*)> groups;
         };
         RoomOrder m_roomOrder;
+        QStringList m_tagsOrder;
 
         // Beware, these iterators are as short-lived as QModelIndex'es
         using group_iter_t = decltype(m_roomGroups)::iterator;
