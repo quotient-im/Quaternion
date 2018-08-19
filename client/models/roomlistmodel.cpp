@@ -23,6 +23,7 @@
 
 #include <user.h>
 #include <connection.h>
+#include <settings.h>
 
 #include <QtGui/QIcon>
 #include <QtCore/QStringBuilder>
@@ -31,8 +32,29 @@
 
 using namespace std::placeholders;
 
+static const auto DirectChat = QStringLiteral("org.qmatrixclient.direct");
+static const auto Untagged = QStringLiteral("org.qmatrixclient.none");
+static const QStringList DefaultTagsOrder {
+    QMatrixClient::FavouriteTag, QStringLiteral("u.*"), DirectChat, Untagged,
+    QMatrixClient::LowPriorityTag
+};
+
+QStringList initTagsOrder()
+{
+    static const auto SettingsKey = QStringLiteral("tags_order");
+    static QMatrixClient::SettingsGroup sg { "UI/RoomsDock" };
+    const auto savedOrder = sg.get<QStringList>(SettingsKey);
+    if (savedOrder.isEmpty())
+    {
+        sg.setValue(SettingsKey, DefaultTagsOrder);
+        return DefaultTagsOrder;
+    }
+    return savedOrder;
+}
+
 RoomListModel::RoomListModel(QObject* parent)
     : QAbstractItemModel(parent)
+    , m_tagsOrder(initTagsOrder())
 { }
 
 void RoomListModel::addConnection(QMatrixClient::Connection* connection)
@@ -386,8 +408,28 @@ bool RoomListModel::isValidRoomIndex(QModelIndex i) const
             i.row() < m_roomGroups[i.parent().row()].rooms.size();
 }
 
-static const auto DirectChat = QStringLiteral("pm");
-static const auto Untagged = QStringLiteral("zzz");//QStringLiteral("org.github.qmatrixclient.none");
+template <typename LT, typename VT>
+inline auto findIndex(const QList<LT>& list, const VT& value)
+{
+    // Using std::find() instead of indexOf() so that not found keys were
+    // naturally sorted after found ones.
+    return std::find(list.begin(), list.end(), value) - list.begin();
+}
+
+auto findIndexWithWildcards(const QStringList& list, const QString& value)
+{
+    if (list.empty() || value.isEmpty())
+        return list.size();
+
+    auto i = findIndex(list, value);
+    // Try namespace groupings (".*" in the list), from right to left
+    for (int dotPos = 0;
+         i == list.size() && (dotPos = value.lastIndexOf('.', --dotPos)) != -1;)
+    {
+        i = findIndex(list, value.left(dotPos + 1) + '*');
+    }
+    return i;
+}
 
 void RoomListModel::setOrder(Grouping grouping, Sorting sorting)
 {
@@ -396,23 +438,14 @@ void RoomListModel::setOrder(Grouping grouping, Sorting sorting)
     RoomOrder order
     {
         GroupByTag, sorting,
-        [] (const RoomGroup& group, const QVariant& tag) -> bool
+        [this] (const RoomGroup& group, const QVariant& tag) -> bool
         {
-            // The ordering is:
-            // m.favourite
-            // pm (direct chats)
-            // u.*
-            // _ (no tags)
-            // m.lowpriority
-            // User-defined tags are ensured by the library to have u. prefix.
-            // The chosen special names (pm and _) are naturally ordered
-            const auto ltag = group.caption.toString();
-            const auto rtag = tag.toString();
-            using QMatrixClient::LowPriorityTag;
-            const auto result =
-                    (ltag != rtag && rtag == LowPriorityTag) ||
-                    (ltag != LowPriorityTag && ltag < rtag);
-            return result;
+            const auto& lkey = group.caption.toString();
+            const auto& rkey = tag.toString();
+            // See above
+            auto li = findIndexWithWildcards(m_tagsOrder, lkey);
+            auto ri = findIndexWithWildcards(m_tagsOrder, rkey);
+            return li < ri || (li == ri && lkey < rkey);
         },
         [] (const QVariant& tag) -> RoomOrder::room_lessthan_t
         {
@@ -457,7 +490,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         {
             static const auto FavouritesLabel = tr("Favourites");
             static const auto LowPriorityLabel = tr("Low priority");
-            static const auto DirectChatsLabel = tr("Direct chats");
+            static const auto DirectChatsLabel = tr("People");
             static const auto UntaggedRoomsLabel = tr("Ungrouped rooms");
 
             const auto c = roomGroupAt(index);

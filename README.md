@@ -88,6 +88,15 @@ Settings not exposed in UI:
   day-month-year triad) in the UI; the default is true.
 - `UI/Fonts/render_type` - select how to render fonts in Quaternion timeline;
   possible values are "NativeRendering" (default) and "QtRendering".
+- `UI/RoomsDock/tags_order` - allows to alter the order of tags in the room
+  list. The default value for this key will be set by Quaternion if it doesn't
+  it so that you could edit it further. This is a list of tags/namespaces;
+  `.*` at the end of the string means a namespace, other strings are treated
+  as fully specified tags. E.g., the default order looks like this:
+  `m.favourite,u.*,org.qmatrixclient.direct,org.qmatrixclient.none,m.lowpriority`.
+  If a tag is not mentioned and does not fit any namespace, it will be put at
+  the end in lexicographic order. Tags within the same namespace are also
+  ordered lexicographically.
 
 Since version 0.0.5, Quaternion tries to store your access tokens in a dedicated file with restricted access rights so that only the owner can access them. Every access token is stored in a separate file matching your user id in the following directory:
 - Linux: `$HOME/.local/share/QMatrixClient/quaternion`
