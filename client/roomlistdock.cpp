@@ -143,25 +143,45 @@ RoomListDock::RoomListDock(QWidget* parent)
     });
     setWidget(view);
 
-    contextMenu = new QMenu(this);
-    markAsReadAction = new QAction(tr("Mark room as read"), this);
-    connect(markAsReadAction, &QAction::triggered, this, &RoomListDock::menuMarkReadSelected);
-    contextMenu->addAction(markAsReadAction);
-    contextMenu->addSeparator();
-    addTagsAction = new QAction(tr("Add tags..."), this);
-    connect(addTagsAction, &QAction::triggered, this, &RoomListDock::addTagsSelected);
-    contextMenu->addAction(addTagsAction);
-    contextMenu->addSeparator();
-    joinAction = new QAction(tr("Join room"), this);
-    connect(joinAction, &QAction::triggered, this, &RoomListDock::menuJoinSelected);
-    contextMenu->addAction(joinAction);
-    leaveAction = new QAction(this);
-    connect(leaveAction, &QAction::triggered, this, &RoomListDock::menuLeaveSelected);
-    contextMenu->addAction(leaveAction);
-    contextMenu->addSeparator();
-    forgetAction = new QAction(tr("Forget room"), this);
-    connect(forgetAction, &QAction::triggered, this, &RoomListDock::menuForgetSelected);
-    contextMenu->addAction(forgetAction);
+    roomContextMenu = new QMenu(this);
+    markAsReadAction =
+        roomContextMenu->addAction(tr("Mark room as read"), this, [this] {
+            if (auto room = getSelectedRoom())
+                room->markAllMessagesAsRead();
+        });
+    roomContextMenu->addSeparator();
+    addTagsAction =
+        roomContextMenu->addAction(tr("Add tags..."), this,
+                                   &RoomListDock::addTagsSelected);
+    roomContextMenu->addSeparator();
+    joinAction =
+        roomContextMenu->addAction(tr("Join room"), this, [this] {
+            if (auto room = getSelectedRoom())
+            {
+                Q_ASSERT(room->connection());
+                room->connection()->joinRoom(room->id());
+            }
+        });
+    leaveAction =
+        roomContextMenu->addAction({}, this, [this] {
+            if (auto room = getSelectedRoom())
+                room->leaveRoom();
+        });
+    roomContextMenu->addSeparator();
+    forgetAction =
+        roomContextMenu->addAction(tr("Forget room"), this, [this] {
+            if (auto room = getSelectedRoom())
+            {
+                Q_ASSERT(room->connection());
+                room->connection()->forgetRoom(room->id());
+            }
+        });
+
+    groupContextMenu = new QMenu(this);
+    deleteTagAction =
+        groupContextMenu->addAction(tr("Remove tag"), this, [this] {
+            model->deleteTag(view->currentIndex());
+        });
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested, this, &RoomListDock::showContextMenu);
@@ -191,8 +211,18 @@ void RoomListDock::rowSelected(const QModelIndex& index)
 void RoomListDock::showContextMenu(const QPoint& pos)
 {
     auto index = view->indexAt(view->mapFromParent(pos));
-    if (!(index.isValid() && index.parent().isValid()))
-        return; // Only show context menu on rooms
+    if (!index.isValid())
+        return; // No context menu on root item yet
+    if (model->isValidGroupIndex(index))
+    {
+        // Don't allow to delete system "tags"
+        auto tagName = model->roomGroupAt(index);
+        deleteTagAction->setDisabled(
+                    tagName.toString().startsWith("org.qmatrixclient."));
+        groupContextMenu->popup(mapToGlobal(pos));
+        return;
+    }
+    Q_ASSERT(model->isValidRoomIndex(index));
     auto room = model->roomAt(index);
 //    auto room = model->roomAt(proxyModel->mapToSource(index));
 
@@ -206,7 +236,7 @@ void RoomListDock::showContextMenu(const QPoint& pos)
     leaveAction->setEnabled(room->joinState() != JoinState::Leave);
     forgetAction->setVisible(!invited);
 
-    contextMenu->popup(mapToGlobal(pos));
+    roomContextMenu->popup(mapToGlobal(pos));
 }
 
 QVariant RoomListDock::getSelectedGroup() const
@@ -221,34 +251,6 @@ QuaternionRoom* RoomListDock::getSelectedRoom() const
     return !index.isValid() || !index.parent().isValid() ? nullptr
                             : model->roomAt(index);
 //                            : model->roomAt(proxyModel->mapToSource(index));
-}
-
-void RoomListDock::menuJoinSelected()
-{
-    // The user has been invited to the room
-    if (auto room = getSelectedRoom())
-    {
-        Q_ASSERT(room->connection());
-        room->connection()->joinRoom(room->id());
-    }
-}
-
-void RoomListDock::menuLeaveSelected()
-{
-    if (auto room = getSelectedRoom())
-        room->leaveRoom();
-}
-
-void RoomListDock::menuForgetSelected()
-{
-    if (auto room = getSelectedRoom())
-        room->connection()->forgetRoom(room->id());
-}
-
-void RoomListDock::menuMarkReadSelected()
-{
-    if (auto room = getSelectedRoom())
-        room->markAllMessagesAsRead();
 }
 
 void RoomListDock::addTagsSelected()

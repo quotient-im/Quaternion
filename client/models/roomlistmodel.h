@@ -48,6 +48,7 @@ class RoomListModel: public QAbstractItemModel
 
         void addConnection(QMatrixClient::Connection* connection);
         void deleteConnection(QMatrixClient::Connection* connection);
+        void deleteTag(QModelIndex index);
 
         QVariant roomGroupAt(QModelIndex index) const;
         QuaternionRoom* roomAt(QModelIndex index) const;

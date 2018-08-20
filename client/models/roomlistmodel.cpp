@@ -111,6 +111,29 @@ void RoomListModel::deleteConnection(QMatrixClient::Connection* connection)
     endResetModel();
 }
 
+void RoomListModel::deleteTag(QModelIndex index)
+{
+    if (!isValidGroupIndex(index))
+        return;
+    const auto tag = m_roomGroups[index.row()].caption.toString();
+    if (tag.isEmpty())
+    {
+        qCritical() << "Invalid tag at position" << index.row();
+        return;
+    }
+    if (tag.startsWith("org.qmatrixclient."))
+    {
+        qWarning() << "System groups cannot be deleted (tried to delete" << tag
+                   << "group";
+        return;
+    }
+    // After the below loop, the respective group will magically disappear from
+    // m_roomGroups as well due to tagsChanged() triggered from removeTag()
+    for (const auto& c: m_connections)
+        for (auto* r: c->roomsWithTag(tag))
+            r->removeTag(tag);
+}
+
 int RoomListModel::getRoomGroupOffset(QModelIndex index) const
 {
     Q_ASSERT(index.isValid()); // Root item shouldn't come here

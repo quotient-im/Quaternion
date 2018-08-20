@@ -48,23 +48,21 @@ class RoomListDock : public QDockWidget
     private slots:
         void rowSelected(const QModelIndex& index);
         void showContextMenu(const QPoint& pos);
-        void menuMarkReadSelected();
         void addTagsSelected();
-        void menuJoinSelected();
-        void menuLeaveSelected();
-        void menuForgetSelected();
         void refreshTitle();
 
     private:
         QTreeView* view;
         RoomListModel* model;
 //        QSortFilterProxyModel* proxyModel;
-        QMenu* contextMenu;
+        QMenu* roomContextMenu;
+        QMenu* groupContextMenu;
         QAction* markAsReadAction;
         QAction* addTagsAction;
         QAction* joinAction;
         QAction* leaveAction;
         QAction* forgetAction;
+        QAction* deleteTagAction;
         QVariant selectedGroupCache;
         QuaternionRoom* selectedRoomCache;
 
