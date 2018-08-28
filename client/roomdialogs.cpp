@@ -95,7 +95,7 @@ RoomDialogBase::RoomDialogBase(const QString& title,
     if (!room) // TODO: Support this in RoomSettingsDialog as well
     {
         formLayout->addRow(publishRoom);
-        formLayout->addRow(guestCanJoin);
+//        formLayout->addRow(guestCanJoin); // TODO: QMatrixClient/libqmatrixclient#36
 
     }
 
@@ -315,7 +315,7 @@ void CreateRoomDialog::apply()
             publishRoom->isChecked() ?
                 Connection::PublishRoom : Connection::UnpublishRoom,
             alias->text(), roomName->text(), topic->toPlainText(),
-            userIds, "", false, guestCanJoin->isChecked());
+            userIds, "", false);
 
     connect(job, &BaseJob::success, this, &Dialog::accept);
     connect(job, &BaseJob::failure, this, [this,job] {
