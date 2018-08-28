@@ -118,13 +118,13 @@ void RoomListModel::deleteTag(QModelIndex index)
     const auto tag = m_roomGroups[index.row()].caption.toString();
     if (tag.isEmpty())
     {
-        qCritical() << "Invalid tag at position" << index.row();
+        qCritical() << "RoomListModel: Invalid tag at position" << index.row();
         return;
     }
     if (tag.startsWith("org.qmatrixclient."))
     {
-        qWarning() << "System groups cannot be deleted (tried to delete" << tag
-                   << "group";
+        qWarning() << "RoomListModel: System groups cannot be deleted "
+                      "(tried to delete" << tag << "group)";
         return;
     }
     // After the below loop, the respective group will magically disappear from
@@ -208,16 +208,15 @@ void RoomListModel::visitRoom(QuaternionRoom* room,
         const auto gIt = lowerBoundGroup(g);
         if (gIt == m_roomGroups.end() || gIt->caption != g)
         {
-            qWarning() << "The model doesn't have group" << g.toString()
-                       << "that the current model order lists for room"
-                       << room->displayName();
+            qWarning() << "RoomListModel: No group found" << g.toString()
+                       << "that lists room" << room->objectName();
             continue;
         }
         const auto rIt = lowerBoundRoom(*gIt, room);
         if (rIt == gIt->rooms.end() || *rIt != room)
         {
-            qCritical() << "The current order lists room" << room->displayName()
-                        << "in group" << g.toString()
+            qCritical() << "RoomListModel: the current order lists room"
+                        << room->objectName() << "in group" << g.toString()
                         << "but the model doesn't have it";
             Q_ASSERT(false);
             continue;
@@ -339,13 +338,16 @@ void RoomListModel::insertRoom(QMatrixClient::Room* r, bool notify)
         Q_ASSERT(false);
         return;
     }
-    for (const auto& g: m_roomOrder.groups(qr))
+    const auto& groups = m_roomOrder.groups(qr);
+    qDebug() << "RoomListModel: Inserting" << r->objectName()
+             << "to groups" << groups;
+    for (const auto& g: groups)
     {
         const auto gIt = tryInsertGroup(g, notify);
         const auto rIt = lowerBoundRoom(*gIt, qr);
         if (rIt != gIt->rooms.end() && *rIt == qr)
         {
-            qWarning() << "Room" << r->displayName()
+            qWarning() << "RoomListModel:" << r->objectName()
                        << "is already listed under group" << g.toString();
             continue;
         }
@@ -377,7 +379,7 @@ void RoomListModel::connectRoomSignals(QuaternionRoom* room)
 RoomListModel::room_locator_t RoomListModel::doRemoveRoom(group_iter_t gIt,
                                                           room_iter_t rIt)
 {
-    qDebug() << "Removing room" << (*rIt)->displayName()
+    qDebug() << "RoomListModel: Removing room" << (*rIt)->objectName()
              << "from group" << gIt->caption;
     const auto gPos = gIt - m_roomGroups.begin();
     const auto rPos = rIt - gIt->rooms.begin();
@@ -651,10 +653,15 @@ void RoomListModel::tagsChanged(QuaternionRoom* room,
     if (m_roomOrder.grouping != GroupByTag)
         return;
 
-    if (additions == room->tags())
+    Q_ASSERT(!additions.empty() || !removals.empty());
+    if (additions == room->tags() && !additions.empty() && removals.empty())
         removals.push_back(Untagged);
-    if (room->tags().empty())
+    if (room->tags().empty() && !removals.empty())
+    {
+        Q_ASSERT(additions.empty());
         additions.insert(Untagged, {});
+    }
+
     for (const auto& t: additions.keys())
     {
         auto it = tryInsertGroup(t, true);
@@ -662,7 +669,7 @@ void RoomListModel::tagsChanged(QuaternionRoom* room,
         auto rIt = lowerBoundRoom(*it, room);
         if (rIt != it->rooms.end() && *rIt == room)
         {
-            qWarning() << "Room" << room->id()
+            qWarning() << "RoomListModel:" << room->objectName()
                        << "already tagged as" << t << "in the room list model";
             continue;
         }
@@ -670,22 +677,23 @@ void RoomListModel::tagsChanged(QuaternionRoom* room,
         beginInsertRows(index(idx, 0), rIdx, rIdx);
         it->rooms.insert(rIt, room);
         endInsertRows();
-        qDebug() << "Added room" << room->displayName() << "to group" << t;
+        qDebug() << "RoomListModel: Added" << room->objectName()
+                 << "to group" << t;
     }
     for (const auto& t: removals)
     {
         const auto it = lowerBoundGroup(t);
         if (it == m_roomGroups.end() || it->caption != t)
         {
-            qWarning() << "Tag" << t
-                << "not found in the model but is being removed from a room";
+            qWarning() << "RoomListModel: Couldn't find tag" << t
+                << "while removing it from" << room->objectName();
             continue;
         }
         const auto rIt = lowerBoundRoom(*it, room);
         if (rIt == it->rooms.end() || *rIt != room)
         {
-            qWarning() << "Room" << room->id() << "doesn't have tag" << t
-                       << "in the model; nothing to untag";
+            qWarning() << "RoomListModel:" << room->objectName()
+                       << "doesn't have tag" << t << "- nothing to untag";
             continue;
         }
         doRemoveRoom(it, rIt);
