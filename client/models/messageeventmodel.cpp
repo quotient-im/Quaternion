@@ -427,8 +427,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                     auto fileCaption = e.content()->fileInfo()->originalName;
                     if (fileCaption.isEmpty())
                         fileCaption = m_currentRoom->prettyPrint(e.plainBody());
-                    if (fileCaption.isEmpty())
-                        return tr("a file");
+                    return !fileCaption.isEmpty() ? fileCaption : tr("a file");
                 }
                 return m_currentRoom->prettyPrint(e.plainBody());
             }
