@@ -54,6 +54,7 @@ class RoomDialogBase : public Dialog
         QLabel* aliasServer;
         QLineEdit* alias;
         QPlainTextEdit* topic;
+        QString previousTopic;
         QCheckBox* publishRoom;
         QCheckBox* guestCanJoin;
         QFormLayout* formLayout;

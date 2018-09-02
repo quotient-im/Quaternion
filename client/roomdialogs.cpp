@@ -129,6 +129,9 @@ void RoomSettingsDialog::load()
     roomName->setText(room->name());
     alias->setText(room->canonicalAlias());
     topic->setPlainText(room->topic());
+    // QPlainTextEdit may change some characters before any editing occurs;
+    // so save this already adjusted topic to compare later.
+    previousTopic = topic->toPlainText();
 
     tagsList->clear();
     auto roomTags = room->tagNames();
@@ -156,7 +159,7 @@ void RoomSettingsDialog::apply()
         room->setName(roomName->text());
     if (alias->text() != room->canonicalAlias())
         room->setCanonicalAlias(alias->text());
-    if (topic->toPlainText() != room->topic())
+    if (topic->toPlainText() != previousTopic)
         room->setTopic(topic->toPlainText());
     auto tags = room->tags();
     for (int i = 0; i < tagsList->count(); ++i)
@@ -293,6 +296,7 @@ void CreateRoomDialog::load()
     roomName->clear();
     alias->clear();
     topic->clear();
+    previousTopic.clear();
     nextInvitee->clear();
     accountSwitched();
     invitees->clear();
