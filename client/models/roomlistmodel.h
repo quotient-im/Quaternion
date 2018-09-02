@@ -50,8 +50,8 @@ class RoomListModel: public QAbstractItemModel
         void deleteConnection(QMatrixClient::Connection* connection);
         void deleteTag(QModelIndex index);
 
-        QVariant roomGroupAt(QModelIndex index) const;
-        QuaternionRoom* roomAt(QModelIndex index) const;
+        QVariant roomGroupAt(QModelIndex idx) const;
+        QuaternionRoom* roomAt(QModelIndex idx) const;
         QModelIndex indexOf(const QVariant& group,
                             QuaternionRoom* room = nullptr) const;
 
@@ -73,8 +73,8 @@ class RoomListModel: public QAbstractItemModel
     private slots:
         void displaynameChanged(QuaternionRoom* room);
         void unreadMessagesChanged(QuaternionRoom* room);
-        void tagsChanged(QuaternionRoom* room,
-                         QMatrixClient::TagsMap additions, QStringList removals);
+        void prepareToUpdateGroups(QuaternionRoom* room);
+        void updateGroups(QuaternionRoom* room);
         void refresh(QuaternionRoom* room, const QVector<int>& roles = {});
 
         void replaceRoom(QMatrixClient::Room* room,
@@ -87,7 +87,8 @@ class RoomListModel: public QAbstractItemModel
         struct RoomGroup
         {
             QVariant caption;
-            QVector<QuaternionRoom*> rooms;
+            using rooms_t = QVector<QuaternionRoom*>;
+            rooms_t rooms;
 
             bool operator==(const RoomGroup& other) const
             {
@@ -115,10 +116,18 @@ class RoomListModel: public QAbstractItemModel
             {
                 return !(group == otherCaption);
             }
-            /// Merge rooms from another group
-            void mergeWith(RoomGroup&& g);
         };
-        QVector<RoomGroup> m_roomGroups;
+        using groups_t = QVector<RoomGroup>;
+
+        groups_t m_roomGroups;
+        
+        // Beware, these iterators are as short-lived as QModelIndex'es
+        using group_iter_t = groups_t::iterator;
+        using group_citer_t = groups_t::const_iterator;
+        using room_iter_t = RoomGroup::rooms_t::iterator;
+        using room_citer_t = RoomGroup::rooms_t::const_iterator;
+
+        QVector<QPersistentModelIndex> m_roomIdxCache;
 
         struct RoomOrder
         {
@@ -129,30 +138,22 @@ class RoomListModel: public QAbstractItemModel
             using room_lessthan_t = std::function<bool(const QuaternionRoom*,
                                                        const QuaternionRoom*)>;
             std::function<room_lessthan_t(const QVariant&)> roomLessThanFactory;
-            std::function<QVariantList(const QuaternionRoom*)> groups;
+            using groups_t = QVariantList;
+            std::function<groups_t(const QuaternionRoom*)> groups;
+            std::function<void(QuaternionRoom*)> connectRoomSignals;
         };
         RoomOrder m_roomOrder;
-        QStringList m_tagsOrder;
-
-        // Beware, these iterators are as short-lived as QModelIndex'es
-        using group_iter_t = decltype(m_roomGroups)::iterator;
-        using group_citer_t = decltype(m_roomGroups)::const_iterator;
-        using room_iter_t = decltype(RoomGroup::rooms)::iterator;
-        using room_citer_t = decltype(RoomGroup::rooms)::const_iterator;
-        using room_locator_t = std::pair<group_iter_t, room_iter_t>;
-        using room_clocator_t = std::pair<group_citer_t, room_citer_t>;
 
         group_iter_t tryInsertGroup(const QVariant& group, bool notify = false);
+        void insertRoomToGroups(const QVariantList& groups, QuaternionRoom* room,
+                                bool notify = false);
         void insertRoom(QMatrixClient::Room* r, bool notify = false);
         void connectRoomSignals(QuaternionRoom* room);
-        room_locator_t doRemoveRoom(group_iter_t gIt, room_iter_t rIt);
+        void doRemoveRoom(QModelIndex idx);
 
         int getRoomGroupOffset(QModelIndex index) const;
         group_iter_t getRoomGroupFor(QModelIndex index);
         group_citer_t getRoomGroupFor(QModelIndex index) const;
-        int getRoomOffset(QModelIndex index, const RoomGroup& group) const;
-        room_locator_t getRoomFor(QModelIndex index);
-        room_clocator_t getRoomFor(QModelIndex index) const;
 
         group_iter_t lowerBoundGroup(const QVariant& group);
         group_citer_t lowerBoundGroup(const QVariant& group) const;
@@ -160,7 +161,7 @@ class RoomListModel: public QAbstractItemModel
         room_citer_t lowerBoundRoom(const RoomGroup& group,
                                     QuaternionRoom* room) const;
         void visitRoom(QuaternionRoom* room,
-                       const std::function<void(group_iter_t, room_iter_t)>& visitor);
+                       const std::function<void(QModelIndex)>& visitor);
 
         void doRebuild();
 };

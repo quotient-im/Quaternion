@@ -39,22 +39,8 @@ static const QStringList DefaultTagsOrder {
     QMatrixClient::LowPriorityTag
 };
 
-QStringList initTagsOrder()
-{
-    static const auto SettingsKey = QStringLiteral("tags_order");
-    static QMatrixClient::SettingsGroup sg { "UI/RoomsDock" };
-    const auto savedOrder = sg.get<QStringList>(SettingsKey);
-    if (savedOrder.isEmpty())
-    {
-        sg.setValue(SettingsKey, DefaultTagsOrder);
-        return DefaultTagsOrder;
-    }
-    return savedOrder;
-}
-
 RoomListModel::RoomListModel(QObject* parent)
     : QAbstractItemModel(parent)
-    , m_tagsOrder(initTagsOrder())
 { }
 
 void RoomListModel::addConnection(QMatrixClient::Connection* connection)
@@ -151,28 +137,6 @@ RoomListModel::group_citer_t RoomListModel::getRoomGroupFor(QModelIndex index) c
     return m_roomGroups.cbegin() + getRoomGroupOffset(index);
 }
 
-int RoomListModel::getRoomOffset(QModelIndex index, const RoomGroup& group) const
-{
-    return isValidRoomIndex(index) ? index.row() : group.rooms.size();
-}
-
-RoomListModel::room_locator_t RoomListModel::getRoomFor(QModelIndex index)
-{
-    const auto groupIt = getRoomGroupFor(index);
-    return { groupIt, groupIt != m_roomGroups.end()
-                        ? groupIt->rooms.begin() + getRoomOffset(index, *groupIt)
-                        : room_iter_t() /*undefined*/ };
-}
-
-RoomListModel::room_clocator_t RoomListModel::getRoomFor(QModelIndex index) const
-{
-    const auto groupIt = getRoomGroupFor(index);
-    return { groupIt,
-             groupIt != m_roomGroups.cend()
-                ? groupIt->rooms.cbegin() + getRoomOffset(index, *groupIt)
-                : room_citer_t() /*undefined*/ };
-}
-
 RoomListModel::group_iter_t RoomListModel::lowerBoundGroup(const QVariant& group)
 {
     return std::lower_bound(m_roomGroups.begin(), m_roomGroups.end(), group,
@@ -201,19 +165,19 @@ RoomListModel::room_citer_t RoomListModel::lowerBoundRoom(
 }
 
 void RoomListModel::visitRoom(QuaternionRoom* room,
-        const std::function<void(group_iter_t, room_iter_t)>& visitor)
+                              const std::function<void(QModelIndex)>& visitor)
 {
     for (const auto& g: m_roomOrder.groups(room))
     {
-        const auto gIt = lowerBoundGroup(g);
-        if (gIt == m_roomGroups.end() || gIt->caption != g)
+        const auto idx = indexOf(g, room);
+        if (!isValidGroupIndex(idx.parent()))
         {
-            qWarning() << "RoomListModel: No group found" << g.toString()
-                       << "that lists room" << room->objectName();
+            qWarning() << "RoomListModel: Invalid group index for" << g.toString()
+                       << "with room" << room->objectName();
+            Q_ASSERT(false);
             continue;
         }
-        const auto rIt = lowerBoundRoom(*gIt, room);
-        if (rIt == gIt->rooms.end() || *rIt != room)
+        if (!isValidRoomIndex(idx))
         {
             qCritical() << "RoomListModel: the current order lists room"
                         << room->objectName() << "in group" << g.toString()
@@ -221,22 +185,20 @@ void RoomListModel::visitRoom(QuaternionRoom* room,
             Q_ASSERT(false);
             continue;
         }
-        Q_ASSERT(gIt->caption == g && *rIt == room);
-        visitor(gIt, rIt);
+        visitor(idx);
     }
 }
 
-QVariant RoomListModel::roomGroupAt(QModelIndex index) const
+QVariant RoomListModel::roomGroupAt(QModelIndex idx) const
 {
-    const auto groupIt = getRoomGroupFor(index);
+    const auto groupIt = getRoomGroupFor(idx);
     return groupIt != m_roomGroups.end() ? groupIt->caption : QVariant();
 }
 
-QuaternionRoom* RoomListModel::roomAt(QModelIndex index) const
+QuaternionRoom* RoomListModel::roomAt(QModelIndex idx) const
 {
-    const auto its = getRoomFor(index);
-    return its.first != m_roomGroups.cend() &&
-            its.second != its.first->rooms.cend() ? *its.second : nullptr;
+    return isValidRoomIndex(idx)
+            ? m_roomGroups[idx.parent().row()].rooms[idx.row()] : nullptr;
 }
 
 QModelIndex RoomListModel::indexOf(const QVariant& group,
@@ -256,7 +218,8 @@ QModelIndex RoomListModel::indexOf(const QVariant& group,
     return index(rIt - groupIt->rooms.begin(), 0, groupIdx);
 }
 
-QModelIndex RoomListModel::index(int row, int column, const QModelIndex& parent) const
+QModelIndex RoomListModel::index(int row, int column,
+                                 const QModelIndex& parent) const
 {
     if (!hasIndex(row, column, parent))
         return {};
@@ -306,7 +269,7 @@ void RoomListModel::deleteRoom(QMatrixClient::Room* room)
 {
     Q_ASSERT(room);
     visitRoom(static_cast<QuaternionRoom*>(room),
-              std::bind(&RoomListModel::doRemoveRoom, this, _1, _2));
+              std::bind(&RoomListModel::doRemoveRoom, this, _1));
 }
 
 RoomListModel::group_iter_t RoomListModel::tryInsertGroup(
@@ -329,35 +292,38 @@ RoomListModel::group_iter_t RoomListModel::tryInsertGroup(
     return gIt;
 }
 
-void RoomListModel::insertRoom(QMatrixClient::Room* r, bool notify)
+void RoomListModel::insertRoomToGroups(const QVariantList& groups,
+                                       QuaternionRoom* room, bool notify)
 {
-    auto* qr = static_cast<QuaternionRoom*>(r);
-    if (!qr)
-    {
-        qCritical() << "Attempt to add nullptr to the room list";
-        Q_ASSERT(false);
-        return;
-    }
-    const auto& groups = m_roomOrder.groups(qr);
-    qDebug() << "RoomListModel: Inserting" << r->objectName()
-             << "to groups" << groups;
     for (const auto& g: groups)
     {
         const auto gIt = tryInsertGroup(g, notify);
-        const auto rIt = lowerBoundRoom(*gIt, qr);
-        if (rIt != gIt->rooms.end() && *rIt == qr)
+        const auto rIt = lowerBoundRoom(*gIt, room);
+        if (rIt != gIt->rooms.end() && *rIt == room)
         {
-            qWarning() << "RoomListModel:" << r->objectName()
+            qWarning() << "RoomListModel:" << room->objectName()
                        << "is already listed under group" << g.toString();
             continue;
         }
         const auto rPos = rIt - gIt->rooms.begin();
         if (notify)
             beginInsertRows(index(gIt - m_roomGroups.begin(), 0), rPos, rPos);
-        gIt->rooms.insert(rIt, qr);
+        gIt->rooms.insert(rIt, room);
         if (notify)
             endInsertRows();
+        qDebug() << "RoomListModel: Added" << room->objectName()
+                 << "to group" << gIt->caption.toString();
     }
+}
+
+void RoomListModel::insertRoom(QMatrixClient::Room* r, bool notify)
+{
+    // We can return void from a void function.
+    if (auto* qr = static_cast<QuaternionRoom*>(r))
+        return insertRoomToGroups(m_roomOrder.groups(qr), qr, notify);
+
+    qCritical() << "Attempt to add nullptr to the room list";
+    Q_ASSERT(false);
 }
 
 void RoomListModel::connectRoomSignals(QuaternionRoom* room)
@@ -372,27 +338,31 @@ void RoomListModel::connectRoomSignals(QuaternionRoom* room)
             this, [this,room] { refresh(room); });
     connect(room, &QuaternionRoom::avatarChanged,
             this, [this,room] { refresh(room, { Qt::DecorationRole }); });
-    connect(room, &QuaternionRoom::tagsChanged,
-            this, std::bind(&RoomListModel::tagsChanged, this, room, _1, _2));
+    m_roomOrder.connectRoomSignals(room);
 }
 
-RoomListModel::room_locator_t RoomListModel::doRemoveRoom(group_iter_t gIt,
-                                                          room_iter_t rIt)
+void RoomListModel::doRemoveRoom(QModelIndex idx)
 {
+    if (!isValidRoomIndex(idx))
+    {
+        qCritical() << "Attempt to remove a room at invalid index" << idx;
+        Q_ASSERT(false);
+        return;
+    }
+    const auto gPos = idx.parent().row();
+    auto& group = m_roomGroups[gPos];
+    const auto rIt = group.rooms.begin() + idx.row();
     qDebug() << "RoomListModel: Removing room" << (*rIt)->objectName()
-             << "from group" << gIt->caption;
-    const auto gPos = gIt - m_roomGroups.begin();
-    const auto rPos = rIt - gIt->rooms.begin();
-    beginRemoveRows(index(gPos, 0), rPos, rPos);
-    rIt = gIt->rooms.erase(rIt);
+             << "from group" << group.caption;
+    beginRemoveRows(idx.parent(), idx.row(), idx.row());
+    group.rooms.erase(rIt);
     endRemoveRows();
-    if (gIt->rooms.empty())
+    if (group.rooms.empty())
     {
         beginRemoveRows({}, gPos, gPos);
-        gIt = m_roomGroups.erase(gIt);
+        m_roomGroups.remove(gPos);
         endRemoveRows();
     }
-    return { gIt, rIt };
 }
 
 void RoomListModel::doRebuild()
@@ -433,6 +403,19 @@ bool RoomListModel::isValidRoomIndex(QModelIndex i) const
             i.row() < m_roomGroups[i.parent().row()].rooms.size();
 }
 
+QStringList initTagsOrder()
+{
+    static const auto SettingsKey = QStringLiteral("tags_order");
+    static QMatrixClient::SettingsGroup sg { "UI/RoomsDock" };
+    const auto savedOrder = sg.get<QStringList>(SettingsKey);
+    if (savedOrder.isEmpty())
+    {
+        sg.setValue(SettingsKey, DefaultTagsOrder);
+        return DefaultTagsOrder;
+    }
+    return savedOrder;
+}
+
 template <typename LT, typename VT>
 inline auto findIndex(const QList<LT>& list, const VT& value)
 {
@@ -463,13 +446,14 @@ void RoomListModel::setOrder(Grouping grouping, Sorting sorting)
     RoomOrder order
     {
         GroupByTag, sorting,
-        [this] (const RoomGroup& group, const QVariant& tag) -> bool
+        [] (const RoomGroup& group, const QVariant& tag) -> bool
         {
+            static auto tagsOrder = initTagsOrder();
             const auto& lkey = group.caption.toString();
             const auto& rkey = tag.toString();
             // See above
-            auto li = findIndexWithWildcards(m_tagsOrder, lkey);
-            auto ri = findIndexWithWildcards(m_tagsOrder, rkey);
+            auto li = findIndexWithWildcards(tagsOrder, lkey);
+            auto ri = findIndexWithWildcards(tagsOrder, rkey);
             return li < ri || (li == ri && lkey < rkey);
         },
         [] (const QVariant& tag) -> RoomOrder::room_lessthan_t
@@ -477,24 +461,47 @@ void RoomListModel::setOrder(Grouping grouping, Sorting sorting)
             return [tag=tag.toString()] (const QuaternionRoom* r1,
                                          const QuaternionRoom* r2)
             {
-                // Put rooms with empty tag order to the end.
+                if (r1 == r2)
+                    return false; // Short-circuit
+
                 auto o1 = r1->tag(tag).order;
-                if (o1.isEmpty()) o1 = "1";
                 auto o2 = r2->tag(tag).order;
-                if (o2.isEmpty()) o2 = "1";
-                return o1 < o2 || (o1 == o2 && r1->id() < r2->id()); // FIXME: Use displayName() once the model learns how to move rooms around due to display name changes
+                if (o2.omitted())
+                    return !o1.omitted() || r1->id() < r2->id(); // FIXME: Use displayName() once the model learns how to move rooms around due to display name changes
+                if (o1.omitted()) // && !o2.omitted()
+                    return false;
+
+                if (o1.value() < o2.value())
+                    return true;
+
+                if (o1.value() > o2.value() || r1->id() == r2->id())
+                    return false;
+
+                qWarning() << "RoomListModel:" << tag
+                           << "order values aren't strongly ordered:"
+                           << r1->objectName() << "with" << o1.value() << "vs."
+                           << r2->objectName() << "with" << o2.value();
+                return r1->id() < r2->id();
             };
         },
-        [] (const QuaternionRoom* r) -> QVariantList
+        [] (const QuaternionRoom* r) -> RoomOrder::groups_t
         {
             auto tags = r->tags().keys();
-            QVariantList vl; vl.reserve(tags.size());
+            RoomOrder::groups_t vl; vl.reserve(tags.size());
             std::copy(tags.cbegin(), tags.cend(), std::back_inserter(vl));
             if (r->isDirectChat())
                 vl.push_back(DirectChat);
             if (vl.empty())
                 vl.push_back(Untagged);
             return vl;
+        },
+        [this] (QuaternionRoom* r)
+        {
+            connect(r, &QuaternionRoom::tagsAboutToChange,
+                    this, std::bind(&RoomListModel::prepareToUpdateGroups,
+                                    this, r));
+            connect(r, &QuaternionRoom::tagsChanged,
+                    this, std::bind(&RoomListModel::updateGroups, this, r));
         }
     };
 
@@ -647,57 +654,47 @@ void RoomListModel::unreadMessagesChanged(QuaternionRoom* room)
     refresh(room);
 }
 
-void RoomListModel::tagsChanged(QuaternionRoom* room,
-        QMatrixClient::TagsMap additions, QStringList removals)
+void RoomListModel::prepareToUpdateGroups(QuaternionRoom* room)
+{
+    Q_ASSERT(m_roomOrder.grouping == GroupByTag);
+    Q_ASSERT(m_roomIdxCache.empty()); // Not in the midst of another update
+
+    const auto& groups = m_roomOrder.groups(room);
+    for (const auto& g: groups)
+    {
+        const auto& rIdx = indexOf(g, room);
+        Q_ASSERT(isValidRoomIndex(rIdx));
+        m_roomIdxCache.push_back(rIdx);
+    }
+}
+
+void RoomListModel::updateGroups(QuaternionRoom* room)
 {
     if (m_roomOrder.grouping != GroupByTag)
         return;
 
-    Q_ASSERT(!additions.empty() || !removals.empty());
-    if (additions == room->tags() && !additions.empty() && removals.empty())
-        removals.push_back(Untagged);
-    if (room->tags().empty() && !removals.empty())
+    auto groups = m_roomOrder.groups(room);
+    for (const auto& oldIndex: qAsConst(m_roomIdxCache))
     {
-        Q_ASSERT(additions.empty());
-        additions.insert(Untagged, {});
-    }
+        Q_ASSERT(isValidRoomIndex(oldIndex));
+        const auto gIdx = oldIndex.parent();
+        auto& group = m_roomGroups[gIdx.row()];
+        if (groups.removeOne(group.caption)) // Test and remove at once
+        {
+            const auto oldIt = group.rooms.begin() + oldIndex.row();
+            const auto newIt = lowerBoundRoom(group, room);
+            if (newIt == oldIt)
+                continue;
 
-    for (const auto& t: additions.keys())
-    {
-        auto it = tryInsertGroup(t, true);
-        const auto idx = it - m_roomGroups.begin();
-        auto rIt = lowerBoundRoom(*it, room);
-        if (rIt != it->rooms.end() && *rIt == room)
-        {
-            qWarning() << "RoomListModel:" << room->objectName()
-                       << "already tagged as" << t << "in the room list model";
-            continue;
-        }
-        const auto rIdx = rIt - it->rooms.begin();
-        beginInsertRows(index(idx, 0), rIdx, rIdx);
-        it->rooms.insert(rIt, room);
-        endInsertRows();
-        qDebug() << "RoomListModel: Added" << room->objectName()
-                 << "to group" << t;
+            beginMoveRows(gIdx, oldIndex.row(), oldIndex.row(),
+                          gIdx, int(newIt - group.rooms.begin()));
+            std::move(oldIt, oldIt + 1, newIt);
+            endMoveRows();
+        } else
+            doRemoveRoom(oldIndex); // May invalidate `group`
     }
-    for (const auto& t: removals)
-    {
-        const auto it = lowerBoundGroup(t);
-        if (it == m_roomGroups.end() || it->caption != t)
-        {
-            qWarning() << "RoomListModel: Couldn't find tag" << t
-                << "while removing it from" << room->objectName();
-            continue;
-        }
-        const auto rIt = lowerBoundRoom(*it, room);
-        if (rIt == it->rooms.end() || *rIt != room)
-        {
-            qWarning() << "RoomListModel:" << room->objectName()
-                       << "doesn't have tag" << t << "- nothing to untag";
-            continue;
-        }
-        doRemoveRoom(it, rIt);
-    }
+    m_roomIdxCache.clear();
+    insertRoomToGroups(groups, room, true); // Groups the room wasn't before
 }
 
 void RoomListModel::refresh(QuaternionRoom* room, const QVector<int>& roles)
@@ -706,18 +703,5 @@ void RoomListModel::refresh(QuaternionRoom* room, const QVector<int>& roles)
     // its groups. Assume for now that such changes are processed elsewhere
     // where details about the change are available (e.g. in tagsChanged).
     visitRoom(room,
-        [this,&roles] (group_citer_t gIt, room_citer_t rIt) {
-            const auto idx = index(rIt - gIt->rooms.begin(), 0,
-                                   index(gIt - m_roomGroups.begin(), 0));
-            emit dataChanged(idx, idx, roles);
-        });
-}
-
-
-void RoomListModel::RoomGroup::mergeWith(RoomListModel::RoomGroup&& g)
-{
-    std::copy(g.rooms.begin(), g.rooms.end(), std::back_inserter(rooms));
-    std::inplace_merge(rooms.begin(), rooms.end() - int(g.rooms.size()),
-                       rooms.end());
-    rooms.erase(std::unique(rooms.begin(), rooms.end()), rooms.end());
+        [this,&roles] (QModelIndex idx) { emit dataChanged(idx, idx, roles); });
 }
