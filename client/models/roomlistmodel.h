@@ -25,6 +25,114 @@
 
 #include <QtCore/QAbstractItemModel>
 
+struct RoomGroup
+{
+    QVariant key;
+    QVector<QMatrixClient::Room*> rooms;
+
+    bool operator==(const RoomGroup& other) const
+    {
+        return key == other.key;
+    }
+    bool operator!=(const RoomGroup& other) const
+    {
+        return !(*this == other);
+    }
+    bool operator==(const QVariant& otherCaption) const
+    {
+        return key == otherCaption;
+    }
+    bool operator!=(const QVariant& otherCaption) const
+    {
+        return !(*this == otherCaption);
+    }
+    friend bool operator==(const QVariant& otherCaption,
+                           const RoomGroup& group)
+    {
+        return group == otherCaption;
+    }
+    friend bool operator!=(const QVariant& otherCaption,
+                           const RoomGroup& group)
+    {
+        return !(group == otherCaption);
+    }
+};
+using RoomGroups = QVector<RoomGroup>;
+
+class RoomListModel;
+
+class AbstractRoomOrdering
+{
+    public:
+        using Room = QMatrixClient::Room;
+        using Connection = QMatrixClient::Connection;
+        using groups_t = QVariantList;
+
+        AbstractRoomOrdering(RoomListModel* m) : _model(m) { }
+        virtual ~AbstractRoomOrdering() = default;
+
+    public: // Overridables
+        virtual QString orderingName() const = 0;
+        virtual QVariant groupLabel(const RoomGroup& g) const = 0;
+        virtual bool groupLessThan(const RoomGroup& g1,
+                                   const QVariant& g2key) const = 0;
+        virtual bool roomLessThan(const QVariant& group,
+                                  const Room* r1, const Room* r2) const = 0;
+
+        virtual groups_t roomGroups(const Room* room) const = 0;
+        virtual void connectSignals(Connection* connection) = 0;
+        virtual void connectSignals(Room* room) = 0;
+
+    public:
+        using groupLessThan_closure_t =
+                std::function<bool(const RoomGroup&, const QVariant&)>;
+        groupLessThan_closure_t groupLessThanFactory() const;
+
+        using roomLessThan_closure_t =
+                std::function<bool(const Room*, const Room*)>;
+        roomLessThan_closure_t roomLessThanFactory(const QVariant& group) const;
+
+    protected:
+        const RoomListModel* model() const { return _model; }
+        RoomListModel* model() { return _model; }
+        const RoomGroups& modelGroups() const;
+        RoomGroups& modelGroups();
+
+        using slot_closure_t = std::function<void()>;
+        slot_closure_t getPrepareToUpdateGroupsSlot(Room* room);
+        slot_closure_t getUpdateGroupsSlot(Room* room);
+        void addRoomToGroups(QMatrixClient::Room* room,
+                             const QVariantList& groups = {});
+        void removeRoomFromGroup(QMatrixClient::Room* room,
+                                 const QVariant& groupCaption);
+
+    private:
+        RoomListModel* _model;
+};
+
+class OrderByTag : public AbstractRoomOrdering
+{
+    public:
+        explicit OrderByTag(RoomListModel* m) : AbstractRoomOrdering(m) { }
+
+        QString orderingName() const override { return QStringLiteral("tag"); }
+        QVariant groupLabel(const RoomGroup& g) const override;
+        bool groupLessThan(const RoomGroup& g1,
+                           const QVariant& g2key) const override;
+        bool roomLessThan(const QVariant& groupKey,
+                          const Room* r1, const Room* r2) const override;
+
+        groups_t roomGroups(const Room* room) const override;
+        void connectSignals(Connection* connection) override;
+        void connectSignals(Room* room) override;
+
+    private:
+        static const QString DirectChat;
+        static const QString Untagged;
+
+        static QStringList initTagsOrder();
+};
+
 class RoomListModel: public QAbstractItemModel
 {
         Q_OBJECT
@@ -36,24 +144,13 @@ class RoomListModel: public QAbstractItemModel
             HighlightCountRole, JoinStateRole, ObjectRole
         };
 
-        enum Grouping {
-            GroupByTag
-        };
-
-        enum Sorting {
-            SortByName
-        };
-
         explicit RoomListModel(QObject* parent = nullptr);
-
-        void addConnection(QMatrixClient::Connection* connection);
-        void deleteConnection(QMatrixClient::Connection* connection);
-        void deleteTag(QModelIndex index);
+        ~RoomListModel() override = default;
 
         QVariant roomGroupAt(QModelIndex idx) const;
         QuaternionRoom* roomAt(QModelIndex idx) const;
         QModelIndex indexOf(const QVariant& group,
-                            QuaternionRoom* room = nullptr) const;
+                            QMatrixClient::Room* room = nullptr) const;
 
         QModelIndex index(int row, int column,
                           const QModelIndex& parent = {}) const override;
@@ -65,103 +162,79 @@ class RoomListModel: public QAbstractItemModel
         bool isValidGroupIndex(QModelIndex i) const;
         bool isValidRoomIndex(QModelIndex i) const;
 
-        void setOrder(Grouping grouping, Sorting sorting);
+        template <typename OrderT>
+        void setOrder()
+        {
+            beginResetModel();
+            m_roomOrder = std::make_unique<OrderT>(this);
+            doRebuild();
+            endResetModel();
+        }
 
     signals:
         void groupAdded(int row);
 
-    private slots:
-        void displaynameChanged(QuaternionRoom* room);
-        void unreadMessagesChanged(QuaternionRoom* room);
-        void prepareToUpdateGroups(QuaternionRoom* room);
-        void updateGroups(QuaternionRoom* room);
-        void refresh(QuaternionRoom* room, const QVector<int>& roles = {});
+    public slots:
+        void addConnection(QMatrixClient::Connection* connection);
+        void deleteConnection(QMatrixClient::Connection* connection);
+        void deleteTag(QModelIndex index);
 
-        void replaceRoom(QMatrixClient::Room* room,
-                         QMatrixClient::Room* prev);
+    private slots:
+        void displaynameChanged(QMatrixClient::Room* room);
+        void unreadMessagesChanged(QMatrixClient::Room* room);
+
+        void addOrUpdateRoom(QMatrixClient::Room* room,
+                             QMatrixClient::Room* prev);
+        void refresh(QMatrixClient::Room* room, const QVector<int>& roles = {});
         void deleteRoom(QMatrixClient::Room* room);
 
+        void prepareToUpdateGroups(QMatrixClient::Room* room);
+        void updateGroups(QMatrixClient::Room* room);
+
     private:
+        friend class AbstractRoomOrdering;
+
         std::vector<ConnectionsGuard<QMatrixClient::Connection>> m_connections;
-
-        struct RoomGroup
-        {
-            QVariant caption;
-            using rooms_t = QVector<QuaternionRoom*>;
-            rooms_t rooms;
-
-            bool operator==(const RoomGroup& other) const
-            {
-                return caption == other.caption;
-            }
-            bool operator!=(const RoomGroup& other) const
-            {
-                return !(*this == other);
-            }
-            bool operator==(const QVariant& otherCaption) const
-            {
-                return caption == otherCaption;
-            }
-            bool operator!=(const QVariant& otherCaption) const
-            {
-                return !(*this == otherCaption);
-            }
-            friend bool operator==(const QVariant& otherCaption,
-                                   const RoomGroup& group)
-            {
-                return group == otherCaption;
-            }
-            friend bool operator!=(const QVariant& otherCaption,
-                                   const RoomGroup& group)
-            {
-                return !(group == otherCaption);
-            }
-        };
-        using groups_t = QVector<RoomGroup>;
-
-        groups_t m_roomGroups;
-        
-        // Beware, these iterators are as short-lived as QModelIndex'es
-        using group_iter_t = groups_t::iterator;
-        using group_citer_t = groups_t::const_iterator;
-        using room_iter_t = RoomGroup::rooms_t::iterator;
-        using room_citer_t = RoomGroup::rooms_t::const_iterator;
-
+        RoomGroups m_roomGroups;
         QVector<QPersistentModelIndex> m_roomIdxCache;
-
-        struct RoomOrder
-        {
-            Grouping grouping;
-            Sorting sorting;
-
-            std::function<bool(const RoomGroup&, const QVariant&)> groupLessThan;
-            using room_lessthan_t = std::function<bool(const QuaternionRoom*,
-                                                       const QuaternionRoom*)>;
-            std::function<room_lessthan_t(const QVariant&)> roomLessThanFactory;
-            using groups_t = QVariantList;
-            std::function<groups_t(const QuaternionRoom*)> groups;
-            std::function<void(QuaternionRoom*)> connectRoomSignals;
-        };
-        RoomOrder m_roomOrder;
-
-        group_iter_t tryInsertGroup(const QVariant& group, bool notify = false);
-        void insertRoomToGroups(const QVariantList& groups, QuaternionRoom* room,
-                                bool notify = false);
-        void insertRoom(QMatrixClient::Room* r, bool notify = false);
-        void connectRoomSignals(QuaternionRoom* room);
-        void doRemoveRoom(QModelIndex idx);
+        std::unique_ptr<AbstractRoomOrdering> m_roomOrder;
 
         int getRoomGroupOffset(QModelIndex index) const;
-        group_iter_t getRoomGroupFor(QModelIndex index);
-        group_citer_t getRoomGroupFor(QModelIndex index) const;
 
-        group_iter_t lowerBoundGroup(const QVariant& group);
-        group_citer_t lowerBoundGroup(const QVariant& group) const;
-        room_iter_t lowerBoundRoom(RoomGroup& group, QuaternionRoom* room);
-        room_citer_t lowerBoundRoom(const RoomGroup& group,
-                                    QuaternionRoom* room) const;
-        void visitRoom(QuaternionRoom* room,
+        RoomGroups::iterator tryInsertGroup(const QVariant& key, bool notify);
+        void addRoomToGroups(QMatrixClient::Room* room, bool notify = true,
+                             QVariantList groups = {});
+        void connectRoomSignals(QMatrixClient::Room* room);
+        void doRemoveRoom(QModelIndex idx);
+
+        void visitRoom(QMatrixClient::Room* room,
                        const std::function<void(QModelIndex)>& visitor);
 
         void doRebuild();
+
+        // Beware, the returned iterators are as short-lived as QModelIndex'es
+        auto lowerBoundGroup(const QVariant& group)
+        {
+            return std::lower_bound(m_roomGroups.begin(), m_roomGroups.end(),
+                                    group, m_roomOrder->groupLessThanFactory());
+        }
+        auto lowerBoundGroup(const QVariant& group) const
+        {
+            return std::lower_bound(m_roomGroups.begin(), m_roomGroups.end(),
+                                    group, m_roomOrder->groupLessThanFactory());
+        }
+
+        auto lowerBoundRoom(RoomGroup& group,
+                            AbstractRoomOrdering::Room* room) const
+        {
+            return std::lower_bound(group.rooms.begin(), group.rooms.end(),
+                    room, m_roomOrder->roomLessThanFactory(group.key));
+        }
+
+        auto lowerBoundRoom(const RoomGroup& group,
+                            AbstractRoomOrdering::Room* room) const
+        {
+            return std::lower_bound(group.rooms.begin(), group.rooms.end(),
+                    room, m_roomOrder->roomLessThanFactory(group.key));
+        }
 };

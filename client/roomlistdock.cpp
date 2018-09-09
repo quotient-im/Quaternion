@@ -198,7 +198,7 @@ void RoomListDock::updateSortingMode()
 //            QMatrixClient::Settings().value("UI/sort_rooms_by", 0).toInt();
 //    proxyModel->sort(sortMode,
 //                     sortMode == 0 ? Qt::AscendingOrder : Qt::DescendingOrder);
-    model->setOrder(RoomListModel::GroupByTag, RoomListModel::SortByName);
+    model->setOrder<OrderByTag>();
 }
 
 void RoomListDock::rowSelected(const QModelIndex& index)
