@@ -3,22 +3,28 @@ import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
 
 DownloadableContent {
-    property size imageSourceSize
-    property url imageSource
+    property var sourceSize
+    property url source
+    property var maxHeight
     property bool autoload
 
-    readonly property real sizeFactor:
-        Math.min((chatView.height - buttons.height) / imageSourceSize.height * 0.9,
-                 Math.min(width / imageSourceSize.width, 1))
-
     Image {
+        readonly property real imageMaxHeight: maxHeight - buttons.height
+
         id: imageContent
         width: parent.width
-        height: imageSourceSize.height * sizeFactor
+        height: sourceSize.height *
+                Math.min(imageMaxHeight / sourceSize.height * 0.9,
+                         Math.min(width / sourceSize.width, 1))
         fillMode: Image.PreserveAspectFit
 
-        source: imageSource
-        sourceSize: imageSourceSize
+        source: parent.source
+        sourceSize: parent.sourceSize
+
+        Behavior on height { NumberAnimation {
+            duration: settings.fast_animations_duration_ms
+            easing.type: Easing.OutQuad
+        }}
 
         MouseArea {
             anchors.fill: parent

@@ -80,11 +80,10 @@ Item {
         // Give time for chatView.displaced to complete
         easing.type: Easing.InExpo
     }
-//            NumberAnimation on height {
-//                from: 0; to: childrenRect.height
-//                duration: settings.fast_animations_duration_ms
-//                easing.type: Easing.OutQuad
-//            }
+//    Behavior on height { NumberAnimation {
+//        duration: settings.fast_animations_duration_ms
+//        easing.type: Easing.OutQuad
+//    }}
 
     Column {
         id: fullMessage
@@ -264,14 +263,15 @@ Item {
                 anchors.right: textField.right
 
                 sourceComponent: ImageContent {
-                    imageSourceSize:
-                        !progressInfo.active && content.info.thumbnail_info ?
-                            Qt.size(content.info.thumbnail_info.h,
-                                    content.info.thumbnail_info.w) :
-                            Qt.size(content.info.w, content.info.h)
-                    imageSource: downloaded ? progressInfo.localPath :
-                                 content.info.thumbnail_info ?
-                                    "image://mtx/" + content.thumbnailMediaId : ""
+                    property var info: !progressInfo.active &&
+                        content.info && content.info.thumbnail_info ?
+                            content.info.thumbnail_info : content.info
+                    sourceSize: if (info) { Qt.size(info.w, info.h) }
+                    source: downloaded ? progressInfo.localPath :
+                            content.info && content.info.thumbnail_info ?
+                                "image://mtx/" + content.thumbnailMediaId : ""
+                    maxHeight: chatView.height - textField.height -
+                               authorLabel.height * !(xchatStyle && singleRow)
                     autoload: settings.autoload_images
                 }
             }
