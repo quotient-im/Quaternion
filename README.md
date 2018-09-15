@@ -77,6 +77,9 @@ Settings not exposed in UI:
 - `UI/show_author_avatars` - set this to 1 (or true) to show author avatars in
   the timeline (default if the timeline layout is set to default); setting this
   to 0 (or false) will suppress avatars (default for the XChat timeline layout).
+- `UI/animations_duration_ms` - defines the base duration (in milliseconds) of
+  animation effects in the timline. The default is 400; set it to 0 to disable
+  animation.
 - `UI/highlight_color` - set this to the color name you prefer for highlighted
   rooms/messages; HTML color names and SVG `#codes` are supported;
   by default it's `orange`.
