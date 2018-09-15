@@ -140,8 +140,9 @@ bool OrderByTag::roomLessThan(const QVariant& groupKey,
 
     const auto& tag = groupKey.toString();
     // First, try to compare tag orders; if neither of them is less
-    // than the other, check if it's two incarnations of the same
-    // room with different states; if not, just order by id.
+    // than the other, try to order by the local user id; if the user id
+    // is the same, order by room id; failing that (the two are incarnations
+    // of the same room with different states), order by state
     auto o1 = r1->tag(tag).order;
     auto o2 = r2->tag(tag).order;
     if (o2.omitted() != o1.omitted())
@@ -157,8 +158,13 @@ bool OrderByTag::roomLessThan(const QVariant& groupKey,
             return false;
     }
 
-    if (r1->id() == r2->id())
-        return r1->joinState() < r2->joinState();
+    auto roomIdCmpRes = r1->id().compare(r2->id());
+    if (!roomIdCmpRes)
+    {
+        auto usersCmpRes = r1->localUser()->id().compare(r2->localUser()->id());
+        return usersCmpRes != 0 ? usersCmpRes < 0
+                                : r1->joinState() < r2->joinState();
+    }
 
     {
         auto dbg = qDebug();
@@ -170,7 +176,7 @@ bool OrderByTag::roomLessThan(const QVariant& groupKey,
         else
             dbg << o1.value();
     }
-    return r1->id() < r2->id(); // FIXME: switch to displayName() when the library gets Room::displaynameAboutToChange()
+    return roomIdCmpRes < 0; // FIXME: switch to displayName() when the library gets Room::displaynameAboutToChange()
 }
 
 AbstractRoomOrdering::groups_t OrderByTag::roomGroups(const Room* room) const
@@ -741,7 +747,8 @@ void RoomListModel::updateGroups(QMatrixClient::Room* room)
             doRemoveRoom(oldIndex); // May invalidate `group`
     }
     m_roomIdxCache.clear();
-    addRoomToGroups(room, true, groups); // Groups the room wasn't before
+    if (!groups.empty())
+        addRoomToGroups(room, true, groups); // Groups the room wasn't before
 }
 
 void RoomListModel::refresh(QMatrixClient::Room* room,
