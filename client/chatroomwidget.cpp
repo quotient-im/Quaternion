@@ -226,7 +226,7 @@ void ChatRoomWidget::updateHeader()
         auto topic = m_currentRoom->topic();
         auto prettyTopic = topic.isEmpty() ?
                 tr("(no topic)") : m_currentRoom->prettyPrint(topic);
-        m_topicLabel->setText("<strong>" % m_currentRoom->name() %
+        m_topicLabel->setText("<strong>" % m_currentRoom->displayName() %
                               "</strong><br />" % prettyTopic);
         auto avatarSize = m_topicLabel->heightForWidth(width());
         m_roomAvatar->setPixmap(
