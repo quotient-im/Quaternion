@@ -136,13 +136,10 @@ bool OrderByTag::roomLessThan(const QVariant& groupKey,
                               const Room* r1, const Room* r2) const
 {
     if (r1 == r2)
-        return false; // Short-circuit
+        return false; // 0. Short-circuit for coinciding room objects
 
+    // 1. Compare tag order values
     const auto& tag = groupKey.toString();
-    // First, try to compare tag orders; if neither of them is less
-    // than the other, try to order by the local user id; if the user id
-    // is the same, order by room id; failing that (the two are incarnations
-    // of the same room with different states), order by state
     auto o1 = r1->tag(tag).order;
     auto o2 = r2->tag(tag).order;
     if (o2.omitted() != o1.omitted())
@@ -158,14 +155,8 @@ bool OrderByTag::roomLessThan(const QVariant& groupKey,
             return false;
     }
 
-    auto roomIdCmpRes = r1->id().compare(r2->id());
-    if (!roomIdCmpRes)
-    {
-        auto usersCmpRes = r1->localUser()->id().compare(r2->localUser()->id());
-        return usersCmpRes != 0 ? usersCmpRes < 0
-                                : r1->joinState() < r2->joinState();
-    }
-
+    // 2. Neither tag order is less than the other; compare room user ids (FIXME: should be display names instead)
+    if (auto roomCmpRes = r1->id().compare(r2->id()))
     {
         auto dbg = qDebug();
         dbg << "RoomListModel: couldn't strongly order"
@@ -175,8 +166,26 @@ bool OrderByTag::roomLessThan(const QVariant& groupKey,
             dbg << "omitted";
         else
             dbg << o1.value();
+        return roomCmpRes < 0;
     }
-    return roomIdCmpRes < 0; // FIXME: switch to displayName() when the library gets Room::displaynameAboutToChange()
+
+    // 3. Room ids are equal; order by connections (=userids)
+    const auto c1 = r1->connection();
+    const auto c2 = r2->connection();
+    if (c1 != c2)
+    {
+        if (auto usersCmpRes = c1->userId().compare(c2->userId()))
+            return usersCmpRes < 0;
+
+        // 3a. Two logins under the same userid: pervert, but technically correct
+        Q_ASSERT(c1->accessToken() != c2->accessToken());
+        return c1->accessToken() < c2->accessToken();
+    }
+
+    // 4. Within a single connection, order by join state
+    // (by design, join states are distinct within one connection+roomid)
+    Q_ASSERT(r1->joinState() != r2->joinState());
+    return r1->joinState() < r2->joinState();
 }
 
 AbstractRoomOrdering::groups_t OrderByTag::roomGroups(const Room* room) const
@@ -431,8 +440,9 @@ void RoomListModel::addOrUpdateRoom(QMatrixClient::Room* room,
                         << prev->id() << "to" << room->id();
             // That doesn't look right but technically we still can do it.
         }
-        if (m_roomOrder->roomGroups(prev) ==
-                m_roomOrder->roomGroups(room))
+        const auto prevGroups = m_roomOrder->roomGroups(prev);
+        const auto newGroups = m_roomOrder->roomGroups(room);
+        if (prevGroups == newGroups)
         {
             qDebug() << "RoomListModel: replacing room" << prev->objectName()
                      << "in" << toCString(prev->joinState()) << "state with"
@@ -444,6 +454,8 @@ void RoomListModel::addOrUpdateRoom(QMatrixClient::Room* room,
             prev->disconnect(this);
             return;
         }
+        qDebug() << "RoomListModel: migrating room" << prev->objectName()
+                 << "from groups" << prevGroups << "to" << newGroups;
         deleteRoom(prev);
     }
     addRoomToGroups(room);
