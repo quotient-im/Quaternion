@@ -197,16 +197,9 @@ void OrderByTag::connectSignals(Connection* connection)
     using JoinState = QMatrixClient::JoinState;
     QObject::connect( connection, &Connection::directChatsListChanged, model(),
         [this,connection] (DCMap additions, DCMap removals) {
-            for (const auto& rId: additions)
-                for (auto r: {connection->room(rId, JoinState::Invite),
-                              connection->room(rId, JoinState::Join)})
-                    if (r)
-                    {
-                        if (r->tags().empty())
-                            removeRoomFromGroup(r, Untagged);
-                        addRoomToGroups(r, {{ DirectChat }});
-                    }
-
+            // The same room may show up in removals and in additions if it
+            // moves from one userid to another (pretty weird but encountered
+            // in the wild). Therefore process removals first.
             for (const auto& rId: removals)
                 for (auto r: {connection->room(rId, JoinState::Invite),
                               connection->room(rId, JoinState::Join)})
@@ -215,6 +208,15 @@ void OrderByTag::connectSignals(Connection* connection)
                         removeRoomFromGroup(r, DirectChat);
                         if (r->tags().empty())
                             addRoomToGroups(r, {{ Untagged }});
+                    }
+            for (const auto& rId: additions)
+                for (auto r: {connection->room(rId, JoinState::Invite),
+                              connection->room(rId, JoinState::Join)})
+                    if (r)
+                    {
+                        if (r->tags().empty())
+                            removeRoomFromGroup(r, Untagged);
+                        addRoomToGroups(r, {{ DirectChat }});
                     }
         });
 }
