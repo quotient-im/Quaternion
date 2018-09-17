@@ -155,19 +155,14 @@ bool OrderByTag::roomLessThan(const QVariant& groupKey,
             return false;
     }
 
-    // 2. Neither tag order is less than the other; compare room user ids (FIXME: should be display names instead)
-    if (auto roomCmpRes = r1->id().compare(r2->id()))
-    {
-        auto dbg = qDebug();
-        dbg << "RoomListModel: couldn't strongly order"
-            << r1->objectName() << "and" << r2->objectName()
-            << "under" << tag << "tag: both have order value";
-        if (o1.omitted())
-            dbg << "omitted";
-        else
-            dbg << o1.value();
+    // 2. Neither tag order is less than the other; compare room display names
+    if (auto roomCmpRes = r1->displayName().localeAwareCompare(r2->displayName()))
         return roomCmpRes < 0;
-    }
+
+    // 4. Within the same display name, order by room id
+    // (typically the case when both display names are completely empty)
+    if (auto roomIdCmpRes = r1->id().compare(r2->id()))
+        return roomIdCmpRes < 0;
 
     // 3. Room ids are equal; order by connections (=userids)
     const auto c1 = r1->connection();
@@ -182,7 +177,7 @@ bool OrderByTag::roomLessThan(const QVariant& groupKey,
         return c1->accessToken() < c2->accessToken();
     }
 
-    // 4. Within a single connection, order by join state
+    // 5. Assume two incarnations of the room with the different join state
     // (by design, join states are distinct within one connection+roomid)
     Q_ASSERT(r1->joinState() != r2->joinState());
     return r1->joinState() < r2->joinState();
@@ -232,9 +227,13 @@ void OrderByTag::connectSignals(Connection* connection)
 
 void OrderByTag::connectSignals(Room* room)
 {
-    QObject::connect(room, &QMatrixClient::Room::tagsAboutToChange,
+    QObject::connect(room, &Room::displaynameAboutToChange,
                      model(), getPrepareToUpdateGroupsSlot(room));
-    QObject::connect(room, &QuaternionRoom::tagsChanged,
+    QObject::connect(room, &Room::displaynameChanged,
+                     model(), getUpdateGroupsSlot(room));
+    QObject::connect(room, &Room::tagsAboutToChange,
+                     model(), getPrepareToUpdateGroupsSlot(room));
+    QObject::connect(room, &Room::tagsChanged,
                      model(), getUpdateGroupsSlot(room));
 }
 
@@ -517,6 +516,8 @@ void RoomListModel::addRoomToGroups(QMatrixClient::Room* room, bool notify,
 void RoomListModel::connectRoomSignals(QMatrixClient::Room* room)
 {
     using QMatrixClient::Room;
+    connect(room, &Room::beforeDestruction, this, &RoomListModel::deleteRoom);
+    m_roomOrder->connectSignals(room);
     connect(room, &Room::displaynameChanged,
             this, &RoomListModel::displaynameChanged);
     connect(room, &Room::unreadMessagesChanged,
@@ -527,8 +528,6 @@ void RoomListModel::connectRoomSignals(QMatrixClient::Room* room)
             this, [this,room] { refresh(room); });
     connect(room, &Room::avatarChanged,
             this, [this,room] { refresh(room, { Qt::DecorationRole }); });
-    connect(room, &Room::beforeDestruction, this, &RoomListModel::deleteRoom);
-    m_roomOrder->connectSignals(room);
 }
 
 void RoomListModel::doRemoveRoom(QModelIndex idx)
@@ -755,7 +754,10 @@ void RoomListModel::updateGroups(QMatrixClient::Room* room)
 
             beginMoveRows(gIdx, oldIndex.row(), oldIndex.row(),
                           gIdx, int(newIt - group.rooms.begin()));
-            std::move(oldIt, oldIt + 1, newIt);
+            if (newIt > oldIt)
+                std::rotate(oldIt, oldIt + 1, newIt);
+            else
+                std::rotate(newIt, oldIt, oldIt + 1);
             endMoveRows();
         } else
             doRemoveRoom(oldIndex); // May invalidate `group`

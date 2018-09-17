@@ -102,7 +102,7 @@ class AbstractRoomOrdering
         slot_closure_t getPrepareToUpdateGroupsSlot(Room* room);
         slot_closure_t getUpdateGroupsSlot(Room* room);
         void addRoomToGroups(QMatrixClient::Room* room,
-                             const QVariantList& groups = {});
+                             const QVariantList& groups);
         void removeRoomFromGroup(QMatrixClient::Room* room,
                                  const QVariant& groupCaption);
 
