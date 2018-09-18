@@ -729,6 +729,8 @@ void RoomListModel::prepareToUpdateGroups(QMatrixClient::Room* room)
     Q_ASSERT(m_roomIdxCache.empty()); // Not in the midst of another update
 
     const auto& groups = m_roomOrder->roomGroups(room);
+    qDebug() << "RoomListModel: preparing to update groups for"
+             << room->objectName() << "-" << groups << "so far";
     for (const auto& g: groups)
     {
         const auto& rIdx = indexOf(g, room);
@@ -765,6 +767,7 @@ void RoomListModel::updateGroups(QMatrixClient::Room* room)
     m_roomIdxCache.clear();
     if (!groups.empty())
         addRoomToGroups(room, true, groups); // Groups the room wasn't before
+    qDebug() << "RoomListModel: groups for" << room->objectName() << "updated";
 }
 
 void RoomListModel::refresh(QMatrixClient::Room* room,
