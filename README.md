@@ -25,7 +25,10 @@ Quaternion needs Qt version 5.6 or higher. On Linux, this is compatible with Deb
 #### Windows
 For those who want the very latest version (beware, you may find it not working at times), automatic builds for Windows are packaged by AppVeyor CI upon every commit. To get an archive, surf to the [AppVeyor CI page for Quaternion](https://ci.appveyor.com/project/QMatrixClient/quaternion), then go to "Jobs", click on a job for your architecture and find the archive in "Artifacts". Once you unpack the archive, **delete or rename** the "bearer" directory (see "Troubleshooting" below for details).
 
-Since we can't rely on package management on Windows, Qt libraries and a C++ runtime are packaged/installed together with Quaternion. However, OpenSSL libraries (ssleay32.dll and libeay32.dll) are not installed automatically because of export restrictions. Unless you already have them around (e.g., they are a part of any Qt development installation, see `Tools/<MinGW toolchain>/opt/bin`), your best bet is to find and download these libraries yourself (searching Internet for "OpenSSL Windows" should work), and either install them system-wide (which probably makes sense as soon as you keep them up-to-date; make sure the location is in your PATH) or put them next to quaternion.exe.
+Since we can't rely on package management on Windows, Qt libraries and a C++ runtime are packaged/installed together with Quaternion. However, OpenSSL libraries (ssleay32.dll and libeay32.dll) are not installed automatically because of export restrictions. Unless you already have them around (e.g., they are a part of any Qt development installation, see `Tools/<MinGW toolchain>/opt/bin`), your best bet is to:
+- find the pre-compiled libraries yourself (searching Internet for "OpenSSL Windows" should work);
+- download them
+- either install them system-wide (which probably makes sense as soon as you keep them up-to-date; make sure the location is in your PATH) or put them next to quaternion.exe.
 
 #### Linux
 Unofficial package for Arch Linux: https://aur.archlinux.org/packages/quaternion/
