@@ -15,7 +15,7 @@ Most of talking around Quaternion happens in our Matrix room: [#quaternion:matri
 You can also file issues at [the project's issue tracker](https://github.com/QMatrixClient/Quaternion/issues). If you have what looks like a security issue, please contact Kitsune Ral ([@kitsune:matrix.org](https://matrix.to/#/@kitsune:matrix.org) or [Kitsune-Ral@users.sf.net](mailto:Kitsune-Ral@users.sf.net)).
 
 ## Download and install
-The latest release (with links to cross-platform source code archives, as well as archived binaries for Windows) can be found at [GitHub Releases page](https://github.com/QMatrixClient/Quaternion/releases/latest).
+The latest release (with links to cross-platform source code archives, as well as archived binaries for Windows) can be found at [GitHub Releases page](https://github.com/QMatrixClient/Quaternion/releases/latest). If you want to build from sources, DO NOT use source code archives from that page, clone the repository instead (see BUILDING.md).
 
 Packagers are very scarce so far, so please step up and support your favourite system! Notably, we still need a MacOS maintainer - Quaternion sees no actual usage/testing on this platform yet. Build instructions for the source code can be found in BUILDING.md.
 

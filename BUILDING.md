@@ -9,11 +9,11 @@
 
 ### Getting the source code
 
-The source code is hosted at GitHub: https://github.com/QMatrixClient/Quaternion. Checking out a certain _commit_ or _tag_ from GitHub is the recommended way for one-off building; but if you want to hack on Quaternion, feel free to fork/clone the repo and check out the master branch.
+The source code is hosted at GitHub: https://github.com/QMatrixClient/Quaternion. The best way for one-off building is checking out a tag for a given release from GitHub (master branch is unstable and may or may not work). If you plan to work on Quaternion code, feel free to fork/clone the repo and check out the master branch.
 
-In any case do not download a sources archive from GitHub Releases - it's incomplete because GitHub Releases doesn't include source trees of submodules.
+In any case DO NOT download a _sources_ archive from GitHub Releases - it's incomplete because GitHub Releases doesn't include source trees of submodules (and unfortunately there's no way to suppress generation of those archives).
 
-Quaternion builds (so far statically, see [#239](https://github.com/QMatrixClient/Quaternion/issues/239)) with libqmatrixclient that is developed in a separate GitHub repo and is fetched as a git submodule. If you haven't cloned the Quaternion sources yet, the following will get you all sources in one go:
+Quaternion needs libQMatrixClient as a submodule. libQMatrixClient is developed in a separate GitHub repo and can be fetched as a git submodule. If you haven't cloned the Quaternion sources yet, the following will get you all sources in one go:
 ```
 git clone --recursive https://github.com/QMatrixClient/Quaternion.git
 ```
@@ -22,8 +22,6 @@ If you already have cloned Quaternion, do the following in the top-level directo
 git submodule init
 git submodule update
 ```
-
-There are few tags so far; there will be more, as new versions are released.
 
 ### Pre-requisites
 - a Linux, OSX or Windows system (desktop versions tried; mobile Linux/Windows might work too)
