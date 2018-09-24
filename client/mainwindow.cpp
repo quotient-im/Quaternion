@@ -150,14 +150,15 @@ void MainWindow::createMenu()
     // Connection menu
     connectionMenu = menuBar()->addMenu(tr("&Accounts"));
 
-    connectionMenu->addAction(tr("&Login..."), this, [=]{ showLoginWindow(); } );
+    connectionMenu->addAction(QIcon::fromTheme("contact-new"), tr("&Login..."),
+        this, [=]{ showLoginWindow(); } );
 
     connectionMenu->addSeparator();
     // Account submenus will be added in this place - see addConnection()
     accountListGrowthPoint = connectionMenu->addSeparator();
 
-    connectionMenu->addAction(tr("&Quit"),
-        qApp, &QApplication::closeAllWindows, QKeySequence::Quit);
+    connectionMenu->addAction(QIcon::fromTheme("application-exit"),
+        tr("&Quit"), qApp, &QApplication::closeAllWindows, QKeySequence::Quit);
 
     // View menu
     auto viewMenu = menuBar()->addMenu(tr("&View"));
@@ -207,24 +208,29 @@ void MainWindow::createMenu()
     roomSettingsAction->setDisabled(true);
     roomMenu->addSeparator();
     createRoomAction =
-        roomMenu->addAction(tr("Create &new room..."), [this]
+        roomMenu->addAction(QIcon::fromTheme("mail-message-new"),
+        tr("Create &new room..."), [this]
         {
             static QPointer<CreateRoomDialog> dlg;
             summon(dlg, connections, this);
         });
     createRoomAction->setDisabled(true);
-    roomMenu->addAction(tr("&Direct chat..."), [=]{ directChat(); });
-    roomMenu->addAction(tr("&Join room..."), [=]{ joinRoom(); } );
+    roomMenu->addAction(QIcon::fromTheme("contact-new"), tr("&Direct chat..."),
+        [=]{ directChat(); });
+    roomMenu->addAction(QIcon::fromTheme("list-add"), tr("&Join room..."),
+        [=]{ joinRoom(); } );
     roomMenu->addSeparator();
-    roomMenu->addAction(tr("&Close current room"),
-        [this] { selectRoom(nullptr); }, QKeySequence::Close);
+    roomMenu->addAction(QIcon::fromTheme("window-close"),
+        tr("&Close current room"), [this] { selectRoom(nullptr); },
+        QKeySequence::Close);
 
     // Settings menu
     auto settingsMenu = menuBar()->addMenu(tr("&Settings"));
 
     // Help menu
     auto helpMenu = menuBar()->addMenu(tr("&Help"));
-    helpMenu->addAction(tr("&About"), [=]{ showAboutWindow(); });
+    helpMenu->addAction(QIcon::fromTheme("help-about"), tr("&About"),
+        [=]{ showAboutWindow(); });
 
     {
         auto notifGroup = new QActionGroup(this);
@@ -305,7 +311,8 @@ void MainWindow::createMenu()
     );
 
     settingsMenu->addSeparator();
-    settingsMenu->addAction(tr("Configure &network proxy..."), [this]
+    settingsMenu->addAction(QIcon::fromTheme("network-wired"),
+        tr("Configure &network proxy..."), [this]
     {
         static QPointer<NetworkConfigDialog> dlg;
         summon(dlg, this);
@@ -527,7 +534,8 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
         accountTokenBox->setAttribute(Qt::WA_DeleteOnClose);
         accountTokenBox->show();
     });
-    accountMenu->addAction(tr("&Logout"), this, [=] { logout(c); });
+    accountMenu->addAction(QIcon::fromTheme("system-log-out"), tr("&Logout"),
+                           this, [=] { logout(c); });
     auto menuAction =
             connectionMenu->insertMenu(accountListGrowthPoint, accountMenu);
     connect( c, &Connection::destroyed, connectionMenu, [this, menuAction]

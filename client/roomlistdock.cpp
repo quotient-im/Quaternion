@@ -145,7 +145,8 @@ RoomListDock::RoomListDock(QWidget* parent)
 
     roomContextMenu = new QMenu(this);
     markAsReadAction =
-        roomContextMenu->addAction(tr("Mark room as read"), this, [this] {
+        roomContextMenu->addAction(QIcon::fromTheme("mail-mark-read"),
+            tr("Mark room as read"), this, [this] {
             if (auto room = getSelectedRoom())
                 room->markAllMessagesAsRead();
         });
