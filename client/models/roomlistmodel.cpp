@@ -475,6 +475,7 @@ RoomGroups::iterator RoomListModel::tryInsertGroup(const QVariant& key,
     if (gIt == m_roomGroups.end() || gIt->key != key)
     {
         const auto gPos = gIt - m_roomGroups.begin();
+        const auto affectedIdxs = preparePersistentIndexChange(gPos, 1);
         if (notify)
             beginInsertRows({}, gPos, gPos);
         gIt = m_roomGroups.insert(gIt, {key, {}});
@@ -483,6 +484,7 @@ RoomGroups::iterator RoomListModel::tryInsertGroup(const QVariant& key,
             endInsertRows();
             emit groupAdded(gPos);
         }
+        changePersistentIndexList(affectedIdxs.first, affectedIdxs.second);
     }
     return gIt;
 }
@@ -548,9 +550,14 @@ void RoomListModel::doRemoveRoom(QModelIndex idx)
     endRemoveRows();
     if (group.rooms.empty())
     {
+        // Update persistent indices with parents after the deleted one
+        const auto affectedIdxs = preparePersistentIndexChange(gPos + 1, -1);
+
         beginRemoveRows({}, gPos, gPos);
         m_roomGroups.remove(gPos);
         endRemoveRows();
+
+        changePersistentIndexList(affectedIdxs.first, affectedIdxs.second);
     }
 }
 
@@ -560,6 +567,21 @@ void RoomListModel::doRebuild()
     for (const auto& c: m_connections)
         for (auto* r: c->roomMap())
             addRoomToGroups(r, false);
+}
+
+std::pair<QModelIndexList, QModelIndexList>
+RoomListModel::preparePersistentIndexChange(int fromPos, int shiftValue)
+{
+    QModelIndexList from, to;
+    for (auto& pIdx: persistentIndexList())
+        if (isValidRoomIndex(pIdx) && pIdx.parent().row() >= fromPos)
+        {
+            from.append(pIdx);
+            to.append(createIndex(pIdx.row(), pIdx.column(),
+                                  quintptr(int(pIdx.internalId()) + shiftValue)));
+        }
+
+    return { std::move(from), std::move(to) };
 }
 
 int RoomListModel::rowCount(const QModelIndex& parent) const
@@ -730,7 +752,7 @@ void RoomListModel::prepareToUpdateGroups(QMatrixClient::Room* room)
 
     const auto& groups = m_roomOrder->roomGroups(room);
     qDebug() << "RoomListModel: preparing to update groups for"
-             << room->objectName() << "-" << groups << "so far";
+             << room->objectName();
     for (const auto& g: groups)
     {
         const auto& rIdx = indexOf(g, room);
@@ -741,6 +763,8 @@ void RoomListModel::prepareToUpdateGroups(QMatrixClient::Room* room)
 
 void RoomListModel::updateGroups(QMatrixClient::Room* room)
 {
+    Q_ASSERT(!m_roomIdxCache.empty()); // The room should have been somewhere
+
     auto groups = m_roomOrder->roomGroups(room);
     for (const auto& oldIndex: qAsConst(m_roomIdxCache))
     {

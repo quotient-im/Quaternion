@@ -212,6 +212,9 @@ class RoomListModel: public QAbstractItemModel
 
         void doRebuild();
 
+        std::pair<QModelIndexList, QModelIndexList>
+        preparePersistentIndexChange(int fromPos, int shiftValue);
+
         // Beware, the returned iterators are as short-lived as QModelIndex'es
         auto lowerBoundGroup(const QVariant& group)
         {
