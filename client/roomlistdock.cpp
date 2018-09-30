@@ -152,11 +152,12 @@ RoomListDock::RoomListDock(QWidget* parent)
         });
     roomContextMenu->addSeparator();
     addTagsAction =
-        roomContextMenu->addAction(tr("Add tags..."), this,
-                                   &RoomListDock::addTagsSelected);
+        roomContextMenu->addAction(QIcon::fromTheme("tag-new"),
+        tr("Add tags..."), this, &RoomListDock::addTagsSelected);
     roomContextMenu->addSeparator();
     joinAction =
-        roomContextMenu->addAction(tr("Join room"), this, [this] {
+        roomContextMenu->addAction(QIcon::fromTheme("irc-join-channel"),
+        tr("Join room"), this, [this] {
             if (auto room = getSelectedRoom())
             {
                 Q_ASSERT(room->connection());
@@ -164,13 +165,15 @@ RoomListDock::RoomListDock(QWidget* parent)
             }
         });
     leaveAction =
-        roomContextMenu->addAction({}, this, [this] {
+        roomContextMenu->addAction(QIcon::fromTheme("irc-close-channel"),
+        {}, this, [this] {
             if (auto room = getSelectedRoom())
                 room->leaveRoom();
         });
     roomContextMenu->addSeparator();
     forgetAction =
-        roomContextMenu->addAction(tr("Forget room"), this, [this] {
+        roomContextMenu->addAction(QIcon::fromTheme("irc-remove-operator"),
+        tr("Forget room"), this, [this] {
             if (auto room = getSelectedRoom())
             {
                 Q_ASSERT(room->connection());
@@ -180,7 +183,8 @@ RoomListDock::RoomListDock(QWidget* parent)
 
     groupContextMenu = new QMenu(this);
     deleteTagAction =
-        groupContextMenu->addAction(tr("Remove tag"), this, [this] {
+        groupContextMenu->addAction(QIcon::fromTheme("tag-delete"),
+        tr("Remove tag"), this, [this] {
             model->deleteTag(view->currentIndex());
         });
 
