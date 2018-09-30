@@ -133,8 +133,13 @@ Especially on Windows, if Quaternion starts up but upon an attempt to connect re
 #### DLL hell
 If you have troubles with dynamic libraries on Windows, [the Dependencies Walker tool aka depends.exe](http://www.dependencywalker.com/) helps a lot in navigating the DLL hell - especially when you have a mixed 32/64-bit environment or have different versions of the same library scattered around. OpenSSL, in particular, is notoriously often dragged along by all kinds of software; and you may have other copies of Qt around which you didn't even know about - e.g., with CMake GUI.
 
-#### Logging categories
+#### Logging
+If you run Quaternion from a console on Windows, you should set `QT_LOGGING_TO_CONSOLE=1` in order for the debug output be redirected to the console.
+
 When chasing bugs and investigating crashes, it helps to increase the debug level. Thanks to [@eang:matrix.org](https://matrix.to/#/@eang:matrix.org]), libqmatrixclient uses Qt logging categories - the "Troubleshooting" section of `lib/README.md` elaborates on how to setup logging. Note that Quaternion itself doesn't use Qt logging categories yet, only the library does.
+
+You may also want to set `QT_MESSAGE_PATTERN` to make logs slightly more informative (see https://doc.qt.io/qt-5/qtglobal.html#qSetMessagePattern for the format description). My (@kitsune's) `QT_MESSAGE_PATTERN` looks as follows:
+`%{time h:mm:ss.zzz}|%{category}|%{if-debug}D%{endif}%{if-info}I%{endif}%{if-warning}W%{endif}%{if-critical}C%{endif}%{if-fatal}F%{endif}|%{message}` (the scary `%{if}`s are just encoding the logging level into its initial letter).
 
 ## Screenshot
 ![Screenshot](quaternion.png)
