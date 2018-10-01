@@ -195,6 +195,30 @@ void MainWindow::createMenu()
         QStringLiteral("show_spammy")
     );
 
+    viewMenu->addSeparator();
+
+    viewMenu->addAction(tr("Edit tags order"), [this]
+    {
+        static const auto SettingsKey = QStringLiteral("tags_order");
+        QMatrixClient::SettingsGroup sg { QStringLiteral("UI/RoomsDock") };
+        const auto savedOrder = sg.get<QStringList>(SettingsKey).join('\n');
+        bool ok;
+        const auto newOrder = QInputDialog::getMultiLineText(this,
+                tr("Edit tags order"),
+                tr("Tags can be wildcarded by * next to dot(s)\n"
+                   "Clear the box to reset to defaults\n"
+                   "org.qmatrixclient. tags: invite, left, direct, none"),
+                savedOrder, &ok);
+        if (ok)
+        {
+            if (newOrder.isEmpty())
+                sg.remove(SettingsKey);
+            else if (newOrder != savedOrder)
+                sg.setValue(SettingsKey, newOrder.split('\n'));
+            roomListDock->updateSortingMode();
+        }
+    });
+
     // Room menu
     auto roomMenu = menuBar()->addMenu(tr("&Room"));
 
