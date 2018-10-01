@@ -101,19 +101,25 @@ auto findIndexWithWildcards(const QStringList& list, const QString& value)
     return i;
 }
 
+const QString OrderByTag::Invite = QStringLiteral("org.qmatrixclient.invite");
 const QString OrderByTag::DirectChat = QStringLiteral("org.qmatrixclient.direct");
 const QString OrderByTag::Untagged = QStringLiteral("org.qmatrixclient.none");
+const QString OrderByTag::Left = QStringLiteral("org.qmatrixclient.left");
 
 QVariant OrderByTag::groupLabel(const RoomGroup& g) const
 {
-    static const auto FavouritesLabel = RoomListModel::tr("Favourites");
+    static const auto InvitesLabel = RoomListModel::tr("Invited");
+    static const auto FavouritesLabel = RoomListModel::tr("Favourite");
     static const auto LowPriorityLabel = RoomListModel::tr("Low priority");
     static const auto DirectChatsLabel = RoomListModel::tr("People");
     static const auto UngroupedRoomsLabel = RoomListModel::tr("Ungrouped rooms");
+    static const auto LeftLabel = RoomListModel::tr("Left");
 
     const auto caption =
             g.key == Untagged ? UngroupedRoomsLabel :
+            g.key == Invite ? InvitesLabel :
             g.key == DirectChat ? DirectChatsLabel :
+            g.key == Left ? LeftLabel :
             g.key == QMatrixClient::FavouriteTag ? FavouritesLabel :
             g.key == QMatrixClient::LowPriorityTag ? LowPriorityLabel :
             g.key.toString().startsWith("u.") ? g.key.toString().mid(2) :
@@ -123,7 +129,6 @@ QVariant OrderByTag::groupLabel(const RoomGroup& g) const
 
 bool OrderByTag::groupLessThan(const RoomGroup& g1, const QVariant& g2key) const
 {
-    static auto tagsOrder = initTagsOrder();
     const auto& lkey = g1.key.toString();
     const auto& rkey = g2key.toString();
     // See above
@@ -185,6 +190,10 @@ bool OrderByTag::roomLessThan(const QVariant& groupKey,
 
 AbstractRoomOrdering::groups_t OrderByTag::roomGroups(const Room* room) const
 {
+    if (room->joinState() == QMatrixClient::JoinState::Invite)
+        return groups_t {{ Invite }};
+    if (room->joinState() == QMatrixClient::JoinState::Leave)
+        return groups_t {{ Left }};
     auto tags = room->tags().keys();
     groups_t vl; vl.reserve(tags.size());
     std::copy(tags.cbegin(), tags.cend(), std::back_inserter(vl));
@@ -239,9 +248,10 @@ void OrderByTag::connectSignals(Room* room)
 
 QStringList OrderByTag::initTagsOrder()
 {
+    using namespace QMatrixClient;
     static const QStringList DefaultTagsOrder {
-        QMatrixClient::FavouriteTag, QStringLiteral("u.*"), DirectChat, Untagged,
-        QMatrixClient::LowPriorityTag
+        Invite, FavouriteTag, QStringLiteral("u.*"), DirectChat, Untagged,
+        LowPriorityTag, Left
     };
 
     static const auto SettingsKey = QStringLiteral("tags_order");

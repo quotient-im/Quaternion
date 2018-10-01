@@ -113,7 +113,9 @@ class AbstractRoomOrdering
 class OrderByTag : public AbstractRoomOrdering
 {
     public:
-        explicit OrderByTag(RoomListModel* m) : AbstractRoomOrdering(m) { }
+        explicit OrderByTag(RoomListModel* m)
+            : AbstractRoomOrdering(m), tagsOrder(initTagsOrder())
+        { }
 
         QString orderingName() const override { return QStringLiteral("tag"); }
         QVariant groupLabel(const RoomGroup& g) const override;
@@ -127,8 +129,12 @@ class OrderByTag : public AbstractRoomOrdering
         void connectSignals(Room* room) override;
 
     private:
+        QStringList tagsOrder;
+
+        static const QString Invite;
         static const QString DirectChat;
         static const QString Untagged;
+        static const QString Left;
 
         static QStringList initTagsOrder();
 };
