@@ -115,17 +115,19 @@ RoomListDock::RoomListDock(QWidget* parent)
              this, &RoomListDock::refreshTitle );
     connect( model, &RoomListModel::rowsRemoved,
              this, &RoomListDock::refreshTitle );
-    connect( model, &RoomListModel::modelAboutToBeReset, this, [this] {
+    connect( model, &RoomListModel::saveCurrentSelection, this, [this] {
         selectedGroupCache = getSelectedGroup();
         selectedRoomCache = getSelectedRoom();
     });
-    connect( model, &RoomListModel::modelReset, this, [this] {
+    connect( model, &RoomListModel::restoreCurrentSelection, this, [this] {
         const auto& idx =
             model->indexOf(selectedGroupCache, selectedRoomCache);
 //            proxyModel->mapFromSource(model->indexOf(selectedRoomCache));
         view->setCurrentIndex(idx);
         selectedGroupCache.clear();
         selectedRoomCache = nullptr;
+    });
+    connect( model, &RoomListModel::modelReset, this, [this] {
         refreshTitle();
         SettingsGroup sg("UI/RoomsDock");
         for (int row = 0; row < model->rowCount({}); ++row)
