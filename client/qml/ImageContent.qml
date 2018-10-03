@@ -21,10 +21,10 @@ DownloadableContent {
         source: parent.source
         sourceSize: parent.sourceSize
 
-        Behavior on height { NumberAnimation {
-            duration: settings.fast_animations_duration_ms
-            easing.type: Easing.OutQuad
-        }}
+//        Behavior on height { NumberAnimation {
+//            duration: settings.fast_animations_duration_ms
+//            easing.type: Easing.OutQuad
+//        }}
 
         MouseArea {
             anchors.fill: parent
