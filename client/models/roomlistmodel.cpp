@@ -244,6 +244,25 @@ void OrderByTag::connectSignals(Room* room)
                      model(), getPrepareToUpdateGroupsSlot(room));
     QObject::connect(room, &Room::tagsChanged,
                      model(), getUpdateGroupsSlot(room));
+
+    using QMatrixClient::JoinState;
+    QObject::connect(room, &Room::joinStateChanged, model(),
+        [this,room] (JoinState oldState, JoinState newState) {
+            emit model()->saveCurrentSelection();
+            if (oldState == JoinState::Join)
+            {
+                Q_ASSERT(newState == JoinState::Leave);
+                if (room->tags().empty())
+                    removeRoomFromGroup(room, Untagged);
+                addRoomToGroups(room, {{ Left }});
+            } else {
+                Q_ASSERT(newState == JoinState::Join);
+                removeRoomFromGroup(room, Left);
+                if (room->tags().empty())
+                    addRoomToGroups(room, {{ Untagged }});
+            }
+            emit model()->restoreCurrentSelection();
+        });
 }
 
 QStringList OrderByTag::initTagsOrder()
@@ -267,7 +286,12 @@ QStringList OrderByTag::initTagsOrder()
 
 RoomListModel::RoomListModel(QObject* parent)
     : QAbstractItemModel(parent)
-{ }
+{
+    connect(this, &RoomListModel::modelAboutToBeReset,
+            this, &RoomListModel::saveCurrentSelection);
+    connect(this, &RoomListModel::modelReset,
+            this, &RoomListModel::restoreCurrentSelection);
+}
 
 void RoomListModel::addConnection(QMatrixClient::Connection* connection)
 {
@@ -278,19 +302,12 @@ void RoomListModel::addConnection(QMatrixClient::Connection* connection)
     m_connections.emplace_back(connection, this);
     connect( connection, &Connection::loggedOut,
              this, [=]{ deleteConnection(connection); } );
-    connect( connection, &Connection::invitedRoom,
-             this, &RoomListModel::addOrUpdateRoom);
-    connect( connection, &Connection::joinedRoom,
-             this, &RoomListModel::addOrUpdateRoom);
-    connect( connection, &Connection::leftRoom,
-             this, &RoomListModel::addOrUpdateRoom);
+    connect( connection, &Connection::newRoom,
+             this, &RoomListModel::addRoom);
     m_roomOrder->connectSignals(connection);
 
-    for( auto r: connection->roomMap() )
-    {
-        addRoomToGroups(r, false);
-        connectRoomSignals(r);
-    }
+    for (auto* r: connection->roomMap())
+        addRoom(r);
     endResetModel();
 }
 
@@ -427,46 +444,8 @@ QModelIndex RoomListModel::parent(const QModelIndex& child) const
             ? index(parentPos, 0) : QModelIndex();
 }
 
-void RoomListModel::addOrUpdateRoom(QMatrixClient::Room* room,
-                                    QMatrixClient::Room* prev)
+void RoomListModel::addRoom(QMatrixClient::Room* room)
 {
-    // There are two cases when this method is called:
-    // 1. (prev == nullptr) adding a new room to the room list
-    // 2. (prev != nullptr) accepting/rejecting an invitation or inviting to
-    //    the previously left room (in both cases prev has the previous state).
-    if (prev == room)
-    {
-        qCritical() << "RoomListModel::updateRoom: room tried to replace itself";
-        refresh(room);
-        return;
-    }
-
-    if (prev)
-    {
-        if (room->id() != prev->id())
-        {
-            qCritical() << "RoomListModel::updateRoom: attempt to update room"
-                        << prev->id() << "to" << room->id();
-            // That doesn't look right but technically we still can do it.
-        }
-        const auto prevGroups = m_roomOrder->roomGroups(prev);
-        const auto newGroups = m_roomOrder->roomGroups(room);
-        if (prevGroups == newGroups)
-        {
-            qDebug() << "RoomListModel: replacing room" << prev->objectName()
-                     << "in" << toCString(prev->joinState()) << "state with"
-                     << toCString(room->joinState());
-            visitRoom(prev, [this,room] (QModelIndex idx) {
-                m_roomGroups[idx.parent().row()].rooms[idx.row()] = room;
-                emit dataChanged(idx, idx);
-            });
-            prev->disconnect(this);
-            return;
-        }
-        qDebug() << "RoomListModel: migrating room" << prev->objectName()
-                 << "from groups" << prevGroups << "to" << newGroups;
-        deleteRoom(prev);
-    }
     addRoomToGroups(room);
     connectRoomSignals(room);
 }
@@ -536,8 +515,6 @@ void RoomListModel::connectRoomSignals(QMatrixClient::Room* room)
             this, &RoomListModel::unreadMessagesChanged);
     connect(room, &Room::notificationCountChanged,
             this, &RoomListModel::unreadMessagesChanged);
-    connect(room, &Room::joinStateChanged,
-            this, [this,room] { refresh(room); });
     connect(room, &Room::avatarChanged,
             this, [this,room] { refresh(room, { Qt::DecorationRole }); });
 }

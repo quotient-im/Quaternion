@@ -179,6 +179,8 @@ class RoomListModel: public QAbstractItemModel
 
     signals:
         void groupAdded(int row);
+        void saveCurrentSelection();
+        void restoreCurrentSelection();
 
     public slots:
         void addConnection(QMatrixClient::Connection* connection);
@@ -189,8 +191,7 @@ class RoomListModel: public QAbstractItemModel
         void displaynameChanged(QMatrixClient::Room* room);
         void unreadMessagesChanged(QMatrixClient::Room* room);
 
-        void addOrUpdateRoom(QMatrixClient::Room* room,
-                             QMatrixClient::Room* prev);
+        void addRoom(QMatrixClient::Room* room);
         void refresh(QMatrixClient::Room* room, const QVector<int>& roles = {});
         void deleteRoom(QMatrixClient::Room* room);
 
