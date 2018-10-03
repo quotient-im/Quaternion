@@ -53,10 +53,10 @@ UserListDock::UserListDock(QWidget* parent)
     connect( m_model, &QAbstractListModel::modelReset,
              this, &UserListDock::refreshTitle );
 
-    contextMenu->addAction(tr("Open direct chat"),
-                           this, &UserListDock::startChatSelected);
-    contextMenu->addAction(tr("Mention user"),
-                           this, &UserListDock::requestUserMention);
+    contextMenu->addAction(QIcon::fromTheme("contact-new"),
+        tr("Open direct chat"), this, &UserListDock::startChatSelected);
+    contextMenu->addAction(tr("Mention user"), this,
+        &UserListDock::requestUserMention);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested,

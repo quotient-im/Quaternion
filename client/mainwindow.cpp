@@ -150,19 +150,21 @@ void MainWindow::createMenu()
     // Connection menu
     connectionMenu = menuBar()->addMenu(tr("&Accounts"));
 
-    connectionMenu->addAction(tr("&Login..."), this, [=]{ showLoginWindow(); } );
+    connectionMenu->addAction(QIcon::fromTheme("im-user"), tr("&Login..."),
+        this, [=]{ showLoginWindow(); } );
 
     connectionMenu->addSeparator();
     // Account submenus will be added in this place - see addConnection()
     accountListGrowthPoint = connectionMenu->addSeparator();
 
-    connectionMenu->addAction(tr("&Quit"),
-        qApp, &QApplication::closeAllWindows, QKeySequence::Quit);
+    connectionMenu->addAction(QIcon::fromTheme("application-exit"),
+        tr("&Quit"), qApp, &QApplication::closeAllWindows, QKeySequence::Quit);
 
     // View menu
     auto viewMenu = menuBar()->addMenu(tr("&View"));
 
-    auto dockPanesMenu = viewMenu->addMenu(tr("Dock &panels"));
+    auto dockPanesMenu = viewMenu->addMenu(
+        QIcon::fromTheme("labplot-editvlayout"), tr("Dock &panels"));
     roomListDock->toggleViewAction()
             ->setStatusTip("Show/hide Rooms dock panel");
     dockPanesMenu->addAction(roomListDock->toggleViewAction());
@@ -223,7 +225,8 @@ void MainWindow::createMenu()
     auto roomMenu = menuBar()->addMenu(tr("&Room"));
 
     roomSettingsAction =
-        roomMenu->addAction(tr("Change room &settings..."), [this]
+        roomMenu->addAction(QIcon::fromTheme("user-group-properties"),
+        tr("Change room &settings..."), [this]
         {
             static QHash<QuaternionRoom*, QPointer<RoomSettingsDialog>> dlgs;
             summon(dlgs[currentRoom], currentRoom, this);
@@ -231,24 +234,29 @@ void MainWindow::createMenu()
     roomSettingsAction->setDisabled(true);
     roomMenu->addSeparator();
     createRoomAction =
-        roomMenu->addAction(tr("Create &new room..."), [this]
+        roomMenu->addAction(QIcon::fromTheme("user-group-new"),
+        tr("Create &new room..."), [this]
         {
             static QPointer<CreateRoomDialog> dlg;
             summon(dlg, connections, this);
         });
     createRoomAction->setDisabled(true);
-    roomMenu->addAction(tr("&Direct chat..."), [=]{ directChat(); });
-    roomMenu->addAction(tr("&Join room..."), [=]{ joinRoom(); } );
+    roomMenu->addAction(QIcon::fromTheme("list-add-user"),
+        tr("&Direct chat..."), [=]{ directChat(); });
+    roomMenu->addAction(QIcon::fromTheme("list-add"), tr("&Join room..."),
+        [=]{ joinRoom(); } );
     roomMenu->addSeparator();
-    roomMenu->addAction(tr("&Close current room"),
-        [this] { selectRoom(nullptr); }, QKeySequence::Close);
+    roomMenu->addAction(QIcon::fromTheme("window-close"),
+        tr("&Close current room"), [this] { selectRoom(nullptr); },
+        QKeySequence::Close);
 
     // Settings menu
     auto settingsMenu = menuBar()->addMenu(tr("&Settings"));
 
     // Help menu
     auto helpMenu = menuBar()->addMenu(tr("&Help"));
-    helpMenu->addAction(tr("&About"), [=]{ showAboutWindow(); });
+    helpMenu->addAction(QIcon::fromTheme("help-about"), tr("&About"),
+        [=]{ showAboutWindow(); });
 
     {
         auto notifGroup = new QActionGroup(this);
@@ -272,7 +280,9 @@ void MainWindow::createMenu()
         fullNotif->setStatusTip(
             tr("Show notifications and activate the window"));
 
-        auto notifMenu = settingsMenu->addMenu(tr("Notifications"));
+        auto notifMenu = settingsMenu->addMenu(
+            QIcon::fromTheme("preferences-desktop-notification"),
+            tr("Notifications"));
         for (auto a: {noNotif, gentleNotif, fullNotif})
         {
             a->setCheckable(true);
@@ -307,7 +317,8 @@ void MainWindow::createMenu()
         xchatLayout->setStatusTip(
             tr("The layout with author labels to the left from each message"));
 
-        auto layoutMenu = settingsMenu->addMenu(tr("Timeline layout"));
+        auto layoutMenu = settingsMenu->addMenu(QIcon::fromTheme("table"),
+            tr("Timeline layout"));
         for (auto a: {defaultLayout, xchatLayout})
         {
             a->setCheckable(true);
@@ -329,7 +340,8 @@ void MainWindow::createMenu()
     );
 
     settingsMenu->addSeparator();
-    settingsMenu->addAction(tr("Configure &network proxy..."), [this]
+    settingsMenu->addAction(QIcon::fromTheme("preferences-system-network"),
+        tr("Configure &network proxy..."), [this]
     {
         static QPointer<NetworkConfigDialog> dlg;
         summon(dlg, this);
@@ -535,7 +547,8 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     if (connections.size() < 10)
         menuCaption.prepend('&' % QString::number(connections.size()) % ' ');
     auto accountMenu = new QMenu(menuCaption, connectionMenu);
-    accountMenu->addAction(tr("Show &access token"), this, [=]
+    accountMenu->addAction(QIcon::fromTheme("view-certificate"),
+        tr("Show &access token"), this, [=]
     {
         const QString aToken = c->accessToken();
         auto accountTokenBox = new QMessageBox(QMessageBox::Information,
@@ -551,7 +564,8 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
         accountTokenBox->setAttribute(Qt::WA_DeleteOnClose);
         accountTokenBox->show();
     });
-    accountMenu->addAction(tr("&Logout"), this, [=] { logout(c); });
+    accountMenu->addAction(QIcon::fromTheme("system-log-out"), tr("&Logout"),
+                           this, [=] { logout(c); });
     auto menuAction =
             connectionMenu->insertMenu(accountListGrowthPoint, accountMenu);
     connect( c, &Connection::destroyed, connectionMenu, [this, menuAction]
