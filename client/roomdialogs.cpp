@@ -143,12 +143,11 @@ void RoomSettingsDialog::load()
                 tag.startsWith("u.") ? tag.mid(2) :
                 tag;
         auto* item = new QListWidgetItem(tagDisplayName, tagsList);
-        const auto& compliantTag = tag.contains('.') ? tag : "u." + tag;
-        item->setData(Qt::UserRole, compliantTag);
+        item->setData(Qt::UserRole, tag);
         item->setFlags(Qt::ItemIsEnabled|Qt::ItemIsUserCheckable);
         item->setCheckState(
                     roomTags.contains(tag) ? Qt::Checked : Qt::Unchecked);
-        item->setToolTip(compliantTag);
+        item->setToolTip(tag);
         tagsList->addItem(item);
     }
 }

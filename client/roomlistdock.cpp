@@ -271,8 +271,7 @@ void RoomListDock::addTagsSelected()
             // No overwriting, just ensure the tag exists
             tags[tag == tr("Favourites") ? QMatrixClient::FavouriteTag :
                  tag == tr("Low priority") ? QMatrixClient::LowPriorityTag :
-                 tag.startsWith("m.") || tag.startsWith("u.") ? tag :
-                 "u." + tag];
+                 tag];
         }
         room->setTags(tags);
     }

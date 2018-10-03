@@ -22,7 +22,7 @@
 #include <QtWidgets/QDockWidget>
 #include <QtWidgets/QTreeView>
 #include <QtCore/QStringListModel>
-#include <QSortFilterProxyModel>
+//#include <QtCore/QSortFilterProxyModel>
 
 class RoomListModel;
 class QuaternionRoom;
