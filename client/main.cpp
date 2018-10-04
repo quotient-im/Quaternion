@@ -51,8 +51,15 @@ int main( int argc, char* argv[] )
                       QLibraryInfo::location(QLibraryInfo::TranslationsPath));
     app.installTranslator(&qtTranslator);
 
+    QString translationsDir;
+#if defined(Q_OS_WIN32)
+    translationsDir = "./translations";
+#else
+    translationsDir = "/usr/local/share/Quaternion/translations";
+#endif
+
     QTranslator appTranslator;
-    appTranslator.load(QLocale(), "quaternion", ".", "i18n");
+    appTranslator.load(QLocale(), "quaternion", ".", translationsDir);
     app.installTranslator(&appTranslator);
 
     QCommandLineParser parser;

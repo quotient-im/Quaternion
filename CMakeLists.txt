@@ -37,7 +37,7 @@ foreach (FLAG "" all pedantic extra no-unused-parameter)
 endforeach ()
 
 # Find the libraries
-find_package(Qt5 5.6 REQUIRED Widgets Network Quick Qml QuickWidgets Gui)
+find_package(Qt5 5.6 REQUIRED Widgets Network Quick Qml QuickWidgets Gui LinguistTools)
 if (USE_QQUICKWIDGET)
     find_package(Qt5 5.6 REQUIRED QuickWidgets)
 endif()
@@ -108,8 +108,15 @@ set(quaternion_QRC
     client/resources.qrc
     )
 
+set(quaternion_TS
+    client/translations/quaternion.en.ts
+    )
+
 QT5_ADD_RESOURCES(quaternion_QRC_SRC ${quaternion_QRC})
 set_property(SOURCE qrc_resources.cpp PROPERTY SKIP_AUTOMOC ON)
+
+QT5_ADD_TRANSLATION(quaternion_QM ${quaternion_TS})
+QT5_CREATE_TRANSLATION(client/translations ${quaternion_SRCS} ${quaternion_QRC_SRC} ${quaternion_TS})
 
 if(WIN32)
     set(quaternion_WINRC ${CMAKE_CURRENT_SOURCE_DIR}/quaternion_win32.rc)
@@ -120,7 +127,7 @@ if(WIN32)
 endif()
 
 # Windows, this is a GUI executable; OSX, make a bundle
-add_executable(quaternion WIN32 MACOSX_BUNDLE ${quaternion_SRCS} ${quaternion_QRC_SRC} ${quaternion_WINRC})
+add_executable(quaternion WIN32 MACOSX_BUNDLE ${quaternion_SRCS} ${quaternion_QRC_SRC} ${quaternion_WINRC} ${quaternion_QM})
 
 target_link_libraries(quaternion QMatrixClient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
 target_compile_definitions(quaternion PRIVATE GIT_SHA1=${GIT_SHA1})
@@ -148,6 +155,9 @@ if(LINUX)
             )
     install(FILES linux/com.github.quaternion.appdata.xml
             DESTINATION  ${CMAKE_INSTALL_DATADIR}/metainfo
+            )
+    install(FILES ${quaternion_QM}
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/Quaternion/translations
             )
     file(GLOB quaternion_icons icons/quaternion/*-apps-quaternion.png)
     ecm_install_icons(ICONS ${quaternion_icons} icons/quaternion/sc-apps-quaternion.svgz
@@ -182,5 +192,8 @@ if(WIN32)
                 message( STATUS \"Quaternion and its dependencies have been deployed to \${CMAKE_INSTALL_PREFIX}.\")
             endif()
         ")
+        install(FILES ${quaternion_QM}
+                DESTINATION ${CMAKE_INSTALL_BINDIR}/translations
+               )
     endif()
 endif(WIN32)
