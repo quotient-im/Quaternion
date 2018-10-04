@@ -8,6 +8,7 @@ addons:
     packages:
     - g++-5
     - qt56-meta-minimal
+    - qt56tools
 
 matrix:
   include:
