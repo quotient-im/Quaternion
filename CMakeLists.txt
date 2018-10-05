@@ -157,7 +157,7 @@ if(LINUX)
             DESTINATION  ${CMAKE_INSTALL_DATADIR}/metainfo
             )
     install(FILES ${quaternion_QM}
-            DESTINATION ${CMAKE_INSTALL_DATADIR}/Quaternion/translations
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/quaternion/translations
             )
     file(GLOB quaternion_icons icons/quaternion/*-apps-quaternion.png)
     ecm_install_icons(ICONS ${quaternion_icons} icons/quaternion/sc-apps-quaternion.svgz

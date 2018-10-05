@@ -55,7 +55,7 @@ int main( int argc, char* argv[] )
 #if defined(Q_OS_WIN32)
     translationsDir = "./translations";
 #else
-    translationsDir = "/usr/local/share/Quaternion/translations";
+    translationsDir = "/usr/local/share/quaternion/translations";
 #endif
 
     QTranslator appTranslator;
