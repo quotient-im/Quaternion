@@ -53,17 +53,12 @@ if(WIN32)
     endif()
 endif()
 
-add_subdirectory(lib EXCLUDE_FROM_ALL)
-include_directories(lib)
-
-# Get Git info if possible
-find_package(Git)
-if(GIT_FOUND)
-    execute_process(COMMAND
-        "${GIT_EXECUTABLE}" rev-parse -q HEAD
-        OUTPUT_VARIABLE GIT_SHA1
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
-endif()
+if (USE_INTREE_LIBQMC)
+    add_subdirectory(lib EXCLUDE_FROM_ALL)
+    include_directories(lib)
+else ()
+    find_package(QMatrixClient 0.4 REQUIRED)
+endif ()
 
 message( STATUS )
 message( STATUS "=============================================================================" )
@@ -72,13 +67,35 @@ message( STATUS "===============================================================
 if (CMAKE_BUILD_TYPE)
     message( STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 endif(CMAKE_BUILD_TYPE)
-message( STATUS "Using compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}" )
-message( STATUS "Using Qt ${Qt5_VERSION} at ${Qt5_Prefix}" )
-message( STATUS "Using QQuickWidget: ${USE_QQUICKWIDGET}")
 message( STATUS "Quaternion install prefix: ${CMAKE_INSTALL_PREFIX}" )
+# Get Git info if possible
+find_package(Git)
 if(GIT_FOUND)
+    execute_process(COMMAND
+        "${GIT_EXECUTABLE}" rev-parse -q HEAD
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_VARIABLE GIT_SHA1
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
     message( STATUS "Git SHA1: ${GIT_SHA1}")
 endif()
+message( STATUS "Using compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}" )
+message( STATUS "Using Qt ${Qt5_VERSION} at ${Qt5_Prefix}" )
+if (USE_INTREE_LIBQMC)
+    message( STATUS "Using in-tree libQMatrixClient")
+    if (GIT_FOUND)
+        execute_process(COMMAND
+            "${GIT_EXECUTABLE}" rev-parse -q HEAD
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib
+            OUTPUT_VARIABLE LIB_GIT_SHA1
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+        message( STATUS "  Library git SHA1: ${LIB_GIT_SHA1}")
+    endif (GIT_FOUND)
+else ()
+    message( STATUS "Using libQMatrixClient ${QMatrixClient_VERSION} at ${QMatrixClient_DIR}")
+endif ()
+if (USE_QQUICKWIDGET)
+    message( STATUS "Using QQuickWidget to render QML")
+endif(USE_QQUICKWIDGET)
 message( STATUS "=============================================================================" )
 message( STATUS )
 
@@ -130,7 +147,7 @@ endif()
 add_executable(quaternion WIN32 MACOSX_BUNDLE ${quaternion_SRCS} ${quaternion_QRC_SRC} ${quaternion_WINRC} ${quaternion_QM})
 
 target_link_libraries(quaternion QMatrixClient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
-target_compile_definitions(quaternion PRIVATE GIT_SHA1=${GIT_SHA1})
+target_compile_definitions(quaternion PRIVATE GIT_SHA1="${GIT_SHA1}" LIB_GIT_SHA1="${LIB_GIT_SHA1}")
 
 if (USE_QQUICKWIDGET)
     target_compile_definitions(quaternion PRIVATE USE_QQUICKWIDGET)
