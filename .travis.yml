@@ -20,13 +20,13 @@ matrix:
   - os: osx
     env: [ 'ENV_EVAL="brew update && brew install qt5 && PATH=/usr/local/opt/qt/bin:$PATH"' ]
 
-install:
+before_install:
 - eval "${ENV_EVAL}"
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then . /opt/qt56/bin/qt56-env.sh; fi
 
 script:
 - mkdir build && cd build
-- cmake ..
+- cmake .. -DUSE_INTREE_LIBQMC=1 # TODO: add building with an external lib
 - cmake --build . --target all
 #- appstream-util validate linux/*.appdata.xml
 
