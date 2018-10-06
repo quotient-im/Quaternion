@@ -636,16 +636,18 @@ void MainWindow::showAboutWindow()
     imageLabel->setAlignment(Qt::AlignHCenter);
     layout->addWidget(imageLabel);
 
-    QLabel* labelString = new QLabel("<h1>" + QApplication::applicationDisplayName() + " v"
-                     + QApplication::applicationVersion() + "</h1>");
+    auto* labelString =
+            new QLabel("<h1>" + QApplication::applicationDisplayName() + " v" +
+                       QApplication::applicationVersion() + "</h1>");
     labelString->setAlignment(Qt::AlignHCenter);
     layout->addWidget(labelString);
 
-    QLabel* linkLabel = new QLabel(tr("<a href=\"https://matrix.org/docs/projects/client/quaternion.html\">Website</a>"));
+    auto* linkLabel = new QLabel(tr("<a href=\"https://matrix.org/docs/projects/client/quaternion.html\">Website</a>"));
     linkLabel->setAlignment(Qt::AlignHCenter);
     layout->addWidget(linkLabel);
 
-    layout->addWidget(new QLabel(tr("Quaternion Copyright (C) 2018 QMatrixClient project.")));
+    layout->addWidget(
+                new QLabel(tr("Copyright (C) 2018 QMatrixClient project.")));
 
 #ifdef GIT_SHA1
     layout->addWidget(new QLabel(tr("Built from Git, commit SHA:\n") +
