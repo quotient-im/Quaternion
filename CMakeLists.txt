@@ -109,7 +109,7 @@ set(quaternion_QRC
     )
 
 set(quaternion_TS
-    client/translations/quaternion.en.ts
+    client/translations/quaternion_en.ts
     )
 
 QT5_ADD_RESOURCES(quaternion_QRC_SRC ${quaternion_QRC})
@@ -157,7 +157,7 @@ if(LINUX)
             DESTINATION  ${CMAKE_INSTALL_DATADIR}/metainfo
             )
     install(FILES ${quaternion_QM}
-            DESTINATION ${CMAKE_INSTALL_DATADIR}/quaternion/translations
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/QMatrixClient/quaternion/translations
             )
     file(GLOB quaternion_icons icons/quaternion/*-apps-quaternion.png)
     ecm_install_icons(ICONS ${quaternion_icons} icons/quaternion/sc-apps-quaternion.svgz

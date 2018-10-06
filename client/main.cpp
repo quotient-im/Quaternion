@@ -22,6 +22,7 @@
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QCommandLineParser>
 #include <QtCore/QDebug>
+#include <QtCore/QStandardPaths>
 
 #include "networksettings.h"
 #include "mainwindow.h"
@@ -51,15 +52,11 @@ int main( int argc, char* argv[] )
                       QLibraryInfo::location(QLibraryInfo::TranslationsPath));
     app.installTranslator(&qtTranslator);
 
-    QString translationsDir;
-#if defined(Q_OS_WIN32)
-    translationsDir = "./translations";
-#else
-    translationsDir = "/usr/local/share/quaternion/translations";
-#endif
-
     QTranslator appTranslator;
-    appTranslator.load(QLocale(), "quaternion", ".", translationsDir);
+    if (!appTranslator.load(QLocale(), "quaternion", "_"))
+        appTranslator.load(QLocale(), "quaternion", "_",
+            QStandardPaths::locate(QStandardPaths::AppLocalDataLocation,
+            "translations"));
     app.installTranslator(&appTranslator);
 
     QCommandLineParser parser;

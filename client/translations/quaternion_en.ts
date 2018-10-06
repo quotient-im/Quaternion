@@ -1169,12 +1169,12 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
 <context>
     <name>main</name>
     <message>
-        <location filename="../main.cpp" line="66"/>
+        <location filename="../main.cpp" line="63"/>
         <source>An IM client for the Matrix protocol</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="70"/>
+        <location filename="../main.cpp" line="67"/>
         <source>Display debug information</source>
         <translation type="unfinished"></translation>
     </message>
