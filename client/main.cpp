@@ -64,12 +64,13 @@ int main( int argc, char* argv[] )
     parser.addHelpOption();
     parser.addVersionOption();
 
-    QCommandLineOption debug("debug", QApplication::translate("main", "Display debug information"));
-    parser.addOption(debug);
+    // FIXME, #415
+//    QCommandLineOption debug("debug", QApplication::translate("main", "Display debug information"));
+//    parser.addOption(debug);
 
     parser.process(app);
-    bool debugEnabled = parser.isSet(debug);
-    qDebug() << "Debug: " << debugEnabled;
+//    bool debugEnabled = parser.isSet(debug);
+//    qDebug() << "Debug: " << debugEnabled;
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
     app.setAttribute(Qt::AA_DisableWindowContextHelpButton);
@@ -78,8 +79,8 @@ int main( int argc, char* argv[] )
     QMatrixClient::NetworkSettings().setupApplicationProxy();
 
     MainWindow window;
-    if( debugEnabled )
-        window.enableDebug();
+//    if( debugEnabled )
+//        window.enableDebug();
 
     ActivityDetector ad(app, window); Q_UNUSED(ad);
     qDebug() << "--- Show time!";
