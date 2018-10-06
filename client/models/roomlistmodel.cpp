@@ -32,27 +32,15 @@
 
 using namespace std::placeholders;
 
-const RoomGroups& AbstractRoomOrdering::modelGroups() const
-{
-    return model()->m_roomGroups;
-}
+//const RoomGroups& AbstractRoomOrdering::modelGroups() const
+//{
+//    return model()->m_roomGroups;
+//}
 
-RoomGroups& AbstractRoomOrdering::modelGroups()
-{
-    return model()->m_roomGroups;
-}
-
-AbstractRoomOrdering::slot_closure_t
-AbstractRoomOrdering::getPrepareToUpdateGroupsSlot(Room* room)
-{
-    return std::bind(&RoomListModel::prepareToUpdateGroups, model(), room);
-}
-
-AbstractRoomOrdering::slot_closure_t
-AbstractRoomOrdering::getUpdateGroupsSlot(AbstractRoomOrdering::Room* room)
-{
-    return std::bind(&RoomListModel::updateGroups, model(), room);
-}
+//RoomGroups& AbstractRoomOrdering::modelGroups()
+//{
+//    return model()->m_roomGroups;
+//}
 
 AbstractRoomOrdering::groupLessThan_closure_t
 AbstractRoomOrdering::groupLessThanFactory() const
@@ -66,16 +54,9 @@ AbstractRoomOrdering::roomLessThanFactory(const QVariant& group) const
     return std::bind(&AbstractRoomOrdering::roomLessThan, this, group, _1, _2);
 }
 
-void AbstractRoomOrdering::addRoomToGroups(QMatrixClient::Room* room,
-                                           const QVariantList& groups)
+void AbstractRoomOrdering::updateGroups(Room* room)
 {
-    model()->addRoomToGroups(room, true, groups);
-}
-
-void AbstractRoomOrdering::removeRoomFromGroup(QMatrixClient::Room* room,
-                                               const QVariant& groupCaption)
-{
-    model()->doRemoveRoom(model()->indexOf(groupCaption, room));
+    model()->updateGroups(room);
 }
 
 template <typename LT, typename VT>
@@ -207,62 +188,29 @@ AbstractRoomOrdering::groups_t OrderByTag::roomGroups(const Room* room) const
 void OrderByTag::connectSignals(Connection* connection)
 {
     using DCMap = Connection::DirectChatsMap;
-    using JoinState = QMatrixClient::JoinState;
     QObject::connect( connection, &Connection::directChatsListChanged, model(),
         [this,connection] (DCMap additions, DCMap removals) {
             // The same room may show up in removals and in additions if it
             // moves from one userid to another (pretty weird but encountered
             // in the wild). Therefore process removals first.
             for (const auto& rId: removals)
-                for (auto r: {connection->room(rId, JoinState::Invite),
-                              connection->room(rId, JoinState::Join)})
-                    if (r)
-                    {
-                        removeRoomFromGroup(r, DirectChat);
-                        if (r->tags().empty())
-                            addRoomToGroups(r, {{ Untagged }});
-                    }
+                if (auto* r = connection->room(rId))
+                    updateGroups(r);
             for (const auto& rId: additions)
-                for (auto r: {connection->room(rId, JoinState::Invite),
-                              connection->room(rId, JoinState::Join)})
-                    if (r)
-                    {
-                        if (r->tags().empty())
-                            removeRoomFromGroup(r, Untagged);
-                        addRoomToGroups(r, {{ DirectChat }});
-                    }
+                if (auto* r = connection->room(rId))
+                    updateGroups(r);
         });
 }
 
 void OrderByTag::connectSignals(Room* room)
 {
-    QObject::connect(room, &Room::displaynameAboutToChange,
-                     model(), getPrepareToUpdateGroupsSlot(room));
     QObject::connect(room, &Room::displaynameChanged,
-                     model(), getUpdateGroupsSlot(room));
-    QObject::connect(room, &Room::tagsAboutToChange,
-                     model(), getPrepareToUpdateGroupsSlot(room));
+                     model(), [this,room] { updateGroups(room); });
     QObject::connect(room, &Room::tagsChanged,
-                     model(), getUpdateGroupsSlot(room));
+                     model(), [this,room] { updateGroups(room); });
 
-    using QMatrixClient::JoinState;
-    QObject::connect(room, &Room::joinStateChanged, model(),
-        [this,room] (JoinState oldState, JoinState newState) {
-            emit model()->saveCurrentSelection();
-            if (oldState == JoinState::Join)
-            {
-                Q_ASSERT(newState == JoinState::Leave);
-                if (room->tags().empty())
-                    removeRoomFromGroup(room, Untagged);
-                addRoomToGroups(room, {{ Left }});
-            } else {
-                Q_ASSERT(newState == JoinState::Join);
-                removeRoomFromGroup(room, Left);
-                if (room->tags().empty())
-                    addRoomToGroups(room, {{ Untagged }});
-            }
-            emit model()->restoreCurrentSelection();
-        });
+    QObject::connect(room, &Room::joinStateChanged,
+                     model(), [this,room] { updateGroups(room); });
 }
 
 QStringList OrderByTag::initTagsOrder()
@@ -298,7 +246,6 @@ void RoomListModel::addConnection(QMatrixClient::Connection* connection)
     Q_ASSERT(connection);
 
     using namespace QMatrixClient;
-    beginResetModel();
     m_connections.emplace_back(connection, this);
     connect( connection, &Connection::loggedOut,
              this, [=]{ deleteConnection(connection); } );
@@ -308,7 +255,6 @@ void RoomListModel::addConnection(QMatrixClient::Connection* connection)
 
     for (auto* r: connection->roomMap())
         addRoom(r);
-    endResetModel();
 }
 
 void RoomListModel::deleteConnection(QMatrixClient::Connection* connection)
@@ -323,20 +269,10 @@ void RoomListModel::deleteConnection(QMatrixClient::Connection* connection)
         return;
     }
 
-    beginResetModel();
-    for (auto& group: m_roomGroups)
-        group.rooms.erase(
-            std::remove_if(group.rooms.begin(), group.rooms.end(),
-                [connection](const auto* room) {
-                    return room->connection() == connection;
-                }), group.rooms.end());
-    m_roomGroups.erase(
-        std::remove_if(m_roomGroups.begin(), m_roomGroups.end(),
-            [=](const RoomGroup& rg) { return rg.rooms.empty(); }),
-        m_roomGroups.end());
+    for (auto* r: connection->roomMap())
+        deleteRoom(r);
     m_connections.erase(connIt);
     connection->disconnect(this);
-    endResetModel();
 }
 
 void RoomListModel::deleteTag(QModelIndex index)
@@ -362,43 +298,30 @@ void RoomListModel::deleteTag(QModelIndex index)
             r->removeTag(tag);
 }
 
-int RoomListModel::getRoomGroupOffset(QModelIndex index) const
-{
-    Q_ASSERT(index.isValid()); // Root item shouldn't come here
-    // If we're on a room, find its group; otherwise just take the index
-    return (index.parent().isValid() ? index.parent() : index).row();
-}
-
-void RoomListModel::visitRoom(QMatrixClient::Room* room,
+void RoomListModel::visitRoom(const Room& room,
                               const std::function<void(QModelIndex)>& visitor)
 {
-    Q_ASSERT(room);
-    for (const auto& g: m_roomOrder->roomGroups(room))
+    // Copy persistent indices because visitors may alter m_roomIndices
+    const auto indices = m_roomIndices.values(&room);
+    for (const auto& idx: indices)
     {
-        const auto idx = indexOf(g, room);
-        if (!isValidGroupIndex(idx.parent()))
-        {
-            qWarning() << "RoomListModel: Invalid group index for group"
-                       << g.toString() << "with room" << room->objectName();
+        Q_ASSERT(isValidRoomIndex(idx));
+        if (roomAt(idx) == &room)
+            visitor(idx);
+        else {
+            qCritical() << "Room at" << idx << "is" << roomAt(idx)->objectName()
+                        << "instead of" << room.objectName();
             Q_ASSERT(false);
-            continue;
         }
-        if (!isValidRoomIndex(idx))
-        {
-            qCritical() << "RoomListModel: the current order lists room"
-                        << room->objectName() << "in group" << g.toString()
-                        << "but the model doesn't have it";
-            Q_ASSERT(false);
-            continue;
-        }
-        Q_ASSERT(roomAt(idx) == room);
-        visitor(idx);
     }
 }
 
 QVariant RoomListModel::roomGroupAt(QModelIndex idx) const
 {
-    const auto groupIt = m_roomGroups.cbegin() + getRoomGroupOffset(idx);
+    Q_ASSERT(idx.isValid()); // Root item shouldn't come here
+    // If we're on a room, find its group; otherwise just take the index
+    const auto groupIt = m_roomGroups.cbegin() +
+                (idx.parent().isValid() ? idx.parent() : idx).row();
     return groupIt != m_roomGroups.end() ? groupIt->key : QVariant();
 }
 
@@ -409,21 +332,23 @@ QuaternionRoom* RoomListModel::roomAt(QModelIndex idx) const
                   m_roomGroups[idx.parent().row()].rooms[idx.row()]) : nullptr;
 }
 
-QModelIndex RoomListModel::indexOf(const QVariant& group,
-                                   QMatrixClient::Room* room) const
+QModelIndex RoomListModel::indexOf(const QVariant& group) const
 {
     const auto groupIt = lowerBoundGroup(group);
     if (groupIt == m_roomGroups.end() || groupIt->key != group)
         return {}; // Group not found
-    const auto groupIdx = index(groupIt - m_roomGroups.begin(), 0);
-    if (!room)
-        return groupIdx; // Group caption
+    return index(groupIt - m_roomGroups.begin(), 0);
+}
 
-    const auto rIt = lowerBoundRoom(*groupIt, room);
-    if (rIt == groupIt->rooms.end() || *rIt != room)
-        return {}; // Room not found in this group
-
-    return index(rIt - groupIt->rooms.begin(), 0, groupIdx);
+QModelIndex RoomListModel::indexOf(const QVariant& group, Room* room) const
+{
+    for (const auto& idx: m_roomIndices.values(room))
+    {
+        Q_ASSERT(isValidRoomIndex(idx));
+        if (m_roomGroups[idx.parent().row()].key == group)
+            return idx;
+    }
+    return {};
 }
 
 QModelIndex RoomListModel::index(int row, int column,
@@ -444,15 +369,15 @@ QModelIndex RoomListModel::parent(const QModelIndex& child) const
             ? index(parentPos, 0) : QModelIndex();
 }
 
-void RoomListModel::addRoom(QMatrixClient::Room* room)
+void RoomListModel::addRoom(Room* room)
 {
     addRoomToGroups(room);
     connectRoomSignals(room);
 }
 
-void RoomListModel::deleteRoom(QMatrixClient::Room* room)
+void RoomListModel::deleteRoom(Room* room)
 {
-    visitRoom(room, std::bind(&RoomListModel::doRemoveRoom, this, _1));
+    visitRoom(*room, std::bind(&RoomListModel::doRemoveRoom, this, _1));
     room->disconnect(this);
 }
 
@@ -478,7 +403,7 @@ RoomGroups::iterator RoomListModel::tryInsertGroup(const QVariant& key,
     return gIt;
 }
 
-void RoomListModel::addRoomToGroups(QMatrixClient::Room* room, bool notify,
+void RoomListModel::addRoomToGroups(Room* room, bool notify,
                                     QVariantList groups)
 {
     if (groups.empty())
@@ -494,27 +419,28 @@ void RoomListModel::addRoomToGroups(QMatrixClient::Room* room, bool notify,
             continue;
         }
         const auto rPos = rIt - gIt->rooms.begin();
+        const auto gIdx = index(gIt - m_roomGroups.begin(), 0);
         if (notify)
-            beginInsertRows(index(gIt - m_roomGroups.begin(), 0), rPos, rPos);
+            beginInsertRows(gIdx, rPos, rPos);
         gIt->rooms.insert(rIt, room);
         if (notify)
             endInsertRows();
+        m_roomIndices.insert(room, index(rPos, 0, gIdx));
         qDebug() << "RoomListModel: Added" << room->objectName()
                  << "to group" << gIt->key.toString();
     }
 }
 
-void RoomListModel::connectRoomSignals(QMatrixClient::Room* room)
+void RoomListModel::connectRoomSignals(Room* room)
 {
-    using QMatrixClient::Room;
     connect(room, &Room::beforeDestruction, this, &RoomListModel::deleteRoom);
     m_roomOrder->connectSignals(room);
     connect(room, &Room::displaynameChanged,
-            this, &RoomListModel::displaynameChanged);
+            this, [this,room] { refresh(room); });
     connect(room, &Room::unreadMessagesChanged,
-            this, &RoomListModel::unreadMessagesChanged);
+            this, [this,room] { refresh(room); });
     connect(room, &Room::notificationCountChanged,
-            this, &RoomListModel::unreadMessagesChanged);
+            this, [this,room] { refresh(room); });
     connect(room, &Room::avatarChanged,
             this, [this,room] { refresh(room, { Qt::DecorationRole }); });
 }
@@ -532,6 +458,12 @@ void RoomListModel::doRemoveRoom(QModelIndex idx)
     const auto rIt = group.rooms.begin() + idx.row();
     qDebug() << "RoomListModel: Removing room" << (*rIt)->objectName()
              << "from group" << group.key.toString();
+    if (m_roomIndices.remove(*rIt, idx) != 1)
+    {
+        qCritical() << "Index" << idx << "for room" << (*rIt)->objectName()
+                    << "not found in the index registry";
+        Q_ASSERT(false);
+    }
     beginRemoveRows(idx.parent(), idx.row(), idx.row());
     group.rooms.erase(rIt);
     endRemoveRows();
@@ -551,6 +483,7 @@ void RoomListModel::doRemoveRoom(QModelIndex idx)
 void RoomListModel::doRebuild()
 {
     m_roomGroups.clear();
+    m_roomIndices.clear();
     for (const auto& c: m_connections)
         for (auto* r: c->roomMap())
             addRoomToGroups(r, false);
@@ -723,70 +656,46 @@ int RoomListModel::columnCount(const QModelIndex&) const
     return 1;
 }
 
-void RoomListModel::displaynameChanged(QMatrixClient::Room* room)
+void RoomListModel::updateGroups(Room* room)
 {
-    refresh(room);
-}
-
-void RoomListModel::unreadMessagesChanged(QMatrixClient::Room* room)
-{
-    refresh(room);
-}
-
-void RoomListModel::prepareToUpdateGroups(QMatrixClient::Room* room)
-{
-    Q_ASSERT(m_roomIdxCache.empty()); // Not in the midst of another update
-
-    const auto& groups = m_roomOrder->roomGroups(room);
-    qDebug() << "RoomListModel: preparing to update groups for"
-             << room->objectName();
-    for (const auto& g: groups)
-    {
-        const auto& rIdx = indexOf(g, room);
-        Q_ASSERT(isValidRoomIndex(rIdx));
-        m_roomIdxCache.push_back(rIdx);
-    }
-}
-
-void RoomListModel::updateGroups(QMatrixClient::Room* room)
-{
-    Q_ASSERT(!m_roomIdxCache.empty()); // The room should have been somewhere
+    const auto oldRoomIndices = m_roomIndices.values(room);
+    Q_ASSERT(!oldRoomIndices.empty()); // The room should have been somewhere
 
     auto groups = m_roomOrder->roomGroups(room);
-    for (const auto& oldIndex: qAsConst(m_roomIdxCache))
+    for (const auto& oldIndex: oldRoomIndices)
     {
         Q_ASSERT(isValidRoomIndex(oldIndex));
         const auto gIdx = oldIndex.parent();
         auto& group = m_roomGroups[gIdx.row()];
         if (groups.removeOne(group.key)) // Test and remove at once
         {
+            // The room still in this group but may need to move around
             const auto oldIt = group.rooms.begin() + oldIndex.row();
             const auto newIt = lowerBoundRoom(group, room);
-            if (newIt == oldIt)
-                continue;
-
-            beginMoveRows(gIdx, oldIndex.row(), oldIndex.row(),
-                          gIdx, int(newIt - group.rooms.begin()));
-            if (newIt > oldIt)
-                std::rotate(oldIt, oldIt + 1, newIt);
-            else
-                std::rotate(newIt, oldIt, oldIt + 1);
-            endMoveRows();
+            if (newIt != oldIt)
+            {
+                beginMoveRows(gIdx, oldIndex.row(), oldIndex.row(),
+                              gIdx, int(newIt - group.rooms.begin()));
+                if (newIt > oldIt)
+                    std::rotate(oldIt, oldIt + 1, newIt);
+                else
+                    std::rotate(newIt, oldIt, oldIt + 1);
+                endMoveRows();
+            }
+            Q_ASSERT(roomAt(oldIndex) == room);
         } else
-            doRemoveRoom(oldIndex); // May invalidate `group`
+            doRemoveRoom(oldIndex); // May invalidate `group` and `gIdx`
     }
-    m_roomIdxCache.clear();
     if (!groups.empty())
         addRoomToGroups(room, true, groups); // Groups the room wasn't before
     qDebug() << "RoomListModel: groups for" << room->objectName() << "updated";
 }
 
-void RoomListModel::refresh(QMatrixClient::Room* room,
-                            const QVector<int>& roles)
+void RoomListModel::refresh(Room* room, const QVector<int>& roles)
 {
     // The problem here is that the change might cause the room to change
     // its groups. Assume for now that such changes are processed elsewhere
     // where details about the change are available (e.g. in tagsChanged).
-    visitRoom(room,
+    visitRoom(*room,
         [this,&roles] (QModelIndex idx) { emit dataChanged(idx, idx, roles); });
 }

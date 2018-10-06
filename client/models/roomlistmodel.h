@@ -24,6 +24,7 @@
 #include <util.h>
 
 #include <QtCore/QAbstractItemModel>
+#include <QtCore/QMultiHash>
 
 struct RoomGroup
 {
@@ -95,16 +96,10 @@ class AbstractRoomOrdering
     protected:
         const RoomListModel* model() const { return _model; }
         RoomListModel* model() { return _model; }
-        const RoomGroups& modelGroups() const;
-        RoomGroups& modelGroups();
+//        const RoomGroups& modelGroups() const;
+//        RoomGroups& modelGroups();
 
-        using slot_closure_t = std::function<void()>;
-        slot_closure_t getPrepareToUpdateGroupsSlot(Room* room);
-        slot_closure_t getUpdateGroupsSlot(Room* room);
-        void addRoomToGroups(QMatrixClient::Room* room,
-                             const QVariantList& groups);
-        void removeRoomFromGroup(QMatrixClient::Room* room,
-                                 const QVariant& groupCaption);
+        void updateGroups(Room* room);
 
     private:
         RoomListModel* _model;
@@ -150,13 +145,15 @@ class RoomListModel: public QAbstractItemModel
             HighlightCountRole, JoinStateRole, ObjectRole
         };
 
+        using Room = QMatrixClient::Room;
+
         explicit RoomListModel(QObject* parent = nullptr);
         ~RoomListModel() override = default;
 
         QVariant roomGroupAt(QModelIndex idx) const;
         QuaternionRoom* roomAt(QModelIndex idx) const;
-        QModelIndex indexOf(const QVariant& group,
-                            QMatrixClient::Room* room = nullptr) const;
+        QModelIndex indexOf(const QVariant& group) const;
+        QModelIndex indexOf(const QVariant& group, Room* room) const;
 
         QModelIndex index(int row, int column,
                           const QModelIndex& parent = {}) const override;
@@ -185,36 +182,34 @@ class RoomListModel: public QAbstractItemModel
     public slots:
         void addConnection(QMatrixClient::Connection* connection);
         void deleteConnection(QMatrixClient::Connection* connection);
+
+        // FIXME, QMatrixClient/libqmatrixclient#63:
+        // This should go to the library's ConnectionManager/RoomManager
         void deleteTag(QModelIndex index);
 
     private slots:
-        void displaynameChanged(QMatrixClient::Room* room);
-        void unreadMessagesChanged(QMatrixClient::Room* room);
+        void addRoom(Room* room);
+        void refresh(Room* room, const QVector<int>& roles = {});
+        void deleteRoom(Room* room);
 
-        void addRoom(QMatrixClient::Room* room);
-        void refresh(QMatrixClient::Room* room, const QVector<int>& roles = {});
-        void deleteRoom(QMatrixClient::Room* room);
-
-        void prepareToUpdateGroups(QMatrixClient::Room* room);
-        void updateGroups(QMatrixClient::Room* room);
+        void updateGroups(Room* room);
 
     private:
         friend class AbstractRoomOrdering;
 
         std::vector<ConnectionsGuard<QMatrixClient::Connection>> m_connections;
         RoomGroups m_roomGroups;
-        QVector<QPersistentModelIndex> m_roomIdxCache;
         std::unique_ptr<AbstractRoomOrdering> m_roomOrder;
 
-        int getRoomGroupOffset(QModelIndex index) const;
+        QMultiHash<const Room*, QPersistentModelIndex> m_roomIndices;
 
         RoomGroups::iterator tryInsertGroup(const QVariant& key, bool notify);
-        void addRoomToGroups(QMatrixClient::Room* room, bool notify = true,
+        void addRoomToGroups(Room* room, bool notify = true,
                              QVariantList groups = {});
-        void connectRoomSignals(QMatrixClient::Room* room);
+        void connectRoomSignals(Room* room);
         void doRemoveRoom(QModelIndex idx);
 
-        void visitRoom(QMatrixClient::Room* room,
+        void visitRoom(const Room& room,
                        const std::function<void(QModelIndex)>& visitor);
 
         void doRebuild();
@@ -234,15 +229,13 @@ class RoomListModel: public QAbstractItemModel
                                     group, m_roomOrder->groupLessThanFactory());
         }
 
-        auto lowerBoundRoom(RoomGroup& group,
-                            AbstractRoomOrdering::Room* room) const
+        auto lowerBoundRoom(RoomGroup& group, Room* room) const
         {
             return std::lower_bound(group.rooms.begin(), group.rooms.end(),
                     room, m_roomOrder->roomLessThanFactory(group.key));
         }
 
-        auto lowerBoundRoom(const RoomGroup& group,
-                            AbstractRoomOrdering::Room* room) const
+        auto lowerBoundRoom(const RoomGroup& group, Room* room) const
         {
             return std::lower_bound(group.rooms.begin(), group.rooms.end(),
                     room, m_roomOrder->roomLessThanFactory(group.key));
