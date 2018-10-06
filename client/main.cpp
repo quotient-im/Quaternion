@@ -56,7 +56,7 @@ int main( int argc, char* argv[] )
     if (!appTranslator.load(QLocale(), "quaternion", "_"))
         appTranslator.load(QLocale(), "quaternion", "_",
             QStandardPaths::locate(QStandardPaths::AppLocalDataLocation,
-            "translations"));
+            "translations", QStandardPaths::LocateDirectory));
     app.installTranslator(&appTranslator);
 
     QCommandLineParser parser;
