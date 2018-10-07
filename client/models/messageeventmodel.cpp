@@ -276,7 +276,7 @@ QString MessageEventModel::renderDate(const QDateTime& timestamp) const
             // Make sure to capitalise the day name.
             auto s = QLocale().standaloneDayName(date.dayOfWeek());
             if (!s.isEmpty())
-                s.front() = QLocale().toUpper(s.mid(0,1)).front();
+                s[0] = QLocale().toUpper(s.mid(0,1))[0];
             return s;
         }
     }
