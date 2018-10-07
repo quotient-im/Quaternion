@@ -259,7 +259,7 @@ QDateTime MessageEventModel::makeMessageTimestamp(
     return {};
 }
 
-QString MessageEventModel::renderDate(QDateTime timestamp) const
+QString MessageEventModel::renderDate(const QDateTime& timestamp) const
 {
     auto date = timestamp.toLocalTime().date();
     if (QMatrixClient::SettingsGroup("UI")
@@ -272,7 +272,13 @@ QString MessageEventModel::renderDate(QDateTime timestamp) const
         if (date == QDate::currentDate().addDays(-2))
             return tr("The day before yesterday");
         if (date > QDate::currentDate().addDays(-7))
-            return date.toString("dddd");
+        {
+            // Make sure to capitalise the day name.
+            auto s = QLocale().standaloneDayName(date.dayOfWeek());
+            if (!s.isEmpty())
+                s.front() = QLocale().toUpper(s.mid(0,1)).front();
+            return s;
+        }
     }
     return date.toString(Qt::DefaultLocaleShortDate);
 }
