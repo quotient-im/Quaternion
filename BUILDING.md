@@ -11,17 +11,33 @@
 
 The source code is hosted at GitHub: https://github.com/QMatrixClient/Quaternion. The best way for one-off building is checking out a tag for a given release from GitHub (master branch is unstable and may or may not work). If you plan to work on Quaternion code, feel free to fork/clone the repo and check out the master branch.
 
-In any case DO NOT download a _sources_ archive from GitHub Releases - it's incomplete because GitHub Releases doesn't include source trees of submodules (and unfortunately there's no way to suppress generation of those archives).
+Quaternion needs libQMatrixClient to build. Since version 0.0.9.3 there are two
+options to use the library:
+1. Use the library installed to a well-known location (either as a package
+   available from your favourite package repository, or by make the location
+   of the library "well-known" by providing it in the environment's `PATH` or
+   in CMake's `CMAKE_PREFIX_PATH`). This is the recommended method.
+2. As a Git submodule. This method is enabled by passing `-DUSE_INTREE_LIBQMC=1`
+   to the "configuring" (the one with `--build`) invocation of CMake. If you
+   haven't cloned the Quaternion source code yet, the following will get you
+   all sources in one go:
+   ```
+   git clone --recursive https://github.com/QMatrixClient/Quaternion.git
+   ```
+   If you already have cloned Quaternion, do the following in the top-level directory (NOT in `lib` subdirectory):
+   ```
+   git submodule init
+   git submodule update
+   ```
 
-Quaternion needs libQMatrixClient as a submodule. libQMatrixClient is developed in a separate GitHub repo and can be fetched as a git submodule. If you haven't cloned the Quaternion sources yet, the following will get you all sources in one go:
-```
-git clone --recursive https://github.com/QMatrixClient/Quaternion.git
-```
-If you already have cloned Quaternion, do the following in the top-level directory (NOT in `lib` subdirectory):
-```
-git submodule init
-git submodule update
-```
+Option 2 was historically used (without the CMake switch) since libQMatrixClient
+has got its own repo; it is not recommended for casual builds since the library
+code and API are more stable these days and since Git submodules have
+shortcomings of their own: being forgotten to be updated after updating
+Quaternion, and not being included into GitHub's releases source tarballs,
+to name a couple. This may still be the preferred method if you're actively
+hacking on Quaternion _and_ libQMatrixClient at the same time - I (@kitsune)
+know exactly one person doing it on regular basis and that's me :)
 
 ### Pre-requisites
 - a Linux, OSX or Windows system (desktop versions tried; mobile Linux/Windows might work too)
@@ -32,6 +48,8 @@ git submodule update
 - a C++ toolchain supported by your version of Qt (see a link for your platform at [the Qt's platform requirements page](http://doc.qt.io/qt-5/gettingstarted.html#platform-requirements))
   - GCC 5 (Windows, Linux, OSX), Clang 5 (Linux), Apple Clang 8.1 (OSX) and Visual C++ 2015 (Windows) are the oldest officially supported
   - any build system that works with CMake should be fine: GNU Make, ninja (any platform), NMake, jom (Windows) are known to work.
+- libQMatrixClient development files (from your package management system),
+  unless you're handling both projects together (see Option 2 above)
 
 #### Linux
 Just install things from the list above using your preferred package manager. If your Qt package base is fine-grained you might want to take a look at `CMakeLists.txt` to figure out which specific libraries Quaternion uses (or blindly run cmake and look at error messages). Note also that you'll need several Qt Quick plugins for Quaternion to work (without them, it will compile and run but won't show the messages timeline). In case of Trusty Tar the following line will get you everything necessary to build and run Quaternion (thanks to `@onlnr:matrix.org`):
