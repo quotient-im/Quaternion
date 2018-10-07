@@ -47,6 +47,35 @@ int main( int argc, char* argv[] )
         QApplication::postEvent(qApp, new QEvent(QEvent::Quit));
     });
 
+    QCommandLineParser parser;
+    parser.setApplicationDescription(QApplication::translate("main",
+            "Quaternion - an IM client for the Matrix protocol"));
+    parser.addHelpOption();
+    parser.addVersionOption();
+
+    QList<QCommandLineOption> options;
+    QCommandLineOption locale { "locale",
+        QApplication::translate("main", "Override locale"),
+        QApplication::translate("main", "locale") };
+    options.append(locale);
+    QCommandLineOption debug { "debug",
+        QApplication::translate("main", "Display debug information") };
+    debug.setHidden(true); // FIXME, #415; also, setHidden is obsolete in Qt 5.11
+    options.append(debug);
+    // Add more command line options before this line
+
+    if (!parser.addOptions(options))
+        Q_ASSERT_X(false, __FUNCTION__,
+                   "Command line options are improperly defined, fix the code");
+    parser.process(app);
+
+    const auto overrideLocale = parser.value(locale);
+    if (!overrideLocale.isEmpty())
+    {
+        QLocale::setDefault(overrideLocale);
+        qInfo() << "Using locale" << QLocale().name();
+    }
+
     QTranslator qtTranslator;
     qtTranslator.load(QLocale(), "qt", "_",
                       QLibraryInfo::location(QLibraryInfo::TranslationsPath));
@@ -59,19 +88,6 @@ int main( int argc, char* argv[] )
             "translations", QStandardPaths::LocateDirectory));
     app.installTranslator(&appTranslator);
 
-    QCommandLineParser parser;
-    parser.setApplicationDescription(QApplication::translate("main", "An IM client for the Matrix protocol"));
-    parser.addHelpOption();
-    parser.addVersionOption();
-
-    // FIXME, #415
-//    QCommandLineOption debug("debug", QApplication::translate("main", "Display debug information"));
-//    parser.addOption(debug);
-
-    parser.process(app);
-//    bool debugEnabled = parser.isSet(debug);
-//    qDebug() << "Debug: " << debugEnabled;
-
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
     app.setAttribute(Qt::AA_DisableWindowContextHelpButton);
 #endif
@@ -79,8 +95,11 @@ int main( int argc, char* argv[] )
     QMatrixClient::NetworkSettings().setupApplicationProxy();
 
     MainWindow window;
-//    if( debugEnabled )
-//        window.enableDebug();
+    if (parser.isSet(debug))
+    {
+        qInfo() << "Debug mode enabled";
+        window.enableDebug();
+    }
 
     ActivityDetector ad(app, window); Q_UNUSED(ad);
     qDebug() << "--- Show time!";
