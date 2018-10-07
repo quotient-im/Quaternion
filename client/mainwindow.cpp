@@ -655,7 +655,7 @@ void MainWindow::showAboutWindow()
 #endif
 
 #ifdef LIB_GIT_SHA1
-    layout->addWidget(new QLabel(tr("Library commit SHA: ") +
+    layout->addWidget(new QLabel(tr("Library commit SHA:\n") +
                                  QStringLiteral(LIB_GIT_SHA1)));
 #endif
 
