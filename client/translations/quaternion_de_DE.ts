@@ -190,6 +190,67 @@
     </message>
 </context>
 <context>
+    <name>FileContent</name>
+    <message>
+        <location filename="../qml/FileContent.qml" line="15"/>
+        <source>Size: %1, declared type: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/FileContent.qml" line="19"/>
+        <source> (downloaded to %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/FileContent.qml" line="49"/>
+        <source>Open after downloading</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/FileContent.qml" line="54"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/FileContent.qml" line="59"/>
+        <source>Save as...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/FileContent.qml" line="65"/>
+        <source>Open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/FileContent.qml" line="70"/>
+        <source>Open folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ImageContent</name>
+    <message>
+        <location filename="../qml/ImageContent.qml" line="53"/>
+        <source>Cancel downloading</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ImageContent.qml" line="59"/>
+        <source>Open in image viewer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ImageContent.qml" line="63"/>
+        <source>Download full size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ImageContent.qml" line="69"/>
+        <source>Save as...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>LoginDialog</name>
     <message>
         <location filename="../logindialog.cpp" line="35"/>
@@ -1154,6 +1215,57 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
         <location filename="../systemtrayicon.cpp" line="49"/>
         <source>%1: %2 highlight(s)</source>
         <translation>%1: %2 Highlight(s)</translation>
+    </message>
+</context>
+<context>
+    <name>Timeline</name>
+    <message>
+        <location filename="../qml/Timeline.qml" line="25"/>
+        <source>%1 bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Timeline.qml" line="28"/>
+        <source>%1 KB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Timeline.qml" line="31"/>
+        <source>%1 MB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Timeline.qml" line="32"/>
+        <source>%1 GB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Timeline.qml" line="215"/>
+        <source>%1 events back from now (%2 cached)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TimelineItem</name>
+    <message>
+        <location filename="../qml/TimelineItem.qml" line="295"/>
+        <source>Resend</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/TimelineItem.qml" line="306"/>
+        <source>Discard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/TimelineItem.qml" line="425"/>
+        <source>Redact</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/TimelineItem.qml" line="438"/>
+        <source>Copy link to clipboard</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

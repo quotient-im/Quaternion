@@ -292,7 +292,7 @@ Item {
                 anchors.top: textField.top
                 anchors.right: discardButton.left
                 anchors.rightMargin: 2
-                text: "Resend"
+                text: qsTr("Resend")
 
                 onClicked: room.retryMessage(eventId)
             }
@@ -303,7 +303,7 @@ Item {
                 anchors.top: textField.top
                 anchors.right: showDetailsButton.left
                 anchors.rightMargin: 2
-                text: "Discard"
+                text: qsTr("Discard")
 
                 onClicked: room.discardMessage(eventId)
             }
@@ -422,7 +422,7 @@ Item {
                 Button {
                     id: redactButton
 
-                    text: "Redact"
+                    text: qsTr("Redact")
 
                     anchors.right: copyLinkButton.left
                     z: 1
@@ -435,7 +435,7 @@ Item {
                 Button {
                     id: copyLinkButton
 
-                    text: "Copy link to clipboard"
+                    text: qsTr("Copy link to clipboard")
 
                     anchors.right: parent.right
                     z: 1

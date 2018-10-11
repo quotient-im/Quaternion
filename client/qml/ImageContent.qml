@@ -50,23 +50,23 @@ DownloadableContent {
         spacing: 2
 
         Button {
-            text: "Cancel downloading"
+            text: qsTr("Cancel downloading")
             visible: progressInfo.active && !downloaded
             onClicked: room.cancelFileTransfer(eventId)
         }
 
         Button {
-            text: "Open in image viewer"
+            text: qsTr("Open in image viewer")
             onClicked: downloadAndOpen()
         }
         Button {
-            text: "Download full size"
+            text: qsTr("Download full size")
             visible: !autoload && !progressInfo.active
 
             onClicked: room.downloadFile(eventId)
         }
         Button {
-            text: "Save as..."
+            text: qsTr("Save as...")
             onClicked: controller.saveFileAs(eventId)
         }
     }
