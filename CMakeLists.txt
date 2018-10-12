@@ -140,7 +140,7 @@ QT5_ADD_RESOURCES(quaternion_QRC_SRC ${quaternion_QRC})
 set_property(SOURCE qrc_resources.cpp PROPERTY SKIP_AUTOMOC ON)
 
 QT5_ADD_TRANSLATION(quaternion_QM ${quaternion_TS})
-QT5_CREATE_TRANSLATION(client/translations ${quaternion_SRCS} ${quaternion_QRC_SRC} ${quaternion_TS})
+QT5_CREATE_TRANSLATION(client/translations ${quaternion_SRCS} ${quaternion_QRC} ${quaternion_TS})
 
 if(WIN32)
     set(quaternion_WINRC ${CMAKE_CURRENT_SOURCE_DIR}/quaternion_win32.rc)

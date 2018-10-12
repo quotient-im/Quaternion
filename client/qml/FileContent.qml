@@ -46,28 +46,28 @@ DownloadableContent {
 
         CheckBox {
             id: openOnFinishedFlag
-            text: "Open after downloading"
+            text: qsTr("Open after downloading")
             visible: downloadProgress.visible
             checked: openOnFinished
         }
         Button {
-            text: "Cancel"
+            text: qsTr("Cancel")
             visible: downloadProgress.visible
             onClicked: room.cancelFileTransfer(eventId)
         }
         Button {
-            text: "Save as..."
+            text: qsTr("Save as...")
             visible: !downloadProgress.visible
             onClicked: controller.saveFileAs(eventId)
         }
 
         Button {
-            text: "Open"
+            text: qsTr("Open")
             visible: !openOnFinishedFlag.visible
             onClicked: downloadAndOpen()
         }
         Button {
-            text: "Open folder"
+            text: qsTr("Open folder")
             visible: progressInfo.active
             onClicked:
                 Qt.openUrlExternally(progressInfo.localDir)
