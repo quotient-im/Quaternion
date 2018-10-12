@@ -18,7 +18,7 @@ options to use the library:
    of the library "well-known" by providing it in the environment's `PATH` or
    in CMake's `CMAKE_PREFIX_PATH`). This is the recommended method.
 2. As a Git submodule. This method is enabled by passing `-DUSE_INTREE_LIBQMC=1`
-   to the "configuring" (the one with `--build`) invocation of CMake. If you
+   to the "configuring" (the one _without_ `--build`) invocation of CMake. If you
    haven't cloned the Quaternion source code yet, the following will get you
    all sources in one go:
    ```
