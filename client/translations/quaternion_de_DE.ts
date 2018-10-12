@@ -194,37 +194,37 @@
     <message>
         <location filename="../qml/FileContent.qml" line="15"/>
         <source>Size: %1, declared type: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Größe: %1, angegebener Typ: %2</translation>
     </message>
     <message>
         <location filename="../qml/FileContent.qml" line="19"/>
         <source> (downloaded to %1)</source>
-        <translation type="unfinished"></translation>
+        <translation> (nach %1 heruntergeladen)</translation>
     </message>
     <message>
         <location filename="../qml/FileContent.qml" line="49"/>
         <source>Open after downloading</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach dem Herunterladen öffnen</translation>
     </message>
     <message>
         <location filename="../qml/FileContent.qml" line="54"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Abbrechen</translation>
     </message>
     <message>
         <location filename="../qml/FileContent.qml" line="59"/>
         <source>Save as...</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichern als...</translation>
     </message>
     <message>
         <location filename="../qml/FileContent.qml" line="65"/>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffnen</translation>
     </message>
     <message>
         <location filename="../qml/FileContent.qml" line="70"/>
         <source>Open folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Ordner öffnen</translation>
     </message>
 </context>
 <context>
@@ -232,22 +232,23 @@
     <message>
         <location filename="../qml/ImageContent.qml" line="53"/>
         <source>Cancel downloading</source>
-        <translation type="unfinished"></translation>
+        <translation>Herunterladen abbrechen</translation>
     </message>
     <message>
         <location filename="../qml/ImageContent.qml" line="59"/>
         <source>Open in image viewer</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Is it OK to just state open externally?</translatorcomment>
+        <translation>In Bildbetrachter öffnen</translation>
     </message>
     <message>
         <location filename="../qml/ImageContent.qml" line="63"/>
         <source>Download full size</source>
-        <translation type="unfinished"></translation>
+        <translation>In voller Größe herunterladen</translation>
     </message>
     <message>
         <location filename="../qml/ImageContent.qml" line="69"/>
         <source>Save as...</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichern als...</translation>
     </message>
 </context>
 <context>
@@ -1222,27 +1223,28 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     <message>
         <location filename="../qml/Timeline.qml" line="25"/>
         <source>%1 bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Bytes</translation>
     </message>
     <message>
         <location filename="../qml/Timeline.qml" line="28"/>
         <source>%1 KB</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 KB</translation>
     </message>
     <message>
         <location filename="../qml/Timeline.qml" line="31"/>
         <source>%1 MB</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 MB</translation>
     </message>
     <message>
         <location filename="../qml/Timeline.qml" line="32"/>
         <source>%1 GB</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 GB</translation>
     </message>
     <message>
         <location filename="../qml/Timeline.qml" line="215"/>
         <source>%1 events back from now (%2 cached)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>%1 shows the number of events that are part of the timeline but not visible anymore because of scrolling</translatorcomment>
+        <translation>%1 Ereignisse zurückgescrollt (%2 zwischengespeichert)</translation>
     </message>
 </context>
 <context>
@@ -1250,22 +1252,22 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     <message>
         <location filename="../qml/TimelineItem.qml" line="295"/>
         <source>Resend</source>
-        <translation type="unfinished"></translation>
+        <translation>Erneut senden</translation>
     </message>
     <message>
         <location filename="../qml/TimelineItem.qml" line="306"/>
         <source>Discard</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwerfen</translation>
     </message>
     <message>
         <location filename="../qml/TimelineItem.qml" line="425"/>
         <source>Redact</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <location filename="../qml/TimelineItem.qml" line="438"/>
         <source>Copy link to clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>In Zwischenablage kopieren</translation>
     </message>
 </context>
 <context>
