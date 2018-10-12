@@ -236,9 +236,8 @@
     </message>
     <message>
         <location filename="../qml/ImageContent.qml" line="59"/>
-        <source>Open in image viewer</source>
-        <translatorcomment>Is it OK to just state open externally?</translatorcomment>
-        <translation>In Bildbetrachter öffnen</translation>
+        <source>Open externally</source>
+        <translation>Extern öffnen</translation>
     </message>
     <message>
         <location filename="../qml/ImageContent.qml" line="63"/>

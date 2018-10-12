@@ -56,7 +56,7 @@ DownloadableContent {
         }
 
         Button {
-            text: qsTr("Open in image viewer")
+            text: qsTr("Open externally")
             onClicked: downloadAndOpen()
         }
         Button {

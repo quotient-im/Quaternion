@@ -233,7 +233,7 @@
     </message>
     <message>
         <location filename="../qml/ImageContent.qml" line="59"/>
-        <source>Open in image viewer</source>
+        <source>Open externally</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
