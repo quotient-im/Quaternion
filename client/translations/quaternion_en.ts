@@ -1039,9 +1039,9 @@ Clicking 'Cancel' will stop further synchronisation of this account until logout
         <translation>%1 GB</translation>
     </message>
     <message>
-        <source>%1 events back from now (%2 cached)</source>
-        <comment>%1 shows the number of events that are part of the timeline but not visible anymore because of scrolling</comment>
-        <translation type="unfinished">%1 events back from now (%2 cached)</translation>
+        <source>%L1 events back from now (%2 cached)</source>
+        <comment>%L1 shows the number of events that are part of the timeline but not visible anymore because of scrolling</comment>
+        <translation type="unfinished">%L1 events back from now (%2 cached)</translation>
     </message>
 </context>
 <context>
