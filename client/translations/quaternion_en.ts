@@ -805,7 +805,7 @@ Clicking 'Cancel' will stop further synchronisation of this account until logout
     </message>
     <message>
         <source>Re-sort rooms (TODO)</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -837,7 +837,7 @@ Clicking 'Cancel' will stop further synchronisation of this account until logout
     <message numerus="yes">
         <source>%1 (%Ln room(s))</source>
         <translation>
-            <numerusform>%1 (%Ln room(s))</numerusform>
+            <numerusform>%1 (%Ln room)</numerusform>
             <numerusform>%1 (%Ln rooms)</numerusform>
         </translation>
     </message>
@@ -1038,10 +1038,13 @@ Clicking 'Cancel' will stop further synchronisation of this account until logout
         <source>%1 GB</source>
         <translation>%1 GB</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>%L1 events back from now (%2 cached)</source>
         <comment>%L1 shows the number of events that are part of the timeline but not visible anymore because of scrolling</comment>
-        <translation type="unfinished">%L1 events back from now (%2 cached)</translation>
+        <translation>
+            <numerusform>%L1 event back from now (%2 cached)</numerusform>
+            <numerusform>%L1 events back from now (%2 cached)</numerusform>
+        </translation>
     </message>
 </context>
 <context>
