@@ -245,7 +245,9 @@
         <source>Tags can be wildcarded by * next to dot(s)
 Clear the box to reset to defaults
 org.qmatrixclient. tags: invite, left, direct, none</source>
-        <translation>Tags can be wildcarded by * next to dot(s)\nClear the box to reset to defaults\norg.qmatrixclient. tags: invite, left, direct, none</translation>
+        <translation>Tags can be wildcarded by * next to dot(s)
+Clear the box to reset to defaults
+org.qmatrixclient. tags: invite, left, direct, none</translation>
     </message>
     <message>
         <source>&amp;Room</source>
@@ -378,7 +380,8 @@ org.qmatrixclient. tags: invite, left, direct, none</source>
     <message>
         <source>Clicking 'Retry' will attempt to resume synchronisation;
 Clicking 'Cancel' will stop further synchronisation of this account until logout or Quaternion restart.</source>
-        <translation>Clicking 'Retry' will attempt to resume synchronisation;\nClicking 'Cancel' will stop further synchronisation of this account until logout or Quaternion restart.</translation>
+        <translation>Clicking 'Retry' will attempt to resume synchronisation;
+Clicking 'Cancel' will stop further synchronisation of this account until logout or Quaternion restart.</translation>
     </message>
     <message>
         <source>Before this server can process your information, you have to agree with its terms and conditions; please click the button below to open the web page where you can do that</source>
@@ -411,14 +414,6 @@ Clicking 'Cancel' will stop further synchronisation of this account until logout
     <message>
         <source>&lt;a href=&quot;https://matrix.org/docs/projects/client/quaternion.html&quot;&gt;Website&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;https://matrix.org/docs/projects/client/quaternion.html&quot;&gt;Website&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>Quaternion Copyright (C) 2018 QMatrixClient project.</source>
-        <translation>Quaternion Copyright (C) 2018 QMatrixClient project.</translation>
-    </message>
-    <message>
-        <source>Built from Git, commit SHA:</source>
-        <translation>Built from Git, commit SHA:</translation>
     </message>
     <message>
         <source>Welcome to Quaternion</source>
@@ -551,12 +546,14 @@ Clicking 'Cancel' will stop further synchronisation of this account until logout
     <message>
         <source>Built from Git, commit SHA:
 </source>
-        <translation>Built from Git, commit SHA:\n</translation>
+        <translation>Built from Git, commit SHA:
+</translation>
     </message>
     <message>
         <source>Library commit SHA:
 </source>
-        <translation>Library commit SHA:\n</translation>
+        <translation>Library commit SHA:
+</translation>
     </message>
 </context>
 <context>
@@ -806,6 +803,10 @@ Clicking 'Cancel' will stop further synchronisation of this account until logout
         <source>Rooms (%1)</source>
         <translation>Rooms (%1)</translation>
     </message>
+    <message>
+        <source>Re-sort rooms (TODO)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>RoomListModel</name>
@@ -953,10 +954,6 @@ Clicking 'Cancel' will stop further synchronisation of this account until logout
 <context>
     <name>main</name>
     <message>
-        <source>An IM client for the Matrix protocol</source>
-        <translation>An IM client for the Matrix protocol</translation>
-    </message>
-    <message>
         <source>Display debug information</source>
         <translation>Display debug information</translation>
     </message>
@@ -1044,7 +1041,7 @@ Clicking 'Cancel' will stop further synchronisation of this account until logout
     <message>
         <source>%1 events back from now (%2 cached)</source>
         <comment>%1 shows the number of events that are part of the timeline but not visible anymore because of scrolling</comment>
-        <translation>%1 events back from now (%2 cached)</translation>
+        <translation type="unfinished">%1 events back from now (%2 cached)</translation>
     </message>
 </context>
 <context>

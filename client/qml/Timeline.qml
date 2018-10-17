@@ -212,7 +212,7 @@ Rectangle {
                 font.bold: true
                 color: disabledPalette.text
                 renderType: settings.render_type
-                text: qsTr("%1 events back from now (%2 cached)")
+                text: qsTr("%L1 events back from now (%2 cached)")
                         .arg(chatView.largestVisibleIndex).arg(chatView.count)
             }
         }
