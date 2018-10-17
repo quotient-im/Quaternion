@@ -416,6 +416,14 @@ Clicking 'Cancel' will stop further synchronisation of this account until logout
         <translation>&lt;a href=&quot;https://matrix.org/docs/projects/client/quaternion.html&quot;&gt;Website&lt;/a&gt;</translation>
     </message>
     <message>
+        <source>Quaternion Copyright (C) 2018 QMatrixClient project.</source>
+        <translation>Quaternion Copyright (C) 2018 QMatrixClient project.</translation>
+    </message>
+    <message>
+        <source>Built from Git, commit SHA:</source>
+        <translation>Built from Git, commit SHA:</translation>
+    </message>
+    <message>
         <source>Welcome to Quaternion</source>
         <translation>Welcome to Quaternion</translation>
     </message>
@@ -805,7 +813,7 @@ Clicking 'Cancel' will stop further synchronisation of this account until logout
     </message>
     <message>
         <source>Re-sort rooms (TODO)</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -837,7 +845,7 @@ Clicking 'Cancel' will stop further synchronisation of this account until logout
     <message numerus="yes">
         <source>%1 (%Ln room(s))</source>
         <translation>
-            <numerusform>%1 (%Ln room(s))</numerusform>
+            <numerusform>%1 (%Ln room)</numerusform>
             <numerusform>%1 (%Ln rooms)</numerusform>
         </translation>
     </message>
@@ -954,6 +962,10 @@ Clicking 'Cancel' will stop further synchronisation of this account until logout
 <context>
     <name>main</name>
     <message>
+        <source>An IM client for the Matrix protocol</source>
+        <translation>An IM client for the Matrix protocol</translation>
+    </message>
+    <message>
         <source>Display debug information</source>
         <translation>Display debug information</translation>
     </message>
@@ -1038,10 +1050,13 @@ Clicking 'Cancel' will stop further synchronisation of this account until logout
         <source>%1 GB</source>
         <translation>%1 GB</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>%L1 events back from now (%2 cached)</source>
         <comment>%L1 shows the number of events that are part of the timeline but not visible anymore because of scrolling</comment>
-        <translation type="unfinished">%L1 events back from now (%2 cached)</translation>
+        <translation>
+            <numerusform>%L1 event back from now (%2 cached)</numerusform>
+            <numerusform>%L1 events back from now (%2 cached)</numerusform>
+        </translation>
     </message>
 </context>
 <context>
