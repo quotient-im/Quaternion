@@ -26,16 +26,16 @@
         <translation>Send a message (unencrypted) or enter a command...</translation>
     </message>
     <message>
-        <source>There's nothing to send</source>
-        <translation>There's nothing to send</translation>
+        <source>There&apos;s nothing to send</source>
+        <translation>There&apos;s nothing to send</translation>
     </message>
     <message>
-        <source>/join argument doesn't look like a room ID or alias</source>
-        <translation>/join argument doesn't look like a room ID or alias</translation>
+        <source>/join argument doesn&apos;t look like a room ID or alias</source>
+        <translation>/join argument doesn&apos;t look like a room ID or alias</translation>
     </message>
     <message>
-        <source>There's no such /command outside of room. Start with // to send this line literally</source>
-        <translation>There's no such /command outside of room. Start with // to send this line literally</translation>
+        <source>There&apos;s no such /command outside of room. Start with // to send this line literally</source>
+        <translation>There&apos;s no such /command outside of room. Start with // to send this line literally</translation>
     </message>
     <message>
         <source>Sending a farewell message is not supported yet. If you intended to leave another room, switch to it and type /leave there.</source>
@@ -46,24 +46,24 @@
         <translation>/forget must be followed by the room id/alias, even for the current room</translation>
     </message>
     <message>
-        <source>%1 doesn't look like a room id or alias</source>
-        <translation>%1 doesn't look like a room id or alias</translation>
+        <source>%1 doesn&apos;t look like a room id or alias</source>
+        <translation>%1 doesn&apos;t look like a room id or alias</translation>
     </message>
     <message>
         <source>/invite &lt;memberId&gt;</source>
         <translation>/invite &lt;memberId&gt;</translation>
     </message>
     <message>
-        <source>%1 doesn't look like a user ID</source>
-        <translation>%1 doesn't look like a user ID</translation>
+        <source>%1 doesn&apos;t look like a user ID</source>
+        <translation>%1 doesn&apos;t look like a user ID</translation>
     </message>
     <message>
         <source>/%1 &lt;userId&gt; &lt;reason&gt;</source>
         <translation>/%1 &lt;userId&gt; &lt;reason&gt;</translation>
     </message>
     <message>
-        <source>%1 doesn't look like a user id</source>
-        <translation>%1 doesn't look like a user id</translation>
+        <source>%1 doesn&apos;t look like a user id</source>
+        <translation>%1 doesn&apos;t look like a user id</translation>
     </message>
     <message>
         <source>%1 is not a member of this room</source>
@@ -74,21 +74,21 @@
         <translation>/unban &lt;userId&gt;</translation>
     </message>
     <message>
-        <source>/unban argument doesn't look like a user ID</source>
-        <translation>/unban argument doesn't look like a user ID</translation>
+        <source>/unban argument doesn&apos;t look like a user ID</source>
+        <translation>/unban argument doesn&apos;t look like a user ID</translation>
     </message>
     <message>
         <source>/ignore &lt;userId&gt;</source>
         <translation>/ignore &lt;userId&gt;</translation>
     </message>
     <message>
-        <source>/ignore argument doesn't look like a user ID</source>
-        <translation>/ignore argument doesn't look like a user ID</translation>
+        <source>/ignore argument doesn&apos;t look like a user ID</source>
+        <translation>/ignore argument doesn&apos;t look like a user ID</translation>
     </message>
     <message>
-        <source>Couldn't find user %1 on the server</source>
+        <source>Couldn&apos;t find user %1 on the server</source>
         <comment>vielleicht zu lang...</comment>
-        <translation>Couldn't find user %1 on the server</translation>
+        <translation>Couldn&apos;t find user %1 on the server</translation>
     </message>
     <message>
         <source>/me needs an argument</source>
@@ -103,13 +103,13 @@
         <translation>/%1 &lt;memberId&gt; &lt;message&gt;</translation>
     </message>
     <message>
-        <source>%1 doesn't seem to have joined room %2</source>
-        <translation>%1 doesn't seem to have joined room %2</translation>
+        <source>%1 doesn&apos;t seem to have joined room %2</source>
+        <translation>%1 doesn&apos;t seem to have joined room %2</translation>
     </message>
     <message>
-        <source>%1 doesn't look like a user id or room alias</source>
+        <source>%1 doesn&apos;t look like a user id or room alias</source>
         <comment>it looks in both cases like a check for an id</comment>
-        <translation>%1 doesn't look like a user id or room alias</translation>
+        <translation>%1 doesn&apos;t look like a user id or room alias</translation>
     </message>
     <message>
         <source>/%1 &lt;memberId&gt;</source>
@@ -217,17 +217,17 @@
         <translation>Normal &amp;join/leave events</translation>
     </message>
     <message>
-        <source>Show join and leave events that don't couple in a no-change pair</source>
+        <source>Show join and leave events that don&apos;t couple in a no-change pair</source>
         <comment>?</comment>
-        <translation>Show join and leave events that don't couple in a no-change pair</translation>
+        <translation>Show join and leave events that don&apos;t couple in a no-change pair</translation>
     </message>
     <message>
         <source>&amp;Redacted events</source>
         <translation>&amp;Redacted events</translation>
     </message>
     <message>
-        <source>Show redacted events in the timeline as 'Redacted' instead of hiding them entirely</source>
-        <translation>Show redacted events in the timeline as 'Redacted' instead of hiding them entirely</translation>
+        <source>Show redacted events in the timeline as &apos;Redacted&apos; instead of hiding them entirely</source>
+        <translation>Show redacted events in the timeline as &apos;Redacted&apos; instead of hiding them entirely</translation>
     </message>
     <message>
         <source>&amp;No-effect activity</source>
@@ -346,20 +346,20 @@ org.qmatrixclient. tags: invite, left, direct, none</translation>
         <translation>Configure &amp;network proxy...</translation>
     </message>
     <message>
-        <source>Couldn't open a file to save access token</source>
-        <translation>Couldn't open a file to save access token</translation>
+        <source>Couldn&apos;t open a file to save access token</source>
+        <translation>Couldn&apos;t open a file to save access token</translation>
     </message>
     <message>
-        <source>Quaternion couldn't open a file to write the access token to. You're logged in but will have to provide your password again when you restart the application.</source>
-        <translation>Quaternion couldn't open a file to write the access token to. You're logged in but will have to provide your password again when you restart the application.</translation>
+        <source>Quaternion couldn&apos;t open a file to write the access token to. You&apos;re logged in but will have to provide your password again when you restart the application.</source>
+        <translation>Quaternion couldn&apos;t open a file to write the access token to. You&apos;re logged in but will have to provide your password again when you restart the application.</translation>
     </message>
     <message>
-        <source>Couldn't set access token file permissions</source>
-        <translation>Couldn't set access token file permissions</translation>
+        <source>Couldn&apos;t set access token file permissions</source>
+        <translation>Couldn&apos;t set access token file permissions</translation>
     </message>
     <message>
-        <source>Quaternion couldn't restrict permissions on the access token file. Do you still want to save the access token to it?</source>
-        <translation>Quaternion couldn't restrict permissions on the access token file. Do you still want to save the access token to it?</translation>
+        <source>Quaternion couldn&apos;t restrict permissions on the access token file. Do you still want to save the access token to it?</source>
+        <translation>Quaternion couldn&apos;t restrict permissions on the access token file. Do you still want to save the access token to it?</translation>
     </message>
     <message>
         <source>Logged out as %1</source>
@@ -378,10 +378,10 @@ org.qmatrixclient. tags: invite, left, direct, none</translation>
         <translation>The last sync has failed with error: %1</translation>
     </message>
     <message>
-        <source>Clicking 'Retry' will attempt to resume synchronisation;
-Clicking 'Cancel' will stop further synchronisation of this account until logout or Quaternion restart.</source>
-        <translation>Clicking 'Retry' will attempt to resume synchronisation;
-Clicking 'Cancel' will stop further synchronisation of this account until logout or Quaternion restart.</translation>
+        <source>Clicking &apos;Retry&apos; will attempt to resume synchronisation;
+Clicking &apos;Cancel&apos; will stop further synchronisation of this account until logout or Quaternion restart.</source>
+        <translation>Clicking &apos;Retry&apos; will attempt to resume synchronisation;
+Clicking &apos;Cancel&apos; will stop further synchronisation of this account until logout or Quaternion restart.</translation>
     </message>
     <message>
         <source>Before this server can process your information, you have to agree with its terms and conditions; please click the button below to open the web page where you can do that</source>
@@ -504,8 +504,8 @@ Clicking 'Cancel' will stop further synchronisation of this account until logout
         <translation>Sync completed - have a good chat</translation>
     </message>
     <message>
-        <source>Couldn't connect to the server as %1; will retry within %2 seconds</source>
-        <translation>Couldn't connect to the server as %1; will retry within %2 seconds</translation>
+        <source>Couldn&apos;t connect to the server as %1; will retry within %2 seconds</source>
+        <translation>Couldn&apos;t connect to the server as %1; will retry within %2 seconds</translation>
     </message>
     <message>
         <source>Reconnecting...</source>
