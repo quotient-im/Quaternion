@@ -26,15 +26,15 @@
         <translation>Sende eine nicht verschlüsselte Nachricht oder gebe einen Befehl ein...</translation>
     </message>
     <message>
-        <source>There's nothing to send</source>
+        <source>There&apos;s nothing to send</source>
         <translation>Da ist nichts zum Senden</translation>
     </message>
     <message>
-        <source>/join argument doesn't look like a room ID or alias</source>
+        <source>/join argument doesn&apos;t look like a room ID or alias</source>
         <translation>/join Argument sieht nicht nach einer Raum-ID oder Alias aus</translation>
     </message>
     <message>
-        <source>There's no such /command outside of room. Start with // to send this line literally</source>
+        <source>There&apos;s no such /command outside of room. Start with // to send this line literally</source>
         <translation>Es gibt keinen /befehl außerhalb von Räumen. Starte mit // um diese Zeile normal zu senden</translation>
     </message>
     <message>
@@ -46,7 +46,7 @@
         <translation>/forget benötigt als Argument eine(n) Raum-ID/Alias - auch für den aktuellen Raum</translation>
     </message>
     <message>
-        <source>%1 doesn't look like a room id or alias</source>
+        <source>%1 doesn&apos;t look like a room id or alias</source>
         <translation>%1 sieht nicht nach einer Raum-ID oder einem Raum-Alias aus</translation>
     </message>
     <message>
@@ -54,7 +54,7 @@
         <translation>/invite &lt;Nutzer-ID&gt;</translation>
     </message>
     <message>
-        <source>%1 doesn't look like a user ID</source>
+        <source>%1 doesn&apos;t look like a user ID</source>
         <translation>%1 sieht nicht nach einer Nutzer-ID aus</translation>
     </message>
     <message>
@@ -62,7 +62,7 @@
         <translation>/%1 &lt;NutzerId&gt; &lt;Grund&gt;</translation>
     </message>
     <message>
-        <source>%1 doesn't look like a user id</source>
+        <source>%1 doesn&apos;t look like a user id</source>
         <translation>%1 sieht nicht nach einer Nutzer-ID aus</translation>
     </message>
     <message>
@@ -74,7 +74,7 @@
         <translation>/unban &lt;NutzerId&gt;</translation>
     </message>
     <message>
-        <source>/unban argument doesn't look like a user ID</source>
+        <source>/unban argument doesn&apos;t look like a user ID</source>
         <translation>/unban-Argument sieht nicht nach einer Nutzer-ID aus</translation>
     </message>
     <message>
@@ -82,11 +82,11 @@
         <translation>/ignore &lt;NutzerID&gt;</translation>
     </message>
     <message>
-        <source>/ignore argument doesn't look like a user ID</source>
+        <source>/ignore argument doesn&apos;t look like a user ID</source>
         <translation>/ignore-Argument sieht nicht nach einer Nutzer-ID aus</translation>
     </message>
     <message>
-        <source>Couldn't find user %1 on the server</source>
+        <source>Couldn&apos;t find user %1 on the server</source>
         <comment>vielleicht zu lang...</comment>
         <translation>Konnte den Benutzer %1 nicht auf dem Server finden</translation>
     </message>
@@ -103,11 +103,11 @@
         <translation>/%1 &lt;NutzerId&gt; &lt;Nachricht&gt;</translation>
     </message>
     <message>
-        <source>%1 doesn't seem to have joined room %2</source>
+        <source>%1 doesn&apos;t seem to have joined room %2</source>
         <translation>%1 ist dem Raum %2 anscheinend nicht beigetreten</translation>
     </message>
     <message>
-        <source>%1 doesn't look like a user id or room alias</source>
+        <source>%1 doesn&apos;t look like a user id or room alias</source>
         <comment>it looks in both cases like a check for an id</comment>
         <translation>%1 sieht nicht nach einer Nutzer- oder Raum-ID aus</translation>
     </message>
@@ -217,7 +217,7 @@
         <translation>Normale &amp;Zutritts-/Verlassens-Ereignisse</translation>
     </message>
     <message>
-        <source>Show join and leave events that don't couple in a no-change pair</source>
+        <source>Show join and leave events that don&apos;t couple in a no-change pair</source>
         <comment>?</comment>
         <translation>Zeige Zutritt- und Verlassens-Ereignisse, die nicht in einem &quot;Nicht-Ändern-Paar&quot; vereint würden</translation>
     </message>
@@ -226,8 +226,8 @@
         <translation>&amp;Gelöschte Ereignisse</translation>
     </message>
     <message>
-        <source>Show redacted events in the timeline as 'Redacted' instead of hiding them entirely</source>
-        <translation>Zeige entfernte Ereignisse in der Historie als 'Entfernt' anstatt sie komplett zu verbergen</translation>
+        <source>Show redacted events in the timeline as &apos;Redacted&apos; instead of hiding them entirely</source>
+        <translation>Zeige entfernte Ereignisse in der Historie als &apos;Entfernt&apos; anstatt sie komplett zu verbergen</translation>
     </message>
     <message>
         <source>&amp;No-effect activity</source>
@@ -346,19 +346,19 @@ Lösche das Feld um zum Standard zurückzukehren
         <translation>Konfiguriere &amp;Netzwerk-Proxy...</translation>
     </message>
     <message>
-        <source>Couldn't open a file to save access token</source>
+        <source>Couldn&apos;t open a file to save access token</source>
         <translation>Konnte keine Datei öffnen um den Zugangs-Token zu speichern</translation>
     </message>
     <message>
-        <source>Quaternion couldn't open a file to write the access token to. You're logged in but will have to provide your password again when you restart the application.</source>
+        <source>Quaternion couldn&apos;t open a file to write the access token to. You&apos;re logged in but will have to provide your password again when you restart the application.</source>
         <translation>Quaternion konnte keine Datei öffnen um den Zugangs-Token darin zu speichern. Du wurdest angemeldet, wirst aber erneut ein Passwort eingeben müssen, wenn du die Anwendung neustartest.</translation>
     </message>
     <message>
-        <source>Couldn't set access token file permissions</source>
+        <source>Couldn&apos;t set access token file permissions</source>
         <translation>Konnte Berechtigungen der Zugangs-Token-Datei nicht setzen</translation>
     </message>
     <message>
-        <source>Quaternion couldn't restrict permissions on the access token file. Do you still want to save the access token to it?</source>
+        <source>Quaternion couldn&apos;t restrict permissions on the access token file. Do you still want to save the access token to it?</source>
         <translation>Quaternion konnte die Berechtigungen zur Zugangstoken-Datei nicht einschränken. Möchtest du den Zugangstoken trotzdem darin speichern?</translation>
     </message>
     <message>
@@ -378,10 +378,10 @@ Lösche das Feld um zum Standard zurückzukehren
         <translation>Die letzte Synchronisierung schlug fehl mit dem Fehler: %1</translation>
     </message>
     <message>
-        <source>Clicking 'Retry' will attempt to resume synchronisation;
-Clicking 'Cancel' will stop further synchronisation of this account until logout or Quaternion restart.</source>
-        <translation>'Erneut probieren' wird versuchen weiter zu Synchronisieren;
-'Abbrechen' wird weitere Synchronisierungsversuche dieses Kontos abbrechen bis zur Abmeldung oder Quaternion-Neustart.</translation>
+        <source>Clicking &apos;Retry&apos; will attempt to resume synchronisation;
+Clicking &apos;Cancel&apos; will stop further synchronisation of this account until logout or Quaternion restart.</source>
+        <translation>&apos;Erneut probieren&apos; wird versuchen weiter zu Synchronisieren;
+&apos;Abbrechen&apos; wird weitere Synchronisierungsversuche dieses Kontos abbrechen bis zur Abmeldung oder Quaternion-Neustart.</translation>
     </message>
     <message>
         <source>Before this server can process your information, you have to agree with its terms and conditions; please click the button below to open the web page where you can do that</source>
@@ -504,7 +504,7 @@ Clicking 'Cancel' will stop further synchronisation of this account until logout
         <translation>Synchronisierung vollständig - Viel Spaß beim Unterhalten</translation>
     </message>
     <message>
-        <source>Couldn't connect to the server as %1; will retry within %2 seconds</source>
+        <source>Couldn&apos;t connect to the server as %1; will retry within %2 seconds</source>
         <translation>Konnte nicht mit dem Server als %1 verbinden; Versuche es in %2 Sekunden erneut</translation>
     </message>
     <message>
