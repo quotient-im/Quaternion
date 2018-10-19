@@ -26,15 +26,15 @@
         <translation>Wyślij wiadomość (niezaszyfrowaną) lub wprowadź polecenie…</translation>
     </message>
     <message>
-        <source>There's nothing to send</source>
+        <source>There&apos;s nothing to send</source>
         <translation>Nie ma niczego do przesłania</translation>
     </message>
     <message>
-        <source>/join argument doesn't look like a room ID or alias</source>
+        <source>/join argument doesn&apos;t look like a room ID or alias</source>
         <translation>/join nie wygląda jak identyfikator pokoju lub alias</translation>
     </message>
     <message>
-        <source>There's no such /command outside of room. Start with // to send this line literally</source>
+        <source>There&apos;s no such /command outside of room. Start with // to send this line literally</source>
         <translation></translation>
     </message>
     <message>
@@ -46,7 +46,7 @@
         <translation></translation>
     </message>
     <message>
-        <source>%1 doesn't look like a room id or alias</source>
+        <source>%1 doesn&apos;t look like a room id or alias</source>
         <translation>%1 nie wygląda jak identyfikator pokoju lub alias</translation>
     </message>
     <message>
@@ -54,7 +54,7 @@
         <translation>/invite &lt;memberId&gt;</translation>
     </message>
     <message>
-        <source>%1 doesn't look like a user ID</source>
+        <source>%1 doesn&apos;t look like a user ID</source>
         <translation>%1 nie wygląda jak identyfikator użytkownika</translation>
     </message>
     <message>
@@ -62,7 +62,7 @@
         <translation>/%1 &lt;userId&gt; &lt;powód&gt;</translation>
     </message>
     <message>
-        <source>%1 doesn't look like a user id</source>
+        <source>%1 doesn&apos;t look like a user id</source>
         <translation>%1 nie wygląda jak identyfikator użytkownika</translation>
     </message>
     <message>
@@ -74,7 +74,7 @@
         <translation>/unban &lt;userId&gt;</translation>
     </message>
     <message>
-        <source>/unban argument doesn't look like a user ID</source>
+        <source>/unban argument doesn&apos;t look like a user ID</source>
         <translation>/unban nie wygląda jak identyfikator użytkownika</translation>
     </message>
     <message>
@@ -82,11 +82,11 @@
         <translation>/ignore &lt;userId&gt;</translation>
     </message>
     <message>
-        <source>/ignore argument doesn't look like a user ID</source>
+        <source>/ignore argument doesn&apos;t look like a user ID</source>
         <translation>/ignore nie wygląda jak identyfikator użytkownika</translation>
     </message>
     <message>
-        <source>Couldn't find user %1 on the server</source>
+        <source>Couldn&apos;t find user %1 on the server</source>
         <comment>vielleicht zu lang...</comment>
         <translation>Nie można znaleźć użytkownika %1 na serwerze</translation>
     </message>
@@ -103,11 +103,11 @@
         <translation>/%1 &lt;memberId&gt; &lt;wiadomość&gt;</translation>
     </message>
     <message>
-        <source>%1 doesn't seem to have joined room %2</source>
+        <source>%1 doesn&apos;t seem to have joined room %2</source>
         <translation>%1 najwyraźniej nie dołączył do pokoju %2</translation>
     </message>
     <message>
-        <source>%1 doesn't look like a user id or room alias</source>
+        <source>%1 doesn&apos;t look like a user id or room alias</source>
         <comment>it looks in both cases like a check for an id</comment>
         <translation>%1 nie wygląda jak identyfikator użytkownika lub alias pokoju</translation>
     </message>
@@ -217,7 +217,7 @@
         <translation>&amp;Zwykłe zdarzenia dołączania/opuszczania</translation>
     </message>
     <message>
-        <source>Show join and leave events that don't couple in a no-change pair</source>
+        <source>Show join and leave events that don&apos;t couple in a no-change pair</source>
         <comment>?</comment>
         <translation></translation>
     </message>
@@ -226,7 +226,7 @@
         <translation>&amp;Zredagowane zdarzenia</translation>
     </message>
     <message>
-        <source>Show redacted events in the timeline as 'Redacted' instead of hiding them entirely</source>
+        <source>Show redacted events in the timeline as &apos;Redacted&apos; instead of hiding them entirely</source>
         <translation></translation>
     </message>
     <message>
@@ -344,19 +344,19 @@ org.qmatrixclient. tags: invite, left, direct, none</source>
         <translation>&amp;Konfiguruj proxy sieciowe…</translation>
     </message>
     <message>
-        <source>Couldn't open a file to save access token</source>
+        <source>Couldn&apos;t open a file to save access token</source>
         <translation>Nie można otworzyć pliku, aby zapisać token dostępu</translation>
     </message>
     <message>
-        <source>Quaternion couldn't open a file to write the access token to. You're logged in but will have to provide your password again when you restart the application.</source>
+        <source>Quaternion couldn&apos;t open a file to write the access token to. You&apos;re logged in but will have to provide your password again when you restart the application.</source>
         <translation></translation>
     </message>
     <message>
-        <source>Couldn't set access token file permissions</source>
+        <source>Couldn&apos;t set access token file permissions</source>
         <translation></translation>
     </message>
     <message>
-        <source>Quaternion couldn't restrict permissions on the access token file. Do you still want to save the access token to it?</source>
+        <source>Quaternion couldn&apos;t restrict permissions on the access token file. Do you still want to save the access token to it?</source>
         <translation></translation>
     </message>
     <message>
@@ -376,8 +376,8 @@ org.qmatrixclient. tags: invite, left, direct, none</source>
         <translation></translation>
     </message>
     <message>
-        <source>Clicking 'Retry' will attempt to resume synchronisation;
-Clicking 'Cancel' will stop further synchronisation of this account until logout or Quaternion restart.</source>
+        <source>Clicking &apos;Retry&apos; will attempt to resume synchronisation;
+Clicking &apos;Cancel&apos; will stop further synchronisation of this account until logout or Quaternion restart.</source>
         <translation></translation>
     </message>
     <message>
@@ -501,7 +501,7 @@ Clicking 'Cancel' will stop further synchronisation of this account until logout
         <translation>Synchronizacja zakończona - miłej rozmowy</translation>
     </message>
     <message>
-        <source>Couldn't connect to the server as %1; will retry within %2 seconds</source>
+        <source>Couldn&apos;t connect to the server as %1; will retry within %2 seconds</source>
         <translation></translation>
     </message>
     <message>
