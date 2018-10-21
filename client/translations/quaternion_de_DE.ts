@@ -1,4 +1,6 @@
-<!DOCTYPE TS><TS version="2.1" language="de_DE">
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
+<TS version="2.1" language="de_DE">
 <context>
     <name>ChatRoomWidget</name>
     <message>
@@ -88,7 +90,7 @@
     <message>
         <source>Couldn&apos;t find user %1 on the server</source>
         <comment>vielleicht zu lang...</comment>
-        <translation>Konnte den Benutzer %1 nicht auf dem Server finden</translation>
+        <translation type="vanished">Konnte den Benutzer %1 nicht auf dem Server finden</translation>
     </message>
     <message>
         <source>/me needs an argument</source>
@@ -109,7 +111,7 @@
     <message>
         <source>%1 doesn&apos;t look like a user id or room alias</source>
         <comment>it looks in both cases like a check for an id</comment>
-        <translation>%1 sieht nicht nach einer Nutzer- oder Raum-ID aus</translation>
+        <translation type="vanished">%1 sieht nicht nach einer Nutzer- oder Raum-ID aus</translation>
     </message>
     <message>
         <source>/%1 &lt;memberId&gt;</source>
@@ -123,6 +125,14 @@
         <source>Save file as</source>
         <translation>Speichere Datei als</translation>
     </message>
+    <message>
+        <source>Couldn&apos;t find user %1 on the server</source>
+        <translation type="unfinished">Konnte den Benutzer %1 nicht auf dem Server finden</translation>
+    </message>
+    <message>
+        <source>%1 doesn&apos;t look like a user id or room alias</source>
+        <translation type="unfinished">%1 sieht nicht nach einer Nutzer- oder Raum-ID aus</translation>
+    </message>
 </context>
 <context>
     <name>CreateRoomDialog</name>
@@ -133,7 +143,7 @@
     <message>
         <source>Add</source>
         <comment>Passt in diesem Kontext, glaub ich, besser</comment>
-        <translation>Erstellen</translation>
+        <translation type="vanished">Erstellen</translation>
     </message>
     <message>
         <source>Invite user(s)</source>
@@ -143,12 +153,66 @@
         <source>Creating the room, please wait</source>
         <translation>Erstelle den Raum. Bitte warten</translation>
     </message>
+    <message>
+        <source>Add</source>
+        <translation type="unfinished">Erstellen</translation>
+    </message>
 </context>
 <context>
     <name>Dialog</name>
     <message>
         <source>Applying changes, please wait</source>
         <translation>Änderungen werden übernommen. Bitte warten</translation>
+    </message>
+</context>
+<context>
+    <name>FileContent</name>
+    <message>
+        <source>Size: %1, declared type: %2</source>
+        <translation>Größe: %1, angegebener Typ: %2</translation>
+    </message>
+    <message>
+        <source> (downloaded to %1)</source>
+        <translation> (nach %1 heruntergeladen)</translation>
+    </message>
+    <message>
+        <source>Open after downloading</source>
+        <translation>Nach dem Herunterladen öffnen</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
+    </message>
+    <message>
+        <source>Save as...</source>
+        <translation>Speichern als...</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Öffnen</translation>
+    </message>
+    <message>
+        <source>Open folder</source>
+        <translation>Ordner öffnen</translation>
+    </message>
+</context>
+<context>
+    <name>ImageContent</name>
+    <message>
+        <source>Cancel downloading</source>
+        <translation>Herunterladen abbrechen</translation>
+    </message>
+    <message>
+        <source>Open externally</source>
+        <translation>Extern öffnen</translation>
+    </message>
+    <message>
+        <source>Download full size</source>
+        <translation>In voller Größe herunterladen</translation>
+    </message>
+    <message>
+        <source>Save as...</source>
+        <translation>Speichern als...</translation>
     </message>
 </context>
 <context>
@@ -219,7 +283,7 @@
     <message>
         <source>Show join and leave events that don&apos;t couple in a no-change pair</source>
         <comment>?</comment>
-        <translation>Zeige Zutritt- und Verlassens-Ereignisse, die nicht in einem &quot;Nicht-Ändern-Paar&quot; vereint würden</translation>
+        <translation type="vanished">Zeige Zutritt- und Verlassens-Ereignisse, die nicht in einem &quot;Nicht-Ändern-Paar&quot; vereint würden</translation>
     </message>
     <message>
         <source>&amp;Redacted events</source>
@@ -413,7 +477,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>&lt;a href=&quot;https://matrix.org/docs/projects/client/quaternion.html&quot;&gt;Website&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;https://matrix.org/docs/projects/client/quaternion.html&quot;&gt;Webseite&lt;/a&gt;</translation>
+        <translation type="vanished">&lt;a href=&quot;https://matrix.org/docs/projects/client/quaternion.html&quot;&gt;Webseite&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Welcome to Quaternion</source>
@@ -554,6 +618,46 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
 </source>
         <translation>Commit-SHA der Bibliothek:
 </translation>
+    </message>
+    <message>
+        <source>Show join and leave events that don&apos;t couple in a no-change pair</source>
+        <translation type="unfinished">Zeige Zutritt- und Verlassens-Ereignisse, die nicht in einem &quot;Nicht-Ändern-Paar&quot; vereint würden</translation>
+    </message>
+    <message>
+        <source>&amp;Thanks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Original project author: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Web page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Project leader: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Contributors:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Quaternion contributors @ GitHub</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>libQMatrixClient contributors @ GitHub</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Quaternion translators @ Lokalise.co</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Made with:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -844,7 +948,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     <message>
         <source>%1 (as %2)</source>
         <comment>Kontext unbekannt</comment>
-        <translation>%1 (als %2)</translation>
+        <translation type="vanished">%1 (als %2)</translation>
     </message>
     <message>
         <source>Main alias: %1&lt;br&gt;</source>
@@ -890,6 +994,10 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
         <source>You were invited into this room</source>
         <translation>Du wurdest in diesen Raum eingeladen</translation>
     </message>
+    <message>
+        <source>%1 (as %2)</source>
+        <translation type="unfinished">%1 (als %2)</translation>
+    </message>
 </context>
 <context>
     <name>RoomSettingsDialog</name>
@@ -923,101 +1031,6 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     <message>
         <source>%1: %2 highlight(s)</source>
         <translation>%1: %2 Highlight(s)</translation>
-    </message>
-</context>
-<context>
-    <name>UserListDock</name>
-    <message>
-        <source>Users</source>
-        <translation>Benutzer</translation>
-    </message>
-    <message>
-        <source>Open direct chat</source>
-        <translation>Öffne direkten Chat</translation>
-    </message>
-    <message>
-        <source>Mention user</source>
-        <translation>Nutzer erwähnen</translation>
-    </message>
-    <message>
-        <source>Users (%1)</source>
-        <translation>Benutzer (%1)</translation>
-    </message>
-</context>
-<context>
-    <name>UserListModel</name>
-    <message>
-        <source>&lt;br&gt;Bridged from: %1</source>
-        <translation>&lt;br&gt;Überbrückt von: %1</translation>
-    </message>
-</context>
-<context>
-    <name>main</name>
-    <message>
-        <source>Display debug information</source>
-        <translation>Zeige Debug-Informationen</translation>
-    </message>
-    <message>
-        <source>Quaternion - an IM client for the Matrix protocol</source>
-        <translation>Quaternion - Ein Chat-Client für das Matrix-Protokoll</translation>
-    </message>
-    <message>
-        <source>Override locale</source>
-        <translation>Sprache überschreiben</translation>
-    </message>
-    <message>
-        <source>locale</source>
-        <translation>Sprache</translation>
-    </message>
-</context>
-<context>
-    <name>FileContent</name>
-    <message>
-        <source>Size: %1, declared type: %2</source>
-        <translation>Größe: %1, angegebener Typ: %2</translation>
-    </message>
-    <message>
-        <source> (downloaded to %1)</source>
-        <translation> (nach %1 heruntergeladen)</translation>
-    </message>
-    <message>
-        <source>Open after downloading</source>
-        <translation>Nach dem Herunterladen öffnen</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Abbrechen</translation>
-    </message>
-    <message>
-        <source>Save as...</source>
-        <translation>Speichern als...</translation>
-    </message>
-    <message>
-        <source>Open</source>
-        <translation>Öffnen</translation>
-    </message>
-    <message>
-        <source>Open folder</source>
-        <translation>Ordner öffnen</translation>
-    </message>
-</context>
-<context>
-    <name>ImageContent</name>
-    <message>
-        <source>Cancel downloading</source>
-        <translation>Herunterladen abbrechen</translation>
-    </message>
-    <message>
-        <source>Open externally</source>
-        <translation>Extern öffnen</translation>
-    </message>
-    <message>
-        <source>Download full size</source>
-        <translation>In voller Größe herunterladen</translation>
-    </message>
-    <message>
-        <source>Save as...</source>
-        <translation>Speichern als...</translation>
     </message>
 </context>
 <context>
@@ -1063,6 +1076,51 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     <message>
         <source>Copy link to clipboard</source>
         <translation>In Zwischenablage kopieren</translation>
+    </message>
+</context>
+<context>
+    <name>UserListDock</name>
+    <message>
+        <source>Users</source>
+        <translation>Benutzer</translation>
+    </message>
+    <message>
+        <source>Open direct chat</source>
+        <translation>Öffne direkten Chat</translation>
+    </message>
+    <message>
+        <source>Mention user</source>
+        <translation>Nutzer erwähnen</translation>
+    </message>
+    <message>
+        <source>Users (%1)</source>
+        <translation>Benutzer (%1)</translation>
+    </message>
+</context>
+<context>
+    <name>UserListModel</name>
+    <message>
+        <source>&lt;br&gt;Bridged from: %1</source>
+        <translation>&lt;br&gt;Überbrückt von: %1</translation>
+    </message>
+</context>
+<context>
+    <name>main</name>
+    <message>
+        <source>Display debug information</source>
+        <translation>Zeige Debug-Informationen</translation>
+    </message>
+    <message>
+        <source>Quaternion - an IM client for the Matrix protocol</source>
+        <translation>Quaternion - Ein Chat-Client für das Matrix-Protokoll</translation>
+    </message>
+    <message>
+        <source>Override locale</source>
+        <translation>Sprache überschreiben</translation>
+    </message>
+    <message>
+        <source>locale</source>
+        <translation>Sprache</translation>
     </message>
 </context>
 </TS>

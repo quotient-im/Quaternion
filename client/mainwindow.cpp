@@ -627,38 +627,82 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
 
 void MainWindow::showAboutWindow()
 {
-    Dialog aboutDialog(tr("About Quaternion"), QDialogButtonBox::Close, this,
-                      Dialog::NoStatusLine);
-    auto* layout = aboutDialog.addLayout<QVBoxLayout>();
+    Dialog aboutDialog(tr("About Quaternion"), Dialog::NoExtraButtons,
+                       this, Dialog::NoStatusLine);
+    auto* tabWidget = new QTabWidget();
+    {
+        auto *aboutPage = new QWidget();
+        tabWidget->addTab(aboutPage, tr("&About"));
 
-    QLabel* imageLabel = new QLabel();
-    imageLabel->setPixmap(QPixmap(":/icon.png"));
-    imageLabel->setAlignment(Qt::AlignHCenter);
-    layout->addWidget(imageLabel);
+        auto* layout = new QVBoxLayout(aboutPage);
 
-    auto* labelString =
-            new QLabel("<h1>" + QApplication::applicationDisplayName() + " v" +
-                       QApplication::applicationVersion() + "</h1>");
-    labelString->setAlignment(Qt::AlignHCenter);
-    layout->addWidget(labelString);
+        auto* imageLabel = new QLabel();
+        imageLabel->setPixmap(QPixmap(":/icon.png"));
+        imageLabel->setAlignment(Qt::AlignHCenter);
+        layout->addWidget(imageLabel);
 
-    auto* linkLabel = new QLabel(tr("<a href=\"https://matrix.org/docs/projects/client/quaternion.html\">Website</a>"));
-    linkLabel->setAlignment(Qt::AlignHCenter);
-    layout->addWidget(linkLabel);
+        auto* labelString =
+                new QLabel("<h1>" + QApplication::applicationDisplayName() + " v" +
+                           QApplication::applicationVersion() + "</h1>");
+        labelString->setAlignment(Qt::AlignHCenter);
+        layout->addWidget(labelString);
 
-    layout->addWidget(
-                new QLabel(tr("Copyright (C) 2018 QMatrixClient project.")));
+        auto* linkLabel =
+                new QLabel("<a href=\"https://matrix.org/docs/projects/client/quaternion.html\">"
+                           + tr("Web page") + "</a>");
+        linkLabel->setAlignment(Qt::AlignHCenter);
+        linkLabel->setOpenExternalLinks(true);
+        layout->addWidget(linkLabel);
+
+        layout->addWidget(
+                    new QLabel(tr("Copyright (C) 2018 QMatrixClient project.")));
 
 #ifdef GIT_SHA1
-    layout->addWidget(new QLabel(tr("Built from Git, commit SHA:\n") +
-                                 QStringLiteral(GIT_SHA1)));
+        auto* commitLabel = new QLabel(tr("Built from Git, commit SHA:\n") +
+                                          QStringLiteral(GIT_SHA1));
+        commitLabel->setTextInteractionFlags(Qt::TextSelectableByKeyboard|
+                                             Qt::TextSelectableByMouse);
+        layout->addWidget(commitLabel);
 #endif
 
 #ifdef LIB_GIT_SHA1
-    layout->addWidget(new QLabel(tr("Library commit SHA:\n") +
-                                 QStringLiteral(LIB_GIT_SHA1)));
+        auto* libCommitLabel = new QLabel(new QLabel(tr("Library commit SHA:\n") +
+                                          QStringLiteral(LIB_GIT_SHA1)));
+        libCommitLabel->setTextInteractionFlags(Qt::TextSelectableByKeyboard|
+                                                Qt::TextSelectableByMouse);
+        layout->addWidget(libCommitLabel);
 #endif
+    }
+    {
+        auto* thanksLabel = new QLabel(
+            tr("Original project author: %1")
+            .arg("<a href='https://github.com/Fxrh'>Felix Rohrbach</a>") + "<br/>" +
+            tr("Project leader: %1")
+            .arg("<a href='https://github.com/KitsuneRal'>Kitsune Ral</a>") +
+            "<br/><br/>" +
+            tr("Contributors:") + "<br/>" +
+            "<a href='https://github.com/QMatrixClient/Quaternion/graphs/contributors'>" +
+                tr("Quaternion contributors @ GitHub") + "</a><br/>" +
+            "<a href='https://github.com/QMatrixClient/libqmatrixclient/graphs/contributors'>" +
+                tr("libQMatrixClient contributors @ GitHub") + "</a><br/>" +
+            "<a href='https://lokalise.co/contributors/730769035bbc328c31e863.62506391/'>" +
+                tr("Quaternion translators @ Lokalise.co") + "</a><br/>" +
+            "<br/>" +
+            tr("Made with:") + "<br/>" +
+            "<a href='https://www.qt.io/'>Qt 5</a><br/>"
+            "<a href='https://www.kdevelop.org/'>KDevelop</a><br/>"
+            "<a href='https://www.qt.io/qt-features-libraries-apis-tools-and-ide/#ide'>Qt Creator</a><br/>"
+            "<a href='https://www.jetbrains.com/clion/'>CLion</a><br/>"
+            "<a href='https://lokalise.co'>Lokalise.co</a>"
+        );
+        thanksLabel->setTextInteractionFlags(Qt::TextSelectableByKeyboard|
+                                             Qt::TextBrowserInteraction);
+        thanksLabel->setOpenExternalLinks(true);
 
+        tabWidget->addTab(thanksLabel, tr("&Thanks"));
+    }
+
+    aboutDialog.layout()->addWidget(tabWidget);
     aboutDialog.exec();
 }
 
