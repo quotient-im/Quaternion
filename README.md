@@ -147,5 +147,8 @@ When chasing bugs and investigating crashes, it helps to increase the debug leve
 You may also want to set `QT_MESSAGE_PATTERN` to make logs slightly more informative (see https://doc.qt.io/qt-5/qtglobal.html#qSetMessagePattern for the format description). My (@kitsune's) `QT_MESSAGE_PATTERN` looks as follows:
 `%{time h:mm:ss.zzz}|%{category}|%{if-debug}D%{endif}%{if-info}I%{endif}%{if-warning}W%{endif}%{if-critical}C%{endif}%{if-fatal}F%{endif}|%{message}` (the scary `%{if}`s are just encoding the logging level into its initial letter).
 
+## Translation
+Quaternion uses [Lokalise.co](https://lokalise.co) for the translation effort. It's easy to participate: [join the project at Lokalise.co](https://lokalise.co/public/730769035bbc328c31e863.62506391/), ask to add your language (either in #qmatrixclient:matrix.org or in the Lokalise project chat) and start translating!
+
 ## Screenshot
 ![Screenshot](quaternion.png)
