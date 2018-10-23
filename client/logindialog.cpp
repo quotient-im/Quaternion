@@ -26,6 +26,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFormLayout>
+#include <QtNetwork/QHostInfo>
 
 #include "settings.h"
 
@@ -87,6 +88,7 @@ LoginDialog::LoginDialog(QWidget* parent)
         else
         {
             saveTokenCheck->setChecked(false);
+            initialDeviceName->setText(QHostInfo::localHostName());
             userEdit->setFocus();
         }
     }
