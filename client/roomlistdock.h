@@ -63,6 +63,7 @@ class RoomListDock : public QDockWidget
         QAction* leaveAction;
         QAction* forgetAction;
         QAction* deleteTagAction;
+        QAction* roomSettingsAction;
         QVariant selectedGroupCache;
         QuaternionRoom* selectedRoomCache;
 

@@ -90,7 +90,7 @@ const QString OrderByTag::Left = QStringLiteral("org.qmatrixclient.left");
 QVariant OrderByTag::groupLabel(const RoomGroup& g) const
 {
     static const auto InvitesLabel = RoomListModel::tr("Invited");
-    static const auto FavouritesLabel = RoomListModel::tr("Favourite");
+    static const auto FavouritesLabel = RoomListModel::tr("Favourites");
     static const auto LowPriorityLabel = RoomListModel::tr("Low priority");
     static const auto DirectChatsLabel = RoomListModel::tr("People");
     static const auto UngroupedRoomsLabel = RoomListModel::tr("Ungrouped rooms");

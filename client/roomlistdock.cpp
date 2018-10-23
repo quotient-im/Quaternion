@@ -25,6 +25,7 @@
 
 #include "models/roomlistmodel.h"
 #include "quaternionroom.h"
+#include "roomdialogs.h"
 #include <connection.h>
 #include <settings.h>
 
@@ -156,6 +157,15 @@ RoomListDock::RoomListDock(QWidget* parent)
     addTagsAction =
         roomContextMenu->addAction(QIcon::fromTheme("tag-new"),
         tr("Add tags..."), this, &RoomListDock::addTagsSelected);
+    roomSettingsAction =
+        roomContextMenu->addAction(QIcon::fromTheme("user-group-properties"),
+            tr("Change room &settings..."), [this]
+            {
+                RoomSettingsDialog* dlg = new RoomSettingsDialog(getSelectedRoom(), this);
+                dlg->setModal(false);
+                dlg->setAttribute(Qt::WA_DeleteOnClose);
+                dlg->reactivate();
+            });
     roomContextMenu->addSeparator();
     joinAction =
         roomContextMenu->addAction(QIcon::fromTheme("irc-join-channel"),
