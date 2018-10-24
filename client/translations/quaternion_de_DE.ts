@@ -89,8 +89,7 @@
     </message>
     <message>
         <source>Couldn&apos;t find user %1 on the server</source>
-        <comment>vielleicht zu lang...</comment>
-        <translation type="vanished">Konnte den Benutzer %1 nicht auf dem Server finden</translation>
+        <translation>Konnte den Benutzer %1 nicht auf dem Server finden</translation>
     </message>
     <message>
         <source>/me needs an argument</source>
@@ -110,8 +109,7 @@
     </message>
     <message>
         <source>%1 doesn&apos;t look like a user id or room alias</source>
-        <comment>it looks in both cases like a check for an id</comment>
-        <translation type="vanished">%1 sieht nicht nach einer Nutzer- oder Raum-ID aus</translation>
+        <translation>%1 sieht nicht nach einer Nutzer- oder Raum-ID aus</translation>
     </message>
     <message>
         <source>/%1 &lt;memberId&gt;</source>
@@ -125,25 +123,12 @@
         <source>Save file as</source>
         <translation>Speichere Datei als</translation>
     </message>
-    <message>
-        <source>Couldn&apos;t find user %1 on the server</source>
-        <translation type="unfinished">Konnte den Benutzer %1 nicht auf dem Server finden</translation>
-    </message>
-    <message>
-        <source>%1 doesn&apos;t look like a user id or room alias</source>
-        <translation type="unfinished">%1 sieht nicht nach einer Nutzer- oder Raum-ID aus</translation>
-    </message>
 </context>
 <context>
     <name>CreateRoomDialog</name>
     <message>
         <source>Create room</source>
         <translation>Erstelle Raum</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <comment>Passt in diesem Kontext, glaub ich, besser</comment>
-        <translation type="vanished">Erstellen</translation>
     </message>
     <message>
         <source>Invite user(s)</source>
@@ -155,6 +140,7 @@
     </message>
     <message>
         <source>Add</source>
+        <comment>Add a user to the list of invitees</comment>
         <translation type="unfinished">Erstellen</translation>
     </message>
 </context>
@@ -299,7 +285,7 @@
     </message>
     <message>
         <source>Show join and leave events that couple in a no-change pair, possibly with redactions between</source>
-        <translation>Zeige Zutritt- und Verlassens-Ereignisse, die in einem &quot;Nicht-Ändern-Paar&quot; zusammengefasst würden - evtl. mit Entfernungen dazwischen</translation>
+        <translation type="vanished">Zeige Zutritt- und Verlassens-Ereignisse, die in einem &quot;Nicht-Ändern-Paar&quot; zusammengefasst würden - evtl. mit Entfernungen dazwischen</translation>
     </message>
     <message>
         <source>Edit tags order</source>
@@ -476,10 +462,6 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
         <translation>Über Quaternion</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;https://matrix.org/docs/projects/client/quaternion.html&quot;&gt;Website&lt;/a&gt;</source>
-        <translation type="vanished">&lt;a href=&quot;https://matrix.org/docs/projects/client/quaternion.html&quot;&gt;Webseite&lt;/a&gt;</translation>
-    </message>
-    <message>
         <source>Welcome to Quaternion</source>
         <translation>Willkommen bei Quaternion</translation>
     </message>
@@ -620,10 +602,6 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
 </translation>
     </message>
     <message>
-        <source>Show join and leave events that don&apos;t couple in a no-change pair</source>
-        <translation type="unfinished">Zeige Zutritt- und Verlassens-Ereignisse, die nicht in einem &quot;Nicht-Ändern-Paar&quot; vereint würden</translation>
-    </message>
-    <message>
         <source>&amp;Thanks</source>
         <translation type="unfinished"></translation>
     </message>
@@ -657,6 +635,14 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Made with:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show join and leave events</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show join-(optional redactions but no other events)-leave sequences from the same author</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -911,6 +897,10 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
         <source>Re-sort rooms (TODO)</source>
         <translation></translation>
     </message>
+    <message>
+        <source>Change room &amp;settings...</source>
+        <translation type="unfinished">Ändere Raum-&amp;Einstellungen...</translation>
+    </message>
 </context>
 <context>
     <name>RoomListModel</name>
@@ -920,7 +910,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Favourite</source>
-        <translation>Favoriten</translation>
+        <translation type="vanished">Favoriten</translation>
     </message>
     <message>
         <source>Low priority</source>
@@ -944,11 +934,6 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
             <numerusform>%1 (%Ln Raum)</numerusform>
             <numerusform>%1 (%Ln Räume)</numerusform>
         </translation>
-    </message>
-    <message>
-        <source>%1 (as %2)</source>
-        <comment>Kontext unbekannt</comment>
-        <translation type="vanished">%1 (als %2)</translation>
     </message>
     <message>
         <source>Main alias: %1&lt;br&gt;</source>
@@ -995,7 +980,12 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
         <translation>Du wurdest in diesen Raum eingeladen</translation>
     </message>
     <message>
+        <source>Favourites</source>
+        <translation type="unfinished">Favoriten</translation>
+    </message>
+    <message>
         <source>%1 (as %2)</source>
+        <comment>%Room (as %user)</comment>
         <translation type="unfinished">%1 (als %2)</translation>
     </message>
 </context>

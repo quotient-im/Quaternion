@@ -215,7 +215,7 @@ CreateRoomDialog::CreateRoomDialog(const connections_t& connections,
     : RoomDialogBase(tr("Create room"), tr("Create room"),
                      nullptr, parent, connections, NoExtraButtons)
     , nextInvitee(new NextInvitee)
-    , inviteButton(new QPushButton(tr("Add")))
+    , inviteButton(new QPushButton(tr("Add", "Add a user to the list of invitees")))
     , invitees(new QListWidget)
 {
     Q_ASSERT(!connections.isEmpty());

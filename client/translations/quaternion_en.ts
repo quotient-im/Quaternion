@@ -89,8 +89,7 @@
     </message>
     <message>
         <source>Couldn&apos;t find user %1 on the server</source>
-        <comment>vielleicht zu lang...</comment>
-        <translation type="vanished">Couldn&apos;t find user %1 on the server</translation>
+        <translation>Couldn&apos;t find user %1 on the server</translation>
     </message>
     <message>
         <source>/me needs an argument</source>
@@ -110,8 +109,7 @@
     </message>
     <message>
         <source>%1 doesn&apos;t look like a user id or room alias</source>
-        <comment>it looks in both cases like a check for an id</comment>
-        <translation type="vanished">%1 doesn&apos;t look like a user id or room alias</translation>
+        <translation>%1 doesn&apos;t look like a user id or room alias</translation>
     </message>
     <message>
         <source>/%1 &lt;memberId&gt;</source>
@@ -125,14 +123,6 @@
         <source>Save file as</source>
         <translation>Save file as</translation>
     </message>
-    <message>
-        <source>Couldn&apos;t find user %1 on the server</source>
-        <translation type="unfinished">Couldn&apos;t find user %1 on the server</translation>
-    </message>
-    <message>
-        <source>%1 doesn&apos;t look like a user id or room alias</source>
-        <translation type="unfinished">%1 doesn&apos;t look like a user id or room alias</translation>
-    </message>
 </context>
 <context>
     <name>CreateRoomDialog</name>
@@ -142,8 +132,8 @@
     </message>
     <message>
         <source>Add</source>
-        <comment>Passt in diesem Kontext, glaub ich, besser</comment>
-        <translation type="vanished">Add</translation>
+        <comment>Add a user to the list of invitees</comment>
+        <translation>Add</translation>
     </message>
     <message>
         <source>Invite user(s)</source>
@@ -152,10 +142,6 @@
     <message>
         <source>Creating the room, please wait</source>
         <translation>Creating the room, please wait</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="unfinished">Add</translation>
     </message>
 </context>
 <context>
@@ -299,7 +285,7 @@
     </message>
     <message>
         <source>Show join and leave events that couple in a no-change pair, possibly with redactions between</source>
-        <translation>Show join and leave events that couple in a no-change pair, possibly with redactions between</translation>
+        <translation type="vanished">Show join and leave events that couple in a no-change pair, possibly with redactions between</translation>
     </message>
     <message>
         <source>Edit tags order</source>
@@ -476,10 +462,6 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
         <translation>About Quaternion</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;https://matrix.org/docs/projects/client/quaternion.html&quot;&gt;Website&lt;/a&gt;</source>
-        <translation type="vanished">&lt;a href=&quot;https://matrix.org/docs/projects/client/quaternion.html&quot;&gt;Website&lt;/a&gt;</translation>
-    </message>
-    <message>
         <source>Welcome to Quaternion</source>
         <translation>Welcome to Quaternion</translation>
     </message>
@@ -620,10 +602,6 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
 </translation>
     </message>
     <message>
-        <source>Show join and leave events that don&apos;t couple in a no-change pair</source>
-        <translation type="unfinished">Show join and leave events that don&apos;t couple in a no-change pair</translation>
-    </message>
-    <message>
         <source>&amp;Thanks</source>
         <translation type="unfinished"></translation>
     </message>
@@ -657,6 +635,14 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Made with:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show join and leave events</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show join-(optional redactions but no other events)-leave sequences from the same author</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -911,6 +897,10 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
         <source>Re-sort rooms (TODO)</source>
         <translation></translation>
     </message>
+    <message>
+        <source>Change room &amp;settings...</source>
+        <translation type="unfinished">Change room &amp;settings...</translation>
+    </message>
 </context>
 <context>
     <name>RoomListModel</name>
@@ -920,7 +910,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Favourite</source>
-        <translation>Favourite</translation>
+        <translation type="vanished">Favourite</translation>
     </message>
     <message>
         <source>Low priority</source>
@@ -947,8 +937,8 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>%1 (as %2)</source>
-        <comment>Kontext unbekannt</comment>
-        <translation type="vanished">%1 (as %2)</translation>
+        <comment>%Room (as %user)</comment>
+        <translation>%1 (as %2)</translation>
     </message>
     <message>
         <source>Main alias: %1&lt;br&gt;</source>
@@ -995,8 +985,8 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
         <translation>You were invited into this room</translation>
     </message>
     <message>
-        <source>%1 (as %2)</source>
-        <translation type="unfinished">%1 (as %2)</translation>
+        <source>Favourites</source>
+        <translation type="unfinished">Favourites</translation>
     </message>
 </context>
 <context>

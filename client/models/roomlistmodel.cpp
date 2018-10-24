@@ -570,8 +570,8 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
                 if (c == room->connection())
                     continue;
                 if (c->room(room->id(), room->joinState()))
-                    return tr("%1 (as %2)").arg(room->displayName(),
-                                                room->connection()->userId())
+                    return tr("%1 (as %2)", "%Room (as %user)")
+                           .arg(room->displayName(), room->connection()->userId())
                            + postfix;
             }
             return room->displayName() + postfix;

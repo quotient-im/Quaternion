@@ -178,7 +178,7 @@ void MainWindow::createMenu()
     addTimelineOptionCheckbox(
         showEventsMenu,
         tr("Normal &join/leave events"),
-        tr("Show join and leave events that don't couple in a no-change pair"),
+        tr("Show join and leave events"),
         QStringLiteral("show_joinleave"),
         true
     );
@@ -192,8 +192,7 @@ void MainWindow::createMenu()
     addTimelineOptionCheckbox(
         showEventsMenu,
         tr("&No-effect activity"),
-        tr("Show join and leave events that couple in a no-change pair,"
-           " possibly with redactions between"),
+        tr("Show join-(optional redactions but no other events)-leave sequences from the same author"),
         QStringLiteral("show_spammy")
     );
 
