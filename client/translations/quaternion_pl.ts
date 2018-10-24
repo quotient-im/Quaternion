@@ -132,7 +132,7 @@
     </message>
     <message>
         <source>Add</source>
-        <comment>Passt in diesem Kontext, glaub ich, besser</comment>
+        <comment>Add a user to the list of invitees</comment>
         <translation>Dodaj</translation>
     </message>
     <message>
@@ -382,7 +382,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Before this server can process your information, you have to agree with its terms and conditions; please click the button below to open the web page where you can do that</source>
-        <translation></translation>
+        <translation>Zanim serwer ten będzie mógł przetwarzać Twoje informacje, musisz wyrazić zgodę na jego warunki; proszę kliknąć przycisk poniżej, aby otworzyć stronę internetową, na której możesz to zrobić</translation>
     </message>
     <message>
         <source>Open web page</source>
@@ -409,10 +409,6 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
         <translation>Informacje o Quaternion</translation>
     </message>
     <message>
-        <source>&lt;a href=&quot;https://matrix.org/docs/projects/client/quaternion.html&quot;&gt;Website&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;https://matrix.org/docs/projects/client/quaternion.html&quot;&gt;Strona internetowa&lt;/a&gt;</translation>
-    </message>
-    <message>
         <source>Welcome to Quaternion</source>
         <translation>Witamy w Quaternion</translation>
     </message>
@@ -426,15 +422,15 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Please connect to a server before joining a room</source>
-        <translation></translation>
+        <translation>Proszę połącz się z serwerem przed dołączeniem do pokoju</translation>
     </message>
     <message>
         <source>Joining %1 as %2</source>
-        <translation></translation>
+        <translation>Dołączenie do %1 jako %2</translation>
     </message>
     <message>
         <source>Join room %1 under account %2?</source>
-        <translation></translation>
+        <translation>Dołączyć do pokoju %1 na koncie %2?</translation>
     </message>
     <message>
         <source>Join</source>
@@ -466,11 +462,11 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Starting direct chat with %1 as %2</source>
-        <translation></translation>
+        <translation>Rozpoczynanie bezpośredniej rozmowy z %1 jako %2</translation>
     </message>
     <message>
         <source>Start direct chat with %1 under account %2?</source>
-        <translation></translation>
+        <translation>Rozpocząć bezpośrednią rozmowę z %1 na koncie %2?</translation>
     </message>
     <message>
         <source>Start Chat</source>
@@ -478,11 +474,11 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Enter user id to start direct chat.</source>
-        <translation></translation>
+        <translation>Wprowadź identyfikator użytkownika, aby rozpocząć bezpośrednią rozmowę.</translation>
     </message>
     <message>
         <source>Enter the user id of who you would like to chat with. You will join as %1</source>
-        <translation></translation>
+        <translation>Wprowadź identyfikator użytkownika, z którym chcesz rozmawiać. Dołączysz jako %1</translation>
     </message>
     <message>
         <source>No user id specified</source>
@@ -502,7 +498,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Couldn&apos;t connect to the server as %1; will retry within %2 seconds</source>
-        <translation></translation>
+        <translation>Nie można było połączyć się z serwerem jako %1; spróbuje ponownie w ciągu %2 sekund</translation>
     </message>
     <message>
         <source>Reconnecting...</source>
@@ -514,7 +510,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Your SSL configuration does not allow Quaternion to establish secure connections.</source>
-        <translation></translation>
+        <translation>Twoja konfiguracja SSL nie zezwala Quaternionowi na ustanowienie bezpiecznych połączeń.</translation>
     </message>
     <message>
         <source>SSL error</source>
@@ -550,6 +546,50 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
 </source>
         <translation></translation>
     </message>
+    <message>
+        <source>&amp;Thanks</source>
+        <translation>&amp;Podziękowania</translation>
+    </message>
+    <message>
+        <source>Original project author: %1</source>
+        <translation>Pierwotny autor projektu: %1</translation>
+    </message>
+    <message>
+        <source>Web page</source>
+        <translation>Strona internetowa</translation>
+    </message>
+    <message>
+        <source>Project leader: %1</source>
+        <translation>Kierownik projektu: %1</translation>
+    </message>
+    <message>
+        <source>Contributors:</source>
+        <translation>Współautorzy:</translation>
+    </message>
+    <message>
+        <source>Quaternion contributors @ GitHub</source>
+        <translation>Współautorzy Quaterniona na GitHubie</translation>
+    </message>
+    <message>
+        <source>libQMatrixClient contributors @ GitHub</source>
+        <translation>Współautorzy libQMatrixClient na GitHubie</translation>
+    </message>
+    <message>
+        <source>Quaternion translators @ Lokalise.co</source>
+        <translation>Tłumacze Quaterniona w Lokalise.co</translation>
+    </message>
+    <message>
+        <source>Made with:</source>
+        <translation>Wykonana z:</translation>
+    </message>
+    <message>
+        <source>Show join and leave events</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Show join-(optional redactions but no other events)-leave sequences from the same author</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>MessageEventModel</name>
@@ -579,7 +619,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>reinvited %1 to the room</source>
-        <translation></translation>
+        <translation>ponownie zaprosił(a) %1 do pokoju</translation>
     </message>
     <message>
         <source>joined the room (repeated)</source>
@@ -706,7 +746,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Host</source>
-        <translation></translation>
+        <translation>Host</translation>
     </message>
     <message>
         <source>Port</source>
@@ -840,7 +880,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>%1 (as %2)</source>
-        <comment>Kontext unbekannt</comment>
+        <comment>%Room (as %user)</comment>
         <translation>%1 (jako %2)</translation>
     </message>
     <message>
