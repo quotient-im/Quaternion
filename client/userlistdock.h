@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QDockWidget>
 
 namespace QMatrixClient
@@ -49,6 +50,8 @@ class UserListDock: public QDockWidget
         void requestUserMention();
 
     private:
+        QWidget* m_widget;
+        QVBoxLayout* m_box;
         QTableView* m_view;
         UserListModel* m_model;
 

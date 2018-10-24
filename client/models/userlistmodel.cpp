@@ -57,13 +57,9 @@ void UserListModel::setRoom(QMatrixClient::Room* room)
         connect( m_currentRoom, &Room::userRemoved, this, &UserListModel::userRemoved );
         connect( m_currentRoom, &Room::memberAboutToRename, this, &UserListModel::userRemoved );
         connect( m_currentRoom, &Room::memberRenamed, this, &UserListModel::userAdded );
-        {
-            QElapsedTimer et; et.start();
-            m_users = m_currentRoom->users();
-            std::sort(m_users.begin(), m_users.end(), room->memberSorter());
-            qDebug() << "Sorting" << m_users.size() << "user(s) in"
-                     << m_currentRoom->displayName() << "took" << et;
-        }
+
+        m_users = sortUsers(m_currentRoom->users());
+
         for( User* user: m_users )
         {
             connect( user, &User::avatarChanged, this, &UserListModel::avatarChanged );
@@ -144,6 +140,23 @@ void UserListModel::userRemoved(QMatrixClient::User* user)
         qWarning() << "Trying to remove a room member not in the user list";
 }
 
+
+void UserListModel::filter(QString filterString) {
+    if (filterString.isEmpty()) {
+        m_users = sortUsers(m_currentRoom->users());
+    }
+    QList<User*> filteredUsers;
+    for(auto i = m_users.begin(); i != m_users.end(); i++) {
+        if ((*i)->fullName(m_currentRoom).contains(filterString) ||
+            (*i)->displayname(m_currentRoom).contains(filterString)
+        ) {
+            filteredUsers.append(*i);
+        }
+    }
+    m_users = sortUsers(filteredUsers);
+    endResetModel();
+}
+
 void UserListModel::refresh(QMatrixClient::User* user, QVector<int> roles)
 {
     auto pos = findUserPos(user);
@@ -170,3 +183,14 @@ int UserListModel::findUserPos(const QString& username) const
     return m_currentRoom->memberSorter().lowerBoundIndex(m_users, username);
 }
 
+QList<QMatrixClient::User*> UserListModel::sortUsers(QList<QMatrixClient::User*> users) {
+    if ( m_currentRoom == nullptr) {
+        qWarning() << "Cannot sort users without m_currentRoom set";
+        return users;
+    }
+    QElapsedTimer et; et.start();
+    std::sort(users.begin(), users.end(), m_currentRoom->memberSorter());
+    qDebug() << "Sorting" << users.size() << "user(s) in"
+                << m_currentRoom->displayName() << "took" << et;
+    return users;
+}

@@ -22,6 +22,7 @@
 #include <QtWidgets/QTableView>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QMenu>
+#include <QtWidgets/QLineEdit>
 
 #include <connection.h>
 #include <room.h>
@@ -33,12 +34,25 @@ UserListDock::UserListDock(QWidget* parent)
     , contextMenu(new QMenu(this))
 {
     setObjectName(QStringLiteral("UsersDock"));
-    m_view = new QTableView();
+
+    m_box = new QVBoxLayout();
+
+
+    m_box->addSpacing(1);
+    auto filterline = new QLineEdit(this);
+    filterline->setPlaceholderText(tr("Search"));
+    m_box->addWidget(filterline);
+
+    m_view = new QTableView(this);
     m_view->setShowGrid(false);
     m_view->horizontalHeader()->setStretchLastSection(true);
     m_view->horizontalHeader()->setVisible(false);
     m_view->verticalHeader()->setVisible(false);
-    setWidget(m_view);
+    m_box->addWidget(m_view);
+
+    m_widget = new QWidget(this);
+    m_widget->setLayout(m_box);
+    setWidget(m_widget);
 
     connect(m_view, &QTableView::activated,
             this, &UserListDock::requestUserMention);
@@ -52,6 +66,8 @@ UserListDock::UserListDock(QWidget* parent)
              this, &UserListDock::refreshTitle );
     connect( m_model, &QAbstractListModel::modelReset,
              this, &UserListDock::refreshTitle );
+    connect(filterline, &QLineEdit::textEdited,
+             m_model, &UserListModel::filter);
 
     contextMenu->addAction(QIcon::fromTheme("contact-new"),
         tr("Open direct chat"), this, &UserListDock::startChatSelected);
