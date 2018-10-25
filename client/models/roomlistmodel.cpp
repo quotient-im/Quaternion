@@ -204,7 +204,7 @@ void OrderByTag::connectSignals(Connection* connection)
 
 void OrderByTag::connectSignals(Room* room)
 {
-    QObject::connect(room, &Room::displaynameChanged,
+    QObject::connect(room, &Room::displayNameChanged,
                      model(), [this,room] { updateGroups(room); });
     QObject::connect(room, &Room::tagsChanged,
                      model(), [this,room] { updateGroups(room); });
@@ -435,7 +435,7 @@ void RoomListModel::connectRoomSignals(Room* room)
 {
     connect(room, &Room::beforeDestruction, this, &RoomListModel::deleteRoom);
     m_roomOrder->connectSignals(room);
-    connect(room, &Room::displaynameChanged,
+    connect(room, &Room::displayNameChanged,
             this, [this,room] { refresh(room); });
     connect(room, &Room::unreadMessagesChanged,
             this, [this,room] { refresh(room); });
@@ -602,7 +602,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
             {
                 QStringList userNames;
                 for (auto* user: directChatUsers)
-                    userNames.push_back(user->displayname(room));
+                    userNames.push_back(user->displayName(room));
                 result += tr("Direct chat with %1<br>")
                             .arg(userNames.join(','));
             }

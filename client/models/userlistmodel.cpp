@@ -91,7 +91,7 @@ QVariant UserListModel::data(const QModelIndex& index, int role) const
     auto user = m_users.at(index.row());
     if( role == Qt::DisplayRole )
     {
-        return user->displayname(m_currentRoom);
+        return user->displayName(m_currentRoom);
     }
     if( role == Qt::DecorationRole )
     {
@@ -150,7 +150,7 @@ void UserListModel::filter(QString filterString)
     for (auto* user: m_currentRoom->users())
     {
         if (user->fullName(m_currentRoom).contains(filterString) ||
-                user->displayname(m_currentRoom).contains(filterString))
+                user->displayName(m_currentRoom).contains(filterString))
         {
             m_users.push_back(user);
             std::inplace_merge(m_users.begin(), m_users.end() - 1, m_users.end(),

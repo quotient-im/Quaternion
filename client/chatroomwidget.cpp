@@ -252,7 +252,7 @@ void ChatRoomWidget::encryptionChanged()
 
 void ChatRoomWidget::insertMention(QMatrixClient::User* user)
 {
-    m_chatEdit->insertMention(user->displayname(m_currentRoom));
+    m_chatEdit->insertMention(user->displayName(m_currentRoom));
 }
 
 void ChatRoomWidget::focusInput()

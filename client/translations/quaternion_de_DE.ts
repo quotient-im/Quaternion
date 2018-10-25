@@ -908,8 +908,8 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
         <translation>Räume (%1)</translation>
     </message>
     <message>
-        <source>Re-sort rooms (TODO)</source>
-        <translation></translation>
+        <source>Change room &amp;settings...</source>
+        <translation type="unfinished">Ändere Raum-&amp;Einstellungen...</translation>
     </message>
 </context>
 <context>
@@ -920,7 +920,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Favourite</source>
-        <translation>Favoriten</translation>
+        <translation type="vanished">Favoriten</translation>
     </message>
     <message>
         <source>Low priority</source>
@@ -997,6 +997,10 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     <message>
         <source>%1 (as %2)</source>
         <translation type="unfinished">%1 (als %2)</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation type="unfinished">Favoriten</translation>
     </message>
 </context>
 <context>
@@ -1095,6 +1099,10 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     <message>
         <source>Users (%1)</source>
         <translation>Benutzer (%1)</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
