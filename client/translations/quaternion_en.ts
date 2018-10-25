@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="en">
+<!DOCTYPE TS><TS version="2.1" language="en">
 <context>
     <name>ChatRoomWidget</name>
     <message>
@@ -152,56 +150,6 @@
     </message>
 </context>
 <context>
-    <name>FileContent</name>
-    <message>
-        <source>Size: %1, declared type: %2</source>
-        <translation>Size: %1, declared type: %2</translation>
-    </message>
-    <message>
-        <source> (downloaded to %1)</source>
-        <translation> (downloaded to %1)</translation>
-    </message>
-    <message>
-        <source>Open after downloading</source>
-        <translation>Open after downloading</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Cancel</translation>
-    </message>
-    <message>
-        <source>Save as...</source>
-        <translation>Save as...</translation>
-    </message>
-    <message>
-        <source>Open</source>
-        <translation>Open</translation>
-    </message>
-    <message>
-        <source>Open folder</source>
-        <translation>Open folder</translation>
-    </message>
-</context>
-<context>
-    <name>ImageContent</name>
-    <message>
-        <source>Cancel downloading</source>
-        <translation>Cancel downloading</translation>
-    </message>
-    <message>
-        <source>Open externally</source>
-        <translation>Open externally</translation>
-    </message>
-    <message>
-        <source>Download full size</source>
-        <translation>Download full size</translation>
-    </message>
-    <message>
-        <source>Save as...</source>
-        <translation>Save as...</translation>
-    </message>
-</context>
-<context>
     <name>LoginDialog</name>
     <message>
         <source>Login</source>
@@ -267,11 +215,6 @@
         <translation>Normal &amp;join/leave events</translation>
     </message>
     <message>
-        <source>Show join and leave events that don&apos;t couple in a no-change pair</source>
-        <comment>?</comment>
-        <translation type="vanished">Show join and leave events that don&apos;t couple in a no-change pair</translation>
-    </message>
-    <message>
         <source>&amp;Redacted events</source>
         <translation>&amp;Redacted events</translation>
     </message>
@@ -282,10 +225,6 @@
     <message>
         <source>&amp;No-effect activity</source>
         <translation>&amp;No-effect activity</translation>
-    </message>
-    <message>
-        <source>Show join and leave events that couple in a no-change pair, possibly with redactions between</source>
-        <translation type="vanished">Show join and leave events that couple in a no-change pair, possibly with redactions between</translation>
     </message>
     <message>
         <source>Edit tags order</source>
@@ -603,47 +542,47 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>&amp;Thanks</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Thanks</translation>
     </message>
     <message>
         <source>Original project author: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Original project author: %1</translation>
     </message>
     <message>
         <source>Web page</source>
-        <translation type="unfinished"></translation>
+        <translation>Web page</translation>
     </message>
     <message>
         <source>Project leader: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Project leader: %1</translation>
     </message>
     <message>
         <source>Contributors:</source>
-        <translation type="unfinished"></translation>
+        <translation>Contributors:</translation>
     </message>
     <message>
         <source>Quaternion contributors @ GitHub</source>
-        <translation type="unfinished"></translation>
+        <translation>Quaternion contributors @ GitHub</translation>
     </message>
     <message>
         <source>libQMatrixClient contributors @ GitHub</source>
-        <translation type="unfinished"></translation>
+        <translation>libQMatrixClient contributors @ GitHub</translation>
     </message>
     <message>
         <source>Quaternion translators @ Lokalise.co</source>
-        <translation type="unfinished"></translation>
+        <translation>Quaternion translators @ Lokalise.co</translation>
     </message>
     <message>
         <source>Made with:</source>
-        <translation type="unfinished"></translation>
+        <translation>Made with:</translation>
     </message>
     <message>
         <source>Show join and leave events</source>
-        <translation type="unfinished"></translation>
+        <translation>Show join and leave events</translation>
     </message>
     <message>
         <source>Show join-(optional redactions but no other events)-leave sequences from the same author</source>
-        <translation type="unfinished"></translation>
+        <translation>Show join-(optional redactions but no other events)-leave sequences from the same author</translation>
     </message>
 </context>
 <context>
@@ -895,11 +834,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Re-sort rooms (TODO)</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Change room &amp;settings...</source>
-        <translation type="unfinished">Change room &amp;settings...</translation>
+        <translation>Re-sort rooms (TODO)</translation>
     </message>
 </context>
 <context>
@@ -907,10 +842,6 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     <message>
         <source>Invited</source>
         <translation>Invited</translation>
-    </message>
-    <message>
-        <source>Favourite</source>
-        <translation type="vanished">Favourite</translation>
     </message>
     <message>
         <source>Low priority</source>
@@ -984,10 +915,6 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
         <source>You were invited into this room</source>
         <translation>You were invited into this room</translation>
     </message>
-    <message>
-        <source>Favourites</source>
-        <translation type="unfinished">Favourites</translation>
-    </message>
 </context>
 <context>
     <name>RoomSettingsDialog</name>
@@ -1021,51 +948,6 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     <message>
         <source>%1: %2 highlight(s)</source>
         <translation>%1: %2 highlight(s)</translation>
-    </message>
-</context>
-<context>
-    <name>Timeline</name>
-    <message>
-        <source>%1 bytes</source>
-        <translation>%1 bytes</translation>
-    </message>
-    <message>
-        <source>%1 KB</source>
-        <translation>%1 KB</translation>
-    </message>
-    <message>
-        <source>%1 MB</source>
-        <translation>%1 MB</translation>
-    </message>
-    <message>
-        <source>%1 GB</source>
-        <translation>%1 GB</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln events back from now (%L1 cached)</source>
-        <translation>
-            <numerusform>%Ln event back from now (%L2 cached)</numerusform>
-            <numerusform>%Ln events back from now (%L2 cached)</numerusform>
-        </translation>
-    </message>
-</context>
-<context>
-    <name>TimelineItem</name>
-    <message>
-        <source>Resend</source>
-        <translation>Resend</translation>
-    </message>
-    <message>
-        <source>Discard</source>
-        <translation>Discard</translation>
-    </message>
-    <message>
-        <source>Redact</source>
-        <translation>Redact</translation>
-    </message>
-    <message>
-        <source>Copy link to clipboard</source>
-        <translation>Copy link to clipboard</translation>
     </message>
 </context>
 <context>
@@ -1111,6 +993,101 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     <message>
         <source>locale</source>
         <translation>locale</translation>
+    </message>
+</context>
+<context>
+    <name>FileContent</name>
+    <message>
+        <source>Size: %1, declared type: %2</source>
+        <translation>Size: %1, declared type: %2</translation>
+    </message>
+    <message>
+        <source> (downloaded to %1)</source>
+        <translation> (downloaded to %1)</translation>
+    </message>
+    <message>
+        <source>Open after downloading</source>
+        <translation>Open after downloading</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancel</translation>
+    </message>
+    <message>
+        <source>Save as...</source>
+        <translation>Save as...</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Open</translation>
+    </message>
+    <message>
+        <source>Open folder</source>
+        <translation>Open folder</translation>
+    </message>
+</context>
+<context>
+    <name>ImageContent</name>
+    <message>
+        <source>Cancel downloading</source>
+        <translation>Cancel downloading</translation>
+    </message>
+    <message>
+        <source>Open externally</source>
+        <translation>Open externally</translation>
+    </message>
+    <message>
+        <source>Download full size</source>
+        <translation>Download full size</translation>
+    </message>
+    <message>
+        <source>Save as...</source>
+        <translation>Save as...</translation>
+    </message>
+</context>
+<context>
+    <name>Timeline</name>
+    <message>
+        <source>%1 bytes</source>
+        <translation>%1 bytes</translation>
+    </message>
+    <message>
+        <source>%1 KB</source>
+        <translation>%1 KB</translation>
+    </message>
+    <message>
+        <source>%1 MB</source>
+        <translation>%1 MB</translation>
+    </message>
+    <message>
+        <source>%1 GB</source>
+        <translation>%1 GB</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln events back from now (%L1 cached)</source>
+        <translation>
+            <numerusform>%Ln event back from now (%L2 cached)</numerusform>
+            <numerusform>%Ln events back from now (%L2 cached)</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>TimelineItem</name>
+    <message>
+        <source>Resend</source>
+        <translation>Resend</translation>
+    </message>
+    <message>
+        <source>Discard</source>
+        <translation>Discard</translation>
+    </message>
+    <message>
+        <source>Redact</source>
+        <translation>Redact</translation>
+    </message>
+    <message>
+        <source>Copy link to clipboard</source>
+        <translation>Copy link to clipboard</translation>
     </message>
 </context>
 </TS>
