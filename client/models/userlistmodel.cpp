@@ -58,7 +58,13 @@ void UserListModel::setRoom(QMatrixClient::Room* room)
         connect( m_currentRoom, &Room::memberAboutToRename, this, &UserListModel::userRemoved );
         connect( m_currentRoom, &Room::memberRenamed, this, &UserListModel::userAdded );
 
-        m_users = sortUsers(m_currentRoom->users());
+        {
+            QElapsedTimer et; et.start();
+            m_users = m_currentRoom->users();
+            std::sort(m_users.begin(), m_users.end(), room->memberSorter());
+            qDebug() << "Sorting" << m_users.size() << "user(s) in"
+                     << m_currentRoom->displayName() << "took" << et;
+        }
 
         for( User* user: m_users )
         {
@@ -141,20 +147,26 @@ void UserListModel::userRemoved(QMatrixClient::User* user)
 }
 
 
-void UserListModel::filter(QString filterString) {
-    if (filterString.isEmpty()) {
-        m_users = sortUsers(m_currentRoom->users());
-    }
-    QList<User*> filteredUsers;
-    for(auto i = m_users.begin(); i != m_users.end(); i++) {
-        if ((*i)->fullName(m_currentRoom).contains(filterString) ||
-            (*i)->displayname(m_currentRoom).contains(filterString)
-        ) {
-            filteredUsers.append(*i);
+void UserListModel::filter(QString filterString)
+{
+    QElapsedTimer et; et.start();
+
+    beginResetModel();
+    m_users.clear();
+    for (auto* user: m_currentRoom->users())
+    {
+        if (user->fullName(m_currentRoom).contains(filterString) ||
+                user->displayname(m_currentRoom).contains(filterString))
+        {
+            m_users.push_back(user);
+            std::inplace_merge(m_users.begin(), m_users.end() - 1, m_users.end(),
+                m_currentRoom->memberSorter());
         }
     }
-    m_users = sortUsers(filteredUsers);
     endResetModel();
+
+    qDebug() << "Filtering" << m_users.size() << "user(s) in"
+                << m_currentRoom->displayName() << "took" << et;
 }
 
 void UserListModel::refresh(QMatrixClient::User* user, QVector<int> roles)
@@ -188,9 +200,5 @@ QList<QMatrixClient::User*> UserListModel::sortUsers(QList<QMatrixClient::User*>
         qWarning() << "Cannot sort users without m_currentRoom set";
         return users;
     }
-    QElapsedTimer et; et.start();
-    std::sort(users.begin(), users.end(), m_currentRoom->memberSorter());
-    qDebug() << "Sorting" << users.size() << "user(s) in"
-                << m_currentRoom->displayName() << "took" << et;
     return users;
 }
