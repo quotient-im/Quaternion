@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="de_DE">
+<!DOCTYPE TS><TS version="2.1" language="de_DE">
 <context>
     <name>ChatRoomWidget</name>
     <message>
@@ -131,6 +129,11 @@
         <translation>Erstelle Raum</translation>
     </message>
     <message>
+        <source>Add</source>
+        <comment>Add a user to the list of invitees</comment>
+        <translation>Hinzufügen</translation>
+    </message>
+    <message>
         <source>Invite user(s)</source>
         <translation>Nutzer einladen</translation>
     </message>
@@ -138,67 +141,12 @@
         <source>Creating the room, please wait</source>
         <translation>Erstelle den Raum. Bitte warten</translation>
     </message>
-    <message>
-        <source>Add</source>
-        <comment>Add a user to the list of invitees</comment>
-        <translation type="unfinished">Erstellen</translation>
-    </message>
 </context>
 <context>
     <name>Dialog</name>
     <message>
         <source>Applying changes, please wait</source>
         <translation>Änderungen werden übernommen. Bitte warten</translation>
-    </message>
-</context>
-<context>
-    <name>FileContent</name>
-    <message>
-        <source>Size: %1, declared type: %2</source>
-        <translation>Größe: %1, angegebener Typ: %2</translation>
-    </message>
-    <message>
-        <source> (downloaded to %1)</source>
-        <translation> (nach %1 heruntergeladen)</translation>
-    </message>
-    <message>
-        <source>Open after downloading</source>
-        <translation>Nach dem Herunterladen öffnen</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Abbrechen</translation>
-    </message>
-    <message>
-        <source>Save as...</source>
-        <translation>Speichern als...</translation>
-    </message>
-    <message>
-        <source>Open</source>
-        <translation>Öffnen</translation>
-    </message>
-    <message>
-        <source>Open folder</source>
-        <translation>Ordner öffnen</translation>
-    </message>
-</context>
-<context>
-    <name>ImageContent</name>
-    <message>
-        <source>Cancel downloading</source>
-        <translation>Herunterladen abbrechen</translation>
-    </message>
-    <message>
-        <source>Open externally</source>
-        <translation>Extern öffnen</translation>
-    </message>
-    <message>
-        <source>Download full size</source>
-        <translation>In voller Größe herunterladen</translation>
-    </message>
-    <message>
-        <source>Save as...</source>
-        <translation>Speichern als...</translation>
     </message>
 </context>
 <context>
@@ -267,11 +215,6 @@
         <translation>Normale &amp;Zutritts-/Verlassens-Ereignisse</translation>
     </message>
     <message>
-        <source>Show join and leave events that don&apos;t couple in a no-change pair</source>
-        <comment>?</comment>
-        <translation type="vanished">Zeige Zutritt- und Verlassens-Ereignisse, die nicht in einem &quot;Nicht-Ändern-Paar&quot; vereint würden</translation>
-    </message>
-    <message>
         <source>&amp;Redacted events</source>
         <translation>&amp;Gelöschte Ereignisse</translation>
     </message>
@@ -282,10 +225,6 @@
     <message>
         <source>&amp;No-effect activity</source>
         <translation>&amp;Effektlose Aktivität</translation>
-    </message>
-    <message>
-        <source>Show join and leave events that couple in a no-change pair, possibly with redactions between</source>
-        <translation type="vanished">Zeige Zutritt- und Verlassens-Ereignisse, die in einem &quot;Nicht-Ändern-Paar&quot; zusammengefasst würden - evtl. mit Entfernungen dazwischen</translation>
     </message>
     <message>
         <source>Edit tags order</source>
@@ -603,47 +542,47 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>&amp;Thanks</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Danke</translation>
     </message>
     <message>
         <source>Original project author: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ursprünglicher Projektautor:% 1</translation>
     </message>
     <message>
         <source>Web page</source>
-        <translation type="unfinished"></translation>
+        <translation>Webseite</translation>
     </message>
     <message>
         <source>Project leader: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektleiter:% 1</translation>
     </message>
     <message>
         <source>Contributors:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mitwirkende:</translation>
     </message>
     <message>
         <source>Quaternion contributors @ GitHub</source>
-        <translation type="unfinished"></translation>
+        <translation>Quaternion Mitwirkende @ GitHub</translation>
     </message>
     <message>
         <source>libQMatrixClient contributors @ GitHub</source>
-        <translation type="unfinished"></translation>
+        <translation>libQMatrixClient Mitwirkende @ GitHub</translation>
     </message>
     <message>
         <source>Quaternion translators @ Lokalise.co</source>
-        <translation type="unfinished"></translation>
+        <translation>Quaternion Übersetzer @ Lokalise.co</translation>
     </message>
     <message>
         <source>Made with:</source>
-        <translation type="unfinished"></translation>
+        <translation>Gemacht mit:</translation>
     </message>
     <message>
         <source>Show join and leave events</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige Betreten- und Verlassen-Ereignisse</translation>
     </message>
     <message>
         <source>Show join-(optional redactions but no other events)-leave sequences from the same author</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige Betreten-(optional Löschungen aber sonst keine Ereignisse)- verberge Sequenzen von demselben Author</translation>
     </message>
 </context>
 <context>
@@ -895,11 +834,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Re-sort rooms (TODO)</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Change room &amp;settings...</source>
-        <translation type="unfinished">Ändere Raum-&amp;Einstellungen...</translation>
+        <translation>Räume neu sortieren (TODO)</translation>
     </message>
 </context>
 <context>
@@ -907,10 +842,6 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     <message>
         <source>Invited</source>
         <translation>Eingeladen</translation>
-    </message>
-    <message>
-        <source>Favourite</source>
-        <translation type="vanished">Favoriten</translation>
     </message>
     <message>
         <source>Low priority</source>
@@ -934,6 +865,11 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
             <numerusform>%1 (%Ln Raum)</numerusform>
             <numerusform>%1 (%Ln Räume)</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>%1 (as %2)</source>
+        <comment>%Room (as %user)</comment>
+        <translation>%1 (als %2)</translation>
     </message>
     <message>
         <source>Main alias: %1&lt;br&gt;</source>
@@ -979,15 +915,6 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
         <source>You were invited into this room</source>
         <translation>Du wurdest in diesen Raum eingeladen</translation>
     </message>
-    <message>
-        <source>Favourites</source>
-        <translation type="unfinished">Favoriten</translation>
-    </message>
-    <message>
-        <source>%1 (as %2)</source>
-        <comment>%Room (as %user)</comment>
-        <translation type="unfinished">%1 (als %2)</translation>
-    </message>
 </context>
 <context>
     <name>RoomSettingsDialog</name>
@@ -1021,51 +948,6 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     <message>
         <source>%1: %2 highlight(s)</source>
         <translation>%1: %2 Highlight(s)</translation>
-    </message>
-</context>
-<context>
-    <name>Timeline</name>
-    <message>
-        <source>%1 bytes</source>
-        <translation>%1 Bytes</translation>
-    </message>
-    <message>
-        <source>%1 KB</source>
-        <translation>%1 KB</translation>
-    </message>
-    <message>
-        <source>%1 MB</source>
-        <translation>%1 MB</translation>
-    </message>
-    <message>
-        <source>%1 GB</source>
-        <translation>%1 GB</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln events back from now (%L1 cached)</source>
-        <translation>
-            <numerusform>%Ln Ereignis zurückgescrollt (%L1 zwischengespeichert)</numerusform>
-            <numerusform>%Ln Ereignisse zurückgescrollt (%L1 zwischengespeichert)</numerusform>
-        </translation>
-    </message>
-</context>
-<context>
-    <name>TimelineItem</name>
-    <message>
-        <source>Resend</source>
-        <translation>Erneut senden</translation>
-    </message>
-    <message>
-        <source>Discard</source>
-        <translation>Verwerfen</translation>
-    </message>
-    <message>
-        <source>Redact</source>
-        <translation>Entfernen</translation>
-    </message>
-    <message>
-        <source>Copy link to clipboard</source>
-        <translation>In Zwischenablage kopieren</translation>
     </message>
 </context>
 <context>
@@ -1111,6 +993,101 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     <message>
         <source>locale</source>
         <translation>Sprache</translation>
+    </message>
+</context>
+<context>
+    <name>FileContent</name>
+    <message>
+        <source>Size: %1, declared type: %2</source>
+        <translation>Größe: %1, angegebener Typ: %2</translation>
+    </message>
+    <message>
+        <source> (downloaded to %1)</source>
+        <translation> (nach %1 heruntergeladen)</translation>
+    </message>
+    <message>
+        <source>Open after downloading</source>
+        <translation>Nach dem Herunterladen öffnen</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
+    </message>
+    <message>
+        <source>Save as...</source>
+        <translation>Speichern als...</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Öffnen</translation>
+    </message>
+    <message>
+        <source>Open folder</source>
+        <translation>Ordner öffnen</translation>
+    </message>
+</context>
+<context>
+    <name>ImageContent</name>
+    <message>
+        <source>Cancel downloading</source>
+        <translation>Herunterladen abbrechen</translation>
+    </message>
+    <message>
+        <source>Open externally</source>
+        <translation>Extern öffnen</translation>
+    </message>
+    <message>
+        <source>Download full size</source>
+        <translation>In voller Größe herunterladen</translation>
+    </message>
+    <message>
+        <source>Save as...</source>
+        <translation>Speichern als...</translation>
+    </message>
+</context>
+<context>
+    <name>Timeline</name>
+    <message>
+        <source>%1 bytes</source>
+        <translation>%1 Bytes</translation>
+    </message>
+    <message>
+        <source>%1 KB</source>
+        <translation>%1 KB</translation>
+    </message>
+    <message>
+        <source>%1 MB</source>
+        <translation>%1 MB</translation>
+    </message>
+    <message>
+        <source>%1 GB</source>
+        <translation>%1 GB</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln events back from now (%L1 cached)</source>
+        <translation>
+            <numerusform>%Ln Ereignis zurückgescrollt (%L1 zwischengespeichert)</numerusform>
+            <numerusform>%Ln Ereignisse zurückgescrollt (%L1 zwischengespeichert)</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>TimelineItem</name>
+    <message>
+        <source>Resend</source>
+        <translation>Erneut senden</translation>
+    </message>
+    <message>
+        <source>Discard</source>
+        <translation>Verwerfen</translation>
+    </message>
+    <message>
+        <source>Redact</source>
+        <translation>Entfernen</translation>
+    </message>
+    <message>
+        <source>Copy link to clipboard</source>
+        <translation>In Zwischenablage kopieren</translation>
     </message>
 </context>
 </TS>
