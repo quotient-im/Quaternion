@@ -58,13 +58,7 @@ void UserListModel::setRoom(QMatrixClient::Room* room)
         connect( m_currentRoom, &Room::memberAboutToRename, this, &UserListModel::userRemoved );
         connect( m_currentRoom, &Room::memberRenamed, this, &UserListModel::userAdded );
 
-        {
-            QElapsedTimer et; et.start();
-            m_users = m_currentRoom->users();
-            std::sort(m_users.begin(), m_users.end(), room->memberSorter());
-            qDebug() << "Sorting" << m_users.size() << "user(s) in"
-                     << m_currentRoom->displayName() << "took" << et;
-        }
+        filter("");
 
         for( User* user: m_users )
         {
@@ -193,12 +187,4 @@ int UserListModel::findUserPos(User* user) const
 int UserListModel::findUserPos(const QString& username) const
 {
     return m_currentRoom->memberSorter().lowerBoundIndex(m_users, username);
-}
-
-QList<QMatrixClient::User*> UserListModel::sortUsers(QList<QMatrixClient::User*> users) {
-    if ( m_currentRoom == nullptr) {
-        qWarning() << "Cannot sort users without m_currentRoom set";
-        return users;
-    }
-    return users;
 }

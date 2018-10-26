@@ -37,7 +37,6 @@ UserListDock::UserListDock(QWidget* parent)
 
     m_box = new QVBoxLayout();
 
-
     m_box->addSpacing(1);
     auto filterline = new QLineEdit(this);
     filterline->setPlaceholderText(tr("Search"));

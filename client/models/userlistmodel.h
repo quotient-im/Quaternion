@@ -58,5 +58,4 @@ class UserListModel: public QAbstractListModel
 
         int findUserPos(User* user) const;
         int findUserPos(const QString& username) const;
-        QList<User*> sortUsers(QList<User*> users);
 };
