@@ -35,6 +35,8 @@ Item {
     height: childrenRect.height * visible
 
     readonly property bool sectionVisible: section !== aboveSection
+    readonly property bool authorSectionVisible:
+                            sectionVisible || author !== aboveAuthor
     readonly property bool redacted: marks === EventStatus.Redacted
     readonly property bool pending: [
                                         EventStatus.Submitted,
@@ -54,7 +56,6 @@ Item {
 
     readonly property bool xchatStyle: settings.timeline_style === "xchat"
     readonly property bool actionEvent: eventType == "state" || eventType == "emote"
-    readonly property bool singleRow: xchatStyle || actionEvent
 
     // A message is considered shown if its bottom is within the
     // viewing area of the timeline.
@@ -122,7 +123,8 @@ Item {
             //   av al
             //   ts c
             // state-emote (default for state and emote events):
-            //   ts av (al+c in a single control)
+            //   av (al+c in a single control over two lines)
+            //   ts
             // xchat (when "timeline_style" is "xchat"):
             //   ts av al c
             // xchat state-emote
@@ -130,17 +132,15 @@ Item {
 
             Image {
                 id: authorAvatar
-                visible: settings.show_author_avatars && authorLabel.visible
-                anchors.top: authorLabel.top
-                anchors.left: singleRow ? timelabel.right : parent.left
-                anchors.leftMargin: singleRow * 3
-                width: if (!singleRow) { timelabel.width }
+                visible: settings.show_author_avatars && authorSectionVisible
+                anchors.left: xchatStyle ? timelabel.right : parent.left
+                anchors.leftMargin: xchatStyle * 3
+                width: if (!xchatStyle) { timelabel.width }
                        else if (!visible) { 0 }
                 height: visible *
-                    (authorLabel.height + (!singleRow) * Math.min(
-                        Math.max(sourceSize.height - authorLabel.height, 0),
-                        showDetailsButton.height
-                            - timelabel.height - timelabel.anchors.topMargin * 2)
+                    (xchatStyle ? authorLabel.height :
+                     Math.max(12, Math.min(sourceSize.height,
+                                           authorLabel.height))
                     )
                 fillMode: Image.PreserveAspectFit
 
@@ -149,20 +149,19 @@ Item {
             }
             Label {
                 id: authorLabel
-                visible: sectionVisible || actionEvent || author != aboveAuthor
-                anchors.left: singleRow ? authorAvatar.right : textField.left
-                anchors.leftMargin: singleRow * 2
+                visible: xchatStyle // Invisible but existing for default layout
+                anchors.left: authorAvatar.right
+                anchors.leftMargin: 2
+                anchors.top: authorAvatar.top
                 width: if (xchatStyle) { 120 - authorAvatar.width }
-                height: if (!visible) { 0 }
                 horizontalAlignment:
-                    xchatStyle && actionEvent ? Text.AlignRight : Text.AlignLeft
+                    actionEvent ? Text.AlignRight : Text.AlignLeft
                 elide: Text.ElideRight
 
                 color: textColor
-                font.bold: !xchatStyle
                 renderType: settings.render_type
 
-                text: xchatStyle && actionEvent ? ("* " + authorName) : authorName
+                text: (actionEvent ? "* " : "") + authorName
             }
             MouseArea {
                 anchors.left: authorAvatar.left
@@ -178,7 +177,7 @@ Item {
 
             Label {
                 id: timelabel
-                anchors.top: singleRow ? authorLabel.top : authorAvatar.bottom
+                anchors.top: xchatStyle ? authorAvatar.top : authorAvatar.bottom
                 anchors.topMargin: 1
                 anchors.bottomMargin: 1
                 anchors.left: parent.left
@@ -219,8 +218,8 @@ Item {
             }
             TextEdit {
                 id: textField
-                anchors.top: singleRow ? authorLabel.top : authorLabel.bottom
-                anchors.left: singleRow ? authorLabel.right : timelabel.right
+                anchors.top: authorAvatar.top
+                anchors.left: xchatStyle ? authorLabel.right : timelabel.right
                 anchors.leftMargin: 1
                 anchors.right: resendButton.left
                 anchors.rightMargin: 1
@@ -230,8 +229,11 @@ Item {
                 selectByMouse: true
                 readOnly: true
                 textFormat: TextEdit.RichText
-                text: ((xchatStyle || !singleRow) ? display : ' ' + display) +
-                       (annotation ? "<br><em>" + annotation + "</em>" : "")
+                text: ((xchatStyle ||!authorSectionVisible) ? "" :
+                       "<a href='#mention'><b>" + authorName + "</b></a>" +
+                            (actionEvent ? " " : "<br>")
+                      ) + display +
+                      (annotation ? "<br><em>" + annotation + "</em>" : "")
                 horizontalAlignment: Text.AlignLeft
                 wrapMode: Text.Wrap
                 color: textColor
@@ -254,7 +256,15 @@ Item {
                 onHoveredLinkChanged:
                     controller.showStatusMessage(hoveredLink)
 
-                onLinkActivated: Qt.openUrlExternally(link)
+                onLinkActivated: {
+                    if (link === "#mention")
+                    {
+                        controller.insertMention(author)
+                        controller.focusInput()
+                    }
+                    else
+                        Qt.openUrlExternally(link)
+                }
             }
             Loader {
                 active: eventType == "image"
@@ -272,7 +282,7 @@ Item {
                             content.info && content.info.thumbnail_info ?
                                 "image://mtx/" + content.thumbnailMediaId : ""
                     maxHeight: chatView.height - textField.height -
-                               authorLabel.height * !(xchatStyle && singleRow)
+                               authorLabel.height * !xchatStyle
                     autoload: settings.autoload_images
                 }
             }
