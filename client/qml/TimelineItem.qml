@@ -180,6 +180,7 @@ Item {
                 id: timelabel
                 anchors.top: singleRow ? authorLabel.top : authorAvatar.bottom
                 anchors.topMargin: 1
+                anchors.bottomMargin: 1
                 anchors.left: parent.left
 
                 color: disabledPalette.text
@@ -188,7 +189,7 @@ Item {
                 font.italic: pending
 
                 text: "<font size=-1>&lt;" +
-                      time.toLocaleTimeString(Qt.locale(), Locale.ShortFormat)
+                      time.toLocaleTimeString(Qt.locale(), "hh:mm")
                       + "&gt;</font>"
             }
 
