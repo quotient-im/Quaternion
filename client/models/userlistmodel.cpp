@@ -57,13 +57,9 @@ void UserListModel::setRoom(QMatrixClient::Room* room)
         connect( m_currentRoom, &Room::userRemoved, this, &UserListModel::userRemoved );
         connect( m_currentRoom, &Room::memberAboutToRename, this, &UserListModel::userRemoved );
         connect( m_currentRoom, &Room::memberRenamed, this, &UserListModel::userAdded );
-        {
-            QElapsedTimer et; et.start();
-            m_users = m_currentRoom->users();
-            std::sort(m_users.begin(), m_users.end(), room->memberSorter());
-            qDebug() << "Sorting" << m_users.size() << "user(s) in"
-                     << m_currentRoom->displayName() << "took" << et;
-        }
+
+        filter("");
+
         for( User* user: m_users )
         {
             connect( user, &User::avatarChanged, this, &UserListModel::avatarChanged );
@@ -144,6 +140,29 @@ void UserListModel::userRemoved(QMatrixClient::User* user)
         qWarning() << "Trying to remove a room member not in the user list";
 }
 
+
+void UserListModel::filter(QString filterString)
+{
+    QElapsedTimer et; et.start();
+
+    beginResetModel();
+    m_users.clear();
+    for (auto* user: m_currentRoom->users())
+    {
+        if (user->fullName(m_currentRoom).contains(filterString) ||
+                user->displayname(m_currentRoom).contains(filterString))
+        {
+            m_users.push_back(user);
+            std::inplace_merge(m_users.begin(), m_users.end() - 1, m_users.end(),
+                m_currentRoom->memberSorter());
+        }
+    }
+    endResetModel();
+
+    qDebug() << "Filtering" << m_users.size() << "user(s) in"
+                << m_currentRoom->displayName() << "took" << et;
+}
+
 void UserListModel::refresh(QMatrixClient::User* user, QVector<int> roles)
 {
     auto pos = findUserPos(user);
@@ -169,4 +188,3 @@ int UserListModel::findUserPos(const QString& username) const
 {
     return m_currentRoom->memberSorter().lowerBoundIndex(m_users, username);
 }
-
