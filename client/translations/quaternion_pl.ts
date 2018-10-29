@@ -1089,7 +1089,7 @@ Kliknięcie &quot;Anuluj&quot; zatrzyma dalszą synchronizację tego konta do mo
     </message>
     <message>
         <source>Bridged from: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostkowany(-a) z: %1</translation>
     </message>
 </context>
 <context>

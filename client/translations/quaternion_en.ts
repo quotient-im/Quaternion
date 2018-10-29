@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="en">
+<!DOCTYPE TS><TS version="2.1" language="en">
 <context>
     <name>ChatRoomWidget</name>
     <message>
@@ -149,56 +147,6 @@
     <message>
         <source>Applying changes, please wait</source>
         <translation>Applying changes, please wait</translation>
-    </message>
-</context>
-<context>
-    <name>FileContent</name>
-    <message>
-        <source>Size: %1, declared type: %2</source>
-        <translation>Size: %1, declared type: %2</translation>
-    </message>
-    <message>
-        <source> (downloaded to %1)</source>
-        <translation> (downloaded to %1)</translation>
-    </message>
-    <message>
-        <source>Open after downloading</source>
-        <translation>Open after downloading</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Cancel</translation>
-    </message>
-    <message>
-        <source>Save as...</source>
-        <translation>Save as...</translation>
-    </message>
-    <message>
-        <source>Open</source>
-        <translation>Open</translation>
-    </message>
-    <message>
-        <source>Open folder</source>
-        <translation>Open folder</translation>
-    </message>
-</context>
-<context>
-    <name>ImageContent</name>
-    <message>
-        <source>Cancel downloading</source>
-        <translation>Cancel downloading</translation>
-    </message>
-    <message>
-        <source>Open externally</source>
-        <translation>Open externally</translation>
-    </message>
-    <message>
-        <source>Download full size</source>
-        <translation>Download full size</translation>
-    </message>
-    <message>
-        <source>Save as...</source>
-        <translation>Save as...</translation>
     </message>
 </context>
 <context>
@@ -1000,17 +948,102 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
 </context>
 <context>
-    <name>SystemTrayIcon</name>
+    <name>UserListDock</name>
     <message>
-        <source>Highlight in %1</source>
-        <translation>Highlight in %1</translation>
+        <source>Users</source>
+        <translation>Users</translation>
     </message>
-    <message numerus="yes">
-        <source>%n highlight(s)</source>
-        <translation>
-            <numerusform>%n highlight</numerusform>
-            <numerusform>%n highlights</numerusform>
-        </translation>
+    <message>
+        <source>Open direct chat</source>
+        <translation>Open direct chat</translation>
+    </message>
+    <message>
+        <source>Mention user</source>
+        <translation>Mention user</translation>
+    </message>
+    <message>
+        <source>Users (%1)</source>
+        <translation>Users (%1)</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Search</translation>
+    </message>
+</context>
+<context>
+    <name>UserListModel</name>
+    <message>
+        <source>Bridged from: %1</source>
+        <translation>Bridged from: %1</translation>
+    </message>
+</context>
+<context>
+    <name>main</name>
+    <message>
+        <source>Display debug information</source>
+        <translation>Display debug information</translation>
+    </message>
+    <message>
+        <source>Quaternion - an IM client for the Matrix protocol</source>
+        <translation>Quaternion - an IM client for the Matrix protocol</translation>
+    </message>
+    <message>
+        <source>Override locale</source>
+        <translation>Override locale</translation>
+    </message>
+    <message>
+        <source>locale</source>
+        <translation>locale</translation>
+    </message>
+</context>
+<context>
+    <name>FileContent</name>
+    <message>
+        <source>Size: %1, declared type: %2</source>
+        <translation>Size: %1, declared type: %2</translation>
+    </message>
+    <message>
+        <source> (downloaded to %1)</source>
+        <translation> (downloaded to %1)</translation>
+    </message>
+    <message>
+        <source>Open after downloading</source>
+        <translation>Open after downloading</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancel</translation>
+    </message>
+    <message>
+        <source>Save as...</source>
+        <translation>Save as...</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Open</translation>
+    </message>
+    <message>
+        <source>Open folder</source>
+        <translation>Open folder</translation>
+    </message>
+</context>
+<context>
+    <name>ImageContent</name>
+    <message>
+        <source>Cancel downloading</source>
+        <translation>Cancel downloading</translation>
+    </message>
+    <message>
+        <source>Open externally</source>
+        <translation>Open externally</translation>
+    </message>
+    <message>
+        <source>Download full size</source>
+        <translation>Download full size</translation>
+    </message>
+    <message>
+        <source>Save as...</source>
+        <translation>Save as...</translation>
     </message>
 </context>
 <context>
@@ -1059,52 +1092,17 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
 </context>
 <context>
-    <name>UserListDock</name>
+    <name>SystemTrayIcon</name>
     <message>
-        <source>Users</source>
-        <translation>Users</translation>
+        <source>Highlight in %1</source>
+        <translation>Highlight in %1</translation>
     </message>
-    <message>
-        <source>Open direct chat</source>
-        <translation>Open direct chat</translation>
-    </message>
-    <message>
-        <source>Mention user</source>
-        <translation>Mention user</translation>
-    </message>
-    <message>
-        <source>Users (%1)</source>
-        <translation>Users (%1)</translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation>Search</translation>
-    </message>
-</context>
-<context>
-    <name>UserListModel</name>
-    <message>
-        <source>Bridged from: %1</source>
-        <translation>Bridged from: %1</translation>
-    </message>
-</context>
-<context>
-    <name>main</name>
-    <message>
-        <source>Display debug information</source>
-        <translation>Display debug information</translation>
-    </message>
-    <message>
-        <source>Quaternion - an IM client for the Matrix protocol</source>
-        <translation>Quaternion - an IM client for the Matrix protocol</translation>
-    </message>
-    <message>
-        <source>Override locale</source>
-        <translation>Override locale</translation>
-    </message>
-    <message>
-        <source>locale</source>
-        <translation>locale</translation>
+    <message numerus="yes">
+        <source>%n highlight(s)</source>
+        <translation>
+            <numerusform>%n highlight</numerusform>
+            <numerusform>%n highlights</numerusform>
+        </translation>
     </message>
 </context>
 </TS>
