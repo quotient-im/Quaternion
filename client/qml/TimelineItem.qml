@@ -229,7 +229,7 @@ Item {
                 selectByMouse: true
                 readOnly: true
                 textFormat: TextEdit.RichText
-                text: ((xchatStyle ||!authorSectionVisible) ? "" :
+                text: ((xchatStyle || (!actionEvent && !authorSectionVisible)) ? "" :
                        "<a href='#mention'><b>" + authorName + "</b></a>" +
                             (actionEvent ? " " : "<br>")
                       ) + display +
