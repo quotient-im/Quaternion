@@ -1001,7 +1001,6 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
 </context>
 <context>
     <name>SystemTrayIcon</name>
-    </message>
     <message>
         <source>Highlight in %1</source>
         <translation>Highlight in %1</translation>
