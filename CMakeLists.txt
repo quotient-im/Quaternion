@@ -134,6 +134,7 @@ set(quaternion_QRC
 set(quaternion_TS
     client/translations/quaternion_en.ts
     client/translations/quaternion_de_DE.ts
+    client/translations/quaternion_pl.ts
     )
 
 QT5_ADD_RESOURCES(quaternion_QRC_SRC ${quaternion_QRC})

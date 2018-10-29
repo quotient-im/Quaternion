@@ -1,4 +1,6 @@
-<!DOCTYPE TS><TS version="2.1" language="pl">
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
+<TS version="2.1" language="pl">
 <context>
     <name>ChatRoomWidget</name>
     <message>
@@ -111,7 +113,7 @@
     </message>
     <message>
         <source>/%1 &lt;memberId&gt;</source>
-        <translation></translation>
+        <translation>/%1 &lt;memberId&gt;</translation>
     </message>
     <message>
         <source>Unknown /command. Use // to send this line literally</source>
@@ -147,6 +149,56 @@
     <message>
         <source>Applying changes, please wait</source>
         <translation>Wprowadzanie zmian, proszę czekać</translation>
+    </message>
+</context>
+<context>
+    <name>FileContent</name>
+    <message>
+        <source>Size: %1, declared type: %2</source>
+        <translation>Rozmiar: %1, zadeklarowany typ: %2</translation>
+    </message>
+    <message>
+        <source> (downloaded to %1)</source>
+        <translation> (pobrano do %1)</translation>
+    </message>
+    <message>
+        <source>Open after downloading</source>
+        <translation>Otwórz po pobraniu</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Anuluj</translation>
+    </message>
+    <message>
+        <source>Save as...</source>
+        <translation>Zapisz jako…</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Otwórz</translation>
+    </message>
+    <message>
+        <source>Open folder</source>
+        <translation>Otwórz folder</translation>
+    </message>
+</context>
+<context>
+    <name>ImageContent</name>
+    <message>
+        <source>Cancel downloading</source>
+        <translation>Anuluj pobieranie</translation>
+    </message>
+    <message>
+        <source>Open externally</source>
+        <translation>Otwórz zewnętrznie</translation>
+    </message>
+    <message>
+        <source>Download full size</source>
+        <translation>Pobierz pełny rozmiar</translation>
+    </message>
+    <message>
+        <source>Save as...</source>
+        <translation>Zapisz jako…</translation>
     </message>
 </context>
 <context>
@@ -220,7 +272,7 @@
     </message>
     <message>
         <source>Show redacted events in the timeline as &apos;Redacted&apos; instead of hiding them entirely</source>
-        <translation></translation>
+        <translation>Pokaż zredagowane wydarzenia na osi czasu jako &quot;Zredagowane&quot; zamiast całkowicie je ukrywać</translation>
     </message>
     <message>
         <source>&amp;No-effect activity</source>
@@ -274,7 +326,7 @@ org.qmatrixclient. tags: invite, left, direct, none</source>
     </message>
     <message>
         <source>&amp;Highlight only</source>
-        <translation>&amp;Tylko podświetl</translation>
+        <translation>&amp;Tylko wyróżnij</translation>
     </message>
     <message>
         <source>Notifications are entirely suppressed</source>
@@ -326,7 +378,7 @@ org.qmatrixclient. tags: invite, left, direct, none</source>
     </message>
     <message>
         <source>Automatically download a full-size image instead of a thumbnail</source>
-        <translation></translation>
+        <translation>Automatycznie pobierz obraz w pełnym rozmiarze zamiast miniatury</translation>
     </message>
     <message>
         <source>Configure &amp;network proxy...</source>
@@ -358,16 +410,17 @@ org.qmatrixclient. tags: invite, left, direct, none</source>
     </message>
     <message>
         <source>The last sync of account %1 has failed with error: %2</source>
-        <translation></translation>
+        <translation>Ostatnia synchronizacja konta %1 nie powiodła się z powodu błędu: %2</translation>
     </message>
     <message>
         <source>The last sync has failed with error: %1</source>
-        <translation></translation>
+        <translation>Ostatnia synchronizacja nie powiodła się z powodu błędu: %1</translation>
     </message>
     <message>
         <source>Clicking &apos;Retry&apos; will attempt to resume synchronisation;
 Clicking &apos;Cancel&apos; will stop further synchronisation of this account until logout or Quaternion restart.</source>
-        <translation></translation>
+        <translation>Kliknięcie &quot;Ponów próbę&quot; spowoduje wznowienie synchronizacji;
+Kliknięcie &quot;Anuluj&quot; zatrzyma dalszą synchronizację tego konta do momentu wylogowania się lub ponownego uruchomienia Quaterniona.</translation>
     </message>
     <message>
         <source>Before this server can process your information, you have to agree with its terms and conditions; please click the button below to open the web page where you can do that</source>
@@ -443,7 +496,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Please specify non-empty id or alias</source>
-        <translation></translation>
+        <translation>Proszę podać niepusty identyfikator lub alias</translation>
     </message>
     <message>
         <source>Joined %1 as %2</source>
@@ -475,7 +528,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Please specify non-empty user id</source>
-        <translation></translation>
+        <translation>Proszę podać niepusty identyfikator użytkownika</translation>
     </message>
     <message>
         <source>Starting chat with %1 as %2</source>
@@ -511,7 +564,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Authenticate</source>
-        <translation></translation>
+        <translation>Uwierzytelnij</translation>
     </message>
     <message>
         <source>User name</source>
@@ -533,7 +586,8 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     <message>
         <source>Library commit SHA:
 </source>
-        <translation></translation>
+        <translation>Commit SHA biblioteki:
+</translation>
     </message>
     <message>
         <source>&amp;Thanks</source>
@@ -573,7 +627,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Show join and leave events</source>
-        <translation></translation>
+        <translation>Pokaż zdarzenia dołączenia i wyjścia</translation>
     </message>
     <message>
         <source>Show join-(optional redactions but no other events)-leave sequences from the same author</source>
@@ -829,7 +883,11 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Re-sort rooms (TODO)</source>
-        <translation></translation>
+        <translation>Ponownie posortuj pokoje (TODO)</translation>
+    </message>
+    <message>
+        <source>Change room &amp;settings...</source>
+        <translation type="unfinished">Zmień &amp;ustawienia pokoju…</translation>
     </message>
 </context>
 <context>
@@ -858,7 +916,6 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
         <source>%1 (%Ln room(s))</source>
         <translation>
             <numerusform>%1 (%Ln pokój)</numerusform>
-            <numerusform></numerusform>
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
@@ -894,7 +951,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Unread highlights: %1&lt;br&gt;</source>
-        <translation></translation>
+        <translation>Nieprzeczytane wyróżnienia: %1 &lt;br&gt;</translation>
     </message>
     <message>
         <source>ID: %1&lt;br&gt;</source>
@@ -911,6 +968,10 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     <message>
         <source>You were invited into this room</source>
         <translation>Zostałeś(-aś) zaproszony(-a) do tego pokoju</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation type="unfinished">Ulubione</translation>
     </message>
 </context>
 <context>
@@ -939,107 +1000,16 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
 <context>
     <name>SystemTrayIcon</name>
     <message>
-        <source>Highlight!</source>
-        <translation>Podświetlenie!</translation>
+        <source>Highlight in %1</source>
+        <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>%1: %2 highlight(s)</source>
-        <translation>%1: %2 podkreśleń</translation>
-    </message>
-</context>
-<context>
-    <name>UserListDock</name>
-    <message>
-        <source>Users</source>
-        <translation>Użytkownicy</translation>
-    </message>
-    <message>
-        <source>Open direct chat</source>
-        <translation>Otwórz bezpośredni czat</translation>
-    </message>
-    <message>
-        <source>Mention user</source>
-        <translation>Wspomnij użytkownika</translation>
-    </message>
-    <message>
-        <source>Users (%1)</source>
-        <translation>Użytkownicy (%1)</translation>
-    </message>
-</context>
-<context>
-    <name>UserListModel</name>
-    <message>
-        <source>&lt;br&gt;Bridged from: %1</source>
-        <translation>&lt;br&gt;Mostkowany(-a) z: %1</translation>
-    </message>
-</context>
-<context>
-    <name>main</name>
-    <message>
-        <source>Display debug information</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Quaternion - an IM client for the Matrix protocol</source>
-        <translation>Quaternion - komunikator internetowy dla protokołu Matrix</translation>
-    </message>
-    <message>
-        <source>Override locale</source>
-        <translation>Nadpisz ustawienia regionalne</translation>
-    </message>
-    <message>
-        <source>locale</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
-    <name>FileContent</name>
-    <message>
-        <source>Size: %1, declared type: %2</source>
-        <translation>Rozmiar: %1, zadeklarowany typ: %2</translation>
-    </message>
-    <message>
-        <source> (downloaded to %1)</source>
-        <translation> (pobrano do %1)</translation>
-    </message>
-    <message>
-        <source>Open after downloading</source>
-        <translation>Otwórz po pobraniu</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Anuluj</translation>
-    </message>
-    <message>
-        <source>Save as...</source>
-        <translation>Zapisz jako…</translation>
-    </message>
-    <message>
-        <source>Open</source>
-        <translation>Otwórz</translation>
-    </message>
-    <message>
-        <source>Open folder</source>
-        <translation>Otwórz folder</translation>
-    </message>
-</context>
-<context>
-    <name>ImageContent</name>
-    <message>
-        <source>Cancel downloading</source>
-        <translation>Anuluj pobieranie</translation>
-    </message>
-    <message>
-        <source>Open externally</source>
-        <translation>Otwórz zewnętrznie</translation>
-    </message>
-    <message>
-        <source>Download full size</source>
-        <translation>Pobierz pełny rozmiar</translation>
-    </message>
-    <message>
-        <source>Save as...</source>
-        <translation>Zapisz jako…</translation>
+    <message numerus="yes">
+        <source>%n highlight(s)</source>
+        <translation type="unfinished">
+            <numerusform>%n wyróżnień</numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -1063,10 +1033,9 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     <message numerus="yes">
         <source>%Ln events back from now (%L1 cached)</source>
         <translation>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>%Ln wydarzenie od teraz (%L2 cached)</numerusform>
+            <numerusform>%Ln wydarzenia od teraz (%L2 cached)</numerusform>
+            <numerusform>%Ln wydarzeń od teraz (%L2 cached) </numerusform>
         </translation>
     </message>
 </context>
@@ -1087,6 +1056,59 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     <message>
         <source>Copy link to clipboard</source>
         <translation>Skopiuj link do schowka</translation>
+    </message>
+</context>
+<context>
+    <name>UserListDock</name>
+    <message>
+        <source>Users</source>
+        <translation>Użytkownicy</translation>
+    </message>
+    <message>
+        <source>Open direct chat</source>
+        <translation>Otwórz bezpośredni czat</translation>
+    </message>
+    <message>
+        <source>Mention user</source>
+        <translation>Wspomnij użytkownika</translation>
+    </message>
+    <message>
+        <source>Users (%1)</source>
+        <translation>Użytkownicy (%1)</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>UserListModel</name>
+    <message>
+        <source>&lt;br&gt;Bridged from: %1</source>
+        <translation type="vanished">&lt;br&gt;Mostkowany(-a) z: %1</translation>
+    </message>
+    <message>
+        <source>Bridged from: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>main</name>
+    <message>
+        <source>Display debug information</source>
+        <translation>Wyświetl informacje debugowe</translation>
+    </message>
+    <message>
+        <source>Quaternion - an IM client for the Matrix protocol</source>
+        <translation>Quaternion - komunikator internetowy dla protokołu Matrix</translation>
+    </message>
+    <message>
+        <source>Override locale</source>
+        <translation>Nadpisz ustawienia regionalne</translation>
+    </message>
+    <message>
+        <source>locale</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

@@ -1,4 +1,6 @@
-<!DOCTYPE TS><TS version="2.1" language="de_DE">
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
+<TS version="2.1" language="de_DE">
 <context>
     <name>ChatRoomWidget</name>
     <message>
@@ -147,6 +149,56 @@
     <message>
         <source>Applying changes, please wait</source>
         <translation>Änderungen werden übernommen. Bitte warten</translation>
+    </message>
+</context>
+<context>
+    <name>FileContent</name>
+    <message>
+        <source>Size: %1, declared type: %2</source>
+        <translation>Größe: %1, angegebener Typ: %2</translation>
+    </message>
+    <message>
+        <source> (downloaded to %1)</source>
+        <translation> (nach %1 heruntergeladen)</translation>
+    </message>
+    <message>
+        <source>Open after downloading</source>
+        <translation>Nach dem Herunterladen öffnen</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
+    </message>
+    <message>
+        <source>Save as...</source>
+        <translation>Speichern als...</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Öffnen</translation>
+    </message>
+    <message>
+        <source>Open folder</source>
+        <translation>Ordner öffnen</translation>
+    </message>
+</context>
+<context>
+    <name>ImageContent</name>
+    <message>
+        <source>Cancel downloading</source>
+        <translation>Herunterladen abbrechen</translation>
+    </message>
+    <message>
+        <source>Open externally</source>
+        <translation>Extern öffnen</translation>
+    </message>
+    <message>
+        <source>Download full size</source>
+        <translation>In voller Größe herunterladen</translation>
+    </message>
+    <message>
+        <source>Save as...</source>
+        <translation>Speichern als...</translation>
     </message>
 </context>
 <context>
@@ -836,6 +888,10 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
         <source>Re-sort rooms (TODO)</source>
         <translation>Räume neu sortieren (TODO)</translation>
     </message>
+    <message>
+        <source>Change room &amp;settings...</source>
+        <translation type="unfinished">Ändere Raum-&amp;Einstellungen...</translation>
+    </message>
 </context>
 <context>
     <name>RoomListModel</name>
@@ -915,6 +971,10 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
         <source>You were invited into this room</source>
         <translation>Du wurdest in diesen Raum eingeladen</translation>
     </message>
+    <message>
+        <source>Favourites</source>
+        <translation type="unfinished">Favoriten</translation>
+    </message>
 </context>
 <context>
     <name>RoomSettingsDialog</name>
@@ -942,107 +1002,15 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
 <context>
     <name>SystemTrayIcon</name>
     <message>
-        <source>Highlight!</source>
-        <translation>Highlight!</translation>
+        <source>Highlight in %1</source>
+        <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>%1: %2 highlight(s)</source>
-        <translation>%1: %2 Highlight(s)</translation>
-    </message>
-</context>
-<context>
-    <name>UserListDock</name>
-    <message>
-        <source>Users</source>
-        <translation>Benutzer</translation>
-    </message>
-    <message>
-        <source>Open direct chat</source>
-        <translation>Öffne direkten Chat</translation>
-    </message>
-    <message>
-        <source>Mention user</source>
-        <translation>Nutzer erwähnen</translation>
-    </message>
-    <message>
-        <source>Users (%1)</source>
-        <translation>Benutzer (%1)</translation>
-    </message>
-</context>
-<context>
-    <name>UserListModel</name>
-    <message>
-        <source>&lt;br&gt;Bridged from: %1</source>
-        <translation>&lt;br&gt;Überbrückt von: %1</translation>
-    </message>
-</context>
-<context>
-    <name>main</name>
-    <message>
-        <source>Display debug information</source>
-        <translation>Zeige Debug-Informationen</translation>
-    </message>
-    <message>
-        <source>Quaternion - an IM client for the Matrix protocol</source>
-        <translation>Quaternion - Ein Chat-Client für das Matrix-Protokoll</translation>
-    </message>
-    <message>
-        <source>Override locale</source>
-        <translation>Sprache überschreiben</translation>
-    </message>
-    <message>
-        <source>locale</source>
-        <translation>Sprache</translation>
-    </message>
-</context>
-<context>
-    <name>FileContent</name>
-    <message>
-        <source>Size: %1, declared type: %2</source>
-        <translation>Größe: %1, angegebener Typ: %2</translation>
-    </message>
-    <message>
-        <source> (downloaded to %1)</source>
-        <translation> (nach %1 heruntergeladen)</translation>
-    </message>
-    <message>
-        <source>Open after downloading</source>
-        <translation>Nach dem Herunterladen öffnen</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Abbrechen</translation>
-    </message>
-    <message>
-        <source>Save as...</source>
-        <translation>Speichern als...</translation>
-    </message>
-    <message>
-        <source>Open</source>
-        <translation>Öffnen</translation>
-    </message>
-    <message>
-        <source>Open folder</source>
-        <translation>Ordner öffnen</translation>
-    </message>
-</context>
-<context>
-    <name>ImageContent</name>
-    <message>
-        <source>Cancel downloading</source>
-        <translation>Herunterladen abbrechen</translation>
-    </message>
-    <message>
-        <source>Open externally</source>
-        <translation>Extern öffnen</translation>
-    </message>
-    <message>
-        <source>Download full size</source>
-        <translation>In voller Größe herunterladen</translation>
-    </message>
-    <message>
-        <source>Save as...</source>
-        <translation>Speichern als...</translation>
+    <message numerus="yes">
+        <source>%n highlight(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -1088,6 +1056,55 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     <message>
         <source>Copy link to clipboard</source>
         <translation>In Zwischenablage kopieren</translation>
+    </message>
+</context>
+<context>
+    <name>UserListDock</name>
+    <message>
+        <source>Users</source>
+        <translation>Benutzer</translation>
+    </message>
+    <message>
+        <source>Open direct chat</source>
+        <translation>Öffne direkten Chat</translation>
+    </message>
+    <message>
+        <source>Mention user</source>
+        <translation>Nutzer erwähnen</translation>
+    </message>
+    <message>
+        <source>Users (%1)</source>
+        <translation>Benutzer (%1)</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Suchen</translation>
+    </message>
+</context>
+<context>
+    <name>UserListModel</name>
+    <message>
+        <source>Bridged from: %1</source>
+        <translation>Überbrückt von: %1</translation>
+    </message>
+</context>
+<context>
+    <name>main</name>
+    <message>
+        <source>Display debug information</source>
+        <translation>Zeige Debug-Informationen</translation>
+    </message>
+    <message>
+        <source>Quaternion - an IM client for the Matrix protocol</source>
+        <translation>Quaternion - Ein Chat-Client für das Matrix-Protokoll</translation>
+    </message>
+    <message>
+        <source>Override locale</source>
+        <translation>Sprache überschreiben</translation>
+    </message>
+    <message>
+        <source>locale</source>
+        <translation>Sprache</translation>
     </message>
 </context>
 </TS>

@@ -1001,13 +1001,17 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
 </context>
 <context>
     <name>SystemTrayIcon</name>
-    <message>
-        <source>Highlight!</source>
-        <translation>Highlight!</translation>
     </message>
     <message>
-        <source>%1: %2 highlight(s)</source>
-        <translation>%1: %2 highlight(s)</translation>
+        <source>Highlight in %1</source>
+        <translation>Highlight in %1</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n highlight(s)</source>
+        <translation>
+            <numerusform>%n highlight</numerusform>
+            <numerusform>%n highlights</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -1040,19 +1044,19 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     <name>TimelineItem</name>
     <message>
         <source>Resend</source>
-        <translation type="vanished">Resend</translation>
+        <translation>Resend</translation>
     </message>
     <message>
         <source>Discard</source>
-        <translation type="vanished">Discard</translation>
+        <translation>Discard</translation>
     </message>
     <message>
         <source>Redact</source>
-        <translation type="vanished">Redact</translation>
+        <translation>Redact</translation>
     </message>
     <message>
         <source>Copy link to clipboard</source>
-        <translation type="vanished">Copy link to clipboard</translation>
+        <translation>Copy link to clipboard</translation>
     </message>
 </context>
 <context>
@@ -1073,12 +1077,16 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
         <source>Users (%1)</source>
         <translation>Users (%1)</translation>
     </message>
+    <message>
+        <source>Search</source>
+        <translation>Search</translation>
+    </message>
 </context>
 <context>
     <name>UserListModel</name>
     <message>
-        <source>&lt;br&gt;Bridged from: %1</source>
-        <translation>&lt;br&gt;Bridged from: %1</translation>
+        <source>Bridged from: %1</source>
+        <translation>Bridged from: %1</translation>
     </message>
 </context>
 <context>
