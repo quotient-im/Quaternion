@@ -46,7 +46,8 @@ void SystemTrayIcon::highlightCountChanged(QMatrixClient::Room* room)
         return;
     if( room->highlightCount() > 0 )
     {
-        showMessage(tr("Highlight!"), tr("%1: %2 highlight(s)").arg(room->displayName()).arg(room->highlightCount()));
+        showMessage(tr("Highlight in %1").arg(room->displayName()),
+                    tr("%n highlight(s)", "", room->highlightCount()));
         if (mode != "non-intrusive")
             m_parent->activateWindow();
         auto* qRoom = static_cast<QuaternionRoom*>(room);
