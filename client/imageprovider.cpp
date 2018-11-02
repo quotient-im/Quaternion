@@ -74,6 +74,8 @@ QImage ImageProvider::requestImage(const QString& id,
             condition.wakeAll();
         });
         condition.wait(&m_lock);
+        qDebug() << "ImageProvider::requestImage(): concluding"
+                 << mxcUri.toString();
     }
 
     if( pSize != nullptr )
