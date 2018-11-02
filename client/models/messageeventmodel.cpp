@@ -607,7 +607,8 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
     if( role == SpecialMarksRole )
     {
         if (isPending)
-            return pendingIt->deliveryStatus();
+            return !Settings().get<bool>("UI/suppress_local_echo")
+                    ? pendingIt->deliveryStatus() : EventStatus::Hidden;
 
         if (is<RedactionEvent>(evt))
             return EventStatus::Hidden;

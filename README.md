@@ -92,6 +92,9 @@ Settings not exposed in UI:
 - `UI/show_author_avatars` - set this to 1 (or true) to show author avatars in
   the timeline (default if the timeline layout is set to default); setting this
   to 0 (or false) will suppress avatars (default for the XChat timeline layout).
+- `UI/suppress_local_echo` - set this to 1 (or true) to suppress showing local
+  echo (events sent from the current application but not yet confirmed by
+  the server). By default local echo is shown.
 - `UI/animations_duration_ms` - defines the base duration (in milliseconds) of
   animation effects in the timline. The default is 400; set it to 0 to disable
   animation.
