@@ -141,22 +141,19 @@ void UserListModel::userRemoved(QMatrixClient::User* user)
 }
 
 
-void UserListModel::filter(QString filterString)
+void UserListModel::filter(const QString& filterString)
 {
     QElapsedTimer et; et.start();
 
     beginResetModel();
     m_users.clear();
-    for (auto* user: m_currentRoom->users())
-    {
-        if (user->fullName(m_currentRoom).contains(filterString) ||
-                user->displayname(m_currentRoom).contains(filterString))
-        {
-            m_users.push_back(user);
-            std::inplace_merge(m_users.begin(), m_users.end() - 1, m_users.end(),
-                m_currentRoom->memberSorter());
-        }
-    }
+    const auto all = m_currentRoom->users();
+    std::remove_copy_if(all.begin(), all.end(), std::back_inserter(m_users),
+        [&](User* u) {
+            return !(u->rawName(m_currentRoom).contains(filterString) ||
+                     u->id().contains(filterString));
+        });
+    std::sort(m_users.begin(), m_users.end(), m_currentRoom->memberSorter());
     endResetModel();
 
     qDebug() << "Filtering" << m_users.size() << "user(s) in"

@@ -44,7 +44,7 @@ class UserListModel: public QAbstractListModel
         int rowCount(const QModelIndex& parent=QModelIndex()) const override;
     
     public slots:
-        void filter(QString filterString);
+        void filter(const QString& filterString);
 
     private slots:
         void userAdded(User* user);
