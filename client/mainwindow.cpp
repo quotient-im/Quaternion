@@ -333,6 +333,12 @@ void MainWindow::createMenu()
     }
     addTimelineOptionCheckbox(
         settingsMenu,
+        tr("Use joypad to scroll timeline (requires restart)"),
+        tr("Joypad controls scrolling velocity instead of scroll position"),
+        QStringLiteral("use_joypad"), true
+    );
+    addTimelineOptionCheckbox(
+        settingsMenu,
         tr("Load full-size images at once"),
         tr("Automatically download a full-size image instead of a thumbnail"),
         QStringLiteral("autoload_images"), true

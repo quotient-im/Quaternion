@@ -1,5 +1,6 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.4
+import QtQuick.Controls 2.0 as QQC2
 import QtQuick.Controls.Styles 1.0
 import QtQuick.Layouts 1.1
 import QMatrixClient 1.0
@@ -13,6 +14,7 @@ Rectangle {
         readonly property string render_type: value("UI/Fonts/render_type", "NativeRendering")
         readonly property int animations_duration_ms: value("UI/animations_duration_ms", 400)
         readonly property int fast_animations_duration_ms: animations_duration_ms / 2
+        readonly property bool use_joypad: value("UI/use_joypad", true)
     }
     SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
     SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
@@ -32,190 +34,208 @@ Rectangle {
         return qsTr("%1 GB").arg(Math.round(bytes / 100) / 10)
     }
 
-    ListView {
-        id: chatView
+    ScrollView {
+        id: chatScrollView
         anchors.fill: parent
+        anchors.rightMargin: if (settings.use_joypad) { joypad.width }
+        horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
+        verticalScrollBarPolicy: settings.use_joypad ? Qt.ScrollBarAlwaysOff
+                                                     : Qt.ScrollBarAlwaysOn
+        style: ScrollViewStyle { transientScrollBars: true }
 
-        model: messageModel
-        delegate: TimelineItem {
-            width: root.width - chatViewScroller.width
-            view: chatView
-            moving: chatView.moving || chatViewScroller.value
-        }
-        verticalLayoutDirection: ListView.BottomToTop
-        flickableDirection: Flickable.VerticalFlick
-        flickDeceleration: 9001
-        boundsBehavior: Flickable.StopAtBounds
-        pixelAligned: true
-        cacheBuffer: 200
+        ListView {
+            id: chatView
 
-        section { property: "section" }
-
-        property int largestVisibleIndex: count > 0 ?
-            indexAt(contentX, contentY + height - 1) : -1
-
-        function ensurePreviousContent() {
-            // Check whether we're about to bump into the ceiling in 2 seconds
-            var curVelocity = verticalVelocity // Snapshot the current speed
-            if( curVelocity < 0 && contentY + curVelocity*2 < originY)
-            {
-                // Request the amount of messages enough to scroll at this
-                // rate for 3 more seconds
-                var avgHeight = contentHeight / count
-                room.getPreviousContent(-curVelocity*3 / avgHeight);
+            model: messageModel
+            delegate: TimelineItem {
+                width: chatView.width
+                view: chatView
+                moving: chatView.moving || joypad.value
             }
-        }
+            verticalLayoutDirection: ListView.BottomToTop
+            flickableDirection: Flickable.VerticalFlick
+            flickDeceleration: 10000
+            boundsBehavior: Flickable.StopAtBounds
+    //        pixelAligned: true
+            cacheBuffer: 200
 
-        function onModelAboutToReset() {
-            console.log("Resetting timeline model")
-            contentYChanged.disconnect(ensurePreviousContent)
-        }
+            section { property: "section" }
 
-        function onModelReset() {
-            if (room)
-            {
-                var lastScrollPosition = room.savedTopVisibleIndex()
-                contentYChanged.connect(ensurePreviousContent)
-                if (lastScrollPosition === 0)
-                    positionViewAtBeginning()
-                else
+            property int largestVisibleIndex: count > 0 ?
+                indexAt(contentX, contentY + height - 1) : -1
+
+            function ensurePreviousContent() {
+                // Check whether we're about to bump into the ceiling in 2 seconds
+                var curVelocity = verticalVelocity // Snapshot the current speed
+                if( curVelocity < 0 && contentY + curVelocity*2 < originY)
                 {
-                    console.log("Scrolling to position", lastScrollPosition)
-                    positionViewAtIndex(lastScrollPosition, ListView.Contain)
+                    // Request the amount of messages enough to scroll at this
+                    // rate for 3 more seconds
+                    var avgHeight = contentHeight / count
+                    room.getPreviousContent(-curVelocity*3 / avgHeight);
                 }
-                if (contentY < originY + 10)
-                    room.getPreviousContent(100)
             }
-            console.log("Model timeline reset")
-        }
 
-        Component.onCompleted: {
-            console.log("QML view loaded")
-            model.modelAboutToBeReset.connect(onModelAboutToReset)
-            model.modelReset.connect(onModelReset)
-        }
+            function onModelAboutToReset() {
+                console.log("Resetting timeline model")
+                contentYChanged.disconnect(ensurePreviousContent)
+            }
 
-        onMovementEnded:
-            room.saveViewport(indexAt(contentX, contentY), largestVisibleIndex)
-
-        displaced: Transition { NumberAnimation {
-            property: "y"; duration: settings.fast_animations_duration_ms
-            easing.type: Easing.OutQuad
-        }}
-
-        // Scrolling controls
-
-        Slider {
-            id: chatViewScroller
-            orientation: Qt.Vertical
-            height: parent.height
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            z: 3
-
-            style: SliderStyle {
-                // Width and height are swapped below because SliderStyle assumes
-                // a horizontal slider - but anchors are not :-\
-                groove: Rectangle {
-                    color: defaultPalette.window
-                    border.color: defaultPalette.midlight
-                    implicitHeight: 8
-                    Rectangle {
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.right: parent.right
-                        implicitHeight: 2
-                        width: chatView.largestVisibleIndex < 0 ? 0 :
-                            chatView.height *
-                                (1 - chatView.largestVisibleIndex / chatView.count)
-
-                        color: defaultPalette.highlight
+            function onModelReset() {
+                if (room)
+                {
+                    var lastScrollPosition = room.savedTopVisibleIndex()
+                    contentYChanged.connect(ensurePreviousContent)
+                    if (lastScrollPosition === 0)
+                        positionViewAtBeginning()
+                    else
+                    {
+                        console.log("Scrolling to position", lastScrollPosition)
+                        positionViewAtIndex(lastScrollPosition, ListView.Contain)
                     }
+                    if (contentY < originY + 10)
+                        room.getPreviousContent(100)
                 }
-                handle: Rectangle {
-                    anchors.centerIn: parent
-                    color: defaultPalette.button
-                    border.color: defaultPalette.buttonText
-                    border.width: 1
-                    implicitWidth: 14
-                    implicitHeight: 8
-                    visible: chatView.count > 0
-                }
+                console.log("Model timeline reset")
             }
 
-            maximumValue: 10.0
-            minimumValue: -10.0
-
-            activeFocusOnPress: false
-            activeFocusOnTab: false
-            // wheelEnabled: false // Only available in QQC 1.6, Qt 5.10
-
-            MouseArea {
-                id: scrollerArea
-                anchors.fill: parent
-                acceptedButtons: Qt.NoButton
-                onWheel: { } // FIXME: propagate wheel event to chatView
-
-                hoverEnabled: true
-            }
-
-            onPressedChanged: {
-                if (!pressed)
-                    value = 0
-            }
-
-            onValueChanged: {
-                if (value)
-                    parent.flick(0, parent.height * value)
-            }
             Component.onCompleted: {
-                // This will cause continuous scrolling while the scroller is out of 0
-                parent.flickEnded.connect(chatViewScroller.valueChanged)
+                console.log("QML view loaded")
+                model.modelAboutToBeReset.connect(onModelAboutToReset)
+                model.modelReset.connect(onModelReset)
+            }
+
+            onMovementEnded:
+                room.saveViewport(indexAt(contentX, contentY), largestVisibleIndex)
+
+            displaced: Transition { NumberAnimation {
+                property: "y"; duration: settings.fast_animations_duration_ms
+                easing.type: Easing.OutQuad
+            }}
+
+            Behavior on contentY {
+                enabled: !chatView.moving
+                SmoothedAnimation {
+                    duration: settings.fast_animations_duration_ms
+                    maximumEasingTime: settings.animations_duration_ms
+            }}
+
+            // itemAt is a function, not a property so is not bound to new items
+            // showing up underneath; contentHeight is used for that instead.
+            readonly property var underlayingItem: contentHeight >= height &&
+                itemAt(contentX, contentY + sectionBanner.height - 2)
+            readonly property bool sectionBannerVisible: underlayingItem &&
+                (!underlayingItem.sectionVisible || underlayingItem.y < contentY)
+
+            Rectangle {
+                id: sectionBanner
+                z: 3 // On top of ListView sections that have z=2
+                anchors.left: parent.left
+                anchors.top: parent.top
+                width: childrenRect.width + 2
+                height: childrenRect.height + 2
+                visible: chatView.sectionBannerVisible
+                color: defaultPalette.window
+                opacity: 0.9
+                Label {
+                    font.bold: true
+                    color: disabledPalette.text
+                    renderType: settings.render_type
+                    text: chatView.underlayingItem ?
+                              chatView.underlayingItem.ListView.section : ""
+                }
+            }
+        }
+    }
+    Slider {
+        id: joypad
+        orientation: Qt.Vertical
+        height: chatScrollView.height
+        anchors.right: parent.right
+        anchors.verticalCenter: chatScrollView.verticalCenter
+        enabled: settings.use_joypad
+        visible: enabled
+
+        style: SliderStyle {
+            // Width and height are swapped below because SliderStyle assumes
+            // a horizontal slider - but anchors are not :-\
+            groove: Rectangle {
+                color: defaultPalette.window
+                border.color: defaultPalette.midlight
+                implicitHeight: 8
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.right: parent.right
+                    implicitHeight: 2
+                    width: chatView.largestVisibleIndex < 0 ? 0 :
+                        chatView.height *
+                            (1 - chatView.largestVisibleIndex / chatView.count)
+
+                    color: defaultPalette.highlight
+                }
+            }
+            handle: Rectangle {
+                anchors.centerIn: parent
+                color: defaultPalette.button
+                border.color: defaultPalette.buttonText
+                border.width: 1
+                implicitWidth: 14
+                implicitHeight: 8
+                visible: chatView.count > 0
             }
         }
 
-        // itemAt is a function, not a property so is not bound to new items
-        // showing up underneath; contentHeight is used for that instead.
-        readonly property var underlayingItem: contentHeight >= height &&
-            itemAt(contentX, contentY + sectionBanner.height - 2)
-        readonly property bool sectionBannerVisible: underlayingItem &&
-            (!underlayingItem.sectionVisible || underlayingItem.y < contentY)
+        maximumValue: 10.0
+        minimumValue: -10.0
 
-        Rectangle {
-            id: sectionBanner
-            z: 3 // On top of ListView sections that have z=2
-            anchors.left: parent.left
-            anchors.top: parent.top
-            width: childrenRect.width + 2
-            height: childrenRect.height + 2
-            visible: chatView.sectionBannerVisible
-            color: defaultPalette.window
-            opacity: 0.9
-            Label {
-                font.bold: true
-                color: disabledPalette.text
-                renderType: settings.render_type
-                text: chatView.underlayingItem ?
-                          chatView.underlayingItem.ListView.section : ""
-            }
+        activeFocusOnPress: false
+        activeFocusOnTab: false
+        // wheelEnabled: false // Only available in QQC 1.6, Qt 5.10
+
+        onPressedChanged: {
+            if (!pressed)
+                value = 0
         }
 
-        Rectangle {
-            z: 3 // On top of ListView sections that have z=2
-            anchors.right: chatViewScroller.left
-            anchors.top: parent.top
-            width: childrenRect.width + 3
-            height: childrenRect.height + 3
-            visible: chatView.largestVisibleIndex >= 0 && scrollerArea.containsMouse
-            color: defaultPalette.window
-            opacity: 0.9
-            Label {
-                font.bold: true
-                color: disabledPalette.text
-                renderType: settings.render_type
-                text: qsTr("%Ln events back from now (%L1 cached)", "",
-                           chatView.largestVisibleIndex)
-                        .arg(chatView.count)
-            }
+        onValueChanged: {
+            if (value)
+                chatView.flick(0, parent.height * value)
+        }
+        Component.onCompleted: {
+            // This will cause continuous scrolling while the scroller is out of 0
+            chatView.flickEnded.connect(joypad.valueChanged)
+        }
+    }
+
+    MouseArea {
+        id: scrollerArea
+        anchors.top: chatScrollView.top
+        anchors.bottom: chatScrollView.bottom
+        anchors.right: parent.right
+        width: settings.use_joypad ? joypad.width
+                                   : chatScrollView.width - chatView.width
+        acceptedButtons: Qt.NoButton
+        // FIXME: propagate wheel event to chatView
+        onWheel: { wheel.accepted = settings.use_joypad }
+
+        hoverEnabled: true
+    }
+
+    Rectangle {
+        anchors.right: scrollerArea.left
+        anchors.top: chatScrollView.top
+        width: childrenRect.width + 3
+        height: childrenRect.height + 3
+        visible: chatView.largestVisibleIndex >= 0 && scrollerArea.containsMouse
+        color: defaultPalette.window
+        opacity: 0.9
+        Label {
+            font.bold: true
+            color: disabledPalette.text
+            renderType: settings.render_type
+            text: qsTr("%Ln events back from now (%L1 cached)", "",
+                       chatView.largestVisibleIndex)
+                    .arg(chatView.count)
         }
     }
 
