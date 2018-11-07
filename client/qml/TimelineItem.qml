@@ -73,14 +73,13 @@ Item {
             shownChanged(true);
     }
 
-    NumberAnimation on opacity {
-        from: 0; to: 1
-        // Reduce duration when flicking/scrolling
-        duration: moving ? settings.fast_animations_duration_ms :
-                           settings.animations_duration_ms
-        // Give time for chatView.displaced to complete
-        easing.type: Easing.InExpo
-    }
+//    NumberAnimation on opacity {
+//        from: 0; to: 1
+//        // Reduce duration when flicking/scrolling
+//        duration: settings.fast_animations_duration_ms
+//        // Give time for chatView.displaced to complete
+//        easing.type: Easing.InExpo
+//    }
 //    Behavior on height { NumberAnimation {
 //        duration: settings.fast_animations_duration_ms
 //        easing.type: Easing.OutQuad
