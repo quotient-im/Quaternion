@@ -14,7 +14,7 @@ Rectangle {
         readonly property string render_type: value("UI/Fonts/render_type", "NativeRendering")
         readonly property int animations_duration_ms: value("UI/animations_duration_ms", 400)
         readonly property int fast_animations_duration_ms: animations_duration_ms / 2
-        readonly property bool use_joypad: value("UI/use_joypad", true)
+        readonly property bool use_shuttle_dial: value("UI/use_shuttle_dial", true)
     }
     SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
     SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
@@ -37,10 +37,10 @@ Rectangle {
     ScrollView {
         id: chatScrollView
         anchors.fill: parent
-        anchors.rightMargin: if (settings.use_joypad) { joypad.width }
+        anchors.rightMargin: if (settings.use_shuttle_dial) { shuttleDial.width }
         horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
-        verticalScrollBarPolicy: settings.use_joypad ? Qt.ScrollBarAlwaysOff
-                                                     : Qt.ScrollBarAlwaysOn
+        verticalScrollBarPolicy: settings.use_shuttle_dial
+                                 ? Qt.ScrollBarAlwaysOff : Qt.ScrollBarAlwaysOn
         style: ScrollViewStyle { transientScrollBars: true }
 
         ListView {
@@ -50,7 +50,7 @@ Rectangle {
             delegate: TimelineItem {
                 width: chatView.width
                 view: chatView
-                moving: chatView.moving || joypad.value
+                moving: chatView.moving || shuttleDial.value
             }
             verticalLayoutDirection: ListView.BottomToTop
             flickableDirection: Flickable.VerticalFlick
@@ -148,12 +148,12 @@ Rectangle {
         }
     }
     Slider {
-        id: joypad
+        id: shuttleDial
         orientation: Qt.Vertical
         height: chatScrollView.height
         anchors.right: parent.right
         anchors.verticalCenter: chatScrollView.verticalCenter
-        enabled: settings.use_joypad
+        enabled: settings.use_shuttle_dial
         visible: enabled
 
         style: SliderStyle {
@@ -203,7 +203,7 @@ Rectangle {
         }
         Component.onCompleted: {
             // This will cause continuous scrolling while the scroller is out of 0
-            chatView.flickEnded.connect(joypad.valueChanged)
+            chatView.flickEnded.connect(shuttleDial.valueChanged)
         }
     }
 
@@ -212,11 +212,11 @@ Rectangle {
         anchors.top: chatScrollView.top
         anchors.bottom: chatScrollView.bottom
         anchors.right: parent.right
-        width: settings.use_joypad ? joypad.width
-                                   : chatScrollView.width - chatView.width
+        width: settings.use_shuttle_dial ? shuttleDial.width
+                                         : chatScrollView.width - chatView.width
         acceptedButtons: Qt.NoButton
         // FIXME: propagate wheel event to chatView
-        onWheel: { wheel.accepted = settings.use_joypad }
+        onWheel: { wheel.accepted = settings.use_shuttle_dial }
 
         hoverEnabled: true
     }

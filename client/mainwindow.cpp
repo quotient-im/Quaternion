@@ -333,9 +333,9 @@ void MainWindow::createMenu()
     }
     addTimelineOptionCheckbox(
         settingsMenu,
-        tr("Use joypad to scroll timeline (requires restart)"),
-        tr("Joypad controls scrolling velocity instead of scroll position"),
-        QStringLiteral("use_joypad"), true
+        tr("Use shuttle scrollbar (requires restart)"),
+        tr("Control scroll velocity instead of position with the timeline scrollbar"),
+        QStringLiteral("use_shuttle_dial"), true
     );
     addTimelineOptionCheckbox(
         settingsMenu,

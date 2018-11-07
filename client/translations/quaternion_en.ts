@@ -637,11 +637,11 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
         <translation>Show join-(optional redactions but no other events)-leave sequences from the same author</translation>
     </message>
     <message>
-        <source>Joypad controls scrolling velocity instead of scroll position</source>
+        <source>Use shuttle scrollbar (requires restart)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Use joypad to scroll timeline (requires restart)</source>
+        <source>Control scroll velocity instead of position with the timeline scrollbar</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

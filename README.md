@@ -56,7 +56,7 @@ Quaternion stores its configuration in a way standard for Qt applications. It wi
   - system-wide: `HKEY_LOCAL_MACHINE\Software\QMatrixClient\quaternion`
   - user-specific: `HKEY_CURRENT_USER\Software\QMatrixClient\quaternion`
 
-Some settings exposed in UI (Settings menu):
+Some settings exposed in UI (Settings and View menus):
 - `UI/notifications` - a general setting whether Quaternion should distract
   the user with notifications and how.
   - `none` suppresses notifications entirely (rooms and messages are still
@@ -70,6 +70,14 @@ Some settings exposed in UI (Settings menu):
   in a xchat/hexchat style (this was also the only available layout on
   Quaternion before 0.0.9.2). Any other value will select the "default" layout,
   with author labels above blocks of messages.
+- `UI/use_shuttle_dial` - Quaternion will use a shuttle dial instead of
+  a classic scrollbar for the timeline's vertical scrolling control. Shuttle
+  dials usually control change velocity instead of value; in this case,
+  moving the dial away from the neutral position increases the speed of
+  scrolling. This is more convenient if you need to quickly move around without
+  knowing position relative to the edges, as is the case of a Matrix timeline;
+  however, the control is unusual and not all people like it. Shuttle scrollbar
+  is enabled by default; set this to false (or 0) to use the classic scrollbar.
 - `UI/autoload_images` - whether full-size images should be loaded immediately
   once the message is shown on the screen. The default is to automatically load
   full-size images; set this to false (or 0) to disable that and only load
