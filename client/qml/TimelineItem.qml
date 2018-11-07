@@ -1,5 +1,6 @@
 import QtQuick 2.6
 import QtQuick.Controls 1.4
+import QtQuick.Controls 2.0 as QQC2
 //import QtGraphicalEffects 1.0 // For fancy highlighting
 import QMatrixClient 1.0
 
@@ -148,7 +149,7 @@ Item {
             }
             Label {
                 id: authorLabel
-                visible: xchatStyle // Invisible but existing for default layout
+                visible: xchatStyle || (!actionEvent && authorSectionVisible)
                 anchors.left: authorAvatar.right
                 anchors.leftMargin: 2
                 anchors.top: authorAvatar.top
@@ -158,6 +159,7 @@ Item {
                 elide: Text.ElideRight
 
                 color: textColor
+                font.bold: !xchatStyle
                 renderType: settings.render_type
 
                 text: (actionEvent ? "* " : "") + authorName
@@ -215,56 +217,97 @@ Item {
                     radius: 2
                 }
             }
-            TextEdit {
+            Item {
                 id: textField
-                anchors.top: authorAvatar.top
+                anchors.top: authorLabel.visible ? authorLabel.bottom
+                                                 : authorAvatar.top
                 anchors.left: xchatStyle ? authorLabel.right : timelabel.right
                 anchors.leftMargin: 1
                 anchors.right: resendButton.left
                 anchors.rightMargin: 1
-                leftPadding: 2
-                rightPadding: 2
+                height: textFieldImpl.height
+                clip: true
 
-                selectByMouse: true
-                readOnly: true
-                textFormat: TextEdit.RichText
-                text: ((xchatStyle || (!actionEvent && !authorSectionVisible)) ? "" :
-                       "<a href='#mention'><b>" + authorName + "</b></a>" +
-                            (actionEvent ? " " : "<br>")
-                      ) + display +
-                      (annotation ? "<br><em>" + annotation + "</em>" : "")
-                horizontalAlignment: Text.AlignLeft
-                wrapMode: Text.Wrap
-                color: textColor
-                renderType: settings.render_type
+                TextEdit {
+                    id: textFieldImpl
+                    anchors.top: textField.top
+                    width: parent.width
+                    leftPadding: 2
+                    rightPadding: 2
+                    x: -textScrollBar.position * contentWidth
 
+                    selectByMouse: true
+                    readOnly: true
+                    textFormat: TextEdit.RichText
+                    // FIXME: The text is clumsy and slows down creation
+                    text: (actionEvent ?
+                           ("<a href='#mention' style='text-decoration:none;color:\"" +
+                                    defaultPalette.text + "\"'><b>" +
+                                    authorName + "</b></a> ") : ""
+                          ) + display +
+                          (annotation ? "<br><em>" + annotation + "</em>" : "")
+                    horizontalAlignment: Text.AlignLeft
+                    wrapMode: Text.Wrap
+                    color: textColor
+                    renderType: settings.render_type
+
+                    // TODO: In the code below, links should be resolved
+                    // with Qt.resolvedLink, once we figure out what
+                    // to do with relative URLs (note: www.google.com
+                    // is a relative URL, https://www.google.com is not).
+                    // Instead of Qt.resolvedUrl (and, most likely,
+                    // QQmlAbstractUrlInterceptor to convert URLs)
+                    // we might just prefer to do the whole resolving
+                    // in C++.
+                    onHoveredLinkChanged:
+                        controller.showStatusMessage(hoveredLink)
+
+                    onLinkActivated: {
+                        if (link === "#mention")
+                        {
+                            controller.insertMention(author)
+                            controller.focusInput()
+                        }
+                        else
+                            Qt.openUrlExternally(link)
+                    }
+                }
                 MouseArea {
                     anchors.fill: parent
-                    cursorShape: parent.hoveredLink ? Qt.PointingHandCursor
-                                                    : Qt.IBeamCursor
+                    cursorShape: textFieldImpl.hoveredLink
+                                 ? Qt.PointingHandCursor : Qt.IBeamCursor
                     acceptedButtons: Qt.NoButton
-                }
-                // TODO: In the code below, links should be resolved
-                // with Qt.resolvedLink, once we figure out what
-                // to do with relative URLs (note: www.google.com
-                // is a relative URL, https://www.google.com is not).
-                // Instead of Qt.resolvedUrl (and, most likely,
-                // QQmlAbstractUrlInterceptor to convert URLs)
-                // we might just prefer to do the whole resolving
-                // in C++.
-                onHoveredLinkChanged:
-                    controller.showStatusMessage(hoveredLink)
 
-                onLinkActivated: {
-                    if (link === "#mention")
-                    {
-                        controller.insertMention(author)
-                        controller.focusInput()
+                    onWheel: {
+                        if (wheel.angleDelta.x != 0 &&
+                                textFieldImpl.width < textFieldImpl.contentWidth)
+                        {
+                            if (wheel.pixelDelta.x != 0)
+                                textScrollBar.position -=
+                                            wheel.pixelDelta.x / width
+                            else
+                                textScrollBar.position -=
+                                            wheel.angleDelta.x / 6 / width
+                            textScrollBar.position =
+                                    Math.min(1, Math.max(0,
+                                        textScrollBar.position))
+                        } else
+                            wheel.accepted = false
                     }
-                    else
-                        Qt.openUrlExternally(link)
+                }
+                QQC2.ScrollBar {
+                    id: textScrollBar
+                    hoverEnabled: true
+                    visible: textFieldImpl.contentWidth > textFieldImpl.width
+                    active: visible
+                    orientation: Qt.Horizontal
+                    size: textFieldImpl.width / textFieldImpl.contentWidth
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
                 }
             }
+
             Loader {
                 active: eventType == "image"
 
