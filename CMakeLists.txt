@@ -37,9 +37,9 @@ foreach (FLAG "" all pedantic extra no-unused-parameter)
 endforeach ()
 
 # Find the libraries
-find_package(Qt5 5.6 REQUIRED Widgets Network Quick Qml QuickWidgets Gui LinguistTools)
+find_package(Qt5 5.7 REQUIRED Widgets Network Quick Qml QuickWidgets Gui LinguistTools)
 if (USE_QQUICKWIDGET)
-    find_package(Qt5 5.6 REQUIRED QuickWidgets)
+    find_package(Qt5 5.7 REQUIRED QuickWidgets)
 endif()
 get_filename_component(Qt5_Prefix "${Qt5_DIR}/../../../.." ABSOLUTE)
 

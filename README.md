@@ -20,7 +20,7 @@ The latest release (with links to cross-platform source code archives, as well a
 Packagers are very scarce so far, so please step up and support your favourite system! Notably, we still need a MacOS maintainer - Quaternion sees no actual usage/testing on this platform yet. Build instructions for the source code can be found in BUILDING.md.
 
 ### Requirements
-Quaternion needs Qt version 5.6 or higher. On Linux, this is compatible with Debian Stretch and Ubuntu Xenial Xerus with Kubuntu Backports overlay. On Windows, all needed Qt libraries are included in the archive - you only need to separately install OpenSSL (see below).
+Quaternion needs Qt version 5.7 or higher. On Linux, this is compatible with Debian Stretch and Ubuntu Xenial Xerus with Kubuntu Backports overlay. On Windows, all needed Qt libraries are included in the archive - you only need to separately install OpenSSL (see below).
 
 #### Windows
 For those who want the very latest version (beware, you may find it not working at times), automatic builds for Windows are packaged by AppVeyor CI upon every commit. To get an archive, surf to the [AppVeyor CI page for Quaternion](https://ci.appveyor.com/project/QMatrixClient/quaternion), then go to "Jobs", click on a job for your architecture and find the archive in "Artifacts". Once you unpack the archive, **delete or rename** the "bearer" directory (see "Troubleshooting" below for details).

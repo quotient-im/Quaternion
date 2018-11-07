@@ -4,11 +4,11 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
-    - sourceline: 'ppa:beineri/opt-qt563-trusty'
+    - sourceline: 'ppa:beineri/opt-qt571-trusty'
     packages:
     - g++-5
-    - qt56-meta-minimal
-    - qt56tools
+    - qt57-meta-minimal
+    - qt57tools
 
 matrix:
   include:
@@ -22,7 +22,7 @@ matrix:
 
 before_install:
 - eval "${ENV_EVAL}"
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then . /opt/qt56/bin/qt56-env.sh; fi
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; then . /opt/qt57/bin/qt57-env.sh; fi
 
 script:
 - mkdir build && cd build
