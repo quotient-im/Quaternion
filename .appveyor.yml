@@ -26,6 +26,9 @@ build_script:
 
 after_build:
 - cmake --build build --target install
+- cd "%DEPLOY_DIR%"
+- del /S bearer qmltooling Qt QtWinExtras Qt5WinExtras.dll
+- cd ..
 - 7z a quaternion.zip "%DEPLOY_DIR%\"
 
 # Uncomment this to connect to the AppVeyor build worker
