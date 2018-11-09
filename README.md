@@ -23,7 +23,7 @@ Packagers are very scarce so far, so please step up and support your favourite s
 Quaternion needs Qt version 5.7 or higher. On Linux, this is compatible with Debian Stretch and Ubuntu Xenial Xerus with Kubuntu Backports overlay. On Windows, all needed Qt libraries are included in the archive - you only need to separately install OpenSSL (see below).
 
 #### Windows
-For those who want the very latest version (beware, you may find it not working at times), automatic builds for Windows are packaged by AppVeyor CI upon every commit. To get an archive, surf to the [AppVeyor CI page for Quaternion](https://ci.appveyor.com/project/QMatrixClient/quaternion), then go to "Jobs", click on a job for your architecture and find the archive in "Artifacts". Once you unpack the archive, **delete or rename** the "bearer" directory (see "Troubleshooting" below for details).
+For those who want the very latest version (beware, you may find it not working at times), automatic builds for Windows are packaged by AppVeyor CI upon every commit. To get an archive, surf to the [AppVeyor CI page for Quaternion](https://ci.appveyor.com/project/QMatrixClient/quaternion), then go to "Jobs", click on a job for your architecture and find the archive in "Artifacts".
 
 Since we can't rely on package management on Windows, Qt libraries and a C++ runtime are packaged/installed together with Quaternion. However, OpenSSL libraries (ssleay32.dll and libeay32.dll) are not installed automatically because of export restrictions. Unless you already have them around (e.g., they are a part of any Qt development installation, see `Tools/<MinGW toolchain>/opt/bin`), your best bet is to:
 - find the pre-compiled libraries yourself (searching Internet for "OpenSSL Windows" should work);
@@ -134,10 +134,10 @@ Cache files are safe to delete at any time but Quaternion only looks for them wh
 
 ## Troubleshooting
 
-libqmatrixclient has its own section on troubleshooting - in case of trouble make sure to look into lib/README.md too.
+libqmatrixclient has its own section on troubleshooting - make sure to look into its README.md too.
 
 #### Continuously reconnecting though the network is fine
-If Quaternion starts displaying the message that it couldn't connect to the server and retries more than a couple of times without success, while you're sure you have the network connection - double-check that you don't have Qt bearer management libraries: they cause issues with some WiFi networks. Try to find "bearer" directory where your Qt is installed (on Windows it's next to Quaternion executable; on Linux it's a part of Qt installation in `/usr/lib/qt5/plugins`). Then delete or rename it (on Windows) or delete the package that this directory is in (on Linux).
+If Quaternion starts displaying the message that it couldn't connect to the server and retries more than a couple of times without success, while you're sure you have the network connection - double-check that you don't have Qt bearer management libraries around: they cause issues with some WiFi networks. To do that, try to find "bearer" directory where your Qt is installed (on Windows it's next to Quaternion executable; on Linux it's a part of Qt installation in `/usr/lib/qt5/plugins`). Then delete or rename it (on Windows) or delete the package that this directory is in (on Linux).
 
 #### No messages in the timeline
 If Quaternion runs but you can't see any messages in the chat (though you can type them in) - you have a problem with Qt Quick. Most likely, you don't have Qt Quick libraries and/or plugins installed. On Linux, double check "Pre-requisites" above and also see the stdout/stderr logs, they are quite clear in such cases. On Windows and Mac, just open an issue (see "Contacts" in the beginning of this README), because most likely not all necessary Qt parts got copied along with Quaternion (which is a bug).
@@ -145,7 +145,7 @@ If Quaternion runs but you can't see any messages in the chat (though you can ty
 If the logs confirm that QML is up and running but there's still nothing for the timeline, you might have hit an issue with QML view stacking order, such as #356. As a workaround, you may try to use a highly experimental (=prone to crashes on some platforms) mode: pass `-DUSE_QQUICKWIDGET=ON` to CMake.
 
 #### SSL problems
-Especially on Windows, if Quaternion starts up but upon an attempt to connect returns a message like "Failed to make SSL context" - you haven't made sure that SSL libraries are reachable by the Quaternion binary. See the "OpenSSL on Windows" section above for details.
+Especially on Windows, if Quaternion starts up but upon an attempt to connect returns a message like "Failed to make SSL context" - you haven't made sure that SSL libraries are reachable by the Quaternion binary. Re-read the chapter "Requirements", section "Windows" in the beginning of this file and do as it advises.
 
 #### DLL hell
 If you have troubles with dynamic libraries on Windows, [the Dependencies Walker tool aka depends.exe](http://www.dependencywalker.com/) helps a lot in navigating the DLL hell - especially when you have a mixed 32/64-bit environment or have different versions of the same library scattered around. OpenSSL, in particular, is notoriously often dragged along by all kinds of software; and you may have other copies of Qt around which you didn't even know about - e.g., with CMake GUI.
@@ -153,7 +153,7 @@ If you have troubles with dynamic libraries on Windows, [the Dependencies Walker
 #### Logging
 If you run Quaternion from a console on Windows, you should set `QT_LOGGING_TO_CONSOLE=1` in order for the debug output be redirected to the console.
 
-When chasing bugs and investigating crashes, it helps to increase the debug level. Thanks to [@eang:matrix.org](https://matrix.to/#/@eang:matrix.org]), libqmatrixclient uses Qt logging categories - the "Troubleshooting" section of `lib/README.md` elaborates on how to setup logging. Note that Quaternion itself doesn't use Qt logging categories yet, only the library does.
+When chasing bugs and investigating crashes, it helps to increase the debug level. Thanks to [@eang:matrix.org](https://matrix.to/#/@eang:matrix.org]), libqmatrixclient uses Qt logging categories - the "Troubleshooting" section of the library's `README.md` elaborates on how to setup logging. Note that Quaternion itself doesn't use Qt logging categories yet, only the library does.
 
 You may also want to set `QT_MESSAGE_PATTERN` to make logs slightly more informative (see https://doc.qt.io/qt-5/qtglobal.html#qSetMessagePattern for the format description). My (@kitsune's) `QT_MESSAGE_PATTERN` looks as follows:
 `%{time h:mm:ss.zzz}|%{category}|%{if-debug}D%{endif}%{if-info}I%{endif}%{if-warning}W%{endif}%{if-critical}C%{endif}%{if-fatal}F%{endif}|%{message}` (the scary `%{if}`s are just encoding the logging level into its initial letter).
