@@ -132,7 +132,8 @@ Item {
 
             Image {
                 id: authorAvatar
-                visible: settings.show_author_avatars && authorSectionVisible
+                visible: settings.show_author_avatars &&
+                         (authorSectionVisible || xchatStyle)
                 anchors.left: xchatStyle ? timelabel.right : parent.left
                 anchors.leftMargin: xchatStyle * 3
                 width: if (!xchatStyle) { timelabel.width }
