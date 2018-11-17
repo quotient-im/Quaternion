@@ -50,7 +50,6 @@ class UserListDock: public QDockWidget
         void requestUserMention();
         void kickUser();
         void banUser();
-        void unbanUser();
         void ignoreUser();
         bool isIgnored();
 
@@ -64,4 +63,5 @@ class UserListDock: public QDockWidget
         QAction* ignoreAction;
 
         QMatrixClient::User* getSelectedUser() const;
+        QMatrixClient::Room* m_currentRoom;
 };

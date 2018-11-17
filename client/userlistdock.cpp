@@ -82,8 +82,6 @@ UserListDock::UserListDock(QWidget* parent)
         tr("Kick user"), this,&UserListDock::kickUser);
     contextMenu->addAction(QIcon::fromTheme("im-ban-user"),
         tr("Ban user"), this, &UserListDock::banUser);
-    contextMenu->addAction(tr("Unban user"), this,
-        &UserListDock::unbanUser);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested,
@@ -93,6 +91,7 @@ UserListDock::UserListDock(QWidget* parent)
 void UserListDock::setRoom(QMatrixClient::Room* room)
 {
     m_model->setRoom(room);
+    m_currentRoom = room;
 }
 
 void UserListDock::refreshTitle()
@@ -125,7 +124,7 @@ void UserListDock::kickUser()
         tr("Reason"), QLineEdit::Normal, nullptr, &ok);
     if (ok) {
         if (auto* user = getSelectedUser())
-            m_model->kickUser(user->id(), kickDialog);
+            m_currentRoom->kickMember(user->id(), kickDialog);
     }
 }
 
@@ -136,20 +135,14 @@ void UserListDock::banUser()
         tr("Reason"), QLineEdit::Normal, nullptr, &ok);
     if (ok) {
         if (auto* user = getSelectedUser())
-            m_model->banUser(user->id(), banDialog);
+            m_currentRoom->ban(user->id(), banDialog);
     }
-}
-
-void UserListDock::unbanUser()
-{
-    if (auto* user = getSelectedUser())
-        m_model->unbanUser(user->id());
 }
 
 void UserListDock::ignoreUser()
 {
     if (auto* user = getSelectedUser()) {
-        if (!user->connection()->isIgnored(user))
+        if (!user->isIgnored())
             user->ignore();
         else
             user->unmarkIgnore();
@@ -159,7 +152,7 @@ void UserListDock::ignoreUser()
 bool UserListDock::isIgnored()
 {
     if (auto* user = getSelectedUser())
-        return user->connection()->isIgnored(user);
+        return user->isIgnored();
     return false;
 }
 

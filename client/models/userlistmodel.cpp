@@ -110,21 +110,6 @@ QVariant UserListModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
-void UserListModel::kickUser(const QString& id, const QString& reason)
-{
-    m_currentRoom->kickMember(id, reason);
-}
-
-void UserListModel::banUser(const QString& id, const QString& reason)
-{
-    m_currentRoom->ban(id, reason);
-}
-
-void UserListModel::unbanUser(const QString& id)
-{
-    m_currentRoom->unban(id);
-}
-
 int UserListModel::rowCount(const QModelIndex& parent) const
 {
     if( parent.isValid() )

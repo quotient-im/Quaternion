@@ -45,9 +45,6 @@ class UserListModel: public QAbstractListModel
     
     public slots:
         void filter(const QString& filterString);
-        void kickUser(const QString& id, const QString& reason);
-        void banUser(const QString& id, const QString& reason);
-        void unbanUser(const QString& id);
 
     private slots:
         void userAdded(User* user);
