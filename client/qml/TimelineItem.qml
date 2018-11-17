@@ -123,12 +123,12 @@ Item {
             //   av al
             //   ts c
             // state-emote (default for state and emote events):
-            //   av (al+c in a single control over two lines)
-            //   ts
+            //   av (al+c in a single control
+            //   ts  spanning both rows)
             // xchat (when "timeline_style" is "xchat"):
             //   ts av al c
             // xchat state-emote
-            //   ts av * al c
+            //   ts av *(asterisk) al c
 
             Image {
                 id: authorAvatar
@@ -219,8 +219,8 @@ Item {
             }
             Item {
                 id: textField
-                anchors.top: authorLabel.visible ? authorLabel.bottom
-                                                 : authorAvatar.top
+                anchors.top: !xchatStyle && authorLabel.visible
+                             ? authorLabel.bottom : authorAvatar.top
                 anchors.left: xchatStyle ? authorLabel.right : timelabel.right
                 anchors.leftMargin: 1
                 anchors.right: resendButton.left
@@ -240,7 +240,7 @@ Item {
                     readOnly: true
                     textFormat: TextEdit.RichText
                     // FIXME: The text is clumsy and slows down creation
-                    text: (actionEvent ?
+                    text: (actionEvent && !xchatStyle ?
                            ("<a href='#mention' style='text-decoration:none;color:\"" +
                                     defaultPalette.text + "\"'><b>" +
                                     authorName + "</b></a> ") : ""
