@@ -132,17 +132,14 @@ Item {
 
             Image {
                 id: authorAvatar
-                visible: settings.show_author_avatars &&
+                visible: settings.show_author_avatars && source &&
                          (authorSectionVisible || xchatStyle)
                 anchors.left: xchatStyle ? timelabel.right : parent.left
                 anchors.leftMargin: xchatStyle * 3
                 width: if (!xchatStyle) { timelabel.width }
                        else if (!visible) { 0 }
-                height: visible *
-                    (xchatStyle ? authorLabel.height :
-                     Math.max(12, Math.min(sourceSize.height,
-                                           authorLabel.height))
-                    )
+                height: xchatStyle ? authorLabel.height :
+                        visible ? authorLabel.height * 2 - timelabel.height : 0
                 fillMode: Image.PreserveAspectFit
 
                 source: author.avatarMediaId ?
