@@ -1,6 +1,5 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.4
-import QtQuick.Controls 2.0 as QQC2
 import QtQuick.Controls.Styles 1.0
 import QtQuick.Layouts 1.1
 import QMatrixClient 1.0
@@ -63,17 +62,29 @@ Rectangle {
 
             property int largestVisibleIndex: count > 0 ?
                 indexAt(contentX, contentY + height - 1) : -1
+            readonly property bool loadingHistory: room && room.eventsHistoryJob
+
+            onLoadingHistoryChanged:
+                console.log("loadingHistory="+loadingHistory)
 
             function ensurePreviousContent() {
-                // Check whether we're about to bump into the ceiling in 2 seconds
-                var curVelocity = verticalVelocity // Snapshot the current speed
-                if( curVelocity < 0 && contentY + curVelocity*2 < originY)
+                if (loadingHistory)
+                    return
+                // Snapshot the current speed, or assume we scroll 10 screens/s
+                var curVelocity = moving ? -verticalVelocity : height * 10
+                // Check if we're about to bump into the ceiling in 2 seconds
+                if (curVelocity > 0 && contentY - curVelocity*2 < originY)
                 {
-                    // Request the amount of messages enough to scroll at this
-                    // rate for 3 more seconds
-                    var avgHeight = contentHeight / count
-                    room.getPreviousContent(-curVelocity*3 / avgHeight);
+                    // Request the amount of messages enough to scroll
+                    // at this rate for 3 more seconds
+                    var avgEventHeight = contentHeight / count
+                    room.getPreviousContent(curVelocity*3 / avgEventHeight);
                 }
+            }
+
+            function saveViewport() {
+                room.saveViewport(indexAt(contentX, contentY),
+                                  largestVisibleIndex)
             }
 
             function onModelAboutToReset() {
@@ -105,8 +116,7 @@ Rectangle {
                 model.modelReset.connect(onModelReset)
             }
 
-            onMovementEnded:
-                room.saveViewport(indexAt(contentX, contentY), largestVisibleIndex)
+            onMovementEnded: saveViewport()
 
             displaced: Transition { NumberAnimation {
                 property: "y"; duration: settings.fast_animations_duration_ms
@@ -116,8 +126,11 @@ Rectangle {
             Behavior on contentY {
                 enabled: !chatView.moving
                 SmoothedAnimation {
+                    id: scrollAnimation
                     duration: settings.fast_animations_duration_ms
                     maximumEasingTime: settings.animations_duration_ms
+
+                    onRunningChanged: { if (!running) chatView.saveViewport() }
             }}
 
             // itemAt is a function, not a property so is not bound to new items
@@ -202,7 +215,7 @@ Rectangle {
                 chatView.flick(0, parent.height * value)
         }
         Component.onCompleted: {
-            // This will cause continuous scrolling while the scroller is out of 0
+            // Continue scrolling while the shuttle is held out of 0
             chatView.flickEnded.connect(shuttleDial.valueChanged)
         }
     }
@@ -226,16 +239,18 @@ Rectangle {
         anchors.top: chatScrollView.top
         width: childrenRect.width + 3
         height: childrenRect.height + 3
-        visible: chatView.largestVisibleIndex >= 0 && scrollerArea.containsMouse
+        visible: chatView.largestVisibleIndex >= 0 &&
+                 (scrollerArea.containsMouse || scrollAnimation.running)
         color: defaultPalette.window
         opacity: 0.9
         Label {
             font.bold: true
             color: disabledPalette.text
             renderType: settings.render_type
-            text: qsTr("%Ln events back from now (%L1 cached)", "",
+            text: qsTr("%Ln events back from now (%L1 cached%2)", "",
                        chatView.largestVisibleIndex)
-                    .arg(chatView.count)
+                  .arg(chatView.count)
+                  .arg(chatView.loadingHistory ? " and loading" : "")
         }
     }
 
