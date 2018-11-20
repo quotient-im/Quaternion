@@ -263,26 +263,27 @@ void ChatRoomWidget::focusInput()
 }
 
 /**
- * \brief Split the string into no more than specified numbers of parts
- * The function takes \p s and splits it into at most \p maxParts parts
- * using \p sep for the separator. Empty parts are skipped. If there are more
- * than \p maxParts parts in the string, the last returned part includes
- * the remainder of the string.
+ * \brief Split the string into the specified number of parts
+ * The function takes \p s and splits it into \p maxParts parts using \p sep
+ * for the separator. Empty parts are skipped. If there are more than
+ * \p maxParts parts in the string, the last returned part includes
+ * the remainder of the string; if there are fewer parts, the missing parts
+ * are filled with empty strings.
  * \return the vector of references to the original string, one reference for
  * each part.
  */
 QVector<QString> lazySplitRef(const QString& s, QChar sep, int maxParts)
 {
-    QVector<QString> parts;
+    QVector<QString> parts { maxParts };
     int pos = 0, nextPos = 0;
     for (; maxParts > 1 && (nextPos = s.indexOf(sep, pos)) > -1; --maxParts)
     {
-        parts.push_back(s.mid(pos, nextPos - pos));
+        parts[parts.size() - maxParts] = s.mid(pos, nextPos - pos);
         while (s[++nextPos] == sep)
             ;
         pos = nextPos;
     }
-    parts.push_back(s.mid(pos));
+    parts[parts.size() - maxParts] = s.mid(pos);
     return parts;
 }
 
