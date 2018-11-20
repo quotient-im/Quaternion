@@ -59,6 +59,8 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
             "Room objects can only be created by libqmatrixclient");
         qmlRegisterUncreatableType<User>("QMatrixClient", 1, 0, "User",
             "User objects can only be created by libqmatrixclient");
+        qmlRegisterType<GetRoomEventsJob>();
+        qRegisterMetaType<GetRoomEventsJob*>("GetRoomEventsJob*");
         qmlRegisterType<Settings>("QMatrixClient", 1, 0, "Settings");
         qmlRegisterUncreatableType<RoomMessageEvent>("QMatrixClient", 1, 0,
             "RoomMessageEvent", "RoomMessageEvent is uncreatable");
