@@ -62,7 +62,8 @@ Rectangle {
 
             property int largestVisibleIndex: count > 0 ?
                 indexAt(contentX, contentY + height - 1) : -1
-            readonly property bool loadingHistory: room && room.eventsHistoryJob
+            readonly property bool loadingHistory:
+                room ? room.eventsHistoryJob : false
 
             onLoadingHistoryChanged:
                 console.log("loadingHistory="+loadingHistory)
