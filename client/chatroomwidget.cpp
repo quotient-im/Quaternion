@@ -37,6 +37,7 @@
 #include <QtCore/QStringBuilder>
 
 #include <events/roommessageevent.h>
+#include <csapi/message_pagination.h>
 #include <user.h>
 #include <connection.h>
 #include <settings.h>
