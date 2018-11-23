@@ -119,23 +119,29 @@ void UserListDock::requestUserMention()
 
 void UserListDock::kickUser()
 {
-    bool ok;
-    const auto kickDialog = QInputDialog::getText(this, tr("Kick User"),
-        tr("Reason"), QLineEdit::Normal, nullptr, &ok);
-    if (ok) {
-        if (auto* user = getSelectedUser())
-            m_currentRoom->kickMember(user->id(), kickDialog);
+    if (auto* user = getSelectedUser())
+    {
+        bool ok;
+        const auto reason = QInputDialog::getText(this,
+                tr("Kick %1").arg(user->id()), tr("Reason"),
+                QLineEdit::Normal, nullptr, &ok);
+        if (ok) {
+            m_currentRoom->kickMember(user->id(), reason);
+        }
     }
 }
 
 void UserListDock::banUser()
 {
-    bool ok;
-    const auto banDialog = QInputDialog::getText(this, tr("Ban User"),
-        tr("Reason"), QLineEdit::Normal, nullptr, &ok);
-    if (ok) {
-        if (auto* user = getSelectedUser())
-            m_currentRoom->ban(user->id(), banDialog);
+    if (auto* user = getSelectedUser())
+    {
+        bool ok;
+        const auto reason = QInputDialog::getText(this,
+                tr("Ban %1").arg(user->id()), tr("Reason"),
+                QLineEdit::Normal, nullptr, &ok);
+        if (ok) {
+            m_currentRoom->ban(user->id(), reason);
+        }
     }
 }
 
