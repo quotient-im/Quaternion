@@ -23,6 +23,7 @@
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QLineEdit>
+#include <QtWidgets/QInputDialog>
 
 #include <connection.h>
 #include <room.h>
@@ -72,6 +73,15 @@ UserListDock::UserListDock(QWidget* parent)
         tr("Open direct chat"), this, &UserListDock::startChatSelected);
     contextMenu->addAction(tr("Mention user"), this,
         &UserListDock::requestUserMention);
+    ignoreAction =
+        contextMenu->addAction(QIcon::fromTheme("mail-thread-ignored"),
+            tr("Ignore user"), this, &UserListDock::ignoreUser);
+    ignoreAction->setCheckable(true);
+    contextMenu->addSeparator();
+    contextMenu->addAction(QIcon::fromTheme("im-ban-kick-user"),
+        tr("Kick user"), this,&UserListDock::kickUser);
+    contextMenu->addAction(QIcon::fromTheme("im-ban-user"),
+        tr("Ban user"), this, &UserListDock::banUser);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested,
@@ -81,6 +91,7 @@ UserListDock::UserListDock(QWidget* parent)
 void UserListDock::setRoom(QMatrixClient::Room* room)
 {
     m_model->setRoom(room);
+    m_currentRoom = room;
 }
 
 void UserListDock::refreshTitle()
@@ -91,6 +102,7 @@ void UserListDock::refreshTitle()
 void UserListDock::showContextMenu(QPoint pos)
 {
     contextMenu->popup(mapToGlobal(pos));
+    ignoreAction->setChecked(isIgnored());
 }
 
 void UserListDock::startChatSelected()
@@ -103,6 +115,45 @@ void UserListDock::requestUserMention()
 {
     if (auto* user = getSelectedUser())
         emit userMentionRequested(user);
+}
+
+void UserListDock::kickUser()
+{
+    bool ok;
+    const auto kickDialog = QInputDialog::getText(this, tr("Kick User"),
+        tr("Reason"), QLineEdit::Normal, nullptr, &ok);
+    if (ok) {
+        if (auto* user = getSelectedUser())
+            m_currentRoom->kickMember(user->id(), kickDialog);
+    }
+}
+
+void UserListDock::banUser()
+{
+    bool ok;
+    const auto banDialog = QInputDialog::getText(this, tr("Ban User"),
+        tr("Reason"), QLineEdit::Normal, nullptr, &ok);
+    if (ok) {
+        if (auto* user = getSelectedUser())
+            m_currentRoom->ban(user->id(), banDialog);
+    }
+}
+
+void UserListDock::ignoreUser()
+{
+    if (auto* user = getSelectedUser()) {
+        if (!user->isIgnored())
+            user->ignore();
+        else
+            user->unmarkIgnore();
+    }
+}
+
+bool UserListDock::isIgnored()
+{
+    if (auto* user = getSelectedUser())
+        return user->isIgnored();
+    return false;
 }
 
 QMatrixClient::User* UserListDock::getSelectedUser() const

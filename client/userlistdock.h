@@ -48,6 +48,10 @@ class UserListDock: public QDockWidget
         void showContextMenu(QPoint pos);
         void startChatSelected();
         void requestUserMention();
+        void kickUser();
+        void banUser();
+        void ignoreUser();
+        bool isIgnored();
 
     private:
         QWidget* m_widget;
@@ -56,6 +60,8 @@ class UserListDock: public QDockWidget
         UserListModel* m_model;
 
         QMenu* contextMenu;
+        QAction* ignoreAction;
 
         QMatrixClient::User* getSelectedUser() const;
+        QMatrixClient::Room* m_currentRoom;
 };
