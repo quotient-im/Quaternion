@@ -58,10 +58,10 @@ class UserListDock: public QDockWidget
         QVBoxLayout* m_box;
         QTableView* m_view;
         UserListModel* m_model;
+        QMatrixClient::Room* m_currentRoom = nullptr;
 
         QMenu* contextMenu;
         QAction* ignoreAction;
 
         QMatrixClient::User* getSelectedUser() const;
-        QMatrixClient::Room* m_currentRoom;
 };
