@@ -478,7 +478,7 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     });
     connect( c, &Connection::networkError, this, [=]{ networkError(c); } );
     connect( c, &Connection::syncError, this,
-        [this,c] (const QString& message, const QByteArray& details) {
+        [this,c] (const QString& message, const QString& details) {
             QMessageBox msgBox(QMessageBox::Warning, tr("Sync failed"),
                 connections.size() > 1
                     ? tr("The last sync of account %1 has failed with error: %2")
@@ -511,8 +511,8 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
                 message, QMessageBox::Close, this);
             msgBox.setTextFormat(Qt::RichText);
             msgBox.setDetailedText(
-                "Request URL: " + job->requestUrl().toDisplayString() +
-                "\nResponse:\n" + job->rawData(65535));
+                tr("Request URL: %1\nResponse:\n%2")
+                .arg(job->requestUrl().toDisplayString(), job->rawDataSample()));
             QPushButton* openUrlButton = nullptr;
             if (job->errorUrl().isEmpty())
                 msgBox.setDefaultButton(QMessageBox::Close);
