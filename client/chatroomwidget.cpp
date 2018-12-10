@@ -104,8 +104,8 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
 
     m_timelineWidget->setSource(QUrl("qrc:///qml/Timeline.qml"));
 
-    m_currentlyTyping = new QLabel();
-    m_currentlyTyping->setWordWrap(true);
+    m_hudCaption = new QLabel();
+    m_hudCaption->setWordWrap(true);
 
     m_chatEdit = new ChatEdit(this);
     m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
@@ -114,9 +114,9 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     connect(m_chatEdit, &ChatEdit::proposedCompletion, this,
             [=](const QStringList& matches, int pos)
             {
-                m_currentlyTyping->setText(
-                    tr("<i>Next completion: %1</i>")
-                    .arg( QStringList(matches.mid(pos, 5)).join(", ") ) );
+                setHudCaption(
+                    tr("Next completion: %1")
+                    .arg(QStringList(matches.mid(pos, 5)).join(", ")) );
             });
     connect(m_chatEdit, &ChatEdit::cancelledCompletion,
             this, &ChatRoomWidget::typingChanged);
@@ -130,7 +130,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
 
     layout->addWidget(topicSeparator);
     layout->addWidget(qmlContainer);
-    layout->addWidget(m_currentlyTyping);
+    layout->addWidget(m_hudCaption);
     layout->addWidget(m_chatEdit);
     setLayout(layout);
 }
@@ -210,7 +210,7 @@ void ChatRoomWidget::typingChanged()
 {
     if (!m_currentRoom || m_currentRoom->usersTyping().isEmpty())
     {
-        m_currentlyTyping->clear();
+        m_hudCaption->clear();
         return;
     }
     QStringList typingNames;
@@ -218,8 +218,7 @@ void ChatRoomWidget::typingChanged()
     {
         typingNames << m_currentRoom->roomMembername(user);
     }
-    m_currentlyTyping->setText(tr("<i>Currently typing: %1</i>")
-                               .arg( typingNames.join(", ") ) );
+    setHudCaption( tr("Currently typing: %1").arg(typingNames.join(", ")) );
 }
 
 void ChatRoomWidget::updateHeader()
@@ -250,7 +249,12 @@ void ChatRoomWidget::encryptionChanged()
             ? m_currentRoom->usesEncryption()
                 ? tr("Sending encrypted messages is not supported yet")
                 : tr("Send a message (unencrypted) or enter a command...")
-            : DefaultPlaceholderText);
+                : DefaultPlaceholderText);
+}
+
+void ChatRoomWidget::setHudCaption(QString newCaption)
+{
+    m_hudCaption->setText("<i>" + newCaption + "</i>");
 }
 
 void ChatRoomWidget::insertMention(QMatrixClient::User* user)

@@ -76,6 +76,7 @@ class ChatRoomWidget: public QWidget
     private slots:
         void sendInput();
         void encryptionChanged();
+        void setHudCaption(QString newCaption);
 
     private:
         MessageEventModel* m_messageModel;
@@ -89,7 +90,7 @@ class ChatRoomWidget: public QWidget
         timelineWidget_t* m_timelineWidget;
         ImageProvider* m_imageProvider;
         ChatEdit* m_chatEdit;
-        QLabel* m_currentlyTyping;
+        QLabel* m_hudCaption; //< For typing and completion notifications
         QLabel* m_topicLabel;
         QLabel* m_roomAvatar;
 
