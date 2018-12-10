@@ -57,6 +57,7 @@ void UserListModel::setRoom(QMatrixClient::Room* room)
         connect( m_currentRoom, &Room::userRemoved, this, &UserListModel::userRemoved );
         connect( m_currentRoom, &Room::memberAboutToRename, this, &UserListModel::userRemoved );
         connect( m_currentRoom, &Room::memberRenamed, this, &UserListModel::userAdded );
+        connect( m_currentRoom, &Room::memberListChanged, this, &UserListModel::membersChanged );
 
         filter("");
 

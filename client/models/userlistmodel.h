@@ -43,6 +43,9 @@ class UserListModel: public QAbstractListModel
         QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
         int rowCount(const QModelIndex& parent=QModelIndex()) const override;
     
+    signals:
+        void membersChanged(); //< Reflection of Room::memberListChanged
+
     public slots:
         void filter(const QString& filterString);
 
