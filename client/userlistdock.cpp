@@ -60,9 +60,7 @@ UserListDock::UserListDock(QWidget* parent)
     m_model = new UserListModel();
     m_view->setModel(m_model);
 
-    connect( m_model, &QAbstractListModel::rowsInserted,
-             this, &UserListDock::refreshTitle );
-    connect( m_model, &QAbstractListModel::rowsRemoved,
+    connect( m_model, &UserListModel::membersChanged,
              this, &UserListDock::refreshTitle );
     connect( m_model, &QAbstractListModel::modelReset,
              this, &UserListDock::refreshTitle );
@@ -90,13 +88,21 @@ UserListDock::UserListDock(QWidget* parent)
 
 void UserListDock::setRoom(QMatrixClient::Room* room)
 {
-    m_model->setRoom(room);
     m_currentRoom = room;
+    m_model->setRoom(room);
 }
 
 void UserListDock::refreshTitle()
 {
-    setWindowTitle(tr("Users (%1)").arg(m_model->rowCount(QModelIndex())));
+    setWindowTitle(
+        !m_currentRoom ? tr("Users") :
+        m_model->rowCount() == m_currentRoom->joinedCount() ?
+            tr("Users (%Ln)", "The caption with users number",
+               m_currentRoom->joinedCount()) :
+            tr("Users (%Ln out of %L1)",
+               "Caption with the number of found and total numbers of users",
+               m_model->rowCount()).arg(m_currentRoom->joinedCount())
+    );
 }
 
 void UserListDock::showContextMenu(QPoint pos)

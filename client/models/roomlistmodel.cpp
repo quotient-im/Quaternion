@@ -594,9 +594,15 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         }
         case Qt::ToolTipRole:
         {
-            auto result = QStringLiteral("<b>%1</b><br>").arg(room->displayName());
-            result += tr("Main alias: %1<br>").arg(room->canonicalAlias());
-            result += tr("Members: %1<br>").arg(room->memberCount());
+            QString result =
+                QStringLiteral("<b>%1</b>").arg(room->displayName()) % "<br>" %
+                tr("Main alias: %1").arg(room->canonicalAlias()) % "<br>" %
+                tr("Joined: %Ln",
+                   "The number of joined members", room->joinedCount());
+            if (room->invitedCount() > 0)
+                result += "<br>" % tr("Invited: %Ln",
+                                      "The number of invited users",
+                                      room->invitedCount());
 
             auto directChatUsers = room->directChatUsers();
             if (!directChatUsers.isEmpty())
@@ -604,28 +610,28 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
                 QStringList userNames;
                 for (auto* user: directChatUsers)
                     userNames.push_back(user->displayname(room));
-                result += tr("Direct chat with %1<br>")
-                            .arg(userNames.join(','));
+                result += "<br>" % tr("Direct chat with %1")
+                                   .arg(userNames.join(','));
             }
 
             if (room->usesEncryption())
-                result += tr("The room enforces encryption<br>");
+                result += "<br>" % tr("The room enforces encryption");
 
             auto unreadCount = room->unreadCount();
             if (unreadCount >= 0)
             {
                 const auto unreadLine =
                     room->readMarker() == room->timelineEdge()
-                        ? tr("Unread messages: %1+<br>")
-                        : tr("Unread messages: %1<br>");
-                result += unreadLine.arg(unreadCount);
+                        ? tr("Unread messages: %1+")
+                        : tr("Unread messages: %1");
+                result += "<br>" % unreadLine.arg(unreadCount);
             }
 
             auto hlCount = room->highlightCount();
             if (hlCount > 0)
-                result += tr("Unread highlights: %1<br>").arg(hlCount);
+                result += "<br>" % tr("Unread highlights: %1").arg(hlCount);
 
-            result += tr("ID: %1<br>").arg(room->id());
+            result += "<br>" % tr("ID: %1").arg(room->id()) + "<br>";
             switch (room->joinState())
             {
                 case JoinState::Join:

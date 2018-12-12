@@ -455,6 +455,7 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
 
     using Room = QMatrixClient::Room;
 
+    c->setLazyLoading(true);
     connections.push_back(c);
 
     roomListDock->addConnection(c);
