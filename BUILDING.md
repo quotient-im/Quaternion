@@ -62,10 +62,10 @@ dnf install git cmake qt5-qtdeclarative-devel qt5-qtquickcontrols
 ```
 
 #### macOS
-`brew install qt5` should get you Qt5. Currently you have to point Quaternion at an explicit libqmatrixclient install (not a git submodule), and apparently you have to point CMake at the specific Qt5_DIR, with something like:
+`brew install qt5` should get you Qt5. You have to point CMake at the qt5 installation location, with something like:
 
 ```
-cmake .. -DCMAKE_PREFIX_PATH=../../libqmatrixclient -DQt5_DIR=$(brew --prefix qt5)/lib/cmake/Qt5
+cmake .. -DCMAKE_PREFIX_PATH=../../libqmatrixclient -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)
 ```
 
 #### Windows
