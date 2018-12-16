@@ -40,13 +40,13 @@ hacking on Quaternion _and_ libQMatrixClient at the same time - I (@kitsune)
 know exactly one person doing it on regular basis and that's me :)
 
 ### Pre-requisites
-- a Linux, OSX or Windows system (desktop versions tried; mobile Linux/Windows might work too)
+- a Linux, macOS or Windows system (desktop versions tried; mobile Linux/Windows might work too)
   - For Ubuntu flavours - zesty or later (or a derivative) is good enough out of the box; older ones will need PPAs at least for a newer Qt; in particular, if you have xenial you're advised to add Kubuntu Backports PPA for it
 - a Git client to check out this repo
 - CMake (from your package management system or [the official website](https://cmake.org/download/))
 - Qt 5 (either Open Source or Commercial), version 5.6 or higher
 - a C++ toolchain supported by your version of Qt (see a link for your platform at [the Qt's platform requirements page](http://doc.qt.io/qt-5/gettingstarted.html#platform-requirements))
-  - GCC 5 (Windows, Linux, OSX), Clang 5 (Linux), Apple Clang 8.1 (OSX) and Visual C++ 2015 (Windows) are the oldest officially supported
+  - GCC 5 (Windows, Linux, macOS), Clang 5 (Linux), Apple Clang 8.1 (macOS) and Visual C++ 2015 (Windows) are the oldest officially supported
   - any build system that works with CMake should be fine: GNU Make, ninja (any platform), NMake, jom (Windows) are known to work.
 - libQMatrixClient development files (from your package management system),
   unless you're handling both projects together (see Option 2 above)
@@ -61,13 +61,17 @@ On Fedora 26, the following command should be enough for building and running:
 dnf install git cmake qt5-qtdeclarative-devel qt5-qtquickcontrols
 ```
 
-#### OS X
-`brew install qt5` should get you Qt5. You may need to tell CMake about the path to Qt by passing `-DCMAKE_PREFIX_PATH=<where-Qt-installed>`
+#### macOS
+`brew install qt5` should get you Qt5. Currently you have to point Quaternion at an explicit libqmatrixclient install (not a git submodule), and apparently you have to point CMake at the specific Qt5_DIR, with something like:
+
+```
+cmake .. -DCMAKE_PREFIX_PATH=../../libqmatrixclient -DQt5_DIR=$(brew --prefix qt5)/lib/cmake/Qt5
+```
 
 #### Windows
 1. Install CMake. The commands in further sections imply that cmake is in your PATH - otherwise you have to prepend them with actual paths.
 1. Install Qt5, using their official installer. If for some reason you need to use Qt 5.2.1, select its Add-ons component in the installer as well; for later versions, no extras are needed. If you don't have a toolchain and/or IDE, you can easily get one by selecting Qt Creator and at least one toolchain under Qt Creator. At least Qt 5.3 is recommended on Windows; `windeployqt` in Qt 5.2.1 is not functional enough to provide a standalone installation for Quaternion though you can still compile and run from your build directory.
-1. Make sure CMake knows about Qt and the toolchain - the easiest way is to run a qtenv2.bat script that can be found in `C:\Qt\<Qt version>\<toolchain>\bin` (assuming you installed Qt to `C:\Qt`). The only thing it does is adding necessary paths to PATH - you might not want to run it on system startup but it's very handy to setup environment before building. Setting CMAKE_PREFIX_PATH, the same way as for OS X (see above), also helps.
+1. Make sure CMake knows about Qt and the toolchain - the easiest way is to run a qtenv2.bat script that can be found in `C:\Qt\<Qt version>\<toolchain>\bin` (assuming you installed Qt to `C:\Qt`). The only thing it does is adding necessary paths to PATH - you might not want to run it on system startup but it's very handy to setup environment before building. Setting CMAKE_PREFIX_PATH, the same way as for macOS (see above), also helps.
 
 There are no official MinGW-based 64-bit packages for Qt. If you're determined to build 64-bit Quaternion, either use a Visual Studio toolchain or build Qt5 yourself as described in Qt documentation. Be prepared that a VS 64-bit build won't give you a working Quaternion - the last time checked Quaternion ran but could not get anything from the network. PRs are welcome.
 

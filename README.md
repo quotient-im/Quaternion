@@ -52,7 +52,7 @@ Quaternion stores its configuration in a way standard for Qt applications. It wi
 - Linux:
   - system-wide: `$XDG_CONFIG_DIR/QMatrixClient/quaternion` or `/etc/xdg/QMatrixClient/quaternion`
   - user-specific: `$HOME/.config/QMatrixClient/quaternion`
-- OSX:
+- macOS:
   - system-wide: `/Library/Preferences/com.QMatrixClient.quaternion.plist`
   - user-specific: `$HOME/Library/Preferences/com.QMatrixClient.quaternion.plist`
 - Windows: registry keys under
@@ -123,14 +123,14 @@ Settings not exposed in UI:
 
 Since version 0.0.5, Quaternion tries to store your access tokens in a dedicated file with restricted access rights so that only the owner can access them. Every access token is stored in a separate file matching your user id in the following directory:
 - Linux: `$HOME/.local/share/QMatrixClient/quaternion`
-- OSX: `$HOME/Library/Application Support/QMatrixClient/quaternion`
+- macOS: `$HOME/Library/Application Support/QMatrixClient/quaternion`
 - Windows: `%LOCALAPPDATA%/QMatrixClient/quaternion`
 
 Unfortunately, Quaternion cannot enforce proper access rights on Windows yet; you'll see a warning about it and will be able to either refuse saving your access token in that case or agree and setup file permissions outside Quaternion.
 
 Quaternion caches the rooms state and user/room avatars on the file system in a conventional location for your platform, as follows:
 - Linux: `$HOME/.cache/QMatrixClient/quaternion`
-- OSX: `$HOME/Library/Cache/QMatrixClient/quaternion`
+- macOS: `$HOME/Library/Cache/QMatrixClient/quaternion`
 - Windows: `%LOCALAPPDATA%/QMatrixClient/quaternion/cache`
 
 Cache files are safe to delete at any time but Quaternion only looks for them when starting up and overwrites them regularly while running; so it only makes sense to delete cache files when Quaternion is not running. If Quaternion doesn't find cache files at startup it downloads the whole state from Matrix servers, which can take much time (up to a minute and even more, depending on the number of rooms and the number of users in them). Deleting cache files may help with problems such as missing avatars, rooms stuck in a wrong state etc.
