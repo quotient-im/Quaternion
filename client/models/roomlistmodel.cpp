@@ -632,16 +632,20 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
                 result += "<br>" % tr("Unread highlights: %1").arg(hlCount);
 
             result += "<br>" % tr("ID: %1").arg(room->id()) + "<br>";
+            auto asUser = m_connections.size() < 2 ? QString() :
+                tr("as %1",
+                   "as <user account> (disambiguates entries in the room list)")
+                .arg(room->localUser()->id());
             switch (room->joinState())
             {
                 case JoinState::Join:
-                    result += tr("You joined this room");
+                    result += tr("You joined this room") + asUser;
                     break;
                 case JoinState::Leave:
-                    result += tr("You left this room");
+                    result += tr("You left this room") + asUser;
                     break;
                 case JoinState::Invite:
-                    result += tr("You were invited into this room");
+                    result += tr("You were invited into this room") + asUser;
             }
             return result;
         }
