@@ -151,8 +151,17 @@ if(WIN32)
     )
 endif()
 
+if(APPLE)
+    set(ICON_NAME "quaternion.icns")
+    set(ICON_PATH "${CMAKE_CURRENT_SOURCE_DIR}/icons/${ICON_NAME}")
+
+    set(MACOSX_BUNDLE_ICON_FILE ${ICON_NAME})
+
+    set_source_files_properties("${ICON_PATH}" PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+endif(APPLE)
+
 # Windows, this is a GUI executable; OSX, make a bundle
-add_executable(quaternion WIN32 MACOSX_BUNDLE ${quaternion_SRCS} ${quaternion_QRC_SRC} ${quaternion_WINRC} ${quaternion_QM})
+add_executable(quaternion WIN32 MACOSX_BUNDLE ${quaternion_SRCS} ${quaternion_QRC_SRC} ${quaternion_WINRC} ${quaternion_QM} ${ICON_PATH})
 
 target_link_libraries(quaternion QMatrixClient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
 target_compile_definitions(quaternion PRIVATE GIT_SHA1="${GIT_SHA1}" LIB_GIT_SHA1="${LIB_GIT_SHA1}")
