@@ -25,68 +25,76 @@
 #include <QtCore/QWaitCondition>
 #include <QtCore/QDebug>
 
-using QMatrixClient::MediaThumbnailJob;
+using QMatrixClient::Connection;
 
-ImageProvider::ImageProvider(QMatrixClient::Connection* connection)
-    : QQuickImageProvider(QQmlImageProviderBase::Image,
-                          QQmlImageProviderBase::ForceAsynchronousImageLoading)
-    , m_connection(connection)
+class Response : public QQuickImageResponse
 {
-#if (QT_VERSION < QT_VERSION_CHECK(5, 10, 0))
-    qRegisterMetaType<MediaThumbnailJob*>();
-#endif
-}
+    public:
+        Response(Connection* c, QString mediaId, const QSize& requestedSize)
+            : c(c), mediaId(std::move(mediaId)), requestedSize(requestedSize)
+        {
+            moveToThread(c->thread());
+        }
 
-QImage ImageProvider::requestImage(const QString& id,
-                                   QSize* pSize, const QSize& requestedSize)
+        void startRequest()
+        {
+            job = c->getThumbnail(mediaId, requestedSize);
+            // Connect to any possible outcome including abandonment to make sure
+            // the QML thread is not left stuck forever.
+            connect(job, &QMatrixClient::BaseJob::finished,
+                    this, &QQuickImageResponse::finished);
+        }
+
+    private:
+        Connection* c;
+        const QString mediaId;
+        const QSize requestedSize;
+        QPointer<QMatrixClient::MediaThumbnailJob> job;
+
+        QQuickTextureFactory *textureFactory() const override
+        {
+            if (job)
+                return QQuickTextureFactory::textureFactoryForImage(job->thumbnail());
+
+            qWarning() << "Empty job for image" << mediaId;
+            return nullptr;
+        }
+
+        void cancel() override
+        {
+            if (job)
+                job->abandon();
+        }
+};
+
+ImageProvider::ImageProvider(Connection* connection)
+    : m_connection(connection)
+{ }
+
+QQuickImageResponse* ImageProvider::requestImageResponse(
+        const QString& id, const QSize& requestedSize)
 {
     if (id.count('/') != 1)
     {
         qWarning() << "ImageProvider: won't fetch an invalid id:" << id
                    << "doesn't follow server/mediaId pattern";
-        return {};
+        return nullptr;
     }
 
-    QUrl mxcUri { "mxc://" + id };
-    qDebug() << "ImageProvider::requestImage:" << mxcUri.toString();
-
-    MediaThumbnailJob* job = nullptr;
-    QReadLocker locker(&m_lock);
+    qDebug() << "ImageProvider: requesting " << id;
+    auto r = new Response(m_connection.load(), id, requestedSize);
+    // Execute a request on the main thread asynchronously
+    QMetaObject::invokeMethod(r,
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
-    QMetaObject::invokeMethod(m_connection,
-        [=] { return m_connection->getThumbnail(mxcUri, requestedSize); },
-        Qt::BlockingQueuedConnection, &job);
+        &Response::startRequest,
 #else
-    QMetaObject::invokeMethod(m_connection, "getThumbnail",
-        Qt::BlockingQueuedConnection, Q_RETURN_ARG(MediaThumbnailJob*, job),
-        Q_ARG(QUrl, mxcUri), Q_ARG(QSize, requestedSize));
+        "startRequest",
 #endif
-    if (!job)
-    {
-        qDebug() << "ImageProvider: failed to send a request";
-        return {};
-    }
-    QImage result;
-    {
-        QWaitCondition condition; // The most compact way to block on a signal
-        job->connect(job, &MediaThumbnailJob::finished, job, [&] {
-            result = job->thumbnail();
-            condition.wakeAll();
-        });
-        condition.wait(&m_lock);
-        qDebug() << "ImageProvider::requestImage(): concluding"
-                 << mxcUri.toString();
-    }
-
-    if( pSize != nullptr )
-        *pSize = result.size();
-
-    return result;
+        Qt::QueuedConnection);
+    return r;
 }
 
-void ImageProvider::setConnection(QMatrixClient::Connection* connection)
+void ImageProvider::setConnection(Connection* connection)
 {
-    QWriteLocker locker(&m_lock);
-
-    m_connection = connection;
+    m_connection.store(connection);
 }
