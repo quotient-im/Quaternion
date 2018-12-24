@@ -593,7 +593,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
                 default:
                     Q_ASSERT(false); // Unknown JoinState?
             }
-            break;
+            return {}; // Shouldn't reach here
         }
         case Qt::ToolTipRole:
         {
