@@ -35,6 +35,7 @@ class Response : public QQuickImageResponse
         {
             moveToThread(c->thread());
         }
+        ~Response() override { if (job) job->abandon(); }
 
         void startRequest()
         {
@@ -58,6 +59,12 @@ class Response : public QQuickImageResponse
 
             qWarning() << "Empty job for image" << mediaId;
             return nullptr;
+        }
+
+        QString errorString() const override
+        {
+            return !job ? QStringLiteral("No request job") :
+                   job->status().good() ? QString() : job->errorString();
         }
 
         void cancel() override
