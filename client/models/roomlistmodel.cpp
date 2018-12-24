@@ -592,8 +592,8 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
                     return QIcon(":/irc-channel-parted.svg");
                 default:
                     Q_ASSERT(false); // Unknown JoinState?
-                    break;
             }
+            break;
         }
         case Qt::ToolTipRole:
         {
