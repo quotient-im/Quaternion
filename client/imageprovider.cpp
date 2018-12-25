@@ -63,8 +63,7 @@ class Response : public QQuickImageResponse
 
         QString errorString() const override
         {
-            return !job ? QStringLiteral("No request job") :
-                   job->status().good() ? QString() : job->errorString();
+            return !job || job->status().good() ? QString() : job->errorString();
         }
 
         void cancel() override
