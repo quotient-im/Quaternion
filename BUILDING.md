@@ -21,11 +21,11 @@ options to use the library:
    to the "configuring" (the one _without_ `--build`) invocation of CMake. If you
    haven't cloned the Quaternion source code yet, the following will get you
    all sources in one go:
-   ```
+   ```bash
    git clone --recursive https://github.com/QMatrixClient/Quaternion.git
    ```
    If you already have cloned Quaternion, do the following in the top-level directory (NOT in `lib` subdirectory):
-   ```
+   ```bash
    git submodule init
    git submodule update
    ```
@@ -53,19 +53,22 @@ know exactly one person doing it on regular basis and that's me :)
 
 #### Linux
 Just install things from the list above using your preferred package manager. If your Qt package base is fine-grained you might want to take a look at `CMakeLists.txt` to figure out which specific libraries Quaternion uses (or blindly run cmake and look at error messages). Note also that you'll need several Qt Quick plugins for Quaternion to work (without them, it will compile and run but won't show the messages timeline). In case of Trusty Tar the following line will get you everything necessary to build and run Quaternion (thanks to `@onlnr:matrix.org`):
-```
+```bash
 sudo apt-get install git cmake qtdeclarative5-dev qtdeclarative5-qtquick2-plugin qtdeclarative5-controls-plugin
 ```
 On Fedora 26, the following command should be enough for building and running:
-```
+```bash
 dnf install git cmake qt5-qtdeclarative-devel qt5-qtquickcontrols
 ```
 
 #### macOS
 `brew install qt5` should get you Qt5. You have to point CMake at the qt5 installation location, with something like:
 
-```
-cmake .. -DCMAKE_PREFIX_PATH=../../libqmatrixclient -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)
+```bash
+# if using in-tree libqmatrixclient:
+cmake .. -DUSE_INTREE_LIBQMC=1 -DUSE_QQUICKWIDGET=ON -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)
+# or otherwise...
+cmake .. -DCMAKE_PREFIX_PATH=../../libqmatrixclient -DUSE_QQUICKWIDGET=ON -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)
 ```
 
 #### Windows
@@ -77,7 +80,7 @@ There are no official MinGW-based 64-bit packages for Qt. If you're determined t
 
 ### Build
 In the root directory of the project sources:
-```
+```bash
 mkdir build_dir
 cd build_dir
 cmake .. # Pass -DCMAKE_PREFIX_PATH and -DCMAKE_INSTALL_PREFIX here if needed
@@ -97,7 +100,7 @@ Packagers are very scarce so far, so please step up and support your favourite s
 #### Flatpak
 If you run Linux and your distribution supports flatpak, you can easily build and install Quaternion as a flatpak package:
 
-```
+```bash
 git clone https://github.com/QMatrixClient/Quaternion.git --recursive
 cd Quaternion/flatpak
 ./setup_runtime.sh
@@ -106,7 +109,7 @@ flatpak --user install quaternion-nightly com.github.quaternion
 ```
 Whenever you want to update your Quaternion package, do the following from the flatpak directory:
 
-```
+```bash
 ./build.sh
 flatpak --user update
 ```
