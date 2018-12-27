@@ -94,7 +94,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
 
     m_timelineWidget->setResizeMode(timelineWidget_t::SizeRootObjectToView);
 
-    m_imageProvider = new ImageProvider(nullptr); // No connection yet
+    m_imageProvider = new ImageProvider();
     m_timelineWidget->engine()->addImageProvider("mtx", m_imageProvider);
 
     QQmlContext* ctxt = m_timelineWidget->rootContext();

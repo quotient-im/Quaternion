@@ -12,3 +12,7 @@ cmake_install.cmake
 Makefile
 
 quaternion_autogen/
+
+build_dir
+
+.DS_Store

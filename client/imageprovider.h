@@ -19,24 +19,23 @@
 
 #pragma once
 
-#include <QtQuick/QQuickImageProvider>
-#include <QtCore/QReadWriteLock>
+#include <QtQuick/QQuickAsyncImageProvider>
+#include <QtCore/QAtomicPointer>
 
 namespace QMatrixClient {
     class Connection;
 }
 
-class ImageProvider: public QQuickImageProvider
+class ImageProvider: public QQuickAsyncImageProvider
 {
     public:
-        explicit ImageProvider(QMatrixClient::Connection* connection);
+        explicit ImageProvider(QMatrixClient::Connection* connection = nullptr);
 
-        QImage requestImage(const QString& id, QSize* pSize,
-                              const QSize& requestedSize) override;
+        QQuickImageResponse* requestImageResponse(
+                const QString& id, const QSize& requestedSize) override;
 
         void setConnection(QMatrixClient::Connection* connection);
 
     private:
-        QMatrixClient::Connection* m_connection;
-        QReadWriteLock m_lock;
+        QAtomicPointer<QMatrixClient::Connection> m_connection;
 };
