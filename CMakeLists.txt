@@ -152,11 +152,18 @@ if(WIN32)
 endif()
 
 if(APPLE)
+    set(MACOSX_BUNDLE_GUI_IDENTIFIER "com.github.quaternion")
+    set(MACOSX_BUNDLE_BUNDLE_NAME "quaternion")
+
+    set(MACOSX_BUNDLE_COPYRIGHT "Copyright © 2018 QMatrixClient Project")
+
+    set(VERSION "0.0.9.4")
+    set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${VERSION})
+    set(MACOSX_BUNDLE_BUNDLE_VERSION ${VERSION})
+
     set(ICON_NAME "quaternion.icns")
     set(ICON_PATH "${CMAKE_CURRENT_SOURCE_DIR}/icons/${ICON_NAME}")
-
     set(MACOSX_BUNDLE_ICON_FILE ${ICON_NAME})
-
     set_source_files_properties("${ICON_PATH}" PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 endif(APPLE)
 
