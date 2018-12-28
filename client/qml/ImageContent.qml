@@ -2,7 +2,7 @@ import QtQuick 2.0
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
 
-DownloadableContent {
+Attachment {
     property var sourceSize
     property url source
     property var maxHeight

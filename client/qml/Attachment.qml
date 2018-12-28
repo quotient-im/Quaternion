@@ -6,17 +6,18 @@ Item {
     height: visible ? childrenRect.height : 0
 
     property bool openOnFinished: false
-    readonly property bool downloaded: progressInfo && progressInfo.completed
+    readonly property bool downloaded: progressInfo &&
+                progressInfo.downloading && progressInfo.completed
 
     onDownloadedChanged: {
         if (downloaded && openOnFinished)
-            openSavedFile()
+            openLocalFile()
     }
 
     function downloadAndOpen()
     {
         if (downloaded)
-            openSavedFile()
+            openLocalFile()
         else
         {
             openOnFinished = true
@@ -24,7 +25,7 @@ Item {
         }
     }
 
-    function openSavedFile()
+    function openLocalFile()
     {
         if (Qt.openUrlExternally(progressInfo.localPath))
             return;
