@@ -54,16 +54,27 @@ class Response : public QQuickImageResponse
 
         QQuickTextureFactory *textureFactory() const override
         {
-            if (job)
+            using QMatrixClient::BaseJob;
+            if (!job)
+            {
+                qWarning() << "No job for image" << mediaId;
+                return nullptr;
+            }
+            if (job->error() == BaseJob::Success)
                 return QQuickTextureFactory::textureFactoryForImage(job->thumbnail());
 
-            qWarning() << "Empty job for image" << mediaId;
+            if (job->error() == BaseJob::Pending)
+                qWarning() << "Premature image retrieval for" << mediaId;
+            else
+                qWarning() << "At retrieving" << mediaId << "-"
+                           << job->errorString();
             return nullptr;
         }
 
         QString errorString() const override
         {
-            return !job || job->status().good() ? QString() : job->errorString();
+            return !job || job->error() == QMatrixClient::BaseJob::Success
+                    ? QString() : job->errorString();
         }
 
         void cancel() override
