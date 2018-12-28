@@ -2,6 +2,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
 project(quaternion CXX)
 
+set(VERSION "0.0.9.4")
+
 if(UNIX AND NOT APPLE)
     set(LINUX 1)
 endif(UNIX AND NOT APPLE)
@@ -157,7 +159,6 @@ if(APPLE)
 
     set(MACOSX_BUNDLE_COPYRIGHT "Copyright © 2018 QMatrixClient Project")
 
-    set(VERSION "0.0.9.4")
     set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${VERSION})
     set(MACOSX_BUNDLE_BUNDLE_VERSION ${VERSION})
 
