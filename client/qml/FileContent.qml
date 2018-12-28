@@ -34,17 +34,17 @@ Attachment {
             cursorShape: Qt.IBeamCursor
 
             onContainsMouseChanged:
-                controller.showStatusMessage(containsMouse ?
-                                                room.urlToDownload(eventId) : "")
+                controller.showStatusMessage(containsMouse
+                                             ? room.fileSource(eventId) : "")
         }
     }
     ProgressBar {
         id: transferProgress
-        visible: progressInfo.active && !progressInfo.completed
+        visible: progressInfo && progressInfo.started
         anchors.fill: fileTransferInfo
 
-        value: progressInfo.progress / progressInfo.total
-        indeterminate: progressInfo.progress < 0
+        value: progressInfo ? progressInfo.progress / progressInfo.total : -1
+        indeterminate: !progressInfo || progressInfo.progress < 0
     }
     RowLayout {
         anchors.top: fileTransferInfo.bottom
@@ -54,29 +54,30 @@ Attachment {
         CheckBox {
             id: openOnFinishedFlag
             text: qsTr("Open after downloading")
-            visible: progressInfo.downloading && transferProgress.visible
+            visible: progressInfo &&
+                     !progressInfo.isUpload && transferProgress.visible
             checked: openOnFinished
         }
         Button {
             text: qsTr("Cancel")
-            // Uploading has its own "Discard" button
-            visible: progressInfo.downloading && transferProgress.visible
+            visible: progressInfo && progressInfo.started
             onClicked: room.cancelFileTransfer(eventId)
         }
         Button {
             text: qsTr("Save as...")
-            visible: !transferProgress.visible
+            visible: !progressInfo ||
+                     (!progressInfo.isUpload && !progressInfo.started)
             onClicked: controller.saveFileAs(eventId)
         }
 
         Button {
             text: qsTr("Open")
             visible: !openOnFinishedFlag.visible
-            onClicked: downloadAndOpen()
+            onClicked: openExternally()
         }
         Button {
             text: qsTr("Open folder")
-            visible: progressInfo.active
+            visible: progressInfo && progressInfo.localDir
             onClicked:
                 Qt.openUrlExternally(progressInfo.localDir)
         }

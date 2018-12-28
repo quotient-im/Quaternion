@@ -39,6 +39,7 @@ class QQuickView;
 class QQuickWidget;
 #endif
 class QLabel;
+class QAction;
 class QTextDocument;
 
 class ChatRoomWidget: public QWidget
@@ -79,27 +80,32 @@ class ChatRoomWidget: public QWidget
         void setHudCaption(QString newCaption);
 
     private:
+        // Data
         MessageEventModel* m_messageModel;
         QuaternionRoom* m_currentRoom;
+        ImageProvider* m_imageProvider;
 
 #ifdef DISABLE_QQUICKWIDGET
         using timelineWidget_t = QQuickView;
 #else
         using timelineWidget_t = QQuickWidget;
 #endif
-        timelineWidget_t* m_timelineWidget;
-        ImageProvider* m_imageProvider;
-        ChatEdit* m_chatEdit;
-        QLabel* m_hudCaption; //< For typing and completion notifications
-        QLabel* m_topicLabel;
+        // Controls
         QLabel* m_roomAvatar;
+        QLabel* m_topicLabel;
+        timelineWidget_t* m_timelineWidget;
+        QLabel* m_hudCaption; //< For typing and completion notifications
+        QAction* m_attachAction;
+        ChatEdit* m_chatEdit;
 
+        // Supplementary/cache data members
         using timeline_index_t = QMatrixClient::TimelineItem::index_t;
         QVector<timeline_index_t> indicesOnScreen;
         timeline_index_t indexToMaybeRead;
         QBasicTimer maybeReadTimer;
         bool readMarkerOnScreen;
         QMap<QuaternionRoom*, QVector<QTextDocument*>> roomHistories;
+        QString attachedFileName;
 
         void reStartShownTimer();
         QString doSendInput();

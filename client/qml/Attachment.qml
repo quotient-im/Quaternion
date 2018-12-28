@@ -7,16 +7,16 @@ Item {
 
     property bool openOnFinished: false
     readonly property bool downloaded: progressInfo &&
-                progressInfo.downloading && progressInfo.completed
+                !progressInfo.isUpload && progressInfo.completed
 
     onDownloadedChanged: {
         if (downloaded && openOnFinished)
             openLocalFile()
     }
 
-    function downloadAndOpen()
+    function openExternally()
     {
-        if (downloaded)
+        if (progressInfo.localPath || downloaded)
             openLocalFile()
         else
         {
