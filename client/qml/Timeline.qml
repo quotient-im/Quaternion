@@ -22,6 +22,8 @@ Rectangle {
 
     function humanSize(bytes)
     {
+        if (!bytes)
+            return qsTr("Unknown", "Unknown attachment size")
         if (bytes < 4000)
             return qsTr("%1 bytes").arg(bytes)
         bytes = Math.round(bytes / 100) / 10
