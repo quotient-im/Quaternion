@@ -39,6 +39,14 @@ class Response : public QQuickImageResponse
 
         void startRequest()
         {
+            if (mediaId.count('/') != 1)
+            {
+                qWarning() << "ImageProvider: won't fetch the image:"
+                           << mediaId << "doesn't follow server/mediaId pattern";
+                emit finished();
+                return;
+            }
+
             job = c->getThumbnail(mediaId, requestedSize);
             // Connect to any possible outcome including abandonment to make sure
             // the QML thread is not left stuck forever.
@@ -61,10 +69,8 @@ class Response : public QQuickImageResponse
         {
             using QMatrixClient::BaseJob;
             if (!job)
-            {
-                qWarning() << "No job for image" << mediaId;
                 return {};
-            }
+
             if (job->error() == BaseJob::Success)
                 return job->thumbnail();
 
@@ -96,13 +102,6 @@ ImageProvider::ImageProvider(Connection* connection)
 QQuickImageResponse* ImageProvider::requestImageResponse(
         const QString& id, const QSize& requestedSize)
 {
-    if (id.count('/') != 1)
-    {
-        qWarning() << "ImageProvider: won't fetch an invalid id:" << id
-                   << "doesn't follow server/mediaId pattern";
-        return nullptr;
-    }
-
     qDebug() << "ImageProvider: requesting " << id;
     auto r = new Response(m_connection.load(), id, requestedSize);
     // Execute a request on the main thread asynchronously
