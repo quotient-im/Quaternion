@@ -215,17 +215,26 @@ void MessageEventModel::refreshEventRoles(int row, const QVector<int>& roles)
     emit dataChanged(idx, idx, roles);
 }
 
-int MessageEventModel::refreshEventRoles(const QString& eventId,
+int MessageEventModel::refreshEventRoles(const QString& id,
                                          const QVector<int>& roles)
 {
-    const auto it = m_currentRoom->findInTimeline(eventId);
-    if (it == m_currentRoom->timelineEdge())
-    {
-        qWarning() << "Trying to refresh inexistent event:" << eventId;
-        return -1;
+    // On 64-bit platforms, difference_type for std containers is long long
+    // but Qt uses int throughout its interfaces; hence casting to int below.
+    int row = -1;
+    // First try pendingEvents because it is almost always very short.
+    const auto pendingIt = m_currentRoom->findPendingEvent(id);
+    if (pendingIt != m_currentRoom->pendingEvents().end())
+        row = int(pendingIt - m_currentRoom->pendingEvents().begin());
+    else {
+        const auto timelineIt = m_currentRoom->findInTimeline(id);
+        if (timelineIt == m_currentRoom->timelineEdge())
+        {
+            qWarning() << "Trying to refresh inexistent event:" << id;
+            return -1;
+        }
+        row = int(timelineIt - m_currentRoom->messageEvents().rbegin())
+                + timelineBaseIndex();
     }
-    const auto row =
-            it - m_currentRoom->messageEvents().rbegin() + timelineBaseIndex();
     refreshEventRoles(row, roles);
     return row;
 }

@@ -52,6 +52,5 @@ class MessageEventModel: public QAbstractListModel
 
         void refreshLastUserEvents(int baseRow);
         void refreshEventRoles(int row, const QVector<int>& roles = {});
-        int refreshEventRoles(const QString& eventId,
-                              const QVector<int>& roles = {});
+        int refreshEventRoles(const QString& id, const QVector<int>& roles = {});
 };
