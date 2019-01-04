@@ -26,6 +26,12 @@ namespace QMatrixClient {
     class Connection;
 }
 
+// FIXME: It's actually ThumbnailProvider, not ImageProvider, because internally
+// it calls MediaThumbnailJob. Trying to get a full-size image using this
+// provider may bring suboptimal results (and generally you shouldn't do it
+// because images loaded by QML are not necessarily cached to disk, so it's a
+// waste of bandwidth).
+
 class ImageProvider: public QQuickAsyncImageProvider
 {
     public:
