@@ -21,11 +21,11 @@ options to use the library:
    to the "configuring" (the one _without_ `--build`) invocation of CMake. If you
    haven't cloned the Quaternion source code yet, the following will get you
    all sources in one go:
-   ```
+   ```bash
    git clone --recursive https://github.com/QMatrixClient/Quaternion.git
    ```
    If you already have cloned Quaternion, do the following in the top-level directory (NOT in `lib` subdirectory):
-   ```
+   ```bash
    git submodule init
    git submodule update
    ```
@@ -40,40 +40,47 @@ hacking on Quaternion _and_ libQMatrixClient at the same time - I (@kitsune)
 know exactly one person doing it on regular basis and that's me :)
 
 ### Pre-requisites
-- a Linux, OSX or Windows system (desktop versions tried; mobile Linux/Windows might work too)
+- a Linux, macOS or Windows system (desktop versions tried; mobile Linux/Windows might work too)
   - For Ubuntu flavours - zesty or later (or a derivative) is good enough out of the box; older ones will need PPAs at least for a newer Qt; in particular, if you have xenial you're advised to add Kubuntu Backports PPA for it
 - a Git client to check out this repo
 - CMake (from your package management system or [the official website](https://cmake.org/download/))
 - Qt 5 (either Open Source or Commercial), version 5.6 or higher
 - a C++ toolchain supported by your version of Qt (see a link for your platform at [the Qt's platform requirements page](http://doc.qt.io/qt-5/gettingstarted.html#platform-requirements))
-  - GCC 5 (Windows, Linux, OSX), Clang 5 (Linux), Apple Clang 8.1 (OSX) and Visual C++ 2015 (Windows) are the oldest officially supported
+  - GCC 5 (Windows, Linux, macOS), Clang 5 (Linux), Apple Clang 8.1 (macOS) and Visual C++ 2015 (Windows) are the oldest officially supported
   - any build system that works with CMake should be fine: GNU Make, ninja (any platform), NMake, jom (Windows) are known to work.
 - libQMatrixClient development files (from your package management system),
   unless you're handling both projects together (see Option 2 above)
 
 #### Linux
 Just install things from the list above using your preferred package manager. If your Qt package base is fine-grained you might want to take a look at `CMakeLists.txt` to figure out which specific libraries Quaternion uses (or blindly run cmake and look at error messages). Note also that you'll need several Qt Quick plugins for Quaternion to work (without them, it will compile and run but won't show the messages timeline). In case of Trusty Tar the following line will get you everything necessary to build and run Quaternion (thanks to `@onlnr:matrix.org`):
-```
+```bash
 sudo apt-get install git cmake qtdeclarative5-dev qtdeclarative5-qtquick2-plugin qtdeclarative5-controls-plugin
 ```
 On Fedora 26, the following command should be enough for building and running:
-```
+```bash
 dnf install git cmake qt5-qtdeclarative-devel qt5-qtquickcontrols
 ```
 
-#### OS X
-`brew install qt5` should get you Qt5. You may need to tell CMake about the path to Qt by passing `-DCMAKE_PREFIX_PATH=<where-Qt-installed>`
+#### macOS
+`brew install qt5` should get you Qt5. You have to point CMake at the qt5 installation location, with something like:
+
+```bash
+# if using in-tree libqmatrixclient:
+cmake .. -DUSE_INTREE_LIBQMC=1 -DUSE_QQUICKWIDGET=ON -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)
+# or otherwise...
+cmake .. -DCMAKE_PREFIX_PATH=../../libqmatrixclient -DUSE_QQUICKWIDGET=ON -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)
+```
 
 #### Windows
 1. Install CMake. The commands in further sections imply that cmake is in your PATH - otherwise you have to prepend them with actual paths.
 1. Install Qt5, using their official installer. If for some reason you need to use Qt 5.2.1, select its Add-ons component in the installer as well; for later versions, no extras are needed. If you don't have a toolchain and/or IDE, you can easily get one by selecting Qt Creator and at least one toolchain under Qt Creator. At least Qt 5.3 is recommended on Windows; `windeployqt` in Qt 5.2.1 is not functional enough to provide a standalone installation for Quaternion though you can still compile and run from your build directory.
-1. Make sure CMake knows about Qt and the toolchain - the easiest way is to run a qtenv2.bat script that can be found in `C:\Qt\<Qt version>\<toolchain>\bin` (assuming you installed Qt to `C:\Qt`). The only thing it does is adding necessary paths to PATH - you might not want to run it on system startup but it's very handy to setup environment before building. Setting CMAKE_PREFIX_PATH, the same way as for OS X (see above), also helps.
+1. Make sure CMake knows about Qt and the toolchain - the easiest way is to run a qtenv2.bat script that can be found in `C:\Qt\<Qt version>\<toolchain>\bin` (assuming you installed Qt to `C:\Qt`). The only thing it does is adding necessary paths to PATH - you might not want to run it on system startup but it's very handy to setup environment before building. Setting CMAKE_PREFIX_PATH, the same way as for macOS (see above), also helps.
 
 There are no official MinGW-based 64-bit packages for Qt. If you're determined to build 64-bit Quaternion, either use a Visual Studio toolchain or build Qt5 yourself as described in Qt documentation. Be prepared that a VS 64-bit build won't give you a working Quaternion - the last time checked Quaternion ran but could not get anything from the network. PRs are welcome.
 
 ### Build
 In the root directory of the project sources:
-```
+```bash
 mkdir build_dir
 cd build_dir
 cmake .. # Pass -DCMAKE_PREFIX_PATH and -DCMAKE_INSTALL_PREFIX here if needed
@@ -93,7 +100,7 @@ Packagers are very scarce so far, so please step up and support your favourite s
 #### Flatpak
 If you run Linux and your distribution supports flatpak, you can easily build and install Quaternion as a flatpak package:
 
-```
+```bash
 git clone https://github.com/QMatrixClient/Quaternion.git --recursive
 cd Quaternion/flatpak
 ./setup_runtime.sh
@@ -102,7 +109,7 @@ flatpak --user install quaternion-nightly com.github.quaternion
 ```
 Whenever you want to update your Quaternion package, do the following from the flatpak directory:
 
-```
+```bash
 ./build.sh
 flatpak --user update
 ```
