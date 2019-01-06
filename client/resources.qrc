@@ -9,7 +9,7 @@
         <file alias="irc-channel-invited.svg">../icons/irc-channel-invited.svg</file>
         <file alias="scrolldown.svg">../icons/scrolldown.svg</file>
         <file alias="busy.gif">../icons/busy_16x16.gif</file>
-        <file>qml/DownloadableContent.qml</file>
+        <file>qml/Attachment.qml</file>
         <file>qml/ImageContent.qml</file>
         <file>qml/FileContent.qml</file>
         <file>qml/TimelineItem.qml</file>

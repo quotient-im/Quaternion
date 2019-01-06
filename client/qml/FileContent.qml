@@ -2,9 +2,9 @@ import QtQuick 2.0
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
 
-DownloadableContent {
+Attachment {
     TextEdit {
-        id: downloadInfo
+        id: fileTransferInfo
         width: parent.width
 
         selectByMouse: true;
@@ -13,10 +13,17 @@ DownloadableContent {
         color: textColor
         renderType: settings.render_type
         text: qsTr("Size: %1, declared type: %2")
-              .arg(humanSize(content.info.size))
-              .arg(content.info.mimetype)
-              + (!downloaded ? "" :
-                  qsTr(" (downloaded to %1)").arg(progressInfo.localPath))
+              .arg(content.info ? humanSize(content.info.size) : "")
+              .arg(content.info ? content.info.mimetype : "unknown")
+              + (progressInfo && progressInfo.uploading
+                 ? (progressInfo.completed
+                    ? qsTr(" (uploaded from %1)", "%1 is a local file name")
+                    : qsTr(" (being uploaded from %1)", "%1 is a local file name"))
+                   .arg(progressInfo.localPath)
+                 : downloaded
+                 ? qsTr(" (downloaded to %1)", "%1 is a local file name")
+                   .arg(progressInfo.localPath)
+                 : "")
         textFormat: TextEdit.PlainText
         wrapMode: Text.Wrap;
 
@@ -27,48 +34,50 @@ DownloadableContent {
             cursorShape: Qt.IBeamCursor
 
             onContainsMouseChanged:
-                controller.showStatusMessage(containsMouse ?
-                                                room.urlToDownload(eventId) : "")
+                controller.showStatusMessage(containsMouse
+                                             ? room.fileSource(eventId) : "")
         }
     }
     ProgressBar {
-        id: downloadProgress
-        visible: progressInfo.active && !downloaded
-        anchors.fill: downloadInfo
+        id: transferProgress
+        visible: progressInfo && progressInfo.started
+        anchors.fill: fileTransferInfo
 
-        value: progressInfo.progress / progressInfo.total
-        indeterminate: progressInfo.progress < 0
+        value: progressInfo ? progressInfo.progress / progressInfo.total : -1
+        indeterminate: !progressInfo || progressInfo.progress < 0
     }
     RowLayout {
-        anchors.top: downloadInfo.bottom
+        anchors.top: fileTransferInfo.bottom
         width: parent.width
         spacing: 2
 
         CheckBox {
             id: openOnFinishedFlag
             text: qsTr("Open after downloading")
-            visible: downloadProgress.visible
+            visible: progressInfo &&
+                     !progressInfo.isUpload && transferProgress.visible
             checked: openOnFinished
         }
         Button {
             text: qsTr("Cancel")
-            visible: downloadProgress.visible
+            visible: progressInfo && progressInfo.started
             onClicked: room.cancelFileTransfer(eventId)
         }
         Button {
             text: qsTr("Save as...")
-            visible: !downloadProgress.visible
+            visible: !progressInfo ||
+                     (!progressInfo.isUpload && !progressInfo.started)
             onClicked: controller.saveFileAs(eventId)
         }
 
         Button {
             text: qsTr("Open")
             visible: !openOnFinishedFlag.visible
-            onClicked: downloadAndOpen()
+            onClicked: openExternally()
         }
         Button {
             text: qsTr("Open folder")
-            visible: progressInfo.active
+            visible: progressInfo && progressInfo.localDir
             onClicked:
                 Qt.openUrlExternally(progressInfo.localDir)
         }

@@ -23,6 +23,8 @@
 
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QToolButton>
+#include <QtWidgets/QAction>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QApplication>
 
@@ -107,6 +109,32 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     m_hudCaption = new QLabel();
     m_hudCaption->setWordWrap(true);
 
+    auto attachButton = new QToolButton();
+    attachButton->setAutoRaise(true);
+    m_attachAction = new QAction(QIcon::fromTheme("mail-attachment"),
+                                 tr("Attach"), attachButton);
+    m_attachAction->setCheckable(true);
+    m_attachAction->setDisabled(true);
+    connect(m_attachAction, &QAction::triggered, this, [this] (bool checked) {
+        if (checked)
+            attachedFileName =
+                    QFileDialog::getOpenFileName(this, tr("Attach file"));
+        else
+            attachedFileName.clear();
+
+        if (!attachedFileName.isEmpty())
+        {
+            m_chatEdit->setPlaceholderText(
+                tr("Add a message to the file or just push Enter"));
+            emit showStatusMessage(tr("Attaching ") + attachedFileName);
+        } else {
+            m_attachAction->setChecked(false);
+            m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
+            emit showStatusMessage(tr("Attaching cancelled"), 3000);
+        }
+    });
+    attachButton->setDefaultAction(m_attachAction);
+
     m_chatEdit = new ChatEdit(this);
     m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
     m_chatEdit->setAcceptRichText(false);
@@ -122,16 +150,21 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
             this, &ChatRoomWidget::typingChanged);
 
     auto layout = new QVBoxLayout();
-
-    auto headerLayout = new QHBoxLayout;
-    headerLayout->addWidget(m_roomAvatar);
-    headerLayout->addWidget(m_topicLabel, 1);
-    layout->addLayout(headerLayout);
-
+    {
+        auto headerLayout = new QHBoxLayout;
+        headerLayout->addWidget(m_roomAvatar);
+        headerLayout->addWidget(m_topicLabel, 1);
+        layout->addLayout(headerLayout);
+    }
     layout->addWidget(topicSeparator);
     layout->addWidget(qmlContainer);
     layout->addWidget(m_hudCaption);
-    layout->addWidget(m_chatEdit);
+    {
+        auto inputLayout = new QHBoxLayout;
+        inputLayout->addWidget(attachButton);
+        inputLayout->addWidget(m_chatEdit);
+        layout->addLayout(inputLayout);
+    }
     setLayout(layout);
 }
 
@@ -159,10 +192,13 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
     readMarkerOnScreen = false;
     maybeReadTimer.stop();
     indicesOnScreen.clear();
+    attachedFileName.clear();
+    m_attachAction->setChecked(false);
     m_chatEdit->cancelCompletion();
 
     m_currentRoom = room;
     m_timelineWidget->rootContext()->setContextProperty("room", room);
+    m_attachAction->setEnabled(m_currentRoom != nullptr);
     if( m_currentRoom )
     {
         using namespace QMatrixClient;
@@ -294,7 +330,19 @@ QVector<QString> lazySplitRef(const QString& s, QChar sep, int maxParts)
 
 QString ChatRoomWidget::doSendInput()
 {
-    QString text = m_chatEdit->toPlainText();
+    auto text = m_chatEdit->toPlainText();
+    if (!attachedFileName.isEmpty())
+    {
+        Q_ASSERT(m_currentRoom != nullptr);
+        auto txnId = m_currentRoom->postFile(text,
+                        QUrl::fromLocalFile(attachedFileName));
+
+        attachedFileName.clear();
+        m_attachAction->setChecked(false);
+        m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
+        return {};
+    }
+
     if ( text.isEmpty() )
         return tr("There's nothing to send");
 

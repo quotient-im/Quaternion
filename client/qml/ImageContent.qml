@@ -2,7 +2,7 @@ import QtQuick 2.0
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
 
-DownloadableContent {
+Attachment {
     property var sourceSize
     property url source
     property var maxHeight
@@ -33,13 +33,13 @@ DownloadableContent {
             cursorShape: Qt.PointingHandCursor
 
             onContainsMouseChanged:
-                controller.showStatusMessage(containsMouse ?
-                                                room.urlToDownload(eventId) : "")
-            onClicked: downloadAndOpen()
+                controller.showStatusMessage(containsMouse
+                                             ? room.fileSource(eventId) : "")
+            onClicked: openExternally()
         }
 
         Component.onCompleted:
-            if (visible && autoload && !downloaded)
+            if (visible && autoload && !(progressInfo && progressInfo.isUpload))
                 room.downloadFile(eventId)
     }
 
@@ -50,14 +50,14 @@ DownloadableContent {
         spacing: 2
 
         Button {
-            text: qsTr("Cancel downloading")
-            visible: progressInfo.active && !downloaded
+            text: qsTr("Cancel")
+            visible: progressInfo.started
             onClicked: room.cancelFileTransfer(eventId)
         }
 
         Button {
             text: qsTr("Open externally")
-            onClicked: downloadAndOpen()
+            onClicked: openExternally()
         }
         Button {
             text: qsTr("Download full size")
