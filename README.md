@@ -6,7 +6,7 @@
 ![status](https://img.shields.io/badge/status-beta-yellow.svg)
 [![release](https://img.shields.io/github/release/QMatrixClient/quaternion/all.svg)](https://github.com/QMatrixClient/Quaternion/releases/latest)
 [![](https://img.shields.io/matrix/qmatrixclient%3Amatrix.org.svg)](https://matrix.to/#/!PCzUtxtOjUySxSelof:matrix.org)
-[![](https://img.shields.io/cii/percentage/1663.svg)](https://bestpractices.coreinfrastructure.org/projects/1663/badge)
+[![](https://img.shields.io/cii/percentage/1663.svg?label=CII%20best%20practices)](https://bestpractices.coreinfrastructure.org/projects/1663/badge)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 Quaternion is a cross-platform desktop IM client for the [Matrix](https://matrix.org) protocol. This file contains general information about application usage and settings. See [BUILDING.md](./BUILDING.md) for building instructions.
