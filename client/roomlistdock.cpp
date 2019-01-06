@@ -54,10 +54,8 @@ void RoomListItemDelegate::paint(QPainter* painter,
     QStyleOptionViewItem o { option };
 
     if (!index.parent().isValid())
-    {
         o.displayAlignment = Qt::AlignHCenter;
-        o.features = QStyleOptionViewItem::Alternate;
-    }
+
     if (!index.parent().isValid() ||
             index.data(RoomListModel::HasUnreadRole).toBool())
         o.font.setBold(true);

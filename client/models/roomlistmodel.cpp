@@ -28,6 +28,11 @@
 #include <QtGui/QIcon>
 #include <QtCore/QStringBuilder>
 
+// See the comment next to QGuiApplication::palette().brush() usage in this file
+#include <QtGui/QGuiApplication>
+#include <QtGui/QPalette>
+#include <QtGui/QBrush>
+
 #include <functional>
 
 using namespace std::placeholders;
@@ -545,6 +550,11 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         if (role == Qt::DisplayRole)
             return m_roomOrder->groupLabel(m_roomGroups[index.row()]);
 
+        // It would be more proper to do it in RoomListItemDelegate
+        // (see roomlistdock.cpp) but I (@kitsune) couldn't find a working way.
+        if (role == Qt::BackgroundRole)
+            return QGuiApplication::palette()
+                   .brush(QPalette::Active, QPalette::Button);
         return {};
     }
 
