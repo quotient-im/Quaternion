@@ -5,10 +5,9 @@
 [![license](https://img.shields.io/github/license/QMatrixClient/quaternion.svg)](https://github.com/QMatrixClient/quaternion/blob/master/COPYING)
 ![status](https://img.shields.io/badge/status-beta-yellow.svg)
 [![release](https://img.shields.io/github/release/QMatrixClient/quaternion/all.svg)](https://github.com/QMatrixClient/Quaternion/releases/latest)
-[![Chat](https://img.shields.io/badge/chat-%23quaternion-blue.svg)](https://matrix.to/#/#quaternion:matrix.org)
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1663/badge)](https://bestpractices.coreinfrastructure.org/projects/1663)
+[![](https://img.shields.io/matrix/qmatrixclient%3Amatrix.org.svg)](https://matrix.to/#/!PCzUtxtOjUySxSelof:matrix.org)
+[![](https://img.shields.io/cii/percentage/1663.svg)](https://bestpractices.coreinfrastructure.org/projects/1663/badge)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
-
 
 Quaternion is a cross-platform desktop IM client for the [Matrix](https://matrix.org) protocol. This file contains general information about application usage and settings. See [BUILDING.md](./BUILDING.md) for building instructions.
 
@@ -39,7 +38,12 @@ Unofficial package for Arch Linux: https://aur.archlinux.org/packages/quaternion
 Flatpaks for Quaternion are available from Flathub. To install, use `flatpak install https://flathub.org/repo/appstream/com.github.quaternion.flatpakref`. This is still experimental - please file issues at https://github.com/flathub/com.github.quaternion if you believe there's a problem with Flatpakaging.
 
 #### macOS
-You can download the latest release from [GitHub](https://github.com/QMatrixClient/Quaternion/releases/latest) or you can install Quaternion from [Homebrew Cask](https://brew.sh).
+You can download the latest release from [GitHub](https://github.com/QMatrixClient/Quaternion/releases/latest).
+Make sure you have Qt5 installed; if you don't have it, call this in Terminal:
+`brew install qt5`.
+
+Alternatively, you can install Quaternion from [Homebrew Cask](https://brew.sh)
+(in this case Qt5 is downloaded and installed automatically if needed):
 
 ```
 brew cask install quaternion
