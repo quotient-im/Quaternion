@@ -30,9 +30,21 @@ before_install:
 
 script:
 - mkdir build && cd build
-- cmake .. -DUSE_INTREE_LIBQMC=1 # TODO: add building with an external lib
+- if [ "$TRAVIS_OS_NAME" != "linux" ]; then cmake .. -DUSE_INTREE_LIBQMC=1; fi # TODO: add building with an external lib
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; then  cmake .. -DUSE_INTREE_LIBQMC=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr; fi
 - cmake --build . --target all
 #- appstream-util validate linux/*.appdata.xml
+- |
+  if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CC" = "clang" ]; then
+    make DESTDIR=appdir -j$(nproc) install ; find appdir/
+    wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+    chmod a+x linuxdeployqt-continuous-x86_64.AppImage
+    unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
+    export VERSION=$(git rev-parse --short HEAD) # linuxdeployqt uses this for naming the file
+    ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -appimage
+    wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
+    bash upload.sh Quaternion*.AppImage*
+  fi
 
 notifications:
   webhooks:
