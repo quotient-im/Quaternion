@@ -8,7 +8,11 @@ addons:
     packages:
     - g++-5
     - qt57-meta-minimal
+    - qt57multimedia
     - qt57tools
+  homebrew:
+    packages:
+    - qt5
 
 matrix:
   include:
@@ -18,7 +22,7 @@ matrix:
   - os: linux
     compiler: clang
   - os: osx
-    env: [ 'ENV_EVAL="brew update && brew install qt5 && PATH=/usr/local/opt/qt/bin:$PATH"' ]
+    env: [ 'PATH=/usr/local/opt/qt/bin:$PATH"' ]
 
 before_install:
 - eval "${ENV_EVAL}"
