@@ -224,7 +224,7 @@ if(WIN32)
             endif()
             execute_process(
                 COMMAND bin/windeployqt --\${WDQ_FLAG} --no-system-d3d-compiler --no-opengl
-                    --no-multimedia --no-multimediaquick --no-declarative --no-test \
+                    --no-multimediaquick --no-declarative --no-test \
                     --qmldir qml \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}\"
                 WORKING_DIRECTORY \"${Qt5_WinBaseDir}\"
                 RESULT_VARIABLE WDQ_RETVAL
