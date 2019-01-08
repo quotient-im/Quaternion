@@ -879,7 +879,7 @@ void MainWindow::joinRoom(const QString& roomAlias, Connection* connection)
     connect(job, &BaseJob::success, this, [=]
     {
         statusBar()->showMessage(tr("Joined %1 as %2")
-                                 .arg(roomAlias, connection->userId()));
+                                 .arg(room, connection->userId()));
     });
 }
 
