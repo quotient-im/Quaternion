@@ -159,7 +159,7 @@ RoomListDock::RoomListDock(QWidget* parent)
         roomContextMenu->addAction(QIcon::fromTheme("user-group-properties"),
             tr("Change room &settings..."), [this]
             {
-                RoomSettingsDialog* dlg = new RoomSettingsDialog(getSelectedRoom(), this);
+                auto* dlg = new RoomSettingsDialog(getSelectedRoom(), this);
                 dlg->setModal(false);
                 dlg->setAttribute(Qt::WA_DeleteOnClose);
                 dlg->reactivate();
