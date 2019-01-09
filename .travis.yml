@@ -43,6 +43,7 @@ script:
 
 before_deploy:
 - if [ "$TRAVIS_OS_NAME" = "osx" ]; then macdeployqt quaternion.app -dmg; fi
+- cd ..
 - sed -i -e "s/VERSION_VALUE/$(git rev-list --count HEAD)/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_USER/$BINTRAY_USER/g" .ci/bintray-release.json
 
