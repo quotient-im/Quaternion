@@ -56,8 +56,6 @@ deploy:
   user: $BINTRAY_USER
   key: $BINTRAY_TOKEN
   skip_cleanup: true
-  on:
-    all_branches: true
 
 notifications:
   webhooks:
