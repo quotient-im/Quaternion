@@ -1,5 +1,8 @@
 language: cpp
 
+git:
+  depth: false
+
 before_cache:
   - brew cleanup
 
