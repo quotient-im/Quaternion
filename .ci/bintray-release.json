@@ -7,7 +7,7 @@
   ],
   "package": {
     "desc": "A Qt5-based IM client for the Matrix protocol",
-    "issue_tracker_url": "https://github.com/QMatrixClient/Quaternion",
+    "issue_tracker_url": "https://github.com/QMatrixClient/Quaternion/issues",
     "licenses": [
       "GPL-3.0"
     ],
@@ -16,7 +16,7 @@
     "repo": "Quaternion",
     "public_download_numbers": true,
     "public_stats": true,
-    "vcs_url": "https://github.com/QMatrixClient/Quaternion"
+    "vcs_url": "https://github.com/QMatrixClient/Quaternion.git"
   },
   "version": {
     "name": "VERSION_VALUE"
