@@ -11,12 +11,13 @@
     "licenses": [
       "GPL-3.0"
     ],
-    "name": "Quaternion",
+    "name": "BINTRAY_REPO",
     "subject": "BINTRAY_USER",
-    "repo": "Quaternion",
+    "repo": "BINTRAY_REPO",
     "public_download_numbers": true,
     "public_stats": true,
-    "vcs_url": "https://github.com/QMatrixClient/Quaternion.git"
+    "vcs_url": "https://github.com/QMatrixClient/Quaternion.git",
+    "website_url": "https://github.com/QMatrixClient/Quaternion"
   },
   "version": {
     "name": "VERSION_VALUE"

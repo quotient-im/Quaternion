@@ -45,10 +45,10 @@ script:
 #- appstream-util validate linux/*.appdata.xml
 
 before_deploy:
-- if [ "$TRAVIS_OS_NAME" = "osx" ]; then macdeployqt quaternion.app -dmg; fi
-- cd ..
+- cd $TRAVIS_BUILD_DIR
 - sed -i -e "s/VERSION_VALUE/$(git rev-list --count HEAD)/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_USER/$BINTRAY_USER/g" .ci/bintray-release.json
+- sed -i -e "s/BINTRAY_REPO/$BINTRAY_REPO/g" .ci/bintray-release.json
 
 deploy:
 - provider: bintray

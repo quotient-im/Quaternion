@@ -2,8 +2,10 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
 project(quaternion CXX)
 
+set(APP_NAME "quaternion")
+set(IDENTIFIER "com.github.quaternion")
 set(VERSION "0.0.9.4")
-set(COPYRIGHT "Copyright © 2018 QMatrixClient Project")
+set(COPYRIGHT "Copyright © 2018-2019 QMatrixClient Project")
 
 if(UNIX AND NOT APPLE)
     set(LINUX 1)
@@ -155,8 +157,8 @@ if(WIN32)
 endif()
 
 if(APPLE)
-    set(MACOSX_BUNDLE_GUI_IDENTIFIER "com.github.quaternion")
-    set(MACOSX_BUNDLE_BUNDLE_NAME "quaternion")
+    set(MACOSX_BUNDLE_GUI_IDENTIFIER ${IDENTIFIER})
+    set(MACOSX_BUNDLE_BUNDLE_NAME ${APP_NAME})
 
     set(MACOSX_BUNDLE_COPYRIGHT ${COPYRIGHT})
 
@@ -240,3 +242,10 @@ if(WIN32)
                )
     endif()
 endif(WIN32)
+
+if(APPLE)
+    set(MACDEPLOYQT macdeployqt)
+    set(MACDEPLOYQT_ARGS ${CMAKE_CURRENT_BINARY_DIR}/${APP_NAME}.app -dmg)
+
+    add_custom_command(TARGET ${APP_NAME} COMMAND ${MACDEPLOYQT} ARGS ${MACDEPLOYQT_ARGS})
+endif(APPLE)
