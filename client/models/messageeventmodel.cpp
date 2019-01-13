@@ -141,8 +141,9 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                     movingEvent = true;
                     // Reverse i because row 0 is bottommost in the model
                     const auto row = timelineBaseIndex() - i - 1;
-                    Q_ASSERT(beginMoveRows({}, row, row,
-                                           {}, timelineBaseIndex()));
+                    auto moveBegan = beginMoveRows({}, row, row,
+                                                   {}, timelineBaseIndex());
+                    Q_ASSERT(moveBegan);
                 });
         connect(m_currentRoom, &Room::pendingEventMerged, this,
                 [this] {
