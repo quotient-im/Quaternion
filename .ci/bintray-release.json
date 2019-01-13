@@ -11,7 +11,7 @@
     "licenses": [
       "GPL-3.0"
     ],
-    "name": "BINTRAY_REPO",
+    "name": "BINTRAY_NAME",
     "subject": "BINTRAY_USER",
     "repo": "BINTRAY_REPO",
     "public_download_numbers": true,

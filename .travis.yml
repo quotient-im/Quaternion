@@ -49,6 +49,7 @@ before_deploy:
 - sed -i -e "s/VERSION_VALUE/$(git rev-list --count HEAD)/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_USER/$BINTRAY_USER/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_REPO/$BINTRAY_REPO/g" .ci/bintray-release.json
+- sed -i -e "s/BINTRAY_NAME/$BINTRAY_NAME/g" .ci/bintray-release.json
 
 deploy:
 - provider: bintray
