@@ -12,7 +12,7 @@
       "GPL-3.0"
     ],
     "name": "BINTRAY_NAME",
-    "subject": "BINTRAY_USER",
+    "subject": "BINTRAY_SUBJECT",
     "repo": "BINTRAY_REPO",
     "public_download_numbers": true,
     "public_stats": true,
