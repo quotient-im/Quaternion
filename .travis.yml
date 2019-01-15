@@ -1,5 +1,15 @@
 language: cpp
 
+git:
+  depth: false
+
+before_cache:
+  - brew cleanup
+
+cache:
+  directories:
+    - $HOME/Library/Caches/Homebrew
+
 addons:
   apt:
     sources:
@@ -33,6 +43,27 @@ script:
 - cmake .. -DUSE_INTREE_LIBQMC=1 # TODO: add building with an external lib
 - cmake --build . --target all
 #- appstream-util validate linux/*.appdata.xml
+
+before_deploy:
+- cd $TRAVIS_BUILD_DIR
+- sed -i -e "s/VERSION_VALUE/$(git rev-list --count HEAD)/g" .ci/bintray-release.json
+- sed -i -e "s/BINTRAY_SUBJECT/$BINTRAY_SUBJECT/g" .ci/bintray-release.json
+- sed -i -e "s/BINTRAY_REPO/$BINTRAY_REPO/g" .ci/bintray-release.json
+- sed -i -e "s/BINTRAY_NAME/$BINTRAY_NAME/g" .ci/bintray-release.json
+
+deploy:
+- provider: bintray
+  file: .ci/bintray-release.json
+  user: $BINTRAY_USER
+  key: $BINTRAY_TOKEN
+  skip_cleanup: true
+
+- provider: releases
+  api_key: $GITHUB_API_KEY
+  file: build/quaternion.dmg
+  skip_cleanup: true
+  on:
+    tags: true
 
 notifications:
   webhooks:

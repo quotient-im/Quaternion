@@ -39,12 +39,8 @@ Flatpaks for Quaternion are available from Flathub. To install, use `flatpak ins
 
 #### macOS
 You can download the latest release from [GitHub](https://github.com/QMatrixClient/Quaternion/releases/latest).
-Make sure you have Qt5 installed; if you don't have it, call this in Terminal:
-`brew install qt5`.
 
 Alternatively, you can install Quaternion from [Homebrew Cask](https://brew.sh)
-(in this case Qt5 is downloaded and installed automatically if needed):
-
 ```
 brew cask install quaternion
 ```
