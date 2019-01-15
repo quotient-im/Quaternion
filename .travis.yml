@@ -46,7 +46,7 @@ script:
 
 before_deploy:
 - cd $TRAVIS_BUILD_DIR
-- sed -i -e "s/VERSION_VALUE/$(git rev-list --count HEAD)/g" .ci/bintray-release.json
+- sed -i -e "s/VERSION_VALUE/git-$(git rev-list --count HEAD)/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_SUBJECT/$BINTRAY_SUBJECT/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_REPO/$BINTRAY_REPO/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_NAME/$BINTRAY_NAME/g" .ci/bintray-release.json
