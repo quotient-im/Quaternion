@@ -73,6 +73,7 @@ class ChatRoomWidget: public QWidget
 
     protected:
         void timerEvent(QTimerEvent* event) override;
+        void resizeEvent(QResizeEvent*) override;
 
     private slots:
         void sendInput();

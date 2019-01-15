@@ -136,6 +136,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     m_chatEdit = new ChatEdit(this);
     m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
     m_chatEdit->setAcceptRichText(false);
+    m_chatEdit->setMaximumHeight(parent->height() / 3);
     connect( m_chatEdit, &KChatEdit::returnPressed, this, &ChatRoomWidget::sendInput );
     connect(m_chatEdit, &ChatEdit::proposedCompletion, this,
             [=](const QStringList& matches, int pos)
@@ -683,6 +684,11 @@ void ChatRoomWidget::timerEvent(QTimerEvent* qte)
         indexToMaybeRead = indicesOnScreen.back();
         emit readMarkerCandidateMoved();
     }
+}
+
+void ChatRoomWidget::resizeEvent(QResizeEvent*)
+{
+    m_chatEdit->setMaximumHeight(height() / 3);
 }
 
 void ChatRoomWidget::markShownAsRead()
