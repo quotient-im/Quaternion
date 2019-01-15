@@ -1,5 +1,3 @@
-#include <utility>
-
 /**************************************************************************
  *                                                                        *
  * Copyright (C) 2015 Felix Rohrbach <kde@fxrh.de>                        *
