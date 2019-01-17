@@ -21,6 +21,7 @@ matrix:
     env: [ 'ENV_EVAL="CC=gcc-5 && CXX=g++-5"' ]
   - os: linux
     compiler: clang
+    env: [ 'ENV_EVAL="INSTALL_PREFIX=/usr"' ]
   - os: osx
     env: [ 'PATH=/usr/local/opt/qt/bin:$PATH"' ]
 
@@ -30,8 +31,7 @@ before_install:
 
 script:
 - mkdir build && cd build
-- if [ "$TRAVIS_OS_NAME" != "linux" ]; then cmake .. -DUSE_INTREE_LIBQMC=1; fi # TODO: add building with an external lib
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then  cmake .. -DUSE_INTREE_LIBQMC=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr; fi
+- cmake .. -DUSE_INTREE_LIBQMC=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX # TODO: add building with an external lib
 - cmake --build . --target all
 #- appstream-util validate linux/*.appdata.xml
 - |
