@@ -46,7 +46,7 @@ script:
 - cmake --build . --target all
 - export DESTDIR=$TRAVIS_BUILD_DIR/$INSTALLDIR
 - cmake --build . --target install && find $DESTDIR/
-- export VERSION=$(git rev-parse --count HEAD) # linuxdeployqt uses this for naming the file
+- export VERSION=$(git rev-list --count HEAD) # linuxdeployqt uses this for naming the file
 - sed -i -e "s/VERSION_VALUE/git-$VERSION/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_SUBJECT/$BINTRAY_SUBJECT/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_REPO/$BINTRAY_REPO/g" .ci/bintray-release.json
