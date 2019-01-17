@@ -44,7 +44,8 @@ script:
 - cmake .. -DUSE_INTREE_LIBQMC=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr # TODO: add building with an external lib
 #- appstream-util validate linux/*.appdata.xml
 - cmake --build . --target all
-- DESTDIR=$TRAVIS_BUILD_DIR/$INSTALLDIR cmake --build . --target install && find $DESTDIR/
+- export DESTDIR=$TRAVIS_BUILD_DIR/$INSTALLDIR
+- cmake --build . --target install && find $DESTDIR/
 - export VERSION=$(git rev-parse --count HEAD) # linuxdeployqt uses this for naming the file
 - sed -i -e "s/VERSION_VALUE/git-$VERSION/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_SUBJECT/$BINTRAY_SUBJECT/g" .ci/bintray-release.json
