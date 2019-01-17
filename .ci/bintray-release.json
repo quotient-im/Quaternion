@@ -5,8 +5,8 @@
       "uploadPattern": "quaternion-VERSION_VALUE.dmg"
     },
     {
-      "includePattern": "(Quaternion.*\\.AppImage.*)",
-      "uploadPattern": "$1"
+      "includePattern": "Quaternion.*\.AppImage",
+      "uploadPattern": "quaternion-VERSION_VALUE.AppImage"
     }
   ],
   "package": {
