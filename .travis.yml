@@ -60,7 +60,6 @@ after_success:
     chmod a+x linuxdeployqt-continuous-x86_64.AppImage
     unset QTDIR QT_PLUGIN_PATH LD_LIBRARY_PATH
     ./linuxdeployqt-continuous-x86_64.AppImage $INSTALLDIR/usr/share/applications/*.desktop -appimage
-    find ./
     export RELEASE_APPIMAGE=1
   fi
 
