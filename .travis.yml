@@ -31,7 +31,6 @@ matrix:
     env: [ 'ENV_EVAL="CC=gcc-5 && CXX=g++-5"' ]
   - os: linux
     compiler: clang
-    env: [ 'ENV_EVAL="INSTALL_PREFIX=/usr"' ]
   - os: osx
     env: [ 'PATH=/usr/local/opt/qt/bin:$PATH"' ]
 
@@ -41,11 +40,11 @@ before_install:
 
 script:
 - mkdir build && cd build
-- cmake .. -DUSE_INTREE_LIBQMC=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX # TODO: add building with an external lib
+- export INSTALLDIR=install
+- cmake .. -DUSE_INTREE_LIBQMC=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr # TODO: add building with an external lib
 #- appstream-util validate linux/*.appdata.xml
 - cmake --build . --target all
-- DESTDIR=install cmake --build . --target install && find install/
-- cd $TRAVIS_BUILD_DIR
+- DESTDIR=$TRAVIS_BUILD_DIR/$INSTALLDIR cmake --build . --target install && find $DESTDIR/
 - export VERSION=$(git rev-parse --count HEAD) # linuxdeployqt uses this for naming the file
 - sed -i -e "s/VERSION_VALUE/git-$VERSION/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_SUBJECT/$BINTRAY_SUBJECT/g" .ci/bintray-release.json
@@ -53,11 +52,13 @@ script:
 - sed -i -e "s/BINTRAY_NAME/$BINTRAY_NAME/g" .ci/bintray-release.json
 - |
   if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CC" = "clang" ]; then
+    pushd $TRAVIS_BUILD_DIR
     wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
     chmod a+x linuxdeployqt-continuous-x86_64.AppImage
     unset QTDIR QT_PLUGIN_PATH LD_LIBRARY_PATH
-    ./linuxdeployqt-continuous-x86_64.AppImage install/usr/share/applications/*.desktop -appimage
+    ./linuxdeployqt-continuous-x86_64.AppImage $INSTALLDIR/usr/share/applications/*.desktop -appimage
     export RELEASE_APPIMAGE=1
+    popd
   fi
 
 deploy:
