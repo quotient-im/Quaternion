@@ -31,6 +31,7 @@ matrix:
     env: [ 'ENV_EVAL="CC=gcc-5 && CXX=g++-5"' ]
   - os: linux
     compiler: clang
+    env: [ 'ENV_EVAL="INSTALL_PREFIX=/usr"' ]
   - os: osx
     env: [ 'PATH=/usr/local/opt/qt/bin:$PATH"' ]
 
@@ -40,9 +41,20 @@ before_install:
 
 script:
 - mkdir build && cd build
-- cmake .. -DUSE_INTREE_LIBQMC=1 # TODO: add building with an external lib
-- cmake --build . --target all
+- cmake .. -DUSE_INTREE_LIBQMC=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX # TODO: add building with an external lib
 #- appstream-util validate linux/*.appdata.xml
+- cmake --build . --target all
+- DESTDIR=install cmake --build . --target install && find install/
+- |
+  if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CC" = "clang" ]; then
+    wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+    chmod a+x linuxdeployqt-continuous-x86_64.AppImage
+    unset QTDIR QT_PLUGIN_PATH LD_LIBRARY_PATH
+    export VERSION=$(git rev-parse --short HEAD) # linuxdeployqt uses this for naming the file
+    ./linuxdeployqt-continuous-x86_64.AppImage install/usr/share/applications/*.desktop -appimage
+    wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
+    bash upload.sh Quaternion*.AppImage*
+  fi
 
 before_deploy:
 - cd $TRAVIS_BUILD_DIR
