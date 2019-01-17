@@ -45,23 +45,20 @@ script:
 #- appstream-util validate linux/*.appdata.xml
 - cmake --build . --target all
 - DESTDIR=install cmake --build . --target install && find install/
+- cd $TRAVIS_BUILD_DIR
+- export VERSION=$(git rev-parse --count HEAD) # linuxdeployqt uses this for naming the file
+- sed -i -e "s/VERSION_VALUE/git-$VERSION/g" .ci/bintray-release.json
+- sed -i -e "s/BINTRAY_SUBJECT/$BINTRAY_SUBJECT/g" .ci/bintray-release.json
+- sed -i -e "s/BINTRAY_REPO/$BINTRAY_REPO/g" .ci/bintray-release.json
+- sed -i -e "s/BINTRAY_NAME/$BINTRAY_NAME/g" .ci/bintray-release.json
 - |
   if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CC" = "clang" ]; then
     wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
     chmod a+x linuxdeployqt-continuous-x86_64.AppImage
     unset QTDIR QT_PLUGIN_PATH LD_LIBRARY_PATH
-    export VERSION=$(git rev-parse --short HEAD) # linuxdeployqt uses this for naming the file
     ./linuxdeployqt-continuous-x86_64.AppImage install/usr/share/applications/*.desktop -appimage
-    wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
-    bash upload.sh Quaternion*.AppImage*
+    export RELEASE_APPIMAGE=1
   fi
-
-before_deploy:
-- cd $TRAVIS_BUILD_DIR
-- sed -i -e "s/VERSION_VALUE/git-$(git rev-list --count HEAD)/g" .ci/bintray-release.json
-- sed -i -e "s/BINTRAY_SUBJECT/$BINTRAY_SUBJECT/g" .ci/bintray-release.json
-- sed -i -e "s/BINTRAY_REPO/$BINTRAY_REPO/g" .ci/bintray-release.json
-- sed -i -e "s/BINTRAY_NAME/$BINTRAY_NAME/g" .ci/bintray-release.json
 
 deploy:
 - provider: bintray
@@ -69,12 +66,22 @@ deploy:
   user: $BINTRAY_USER
   key: $BINTRAY_TOKEN
   skip_cleanup: true
+  on:
+    tags: false
 
 - provider: releases
   api_key: $GITHUB_API_KEY
   file: build/quaternion.dmg
   skip_cleanup: true
   on:
+    tags: true
+
+- provider: releases
+  api_key: $GITHUB_API_KEY
+  file: Quaternion*.AppImage*
+  skip_cleanup: true
+  on:
+    condition: -n $RELEASE_APPIMAGE
     tags: true
 
 notifications:
