@@ -13,10 +13,12 @@ The source code is hosted at GitHub: https://github.com/QMatrixClient/Quaternion
 
 Quaternion needs libQMatrixClient to build. Since version 0.0.9.3 there are two
 options to use the library:
-1. Use the library installed to a well-known location (either as a package
-   available from your favourite package repository, or by make the location
-   of the library "well-known" by providing it in the environment's `PATH` or
-   in CMake's `CMAKE_PREFIX_PATH`). This is the recommended method.
+1. Use the library installation known to CMake - either as a (possibly but not
+   necessarily system-wide) package available from your favourite package
+   repository, or as a result of building the library from the source code in
+   another directory. In the latter case CMake internally registers the
+   library upon succesfully building it so you shouldn't even need to pass
+   `CMAKE_PREFIX_PATH`
 2. As a Git submodule. This method is enabled by passing `-DUSE_INTREE_LIBQMC=1`
    to the "configuring" (the one _without_ `--build`) invocation of CMake. If you
    haven't cloned the Quaternion source code yet, the following will get you
@@ -36,33 +38,33 @@ code and API are more stable these days and since Git submodules have
 shortcomings of their own: being forgotten to be updated after updating
 Quaternion, and not being included into GitHub's releases source tarballs,
 to name a couple. This may still be the preferred method if you're actively
-hacking on Quaternion _and_ libQMatrixClient at the same time - I (@kitsune)
-know exactly one person doing it on regular basis and that's me :)
+hacking on Quaternion _and_ libQMatrixClient at the same time.
 
 ### Pre-requisites
 - a Linux, macOS or Windows system (desktop versions tried; mobile Linux/Windows might work too)
-  - For Ubuntu flavours - zesty or later (or a derivative) is good enough out of the box; older ones will need PPAs at least for a newer Qt; in particular, if you have xenial you're advised to add Kubuntu Backports PPA for it
+  - For Ubuntu flavours - zesty or later (or a derivative) is good enough out of the box; older ones will need PPAs at least for a newer Qt - in particular, if you have xenial you're advised to add Kubuntu Backports PPA for it
 - a Git client to check out this repo
 - CMake (from your package management system or [the official website](https://cmake.org/download/))
-- Qt 5 (either Open Source or Commercial), version 5.6 or higher
+- Qt 5 (either Open Source or Commercial), version 5.7 or higher (5.12 is recommended)
 - a C++ toolchain supported by your version of Qt (see a link for your platform at [the Qt's platform requirements page](http://doc.qt.io/qt-5/gettingstarted.html#platform-requirements))
   - GCC 5 (Windows, Linux, macOS), Clang 5 (Linux), Apple Clang 8.1 (macOS) and Visual C++ 2015 (Windows) are the oldest officially supported
   - any build system that works with CMake should be fine: GNU Make, ninja (any platform), NMake, jom (Windows) are known to work.
-- libQMatrixClient development files (from your package management system),
-  unless you're handling both projects together (see Option 2 above)
+- libQMatrixClient development files (from your package management system), or
+  prebuilt libQMatrixClient (see "Getting the source code" above).
 
 #### Linux
-Just install things from the list above using your preferred package manager. If your Qt package base is fine-grained you might want to take a look at `CMakeLists.txt` to figure out which specific libraries Quaternion uses (or blindly run cmake and look at error messages). Note also that you'll need several Qt Quick plugins for Quaternion to work (without them, it will compile and run but won't show the messages timeline). In case of Trusty Tar the following line will get you everything necessary to build and run Quaternion (thanks to `@onlnr:matrix.org`):
+Just install things from the list above using your preferred package manager. If your Qt package base is fine-grained you might want to take a look at `CMakeLists.txt` to figure out which specific libraries Quaternion uses (or blindly run cmake and look at error messages). Note also that you'll need several Qt Quick plugins for Quaternion to work (without them, it will compile and run but won't show the messages timeline). In case of Xenial Xerus following line should get you everything necessary to build and run Quaternion:
 ```bash
-sudo apt-get install git cmake qtdeclarative5-dev qtdeclarative5-qtquick2-plugin qtdeclarative5-controls-plugin
+sudo apt-get install git cmake qtdeclarative5-dev qtdeclarative5-qtquick2-plugin qtdeclarative5-controls-plugin qml-module-qtquick-controls qml-module-qtquick-controls2 qtmultimedia5-dev
 ```
 On Fedora 26, the following command should be enough for building and running:
 ```bash
-dnf install git cmake qt5-qtdeclarative-devel qt5-qtquickcontrols
+dnf install git cmake qt5-qtdeclarative-devel qt5-qtquickcontrols qt5-qtquickcontrols2 qt5-qtmultimedia-devel
 ```
 
 #### macOS
-`brew install qt5` should get you Qt5. You have to point CMake at the qt5 installation location, with something like:
+`brew install qt5` should get you Qt5. You have to point CMake at the Qt5
+installation location, with something like:
 
 ```bash
 # if using in-tree libqmatrixclient:
@@ -70,6 +72,7 @@ cmake .. -DUSE_INTREE_LIBQMC=1 -DUSE_QQUICKWIDGET=ON -DCMAKE_PREFIX_PATH=$(brew 
 # or otherwise...
 cmake .. -DCMAKE_PREFIX_PATH=../../libqmatrixclient -DUSE_QQUICKWIDGET=ON -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)
 ```
+(read on to find out about `USE_QQUICKWIDGET`).
 
 #### Windows
 1. Install CMake. The commands in further sections imply that cmake is in your PATH - otherwise you have to prepend them with actual paths.
@@ -86,8 +89,35 @@ cd build_dir
 cmake .. # Pass -DCMAKE_PREFIX_PATH and -DCMAKE_INSTALL_PREFIX here if needed
 cmake --build . --target all
 ```
-This will get you an executable in `build_dir` inside your project sources. `CMAKE_INSTALL_PREFIX` variable of CMake controls where Quaternion will be installed - pass it to `cmake ..` above if you wish to alter the default (see the output from `cmake ..` to find out the configured values).
+This will get you an executable in `build_dir` inside your project sources.
+`CMAKE_INSTALL_PREFIX` variable of CMake controls where Quaternion will be
+installed - pass it to `cmake ..` above if you wish to alter the default
+(see the output from `cmake ..` to find out the configured values).
 
+#### QQuickWidget
+
+Quaternion uses a combination of Qt Widgets and QML to render its UI (before
+any protests and arguments: this _might_ change at some point in time but
+certainly not in any near future). Internally, embedding QML in a Qt Widget
+can be done in two ways that provide very similar API but are different
+underneath: swallowing a `QQuickView` in a window container and
+using `QQuickWidget`. Historically Quaternion used the former method; however,
+its implementation in Qt is so ugly that
+[it's officially deprecated by The Qt Project](https://blog.qt.io/blog/2014/07/02/qt-weekly-16-qquickwidget/).
+
+Quaternion suffers from it too: if you see healthy QML chirping in the logs
+but don't see anything where the timeline should be - you've got issue #355
+and the only way for you to fix it is to get Quaternion rebuilt
+with `QQuickWidget`. Unfortunately, Quaternion's QML is tricky enough to crash
+`QQuickWidget` on Qt versions before 5.12, so there's no single good
+configuration.
+
+As of now, Quaternion will build with `QQuickWidget` if Qt 5.12 is detected
+and with the legacy mechanism on lower versions. To override this you can pass
+`-DUSE_QQUICKWIDGET=ON` to the first (configuring) `cmake` invocation to force
+usage of `QQuickWidget` or `-DDISABLE_QQUICKWIDGET=ON` to force the legacy code.
+Further on the choice will be made (and an override handle provided) at runtime,
+depending on the detected Qt version.
 
 ### Install
 In the root directory of the project sources: `cmake --build build_dir --target install`.
@@ -95,7 +125,8 @@ In the root directory of the project sources: `cmake --build build_dir --target 
 If you use GNU Make, `make install` (with `sudo` if needed) will work equally well.
 
 ### Package
-Packagers are very scarce so far, so please step up and support your favourite system! Notably, we still need a MacOS maintainer - Quaternion sees no actual usage/testing on this platform yet.
+We're still somewhat short of packagers, so please step up and support your
+favourite system!
 
 #### Flatpak
 If you run Linux and your distribution supports flatpak, you can easily build and install Quaternion as a flatpak package:

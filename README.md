@@ -17,16 +17,29 @@ Most of talking around Quaternion happens in our Matrix room: [#quaternion:matri
 You can also file issues at [the project's issue tracker](https://github.com/QMatrixClient/Quaternion/issues). If you have what looks like a security issue, please contact Kitsune Ral ([@kitsune:matrix.org](https://matrix.to/#/@kitsune:matrix.org) or [Kitsune-Ral@users.sf.net](mailto:Kitsune-Ral@users.sf.net)).
 
 ## Download and install
-The latest release (with links to cross-platform source code archives, as well as archived binaries for Windows and macOS) can be found on the [GitHub Releases page](https://github.com/QMatrixClient/Quaternion/releases/latest). If you want to build from sources, DO NOT use source code archives from that page, clone the repository instead (see [BUILDING.md](./BUILDING.md)).
+The latest release (with links to cross-platform source code archives, as well
+as archived binaries for Windows and macOS) can be found on the
+[GitHub Releases page](https://github.com/QMatrixClient/Quaternion/releases/latest).
 
-Packagers are very scarce so far, so please step up and support your favourite system!
+For those who want the very latest version (beware, you may find it not working
+at times), automatic builds from continuous integration pipelines can be found
+as follows (all these builds come with a fairly recent Qt bundled):
+- Windows: Surf to the
+  [AppVeyor CI page for Quaternion](https://ci.appveyor.com/project/QMatrixClient/quaternion),
+  then go to "Jobs", click on a job for your architecture and find the archive
+  in "Artifacts".
+- Linux and macOS: go to the
+  [Quaternion CI repo at bintray](https://bintray.com/qmatrixclient/ci/Quaternion),
+  pick a version under "Versions", then click on "Files" and find a .dmg for
+  macOS and an AppImage for Linux.
+
+If you want to build Quaternion from sources, see [BUILDING.md](./BUILDING.md).
+Packagers are still scarce, so please step up and support your favourite system!
 
 ### Requirements
 Quaternion needs Qt version 5.7 or higher. On Linux, this is compatible with Debian Stretch and Ubuntu Xenial Xerus with Kubuntu Backports overlay. On Windows, all needed Qt libraries are included in the archive - you only need to separately install OpenSSL (see below).
 
 #### Windows
-For those who want the very latest version (beware, you may find it not working at times), automatic builds for Windows are packaged by AppVeyor CI upon every commit. To get an archive, surf to the [AppVeyor CI page for Quaternion](https://ci.appveyor.com/project/QMatrixClient/quaternion), then go to "Jobs", click on a job for your architecture and find the archive in "Artifacts".
-
 Since we can't rely on package management on Windows, Qt libraries and a C++ runtime are packaged/installed together with Quaternion. However, OpenSSL libraries (ssleay32.dll and libeay32.dll) are not installed automatically because of export restrictions. Unless you already have them around (e.g., they are a part of any Qt development installation, see `Tools/<MinGW toolchain>/opt/bin`), your best bet is to:
 - find the pre-compiled libraries yourself (searching Internet for "OpenSSL Windows" should work);
 - download them
