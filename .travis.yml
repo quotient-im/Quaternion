@@ -1,4 +1,5 @@
 language: cpp
+dist: xenial
 
 git:
   depth: false
@@ -10,33 +11,37 @@ cache:
   directories:
     - $HOME/Library/Caches/Homebrew
 
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    - sourceline: 'ppa:beineri/opt-qt571-trusty'
-    packages:
-    - g++-5
-    - qt57-meta-minimal
-    - qt57multimedia
-    - qt57tools
-  homebrew:
-    packages:
-    - qt5
-
 matrix:
   include:
   - os: linux
     compiler: gcc
-    env: [ 'ENV_EVAL="CC=gcc-5 && CXX=g++-5"' ]
+    addons:
+      sources:
+      - sourceline: 'ppa:beineri/opt-qt571-xenial'
+      packages:
+      - qt57-meta-minimal
+      - qt57multimedia
+      - qt57tools
   - os: linux
     compiler: clang
+    addons:
+      sources:
+      - sourceline: 'ppa:beineri/opt-qt-5.12.0-xenial'
+      packages:
+      - qt512-meta-minimal
+      - qt512multimedia
+      - qt512tools
   - os: osx
     env: [ 'PATH=/usr/local/opt/qt/bin:$PATH"' ]
+    addons:
+      homebrew:
+        packages:
+        - qt5
 
 before_install:
 - eval "${ENV_EVAL}"
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then . /opt/qt57/bin/qt57-env.sh; fi
+- if [ -f /opt/qt57/bin/qt57-env.sh ]; then . /opt/qt57/bin/qt57-env.sh; fi
+- if [ -f /opt/qt512/bin/qt512-env.sh ]; then . /opt/qt57/bin/qt512-env.sh; fi
 
 script:
 - mkdir build && pushd build
