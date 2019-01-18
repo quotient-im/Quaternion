@@ -42,9 +42,15 @@ foreach (FLAG "" all pedantic extra no-unused-parameter)
 endforeach ()
 
 # Find the libraries
-find_package(Qt5 5.7 REQUIRED Widgets Network Quick Qml QuickWidgets Gui LinguistTools)
+find_package(Qt5 5.7 REQUIRED Widgets Network Quick Qml Gui LinguistTools)
 if (USE_QQUICKWIDGET)
     find_package(Qt5 5.7 REQUIRED QuickWidgets)
+elseif(NOT DISABLE_QQUICKWIDGET)
+    # QQuickWidget only stopped crashing in Qt 5.12, use it by default if found
+    find_package(Qt5 5.12 QUIET COMPONENTS QuickWidgets)
+    if (Qt5QuickWidgets_FOUND)
+        set(USE_QQUICKWIDGET ON)
+    endif()
 endif()
 get_filename_component(Qt5_Prefix "${Qt5_DIR}/../../../.." ABSOLUTE)
 
