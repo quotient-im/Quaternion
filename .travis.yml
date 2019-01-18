@@ -20,6 +20,7 @@ matrix:
         sources:
         - sourceline: 'ppa:beineri/opt-qt571-xenial'
         packages:
+        - mesa-common-dev # Forgotten dep of qt57base
         - qt57base
         - qt57imageformats
         - qt57svg
@@ -34,6 +35,7 @@ matrix:
         sources:
         - sourceline: 'ppa:beineri/opt-qt-5.12.0-xenial'
         packages:
+        - mesa-common-dev # Forgotten dep of qt512base
         - qt512base
         - qt512imageformats
         - qt512svg
