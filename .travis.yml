@@ -20,8 +20,12 @@ matrix:
         sources:
         - sourceline: 'ppa:beineri/opt-qt571-xenial'
         packages:
-        - qt57-meta-minimal
+        - qt57base
+        - qt57imageformats
+        - qt57svg
         - qt57multimedia
+        - qt57quickcontrols
+        - qt57quickcontrols2
         - qt57tools
   - os: linux
     compiler: clang
@@ -30,9 +34,14 @@ matrix:
         sources:
         - sourceline: 'ppa:beineri/opt-qt-5.12.0-xenial'
         packages:
-        - qt512-meta-minimal
+        - qt512base
+        - qt512imageformats
+        - qt512svg
         - qt512multimedia
+        - qt512quickcontrols
+        - qt512quickcontrols2
         - qt512tools
+        - qt512translations
   - os: osx
     env: [ 'PATH=/usr/local/opt/qt/bin:$PATH"' ]
     addons:
@@ -43,7 +52,7 @@ matrix:
 before_install:
 - eval "${ENV_EVAL}"
 - if [ -f /opt/qt57/bin/qt57-env.sh ]; then . /opt/qt57/bin/qt57-env.sh; fi
-- if [ -f /opt/qt512/bin/qt512-env.sh ]; then . /opt/qt57/bin/qt512-env.sh; fi
+- if [ -f /opt/qt512/bin/qt512-env.sh ]; then . /opt/qt512/bin/qt512-env.sh; fi
 
 script:
 - mkdir build && pushd build
