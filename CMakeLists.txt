@@ -42,7 +42,7 @@ foreach (FLAG "" all pedantic extra no-unused-parameter)
 endforeach ()
 
 # Find the libraries
-find_package(Qt5 5.7 REQUIRED Widgets Network Quick Qml Gui LinguistTools)
+find_package(Qt5 5.7 REQUIRED Widgets Network Quick Qml Gui LinguistTools Multimedia)
 if (USE_QQUICKWIDGET)
     find_package(Qt5 5.7 REQUIRED QuickWidgets)
 elseif(NOT DISABLE_QQUICKWIDGET)
