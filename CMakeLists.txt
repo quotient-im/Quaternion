@@ -245,7 +245,7 @@ endif(WIN32)
 
 if(APPLE)
     set(MACDEPLOYQT macdeployqt)
-    set(MACDEPLOYQT_ARGS ${CMAKE_CURRENT_BINARY_DIR}/${APP_NAME}.app -dmg)
+    set(MACDEPLOYQT_ARGS ${CMAKE_CURRENT_BINARY_DIR}/${APP_NAME}.app -dmg -qmldir=../client/qml)
 
     add_custom_command(TARGET ${APP_NAME} COMMAND ${MACDEPLOYQT} ARGS ${MACDEPLOYQT_ARGS})
 endif(APPLE)
