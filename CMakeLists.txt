@@ -52,7 +52,8 @@ elseif(NOT DISABLE_QQUICKWIDGET)
         set(USE_QQUICKWIDGET ON)
     endif()
 endif()
-get_filename_component(Qt5_Prefix "${Qt5_DIR}/../../../.." ABSOLUTE)
+get_filename_component(Qt5_BinDir "${QT_QMAKE_EXECUTABLE}" DIRECTORY CACHE)
+get_filename_component(Qt5_Prefix "${Qt5_BinDir}/.." ABSOLUTE CACHE)
 
 if(WIN32)
     enable_language(RC)
@@ -217,40 +218,34 @@ if(LINUX)
 endif(LINUX)
 
 if(WIN32)
-    if (${Qt5_VERSION} VERSION_LESS "5.3")
-        install(CODE "
-            message(\"Deploying on Windows is only supported with Qt 5.3 or higher\")
-            message(\"Bare executable has been copied to the target folder\")
-        ")
-    else()
-        get_filename_component(Qt5_WinBaseDir "${Qt5_DIR}/../../.." ABSOLUTE)
-        install(CODE "
-            if (CMAKE_INSTALL_CONFIG_NAME STREQUAL \"Debug\")
-                set(WDQ_FLAG debug)
-            else()
-                set(WDQ_FLAG release)
-            endif()
-            execute_process(
-                COMMAND bin/windeployqt --\${WDQ_FLAG} --no-system-d3d-compiler --no-opengl
-                    --no-multimediaquick --no-declarative --no-test \
-                    --qmldir qml \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}\"
-                WORKING_DIRECTORY \"${Qt5_WinBaseDir}\"
-                RESULT_VARIABLE WDQ_RETVAL
-            )
-            if (WDQ_RETVAL)
-                message( \"windeployqt returned \${WDQ_RETVAL} - check messages above\")
-            else()
-                message( STATUS \"Quaternion and its dependencies have been deployed to \${CMAKE_INSTALL_PREFIX}.\")
-            endif()
-        ")
-        install(FILES ${quaternion_QM}
-                DESTINATION ${CMAKE_INSTALL_BINDIR}/translations
-               )
-    endif()
+    install(CODE "
+        if (CMAKE_INSTALL_CONFIG_NAME STREQUAL \"Debug\")
+            set(WDQ_FLAG debug)
+        else()
+            set(WDQ_FLAG release)
+        endif()
+        execute_process(
+            COMMAND \"${Qt5_BinDir}/windeployqt\" --\${WDQ_FLAG}
+                --no-opengl --no-angle --no-opengl-sw -no-system-d3d-compiler
+                --no-multimediaquick
+                --no-declarative --no-test --no-winextras
+                --qmldir \"${PROJECT_SOURCE_DIR}/client/qml\" .
+            WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
+            RESULT_VARIABLE WDQ_RETVAL
+        )
+        if (WDQ_RETVAL)
+            message( \"windeployqt returned \${WDQ_RETVAL} - check messages above\")
+        else()
+            message( STATUS \"Quaternion and its dependencies have been deployed to \${CMAKE_INSTALL_PREFIX}.\")
+        endif()
+    ")
+    install(FILES ${quaternion_QM}
+            DESTINATION ${CMAKE_INSTALL_BINDIR}/translations
+           )
 endif(WIN32)
 
 if(APPLE)
-    set(MACDEPLOYQT ${Qt5Widgets_DIR}/../../../bin/macdeployqt)
+    set(MACDEPLOYQT ${Qt5_BinDir}/macdeployqt)
     set(MACDEPLOYQT_ARGS ${APP_NAME}.app -dmg -qmldir="${PROJECT_SOURCE_DIR}/client/qml")
 
     add_custom_command(TARGET ${APP_NAME} COMMAND ${MACDEPLOYQT} ARGS ${MACDEPLOYQT_ARGS})
