@@ -43,6 +43,8 @@ endforeach ()
 
 # Find the libraries
 find_package(Qt5 5.7 REQUIRED Widgets Network Quick Qml Gui LinguistTools Multimedia)
+get_filename_component(Qt5_BinDir "${QT_QMAKE_EXECUTABLE}" DIRECTORY)
+get_filename_component(Qt5_Prefix "${Qt5_BinDir}/.." ABSOLUTE)
 if (USE_QQUICKWIDGET)
     find_package(Qt5 5.7 REQUIRED QuickWidgets)
 elseif(NOT DISABLE_QQUICKWIDGET)
@@ -52,7 +54,6 @@ elseif(NOT DISABLE_QQUICKWIDGET)
         set(USE_QQUICKWIDGET ON)
     endif()
 endif()
-get_filename_component(Qt5_Prefix "${Qt5_DIR}/../../../.." ABSOLUTE)
 
 if(WIN32)
     enable_language(RC)
@@ -224,7 +225,7 @@ if(WIN32)
             set(WDQ_FLAG release)
         endif()
         execute_process(
-            COMMAND \"${Qt5_Prefix}/bin/windeployqt\" --\${WDQ_FLAG}
+            COMMAND \"${Qt5_BinDir}/windeployqt\" --\${WDQ_FLAG}
                 --no-opengl --no-angle --no-opengl-sw -no-system-d3d-compiler
                 --no-multimediaquick
                 --no-declarative --no-test --no-winextras
@@ -243,7 +244,7 @@ if(WIN32)
 endif(WIN32)
 
 if(APPLE)
-    set(MACDEPLOYQT ${Qt5_Prefix}/bin/macdeployqt)
+    set(MACDEPLOYQT ${Qt5_BinDir}/macdeployqt)
     set(MACDEPLOYQT_ARGS ${APP_NAME}.app -dmg -qmldir="${PROJECT_SOURCE_DIR}/client/qml")
 
     add_custom_command(TARGET ${APP_NAME} COMMAND ${MACDEPLOYQT} ARGS ${MACDEPLOYQT_ARGS})
