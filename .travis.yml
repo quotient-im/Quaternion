@@ -29,6 +29,24 @@ matrix:
         - qt57quickcontrols2
         - qt57tools
   - os: linux
+    dist: trusty
+    compiler: clang
+    env: [ 'VERSION_SUFFIX="-compat"' ]
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        - sourceline: 'ppa:beineri/opt-qt571-trusty'
+        packages:
+        - libstdc++-5-dev
+        - qt57base
+        - qt57imageformats
+        - qt57svg
+        - qt57multimedia
+        - qt57quickcontrols
+        - qt57quickcontrols2
+        - qt57tools
+  - os: linux
     compiler: clang
     addons:
       apt:
@@ -69,16 +87,26 @@ script:
 after_success:
 - export VERSION=$(git rev-list --count HEAD) # linuxdeployqt uses this for naming the file
 - sed -i -e "s/VERSION_VALUE/git-$VERSION/g" .ci/bintray-release.json
+- sed -i -e "s/VERSION_SUFFIX/$VERSION_SUFFIX/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_SUBJECT/$BINTRAY_SUBJECT/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_REPO/$BINTRAY_REPO/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_NAME/$BINTRAY_NAME/g" .ci/bintray-release.json
 - |
   if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CC" = "clang" ]; then
+    # FIXME: The below downloadables should at the very least be verified
     wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
     chmod a+x linuxdeployqt-continuous-x86_64.AppImage
     unset QTDIR QT_PLUGIN_PATH LD_LIBRARY_PATH
-    ./linuxdeployqt-continuous-x86_64.AppImage $INSTALLDIR/usr/share/applications/*.desktop -appimage
-    export RELEASE_APPIMAGE=1
+    pushd $INSTALLDIR
+      mkdir -p ./usr/optional/libstdc++
+      wget -c -nv "https://github.com/darealshinji/AppImageKit-checkrt/releases/download/continuous/exec-x86_64.so" -O ./usr/optional/exec.so
+      cp /usr/lib/x86_64-linux-gnu/libstdc++.so.6 ./usr/optional/libstdc++/
+      wget -c https://github.com/darealshinji/AppImageKit-checkrt/releases/download/continuous/AppRun-patched-x86_64 --unlink -O AppRun
+      chmod a+x AppRun
+    popd
+    ./linuxdeployqt-continuous-x86_64.AppImage \
+        $INSTALLDIR/usr/share/applications/*.desktop -qmldir=client/qml -appimage
+    export APPIMAGE_READY=1
   fi
 
 deploy:
@@ -102,7 +130,7 @@ deploy:
   file: Quaternion*.AppImage
   skip_cleanup: true
   on:
-    condition: -n $RELEASE_APPIMAGE
+    condition: -n "$RELEASE_APPIMAGE" && -n "$APPIMAGE_READY"
     tags: true
 
 notifications:
