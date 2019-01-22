@@ -43,8 +43,15 @@ endforeach ()
 
 # Find the libraries
 find_package(Qt5 5.7 REQUIRED Widgets Network Quick Qml Gui LinguistTools Multimedia)
-get_filename_component(Qt5_BinDir "${QT_QMAKE_EXECUTABLE}" DIRECTORY)
-get_filename_component(Qt5_Prefix "${Qt5_BinDir}/.." ABSOLUTE)
+# Qt5_Prefix is only used to show Qt path in message()
+# Qt5_BinDir is where all the binary tools for Qt are
+if (QT_QMAKE_EXECUTABLE)
+    get_filename_component(Qt5_BinDir "${QT_QMAKE_EXECUTABLE}" DIRECTORY)
+    get_filename_component(Qt5_Prefix "${Qt5_BinDir}/.." ABSOLUTE)
+else()
+    get_filename_component(Qt5_BinDir "${Qt5_DIR}/../../../bin" ABSOLUTE)
+    get_filename_component(Qt5_Prefix "${Qt5_DIR}/../../../.." ABSOLUTE)
+endif()
 if (USE_QQUICKWIDGET)
     find_package(Qt5 5.7 REQUIRED QuickWidgets)
 elseif(NOT DISABLE_QQUICKWIDGET)
