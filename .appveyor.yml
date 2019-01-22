@@ -19,7 +19,7 @@ init:
 
 before_build:
 - git submodule update --init --recursive
-- cmake -G "NMake Makefiles JOM" -H. -Bbuild -DCMAKE_CXX_FLAGS="/EHsc /W3" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="%DEPLOY_DIR%" -DUSE_INTREE_LIBQMC=1
+- cmake -LA -G "NMake Makefiles JOM" -H. -Bbuild -DCMAKE_CXX_FLAGS="/EHsc /W3" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="%DEPLOY_DIR%" -DUSE_INTREE_LIBQMC=1
 
 build_script:
 - cmake --build build
