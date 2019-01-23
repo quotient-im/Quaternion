@@ -58,6 +58,9 @@ int main( int argc, char* argv[] )
         QApplication::translate("main", "Override locale"),
         QApplication::translate("main", "locale") };
     options.append(locale);
+    QCommandLineOption hideMainWindow { "hide-mainwindow",
+        QApplication::translate("main", "Hide main window on startup") };
+    options.append(hideMainWindow);
     QCommandLineOption debug { "debug",
         QApplication::translate("main", "Display debug information") };
     debug.setHidden(true); // FIXME, #415; also, setHidden is obsolete in Qt 5.11
@@ -102,8 +105,10 @@ int main( int argc, char* argv[] )
     }
 
     ActivityDetector ad(app, window); Q_UNUSED(ad);
-    qDebug() << "--- Show time!";
-    window.show();
+    if (!parser.isSet(hideMainWindow)) {
+        qDebug() << "--- Show time!";
+        window.show();
+    }
 
     return app.exec();
 }
