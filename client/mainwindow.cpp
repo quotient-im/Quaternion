@@ -357,6 +357,12 @@ void MainWindow::createMenu()
         tr("Automatically download a full-size image instead of a thumbnail"),
         QStringLiteral("autoload_images"), true
     );
+    addTimelineOptionCheckbox(
+        settingsMenu,
+        tr("Close to tray"),
+        tr("Make close button [X] minimize to tray instead of closing main window"),
+        QStringLiteral("close_to_tray"), false
+    );
 
     settingsMenu->addSeparator();
     settingsMenu->addAction(QIcon::fromTheme("preferences-system-network"),
@@ -1061,5 +1067,14 @@ void MainWindow::proxyAuthenticationRequired(const QNetworkProxy&,
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-    event->accept();
+    if (QMatrixClient::SettingsGroup("UI")
+            .value("close_to_tray", false).toBool())
+    {
+        hide();
+        event->ignore();
+    }
+    else
+    {
+        event->accept();
+    }
 }
