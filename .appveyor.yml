@@ -27,8 +27,7 @@ build_script:
 after_build:
 - cmake --build build --target install
 - cd "%DEPLOY_DIR%"
-- rmdir /S /Q bearer qmltooling Qt QtWinExtras
-- del /S /Q Qt5WinExtras.dll
+- rmdir /S /Q bearer qmltooling
 - cd ..
 - 7z a quaternion.zip "%DEPLOY_DIR%\"
 
