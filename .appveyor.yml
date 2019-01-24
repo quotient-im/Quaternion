@@ -4,10 +4,10 @@ environment:
   DEPLOY_DIR: Quaternion-%APPVEYOR_BUILD_VERSION%
   matrix:
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-    QTDIR: C:\Qt\5.9\msvc2017_64
+    QTDIR: C:\Qt\5.11\msvc2017_64
     VCVARS: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
     PLATFORM:
-  - QTDIR: C:\Qt\5.9\msvc2015
+  - QTDIR: C:\Qt\5.11\msvc2015
     VCVARS: "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\vcvarsall.bat"
     PLATFORM: x86
 
