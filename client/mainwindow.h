@@ -52,6 +52,7 @@ class MainWindow: public QMainWindow
         using Connection = QMatrixClient::Connection;
 
         MainWindow();
+        ~MainWindow() override;
 
         void enableDebug();
 

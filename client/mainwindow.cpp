@@ -105,6 +105,19 @@ MainWindow::MainWindow()
     QTimer::singleShot(0, this, SLOT(invokeLogin()));
 }
 
+MainWindow::~MainWindow()
+{
+    for (auto c: qAsConst(connections))
+    {
+        c->saveState();
+        c->stopSync(); // Instead of deleting the connection, merely stop it
+//        dropConnection(c);
+    }
+    for (auto c: qAsConst(logoutOnExit))
+        c->logout(); // For the record, dropConnection() does it automatically
+    saveSettings();
+}
+
 ChatRoomWidget* MainWindow::getChatRoomWidget() const
 {
    return chatRoomWidget;
@@ -1048,15 +1061,5 @@ void MainWindow::proxyAuthenticationRequired(const QNetworkProxy&,
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-    for (auto c: qAsConst(connections))
-    {
-        c->saveState();
-        c->stopSync(); // Instead of deleting the connection, merely stop it
-//        dropConnection(c);
-    }
-    for (auto c: qAsConst(logoutOnExit))
-        c->logout(); // For the record, dropConnection() does it automatically
-    saveSettings();
     event->accept();
 }
-
