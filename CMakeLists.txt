@@ -226,17 +226,12 @@ endif(LINUX)
 
 if(WIN32)
     install(CODE "
-        if (CMAKE_INSTALL_CONFIG_NAME STREQUAL \"Debug\")
-            set(WDQ_FLAG debug)
-        else()
-            set(WDQ_FLAG release)
-        endif()
         execute_process(
-            COMMAND \"${Qt5_BinDir}/windeployqt\" --\${WDQ_FLAG}
+            COMMAND \"${Qt5_BinDir}/windeployqt\"
                 --no-opengl --no-angle --no-opengl-sw -no-system-d3d-compiler
                 --no-multimediaquick
                 --no-declarative --no-test --no-winextras
-                --qmldir \"${PROJECT_SOURCE_DIR}/client/qml\" .
+                --qmldir \"${PROJECT_SOURCE_DIR}/client/qml\" \${CMAKE_INSTALL_PREFIX}\${CMAKE_INSTALL_BINDIR}
             RESULT_VARIABLE WDQ_RETVAL
         )
         if (WDQ_RETVAL)
