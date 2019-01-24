@@ -171,7 +171,7 @@ void MainWindow::createMenu()
     accountListGrowthPoint = connectionMenu->addSeparator();
 
     connectionMenu->addAction(QIcon::fromTheme("application-exit"),
-        tr("&Quit"), qApp, &QApplication::closeAllWindows, QKeySequence::Quit);
+        tr("&Quit"), qApp, &QApplication::quit, QKeySequence::Quit);
 
     // View menu
     auto viewMenu = menuBar()->addMenu(tr("&View"));
