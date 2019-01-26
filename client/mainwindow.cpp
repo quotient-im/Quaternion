@@ -111,10 +111,9 @@ MainWindow::~MainWindow()
     {
         c->saveState();
         c->stopSync(); // Instead of deleting the connection, merely stop it
-//        dropConnection(c);
     }
     for (auto c: qAsConst(logoutOnExit))
-        c->logout(); // For the record, dropConnection() does it automatically
+        logout(c);
     saveSettings();
 }
 
