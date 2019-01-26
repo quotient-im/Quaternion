@@ -25,7 +25,7 @@ build_script:
 - cmake --build build
 
 after_build:
-- cmake --build build --target install
+- cmake --build build --target install -DDEPLOY_VERBOSITY=2
 - cd "%DEPLOY_DIR%"
 - rmdir /S /Q bearer qmltooling
 - cd ..
