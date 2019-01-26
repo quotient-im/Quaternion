@@ -77,7 +77,7 @@ before_install:
 script:
 - mkdir build && pushd build
 - export INSTALLDIR=install
-- cmake .. -LA -DUSE_INTREE_LIBQMC=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DDEPLOY_VERBOSITY=2 # TODO: add building with an external lib
+- cmake .. -LA -DUSE_INTREE_LIBQMC=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY # TODO: add building with an external lib
 #- appstream-util validate linux/*.appdata.xml
 - cmake --build . --target all
 - export DESTDIR=$TRAVIS_BUILD_DIR/$INSTALLDIR
