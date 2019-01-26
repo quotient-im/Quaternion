@@ -255,11 +255,12 @@ endif(WIN32)
 # Packaging
 
 if(APPLE)
-    set(MACDEPLOYQT ${Qt5_BinDir}/macdeployqt)
     set(MACDEPLOYQT_ARGS ${APP_NAME}.app -dmg -qmldir="${QML_DIR}" -verbose=${DEPLOY_VERBOSITY})
 
-    add_custom_command(TARGET ${APP_NAME} POST_BUILD COMMAND
-        "${MACDEPLOYQT}" ${MACDEPLOYQT_ARGS}
+    add_custom_command(OUTPUT ${APP_NAME}.dmg
+        COMMAND "${Qt5_BinDir}/macdeployqt" ${MACDEPLOYQT_ARGS}
         COMMENT "Running ${MACDEPLOYQT} with args: ${MACDEPLOYQT_ARGS}"
+        MAIN_DEPENDENCY ${APP_NAME}
     )
+    add_custom_target(image DEPENDS {APP_NAME}.dmg)
 endif(APPLE)
