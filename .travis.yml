@@ -69,44 +69,48 @@ matrix:
         packages:
         - qt5
 
-before_install:
+before_script:
 - eval "${ENV_EVAL}"
 - if [ -f /opt/qt57/bin/qt57-env.sh ]; then . /opt/qt57/bin/qt57-env.sh; fi
 - if [ -f /opt/qt512/bin/qt512-env.sh ]; then . /opt/qt512/bin/qt512-env.sh; fi
+- export VERSION=$(git rev-list --count HEAD) # also used by linuxdeployqt
 
 script:
 - mkdir build && pushd build
-- export INSTALLDIR=install
-- cmake .. -LA -DUSE_INTREE_LIBQMC=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY # TODO: add building with an external lib
+# TODO: add building with an external lib
+- cmake .. -LA -DUSE_INTREE_LIBQMC=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY
 #- appstream-util validate linux/*.appdata.xml
 - cmake --build . --target all
-- export DESTDIR=$TRAVIS_BUILD_DIR/$INSTALLDIR
-- cmake --build . --target install
+- export DESTDIR=$TRAVIS_BUILD_DIR/install
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; then cmake --build . --target install; fi
 - popd
 
 after_success:
-- export VERSION=$(git rev-list --count HEAD) # linuxdeployqt uses this for naming the file
 - sed -i -e "s/VERSION_VALUE/git-$VERSION/g" .ci/bintray-release.json
 - sed -i -e "s/VERSION_SUFFIX/$VERSION_SUFFIX/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_SUBJECT/$BINTRAY_SUBJECT/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_REPO/$BINTRAY_REPO/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_NAME/$BINTRAY_NAME/g" .ci/bintray-release.json
+# TODO: maybe move AppImage generation to CMakeLists.txt
+# (pre-wgetting AppImageKit to avoid CMakeList.txt dependency on Internet?)
+- if [ "$TRAVIS_OS_NAME" = "osx" ]; then cmake --build build --target image; fi
+# FIXME: The AppImageKit downloadables should at the very least be verified
 - |
   if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CC" = "clang" ]; then
-    # FIXME: The below downloadables should at the very least be verified
-    wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
-    chmod a+x linuxdeployqt-continuous-x86_64.AppImage
-    unset QTDIR QT_PLUGIN_PATH LD_LIBRARY_PATH
-    pushd $INSTALLDIR
-      mkdir -p ./usr/optional/libstdc++
-      wget -c -nv "https://github.com/darealshinji/AppImageKit-checkrt/releases/download/continuous/exec-x86_64.so" -O ./usr/optional/exec.so
-      cp /usr/lib/x86_64-linux-gnu/libstdc++.so.6 ./usr/optional/libstdc++/
-      wget -c https://github.com/darealshinji/AppImageKit-checkrt/releases/download/continuous/AppRun-patched-x86_64 --unlink -O AppRun
-      chmod a+x AppRun
+    mkdir AppImageKit && pushd AppImageKit
+      wget -c -nv \
+        "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" \
+        "https://github.com/darealshinji/AppImageKit-checkrt/releases/download/continuous/exec-x86_64.so" \
+        "https://github.com/darealshinji/AppImageKit-checkrt/releases/download/continuous/AppRun-patched-x86_64"
+      chmod a+x ./linuxdeployqt-continuous-x86_64.AppImage
+      install -m "u=rw,go=r" -t $DESTDIR/usr/optional/libstdc++ /usr/lib/x86_64-linux-gnu/libstdc++.so.6
+      install -m "u=rw,go=r" ./exec*.so $DESTDIR/usr/optional/exec.so
+      install -m "u=rwx,go=rx" ./AppRun* $DESTDIR/AppRun
+      unset QTDIR QT_PLUGIN_PATH LD_LIBRARY_PATH
+      ./linuxdeployqt-continuous-x86_64.AppImage \
+        $DESTDIR/usr/share/applications/*.desktop -appimage -extra-plugins=iconengines,platformthemes/libqgtk3.so -qmldir=$TRAVIS_BUILD_DIR/client/qml -verbose=$DEPLOY_VERBOSITY
+      export APPIMAGE_READY=1
     popd
-    ./linuxdeployqt-continuous-x86_64.AppImage \
-        $INSTALLDIR/usr/share/applications/*.desktop -qmldir=client/qml -appimage
-    export APPIMAGE_READY=1
   fi
 
 deploy:
@@ -127,10 +131,10 @@ deploy:
 
 - provider: releases
   api_key: $GITHUB_API_KEY
-  file: Quaternion*.AppImage
+  file: AppImageKit/Quaternion*.AppImage
   skip_cleanup: true
   on:
-    condition: -n "$RELEASE_APPIMAGE" && -n "$APPIMAGE_READY"
+    condition: -n "$RELEASE_APPIMAGE" && -f "AppImageKit/Quaternion*.AppImage"
     tags: true
 
 notifications:
