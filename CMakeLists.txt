@@ -232,6 +232,7 @@ endif(LINUX)
 set(QML_DIR ${PROJECT_SOURCE_DIR}/client/qml)
 if(WIN32)
     install(CODE "
+        message(STATUS \"Running windeployqt at \${CMAKE_INSTALL_PREFIX}\${CMAKE_INSTALL_BINDIR}\")
         execute_process(
             COMMAND \"${Qt5_BinDir}/windeployqt\" --verbose ${DEPLOY_VERBOSITY}
                 --no-opengl --no-angle --no-opengl-sw -no-system-d3d-compiler
@@ -255,10 +256,10 @@ endif(WIN32)
 
 if(APPLE)
     set(MACDEPLOYQT ${Qt5_BinDir}/macdeployqt)
-    set(MACDEPLOYQT_ARGS ${APP_NAME}.app -dmg -qmldir="${QML_DIR} -verbose=${DEPLOY_VERBOSITY}")
+    set(MACDEPLOYQT_ARGS ${APP_NAME}.app -dmg -qmldir="${QML_DIR}" -verbose=${DEPLOY_VERBOSITY})
 
     add_custom_command(TARGET ${APP_NAME} POST_BUILD COMMAND
         "${MACDEPLOYQT}" ${MACDEPLOYQT_ARGS}
-        COMMENT "Running ${MACDEPLOYQT} ${MACDEPLOYQT_ARGS}"
+        COMMENT "Running ${MACDEPLOYQT} with args: ${MACDEPLOYQT_ARGS}"
     )
 endif(APPLE)
