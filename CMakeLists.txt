@@ -256,11 +256,10 @@ endif(WIN32)
 
 if(APPLE)
     set(MACDEPLOYQT_ARGS ${APP_NAME}.app -dmg -qmldir="${QML_DIR}" -verbose=${DEPLOY_VERBOSITY})
-
-    add_custom_command(OUTPUT ${APP_NAME}.dmg
+    add_custom_target(image
         COMMAND "${Qt5_BinDir}/macdeployqt" ${MACDEPLOYQT_ARGS}
+        DEPENDS ${APP_NAME}
+        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
         COMMENT "Running ${MACDEPLOYQT} with args: ${MACDEPLOYQT_ARGS}"
-        MAIN_DEPENDENCY ${APP_NAME}
     )
-    add_custom_target(image DEPENDS {APP_NAME}.dmg)
 endif(APPLE)
