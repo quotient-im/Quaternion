@@ -83,17 +83,10 @@ script:
 - cmake --build . --target all
 - export DESTDIR=$TRAVIS_BUILD_DIR/install
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then cmake --build . --target install; fi
+- if [ "$TRAVIS_OS_NAME" = "osx" ]; then cmake --build . --target image; fi
 - popd
-
-after_success:
-- sed -i -e "s/VERSION_VALUE/git-$VERSION/g" .ci/bintray-release.json
-- sed -i -e "s/VERSION_SUFFIX/$VERSION_SUFFIX/g" .ci/bintray-release.json
-- sed -i -e "s/BINTRAY_SUBJECT/$BINTRAY_SUBJECT/g" .ci/bintray-release.json
-- sed -i -e "s/BINTRAY_REPO/$BINTRAY_REPO/g" .ci/bintray-release.json
-- sed -i -e "s/BINTRAY_NAME/$BINTRAY_NAME/g" .ci/bintray-release.json
 # TODO: maybe move AppImage generation to CMakeLists.txt
 # (pre-wgetting AppImageKit to avoid CMakeList.txt dependency on Internet?)
-- if [ "$TRAVIS_OS_NAME" = "osx" ]; then cmake --build build --target image; fi
 # FIXME: The AppImageKit downloadables should at the very least be verified
 - |
   if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CC" = "clang" ]; then
@@ -112,6 +105,13 @@ after_success:
       export APPIMAGE_READY=1
     popd
   fi
+
+after_success:
+- sed -i -e "s/VERSION_VALUE/git-$VERSION/g" .ci/bintray-release.json
+- sed -i -e "s/VERSION_SUFFIX/$VERSION_SUFFIX/g" .ci/bintray-release.json
+- sed -i -e "s/BINTRAY_SUBJECT/$BINTRAY_SUBJECT/g" .ci/bintray-release.json
+- sed -i -e "s/BINTRAY_REPO/$BINTRAY_REPO/g" .ci/bintray-release.json
+- sed -i -e "s/BINTRAY_NAME/$BINTRAY_NAME/g" .ci/bintray-release.json
 
 deploy:
 - provider: bintray
@@ -134,7 +134,7 @@ deploy:
   file: AppImageKit/Quaternion*.AppImage
   skip_cleanup: true
   on:
-    condition: -n "$RELEASE_APPIMAGE" && -f "AppImageKit/Quaternion*.AppImage"
+    condition: -n "$RELEASE_APPIMAGE"
     tags: true
 
 notifications:
