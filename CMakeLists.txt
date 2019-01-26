@@ -230,6 +230,9 @@ if(LINUX)
 endif(LINUX)
 
 set(QML_DIR ${PROJECT_SOURCE_DIR}/client/qml)
+if (NOT DEPLOY_VERBOSITY)
+    set(DEPLOY_VERBOSITY 1) # The default for *deployqt tools, out of 0..3
+endif()
 if(WIN32)
     install(CODE "
         message(STATUS \"Running windeployqt at \${CMAKE_INSTALL_PREFIX}\${CMAKE_INSTALL_BINDIR}\")
