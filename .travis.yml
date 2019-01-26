@@ -81,7 +81,7 @@ script:
 #- appstream-util validate linux/*.appdata.xml
 - cmake --build . --target all
 - export DESTDIR=$TRAVIS_BUILD_DIR/$INSTALLDIR
-- cmake --build . --target install && find $DESTDIR/
+- cmake --build . --target install
 - popd
 
 after_success:
