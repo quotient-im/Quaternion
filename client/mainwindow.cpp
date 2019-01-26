@@ -105,6 +105,19 @@ MainWindow::MainWindow()
     QTimer::singleShot(0, this, SLOT(invokeLogin()));
 }
 
+MainWindow::~MainWindow()
+{
+    for (auto c: qAsConst(connections))
+    {
+        c->saveState();
+        c->stopSync(); // Instead of deleting the connection, merely stop it
+//        dropConnection(c);
+    }
+    for (auto c: qAsConst(logoutOnExit))
+        c->logout(); // For the record, dropConnection() does it automatically
+    saveSettings();
+}
+
 ChatRoomWidget* MainWindow::getChatRoomWidget() const
 {
    return chatRoomWidget;
@@ -158,7 +171,7 @@ void MainWindow::createMenu()
     accountListGrowthPoint = connectionMenu->addSeparator();
 
     connectionMenu->addAction(QIcon::fromTheme("application-exit"),
-        tr("&Quit"), qApp, &QApplication::closeAllWindows, QKeySequence::Quit);
+        tr("&Quit"), qApp, &QApplication::quit, QKeySequence::Quit);
 
     // View menu
     auto viewMenu = menuBar()->addMenu(tr("&View"));
@@ -343,6 +356,12 @@ void MainWindow::createMenu()
         tr("Load full-size images at once"),
         tr("Automatically download a full-size image instead of a thumbnail"),
         QStringLiteral("autoload_images"), true
+    );
+    addTimelineOptionCheckbox(
+        settingsMenu,
+        tr("Close to tray"),
+        tr("Make close button [X] minimize to tray instead of closing main window"),
+        QStringLiteral("close_to_tray"), false
     );
 
     settingsMenu->addSeparator();
@@ -1048,15 +1067,14 @@ void MainWindow::proxyAuthenticationRequired(const QNetworkProxy&,
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-    for (auto c: qAsConst(connections))
+    if (QMatrixClient::SettingsGroup("UI")
+            .value("close_to_tray", false).toBool())
     {
-        c->saveState();
-        c->stopSync(); // Instead of deleting the connection, merely stop it
-//        dropConnection(c);
+        hide();
+        event->ignore();
     }
-    for (auto c: qAsConst(logoutOnExit))
-        c->logout(); // For the record, dropConnection() does it automatically
-    saveSettings();
-    event->accept();
+    else
+    {
+        event->accept();
+    }
 }
-
