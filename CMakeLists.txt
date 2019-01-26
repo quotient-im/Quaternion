@@ -163,10 +163,9 @@ QT5_ADD_TRANSLATION(quaternion_QM ${quaternion_TS})
 QT5_CREATE_TRANSLATION(client/translations ${quaternion_SRCS} ${quaternion_QRC} ${quaternion_TS})
 
 if(WIN32)
-    set(quaternion_WINRC ${CMAKE_CURRENT_SOURCE_DIR}/quaternion_win32.rc)
-    set_property(SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/quaternion_win32.rc
-        APPEND PROPERTY OBJECT_DEPENDS
-            ${CMAKE_CURRENT_SOURCE_DIR}/icons/quaternion.ico
+    set(quaternion_WINRC quaternion_win32.rc)
+    set_property(SOURCE quaternion_win32.rc APPEND PROPERTY
+        OBJECT_DEPENDS ${PROJECT_SOURCE_DIR}/icons/quaternion.ico
     )
 endif()
 
@@ -180,24 +179,30 @@ if(APPLE)
     set(MACOSX_BUNDLE_BUNDLE_VERSION ${VERSION})
 
     set(ICON_NAME "quaternion.icns")
-    set(ICON_PATH "${CMAKE_CURRENT_SOURCE_DIR}/icons/${ICON_NAME}")
+    set(${APP_NAME}_MAC_ICON "${PROJECT_SOURCE_DIR}/icons/${ICON_NAME}")
     set(MACOSX_BUNDLE_ICON_FILE ${ICON_NAME})
-    set_source_files_properties("${ICON_PATH}" PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+    set_property(SOURCE "${${APP_NAME}_MAC_ICON}" PROPERTY
+        MACOSX_PACKAGE_LOCATION Resources)
 endif(APPLE)
 
 # Windows, this is a GUI executable; OSX, make a bundle
-add_executable(quaternion WIN32 MACOSX_BUNDLE ${quaternion_SRCS} ${quaternion_QRC_SRC} ${quaternion_WINRC} ${quaternion_QM} ${ICON_PATH})
+add_executable(${APP_NAME} WIN32 MACOSX_BUNDLE
+    ${quaternion_SRCS} ${quaternion_QRC_SRC} ${quaternion_QM}
+    ${quaternion_WINRC} ${${APP_NAME}_MAC_ICON})
 
-target_link_libraries(quaternion QMatrixClient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
-target_compile_definitions(quaternion PRIVATE GIT_SHA1="${GIT_SHA1}" LIB_GIT_SHA1="${LIB_GIT_SHA1}")
+target_link_libraries(${APP_NAME}
+    QMatrixClient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
+target_compile_definitions(${APP_NAME} PRIVATE
+    GIT_SHA1="${GIT_SHA1}" LIB_GIT_SHA1="${LIB_GIT_SHA1}")
 
 if (USE_QQUICKWIDGET)
-    target_compile_definitions(quaternion PRIVATE USE_QQUICKWIDGET)
-    target_link_libraries(quaternion Qt5::QuickWidgets)
+    target_compile_definitions(${APP_NAME} PRIVATE USE_QQUICKWIDGET)
+    target_link_libraries(${APP_NAME} Qt5::QuickWidgets)
 endif()
 
 # macOS specific config for bundling
-set_target_properties(quaternion PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake/MacOSXBundleInfo.plist.in")
+set_property(TARGET ${APP_NAME} PROPERTY
+    MACOSX_BUNDLE_INFO_PLIST "${PROJECT_SOURCE_DIR}/cmake/MacOSXBundleInfo.plist.in")
 
 # Installation
 
@@ -205,7 +210,7 @@ if (NOT CMAKE_INSTALL_BINDIR)
     set(CMAKE_INSTALL_BINDIR ".")
 endif()
 
-install(TARGETS quaternion
+install(TARGETS ${APP_NAME}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR})
 if(LINUX)
@@ -224,14 +229,15 @@ if(LINUX)
                       )
 endif(LINUX)
 
+set(QML_DIR ${PROJECT_SOURCE_DIR}/client/qml)
 if(WIN32)
     install(CODE "
         execute_process(
-            COMMAND \"${Qt5_BinDir}/windeployqt\"
+            COMMAND \"${Qt5_BinDir}/windeployqt\" --verbose ${DEPLOY_VERBOSITY}
                 --no-opengl --no-angle --no-opengl-sw -no-system-d3d-compiler
-                --no-multimediaquick
-                --no-declarative --no-test --no-winextras
-                --qmldir \"${PROJECT_SOURCE_DIR}/client/qml\" \${CMAKE_INSTALL_PREFIX}\${CMAKE_INSTALL_BINDIR}
+                --no-multimediaquick --no-declarative --no-test --no-winextras
+                --qmldir \"${QML_DIR}\"
+                \${CMAKE_INSTALL_PREFIX}\${CMAKE_INSTALL_BINDIR}
             RESULT_VARIABLE WDQ_RETVAL
         )
         if (WDQ_RETVAL)
@@ -245,9 +251,14 @@ if(WIN32)
            )
 endif(WIN32)
 
+# Packaging
+
 if(APPLE)
     set(MACDEPLOYQT ${Qt5_BinDir}/macdeployqt)
-    set(MACDEPLOYQT_ARGS ${APP_NAME}.app -dmg -qmldir="${PROJECT_SOURCE_DIR}/client/qml")
+    set(MACDEPLOYQT_ARGS ${APP_NAME}.app -dmg -qmldir="${QML_DIR} -verbose=${DEPLOY_VERBOSITY}")
 
-    add_custom_command(TARGET ${APP_NAME} COMMAND ${MACDEPLOYQT} ARGS ${MACDEPLOYQT_ARGS})
+    add_custom_command(TARGET ${APP_NAME} POST_BUILD COMMAND
+        "${MACDEPLOYQT}" ${MACDEPLOYQT_ARGS}
+        COMMENT "Running ${MACDEPLOYQT} ${MACDEPLOYQT_ARGS}"
+    )
 endif(APPLE)
