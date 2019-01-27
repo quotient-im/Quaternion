@@ -169,8 +169,11 @@ void MainWindow::createMenu()
     // Account submenus will be added in this place - see addConnection()
     accountListGrowthPoint = connectionMenu->addSeparator();
 
+    // Augment poor Windows users with a handy Ctrl-Q shortcut.
+    static const auto quitShortcut = QSysInfo::productType() == "windows"
+            ? QKeySequence(Qt::CTRL + Qt::Key_Q) : QKeySequence::Quit;
     connectionMenu->addAction(QIcon::fromTheme("application-exit"),
-        tr("&Quit"), qApp, &QApplication::quit, QKeySequence::Quit);
+        tr("&Quit"), qApp, &QApplication::quit, quitShortcut);
 
     // View menu
     auto viewMenu = menuBar()->addMenu(tr("&View"));
