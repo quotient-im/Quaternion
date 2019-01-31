@@ -80,6 +80,7 @@ void SystemTrayIcon::showHide()
     else
     {
         m_parent->show();
+        m_parent->activateWindow();
         m_parent->raise();
         m_parent->setFocus();
     }
