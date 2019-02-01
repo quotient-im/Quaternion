@@ -490,6 +490,14 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                     }
                     case MembershipType::Leave:
                         if (e.prevContent() &&
+                            e.prevContent()->membership == MembershipType::Invite)
+                        {
+                            return (e.senderId() != e.userId())
+                                    ? tr("withdrew %1's invitation").arg(subjectName)
+                                    : tr("rejected the invitation");
+                        }
+
+                        if (e.prevContent() &&
                                 e.prevContent()->membership == MembershipType::Ban)
                         {
                             return (e.senderId() != e.userId())
