@@ -71,7 +71,7 @@ messages; number and date formats will be following the setting though.
 Quaternion stores its configuration in a way standard for Qt applications. It will read and write the configuration in the user-specific location (creating it if non-existent) and will only read the system-wide location with reasonable defaults if the configuration is nowhere to be found.
 - Linux:
   - system-wide: `$XDG_CONFIG_DIR/QMatrixClient/quaternion` or `/etc/xdg/QMatrixClient/quaternion`
-  - user-specific: `$HOME/.config/QMatrixClient/quaternion`
+  - user-specific: `$HOME/.config/QMatrixClient/quaternion.conf`
 - macOS:
   - system-wide: `/Library/Preferences/com.QMatrixClient.quaternion.plist`
   - user-specific: `$HOME/Library/Preferences/com.QMatrixClient.quaternion.plist`
