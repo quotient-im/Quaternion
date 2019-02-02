@@ -22,6 +22,7 @@
 #include "roomlistdock.h"
 #include "userlistdock.h"
 #include "chatroomwidget.h"
+#include "profiledialog.h"
 #include "logindialog.h"
 #include "networkconfigdialog.h"
 #include "roomdialogs.h"
@@ -29,7 +30,6 @@
 #include "linuxutils.h"
 
 #include <csapi/joining.h>
-#include <csapi/device_management.h>
 #include <connection.h>
 #include <networkaccessmanager.h>
 #include <settings.h>
@@ -61,7 +61,6 @@
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QCompleter>
-#include <QtWidgets/QTableWidget>
 #include <QtGui/QMovie>
 #include <QtGui/QPixmap>
 #include <QtGui/QCloseEvent>
@@ -814,39 +813,10 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
         accountTokenBox->setAttribute(Qt::WA_DeleteOnClose);
         accountTokenBox->show();
     });
-    accountMenu->addAction(QIcon::fromTheme("smartphone"), "Devices", this, [=]
+    accountMenu->addAction(QIcon::fromTheme("user-properties"), "Profile", this, [=]
     {
-        QWidget *window = new QWidget;
-        auto layout = new QVBoxLayout;
-        auto tableWidget = new QTableWidget(this);
-        auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok);
-
-        tableWidget->setColumnCount(3);
-        tableWidget->setHorizontalHeaderLabels(QStringList() << tr("Display Name") << tr("Device ID") << tr("IP"));
-
-        GetDevicesJob *devicesJob = c->callApi<GetDevicesJob>();
-
-        connect(devicesJob, &BaseJob::success, this, [=] {
-            tableWidget->setRowCount(devicesJob->devices().size());
-
-            for (int i = 0; i < devicesJob->devices().size(); i++) {
-                QTableWidgetItem *name = new QTableWidgetItem(devicesJob->devices()[i].displayName);
-                QTableWidgetItem *id = new QTableWidgetItem(devicesJob->devices()[i].deviceId);
-                QTableWidgetItem *ip = new QTableWidgetItem(devicesJob->devices()[i].lastSeenIp);
-                tableWidget->setItem(i, 0, name);
-                tableWidget->setItem(i, 1, id);
-                tableWidget->setItem(i, 2, ip);
-            }
-        });
-
-        connect(buttonBox, &QDialogButtonBox::accepted, this, [=] {
-            window->close();
-        });
-
-        layout->addWidget(tableWidget);
-        layout->addWidget(buttonBox);
-        window->setLayout(layout);
-        window->show();
+        ProfileDialog dialog(c, this);
+        dialog.exec();
     });
 
     accountMenu->addAction(QIcon::fromTheme("system-log-out"), tr("&Logout"),
