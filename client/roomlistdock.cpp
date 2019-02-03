@@ -22,6 +22,7 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QStyledItemDelegate>
 #include <QtWidgets/QInputDialog>
+#include <QtGui/QGuiApplication>
 
 #include "models/roomlistmodel.h"
 #include "quaternionroom.h"
@@ -102,6 +103,12 @@ RoomListDock::RoomListDock(QWidget* parent)
     static const auto Collapsed = QStringLiteral("collapse");
 //    connect( view, &QTreeView::activated, this, &RoomListDock::rowSelected );
     connect( view, &QTreeView::clicked, this, &RoomListDock::rowSelected);
+    connect( view, &QTreeView::pressed, this, [this] {
+        if (QGuiApplication::mouseButtons() & Qt::MidButton) {
+            if (auto room = getSelectedRoom())
+                room->markAllMessagesAsRead();
+        }
+    });
     connect( view, &QTreeView::expanded, this, [this] (QModelIndex i) {
         SettingsGroup("UI/RoomsDock")
         .setValue(model->roomGroupAt(i).toString(), Expanded);

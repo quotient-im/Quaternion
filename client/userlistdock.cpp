@@ -24,6 +24,7 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QInputDialog>
+#include <QtGui/QGuiApplication>
 
 #include <connection.h>
 #include <room.h>
@@ -56,6 +57,10 @@ UserListDock::UserListDock(QWidget* parent)
 
     connect(m_view, &QTableView::activated,
             this, &UserListDock::requestUserMention);
+    connect( m_view, &QTableView::pressed, this, [this] {
+        if (QGuiApplication::mouseButtons() & Qt::MidButton)
+            startChatSelected();
+    });
 
     m_model = new UserListModel();
     m_view->setModel(m_model);
