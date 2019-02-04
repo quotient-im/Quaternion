@@ -645,8 +645,8 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
                 result += "<br>" % tr("Unread highlights: %1").arg(hlCount);
 
             result += "<br>" % tr("ID: %1").arg(room->id()) + "<br>";
-            auto asUser = m_connections.size() < 2 ? QString() :
-                tr(" as %1",
+            auto asUser = m_connections.size() < 2 ? QString() : ' ' +
+                tr("as %1",
                    "as <user account> (disambiguates entries in the room list)")
                 .arg(room->localUser()->id());
             switch (room->joinState())

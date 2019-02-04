@@ -16,13 +16,13 @@ Attachment {
               .arg(content.info ? humanSize(content.info.size) : "")
               .arg(content.info ? content.info.mimetype : "unknown")
               + (progressInfo && progressInfo.uploading
-                 ? (progressInfo.completed
-                    ? qsTr(" (uploaded from %1)", "%1 is a local file name")
-                    : qsTr(" (being uploaded from %1)", "%1 is a local file name"))
-                   .arg(progressInfo.localPath)
+                 ? " (" + (progressInfo.completed
+                    ? qsTr("uploaded from %1", "%1 is a local file name")
+                    : qsTr("being uploaded from %1", "%1 is a local file name"))
+                   .arg(progressInfo.localPath) + ')'
                  : downloaded
-                 ? qsTr(" (downloaded to %1)", "%1 is a local file name")
-                   .arg(progressInfo.localPath)
+                 ? " (" + qsTr("downloaded to %1", "%1 is a local file name")
+                          .arg(progressInfo.localPath) + ')'
                  : "")
         textFormat: TextEdit.PlainText
         wrapMode: Text.Wrap;

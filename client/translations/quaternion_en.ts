@@ -220,22 +220,37 @@
         <translation>Size: %1, declared type: %2</translation>
     </message>
     <message>
-        <location filename="../qml/FileContent.qml" line="20"/>
         <source> (uploaded from %1)</source>
+        <comment>(vanished)%1 is a local file name</comment>
+        <translation type="vanished"> (uploaded from %1)</translation>
+    </message>
+    <message>
+        <source> (being uploaded from %1)</source>
+        <comment>(vanished)%1 is a local file name</comment>
+        <translation type="vanished"> (being uploaded from %1)</translation>
+    </message>
+    <message>
+        <source> (downloaded to %1)</source>
+        <comment>(vanished)%1 is a local file name</comment>
+        <translation type="vanished"> (downloaded to %1)</translation>
+    </message>
+    <message>
+        <location filename="../qml/FileContent.qml" line="20"/>
+        <source>uploaded from %1</source>
         <comment>%1 is a local file name</comment>
-        <translation> (uploaded from %1)</translation>
+        <translation>uploaded from %1</translation>
     </message>
     <message>
         <location filename="../qml/FileContent.qml" line="21"/>
-        <source> (being uploaded from %1)</source>
+        <source>being uploaded from %1</source>
         <comment>%1 is a local file name</comment>
-        <translation> (being uploaded from %1)</translation>
+        <translation>being uploaded from %1</translation>
     </message>
     <message>
         <location filename="../qml/FileContent.qml" line="24"/>
-        <source> (downloaded to %1)</source>
+        <source>downloaded to %1</source>
         <comment>%1 is a local file name</comment>
-        <translation> (downloaded to %1)</translation>
+        <translation>downloaded to %1</translation>
     </message>
     <message>
         <location filename="../qml/FileContent.qml" line="56"/>
@@ -1314,9 +1329,14 @@ Response:
     </message>
     <message>
         <location filename="../models/roomlistmodel.cpp" line="649"/>
-        <source> as %1</source>
+        <source>as %1</source>
         <comment>as &lt;user account&gt; (disambiguates entries in the room list)</comment>
-        <translation> as %1</translation>
+        <translation>as %1</translation>
+    </message>
+    <message>
+        <source> as %1</source>
+        <comment>(vanished)as &lt;user account&gt; (disambiguates entries in the room list)</comment>
+        <translation type="vanished"> as %1</translation>
     </message>
     <message>
         <location filename="../models/roomlistmodel.cpp" line="655"/>
