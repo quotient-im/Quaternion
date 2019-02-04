@@ -327,7 +327,7 @@ void MainWindow::createMenu()
         auto defaultLayout = layoutGroup->addAction(tr("Default"));
         defaultLayout->setStatusTip(
             tr("The layout with author labels above blocks of messages"));
-        auto xchatLayout = layoutGroup->addAction(tr("XChat"));
+        auto xchatLayout = layoutGroup->addAction("XChat");
         xchatLayout->setData(QStringLiteral("xchat"));
         xchatLayout->setStatusTip(
             tr("The layout with author labels to the left from each message"));
