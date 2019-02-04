@@ -150,8 +150,9 @@ set(quaternion_QRC
     client/resources.qrc
     )
 
+set(quaternion_en_TS client/translations/quaternion_en.ts)
 set(quaternion_TS
-    client/translations/quaternion_en.ts
+    ${quaternion_en_TS}
     client/translations/quaternion_de_DE.ts
     client/translations/quaternion_pl.ts
     )
@@ -159,8 +160,8 @@ set(quaternion_TS
 QT5_ADD_RESOURCES(quaternion_QRC_SRC ${quaternion_QRC})
 set_property(SOURCE qrc_resources.cpp PROPERTY SKIP_AUTOMOC ON)
 
+QT5_CREATE_TRANSLATION(client/translations ${quaternion_SRCS} ${quaternion_QRC} ${quaternion_en_TS})
 QT5_ADD_TRANSLATION(quaternion_QM ${quaternion_TS})
-QT5_CREATE_TRANSLATION(client/translations ${quaternion_SRCS} ${quaternion_QRC} ${quaternion_TS})
 
 if(WIN32)
     set(quaternion_WINRC quaternion_win32.rc)
