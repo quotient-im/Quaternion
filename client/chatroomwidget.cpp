@@ -124,7 +124,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
         {
             m_chatEdit->setPlaceholderText(
                 tr("Add a message to the file or just push Enter"));
-            emit showStatusMessage(tr("Attaching ") + attachedFileName);
+            emit showStatusMessage(tr("Attaching %1").arg(attachedFileName));
         } else {
             m_attachAction->setChecked(false);
             m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
