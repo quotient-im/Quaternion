@@ -51,11 +51,15 @@ hacking on Quaternion _and_ libQMatrixClient at the same time.
   - any build system that works with CMake should be fine: GNU Make, ninja (any platform), NMake, jom (Windows) are known to work.
 - libQMatrixClient development files (from your package management system), or
   prebuilt libQMatrixClient (see "Getting the source code" above).
+- optionaly [QtKeychain](https://github.com/frankosterfeld/qtkeychain) to store access tokens in libsecret keyring or similar providers.
 
 #### Linux
 Just install things from the list above using your preferred package manager. If your Qt package base is fine-grained you might want to take a look at `CMakeLists.txt` to figure out which specific libraries Quaternion uses (or blindly run cmake and look at error messages). Note also that you'll need several Qt Quick plugins for Quaternion to work (without them, it will compile and run but won't show the messages timeline). In case of Xenial Xerus following line should get you everything necessary to build and run Quaternion:
 ```bash
 sudo apt-get install git cmake qtdeclarative5-dev qtdeclarative5-qtquick2-plugin qtdeclarative5-controls-plugin qml-module-qtquick-controls qml-module-qtquick-controls2 qtmultimedia5-dev
+```
+```bash
+sudo apt-get install qt5keychain-dev
 ```
 On Fedora 26, the following command should be enough for building and running:
 ```bash
