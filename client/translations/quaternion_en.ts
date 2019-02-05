@@ -220,21 +220,6 @@
         <translation>Size: %1, declared type: %2</translation>
     </message>
     <message>
-        <source> (uploaded from %1)</source>
-        <comment>(vanished)%1 is a local file name</comment>
-        <translation type="vanished"> (uploaded from %1)</translation>
-    </message>
-    <message>
-        <source> (being uploaded from %1)</source>
-        <comment>(vanished)%1 is a local file name</comment>
-        <translation type="vanished"> (being uploaded from %1)</translation>
-    </message>
-    <message>
-        <source> (downloaded to %1)</source>
-        <comment>(vanished)%1 is a local file name</comment>
-        <translation type="vanished"> (downloaded to %1)</translation>
-    </message>
-    <message>
         <location filename="../qml/FileContent.qml" line="20"/>
         <source>uploaded from %1</source>
         <comment>%1 is a local file name</comment>
@@ -518,7 +503,10 @@ org.qmatrixclient. tags: invite, left, direct, none</translation>
 Clear the box to reset to defaults
 Special tags starting with &quot;org.qmatrixclient.&quot; are: %1
 User-defined tags should start with &quot;u.&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Tags can be wildcarded by * next to dot(s)
+Clear the box to reset to defaults
+Special tags starting with &quot;org.qmatrixclient.&quot; are: %1
+User-defined tags should start with &quot;u.&quot;</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="335"/>
@@ -1071,10 +1059,6 @@ Response:
         <source>Unknown event</source>
         <translation>Unknown event</translation>
     </message>
-    <message>
-        <source>Unknown Event</source>
-        <translation type="vanished">Unknown Event</translation>
-    </message>
 </context>
 <context>
     <name>NetworkConfigDialog</name>
@@ -1334,11 +1318,6 @@ Response:
         <translation>as %1</translation>
     </message>
     <message>
-        <source> as %1</source>
-        <comment>(vanished)as &lt;user account&gt; (disambiguates entries in the room list)</comment>
-        <translation type="vanished"> as %1</translation>
-    </message>
-    <message>
         <location filename="../models/roomlistmodel.cpp" line="655"/>
         <source>You joined this room</source>
         <translation>You joined this room</translation>
@@ -1445,13 +1424,6 @@ Response:
         <translation>
             <numerusform>%Ln event back from now (%L1 cached%2)</numerusform>
             <numerusform>%Ln events back from now (%L1 cached%2)</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln events back from now (%L1 cached)</source>
-        <translation type="vanished">
-            <numerusform>%Ln event back from now (%L2 cached)</numerusform>
-            <numerusform>%Ln events back from now (%L2 cached)</numerusform>
         </translation>
     </message>
 </context>
