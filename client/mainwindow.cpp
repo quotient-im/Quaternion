@@ -34,6 +34,10 @@
 #include <logging.h>
 #include <user.h>
 
+#ifdef USE_KEYCHAIN
+#include <qt5keychain/keychain.h>
+#endif
+
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>
 #include <QtCore/QStandardPaths>
@@ -405,6 +409,15 @@ inline QString accessTokenFileName(const AccountSettings& account)
 
 QByteArray MainWindow::loadAccessToken(const AccountSettings& account)
 {
+#ifdef USE_KEYCHAIN
+    return loadAccessTokenFromKeyChain(account);
+#else
+    return loadAccessTokenFromFile(account);
+#endif
+}
+
+QByteArray MainWindow::loadAccessTokenFromFile(const AccountSettings& account)
+{
     QFile accountTokenFile { accessTokenFileName(account) };
     if (accountTokenFile.open(QFile::ReadOnly))
     {
@@ -421,8 +434,70 @@ QByteArray MainWindow::loadAccessToken(const AccountSettings& account)
     return {};
 }
 
+#ifdef USE_KEYCHAIN
+QByteArray MainWindow::loadAccessTokenFromKeyChain(const AccountSettings& account)
+{
+    // check for existing token file
+    auto accessToken = loadAccessTokenFromFile(account);
+    if(!accessToken.isEmpty())
+    {
+        if(QMessageBox::warning(this,
+                                tr("Access token file found"),
+                                tr("Do you want to migrate the access token for %1 "
+                                   "from the file to keychain?").arg(account.userId()),
+                                QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
+        {
+            qDebug() << "Migrating the access token from file to keychain for " << account.userId();
+            bool removed = false;
+            bool saved = saveAccessTokenToKeyChain(account, accessToken);
+            if(saved)
+            {
+                QFile accountTokenFile{accessTokenFileName(account)};
+                removed = accountTokenFile.remove();
+            }
+            if(!(saved && removed))
+            {
+                qDebug() << "Migrating the access token from file to keychain failed";
+                QMessageBox::warning(this,
+                                     tr("Couldn't migrate access token"),
+                                     tr("Quaternion couldn't migrate access token %1 "
+                                        "from the file to keychain.").arg(account.userId()),
+                                     QMessageBox::Close);
+            }
+        }
+    }
+
+    qDebug() << "Read access token from keychain for " << account.userId();
+    QKeychain::ReadPasswordJob job(qAppName());
+    job.setAutoDelete(false);
+    job.setKey(account.userId());
+    QEventLoop loop;
+    QKeychain::ReadPasswordJob::connect(&job, &QKeychain::Job::finished, &loop, &QEventLoop::quit);
+    job.start();
+    loop.exec();
+
+    if (job.error())
+    {
+        qWarning() << "Could not read access token from keychain: " << qPrintable(job.errorString());
+        return {};
+    }
+
+    return job.binaryData();
+}
+#endif
+
 bool MainWindow::saveAccessToken(const AccountSettings& account,
                                  const QByteArray& accessToken)
+{
+#ifdef USE_KEYCHAIN
+    return saveAccessTokenToKeyChain(account, accessToken);
+#else
+    return saveAccessTokenToFile(account, accessToken);
+#endif
+}
+
+bool MainWindow::saveAccessTokenToFile(const AccountSettings& account,
+                                       const QByteArray& accessToken)
 {
     // (Re-)Make a dedicated file for access_token.
     QFile accountTokenFile { accessTokenFileName(account) };
@@ -464,6 +539,36 @@ bool MainWindow::saveAccessToken(const AccountSettings& account,
     }
     return false;
 }
+
+#ifdef USE_KEYCHAIN
+bool MainWindow::saveAccessTokenToKeyChain(const AccountSettings& account,
+                                           const QByteArray& accessToken)
+{
+    qDebug() << "Save access token to keychain for " << account.userId();
+    QKeychain::WritePasswordJob job(qAppName());
+    job.setAutoDelete(false);
+    job.setKey(account.userId());
+    job.setBinaryData(accessToken);
+    QEventLoop loop;
+    QKeychain::WritePasswordJob::connect(&job, &QKeychain::Job::finished, &loop, &QEventLoop::quit);
+    job.start();
+    loop.exec();
+
+    if (job.error())
+    {
+        qWarning() << "Could not save access token to keychain: " << qPrintable(job.errorString());
+        QMessageBox::warning(this,
+                             tr("Couldn't save access token"),
+                             tr("Quaternion couldn't save the access token to keychain."
+                                " You're logged in but will have to provide your password"
+                                " again when you restart the application."),
+                             QMessageBox::Close);
+        return false;
+    }
+
+    return true;
+}
+#endif
 
 void MainWindow::enableDebug()
 {
@@ -787,6 +892,24 @@ void MainWindow::logout(Connection* c)
     Q_ASSERT_X(c, __FUNCTION__, "Logout on a null connection");
 
     QFile(accessTokenFileName(AccountSettings(c->userId()))).remove();
+
+#ifdef USE_KEYCHAIN
+    QKeychain::DeletePasswordJob job(qAppName());
+    job.setAutoDelete(false);
+    job.setKey(c->userId());
+    QEventLoop loop;
+    QKeychain::DeletePasswordJob::connect(&job, &QKeychain::Job::finished, &loop, &QEventLoop::quit);
+    job.start();
+    loop.exec();
+    if (job.error())
+    {
+        qWarning() << "Could not delete access token from keychain: " << qPrintable(job.errorString());
+        QMessageBox::warning(this,
+                             tr("Couldn't delete access token"),
+                             tr("Quaternion couldn't delete the access token from keychain."),
+                             QMessageBox::Close);
+    }
+#endif
 
     c->logout();
 }

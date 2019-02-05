@@ -116,8 +116,14 @@ class MainWindow: public QMainWindow
         void loadSettings();
         void saveSettings() const;
         QByteArray loadAccessToken(const QMatrixClient::AccountSettings& account);
+        QByteArray loadAccessTokenFromFile(const QMatrixClient::AccountSettings& account);
+        QByteArray loadAccessTokenFromKeyChain(const QMatrixClient::AccountSettings &account);
         bool saveAccessToken(const QMatrixClient::AccountSettings& account,
                              const QByteArray& accessToken);
+        bool saveAccessTokenToFile(const QMatrixClient::AccountSettings& account,
+                                   const QByteArray& accessToken);
+        bool saveAccessTokenToKeyChain(const QMatrixClient::AccountSettings& account,
+                                       const QByteArray& accessToken);
         Connection* chooseConnection();
         void showMillisToRecon(Connection* c);
 };
