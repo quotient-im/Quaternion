@@ -17,6 +17,7 @@ Attachment {
                 Math.min(imageMaxHeight / sourceSize.height * 0.9,
                          Math.min(width / sourceSize.width, 1))
         fillMode: Image.PreserveAspectFit
+        horizontalAlignment: Image.AlignLeft
 
         source: parent.source
         sourceSize: parent.sourceSize
