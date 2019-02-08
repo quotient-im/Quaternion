@@ -655,7 +655,7 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
 
 void MainWindow::showAboutWindow()
 {
-    Dialog aboutDialog(tr("About Quaternion"), Dialog::NoExtraButtons,
+    Dialog aboutDialog(tr("About Quaternion"), QDialogButtonBox::Close,
                        this, Dialog::NoStatusLine);
     auto* tabWidget = new QTabWidget();
     {
@@ -730,7 +730,7 @@ void MainWindow::showAboutWindow()
         tabWidget->addTab(thanksLabel, tr("&Thanks"));
     }
 
-    aboutDialog.layout()->addWidget(tabWidget);
+    aboutDialog.addWidget(tabWidget);
     aboutDialog.exec();
 }
 
