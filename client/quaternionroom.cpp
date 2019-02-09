@@ -21,7 +21,7 @@
 
 #include <user.h>
 #include <events/roommessageevent.h>
-#include <QRegularExpression>
+#include <QtCore/QRegularExpression>
 
 using namespace QMatrixClient;
 
