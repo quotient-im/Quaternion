@@ -318,7 +318,7 @@ void CreateRoomDialog::apply()
             publishRoom->isChecked() ?
                 Connection::PublishRoom : Connection::UnpublishRoom,
             alias->text(), roomName->text(), topic->toPlainText(),
-            userIds, "", false);
+            userIds, "", {}, false);
 
     connect(job, &BaseJob::success, this, &Dialog::accept);
     connect(job, &BaseJob::failure, this, [this,job] {
