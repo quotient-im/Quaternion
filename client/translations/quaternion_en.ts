@@ -384,13 +384,17 @@
     <message>
         <location filename="../mainwindow.cpp" line="209"/>
         <source>&amp;No-effect activity</source>
-        <comment>A menu item to switch on/off activity that has no sensible meaning - usually redacted spam</comment>
+        <comment>A menu item to show/hide meaningless activity such as redacted spam</comment>
         <translation>&amp;No-effect activity</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="211"/>
         <source>Show join-(optional redactions but no other events)-leave sequences from the same author</source>
-        <translation>Show join-(optional redactions but no other events)-leave sequences from the same author</translation>
+        <translation type="vanished">Show join-(optional redactions but no other events)-leave sequences from the same author</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="211"/>
+        <source>Show/hide meaningless activity (join-leave pairs and redacted events between)</source>
+        <translation>Show/hide meaningless activity (join-leave pairs and redacted events between)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="217"/>
