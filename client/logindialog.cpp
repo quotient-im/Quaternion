@@ -34,10 +34,10 @@ using QMatrixClient::Connection;
 LoginDialog::LoginDialog(QWidget* parent)
     : Dialog(tr("Login"), parent, Dialog::StatusLine, tr("Login"),
              Dialog::NoExtraButtons)
-    , serverEdit(new QLineEdit("https://matrix.org"))
     , userEdit(new QLineEdit(this))
     , passwordEdit(new QLineEdit(this))
     , initialDeviceName(new QLineEdit(this))
+    , serverEdit(new QLineEdit("https://matrix.org", this))
     , saveTokenCheck(new QCheckBox(tr("Stay logged in"), this))
     , m_connection(new Connection)
 {

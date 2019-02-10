@@ -43,10 +43,10 @@ class LoginDialog : public Dialog
         void apply() override;
         
     private:
-        QLineEdit* serverEdit;
         QLineEdit* userEdit;
         QLineEdit* passwordEdit;
         QLineEdit* initialDeviceName;
+        QLineEdit* serverEdit;
         QCheckBox* saveTokenCheck;
 
         QScopedPointer<QMatrixClient::Connection, QScopedPointerDeleteLater>
