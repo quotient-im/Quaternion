@@ -42,7 +42,7 @@ foreach (FLAG "" all pedantic extra no-unused-parameter)
 endforeach ()
 
 # Find the libraries
-find_package(Qt5 5.7 REQUIRED Widgets Network Quick Qml Gui LinguistTools Multimedia)
+find_package(Qt5 5.7 REQUIRED Widgets Network Quick Qml Gui LinguistTools Multimedia DBus)
 # Qt5_Prefix is only used to show Qt path in message()
 # Qt5_BinDir is where all the binary tools for Qt are
 if (QT_QMAKE_EXECUTABLE)
