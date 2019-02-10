@@ -21,6 +21,7 @@
 
 #include <user.h>
 #include <events/roommessageevent.h>
+#include <QtCore/QRegularExpression>
 
 using namespace QMatrixClient;
 
@@ -104,9 +105,13 @@ void QuaternionRoom::checkForHighlights(const QMatrixClient::TimelineItem& ti)
         return;
     if (auto* e = ti.viewAs<RoomMessageEvent>())
     {
+        const QRegularExpression localUserRe("(\\W|^)" + localUserId + "(\\W|$)", QRegularExpression::MultilineOption | QRegularExpression::CaseInsensitiveOption);
+        const QRegularExpression roomMembernameRe("(\\W|^)" + roomMembername(localUserId) + "(\\W|$)", QRegularExpression::MultilineOption | QRegularExpression::CaseInsensitiveOption);
         const auto& text = e->plainBody();
-        if (text.contains(localUserId) ||
-                text.contains(roomMembername(localUserId)))
+        QRegularExpressionMatch localMatch = localUserRe.match(text, 0, QRegularExpression::PartialPreferFirstMatch);
+        QRegularExpressionMatch roomMemberMatch = roomMembernameRe.match(text, 0, QRegularExpression::PartialPreferFirstMatch);
+        if (localMatch.hasMatch() ||
+                roomMemberMatch.hasMatch())
             highlights.insert(e);
     }
 }
