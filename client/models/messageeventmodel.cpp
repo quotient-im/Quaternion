@@ -30,6 +30,7 @@
 #include <events/simplestateevents.h>
 #include <events/redactionevent.h>
 #include <events/roomavatarevent.h>
+#include <events/roomcreateevent.h>
 
 enum EventRoles {
     EventTypeRole = Qt::UserRole + 1,
@@ -541,6 +542,12 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
             }
             , [] (const EncryptionEvent&) {
                 return tr("activated End-to-End Encryption");
+            }
+            , [] (const RoomCreateEvent& e) {
+                return (e.isUpgrade()
+                        ? tr("upgraded the room to version %1")
+                        : tr("created the room, version %1")
+                       ).arg(e.version().isEmpty() ? "1" : e.version());
             }
             , [] (const StateEventBase& e) {
                 // A small hack for state events from TWIM bot
