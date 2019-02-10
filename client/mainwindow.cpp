@@ -207,8 +207,8 @@ void MainWindow::createMenu()
     addTimelineOptionCheckbox(
         showEventsMenu,
         tr("&No-effect activity",
-           "A menu item to switch on/off activity that has no sensible meaning - usually redacted spam"),
-        tr("Show join-(optional redactions but no other events)-leave sequences from the same author"),
+           "A menu item to show/hide meaningless activity such as redacted spam"),
+        tr("Show/hide meaningless activity (join-leave pairs and redacted events between)"),
         QStringLiteral("show_spammy")
     );
 
