@@ -99,14 +99,12 @@ void UserListDock::setRoom(QMatrixClient::Room* room)
 
 void UserListDock::refreshTitle()
 {
-    setWindowTitle(
-        !m_currentRoom ? tr("Users") :
-        m_model->rowCount() == m_currentRoom->joinedCount() ?
-            tr("Users (%Ln)", "The caption with users number",
-               m_currentRoom->joinedCount()) :
-            tr("Users (%Ln out of %L1)",
-               "Caption with the number of found and total numbers of users",
-               m_model->rowCount()).arg(m_currentRoom->joinedCount())
+    setWindowTitle(tr("Users") +
+        (!m_currentRoom ? QString() :
+         ' ' + (m_model->rowCount() == m_currentRoom->joinedCount() ?
+                    QStringLiteral("(%L1)").arg(m_currentRoom->joinedCount()) :
+                    tr("(%L1 out of %L2)", "%found out of %total users")
+                    .arg(m_model->rowCount()).arg(m_currentRoom->joinedCount())))
     );
 }
 
