@@ -283,7 +283,7 @@
     <message>
         <location filename="../qml/ImageContent.qml" line="69"/>
         <source>Save as...</source>
-        <translation type="unfinished">Save as...</translation>
+        <translation>Save as...</translation>
     </message>
 </context>
 <context>
@@ -369,7 +369,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="196"/>
         <source>Show join and leave events</source>
-        <translation type="unfinished"></translation>
+        <translation>Show join and leave events</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="202"/>
@@ -651,64 +651,74 @@ Response:
     <message>
         <location filename="../mainwindow.cpp" line="682"/>
         <source>Web page</source>
-        <translation type="unfinished"></translation>
+        <translation>Web page</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="688"/>
         <source>Copyright (C) 2018 QMatrixClient project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copyright (C) 2018 QMatrixClient project.</translation>
+    </message>
+    <message>
+        <source>Built from Git, commit SHA:
+</source>
+        <translation type="vanished">Built from Git, commit SHA:
+</translation>
+    </message>
+    <message>
+        <source>Library commit SHA:
+</source>
+        <translation type="vanished">Library commit SHA:
+</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="691"/>
-        <source>Built from Git, commit SHA:
-</source>
-        <translation type="unfinished"></translation>
+        <source>Built from Git, commit SHA:</source>
+        <translation>Built from Git, commit SHA:</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="699"/>
-        <source>Library commit SHA:
-</source>
-        <translation type="unfinished"></translation>
+        <source>Library commit SHA:</source>
+        <translation>Library commit SHA:</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="708"/>
         <source>Original project author: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Original project author: %1</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="710"/>
         <source>Project leader: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Project leader: %1</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="713"/>
         <source>Contributors:</source>
-        <translation type="unfinished"></translation>
+        <translation>Contributors:</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="715"/>
         <source>Quaternion contributors @ GitHub</source>
-        <translation type="unfinished"></translation>
+        <translation>Quaternion contributors @ GitHub</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="717"/>
         <source>libQMatrixClient contributors @ GitHub</source>
-        <translation type="unfinished"></translation>
+        <translation>libQMatrixClient contributors @ GitHub</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="719"/>
         <source>Quaternion translators @ Lokalise.co</source>
-        <translation type="unfinished"></translation>
+        <translation>Quaternion translators @ Lokalise.co</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="721"/>
         <source>Made with:</source>
-        <translation type="unfinished"></translation>
+        <translation>Made with:</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="732"/>
         <source>&amp;Thanks</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Thanks</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="777"/>
@@ -868,7 +878,7 @@ Response:
     <message>
         <location filename="../mainwindow.cpp" line="1063"/>
         <source>Password</source>
-        <translation type="unfinished">Password</translation>
+        <translation>Password</translation>
     </message>
 </context>
 <context>
@@ -1271,18 +1281,18 @@ Response:
         <location filename="../models/roomlistmodel.cpp" line="613"/>
         <source>Joined: %Ln</source>
         <comment>The number of joined members</comment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Joined: %Ln</numerusform>
+            <numerusform>Joined: %Ln</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="../models/roomlistmodel.cpp" line="616"/>
         <source>Invited: %Ln</source>
         <comment>The number of invited users</comment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Invited: %Ln</numerusform>
+            <numerusform>Invited: %Ln</numerusform>
         </translation>
     </message>
     <message>
@@ -1485,46 +1495,46 @@ Response:
     <message>
         <location filename="../userlistdock.cpp" line="80"/>
         <source>Kick user</source>
-        <translation type="unfinished"></translation>
+        <translation>Kick user</translation>
     </message>
     <message>
         <location filename="../userlistdock.cpp" line="82"/>
         <source>Ban user</source>
-        <translation type="unfinished"></translation>
+        <translation>Ban user</translation>
     </message>
     <message numerus="yes">
         <location filename="../userlistdock.cpp" line="100"/>
         <source>Users (%Ln)</source>
         <comment>The caption with users number</comment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Users (%Ln)</numerusform>
+            <numerusform>Users (%Ln)</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="../userlistdock.cpp" line="102"/>
         <source>Users (%Ln out of %L1)</source>
         <comment>Caption with the number of found and total numbers of users</comment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Users (%Ln out of %L1)</numerusform>
+            <numerusform>Users (%Ln out of %L1)</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../userlistdock.cpp" line="132"/>
         <source>Kick %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kick %1</translation>
     </message>
     <message>
         <location filename="../userlistdock.cpp" line="132"/>
         <location filename="../userlistdock.cpp" line="146"/>
         <source>Reason</source>
-        <translation type="unfinished"></translation>
+        <translation>Reason</translation>
     </message>
     <message>
         <location filename="../userlistdock.cpp" line="146"/>
         <source>Ban %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ban %1</translation>
     </message>
 </context>
 <context>
