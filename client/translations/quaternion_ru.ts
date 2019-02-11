@@ -83,11 +83,11 @@
     </message>
     <message>
         <source>%1 doesn&apos;t seem to have joined room %2</source>
-        <translation>% 1, похоже, не присоединился к комнате %2</translation>
+        <translation>%1, похоже, не присоединился к комнате %2</translation>
     </message>
     <message>
         <source>%1 doesn&apos;t look like a user id or room alias</source>
-        <translation>% 1 не похож на идентификатор пользователя или адрес комнаты</translation>
+        <translation>%1 не похож на идентификатор пользователя или адрес комнаты</translation>
     </message>
     <message>
         <source>/%1 &lt;memberId&gt;</source>
@@ -211,7 +211,7 @@
     </message>
     <message>
         <source>&amp;Login...</source>
-        <translation>&amp;Авторизоваться...</translation>
+        <translation>&amp;Подключиться...</translation>
     </message>
     <message>
         <source>&amp;Quit</source>
@@ -405,7 +405,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>&amp;Logout</source>
-        <translation>&amp;Выйти</translation>
+        <translation>&amp;Отключиться</translation>
     </message>
     <message>
         <source>About Quaternion</source>
@@ -553,7 +553,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Project leader: %1</source>
-        <translation>Руководитель проекта: %1</translation>
+        <translation>Ведущий разработчик: %1</translation>
     </message>
     <message>
         <source>Contributors:</source>
@@ -910,7 +910,7 @@ User-defined tags should start with &quot;u.&quot;</source>
     </message>
     <message>
         <source>Low priority</source>
-        <translation>Неважная</translation>
+        <translation>Неважные</translation>
     </message>
     <message>
         <source>People</source>
@@ -918,7 +918,7 @@ User-defined tags should start with &quot;u.&quot;</source>
     </message>
     <message>
         <source>Ungrouped rooms</source>
-        <translation>Остальные комнаты</translation>
+        <translation>Остальные</translation>
     </message>
     <message>
         <source>Left</source>
@@ -1184,15 +1184,15 @@ User-defined tags should start with &quot;u.&quot;</source>
     <message numerus="yes">
         <source>%Ln events back from now (%L1 cached%2)</source>
         <translation>
-            <numerusform>%Ln событие до текущего времени (%L2 кешировано%2)</numerusform>
-            <numerusform>%Ln события до текущего времени (%L2 кешировано%2)</numerusform>
-            <numerusform>%Ln событий до текущего времени (%L2 кешировано%2)</numerusform>
-            <numerusform>%Ln события до текущего времени (%L2 кешировано%2)</numerusform>
+            <numerusform>%Ln событие до текущего времени (%L1 кешировано%2)</numerusform>
+            <numerusform>%Ln события до текущего времени (%L1 кешировано%2)</numerusform>
+            <numerusform>%Ln событий до текущего времени (%L1 кешировано%2)</numerusform>
+            <numerusform>%Ln события до текущего времени (%L1 кешировано%2)</numerusform>
         </translation>
     </message>
     <message>
         <source>and loading</source>
-        <translation>и загрузка продолжается</translation>
+        <translation>и загружается еще</translation>
     </message>
 </context>
 <context>

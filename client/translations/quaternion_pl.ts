@@ -1179,10 +1179,10 @@ User-defined tags should start with &quot;u.&quot;</source>
     <message numerus="yes">
         <source>%Ln events back from now (%L1 cached%2)</source>
         <translation>
-            <numerusform>%Ln wydarzenie od teraz (%L2 cached%2)</numerusform>
-            <numerusform>%Ln wydarzenia od teraz (%L2 cached%2)</numerusform>
-            <numerusform>%Ln wydarzeń od teraz (%L2 cached%2)</numerusform>
-            <numerusform>%Ln wydarzeń od teraz (%L2 cached%2)</numerusform>
+            <numerusform>%Ln wydarzenie od teraz (%L1 cached%2)</numerusform>
+            <numerusform>%Ln wydarzenia od teraz (%L1 cached%2)</numerusform>
+            <numerusform>%Ln wydarzeń od teraz (%L1 cached%2)</numerusform>
+            <numerusform>%Ln wydarzeń od teraz (%L1 cached%2)</numerusform>
         </translation>
     </message>
     <message>
