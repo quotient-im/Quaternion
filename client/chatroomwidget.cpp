@@ -124,7 +124,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
         {
             m_chatEdit->setPlaceholderText(
                 tr("Add a message to the file or just push Enter"));
-            emit showStatusMessage(tr("Attaching ") + attachedFileName);
+            emit showStatusMessage(tr("Attaching %1").arg(attachedFileName));
         } else {
             m_attachAction->setChecked(false);
             m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
@@ -387,8 +387,7 @@ QString ChatRoomWidget::doSendInput()
     }
     // --- Add more roomless commands here
     if (!m_currentRoom)
-        return tr("There's no such /command outside of room."
-                  " Start with // to send this line literally");
+        return tr("There's no such /command outside of room.");
 
     // Commands available only in the room context
     using namespace QMatrixClient;

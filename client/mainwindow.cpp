@@ -179,7 +179,8 @@ void MainWindow::createMenu()
     auto viewMenu = menuBar()->addMenu(tr("&View"));
 
     auto dockPanesMenu = viewMenu->addMenu(
-        QIcon::fromTheme("labplot-editvlayout"), tr("Dock &panels"));
+        QIcon::fromTheme("labplot-editvlayout"),
+        tr("Dock &panels", "Panels of the dock, not 'to dock the panels'"));
     roomListDock->toggleViewAction()
             ->setStatusTip("Show/hide Rooms dock panel");
     dockPanesMenu->addAction(roomListDock->toggleViewAction());
@@ -207,8 +208,8 @@ void MainWindow::createMenu()
     addTimelineOptionCheckbox(
         showEventsMenu,
         tr("&No-effect activity",
-           "A menu item to switch on/off activity that has no sensible meaning - usually redacted spam"),
-        tr("Show join-(optional redactions but no other events)-leave sequences from the same author"),
+           "A menu item to show/hide meaningless activity such as redacted spam"),
+        tr("Show/hide meaningless activity (join-leave pairs and redacted events between)"),
         QStringLiteral("show_spammy")
     );
 
@@ -224,7 +225,9 @@ void MainWindow::createMenu()
                 tr("Edit tags order"),
                 tr("Tags can be wildcarded by * next to dot(s)\n"
                    "Clear the box to reset to defaults\n"
-                   "org.qmatrixclient. tags: invite, left, direct, none"),
+                   "Special tags starting with \"org.qmatrixclient.\" are: %1\n"
+                   "User-defined tags should start with \"u.\"")
+                .arg("invite, left, direct, none"),
                 savedOrder, &ok);
         if (ok)
         {
@@ -327,7 +330,7 @@ void MainWindow::createMenu()
         auto defaultLayout = layoutGroup->addAction(tr("Default"));
         defaultLayout->setStatusTip(
             tr("The layout with author labels above blocks of messages"));
-        auto xchatLayout = layoutGroup->addAction(tr("XChat"));
+        auto xchatLayout = layoutGroup->addAction("XChat");
         xchatLayout->setData(QStringLiteral("xchat"));
         xchatLayout->setStatusTip(
             tr("The layout with author labels to the left from each message"));
@@ -686,7 +689,7 @@ void MainWindow::showAboutWindow()
                     new QLabel(tr("Copyright (C) 2018 QMatrixClient project.")));
 
 #ifdef GIT_SHA1
-        auto* commitLabel = new QLabel(tr("Built from Git, commit SHA:\n") +
+        auto* commitLabel = new QLabel(tr("Built from Git, commit SHA:") + '\n' +
                                           QStringLiteral(GIT_SHA1));
         commitLabel->setTextInteractionFlags(Qt::TextSelectableByKeyboard|
                                              Qt::TextSelectableByMouse);
@@ -694,7 +697,7 @@ void MainWindow::showAboutWindow()
 #endif
 
 #ifdef LIB_GIT_SHA1
-        auto* libCommitLabel = new QLabel(new QLabel(tr("Library commit SHA:\n") +
+        auto* libCommitLabel = new QLabel(new QLabel(tr("Library commit SHA:") + '\n' +
                                           QStringLiteral(LIB_GIT_SHA1)));
         libCommitLabel->setTextInteractionFlags(Qt::TextSelectableByKeyboard|
                                                 Qt::TextSelectableByMouse);
@@ -1051,7 +1054,8 @@ void MainWindow::proxyAuthenticationRequired(const QNetworkProxy&,
                                              QAuthenticator* auth)
 {
     Dialog authDialog(tr("Proxy needs authentication"), this,
-                      Dialog::NoStatusLine, tr("Authenticate"),
+                      Dialog::NoStatusLine,
+                      tr("Authenticate", "Authenticate with the proxy server"),
                       Dialog::NoExtraButtons);
     auto layout = authDialog.addLayout<QFormLayout>();
     auto userEdit = new QLineEdit;
