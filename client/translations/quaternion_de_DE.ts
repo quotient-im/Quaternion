@@ -545,7 +545,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Original project author: %1</source>
-        <translation>Ursprünglicher Projektautor:% 1</translation>
+        <translation>Ursprünglicher Projektautor: %1</translation>
     </message>
     <message>
         <source>Web page</source>
@@ -553,7 +553,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Project leader: %1</source>
-        <translation>Projektleiter:% 1</translation>
+        <translation>Projektleiter: %1</translation>
     </message>
     <message>
         <source>Contributors:</source>
