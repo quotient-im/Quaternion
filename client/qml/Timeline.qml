@@ -250,10 +250,12 @@ Rectangle {
             font.bold: true
             color: disabledPalette.text
             renderType: settings.render_type
-            text: qsTr("%Ln events back from now (%L1 cached%2)", "",
+            text: qsTr("%Ln events back from now (%L1 cached%2)",
+                       "%2 is optional 'and loading'",
                        chatView.largestVisibleIndex)
                   .arg(chatView.count)
-                  .arg(chatView.loadingHistory ? " and loading" : "")
+                  .arg(chatView.loadingHistory ? (" " + qsTr("and loading"))
+                                               : "")
         }
     }
 

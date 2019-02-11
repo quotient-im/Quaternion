@@ -179,7 +179,8 @@ void MainWindow::createMenu()
     auto viewMenu = menuBar()->addMenu(tr("&View"));
 
     auto dockPanesMenu = viewMenu->addMenu(
-        QIcon::fromTheme("labplot-editvlayout"), tr("Dock &panels"));
+        QIcon::fromTheme("labplot-editvlayout"),
+        tr("Dock &panels", "Panels of the dock, not 'to dock the panels'"));
     roomListDock->toggleViewAction()
             ->setStatusTip("Show/hide Rooms dock panel");
     dockPanesMenu->addAction(roomListDock->toggleViewAction());
@@ -1053,7 +1054,8 @@ void MainWindow::proxyAuthenticationRequired(const QNetworkProxy&,
                                              QAuthenticator* auth)
 {
     Dialog authDialog(tr("Proxy needs authentication"), this,
-                      Dialog::NoStatusLine, tr("Authenticate"),
+                      Dialog::NoStatusLine,
+                      tr("Authenticate", "Authenticate with the proxy server"),
                       Dialog::NoExtraButtons);
     auto layout = authDialog.addLayout<QFormLayout>();
     auto userEdit = new QLineEdit;
