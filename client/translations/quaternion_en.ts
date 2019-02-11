@@ -659,18 +659,6 @@ Response:
         <translation>Copyright (C) 2018 QMatrixClient project.</translation>
     </message>
     <message>
-        <source>Built from Git, commit SHA:
-</source>
-        <translation type="vanished">Built from Git, commit SHA:
-</translation>
-    </message>
-    <message>
-        <source>Library commit SHA:
-</source>
-        <translation type="vanished">Library commit SHA:
-</translation>
-    </message>
-    <message>
         <location filename="../mainwindow.cpp" line="691"/>
         <source>Built from Git, commit SHA:</source>
         <translation>Built from Git, commit SHA:</translation>
@@ -1468,7 +1456,7 @@ Response:
     <name>UserListDock</name>
     <message>
         <location filename="../userlistdock.cpp" line="34"/>
-        <location filename="../userlistdock.cpp" line="98"/>
+        <location filename="../userlistdock.cpp" line="97"/>
         <source>Users</source>
         <translation>Users</translation>
     </message>
@@ -1502,37 +1490,25 @@ Response:
         <source>Ban user</source>
         <translation>Ban user</translation>
     </message>
-    <message numerus="yes">
-        <location filename="../userlistdock.cpp" line="100"/>
-        <source>Users (%Ln)</source>
-        <comment>The caption with users number</comment>
-        <translation>
-            <numerusform>Users (%Ln)</numerusform>
-            <numerusform>Users (%Ln)</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../userlistdock.cpp" line="102"/>
-        <source>Users (%Ln out of %L1)</source>
-        <comment>Caption with the number of found and total numbers of users</comment>
-        <translation>
-            <numerusform>Users (%Ln out of %L1)</numerusform>
-            <numerusform>Users (%Ln out of %L1)</numerusform>
-        </translation>
+    <message>
+        <location filename="../userlistdock.cpp" line="101"/>
+        <source>(%L1 out of %L2)</source>
+        <comment>%found out of %total users</comment>
+        <translation>(%L1 out of %L2)</translation>
     </message>
     <message>
-        <location filename="../userlistdock.cpp" line="132"/>
+        <location filename="../userlistdock.cpp" line="130"/>
         <source>Kick %1</source>
         <translation>Kick %1</translation>
     </message>
     <message>
-        <location filename="../userlistdock.cpp" line="132"/>
-        <location filename="../userlistdock.cpp" line="146"/>
+        <location filename="../userlistdock.cpp" line="130"/>
+        <location filename="../userlistdock.cpp" line="144"/>
         <source>Reason</source>
         <translation>Reason</translation>
     </message>
     <message>
-        <location filename="../userlistdock.cpp" line="146"/>
+        <location filename="../userlistdock.cpp" line="144"/>
         <source>Ban %1</source>
         <translation>Ban %1</translation>
     </message>
