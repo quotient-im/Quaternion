@@ -1,19 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="pl">
+<!DOCTYPE TS><TS version="2.1" language="pl">
 <context>
     <name>ChatRoomWidget</name>
     <message>
         <source>Choose a room to send messages or enter a command...</source>
         <translation>Wybierz pokój do wysyłania wiadomości lub wprowadź polecenie…</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;Next completion: %1&lt;/i&gt;</source>
-        <translation>&lt;i&gt;Następne dokończenie: %1&lt;/i&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;Currently typing: %1&lt;/i&gt;</source>
-        <translation>&lt;i&gt;Obecnie pisze: %1&lt;/i&gt;</translation>
     </message>
     <message>
         <source>(no topic)</source>
@@ -36,16 +26,12 @@
         <translation>/join nie wygląda jak identyfikator pokoju lub alias</translation>
     </message>
     <message>
-        <source>There&apos;s no such /command outside of room. Start with // to send this line literally</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Sending a farewell message is not supported yet. If you intended to leave another room, switch to it and type /leave there.</source>
-        <translation></translation>
+        <translation>Wysyłanie wiadomości pożegnalnej nie jest jeszcze obsługiwane. Jeśli chcesz opuścić inny pokój, przełącz się do niego i wpisz tam /leave.</translation>
     </message>
     <message>
         <source>/forget must be followed by the room id/alias, even for the current room</source>
-        <translation></translation>
+        <translation>/forget musi poprzedzać identyfikator pokoju/alias, nawet dla bieżącego pomieszczenia</translation>
     </message>
     <message>
         <source>%1 doesn&apos;t look like a room id or alias</source>
@@ -56,16 +42,8 @@
         <translation>/invite &lt;memberId&gt;</translation>
     </message>
     <message>
-        <source>%1 doesn&apos;t look like a user ID</source>
-        <translation>%1 nie wygląda jak identyfikator użytkownika</translation>
-    </message>
-    <message>
         <source>/%1 &lt;userId&gt; &lt;reason&gt;</source>
-        <translation>/%1 &lt;userId&gt; &lt;powód&gt;</translation>
-    </message>
-    <message>
-        <source>%1 doesn&apos;t look like a user id</source>
-        <translation>%1 nie wygląda jak identyfikator użytkownika</translation>
+        <translation>/%1 &lt;userId&gt; &lt;reason&gt;</translation>
     </message>
     <message>
         <source>%1 is not a member of this room</source>
@@ -101,7 +79,7 @@
     </message>
     <message>
         <source>/%1 &lt;memberId&gt; &lt;message&gt;</source>
-        <translation>/%1 &lt;memberId&gt; &lt;wiadomość&gt;</translation>
+        <translation>/%1 &lt;memberId&gt; &lt;message&gt;</translation>
     </message>
     <message>
         <source>%1 doesn&apos;t seem to have joined room %2</source>
@@ -123,6 +101,46 @@
         <source>Save file as</source>
         <translation>Zapisz plik jako</translation>
     </message>
+    <message>
+        <source>Next completion: %1</source>
+        <translation>Następne dokończenie: %1</translation>
+    </message>
+    <message>
+        <source>Currently typing: %1</source>
+        <translation>Obecnie pisze: %1</translation>
+    </message>
+    <message>
+        <source>Attach</source>
+        <translation>Załącz</translation>
+    </message>
+    <message>
+        <source>Attach file</source>
+        <translation>Załącz plik</translation>
+    </message>
+    <message>
+        <source>Add a message to the file or just push Enter</source>
+        <translation>Dodaj wiadomość do pliku lub po prostu naciśnij Enter</translation>
+    </message>
+    <message>
+        <source>Attaching %1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Attaching cancelled</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>There&apos;s no such /command outside of room.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>%1 doesn&apos;t look like a user id</source>
+        <translation>%1 nie wygląda jak identyfikator użytkownika</translation>
+    </message>
+    <message>
+        <source>%1 doesn&apos;t look like a user ID</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>CreateRoomDialog</name>
@@ -132,7 +150,6 @@
     </message>
     <message>
         <source>Add</source>
-        <comment>Add a user to the list of invitees</comment>
         <translation>Dodaj</translation>
     </message>
     <message>
@@ -149,56 +166,6 @@
     <message>
         <source>Applying changes, please wait</source>
         <translation>Wprowadzanie zmian, proszę czekać</translation>
-    </message>
-</context>
-<context>
-    <name>FileContent</name>
-    <message>
-        <source>Size: %1, declared type: %2</source>
-        <translation>Rozmiar: %1, zadeklarowany typ: %2</translation>
-    </message>
-    <message>
-        <source> (downloaded to %1)</source>
-        <translation> (pobrano do %1)</translation>
-    </message>
-    <message>
-        <source>Open after downloading</source>
-        <translation>Otwórz po pobraniu</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Anuluj</translation>
-    </message>
-    <message>
-        <source>Save as...</source>
-        <translation>Zapisz jako…</translation>
-    </message>
-    <message>
-        <source>Open</source>
-        <translation>Otwórz</translation>
-    </message>
-    <message>
-        <source>Open folder</source>
-        <translation>Otwórz folder</translation>
-    </message>
-</context>
-<context>
-    <name>ImageContent</name>
-    <message>
-        <source>Cancel downloading</source>
-        <translation>Anuluj pobieranie</translation>
-    </message>
-    <message>
-        <source>Open externally</source>
-        <translation>Otwórz zewnętrznie</translation>
-    </message>
-    <message>
-        <source>Download full size</source>
-        <translation>Pobierz pełny rozmiar</translation>
-    </message>
-    <message>
-        <source>Save as...</source>
-        <translation>Zapisz jako…</translation>
     </message>
 </context>
 <context>
@@ -256,7 +223,7 @@
     </message>
     <message>
         <source>Dock &amp;panels</source>
-        <translation></translation>
+        <translation>Łącz &amp;panele</translation>
     </message>
     <message>
         <source>&amp;Display in timeline</source>
@@ -272,7 +239,7 @@
     </message>
     <message>
         <source>Show redacted events in the timeline as &apos;Redacted&apos; instead of hiding them entirely</source>
-        <translation>Pokaż zredagowane wydarzenia na osi czasu jako &quot;Zredagowane&quot; zamiast całkowicie je ukrywać</translation>
+        <translation>Pokaż zredagowane wydarzenia na osi czasu jako „Zredagowane”, zamiast całkowicie je ukrywać</translation>
     </message>
     <message>
         <source>&amp;No-effect activity</source>
@@ -281,12 +248,6 @@
     <message>
         <source>Edit tags order</source>
         <translation>Edytuj kolejność tagów</translation>
-    </message>
-    <message>
-        <source>Tags can be wildcarded by * next to dot(s)
-Clear the box to reset to defaults
-org.qmatrixclient. tags: invite, left, direct, none</source>
-        <translation></translation>
     </message>
     <message>
         <source>&amp;Room</source>
@@ -374,7 +335,7 @@ org.qmatrixclient. tags: invite, left, direct, none</source>
     </message>
     <message>
         <source>Load full-size images at once</source>
-        <translation>Załaduj jednocześnie pełnowymiarowe obrazy</translation>
+        <translation>Ładuj od razu pełnowymiarowe obrazy</translation>
     </message>
     <message>
         <source>Automatically download a full-size image instead of a thumbnail</source>
@@ -390,7 +351,7 @@ org.qmatrixclient. tags: invite, left, direct, none</source>
     </message>
     <message>
         <source>Quaternion couldn&apos;t open a file to write the access token to. You&apos;re logged in but will have to provide your password again when you restart the application.</source>
-        <translation></translation>
+        <translation>Quaternion nie mógł otworzyć pliku, aby zapisać token dostępu. Jesteś zalogowany, ale będziesz musiał podać hasło ponownie po ponownym uruchomieniu aplikacji.</translation>
     </message>
     <message>
         <source>Couldn&apos;t set access token file permissions</source>
@@ -419,8 +380,8 @@ org.qmatrixclient. tags: invite, left, direct, none</source>
     <message>
         <source>Clicking &apos;Retry&apos; will attempt to resume synchronisation;
 Clicking &apos;Cancel&apos; will stop further synchronisation of this account until logout or Quaternion restart.</source>
-        <translation>Kliknięcie &quot;Ponów próbę&quot; spowoduje wznowienie synchronizacji;
-Kliknięcie &quot;Anuluj&quot; zatrzyma dalszą synchronizację tego konta do momentu wylogowania się lub ponownego uruchomienia Quaterniona.</translation>
+        <translation>Kliknięcie „Ponów próbę” spowoduje wznowienie synchronizacji;
+Kliknięcie „Anuluj” zatrzyma dalszą synchronizację tego konta do momentu wylogowania się lub ponownego uruchomienia Quaterniona.</translation>
     </message>
     <message>
         <source>Before this server can process your information, you have to agree with its terms and conditions; please click the button below to open the web page where you can do that</source>
@@ -440,7 +401,7 @@ Kliknięcie &quot;Anuluj&quot; zatrzyma dalszą synchronizację tego konta do mo
     </message>
     <message>
         <source>Your access token is %1...%2; click &quot;Show details...&quot; for the full token</source>
-        <translation>Twój token dostępu to %1...%2; kliknij &quot;Pokaż szczegóły…&quot; dla pełnego tokena</translation>
+        <translation>Twój token dostępu to %1...%2; kliknij „Pokaż szczegóły…” dla pełnego tokena</translation>
     </message>
     <message>
         <source>&amp;Logout</source>
@@ -536,7 +497,7 @@ Kliknięcie &quot;Anuluj&quot; zatrzyma dalszą synchronizację tego konta do mo
     </message>
     <message>
         <source>Sync completed - have a good chat</source>
-        <translation>Synchronizacja zakończona - miłej rozmowy</translation>
+        <translation>Synchronizacja zakończona — miłej rozmowy</translation>
     </message>
     <message>
         <source>Couldn&apos;t connect to the server as %1; will retry within %2 seconds</source>
@@ -579,17 +540,6 @@ Kliknięcie &quot;Anuluj&quot; zatrzyma dalszą synchronizację tego konta do mo
         <translation>Copyright (C) 2018 QMatrixClient project.</translation>
     </message>
     <message>
-        <source>Built from Git, commit SHA:
-</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Library commit SHA:
-</source>
-        <translation>Commit SHA biblioteki:
-</translation>
-    </message>
-    <message>
         <source>&amp;Thanks</source>
         <translation>&amp;Podziękowania</translation>
     </message>
@@ -630,8 +580,45 @@ Kliknięcie &quot;Anuluj&quot; zatrzyma dalszą synchronizację tego konta do mo
         <translation>Pokaż zdarzenia dołączenia i wyjścia</translation>
     </message>
     <message>
-        <source>Show join-(optional redactions but no other events)-leave sequences from the same author</source>
+        <source>Use shuttle scrollbar (requires restart)</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>Control scroll velocity instead of position with the timeline scrollbar</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Request URL: %1
+Response:
+%2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Tags can be wildcarded by * next to dot(s)
+Clear the box to reset to defaults
+Special tags starting with &quot;org.qmatrixclient.&quot; are: %1
+User-defined tags should start with &quot;u.&quot;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Close to tray</source>
+        <translation>Zamykaj do zasobnika</translation>
+    </message>
+    <message>
+        <source>Make close button [X] minimize to tray instead of closing main window</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Show/hide meaningless activity (join-leave pairs and redacted events between)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Built from Git, commit SHA:</source>
+        <translation>Zbudowano z Git, commit SHA:</translation>
+    </message>
+    <message>
+        <source>Library commit SHA:</source>
+        <translation>Commit SHA biblioteki:</translation>
     </message>
 </context>
 <context>
@@ -754,15 +741,35 @@ Kliknięcie &quot;Anuluj&quot; zatrzyma dalszą synchronizację tego konta do mo
     </message>
     <message>
         <source>changed the room avatar</source>
-        <translation>zmieńił(a) awatar pokoju</translation>
+        <translation>zmienił(a) awatar pokoju</translation>
     </message>
     <message>
         <source>activated End-to-End Encryption</source>
         <translation>aktywował(a) szyfrowanie End-to-End</translation>
     </message>
     <message>
-        <source>Unknown Event</source>
-        <translation>Nieznane Zdarzenie</translation>
+        <source>withdrew %1&apos;s invitation</source>
+        <translation>wycofał(a) zaproszenie %1</translation>
+    </message>
+    <message>
+        <source>rejected the invitation</source>
+        <translation>odrzucił(a) zaproszenie</translation>
+    </message>
+    <message>
+        <source>updated the database</source>
+        <translation>zaktualizował bazę danych</translation>
+    </message>
+    <message>
+        <source>updated %1 state</source>
+        <translation>zaktualizował(a) stan %1</translation>
+    </message>
+    <message>
+        <source>updated %1 state for %2</source>
+        <translation>zaktualizował(a) stan %1 dla %2</translation>
+    </message>
+    <message>
+        <source>Unknown event</source>
+        <translation>Nieznane zdarzenie</translation>
     </message>
 </context>
 <context>
@@ -812,7 +819,7 @@ Kliknięcie &quot;Anuluj&quot; zatrzyma dalszą synchronizację tego konta do mo
     </message>
     <message>
         <source>Please fill the fields as desired. None are mandatory</source>
-        <translation>Proszę wypełnić pola zgodnie z życzeniem. Żadne nie są obowiązkowe</translation>
+        <translation>Proszę wypełnić pola zgodnie z życzeniem. Żaden z nich nie jest obowiązkowy</translation>
     </message>
     <message>
         <source>Account</source>
@@ -887,7 +894,7 @@ Kliknięcie &quot;Anuluj&quot; zatrzyma dalszą synchronizację tego konta do mo
     </message>
     <message>
         <source>Change room &amp;settings...</source>
-        <translation type="unfinished">Zmień &amp;ustawienia pokoju…</translation>
+        <translation>Zmień &amp;ustawienia pokoju…</translation>
     </message>
 </context>
 <context>
@@ -916,46 +923,14 @@ Kliknięcie &quot;Anuluj&quot; zatrzyma dalszą synchronizację tego konta do mo
         <source>%1 (%Ln room(s))</source>
         <translation>
             <numerusform>%1 (%Ln pokój)</numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>%1 (%Ln pokoje)</numerusform>
+            <numerusform>%1 (%Ln pokojów)</numerusform>
+            <numerusform>%1 (%Ln pokojów)</numerusform>
         </translation>
     </message>
     <message>
         <source>%1 (as %2)</source>
-        <comment>%Room (as %user)</comment>
         <translation>%1 (jako %2)</translation>
-    </message>
-    <message>
-        <source>Main alias: %1&lt;br&gt;</source>
-        <translation>Główny alias %1&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>Members: %1&lt;br&gt;</source>
-        <translation>Członków: %1&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>Direct chat with %1&lt;br&gt;</source>
-        <translation>Bezpośredni czat z %1&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>The room enforces encryption&lt;br&gt;</source>
-        <translation>Ten pokój wymusza szyfrowanie&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>Unread messages: %1+&lt;br&gt;</source>
-        <translation>Nieprzeczytane wiadomości: %1+&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>Unread messages: %1&lt;br&gt;</source>
-        <translation>Nieprzeczytane wiadomości: %1&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>Unread highlights: %1&lt;br&gt;</source>
-        <translation>Nieprzeczytane wyróżnienia: %1 &lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>ID: %1&lt;br&gt;</source>
-        <translation>Identyfikator: %1&lt;br&gt;</translation>
     </message>
     <message>
         <source>You joined this room</source>
@@ -970,8 +945,58 @@ Kliknięcie &quot;Anuluj&quot; zatrzyma dalszą synchronizację tego konta do mo
         <translation>Zostałeś(-aś) zaproszony(-a) do tego pokoju</translation>
     </message>
     <message>
+        <source>Main alias: %1</source>
+        <translation>Główny alias %1</translation>
+    </message>
+    <message numerus="yes">
+        <source>Joined: %Ln</source>
+        <translation>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Invited: %Ln</source>
+        <translation>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Direct chat with %1</source>
+        <translation>Bezpośrednia rozmowa z %1</translation>
+    </message>
+    <message>
+        <source>The room enforces encryption</source>
+        <translation>Ten pokój wymusza szyfrowanie</translation>
+    </message>
+    <message>
+        <source>Unread messages: %1+</source>
+        <translation>Nieprzeczytane wiadomości: %1+</translation>
+    </message>
+    <message>
+        <source>Unread messages: %1</source>
+        <translation>Nieprzeczytane wiadomości: %1</translation>
+    </message>
+    <message>
+        <source>Unread highlights: %1</source>
+        <translation>Nieprzeczytane wyróżnienia: %1</translation>
+    </message>
+    <message>
+        <source>ID: %1</source>
+        <translation>ID: %1</translation>
+    </message>
+    <message>
         <source>Favourites</source>
-        <translation type="unfinished">Ulubione</translation>
+        <translation>Ulubione</translation>
+    </message>
+    <message>
+        <source>as %1</source>
+        <translation>jako %1</translation>
     </message>
 </context>
 <context>
@@ -998,18 +1023,135 @@ Kliknięcie &quot;Anuluj&quot; zatrzyma dalszą synchronizację tego konta do mo
     </message>
 </context>
 <context>
-    <name>SystemTrayIcon</name>
+    <name>UserListDock</name>
     <message>
-        <source>Highlight in %1</source>
-        <translation type="unfinished"></translation>
+        <source>Users</source>
+        <translation>Użytkownicy</translation>
     </message>
-    <message numerus="yes">
-        <source>%n highlight(s)</source>
-        <translation type="unfinished">
-            <numerusform>%n wyróżnień</numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
+    <message>
+        <source>Open direct chat</source>
+        <translation>Otwórz bezpośredni czat</translation>
+    </message>
+    <message>
+        <source>Mention user</source>
+        <translation>Wspomnij użytkownika</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Szukaj</translation>
+    </message>
+    <message>
+        <source>Ignore user</source>
+        <translation>Ignoruj użytkownika</translation>
+    </message>
+    <message>
+        <source>Kick user</source>
+        <translation>Wyrzuć użytkownika</translation>
+    </message>
+    <message>
+        <source>Ban user</source>
+        <translation>Banuj użytkownika</translation>
+    </message>
+    <message>
+        <source>Kick %1</source>
+        <translation>Wyrzuć %1</translation>
+    </message>
+    <message>
+        <source>Reason</source>
+        <translation>Powód</translation>
+    </message>
+    <message>
+        <source>Ban %1</source>
+        <translation>Banuj %1</translation>
+    </message>
+    <message>
+        <source>(%L1 out of %L2)</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
+    <name>main</name>
+    <message>
+        <source>Display debug information</source>
+        <translation>Wyświetl informacje debugowe</translation>
+    </message>
+    <message>
+        <source>Quaternion - an IM client for the Matrix protocol</source>
+        <translation>Quaternion — komunikator internetowy dla protokołu Matrix</translation>
+    </message>
+    <message>
+        <source>Override locale</source>
+        <translation>Nadpisz ustawienia regionalne</translation>
+    </message>
+    <message>
+        <source>locale</source>
+        <translation>locale</translation>
+    </message>
+    <message>
+        <source>Hide main window on startup</source>
+        <translation>Ukryj główne okno podczas uruchamiania</translation>
+    </message>
+</context>
+<context>
+    <name>FileContent</name>
+    <message>
+        <source>Size: %1, declared type: %2</source>
+        <translation>Rozmiar: %1, zadeklarowany typ: %2</translation>
+    </message>
+    <message>
+        <source>Open after downloading</source>
+        <translation>Otwórz po pobraniu</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Anuluj</translation>
+    </message>
+    <message>
+        <source>Save as...</source>
+        <translation>Zapisz jako…</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Otwórz</translation>
+    </message>
+    <message>
+        <source>Open folder</source>
+        <translation>Otwórz folder</translation>
+    </message>
+    <message>
+        <source>uploaded from %1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>being uploaded from %1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>downloaded to %1</source>
+        <translation>pobrano do %1</translation>
+    </message>
+</context>
+<context>
+    <name>ImageContent</name>
+    <message>
+        <source>Cancel downloading</source>
+        <translation>Anuluj pobieranie</translation>
+    </message>
+    <message>
+        <source>Open externally</source>
+        <translation>Otwórz zewnętrznie</translation>
+    </message>
+    <message>
+        <source>Download full size</source>
+        <translation>Pobierz pełny rozmiar</translation>
+    </message>
+    <message>
+        <source>Save as...</source>
+        <translation>Zapisz jako…</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Anuluj</translation>
     </message>
 </context>
 <context>
@@ -1030,13 +1172,22 @@ Kliknięcie &quot;Anuluj&quot; zatrzyma dalszą synchronizację tego konta do mo
         <source>%1 GB</source>
         <translation>%1 GB</translation>
     </message>
+    <message>
+        <source>Unknown</source>
+        <translation>Nieznany</translation>
+    </message>
     <message numerus="yes">
-        <source>%Ln events back from now (%L1 cached)</source>
+        <source>%Ln events back from now (%L1 cached%2)</source>
         <translation>
-            <numerusform>%Ln wydarzenie od teraz (%L2 cached)</numerusform>
-            <numerusform>%Ln wydarzenia od teraz (%L2 cached)</numerusform>
-            <numerusform>%Ln wydarzeń od teraz (%L2 cached) </numerusform>
+            <numerusform>%Ln wydarzenie od teraz (%L2 cached%2)</numerusform>
+            <numerusform>%Ln wydarzenia od teraz (%L2 cached%2)</numerusform>
+            <numerusform>%Ln wydarzeń od teraz (%L2 cached%2)</numerusform>
+            <numerusform>%Ln wydarzeń od teraz (%L2 cached%2)</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>and loading</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1059,55 +1210,36 @@ Kliknięcie &quot;Anuluj&quot; zatrzyma dalszą synchronizację tego konta do mo
     </message>
 </context>
 <context>
-    <name>UserListDock</name>
+    <name>SystemTrayIcon</name>
     <message>
-        <source>Users</source>
-        <translation>Użytkownicy</translation>
+        <source>Highlight in %1</source>
+        <translation>Podświetlenie w %1</translation>
     </message>
-    <message>
-        <source>Open direct chat</source>
-        <translation>Otwórz bezpośredni czat</translation>
-    </message>
-    <message>
-        <source>Mention user</source>
-        <translation>Wspomnij użytkownika</translation>
-    </message>
-    <message>
-        <source>Users (%1)</source>
-        <translation>Użytkownicy (%1)</translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation type="unfinished"></translation>
+    <message numerus="yes">
+        <source>%n highlight(s)</source>
+        <translation>
+            <numerusform>%n podświetlenie</numerusform>
+            <numerusform>%n podświetlenia</numerusform>
+            <numerusform>%n podświetleń</numerusform>
+            <numerusform>%n podświetleń</numerusform>
+        </translation>
     </message>
 </context>
 <context>
     <name>UserListModel</name>
-    <message>
-        <source>&lt;br&gt;Bridged from: %1</source>
-        <translation type="vanished">&lt;br&gt;Mostkowany(-a) z: %1</translation>
-    </message>
     <message>
         <source>Bridged from: %1</source>
         <translation>Mostkowany(-a) z: %1</translation>
     </message>
 </context>
 <context>
-    <name>main</name>
+    <name>ThumbnailResponse</name>
     <message>
-        <source>Display debug information</source>
-        <translation>Wyświetl informacje debugowe</translation>
+        <source>Image request hasn&apos;t started</source>
+        <translation></translation>
     </message>
     <message>
-        <source>Quaternion - an IM client for the Matrix protocol</source>
-        <translation>Quaternion - komunikator internetowy dla protokołu Matrix</translation>
-    </message>
-    <message>
-        <source>Override locale</source>
-        <translation>Nadpisz ustawienia regionalne</translation>
-    </message>
-    <message>
-        <source>locale</source>
+        <source>Image request has been cancelled</source>
         <translation></translation>
     </message>
 </context>
