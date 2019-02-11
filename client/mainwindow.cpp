@@ -688,7 +688,7 @@ void MainWindow::showAboutWindow()
                     new QLabel(tr("Copyright (C) 2018 QMatrixClient project.")));
 
 #ifdef GIT_SHA1
-        auto* commitLabel = new QLabel(tr("Built from Git, commit SHA:\n") +
+        auto* commitLabel = new QLabel(tr("Built from Git, commit SHA:") + '\n' +
                                           QStringLiteral(GIT_SHA1));
         commitLabel->setTextInteractionFlags(Qt::TextSelectableByKeyboard|
                                              Qt::TextSelectableByMouse);
@@ -696,7 +696,7 @@ void MainWindow::showAboutWindow()
 #endif
 
 #ifdef LIB_GIT_SHA1
-        auto* libCommitLabel = new QLabel(new QLabel(tr("Library commit SHA:\n") +
+        auto* libCommitLabel = new QLabel(new QLabel(tr("Library commit SHA:") + '\n' +
                                           QStringLiteral(LIB_GIT_SHA1)));
         libCommitLabel->setTextInteractionFlags(Qt::TextSelectableByKeyboard|
                                                 Qt::TextSelectableByMouse);
