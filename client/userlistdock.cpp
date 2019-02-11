@@ -96,10 +96,10 @@ void UserListDock::refreshTitle()
 {
     setWindowTitle(tr("Users") +
         (!m_currentRoom ? QString() :
-         m_model->rowCount() == m_currentRoom->joinedCount() ?
-            QStringLiteral("(%L1)").arg(m_currentRoom->joinedCount()) :
-            tr("(%L1 out of %L2)", "%found out of %total users")
-            .arg(m_model->rowCount()).arg(m_currentRoom->joinedCount()))
+         ' ' + (m_model->rowCount() == m_currentRoom->joinedCount() ?
+                    QStringLiteral("(%L1)").arg(m_currentRoom->joinedCount()) :
+                    tr("(%L1 out of %L2)", "%found out of %total users")
+                    .arg(m_model->rowCount()).arg(m_currentRoom->joinedCount())))
     );
 }
 
