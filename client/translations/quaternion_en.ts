@@ -69,113 +69,117 @@
         <translation>/join argument doesn&apos;t look like a room ID or alias</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="390"/>
         <source>There&apos;s no such /command outside of room. Start with // to send this line literally</source>
-        <translation>There&apos;s no such /command outside of room. Start with // to send this line literally</translation>
+        <translation type="vanished">There&apos;s no such /command outside of room. Start with // to send this line literally</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="398"/>
+        <location filename="../chatroomwidget.cpp" line="390"/>
+        <source>There&apos;s no such /command outside of room.</source>
+        <translation>There&apos;s no such /command outside of room.</translation>
+    </message>
+    <message>
+        <location filename="../chatroomwidget.cpp" line="397"/>
         <source>Sending a farewell message is not supported yet. If you intended to leave another room, switch to it and type /leave there.</source>
         <translation>Sending a farewell message is not supported yet. If you intended to leave another room, switch to it and type /leave there.</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="408"/>
+        <location filename="../chatroomwidget.cpp" line="407"/>
         <source>/forget must be followed by the room id/alias, even for the current room</source>
         <translation>/forget must be followed by the room id/alias, even for the current room</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="411"/>
+        <location filename="../chatroomwidget.cpp" line="410"/>
         <source>%1 doesn&apos;t look like a room id or alias</source>
         <translation>%1 doesn&apos;t look like a room id or alias</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="420"/>
+        <location filename="../chatroomwidget.cpp" line="419"/>
         <source>/invite &lt;memberId&gt;</source>
         <translation>/invite &lt;memberId&gt;</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="422"/>
+        <location filename="../chatroomwidget.cpp" line="421"/>
         <source>%1 doesn&apos;t look like a user ID</source>
         <translation>%1 doesn&apos;t look like a user ID</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="431"/>
+        <location filename="../chatroomwidget.cpp" line="430"/>
         <source>/%1 &lt;userId&gt; &lt;reason&gt;</source>
         <translation>/%1 &lt;userId&gt; &lt;reason&gt;</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="433"/>
-        <location filename="../chatroomwidget.cpp" line="547"/>
+        <location filename="../chatroomwidget.cpp" line="432"/>
+        <location filename="../chatroomwidget.cpp" line="546"/>
         <source>%1 doesn&apos;t look like a user id</source>
         <translation>%1 doesn&apos;t look like a user id</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="441"/>
+        <location filename="../chatroomwidget.cpp" line="440"/>
         <source>%1 is not a member of this room</source>
         <translation>%1 is not a member of this room</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="450"/>
+        <location filename="../chatroomwidget.cpp" line="449"/>
         <source>/unban &lt;userId&gt;</source>
         <translation>/unban &lt;userId&gt;</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="452"/>
+        <location filename="../chatroomwidget.cpp" line="451"/>
         <source>/unban argument doesn&apos;t look like a user ID</source>
         <translation>/unban argument doesn&apos;t look like a user ID</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="460"/>
+        <location filename="../chatroomwidget.cpp" line="459"/>
         <source>/ignore &lt;userId&gt;</source>
         <translation>/ignore &lt;userId&gt;</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="462"/>
+        <location filename="../chatroomwidget.cpp" line="461"/>
         <source>/ignore argument doesn&apos;t look like a user ID</source>
         <translation>/ignore argument doesn&apos;t look like a user ID</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="472"/>
+        <location filename="../chatroomwidget.cpp" line="471"/>
         <source>Couldn&apos;t find user %1 on the server</source>
         <translation>Couldn&apos;t find user %1 on the server</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="478"/>
+        <location filename="../chatroomwidget.cpp" line="477"/>
         <source>/me needs an argument</source>
         <translation>/me needs an argument</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="485"/>
+        <location filename="../chatroomwidget.cpp" line="484"/>
         <source>/notice needs an argument</source>
         <translation>/notice needs an argument</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="513"/>
+        <location filename="../chatroomwidget.cpp" line="512"/>
         <source>/%1 &lt;memberId&gt; &lt;message&gt;</source>
         <translation>/%1 &lt;memberId&gt; &lt;message&gt;</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="521"/>
+        <location filename="../chatroomwidget.cpp" line="520"/>
         <source>%1 doesn&apos;t seem to have joined room %2</source>
         <translation>%1 doesn&apos;t seem to have joined room %2</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="531"/>
+        <location filename="../chatroomwidget.cpp" line="530"/>
         <source>%1 doesn&apos;t look like a user id or room alias</source>
         <translation>%1 doesn&apos;t look like a user id or room alias</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="545"/>
+        <location filename="../chatroomwidget.cpp" line="544"/>
         <source>/%1 &lt;memberId&gt;</source>
         <translation>/%1 &lt;memberId&gt;</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="554"/>
+        <location filename="../chatroomwidget.cpp" line="553"/>
         <source>Unknown /command. Use // to send this line literally</source>
         <translation>Unknown /command. Use // to send this line literally</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="598"/>
+        <location filename="../chatroomwidget.cpp" line="597"/>
         <source>Save file as</source>
         <translation>Save file as</translation>
     </message>

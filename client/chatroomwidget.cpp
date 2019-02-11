@@ -387,8 +387,7 @@ QString ChatRoomWidget::doSendInput()
     }
     // --- Add more roomless commands here
     if (!m_currentRoom)
-        return tr("There's no such /command outside of room."
-                  " Start with // to send this line literally");
+        return tr("There's no such /command outside of room.");
 
     // Commands available only in the room context
     using namespace QMatrixClient;
