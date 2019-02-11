@@ -69,10 +69,6 @@
         <translation>/join argument doesn&apos;t look like a room ID or alias</translation>
     </message>
     <message>
-        <source>There&apos;s no such /command outside of room. Start with // to send this line literally</source>
-        <translation type="vanished">There&apos;s no such /command outside of room. Start with // to send this line literally</translation>
-    </message>
-    <message>
         <location filename="../chatroomwidget.cpp" line="390"/>
         <source>There&apos;s no such /command outside of room.</source>
         <translation>There&apos;s no such /command outside of room.</translation>
@@ -354,10 +350,6 @@
         <location filename="../mainwindow.cpp" line="179"/>
         <source>&amp;View</source>
         <translation>&amp;View</translation>
-    </message>
-    <message>
-        <source>Dock &amp;panels</source>
-        <translation type="vanished">Dock &amp;panels</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="193"/>
@@ -869,10 +861,6 @@ Response:
         <translation>Authenticate</translation>
     </message>
     <message>
-        <source>Authenticate</source>
-        <translation type="vanished">Authenticate</translation>
-    </message>
-    <message>
         <location filename="../mainwindow.cpp" line="1062"/>
         <source>User name</source>
         <translation>User name</translation>
@@ -1231,10 +1219,6 @@ Response:
 <context>
     <name>RoomListModel</name>
     <message>
-        <source>Invited</source>
-        <translation type="vanished">Invited</translation>
-    </message>
-    <message>
         <location filename="../models/roomlistmodel.cpp" line="99"/>
         <source>Favourites</source>
         <translation>Favourites</translation>
@@ -1245,17 +1229,9 @@ Response:
         <translation>Low priority</translation>
     </message>
     <message>
-        <source>People</source>
-        <translation type="vanished">People</translation>
-    </message>
-    <message>
         <location filename="../models/roomlistmodel.cpp" line="103"/>
         <source>Ungrouped rooms</source>
         <translation>Ungrouped rooms</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="vanished">Left</translation>
     </message>
     <message>
         <location filename="../models/roomlistmodel.cpp" line="98"/>
@@ -1462,13 +1438,6 @@ Response:
         <location filename="../qml/Timeline.qml" line="257"/>
         <source>and loading</source>
         <translation>and loading</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln events back from now (%L1 cached%2)</source>
-        <translation type="vanished">
-            <numerusform>%Ln event back from now (%L1 cached%2)</numerusform>
-            <numerusform>%Ln events back from now (%L1 cached%2)</numerusform>
-        </translation>
     </message>
 </context>
 <context>
