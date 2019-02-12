@@ -58,6 +58,7 @@ Just install things from the list above using your preferred package manager. If
 ```bash
 sudo apt-get install git cmake qtdeclarative5-dev qtdeclarative5-qtquick2-plugin qtdeclarative5-controls-plugin qml-module-qtquick-controls qml-module-qtquick-controls2 qtmultimedia5-dev
 ```
+To enable libsecret keyring support, install QtKeychain by
 ```bash
 sudo apt-get install qt5keychain-dev
 ```
