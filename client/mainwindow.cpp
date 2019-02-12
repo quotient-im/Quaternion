@@ -557,13 +557,16 @@ bool MainWindow::saveAccessTokenToKeyChain(const AccountSettings& account,
     if (job.error())
     {
         qWarning() << "Could not save access token to keychain: " << qPrintable(job.errorString());
-        QMessageBox::warning(this,
+        const auto button = QMessageBox::warning(this,
                              tr("Couldn't save access token"),
                              tr("Quaternion couldn't save the access token to keychain."
-                                " You're logged in but will have to provide your password"
-                                " again when you restart the application."),
-                             QMessageBox::Close);
-        return false;
+                                " Do you want to save the access token to file %1?").arg(accessTokenFileName(account)),
+                                QMessageBox::Yes|QMessageBox::No);
+        if (button == QMessageBox::Yes) {
+            return saveAccessTokenToFile(account, accessToken);
+        } else {
+            return false;
+        }
     }
 
     return true;
