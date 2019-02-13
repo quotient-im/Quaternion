@@ -109,6 +109,10 @@ int main( int argc, char* argv[] )
         qDebug() << "--- Show time!";
         window.show();
     }
+    else {
+      qDebug() << "--- Hide time!";
+      window.hide();
+    }
 
     return app.exec();
 }
