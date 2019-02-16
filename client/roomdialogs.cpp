@@ -40,17 +40,16 @@
 
 RoomDialogBase::RoomDialogBase(const QString& title,
         const QString& applyButtonText,
-        QuaternionRoom* r, QWidget* parent, const connections_t& cs,
+        QuaternionRoom* r, QWidget* parent,
         QDialogButtonBox::StandardButtons extraButtons)
     : Dialog(title, parent, StatusLine, applyButtonText, extraButtons)
-    , connections(cs), room(r), avatar(new QLabel)
-    , account(r ? nullptr : new QComboBox)
+    , room(r), avatar(new QLabel)
     , roomName(new QLineEdit)
     , aliasServer(new QLabel), alias(new QLineEdit)
     , topic(new QPlainTextEdit)
     , publishRoom(new QCheckBox(tr("Publish room in room directory")))
     , guestCanJoin(new QCheckBox(tr("Allow guest accounts to join the room")))
-    , formLayout(addLayout<QFormLayout>())
+    , mainFormLayout(addLayout<QFormLayout>())
 {
     if (room)
     {
@@ -63,65 +62,60 @@ RoomDialogBase::RoomDialogBase(const QString& title,
 
     // Layout controls
 
-    if (!room)
-        formLayout->addRow(new QLabel(
-                tr("Please fill the fields as desired. None are mandatory")));
     {
         if (room)
         {
             auto* topLayout = new QHBoxLayout;
             topLayout->addWidget(avatar);
             {
-                auto* topFormLayout = new QFormLayout;
-                if (connections.size() > 1)
-                    topFormLayout->addRow(tr("Account"), account);
-                topFormLayout->addRow(tr("Room name"), roomName);
-                topFormLayout->addRow(tr("Primary alias"), alias);
-                topLayout->addLayout(topFormLayout);
+                essentialsLayout = new QFormLayout;
+                essentialsLayout->addRow(tr("Room name"), roomName);
+                essentialsLayout->addRow(tr("Primary alias"), alias);
+                topLayout->addLayout(essentialsLayout);
             }
-            formLayout->addRow(topLayout);
+            mainFormLayout->addRow(topLayout);
         } else {
-            if (connections.size() > 1)
-                formLayout->addRow(tr("Account"), account);
-            formLayout->addRow(tr("Room name"), roomName);
+            mainFormLayout->addRow(tr("Room name"), roomName);
             auto* aliasLayout = new QHBoxLayout;
             aliasLayout->addWidget(new QLabel("#"));
             aliasLayout->addWidget(alias);
             aliasLayout->addWidget(aliasServer);
-            formLayout->addRow(tr("Primary alias"), aliasLayout);
+            mainFormLayout->addRow(tr("Primary alias"), aliasLayout);
         }
     }
-    formLayout->addRow(tr("Topic"), topic);
+    mainFormLayout->addRow(tr("Topic"), topic);
     if (!room) // TODO: Support this in RoomSettingsDialog as well
     {
-        formLayout->addRow(publishRoom);
+        mainFormLayout->addRow(publishRoom);
 //        formLayout->addRow(guestCanJoin); // TODO: QMatrixClient/libqmatrixclient#36
-
     }
+}
 
-    if (connections.size() > 1)
-        account->setFocus();
-    else
-        roomName->setFocus();
+void RoomDialogBase::addAccountRow(QWidget* accountControl)
+{
+    Q_ASSERT(accountControl != nullptr);
+    (essentialsLayout ? essentialsLayout : mainFormLayout)
+    ->insertRow(0, tr("Account"), accountControl);
 }
 
 RoomSettingsDialog::RoomSettingsDialog(QuaternionRoom* room, QWidget* parent)
     : RoomDialogBase(tr("Room settings: %1").arg(room->displayName()),
                      tr("Update room"), room, parent)
+    , account(new QLabel(room->connection()->userId()))
     , tagsList(new QListWidget)
 {
-    Q_ASSERT(room != nullptr);
     connect(room, &QuaternionRoom::avatarChanged, this, [this, room] {
         if (!userChangedAvatar)
             avatar->setPixmap(QPixmap::fromImage(room->avatar(64)));
     });
     avatar->setPixmap(QPixmap::fromImage(room->avatar(64)));
+    addAccountRow(account);
     tagsList->setSizeAdjustPolicy(
                 QAbstractScrollArea::AdjustToContentsOnFirstShow);
     tagsList->setUniformItemSizes(true);
     tagsList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-    formLayout->addRow(tr("Tags"), tagsList);
+    mainFormLayout->addRow(tr("Tags"), tagsList);
 }
 
 void RoomSettingsDialog::load()
@@ -210,16 +204,20 @@ class InviteeList : public QListWidget
         }
 };
 
-CreateRoomDialog::CreateRoomDialog(const connections_t& connections,
+CreateRoomDialog::CreateRoomDialog(QVector<QMatrixClient::Connection*> cs,
                                    QWidget* parent)
     : RoomDialogBase(tr("Create room"), tr("Create room"),
-                     nullptr, parent, connections, NoExtraButtons)
+                     nullptr, parent, NoExtraButtons)
+    , connections(std::move(cs))
+    , account(new QComboBox)
     , nextInvitee(new NextInvitee)
     , inviteButton(new QPushButton(tr("Add", "Add a user to the list of invitees")))
     , invitees(new QListWidget)
 {
     Q_ASSERT(!connections.isEmpty());
 
+    if (connections.size() > 1)
+        addAccountRow(account);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
     connect(account, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &CreateRoomDialog::accountSwitched);
@@ -227,6 +225,8 @@ CreateRoomDialog::CreateRoomDialog(const connections_t& connections,
     connect(account, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &CreateRoomDialog::accountSwitched);
 #endif
+    mainFormLayout->insertRow(0, new QLabel(
+            tr("Please fill the fields as desired. None are mandatory")));
 
     nextInvitee->setEditable(true);
     nextInvitee->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
@@ -271,10 +271,15 @@ CreateRoomDialog::CreateRoomDialog(const connections_t& connections,
     inviteLayout->addWidget(nextInvitee);
     inviteLayout->addWidget(inviteButton);
 
-    formLayout->addRow(tr("Invite user(s)"), inviteLayout);
-    formLayout->addRow("", invitees);
+    mainFormLayout->addRow(tr("Invite user(s)"), inviteLayout);
+    mainFormLayout->addRow("", invitees);
 
     setPendingApplyMessage(tr("Creating the room, please wait"));
+
+    if (connections.size() > 1)
+        account->setFocus();
+    else
+        roomName->setFocus();
 }
 
 void CreateRoomDialog::updatePushButtons()

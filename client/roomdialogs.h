@@ -38,18 +38,14 @@ class RoomDialogBase : public Dialog
 {
         Q_OBJECT
     protected:
-        using connections_t = QVector<QMatrixClient::Connection*>;
-
         RoomDialogBase(const QString& title, const QString& applyButtonText,
-            QuaternionRoom* r, QWidget* parent, const connections_t& cs = {},
+            QuaternionRoom* r, QWidget* parent,
             QDialogButtonBox::StandardButtons extraButtons = QDialogButtonBox::Reset);
 
     protected:
-        const connections_t connections;
         QuaternionRoom* room;
 
         QLabel* avatar;
-        QComboBox* account;
         QLineEdit* roomName;
         QLabel* aliasServer;
         QLineEdit* alias;
@@ -57,7 +53,10 @@ class RoomDialogBase : public Dialog
         QString previousTopic;
         QCheckBox* publishRoom;
         QCheckBox* guestCanJoin;
-        QFormLayout* formLayout;
+        QFormLayout* mainFormLayout;
+        QFormLayout* essentialsLayout = nullptr;
+
+        void addAccountRow(QWidget* accountControl);
 };
 
 class RoomSettingsDialog : public RoomDialogBase
@@ -71,6 +70,7 @@ class RoomSettingsDialog : public RoomDialogBase
         void apply() override;
 
     private:
+        QLabel* account;
         QListWidget* tagsList;
         bool userChangedAvatar = false;
 };
@@ -79,7 +79,7 @@ class CreateRoomDialog : public RoomDialogBase
 {
         Q_OBJECT
     public:
-        CreateRoomDialog(const connections_t& connections,
+        CreateRoomDialog(QVector<QMatrixClient::Connection*> cs,
                          QWidget* parent = nullptr);
 
     public slots:
@@ -91,6 +91,8 @@ class CreateRoomDialog : public RoomDialogBase
         void accountSwitched();
 
     private:
+        const QVector<QMatrixClient::Connection*> connections;
+        QComboBox* account;
         QComboBox* nextInvitee;
         QPushButton* inviteButton;
         QListWidget* invitees;
