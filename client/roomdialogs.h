@@ -24,6 +24,7 @@ namespace QMatrixClient {
     class Connection;
 }
 
+class MainWindow;
 class QuaternionRoom;
 
 class QComboBox;
@@ -38,6 +39,8 @@ class RoomDialogBase : public Dialog
 {
         Q_OBJECT
     protected:
+        using Connection = QMatrixClient::Connection;
+
         RoomDialogBase(const QString& title, const QString& applyButtonText,
             QuaternionRoom* r, QWidget* parent,
             QDialogButtonBox::StandardButtons extraButtons = QDialogButtonBox::Reset);
@@ -56,21 +59,26 @@ class RoomDialogBase : public Dialog
         QFormLayout* mainFormLayout;
         QFormLayout* essentialsLayout = nullptr;
 
-        void addAccountRow(QWidget* accountControl);
+        QComboBox* addVersionSelector(QLayout* layout);
+        void refillVersionSelector(QComboBox* selector, Connection* account);
+        void addEssentials(QWidget* accountControl, QLayout* versionBox);
+        bool checkRoomVersion(QString version, Connection* account);
 };
 
 class RoomSettingsDialog : public RoomDialogBase
 {
         Q_OBJECT
     public:
-        RoomSettingsDialog(QuaternionRoom* room, QWidget* parent = nullptr);
+        RoomSettingsDialog(QuaternionRoom* room, MainWindow* parent = nullptr);
 
     private slots:
         void load() override;
+        bool validate() override;
         void apply() override;
 
     private:
         QLabel* account;
+        QLabel* version;
         QListWidget* tagsList;
         bool userChangedAvatar = false;
 };
@@ -79,20 +87,21 @@ class CreateRoomDialog : public RoomDialogBase
 {
         Q_OBJECT
     public:
-        CreateRoomDialog(QVector<QMatrixClient::Connection*> cs,
-                         QWidget* parent = nullptr);
+        CreateRoomDialog(QVector<Connection*> cs, QWidget* parent = nullptr);
 
     public slots:
         void updatePushButtons();
 
     private slots:
         void load() override;
+        bool validate() override;
         void apply() override;
         void accountSwitched();
 
     private:
-        const QVector<QMatrixClient::Connection*> connections;
+        const QVector<Connection*> connections;
         QComboBox* account;
+        QComboBox* version;
         QComboBox* nextInvitee;
         QPushButton* inviteButton;
         QListWidget* invitees;

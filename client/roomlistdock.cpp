@@ -24,6 +24,7 @@
 #include <QtWidgets/QInputDialog>
 #include <QtGui/QGuiApplication>
 
+#include "mainwindow.h"
 #include "models/roomlistmodel.h"
 #include "quaternionroom.h"
 #include "roomdialogs.h"
@@ -79,7 +80,7 @@ void RoomListItemDelegate::paint(QPainter* painter,
     QStyledItemDelegate::paint(painter, o, index);
 }
 
-RoomListDock::RoomListDock(QWidget* parent)
+RoomListDock::RoomListDock(MainWindow* parent)
     : QDockWidget("Rooms", parent)
     , selectedRoomCache(nullptr)
 {
@@ -164,9 +165,9 @@ RoomListDock::RoomListDock(QWidget* parent)
         tr("Add tags..."), this, &RoomListDock::addTagsSelected);
     roomSettingsAction =
         roomContextMenu->addAction(QIcon::fromTheme("user-group-properties"),
-            tr("Change room &settings..."), [this]
+            tr("Change room &settings..."), [this,parent]
             {
-                auto* dlg = new RoomSettingsDialog(getSelectedRoom(), this);
+                auto* dlg = new RoomSettingsDialog(getSelectedRoom(), parent);
                 dlg->setModal(false);
                 dlg->setAttribute(Qt::WA_DeleteOnClose);
                 dlg->reactivate();

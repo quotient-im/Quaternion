@@ -24,6 +24,7 @@
 #include <QtCore/QStringListModel>
 //#include <QtCore/QSortFilterProxyModel>
 
+class MainWindow;
 class RoomListModel;
 class QuaternionRoom;
 
@@ -35,7 +36,7 @@ class RoomListDock : public QDockWidget
 {
         Q_OBJECT
     public:
-        explicit RoomListDock(QWidget* parent = nullptr);
+        explicit RoomListDock(MainWindow* parent = nullptr);
 
         void addConnection(QMatrixClient::Connection* connection);
 

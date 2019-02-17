@@ -18,6 +18,7 @@
 
 #include "roomdialogs.h"
 
+#include "mainwindow.h"
 #include "quaternionroom.h"
 #include <user.h>
 #include <connection.h>
@@ -34,9 +35,11 @@
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QCompleter>
+#include <QtWidgets/QMessageBox>
 #include <QtGui/QStandardItemModel>
 
 #include <QtCore/QElapsedTimer>
+#include <QtCore/QStringBuilder>
 
 RoomDialogBase::RoomDialogBase(const QString& title,
         const QString& applyButtonText,
@@ -91,25 +94,122 @@ RoomDialogBase::RoomDialogBase(const QString& title,
     }
 }
 
-void RoomDialogBase::addAccountRow(QWidget* accountControl)
+QComboBox* RoomDialogBase::addVersionSelector(QLayout* layout)
 {
-    Q_ASSERT(accountControl != nullptr);
-    (essentialsLayout ? essentialsLayout : mainFormLayout)
-    ->insertRow(0, tr("Account"), accountControl);
+    auto* versionSelector = new QComboBox;
+    layout->addWidget(versionSelector);
+    {
+        auto* specLink =
+                new QLabel("<a href='https://matrix.org/docs/spec/#complete-list-of-room-versions'>" +
+                           tr("About room versions") + "</a>");
+        specLink->setOpenExternalLinks(true);
+        layout->addWidget(specLink);
+    }
+    return versionSelector;
 }
 
-RoomSettingsDialog::RoomSettingsDialog(QuaternionRoom* room, QWidget* parent)
+void RoomDialogBase::refillVersionSelector(QComboBox* selector,
+                                           Connection* account)
+{
+    selector->clear();
+    if (account->loadingCapabilities())
+    {
+        selector->addItem(
+                    tr("(loading)", "Loading room versions from the server"),
+                    QString());
+        selector->setEnabled(false);
+        // FIXME: It should be connectSingleShot
+        // but sadly connectSingleShot doesn't work with lambdas yet
+        connectUntil(account, &Connection::capabilitiesLoaded, this,
+            [this,selector,account] {
+                refillVersionSelector(selector, account);
+                return true;
+            });
+        return;
+    }
+    const auto& versions = account->availableRoomVersions();
+    for (const auto& v: versions)
+    {
+        const bool isDefault = v.id == account->defaultRoomVersion();
+        const auto postfix =
+                isDefault ? tr("default", "Default room version") :
+                v.isStable() ? tr("stable", "Stable room version") :
+                v.status;
+        selector->addItem(v.id % " (" % postfix % ")", v.id);
+        const auto idx = selector->count() - 1;
+        if (isDefault)
+        {
+            auto font = selector->itemData(idx, Qt::FontRole).value<QFont>();
+            font.setBold(true);
+            selector->setItemData(idx, font, Qt::FontRole);
+            selector->setCurrentIndex(idx);
+        }
+        if (!v.isStable())
+            selector->setItemData(idx, QColor(Qt::red), Qt::ForegroundRole);
+    }
+    selector->setEnabled(true);
+}
+
+void RoomDialogBase::addEssentials(QWidget* accountControl,
+                                   QLayout* versionBox)
+{
+    Q_ASSERT(accountControl != nullptr && versionBox != nullptr);
+    auto* layout = essentialsLayout ? essentialsLayout : mainFormLayout;
+    layout->insertRow(0, tr("Account"), accountControl);
+    layout->insertRow(1, tr("Room version"), versionBox);
+}
+
+bool RoomDialogBase::checkRoomVersion(QString version, Connection* account)
+{
+    if (account->stableRoomVersions().contains(version))
+        return true;
+
+    return QMessageBox::warning(this, tr("Use unstable version?"),
+            tr("You are about to use an UNSTABLE room version (%1)."
+               " The server may stop supporting this version at any moment."
+               " Do you still want to use it?").arg(version),
+            QMessageBox::Yes|QMessageBox::No, QMessageBox::No)
+        == QMessageBox::Yes;
+}
+
+RoomSettingsDialog::RoomSettingsDialog(QuaternionRoom* room, MainWindow* parent)
     : RoomDialogBase(tr("Room settings: %1").arg(room->displayName()),
                      tr("Update room"), room, parent)
     , account(new QLabel(room->connection()->userId()))
+    , version(new QLabel(room->version()))
     , tagsList(new QListWidget)
 {
+    auto* versionBox = new QHBoxLayout;
+    versionBox->addWidget(version);
+    if (room->canSwitchVersions())
+    {
+        auto* changeActionButton =
+                new QPushButton(tr("Upgrade", "Upgrade a room version"));
+        connect(changeActionButton, &QAbstractButton::clicked, this, [=] {
+            Dialog chooseVersionDlg(tr("Choose new room version"), this,
+                    NoStatusLine, tr("Upgrade", "Upgrade a room version"),
+                    NoExtraButtons);
+            chooseVersionDlg.addWidget(
+                new QLabel(tr("You are about to upgrade %1.\n"
+                              "This operation cannot be reverted.")
+                           .arg(room->displayName())));
+            auto* hBox = chooseVersionDlg.addLayout<QHBoxLayout>();
+            auto* versionSelector = addVersionSelector(hBox);
+            refillVersionSelector(versionSelector, room->connection());
+            if (chooseVersionDlg.exec() == QDialog::Accepted)
+            {
+                version->setText(versionSelector->currentData().toString());
+                apply();
+            }
+        });
+        versionBox->addWidget(changeActionButton);
+    }
+    addEssentials(account, versionBox);
     connect(room, &QuaternionRoom::avatarChanged, this, [this, room] {
         if (!userChangedAvatar)
             avatar->setPixmap(QPixmap::fromImage(room->avatar(64)));
     });
     avatar->setPixmap(QPixmap::fromImage(room->avatar(64)));
-    addAccountRow(account);
     tagsList->setSizeAdjustPolicy(
                 QAbstractScrollArea::AdjustToContentsOnFirstShow);
     tagsList->setUniformItemSizes(true);
@@ -146,8 +246,32 @@ void RoomSettingsDialog::load()
     }
 }
 
+bool RoomSettingsDialog::validate()
+{
+    if (checkRoomVersion(version->text(), room->connection()))
+        return true;
+
+    version->setText(room->version());
+    return false; // Cancel applying, stay on the settings dialog
+}
+
 void RoomSettingsDialog::apply()
 {
+    if (version->text() != room->version())
+    {
+        using namespace QMatrixClient;
+        setStatusMessage(tr("Creating the new room version, please wait"));
+        room->switchVersion(version->text());
+        connectUntil(room, &Room::upgraded, this,
+            [this] (QString, Room* newRoom) {
+                accept();
+                static_cast<MainWindow*>(parent())->selectRoom(newRoom);
+                return true;
+            });
+        connectSingleShot(room, &Room::upgradeFailed,
+                          this, &Dialog::applyFailed);
+        return; // It's either a version upgrade or everything else
+    }
     if (roomName->text() != room->name())
         room->setName(roomName->text());
     if (alias->text() != room->canonicalAlias())
@@ -204,20 +328,21 @@ class InviteeList : public QListWidget
         }
 };
 
-CreateRoomDialog::CreateRoomDialog(QVector<QMatrixClient::Connection*> cs,
-                                   QWidget* parent)
+CreateRoomDialog::CreateRoomDialog(QVector<Connection*> cs, QWidget* parent)
     : RoomDialogBase(tr("Create room"), tr("Create room"),
                      nullptr, parent, NoExtraButtons)
     , connections(std::move(cs))
     , account(new QComboBox)
+    , version(nullptr) // Will be initialized below
     , nextInvitee(new NextInvitee)
     , inviteButton(new QPushButton(tr("Add", "Add a user to the list of invitees")))
     , invitees(new QListWidget)
 {
     Q_ASSERT(!connections.isEmpty());
 
-    if (connections.size() > 1)
-        addAccountRow(account);
+    auto* versionBox = new QHBoxLayout;
+    version = addVersionSelector(versionBox);
+    addEssentials(account, versionBox);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
     connect(account, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &CreateRoomDialog::accountSwitched);
@@ -306,10 +431,20 @@ void CreateRoomDialog::load()
     invitees->clear();
 }
 
+bool CreateRoomDialog::validate()
+{
+    auto* connection = account->currentData().value<Connection*>();
+    if (checkRoomVersion(version->currentData().toString(), connection))
+        return true;
+
+    refillVersionSelector(version, connection);
+    return false;
+}
+
 void CreateRoomDialog::apply()
 {
     using namespace QMatrixClient;
-    auto* connection = account->currentData(Qt::UserRole).value<Connection*>();
+    auto* connection = account->currentData().value<Connection*>();
     QStringList userIds;
     for (int i = 0; i < invitees->count(); ++i)
     {
@@ -323,7 +458,7 @@ void CreateRoomDialog::apply()
             publishRoom->isChecked() ?
                 Connection::PublishRoom : Connection::UnpublishRoom,
             alias->text(), roomName->text(), topic->toPlainText(),
-            userIds, "", {}, false);
+            userIds, "", version->currentData().toString(), false);
 
     connect(job, &BaseJob::success, this, &Dialog::accept);
     connect(job, &BaseJob::failure, this, [this,job] {
@@ -333,8 +468,8 @@ void CreateRoomDialog::apply()
 
 void CreateRoomDialog::accountSwitched()
 {
-    auto* connection = account->currentData(Qt::UserRole)
-                                    .value<QMatrixClient::Connection*>();
+    auto* connection = account->currentData(Qt::UserRole).value<Connection*>();
+    refillVersionSelector(version, connection);
     aliasServer->setText(':' + connection->homeserver().authority());
 
     auto* completer = nextInvitee->completer();
