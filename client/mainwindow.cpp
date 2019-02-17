@@ -797,8 +797,14 @@ void MainWindow::logout(Connection* c)
 void MainWindow::selectRoom(QMatrixClient::Room* r)
 {
     QElapsedTimer et; et.start();
+    if (currentRoom)
+        disconnect(currentRoom, &QuaternionRoom::displaynameChanged,
+                   this, nullptr);
     currentRoom = static_cast<QuaternionRoom*>(r);
     setWindowTitle(r ? r->displayName() : QString());
+    if (currentRoom)
+        connect(currentRoom, &QuaternionRoom::displaynameChanged, this,
+                [this] { setWindowTitle(currentRoom->displayName()); });
     chatRoomWidget->setRoom(currentRoom);
     userListDock->setRoom(currentRoom);
     roomSettingsAction->setEnabled(r != nullptr);

@@ -208,11 +208,15 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
         m_chatEdit->moveCursor(QTextCursor::End);
         connect( m_currentRoom, &Room::typingChanged,
                  this, &ChatRoomWidget::typingChanged );
+        connect( m_currentRoom, &Room::displaynameChanged,
+                 this, &ChatRoomWidget::updateHeader );
         connect( m_currentRoom, &Room::namesChanged,
                  this, &ChatRoomWidget::updateHeader );
         connect( m_currentRoom, &Room::topicChanged,
                  this, &ChatRoomWidget::updateHeader );
         connect( m_currentRoom, &Room::avatarChanged,
+                 this, &ChatRoomWidget::updateHeader );
+        connect( m_currentRoom, &Room::stabilityUpdated,
                  this, &ChatRoomWidget::updateHeader );
         connect( m_currentRoom, &Room::readMarkerMoved, this, [this] {
             const auto rm = m_currentRoom->readMarker();
