@@ -28,6 +28,7 @@ matrix:
         - qt57quickcontrols
         - qt57quickcontrols2
         - qt57tools
+        - qt5keychain-dev
   - os: linux
     dist: trusty
     compiler: clang
@@ -62,12 +63,14 @@ matrix:
         - qt512quickcontrols2
         - qt512tools
         - qt512translations
+        - qt5keychain-dev
   - os: osx
     env: [ 'PATH=/usr/local/opt/qt/bin:$PATH"' ]
     addons:
       homebrew:
         packages:
         - qt5
+        - qtkeychain
 
 before_script:
 - eval "${ENV_EVAL}"

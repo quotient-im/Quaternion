@@ -42,7 +42,7 @@ foreach (FLAG "" all pedantic extra no-unused-parameter)
 endforeach ()
 
 # Find the libraries
-find_package(Qt5 5.7 REQUIRED Widgets Network Quick Qml Gui LinguistTools Multimedia)
+find_package(Qt5 5.7 REQUIRED Widgets Network Quick Qml Gui LinguistTools Multimedia DBus)
 # Qt5_Prefix is only used to show Qt path in message()
 # Qt5_BinDir is where all the binary tools for Qt are
 if (QT_QMAKE_EXECUTABLE)
@@ -85,6 +85,11 @@ else ()
     endif ()
 endif ()
 
+find_package(Qt5Keychain QUIET)
+if (Qt5Keychain_FOUND)
+    set(USE_KEYCHAIN ON)
+endif()
+
 message( STATUS )
 message( STATUS "=============================================================================" )
 message( STATUS "                          Quaternion Build Information" )
@@ -121,6 +126,9 @@ endif ()
 if (USE_QQUICKWIDGET)
     message( STATUS "Using QQuickWidget to render QML")
 endif(USE_QQUICKWIDGET)
+if (USE_KEYCHAIN)
+    message( STATUS "Using Qt5Keychain ${Qt5Keychain_VERSION} at ${Qt5Keychain_DIR}")
+endif ()
 message( STATUS "=============================================================================" )
 message( STATUS )
 
@@ -201,6 +209,12 @@ target_compile_definitions(${APP_NAME} PRIVATE
 if (USE_QQUICKWIDGET)
     target_compile_definitions(${APP_NAME} PRIVATE USE_QQUICKWIDGET)
     target_link_libraries(${APP_NAME} Qt5::QuickWidgets)
+endif()
+
+if(USE_KEYCHAIN)
+    target_compile_definitions(${APP_NAME} PRIVATE USE_KEYCHAIN)
+    target_link_libraries(${APP_NAME} ${QTKEYCHAIN_LIBRARIES})
+    include_directories(${QTKEYCHAIN_INCLUDE_DIR})
 endif()
 
 # macOS specific config for bundling
