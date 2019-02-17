@@ -105,7 +105,11 @@ int main( int argc, char* argv[] )
     }
 
     ActivityDetector ad(app, window); Q_UNUSED(ad);
-    if (!parser.isSet(hideMainWindow)) {
+    if (parser.isSet(hideMainWindow)) {
+        qDebug() << "--- Hide time!";
+        window.hide();
+    }
+    else {
         qDebug() << "--- Show time!";
         window.show();
     }
