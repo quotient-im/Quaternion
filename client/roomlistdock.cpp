@@ -24,6 +24,7 @@
 #include <QtWidgets/QInputDialog>
 #include <QtGui/QGuiApplication>
 
+#include "mainwindow.h"
 #include "models/roomlistmodel.h"
 #include "quaternionroom.h"
 #include "roomdialogs.h"
@@ -54,32 +55,38 @@ void RoomListItemDelegate::paint(QPainter* painter,
 {
     QStyleOptionViewItem o { option };
 
-    if (!index.parent().isValid())
-        o.displayAlignment = Qt::AlignHCenter;
-
-    if (!index.parent().isValid() ||
-            index.data(RoomListModel::HasUnreadRole).toBool())
-        o.font.setBold(true);
-
-    if (index.data(RoomListModel::HighlightCountRole).toInt() > 0)
+    if (!index.parent().isValid()) // Group captions
     {
-        // Highlighting the text may not work out on monochrome colour schemes,
-        // hence duplicating with italic font.
-        o.palette.setColor(QPalette::Text, highlightColor);
-        o.font.setItalic(true);
+        o.displayAlignment = Qt::AlignHCenter;
+        o.font.setBold(true);
     }
 
-    using QMatrixClient::JoinState;
-    QString joinState = index.data(RoomListModel::JoinStateRole).toString();
-    if (joinState == toCString(JoinState::Invite))
-        o.font.setItalic(true);
-    else if (joinState == toCString(JoinState::Leave))
-        o.font.setStrikeOut(true);
+    if (const auto* room =
+            index.data(RoomListModel::ObjectRole).value<QuaternionRoom*>())
+    {
+        if (room->hasUnreadMessages())
+            o.font.setBold(true);
+
+        if (room->highlightCount() > 0)
+        {
+            // Highlighting the text may not work out on monochrome colour schemes,
+            // hence duplicating with italic font.
+            o.palette.setColor(QPalette::Text, highlightColor);
+            o.font.setItalic(true);
+        }
+
+        using QMatrixClient::JoinState;
+        if (room->joinState() == JoinState::Invite)
+            o.font.setItalic(true);
+        else if (room->joinState() == JoinState::Leave ||
+                 !room->successorId().isEmpty())
+            o.font.setStrikeOut(true);
+    }
 
     QStyledItemDelegate::paint(painter, o, index);
 }
 
-RoomListDock::RoomListDock(QWidget* parent)
+RoomListDock::RoomListDock(MainWindow* parent)
     : QDockWidget("Rooms", parent)
     , selectedRoomCache(nullptr)
 {
@@ -164,9 +171,9 @@ RoomListDock::RoomListDock(QWidget* parent)
         tr("Add tags..."), this, &RoomListDock::addTagsSelected);
     roomSettingsAction =
         roomContextMenu->addAction(QIcon::fromTheme("user-group-properties"),
-            tr("Change room &settings..."), [this]
+            tr("Change room &settings..."), [this,parent]
             {
-                auto* dlg = new RoomSettingsDialog(getSelectedRoom(), this);
+                auto* dlg = new RoomSettingsDialog(getSelectedRoom(), parent);
                 dlg->setModal(false);
                 dlg->setAttribute(Qt::WA_DeleteOnClose);
                 dlg->reactivate();

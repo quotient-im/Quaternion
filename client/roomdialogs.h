@@ -24,6 +24,7 @@ namespace QMatrixClient {
     class Connection;
 }
 
+class MainWindow;
 class QuaternionRoom;
 
 class QComboBox;
@@ -38,18 +39,16 @@ class RoomDialogBase : public Dialog
 {
         Q_OBJECT
     protected:
-        using connections_t = QVector<QMatrixClient::Connection*>;
+        using Connection = QMatrixClient::Connection;
 
         RoomDialogBase(const QString& title, const QString& applyButtonText,
-            QuaternionRoom* r, QWidget* parent, const connections_t& cs = {},
+            QuaternionRoom* r, QWidget* parent,
             QDialogButtonBox::StandardButtons extraButtons = QDialogButtonBox::Reset);
 
     protected:
-        const connections_t connections;
         QuaternionRoom* room;
 
         QLabel* avatar;
-        QComboBox* account;
         QLineEdit* roomName;
         QLabel* aliasServer;
         QLineEdit* alias;
@@ -57,20 +56,29 @@ class RoomDialogBase : public Dialog
         QString previousTopic;
         QCheckBox* publishRoom;
         QCheckBox* guestCanJoin;
-        QFormLayout* formLayout;
+        QFormLayout* mainFormLayout;
+        QFormLayout* essentialsLayout = nullptr;
+
+        QComboBox* addVersionSelector(QLayout* layout);
+        void refillVersionSelector(QComboBox* selector, Connection* account);
+        void addEssentials(QWidget* accountControl, QLayout* versionBox);
+        bool checkRoomVersion(QString version, Connection* account);
 };
 
 class RoomSettingsDialog : public RoomDialogBase
 {
         Q_OBJECT
     public:
-        RoomSettingsDialog(QuaternionRoom* room, QWidget* parent = nullptr);
+        RoomSettingsDialog(QuaternionRoom* room, MainWindow* parent = nullptr);
 
     private slots:
         void load() override;
+        bool validate() override;
         void apply() override;
 
     private:
+        QLabel* account;
+        QLabel* version;
         QListWidget* tagsList;
         bool userChangedAvatar = false;
 };
@@ -79,18 +87,21 @@ class CreateRoomDialog : public RoomDialogBase
 {
         Q_OBJECT
     public:
-        CreateRoomDialog(const connections_t& connections,
-                         QWidget* parent = nullptr);
+        CreateRoomDialog(QVector<Connection*> cs, QWidget* parent = nullptr);
 
     public slots:
         void updatePushButtons();
 
     private slots:
         void load() override;
+        bool validate() override;
         void apply() override;
         void accountSwitched();
 
     private:
+        const QVector<Connection*> connections;
+        QComboBox* account;
+        QComboBox* version;
         QComboBox* nextInvitee;
         QPushButton* inviteButton;
         QListWidget* invitees;

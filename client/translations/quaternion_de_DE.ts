@@ -153,6 +153,10 @@
         <translation>Hinzufügen</translation>
     </message>
     <message>
+        <source>Please fill the fields as desired. None are mandatory</source>
+        <translation>Bitte fülle die Felder wie gewünscht. Alle sind optional</translation>
+    </message>
+    <message>
         <source>Invite user(s)</source>
         <translation>Nutzer einladen</translation>
     </message>
@@ -816,10 +820,6 @@ User-defined tags should start with &quot;u.&quot;</source>
     <message>
         <source>Allow guest accounts to join the room</source>
         <translation>Erlaube Gast-Kontos diesen Raum zu betreten</translation>
-    </message>
-    <message>
-        <source>Please fill the fields as desired. None are mandatory</source>
-        <translation>Bitte fülle die Felder wie gewünscht. Alle sind optional</translation>
     </message>
     <message>
         <source>Account</source>

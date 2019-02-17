@@ -95,10 +95,13 @@ void Dialog::buttonClicked(QAbstractButton* button)
     switch (buttons->buttonRole(button))
     {
         case QDialogButtonBox::AcceptRole:
-            if (statusLabel)
-                statusLabel->setText(pendingApplyMessage);
-            setDisabled(true);
-            apply();
+            if (validate())
+            {
+                if (statusLabel)
+                    statusLabel->setText(pendingApplyMessage);
+                setDisabled(true);
+                apply();
+            }
             break;
         case QDialogButtonBox::ResetRole:
             load();

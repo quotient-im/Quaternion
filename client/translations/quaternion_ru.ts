@@ -153,6 +153,10 @@
         <translation>Добавить</translation>
     </message>
     <message>
+        <source>Please fill the fields as desired. None are mandatory</source>
+        <translation>Пожалуйста, заполните поля по желанию. Обязательных полей нет.</translation>
+    </message>
+    <message>
         <source>Invite user(s)</source>
         <translation>Пригласить пользователя(ей)</translation>
     </message>
@@ -821,10 +825,6 @@ User-defined tags should start with &quot;u.&quot;</source>
     <message>
         <source>Allow guest accounts to join the room</source>
         <translation>Разрешить присоединение гостевым аккаунтам</translation>
-    </message>
-    <message>
-        <source>Please fill the fields as desired. None are mandatory</source>
-        <translation>Пожалуйста, заполните поля по желанию. Никакие не являются обязательными</translation>
     </message>
     <message>
         <source>Account</source>
