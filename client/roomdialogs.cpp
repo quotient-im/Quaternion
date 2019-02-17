@@ -164,8 +164,8 @@ bool RoomDialogBase::checkRoomVersion(QString version, Connection* account)
     if (account->stableRoomVersions().contains(version))
         return true;
 
-    return QMessageBox::warning(this, tr("Use unstable version?"),
-            tr("You are about to use an UNSTABLE room version (%1)."
+    return QMessageBox::warning(this, tr("Continue with unstable version?"),
+            tr("You are using an UNSTABLE room version (%1)."
                " The server may stop supporting it at any moment."
                " Do you still want to use this version?").arg(version),
             QMessageBox::Yes|QMessageBox::No, QMessageBox::No)
