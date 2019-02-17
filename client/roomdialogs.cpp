@@ -166,8 +166,8 @@ bool RoomDialogBase::checkRoomVersion(QString version, Connection* account)
 
     return QMessageBox::warning(this, tr("Use unstable version?"),
             tr("You are about to use an UNSTABLE room version (%1)."
-               " The server may stop supporting this version at any moment."
-               " Do you still want to use it?").arg(version),
+               " The server may stop supporting it at any moment."
+               " Do you still want to use this version?").arg(version),
             QMessageBox::Yes|QMessageBox::No, QMessageBox::No)
         == QMessageBox::Yes;
 }
@@ -179,8 +179,12 @@ RoomSettingsDialog::RoomSettingsDialog(QuaternionRoom* room, MainWindow* parent)
     , version(new QLabel(room->version()))
     , tagsList(new QListWidget)
 {
-    auto* versionBox = new QHBoxLayout;
-    versionBox->addWidget(version);
+    auto* versionBox = new QGridLayout;
+    versionBox->addWidget(version, 0, 0);
+    if (room->isUnstable())
+        versionBox->addWidget(
+            new QLabel(tr("This version is unstable! Consider upgrading.")),
+            1, 0);
     if (room->canSwitchVersions())
     {
         auto* changeActionButton =
@@ -202,7 +206,7 @@ RoomSettingsDialog::RoomSettingsDialog(QuaternionRoom* room, MainWindow* parent)
                 apply();
             }
         });
-        versionBox->addWidget(changeActionButton);
+        versionBox->addWidget(changeActionButton, 0, 1, 2, 1);
     }
     addEssentials(account, versionBox);
     connect(room, &QuaternionRoom::avatarChanged, this, [this, room] {

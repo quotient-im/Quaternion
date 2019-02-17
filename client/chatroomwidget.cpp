@@ -260,11 +260,20 @@ void ChatRoomWidget::updateHeader()
 {
     if (m_currentRoom)
     {
-        auto topic = m_currentRoom->topic();
-        auto prettyTopic = topic.isEmpty() ?
+        const auto topic = m_currentRoom->topic();
+        const auto prettyTopic = topic.isEmpty() ?
                 tr("(no topic)") : m_currentRoom->prettyPrint(topic);
+        QString unstableMarker;
+        if (m_currentRoom->isUnstable())
+        {
+            unstableMarker = "<em>" % tr("Unstable room version!");
+            if (m_currentRoom->canSwitchVersions())
+                unstableMarker += ' ' %
+                    tr("Consider upgrading the room (see Room settings)");
+            unstableMarker += "</em><br />";
+        }
         m_topicLabel->setText("<strong>" % m_currentRoom->displayName() %
-                              "</strong><br />" % prettyTopic);
+                              "</strong><br />" % unstableMarker % prettyTopic);
         auto avatarSize = m_topicLabel->heightForWidth(width());
         m_roomAvatar->setPixmap(
                 QPixmap::fromImage(m_currentRoom->avatar(avatarSize)));
