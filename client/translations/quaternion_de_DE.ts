@@ -39,11 +39,11 @@
     </message>
     <message>
         <source>/invite &lt;memberId&gt;</source>
-        <translation>/invite &lt;Benutzer-ID&gt;</translation>
+        <translation>/invite [Benutzer-ID]</translation>
     </message>
     <message>
         <source>/%1 &lt;userId&gt; &lt;reason&gt;</source>
-        <translation>/%1 &lt;BenutzerId&gt; &lt;Grund&gt;</translation>
+        <translation>/%1 [Benutzer-ID] [Grund]</translation>
     </message>
     <message>
         <source>%1 is not a member of this room</source>
@@ -51,7 +51,7 @@
     </message>
     <message>
         <source>/unban &lt;userId&gt;</source>
-        <translation>/unban &lt;BenutzerId&gt;</translation>
+        <translation>/unban [Benutzer-ID]</translation>
     </message>
     <message>
         <source>/unban argument doesn&apos;t look like a user ID</source>
@@ -59,7 +59,7 @@
     </message>
     <message>
         <source>/ignore &lt;userId&gt;</source>
-        <translation>/ignore &lt;BenutzerID&gt;</translation>
+        <translation>/ignore [Benutzer-ID]</translation>
     </message>
     <message>
         <source>/ignore argument doesn&apos;t look like a user ID</source>
@@ -67,7 +67,7 @@
     </message>
     <message>
         <source>Couldn&apos;t find user %1 on the server</source>
-        <translation>Konnte den Benutzer %1 nicht auf dem Server finden</translation>
+        <translation>Der Benutzer %1 konnte nicht auf dem Server gefunden werden.</translation>
     </message>
     <message>
         <source>/me needs an argument</source>
@@ -79,7 +79,7 @@
     </message>
     <message>
         <source>/%1 &lt;memberId&gt; &lt;message&gt;</source>
-        <translation>/%1 &lt;BenutzerId&gt; &lt;Nachricht&gt;</translation>
+        <translation>/%1 [Benutzer-ID] [Nachricht]</translation>
     </message>
     <message>
         <source>%1 doesn&apos;t seem to have joined room %2</source>
@@ -91,7 +91,7 @@
     </message>
     <message>
         <source>/%1 &lt;memberId&gt;</source>
-        <translation>/%1 &lt;Benutzer-ID&gt;</translation>
+        <translation>/%1 [Benutzer-ID]</translation>
     </message>
     <message>
         <source>Unknown /command. Use // to send this line literally</source>
@@ -303,7 +303,7 @@
     </message>
     <message>
         <source>Show notifications but do not activate the window</source>
-        <translation>Zeige Benachrichtigungen, aber Fenster nicht aktivieren</translation>
+        <translation>Zeige Benachrichtigungen, aber aktiviere nicht das Fenster.</translation>
     </message>
     <message>
         <source>&amp;Full</source>
@@ -311,7 +311,7 @@
     </message>
     <message>
         <source>Show notifications and activate the window</source>
-        <translation>Zeige Benachrichtigungen und aktiviere das Fenster</translation>
+        <translation>Zeige Benachrichtigungen und aktiviere das Fenster.</translation>
     </message>
     <message>
         <source>Notifications</source>
@@ -331,7 +331,7 @@
     </message>
     <message>
         <source>The layout with author labels to the left from each message</source>
-        <translation>Autor-Kenung links von jeder Nachricht</translation>
+        <translation>Autor-Kennung links von jeder Nachricht</translation>
     </message>
     <message>
         <source>Timeline layout</source>
@@ -339,11 +339,11 @@
     </message>
     <message>
         <source>Load full-size images at once</source>
-        <translation>Lade Bilder gleich in voller Größe</translation>
+        <translation>Lade Bilder gleich in voller Größe.</translation>
     </message>
     <message>
         <source>Automatically download a full-size image instead of a thumbnail</source>
-        <translation>Automatisch komplettes Bild anstelle eines Vorschaubildes laden</translation>
+        <translation>Lade automatisch komplette Bilder anstelle von Vorschaubildern.</translation>
     </message>
     <message>
         <source>Configure &amp;network proxy...</source>
@@ -525,7 +525,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Proxy needs authentication</source>
-        <translation>Proxy verlangt Authentisierung</translation>
+        <translation>Der Proxy verlangt Authentisierung.</translation>
     </message>
     <message>
         <source>Authenticate</source>
@@ -589,13 +589,13 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Control scroll velocity instead of position with the timeline scrollbar</source>
-        <translation>Laufleisten-Schieberegler fürs Gesprächsprotokoll ändert die Laufgeschwindigkeit anstatt der Position</translation>
+        <translation>Der Laufleisten-Schieberegler fürs Gesprächsprotokoll ändert die Laufgeschwindigkeit anstatt der Position.</translation>
     </message>
     <message>
         <source>Request URL: %1
 Response:
 %2</source>
-        <translation>Anfrge-URL: %1
+        <translation>Anfrage-URL: %1
 Antwort:
 %2</translation>
     </message>
@@ -611,7 +611,7 @@ Benutzerdefinierte Etiketten sollten mit &bdquo;u.&ldquo; beginnen.</translation
     </message>
     <message>
         <source>Close to tray</source>
-        <translation>Schließe in das Benachrichtigungsfeld</translation>
+        <translation>Schließe in das Benachrichtigungsfeld.</translation>
     </message>
     <message>
         <source>Make close button [X] minimize to tray instead of closing main window</source>
@@ -682,7 +682,7 @@ Benutzerdefinierte Etiketten sollten mit &bdquo;u.&ldquo; beginnen.</translation
     </message>
     <message>
         <source>cleared the avatar</source>
-        <translation>entfernte das Pofilbild.</translation>
+        <translation>entfernte das Profilbild.</translation>
     </message>
     <message>
         <source>updated the avatar</source>
@@ -820,7 +820,7 @@ Benutzerdefinierte Etiketten sollten mit &bdquo;u.&ldquo; beginnen.</translation
     <name>RoomDialogBase</name>
     <message>
         <source>Publish room in room directory</source>
-        <translation>Raum im Raumverzeichnis veröffentlichen</translation>
+        <translation>Veröffentliche den Raum im Raumverzeichnis.</translation>
     </message>
     <message>
         <source>Allow guest accounts to join the room</source>
@@ -847,7 +847,7 @@ Benutzerdefinierte Etiketten sollten mit &bdquo;u.&ldquo; beginnen.</translation
     <name>RoomListDock</name>
     <message>
         <source>Mark room as read</source>
-        <translation>Markiere Raum als gelesen</translation>
+        <translation>Markiere den Raum als gelesen.</translation>
     </message>
     <message>
         <source>Add tags...</source>
@@ -1088,7 +1088,7 @@ Benutzerdefinierte Etiketten sollten mit &bdquo;u.&ldquo; beginnen.</translation
     </message>
     <message>
         <source>Hide main window on startup</source>
-        <translation>Starte mit verstecktem Hauptfenster</translation>
+        <translation>Starte mit verstecktem Hauptfenster.</translation>
     </message>
 </context>
 <context>
@@ -1099,7 +1099,7 @@ Benutzerdefinierte Etiketten sollten mit &bdquo;u.&ldquo; beginnen.</translation
     </message>
     <message>
         <source>Open after downloading</source>
-        <translation>Nach dem Herunterladen öffnen</translation>
+        <translation>Öffne nach dem Herunterladen.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -1203,7 +1203,7 @@ Benutzerdefinierte Etiketten sollten mit &bdquo;u.&ldquo; beginnen.</translation
     </message>
     <message>
         <source>Copy link to clipboard</source>
-        <translation>In Zwischenablage kopieren</translation>
+        <translation>Link in Zwischenablage kopieren</translation>
     </message>
 </context>
 <context>
