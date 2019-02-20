@@ -15,7 +15,7 @@
     </message>
     <message>
         <source>Send a message (unencrypted) or enter a command...</source>
-        <translation>Sende eine (nicht verschlüsselte) Nachricht oder gebe einen Befehl ein...</translation>
+        <translation>Sende eine (nicht verschlüsselte) Nachricht oder gebe einen Befehl ein…</translation>
     </message>
     <message>
         <source>There&apos;s nothing to send</source>
@@ -899,7 +899,7 @@ Benutzerdefinierte Etiketten sollten mit &bdquo;u.&ldquo; beginnen.</translation
     </message>
     <message>
         <source>Change room &amp;settings...</source>
-        <translation>Ändere Raum-&amp;Einstellungen...</translation>
+        <translation>Ändere Raum-&amp;Einstellungen…</translation>
     </message>
 </context>
 <context>
@@ -1146,7 +1146,7 @@ Benutzerdefinierte Etiketten sollten mit &bdquo;u.&ldquo; beginnen.</translation
     </message>
     <message>
         <source>Save as...</source>
-        <translation>Speichern als...</translation>
+        <translation>Speichern als…</translation>
     </message>
     <message>
         <source>Cancel</source>
