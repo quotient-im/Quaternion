@@ -453,7 +453,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Enter an id or alias of the room. You will join as %1</source>
-        <translation>Gebe eine ID oder einen Alias des Raumes ein. Du wirst als %1 beitreten.</translation>
+        <translation>Gebe die ID oder einen Alias des Raumes ein. Du wirst als %1 beitreten.</translation>
     </message>
     <message>
         <source>No room id or alias specified</source>
@@ -509,7 +509,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Reconnecting...</source>
-        <translation>Wiederherstellung der Verbindung…</translation>
+        <translation>Wiederherstellen der Verbindung…</translation>
     </message>
     <message>
         <source>No SSL support</source>
