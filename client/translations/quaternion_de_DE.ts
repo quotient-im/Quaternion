@@ -23,7 +23,7 @@
     </message>
     <message>
         <source>/join argument doesn&apos;t look like a room ID or alias</source>
-        <translation>Das /join-Argument sieht nicht aus wie eine Raum-ID oder -Alias.</translation>
+        <translation>Das /join-Argument sieht nicht wie eine Raum-ID oder ein Raum-Alias aus.</translation>
     </message>
     <message>
         <source>Sending a farewell message is not supported yet. If you intended to leave another room, switch to it and type /leave there.</source>
@@ -35,7 +35,7 @@
     </message>
     <message>
         <source>%1 doesn&apos;t look like a room id or alias</source>
-        <translation>%1 sieht nicht nach einer Raum-ID oder einem Raum-Alias aus.</translation>
+        <translation>%1 sieht nicht wie eine Raum-ID oder ein Raum-Alias aus.</translation>
     </message>
     <message>
         <source>/invite &lt;memberId&gt;</source>
@@ -55,7 +55,7 @@
     </message>
     <message>
         <source>/unban argument doesn&apos;t look like a user ID</source>
-        <translation>Das /unban-Argument sieht nicht nach einer Benutzer-ID aus.</translation>
+        <translation>Das /unban-Argument sieht nicht wie eine Benutzer-ID aus.</translation>
     </message>
     <message>
         <source>/ignore &lt;userId&gt;</source>
@@ -63,7 +63,7 @@
     </message>
     <message>
         <source>/ignore argument doesn&apos;t look like a user ID</source>
-        <translation>Das /ignore-Argument sieht nicht nach einer Benutzer-ID aus.</translation>
+        <translation>Das /ignore-Argument sieht nicht wie eine Benutzer-ID aus.</translation>
     </message>
     <message>
         <source>Couldn&apos;t find user %1 on the server</source>
@@ -87,7 +87,7 @@
     </message>
     <message>
         <source>%1 doesn&apos;t look like a user id or room alias</source>
-        <translation>%1 sieht nicht nach einer Benutzer- oder Raum-ID aus.</translation>
+        <translation>%1 sieht nicht wie eine Benutzer- oder Raum-ID aus.</translation>
     </message>
     <message>
         <source>/%1 &lt;memberId&gt;</source>
@@ -135,11 +135,11 @@
     </message>
     <message>
         <source>%1 doesn&apos;t look like a user id</source>
-        <translation>%1 sieht nicht nach einer Benutzer-ID aus.</translation>
+        <translation>%1 sieht nicht wie eine Benutzer-ID aus.</translation>
     </message>
     <message>
         <source>%1 doesn&apos;t look like a user ID</source>
-        <translation>%1 sieht nicht nach einer Benutzer-ID aus.</translation>
+        <translation>%1 sieht nicht wie eine Benutzer-ID aus.</translation>
     </message>
 </context>
 <context>
