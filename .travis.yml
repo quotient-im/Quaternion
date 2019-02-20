@@ -65,7 +65,7 @@ matrix:
         - qt512translations
         - qt5keychain-dev
   - os: osx
-    env: [ 'PATH=/usr/local/opt/qt/bin:$PATH"' ]
+    env: [ 'PATH=/usr/local/opt/qt/bin:$PATH' ]
     addons:
       homebrew:
         packages:
@@ -73,7 +73,6 @@ matrix:
         - qtkeychain
 
 before_script:
-- eval "${ENV_EVAL}"
 - if [ -f /opt/qt57/bin/qt57-env.sh ]; then . /opt/qt57/bin/qt57-env.sh; fi
 - if [ -f /opt/qt512/bin/qt512-env.sh ]; then . /opt/qt512/bin/qt512-env.sh; fi
 - export VERSION=$(git rev-list --count HEAD) # also used by linuxdeployqt
