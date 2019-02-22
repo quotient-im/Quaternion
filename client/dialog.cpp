@@ -95,6 +95,7 @@ void Dialog::buttonClicked(QAbstractButton* button)
     switch (buttons->buttonRole(button))
     {
         case QDialogButtonBox::AcceptRole:
+        case QDialogButtonBox::YesRole:
             if (validate())
             {
                 if (statusLabel)
@@ -107,6 +108,7 @@ void Dialog::buttonClicked(QAbstractButton* button)
             load();
             break;
         case QDialogButtonBox::RejectRole:
+        case QDialogButtonBox::NoRole:
             reject();
             break;
         default:
