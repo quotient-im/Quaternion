@@ -64,9 +64,6 @@ class MainWindow: public QMainWindow
     public slots:
         void selectRoom(QMatrixClient::Room* r);
 
-    protected:
-        void closeEvent(QCloseEvent* event) override;
-
     private slots:
         void invokeLogin();
         void joinRoom(const QString& roomAlias = {},
@@ -126,4 +123,6 @@ class MainWindow: public QMainWindow
                                        const QByteArray& accessToken);
         Connection* chooseConnection();
         void showMillisToRecon(Connection* c);
+
+        void closeEvent(QCloseEvent* event) override;
 };
