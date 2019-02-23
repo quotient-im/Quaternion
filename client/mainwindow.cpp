@@ -760,7 +760,27 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
         account.sync();
 
         showFirstSyncIndicator();
-        addConnection(connection, dialog.deviceName());
+
+        QString deviceName = dialog.deviceName();
+        const auto it = std::find_if(connections.cbegin(), connections.cend(),
+            [connection] (Connection* c) {
+                return c->userId() == connection->userId();
+            });
+
+        if (it != connections.cend())
+        {
+            int ret = QMessageBox::warning(this,
+                tr("Logging in into a logged in account"),
+                tr("You're trying to log in into an account that's "
+                   "already logged in. Do you want to continue?"),
+                QMessageBox::Yes, QMessageBox::No);
+
+            if (ret == QMessageBox::Yes)
+                deviceName += "-" + connection->deviceId();
+            else
+                return;
+        }
+        addConnection(connection, deviceName);
     }
 }
 
