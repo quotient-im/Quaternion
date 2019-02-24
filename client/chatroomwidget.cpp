@@ -521,7 +521,7 @@ QString ChatRoomWidget::doSendInput()
     if (command == "pm" || command == "msg")
     {
         const auto args = lazySplitRef(argString, ' ', 2);
-        if (args.front().isEmpty())
+        if (args.front().isEmpty() || (args.back().isEmpty() && command == "msg"))
             return tr("/%1 <memberId> <message>").arg(command.toString());
         if (RoomIdRE.match(args.front()).hasMatch() && command == "msg")
         {
@@ -535,8 +535,11 @@ QString ChatRoomWidget::doSendInput()
         }
         if (UserIdRE.match(args.front()).hasMatch())
         {
-            m_currentRoom->connection()->doInDirectChat(args.front(),
-                [msg=args.back()] (Room* dc) { dc->postPlainText(msg); });
+            if (args.back().isEmpty())
+                m_currentRoom->connection()->requestDirectChat(args.front());
+            else
+                m_currentRoom->connection()->doInDirectChat(args.front(),
+                    [msg=args.back()] (Room* dc) { dc->postPlainText(msg); });
             return {};
         }
 
