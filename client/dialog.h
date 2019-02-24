@@ -57,6 +57,8 @@ class Dialog : public QDialog
         /// Add a widget to the bottom of the dialog's client area
         void addWidget(QWidget* w);
 
+        QPushButton* button(QDialogButtonBox::StandardButton which);
+
     public slots:
         /// Show or raise the dialog
         void reactivate();

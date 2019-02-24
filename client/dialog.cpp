@@ -67,6 +67,11 @@ void Dialog::addWidget(QWidget* w)
     outerLayout.insertWidget(outerLayout.count() - offset, w);
 }
 
+QPushButton*Dialog::button(QDialogButtonBox::StandardButton which)
+{
+    return buttonBox()->button(which);
+}
+
 void Dialog::reactivate()
 {
     if (!isVisible())
