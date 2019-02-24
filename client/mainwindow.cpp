@@ -941,6 +941,7 @@ void MainWindow::selectRoom(QMatrixClient::Room* r)
         connect(currentRoom, &QuaternionRoom::displaynameChanged, this,
                 [this] { setWindowTitle(currentRoom->displayName()); });
     chatRoomWidget->setRoom(currentRoom);
+    roomListDock->setSelectedRoom(currentRoom);
     userListDock->setRoom(currentRoom);
     roomSettingsAction->setEnabled(r != nullptr);
     if (r && !isActiveWindow())
