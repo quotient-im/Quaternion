@@ -98,6 +98,8 @@ class MainWindow: public QMainWindow
         QAction* accountListGrowthPoint = nullptr;
         QAction* roomSettingsAction = nullptr;
         QAction* createRoomAction = nullptr;
+        QAction* dcAction = nullptr;
+        QAction* joinAction = nullptr;
 
         SystemTrayIcon* systemTrayIcon = nullptr;
 

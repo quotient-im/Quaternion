@@ -186,10 +186,10 @@ void MainWindow::createMenu()
         QIcon::fromTheme("labplot-editvlayout"),
         tr("Dock &panels", "Panels of the dock, not 'to dock the panels'"));
     roomListDock->toggleViewAction()
-            ->setStatusTip("Show/hide Rooms dock panel");
+            ->setStatusTip(tr("Show/hide Rooms dock panel"));
     dockPanesMenu->addAction(roomListDock->toggleViewAction());
     userListDock->toggleViewAction()
-        ->setStatusTip("Show/hide Users dock panel");
+        ->setStatusTip(tr("Show/hide Users dock panel"));
     dockPanesMenu->addAction(userListDock->toggleViewAction());
 
     viewMenu->addSeparator();
@@ -262,11 +262,16 @@ void MainWindow::createMenu()
             static QPointer<CreateRoomDialog> dlg;
             summon(dlg, connections, this);
         });
+    createRoomAction->setShortcut(QKeySequence::New);
     createRoomAction->setDisabled(true);
-    roomMenu->addAction(QIcon::fromTheme("list-add-user"),
-        tr("&Direct chat..."), [=]{ directChat(); });
-    roomMenu->addAction(QIcon::fromTheme("list-add"), tr("&Join room..."),
-        [=]{ joinRoom(); } );
+    dcAction = roomMenu->addAction(QIcon::fromTheme("list-add-user"),
+                    tr("&Direct chat..."), [this] { directChat(); });
+    dcAction->setShortcut(Qt::CTRL + Qt::Key_M);
+    dcAction->setDisabled(true);
+    joinAction = roomMenu->addAction(QIcon::fromTheme("list-add"),
+                    tr("&Join room..."), [this] { joinRoom(); } );
+    joinAction->setShortcut(Qt::CTRL + Qt::Key_J);
+    joinAction->setDisabled(true);
     roomMenu->addSeparator();
     roomMenu->addAction(QIcon::fromTheme("window-close"),
         tr("&Close current room"), [this] { selectRoom(nullptr); },
@@ -712,6 +717,8 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
         connectionMenu->removeAction(menuAction);
     });
     createRoomAction->setEnabled(true);
+    dcAction->setEnabled(true);
+    joinAction->setEnabled(true);
 
     getNewEvents(c);
 }
@@ -725,6 +732,8 @@ void MainWindow::dropConnection(Connection* c)
     connections.removeOne(c);
     logoutOnExit.removeOne(c);
     createRoomAction->setDisabled(connections.isEmpty());
+    dcAction->setDisabled(connections.isEmpty());
+    joinAction->setDisabled(connections.isEmpty());
 
     Q_ASSERT(!connections.contains(c) && !logoutOnExit.contains(c) &&
              !c->syncJob());
