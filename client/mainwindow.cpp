@@ -55,6 +55,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QDialogButtonBox>
+#include <QtWidgets/QComboBox>
 #include <QtWidgets/QFormLayout>
 #include <QtGui/QMovie>
 #include <QtGui/QPixmap>
@@ -182,6 +183,29 @@ void MainWindow::createMenu()
     // View menu
     auto viewMenu = menuBar()->addMenu(tr("&View"));
 
+    openRoomAction = viewMenu->addAction(QIcon::fromTheme("document-open"),
+        tr("Open room..."), [this] {
+            auto locator = obtainIdentifier(
+                            currentRoom ? currentRoom->connection() : nullptr,
+                            tr("Open room"), tr("Room ID or alias"),
+                            tr("Switch to room"));
+            if (!locator.account)
+                return;
+            auto* room = locator.identifier.startsWith('!') ?
+                            locator.account->room(locator.identifier) :
+                            locator.account->roomByAlias(locator.identifier);
+            if (room)
+                selectRoom(room);
+            else
+                QMessageBox::warning(this, tr("Room not found"),
+                    tr("There's no room %1 in the room list."
+                       " Check the spelling and the account")
+                    .arg(locator.identifier));
+        });
+    openRoomAction->setStatusTip(tr("Open a room from the room list"));
+    openRoomAction->setShortcut(QKeySequence::Open);
+    openRoomAction->setDisabled(true);
+    viewMenu->addSeparator();
     auto dockPanesMenu = viewMenu->addMenu(
         QIcon::fromTheme("labplot-editvlayout"),
         tr("Dock &panels", "Panels of the dock, not 'to dock the panels'"));
@@ -716,6 +740,7 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     {
         connectionMenu->removeAction(menuAction);
     });
+    openRoomAction->setEnabled(true);
     createRoomAction->setEnabled(true);
     dcAction->setEnabled(true);
     joinAction->setEnabled(true);
@@ -731,6 +756,7 @@ void MainWindow::dropConnection(Connection* c)
         selectRoom(nullptr);
     connections.removeOne(c);
     logoutOnExit.removeOne(c);
+    openRoomAction->setDisabled(connections.isEmpty());
     createRoomAction->setDisabled(connections.isEmpty());
     dcAction->setDisabled(connections.isEmpty());
     joinAction->setDisabled(connections.isEmpty());
@@ -953,15 +979,34 @@ void MainWindow::selectRoom(QMatrixClient::Room* r)
         << (r ? "select room " + r->canonicalAlias() : "close the room");
 }
 
-QMatrixClient::Connection* MainWindow::chooseConnection()
+MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
+                                                     const QString& prompt)
 {
-    Connection* connection = nullptr;
+    if (connections.isEmpty())
+    {
+        if (connection)
+            return connection;
+
+        QMessageBox::warning(this, tr("No connections"),
+            tr("Please connect to a server first"),
+            QMessageBox::Close, QMessageBox::Close);
+        return nullptr;
+    }
+    if (connections.size() == 1)
+        return connections.front();
+
     QStringList names; names.reserve(connections.size());
+    int defaultIdx = -1;
     for (auto c: qAsConst(connections))
+    {
         names.push_back(c->userId());
+        if (c == connection)
+            defaultIdx = names.size() - 1;
+    }
+    bool ok = false;
     const auto choice = QInputDialog::getItem(this,
-            tr("Choose the account to join the room"), "", names, -1, false);
-    if (choice.isEmpty())
+            tr("Confirm account"), prompt, names, defaultIdx, false, &ok);
+    if (!ok || choice.isEmpty())
         return nullptr;
 
     for (auto c: qAsConst(connections))
@@ -974,145 +1019,93 @@ QMatrixClient::Connection* MainWindow::chooseConnection()
     return connection;
 }
 
-void MainWindow::joinRoom(const QString& roomAlias, Connection* connection)
+MainWindow::Locator MainWindow::obtainIdentifier(Connection* initialConn,
+        const QString& prompt, const QString& label, const QString& actionName)
 {
-    if (connections.isEmpty())
+    Dialog dlg(prompt, this, Dialog::NoStatusLine, actionName,
+               Dialog::NoExtraButtons);
+    auto* layout = dlg.addLayout<QFormLayout>();
+    auto* account = new QComboBox(&dlg); // Pass parent to ensure cleanup
+    if (connections.size() > 1)
     {
-        QMessageBox::warning(this, tr("No connections"),
-            tr("Please connect to a server before joining a room"),
-            QMessageBox::Close, QMessageBox::Close);
-        return;
-    }
-
-    if (!connection)
-    {
-        if (currentRoom && !roomAlias.isEmpty())
+        layout->addRow(tr("Account"), account);
+        for (auto* c: connections)
         {
-            connection = currentRoom->connection();
-            if (connections.size() > 1)
-            {
-                // Double check the user intention
-                QMessageBox confirmBox(QMessageBox::Question,
-                    tr("Joining %1 as %2").arg(roomAlias, connection->userId()),
-                    tr("Join room %1 under account %2?")
-                        .arg(roomAlias, connection->userId()),
-                    QMessageBox::Ok|QMessageBox::Cancel, this);
-                confirmBox.setButtonText(QMessageBox::Ok, tr("Join"));
-                auto* chooseAccountButton =
-                    confirmBox.addButton(tr("Choose account..."),
-                                         QMessageBox::ActionRole);
-
-                if (confirmBox.exec() == QMessageBox::Cancel)
-                    return;
-                if (confirmBox.clickedButton() == chooseAccountButton)
-                    connection = chooseConnection();
-            }
-        } else
-            connection = connections.size() == 1 ? connections.front() :
-                         chooseConnection();
+            account->addItem(c->userId(), QVariant::fromValue(c));
+            if (c == initialConn)
+                account->setCurrentIndex(account->count() - 1);
+        }
     }
-    if (!connection)
-        return; // No default connection and the user discarded the dialog
+    auto* identifier = new QLineEdit(&dlg);
+    layout->addRow(label, identifier);
+    auto* okButton = dlg.button(QDialogButtonBox::Ok);
+    okButton->setDisabled(identifier->text().isEmpty());
+    connect(identifier, &QLineEdit::textChanged, &dlg,
+        [identifier,okButton] {
+            okButton->setDisabled(identifier->text().isEmpty());
+        });
+    if (connections.size() > 1)
+        account->setFocus();
+    else
+        identifier->setFocus();
 
-    QString room = roomAlias;
-    while (room.isEmpty())
-    {
-        QInputDialog roomInput (this);
-        roomInput.setWindowTitle(tr("Enter room id or alias to join"));
-        roomInput.setLabelText(
-            tr("Enter an id or alias of the room. You will join as %1")
-                .arg(connection->userId()));
-        roomInput.setOkButtonText(tr("Join"));
-        roomInput.setSizeGripEnabled(true);
-        // TODO: Provide a button to select the joining account
-        if (roomInput.exec() == QDialog::Rejected)
-            return;
-        // TODO: Check validity, not only non-emptyness
-        if (!roomInput.textValue().isEmpty())
-            room = roomInput.textValue();
-        else
-            QMessageBox::warning(this, tr("No room id or alias specified"),
-                                 tr("Please specify non-empty id or alias"),
-                                 QMessageBox::Close, QMessageBox::Close);
-    }
+    return dlg.exec() == QDialog::Rejected ? Locator() :
+            Locator { account->currentData().value<Connection*>(),
+                      identifier->text() };
+}
+
+void MainWindow::joinRoom(const QString& roomAlias)
+{
+    auto* defaultConnection = currentRoom ? currentRoom->connection() :
+                              connections.size() == 1 ? connections.front() :
+                              nullptr;
+    auto roomLocator = roomAlias.isEmpty()
+            ? obtainIdentifier(defaultConnection,
+                tr("Enter room id or alias"),
+                tr("Room ID (starting with !)\nor alias (starting with #)"),
+                tr("Join"))
+            : Locator { chooseConnection(defaultConnection,
+                            tr("Confirm account to join %1").arg(roomAlias))
+                      , roomAlias };
+
+    if (!roomLocator.account)
+        return; // The user cancelled room/connection dialog or no connections
 
     using QMatrixClient::BaseJob;
-    auto* job = connection->joinRoom(room);
+    auto* job = roomLocator.account->joinRoom(roomLocator.identifier);
     // Connection::joinRoom() already connected to success() the code that
     // initialises the room in the library, which in turn causes RoomListModel
     // to update the room list. So the below connection to success() will be
     // triggered after all the initialisation have happened.
-    connect(job, &BaseJob::success, this, [=]
+    connect(job, &BaseJob::success, this, [this,roomLocator]
     {
-        statusBar()->showMessage(tr("Joined %1 as %2")
-                                 .arg(room, connection->userId()));
+        statusBar()->showMessage(
+            tr("Joined %1 as %2").arg(roomLocator.identifier,
+                                      roomLocator.account->userId()));
     });
 }
 
-void MainWindow::directChat(const QString& userId, Connection* connection) {
-    if (connections.isEmpty())
-    {
-        QMessageBox::warning(this, tr("No connections"),
-            tr("Please connect to a server before joining a room"),
-            QMessageBox::Close, QMessageBox::Close);
-        return;
-    }
+void MainWindow::directChat(const QString& userId)
+{
+    auto* defaultConnection = currentRoom ? currentRoom->connection() :
+                              connections.size() == 1 ? connections.front() :
+                              nullptr;
+    auto userLocator = userId.isEmpty()
+            ? obtainIdentifier(defaultConnection,
+                tr("Enter user id to start direct chat."),
+                tr("User ID (starting with @)"), tr("Start chat"))
+            : Locator { chooseConnection(defaultConnection,
+                            tr("Confirm your account to chat with %1")
+                            .arg(userId))
+                      , userId };
 
-    if (!connection)
-    {
-        if (currentRoom && !userId.isEmpty())
-        {
-            connection = currentRoom->connection();
-            if (connections.size() > 1)
-            {
-                // Double check the user intention
-                QMessageBox confirmBox(QMessageBox::Question,
-                    tr("Starting direct chat with %1 as %2").arg(userId, connection->userId()),
-                    tr("Start direct chat with %1 under account %2?")
-                        .arg(userId, connection->userId()),
-                    QMessageBox::Ok|QMessageBox::Cancel, this);
-                confirmBox.setButtonText(QMessageBox::Ok, tr("Start Chat"));
-                auto* chooseAccountButton =
-                    confirmBox.addButton(tr("Choose account..."),
-                                         QMessageBox::ActionRole);
+    if (!userLocator.account)
+        return; // The user cancelled room/connection dialog or no connections
 
-                if (confirmBox.exec() == QMessageBox::Cancel)
-                    return;
-                if (confirmBox.clickedButton() == chooseAccountButton)
-                    connection = chooseConnection();
-            }
-        } else
-            connection = connections.size() == 1 ? connections.front() :
-                         chooseConnection();
-    }
-    if (!connection)
-        return; // No default connection and the user discarded the dialog
-
-    QString userName = userId;
-    while (userName.isEmpty())
-    {
-        QInputDialog userInput (this);
-        userInput.setWindowTitle(tr("Enter user id to start direct chat."));
-        userInput.setLabelText(
-            tr("Enter the user id of who you would like to chat with. You will join as %1")
-                .arg(connection->userId()));
-        userInput.setOkButtonText(tr("Start Chat"));
-        userInput.setSizeGripEnabled(true);
-        // TODO: Provide a button to select the joining account
-        if (userInput.exec() == QDialog::Rejected)
-            return;
-        // TODO: Check validity, not only non-emptyness
-        if (!userInput.textValue().isEmpty())
-            userName = userInput.textValue();
-        else
-            QMessageBox::warning(this, tr("No user id specified"),
-                                 tr("Please specify non-empty user id"),
-                                 QMessageBox::Close, QMessageBox::Close);
-    }
-
-    connection->requestDirectChat(userName);
+    userLocator.account->requestDirectChat(userLocator.identifier);
     statusBar()->showMessage(tr("Starting chat with %1 as %2")
-                                .arg(userName, connection->userId()), 3000);
+                                .arg(userLocator.identifier,
+                                     userLocator.account->userId()), 3000);
 }
 
 void MainWindow::getNewEvents(Connection* c)
