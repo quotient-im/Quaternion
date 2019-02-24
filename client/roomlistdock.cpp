@@ -137,6 +137,7 @@ RoomListDock::RoomListDock(MainWindow* parent)
             model->indexOf(selectedGroupCache, selectedRoomCache);
 //            proxyModel->mapFromSource(model->indexOf(selectedRoomCache));
         view->setCurrentIndex(idx);
+        view->scrollTo(idx);
         selectedGroupCache.clear();
         selectedRoomCache = nullptr;
     });
