@@ -231,6 +231,24 @@ void RoomListDock::updateSortingMode()
     model->setOrder<OrderByTag>();
 }
 
+void RoomListDock::setSelectedRoom(QuaternionRoom* room)
+{
+    if (getSelectedRoom() == room)
+        return;
+    // First try the current group; if that fails, try the entire list
+    QModelIndex idx;
+    auto currentGroup = getSelectedGroup();
+    if (!currentGroup.isNull())
+        idx = model->indexOf(currentGroup, room);
+    if (!idx.isValid())
+        idx = model->indexOf({}, room);
+    if (idx.isValid())
+    {
+        view->setCurrentIndex(idx);
+        view->scrollTo(idx);
+    }
+}
+
 void RoomListDock::rowSelected(const QModelIndex& index)
 {
     if (model->isValidRoomIndex(index))
