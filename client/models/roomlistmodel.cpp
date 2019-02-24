@@ -351,6 +351,8 @@ QModelIndex RoomListModel::indexOf(const QVariant& group) const
 QModelIndex RoomListModel::indexOf(const QVariant& group, Room* room) const
 {
     auto it = m_roomIndices.find(room);
+    if (group.isNull() && it != m_roomIndices.end())
+        return *it;
     while (it != m_roomIndices.end() && it.key() == room)
     {
         Q_ASSERT(isValidRoomIndex(*it));
