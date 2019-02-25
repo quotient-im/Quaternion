@@ -45,6 +45,12 @@ class QSslError;
 class QNetworkProxy;
 class QAuthenticator;
 
+struct Locator
+{
+    QMatrixClient::Connection* account = nullptr;
+    QString identifier; //< Room id, room alias, or user id
+};
+
 class MainWindow: public QMainWindow
 {
         Q_OBJECT
@@ -61,15 +67,16 @@ class MainWindow: public QMainWindow
 
         ChatRoomWidget* getChatRoomWidget() const;
 
+        void resolveLocator(const Locator& l, const QString& action = {});
+
     public slots:
+        void resolveResource(const QString& idOrUri, const QString& action = {});
         void selectRoom(QMatrixClient::Room* r);
 
     private slots:
         void invokeLogin();
-        void joinRoom(const QString& roomAlias = {},
-                      Connection* connection = nullptr);
-        void directChat(const QString& roomAlias = {},
-                      Connection* connection = nullptr);
+        void joinRoom(const QString& roomAlias = {});
+        void directChat(const QString& userId = {});
         void getNewEvents(Connection* c);
         void gotEvents(Connection* c);
 
@@ -96,8 +103,11 @@ class MainWindow: public QMainWindow
 
         QMenu* connectionMenu = nullptr;
         QAction* accountListGrowthPoint = nullptr;
+        QAction* openRoomAction = nullptr;
         QAction* roomSettingsAction = nullptr;
         QAction* createRoomAction = nullptr;
+        QAction* dcAction = nullptr;
+        QAction* joinAction = nullptr;
 
         SystemTrayIcon* systemTrayIcon = nullptr;
 
@@ -121,8 +131,20 @@ class MainWindow: public QMainWindow
                                    const QByteArray& accessToken);
         bool saveAccessTokenToKeyChain(const QMatrixClient::AccountSettings& account,
                                        const QByteArray& accessToken);
-        Connection* chooseConnection();
+        Connection* chooseConnection(Connection* connection,
+                                     const QString& prompt);
         void showMillisToRecon(Connection* c);
+        /// Asks a user to pick an account and enter the Matrix identifier
+        /*!
+         * The identifier can be a room id or alias (to join/open rooms) or
+         * a user MXID (e.g., to open direct chats or user profiles).
+         * \param initialConn initially selected account, if there are several
+         * \param prompt - dialog box title
+         * \param label - the text next to the identifier field (e.g., "User ID")
+         * \param actionName - the text on the accepting button
+         */
+        Locator obtainIdentifier(Connection* initialConn, const QString& prompt,
+                                 const QString& label, const QString& actionName);
 
         void closeEvent(QCloseEvent* event) override;
 };

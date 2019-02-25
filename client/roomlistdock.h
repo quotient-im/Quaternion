@@ -42,6 +42,7 @@ class RoomListDock : public QDockWidget
 
     public slots:
         void updateSortingMode();
+        void setSelectedRoom(QuaternionRoom* room);
 
     signals:
         void roomSelected(QuaternionRoom* room);
