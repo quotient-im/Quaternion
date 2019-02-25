@@ -187,10 +187,13 @@ void MainWindow::createMenu()
         tr("Open room..."), [this] {
             auto locator = obtainIdentifier(
                             currentRoom ? currentRoom->connection() : nullptr,
-                            tr("Open room"), tr("Room ID or alias"),
+                            tr("Open room"),
+                            tr("Room ID, alias, or matrix.to link"),
                             tr("Switch to room"));
             if (!locator.account)
                 return;
+            locator.identifier.remove(
+                QRegularExpression("^https://matrix.to/#/"));
             auto* room = locator.identifier.startsWith('!') ?
                             locator.account->room(locator.identifier) :
                             locator.account->roomByAlias(locator.identifier);
