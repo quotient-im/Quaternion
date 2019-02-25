@@ -45,6 +45,12 @@ class QSslError;
 class QNetworkProxy;
 class QAuthenticator;
 
+struct Locator
+{
+    QMatrixClient::Connection* account = nullptr;
+    QString identifier; //< Room id, room alias, or user id
+};
+
 class MainWindow: public QMainWindow
 {
         Q_OBJECT
@@ -61,7 +67,10 @@ class MainWindow: public QMainWindow
 
         ChatRoomWidget* getChatRoomWidget() const;
 
+        void resolveLocator(const Locator& l, const QString& action = {});
+
     public slots:
+        void resolveResource(const QString& idOrUri, const QString& action = {});
         void selectRoom(QMatrixClient::Room* r);
 
     private slots:
@@ -125,11 +134,6 @@ class MainWindow: public QMainWindow
         Connection* chooseConnection(Connection* connection,
                                      const QString& prompt);
         void showMillisToRecon(Connection* c);
-        struct Locator
-        {
-            Connection* account = nullptr;
-            QString identifier; //< Room id, room alias, or user id
-        };
         /// Asks a user to pick an account and enter the Matrix identifier
         /*!
          * The identifier can be a room id or alias (to join/open rooms) or

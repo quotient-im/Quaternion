@@ -55,6 +55,8 @@ class ChatRoomWidget: public QWidget
 
     signals:
         void joinCommandEntered(const QString& roomAlias);
+        void resourceRequested(const QString& idOrUri,
+                               const QString& action = {});
         void showStatusMessage(const QString& message, int timeout = 0) const;
         void readMarkerMoved();
         void readMarkerCandidateMoved();

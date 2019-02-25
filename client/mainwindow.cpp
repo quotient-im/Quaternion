@@ -85,11 +85,14 @@ MainWindow::MainWindow()
     addDockWidget(Qt::RightDockWidgetArea, userListDock);
     chatRoomWidget = new ChatRoomWidget(this);
     setCentralWidget(chatRoomWidget);
+    connect( chatRoomWidget, &ChatRoomWidget::resourceRequested,
+             this, &MainWindow::resolveResource);
     connect( chatRoomWidget, &ChatRoomWidget::joinCommandEntered,
-             this, [=] (QString roomIdOrAlias)  { joinRoom(roomIdOrAlias); });
+             this, &MainWindow::joinRoom);
     connect( roomListDock, &RoomListDock::roomSelected,
              this, &MainWindow::selectRoom);
-    connect( chatRoomWidget, &ChatRoomWidget::showStatusMessage, statusBar(), &QStatusBar::showMessage );
+    connect( chatRoomWidget, &ChatRoomWidget::showStatusMessage,
+             statusBar(), &QStatusBar::showMessage );
     connect( userListDock, &UserListDock::userMentionRequested,
              chatRoomWidget, &ChatRoomWidget::insertMention);
 
@@ -124,7 +127,7 @@ MainWindow::~MainWindow()
 
 ChatRoomWidget* MainWindow::getChatRoomWidget() const
 {
-   return chatRoomWidget;
+    return chatRoomWidget;
 }
 
 template <typename DialogT, typename... DialogArgTs>
@@ -185,38 +188,12 @@ void MainWindow::createMenu()
 
     openRoomAction = viewMenu->addAction(QIcon::fromTheme("document-open"),
         tr("Open room..."), [this] {
-            auto locator = obtainIdentifier(
-                            currentRoom ? currentRoom->connection() : nullptr,
-                            tr("Open room"),
-                            tr("Room/user ID, room alias, or matrix.to link"),
-                            tr("Switch to room"));
-            if (!locator.account)
-                return;
-            if (locator.identifier.startsWith('@'))
-            {
-                if (auto* user = locator.account->user(locator.identifier))
-                {
-                    if (QMessageBox::question(this, tr("Open direct chat?"),
-                                tr("Open direct chat with user %1?")
-                                .arg(user->fullName())) == QMessageBox::Yes)
-                        locator.account->requestDirectChat(user);
-                } else
-                    QMessageBox::warning(this, tr("Malformed user id"),
-                            tr("%1 is not a correct user id")
-                            .arg(locator.identifier),
-                        QMessageBox::Close, QMessageBox::Close);
-                return;
-            }
-            auto* room = locator.identifier.startsWith('!') ?
-                            locator.account->room(locator.identifier) :
-                            locator.account->roomByAlias(locator.identifier);
-            if (room)
-                selectRoom(room);
-            else
-                QMessageBox::warning(this, tr("Room not found"),
-                    tr("There's no room %1 in the room list."
-                       " Check the spelling and the account")
-                    .arg(locator.identifier));
+            resolveLocator(obtainIdentifier(
+                    currentRoom ? currentRoom->connection() : nullptr,
+                    tr("Open room"),
+                    tr("Room/user ID, room alias, or matrix.to link"),
+                    tr("Switch to room")
+            ));
         });
     openRoomAction->setStatusTip(tr("Open a room from the room list"));
     openRoomAction->setShortcut(QKeySequence::Open);
@@ -971,6 +948,66 @@ void MainWindow::logout(Connection* c)
     c->logout();
 }
 
+void MainWindow::resolveLocator(const Locator& l, const QString& action)
+{
+    if (!l.account)
+        return;
+
+    auto idOrAlias = l.identifier;
+    idOrAlias.remove(QRegularExpression("^https://matrix.to/#/"));
+    if (idOrAlias.startsWith('@'))
+    {
+        if (auto* user = l.account->user(idOrAlias))
+        {
+            if (action == "mention")
+                chatRoomWidget->insertMention(user);
+            else if (QMessageBox::question(this, tr("Open direct chat?"),
+                        tr("Open direct chat with user %1?")
+                        .arg(user->fullName())) == QMessageBox::Yes)
+                l.account->requestDirectChat(user);
+        } else
+            QMessageBox::warning(this, tr("Malformed user id"),
+                    tr("%1 is not a correct user id").arg(idOrAlias),
+                QMessageBox::Close, QMessageBox::Close);
+        return;
+    }
+    auto* room = idOrAlias.startsWith('!') ?
+                    l.account->room(idOrAlias) :
+                    l.account->roomByAlias(idOrAlias);
+    if (room)
+        selectRoom(room);
+    else
+        QMessageBox::warning(this, tr("Room not found"),
+            tr("There's no room %1 in the room list."
+               " Check the spelling and the account")
+            .arg(idOrAlias));
+}
+
+void MainWindow::resolveResource(const QString& idOrUri, const QString& action)
+{
+    if (idOrUri.isEmpty())
+        return;
+
+    auto* defaultConnection = currentRoom ? currentRoom->connection() :
+                              connections.size() == 1 ? connections.front() :
+                              nullptr;
+#ifdef BROKEN_INITIALIZER_LISTS
+    Locator l;
+    l.account = action == "mention" ? defaultConnection :
+                chooseConnection(defaultConnection,
+                    tr("Confirm your account to chat with %1")
+                    .arg(userId));
+    l.identifier = userId;
+#else
+    Locator l { action == "mention" ? defaultConnection :
+                chooseConnection(defaultConnection,
+                                 tr("Confirm your account to open %1")
+                                 .arg(idOrUri))
+              , idOrUri };
+#endif
+    resolveLocator(l, action);
+}
+
 void MainWindow::selectRoom(QMatrixClient::Room* r)
 {
     QElapsedTimer et; et.start();
@@ -992,7 +1029,7 @@ void MainWindow::selectRoom(QMatrixClient::Room* r)
         activateWindow();
     }
     qDebug().noquote() << et << "to "
-        << (r ? "select room " + r->canonicalAlias() : "close the room");
+                       << (r ? "select room " + r->canonicalAlias() : "close the room");
 }
 
 MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
@@ -1035,7 +1072,7 @@ MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
     return connection;
 }
 
-MainWindow::Locator MainWindow::obtainIdentifier(Connection* initialConn,
+Locator MainWindow::obtainIdentifier(Connection* initialConn,
         const QString& prompt, const QString& label, const QString& actionName)
 {
     Dialog dlg(prompt, this, Dialog::NoStatusLine, actionName,
@@ -1075,7 +1112,6 @@ MainWindow::Locator MainWindow::obtainIdentifier(Connection* initialConn,
         Locator l { account->currentData().value<Connection*>()
                   , identifier->text() };
 #endif
-        l.identifier.remove(QRegularExpression("^https://matrix.to/#/"));
         return l;
     }
     return {};
@@ -1124,36 +1160,17 @@ void MainWindow::joinRoom(const QString& roomAlias)
 
 void MainWindow::directChat(const QString& userId)
 {
-    auto* defaultConnection = currentRoom ? currentRoom->connection() :
-                              connections.size() == 1 ? connections.front() :
-                              nullptr;
-    auto userLocator = userId.isEmpty()
-            ? obtainIdentifier(defaultConnection,
+    if (userId.isEmpty())
+    {
+        auto* defaultConnection = currentRoom ? currentRoom->connection() :
+                                  connections.size() == 1 ? connections.front() :
+                                  nullptr;
+        resolveLocator(obtainIdentifier(defaultConnection,
                 tr("Enter user id to start direct chat."),
-                tr("User ID (starting with @)"), tr("Start chat"))
-#ifdef BROKEN_INITIALIZER_LISTS
-            : [=] {
-                Locator l;
-                l.account = chooseConnection(defaultConnection,
-                                tr("Confirm your account to chat with %1")
-                                .arg(userId));
-                l.identifier = userId;
-                return l;
-            }();
-#else
-            : Locator { chooseConnection(defaultConnection,
-                            tr("Confirm your account to chat with %1")
-                            .arg(userId))
-                      , userId };
-#endif
-
-    if (!userLocator.account)
-        return; // The user cancelled room/connection dialog or no connections
-
-    userLocator.account->requestDirectChat(userLocator.identifier);
-    statusBar()->showMessage(tr("Starting chat with %1 as %2")
-                                .arg(userLocator.identifier,
-                                     userLocator.account->userId()), 3000);
+                tr("User ID (starting with @)"), tr("Start chat")
+        ));
+    } else
+        resolveResource(userId);
 }
 
 void MainWindow::getNewEvents(Connection* c)

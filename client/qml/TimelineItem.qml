@@ -266,10 +266,28 @@ Item {
                             controller.insertMention(author)
                             controller.focusInput()
                         }
+                        else if (link.startsWith("https://matrix.to/#/@"))
+                        {
+                            controller.resourceRequested(link, "mention")
+                            controller.focusInput()
+                        }
+                        else if (link.startsWith("https://matrix.to/"))
+                            controller.resourceRequested(link)
                         else
                             Qt.openUrlExternally(link)
                     }
                 }
+                MouseArea {
+                    anchors.fill: parent
+                    acceptedButtons: Qt.MiddleButton
+
+                    onClicked: {
+                        if (textFieldImpl.hoveredLink)
+                            controller.resourceRequested(
+                                textFieldImpl.hoveredLink)
+                    }
+                }
+
                 MouseArea {
                     anchors.fill: parent
                     cursorShape: textFieldImpl.hoveredLink
