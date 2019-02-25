@@ -1076,9 +1076,19 @@ void MainWindow::joinRoom(const QString& roomAlias)
                 tr("Enter room id or alias"),
                 tr("Room ID (starting with !)\nor alias (starting with #)"),
                 tr("Join"))
+#ifdef BROKEN_INITIALIZER_LISTS
+            : [=] {
+                Locator l;
+                l.account = chooseConnection(defaultConnection,
+                                tr("Confirm account to join %1").arg(roomAlias));
+                l.identifier = roomAlias;
+                return l;
+            }();
+#else
             : Locator { chooseConnection(defaultConnection,
                             tr("Confirm account to join %1").arg(roomAlias))
                       , roomAlias };
+#endif
 
     if (!roomLocator.account)
         return; // The user cancelled room/connection dialog or no connections
@@ -1106,10 +1116,21 @@ void MainWindow::directChat(const QString& userId)
             ? obtainIdentifier(defaultConnection,
                 tr("Enter user id to start direct chat."),
                 tr("User ID (starting with @)"), tr("Start chat"))
+#ifdef BROKEN_INITIALIZER_LISTS
+            : [=] {
+                Locator l;
+                l.account = chooseConnection(defaultConnection,
+                                tr("Confirm your account to chat with %1")
+                                .arg(userId));
+                l.identifier = userId;
+                return l;
+            }();
+#else
             : Locator { chooseConnection(defaultConnection,
                             tr("Confirm your account to chat with %1")
                             .arg(userId))
                       , userId };
+#endif
 
     if (!userLocator.account)
         return; // The user cancelled room/connection dialog or no connections
