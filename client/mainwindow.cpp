@@ -198,7 +198,7 @@ void MainWindow::createMenu()
                 {
                     if (QMessageBox::question(this, tr("Open direct chat?"),
                                 tr("Open direct chat with user %1?")
-                                .arg(user->displayname())) == QMessageBox::Yes)
+                                .arg(user->fullName())) == QMessageBox::Yes)
                         locator.account->requestDirectChat(user);
                 } else
                     QMessageBox::warning(this, tr("Malformed user id"),
