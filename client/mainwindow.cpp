@@ -192,8 +192,6 @@ void MainWindow::createMenu()
                             tr("Switch to room"));
             if (!locator.account)
                 return;
-            locator.identifier.remove(
-                QRegularExpression("^https://matrix.to/#/"));
             auto* room = locator.identifier.startsWith('!') ?
                             locator.account->room(locator.identifier) :
                             locator.account->roomByAlias(locator.identifier);
@@ -1053,8 +1051,18 @@ MainWindow::Locator MainWindow::obtainIdentifier(Connection* initialConn,
         identifier->setFocus();
 
     if (dlg.exec() == QDialog::Accepted)
-        return { account->currentData().value<Connection*>()
-               , identifier->text() };
+    {
+#ifdef BROKEN_INITIALIZER_LISTS
+        Locator l;
+        l.account = account->currentData().value<Connection*>();
+        l.identifier = identifier->text();
+#else
+        Locator l { account->currentData().value<Connection*>()
+                  , identifier->text() };
+#endif
+        l.identifier.remove(QRegularExpression("^https://matrix.to/#/"));
+        return l;
+    }
     return {};
 }
 
