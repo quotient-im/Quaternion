@@ -188,10 +188,25 @@ void MainWindow::createMenu()
             auto locator = obtainIdentifier(
                             currentRoom ? currentRoom->connection() : nullptr,
                             tr("Open room"),
-                            tr("Room ID, alias, or matrix.to link"),
+                            tr("Room/user ID, room alias, or matrix.to link"),
                             tr("Switch to room"));
             if (!locator.account)
                 return;
+            if (locator.identifier.startsWith('@'))
+            {
+                if (auto* user = locator.account->user(locator.identifier))
+                {
+                    if (QMessageBox::question(this, tr("Open direct chat?"),
+                                tr("Open direct chat with user %1?")
+                                .arg(user->displayname())) == QMessageBox::Yes)
+                        locator.account->requestDirectChat(user);
+                } else
+                    QMessageBox::warning(this, tr("Malformed user id"),
+                            tr("%1 is not a correct user id")
+                            .arg(locator.identifier),
+                        QMessageBox::Close, QMessageBox::Close);
+                return;
+            }
             auto* room = locator.identifier.startsWith('!') ?
                             locator.account->room(locator.identifier) :
                             locator.account->roomByAlias(locator.identifier);
