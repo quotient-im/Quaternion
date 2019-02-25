@@ -996,8 +996,8 @@ void MainWindow::resolveResource(const QString& idOrUri, const QString& action)
     l.account = action == "mention" ? defaultConnection :
                 chooseConnection(defaultConnection,
                     tr("Confirm your account to chat with %1")
-                    .arg(userId));
-    l.identifier = userId;
+                    .arg(idOrUri));
+    l.identifier = idOrUri;
 #else
     Locator l { action == "mention" ? defaultConnection :
                 chooseConnection(defaultConnection,
