@@ -1049,9 +1049,10 @@ MainWindow::Locator MainWindow::obtainIdentifier(Connection* initialConn,
     else
         identifier->setFocus();
 
-    return dlg.exec() == QDialog::Rejected ? Locator() :
-            Locator { account->currentData().value<Connection*>(),
-                      identifier->text() };
+    if (dlg.exec() == QDialog::Accepted)
+        return { account->currentData().value<Connection*>()
+               , identifier->text() };
+    return {};
 }
 
 void MainWindow::joinRoom(const QString& roomAlias)
