@@ -95,7 +95,7 @@
     </message>
     <message>
         <source>Unknown /command. Use // to send this line literally</source>
-        <translation>Unbekannter /befehl. Beginne mit &bdquo;//&ldquo;, um diese Zeile normal zu senden.</translation>
+        <translation>Unbekannter /befehl. Beginne mit „//“, um diese Zeile normal zu senden.</translation>
     </message>
     <message>
         <source>Save file as</source>
@@ -243,7 +243,7 @@
     </message>
     <message>
         <source>Show redacted events in the timeline as &apos;Redacted&apos; instead of hiding them entirely</source>
-        <translation>Zeige retouchierte Ereignisse im Gesprächsprotokoll als &sbquo;Retouchiert&lsquo;, anstatt sie komplett zu verbergen.</translation>
+        <translation>Zeige retouchierte Ereignisse im Gesprächsprotokoll als „Retouchiert“, anstatt sie komplett zu verbergen.</translation>
     </message>
     <message>
         <source>&amp;No-effect activity</source>
@@ -299,7 +299,7 @@
     </message>
     <message>
         <source>&amp;Non-intrusive</source>
-        <translation>&amp;Nicht-Aufdringlich</translation>
+        <translation>&amp;Nicht-aufdringlich</translation>
     </message>
     <message>
         <source>Show notifications but do not activate the window</source>
@@ -384,8 +384,8 @@
     <message>
         <source>Clicking &apos;Retry&apos; will attempt to resume synchronisation;
 Clicking &apos;Cancel&apos; will stop further synchronisation of this account until logout or Quaternion restart.</source>
-        <translation>&sbquo;Erneut probieren&lsquo; wird weiter versuchen zu synchronisieren;
-&sbquo;Abbrechen&lsquo; wird weitere Synchronisierungsversuche mit diesem Konto unterlassen bis zur Abmeldung oder Quaternion-Neustart.</translation>
+        <translation>„Erneut probieren“ wird weiter versuchen zu synchronisieren;
+„Abbrechen“ wird weitere Synchronisierungsversuche mit diesem Konto unterlassen bis zur Abmeldung oder Quaternion-Neustart.</translation>
     </message>
     <message>
         <source>Before this server can process your information, you have to agree with its terms and conditions; please click the button below to open the web page where you can do that</source>
@@ -405,7 +405,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Your access token is %1...%2; click &quot;Show details...&quot; for the full token</source>
-        <translation>Deine Authentisierungskennung ist %1…%2. Klicke &bdquo;Zeige Details...&ldquo; für die kompletten Kennung.</translation>
+        <translation>Deine Authentisierungskennung ist %1…%2. Klicke „Zeige Details...“ für die kompletten Kennung.</translation>
     </message>
     <message>
         <source>&amp;Logout</source>
@@ -605,9 +605,9 @@ Clear the box to reset to defaults
 Special tags starting with &quot;org.qmatrixclient.&quot; are: %1
 User-defined tags should start with &quot;u.&quot;</source>
         <translation>In Etiketten kann ein * neben Punkt(en) als Platzhalter eingesetzt werden.
-Deaktiviere das Kontrollkästchen, um auf die Standardeinstellungen zurückzusetzen.
-Spezielle Etiketten, die mit &bdquo;org.qmatrixclient.&ldquo; beginnen, sind: %1
-Benutzerdefinierte Etiketten sollten mit &bdquo;u.&ldquo; beginnen.</translation>
+Entferne das Häkchen, um auf die Standardeinstellungen zurückzusetzen.
+Spezielle Etiketten, die mit „org.qmatrixclient.“ beginnen, sind: %1
+Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     </message>
     <message>
         <source>Close to tray</source>
@@ -619,7 +619,7 @@ Benutzerdefinierte Etiketten sollten mit &bdquo;u.&ldquo; beginnen.</translation
     </message>
     <message>
         <source>Show/hide meaningless activity (join-leave pairs and redacted events between)</source>
-        <translation>Zeige/verberge bedeutungslose Aktivität (&bdquo;betreten&lsquo;–&bdquo;verlassen&lsquo;-Paare mit retouchierten Ereignissen dazwischen)</translation>
+        <translation>Zeige/verberge bedeutungslose Aktivität („betreten“–„verlassen“-Paare mit retouchierten Ereignissen dazwischen)</translation>
     </message>
     <message>
         <source>Built from Git, commit SHA:</source>
@@ -770,7 +770,7 @@ Benutzerdefinierte Etiketten sollten mit &bdquo;u.&ldquo; beginnen.</translation
     </message>
     <message>
         <source>updated %1 state</source>
-        <translation>aktualisierte Status von %1.</translation>
+        <translation>aktualisierte Status von %1-.</translation>
     </message>
     <message>
         <source>updated %1 state for %2</source>
