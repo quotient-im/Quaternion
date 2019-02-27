@@ -770,7 +770,7 @@ Benutzerdefinierte Etiketten sollten mit &bdquo;u.&ldquo; beginnen.</translation
     </message>
     <message>
         <source>updated %1 state</source>
-        <translation>aktualisierte %1-Status.</translation>
+        <translation>aktualisierte Status von %1.</translation>
     </message>
     <message>
         <source>updated %1 state for %2</source>
