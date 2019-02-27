@@ -23,6 +23,7 @@
 #include <jobs/mediathumbnailjob.h>
 
 #include <QtCore/QReadWriteLock>
+#include <QtCore/QThread>
 #include <QtCore/QDebug>
 
 using QMatrixClient::Connection;
@@ -51,6 +52,7 @@ class ThumbnailResponse : public QQuickImageResponse
         void startRequest()
         {
             // Runs in the main thread, not QML thread
+            Q_ASSERT(QThread::currentThread() == c->thread());
             if (mediaId.count('/') != 1)
             {
                 errorStr = QStringLiteral
@@ -60,7 +62,6 @@ class ThumbnailResponse : public QQuickImageResponse
                 return;
             }
 
-            QWriteLocker _(&lock);
             job = c->getThumbnail(mediaId, requestedSize);
             // Connect to any possible outcome including abandonment
             // to make sure the QML thread is not left stuck forever.
@@ -76,28 +77,42 @@ class ThumbnailResponse : public QQuickImageResponse
 
         QImage image;
         QString errorStr;
-        mutable QReadWriteLock lock;
+        mutable QReadWriteLock lock; // Guards ONLY these two above
 
         void prepareResult()
         {
+            // Runs in the main thread, not QML thread
+            Q_ASSERT(QThread::currentThread() == job->thread());
+            Q_ASSERT(job->error() != BaseJob::Pending);
             {
                 QWriteLocker _(&lock);
-                Q_ASSERT(job->error() != BaseJob::Pending);
-
                 if (job->error() == BaseJob::Success)
                 {
                     image = job->thumbnail();
                     errorStr.clear();
                     qDebug() << "ThumbnailResponse: image ready for" << mediaId;
+                } else if (job->error() == BaseJob::Abandoned) {
+                    errorStr = tr("Image request has been cancelled");
+                    qDebug() << "ThumbnailResponse: cancelled for" << mediaId;
                 } else {
                     errorStr = job->errorString();
                     qWarning() << "ThumbnailResponse: no valid image for" << mediaId
                                << "-" << errorStr;
                 }
-                job = nullptr;
             }
+            job = nullptr;
             emit finished();
         }
+
+        void doCancel()
+        {
+            // Runs in the main thread, not QML thread
+            Q_ASSERT(QThread::currentThread() == job->thread());
+            if (job)
+                job->abandon();
+        }
+
+        // The following overrides run in QML thread
 
         QQuickTextureFactory *textureFactory() const override
         {
@@ -113,13 +128,14 @@ class ThumbnailResponse : public QQuickImageResponse
 
         void cancel() override
         {
-            QWriteLocker _(&lock);
-            if (job)
-            {
-                job->abandon();
-                job = nullptr;
-            }
-            errorStr = tr("Image request has been cancelled");
+            // Flip from QML thread to the main thread
+            QMetaObject::invokeMethod(this,
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+                &ThumbnailResponse::doCancel,
+#else
+                "doCancel",
+#endif
+                Qt::QueuedConnection);
         }
 };
 
