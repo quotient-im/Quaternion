@@ -33,12 +33,20 @@ class ThumbnailResponse : public QQuickImageResponse
 {
         Q_OBJECT
     public:
-        ThumbnailResponse(Connection* c, QString mediaId, const QSize& requestedSize)
-            : c(c), mediaId(std::move(mediaId)), requestedSize(requestedSize)
+        ThumbnailResponse(Connection* c, QString id, const QSize& size)
+            : c(c), mediaId(std::move(id)), requestedSize(size)
             , errorStr(tr("Image request hasn't started"))
         {
-            moveToThread(c->thread());
+            if (mediaId.count('/') != 1)
+            {
+                errorStr =
+                    tr("Media id '%1' doesn't follow server/mediaId pattern")
+                    .arg(mediaId);
+                emit finished();
+                return;
+            }
             // Execute a request on the main thread asynchronously
+            moveToThread(c->thread());
             QMetaObject::invokeMethod(this,
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
                 &ThumbnailResponse::startRequest,
@@ -49,18 +57,12 @@ class ThumbnailResponse : public QQuickImageResponse
         }
         ~ThumbnailResponse() override = default;
 
+    private slots:
+        // All these run in the main thread, not QML thread
+
         void startRequest()
         {
-            // Runs in the main thread, not QML thread
             Q_ASSERT(QThread::currentThread() == c->thread());
-            if (mediaId.count('/') != 1)
-            {
-                errorStr = QStringLiteral
-                    ("Media id '%1' doesn't follow server/mediaId pattern")
-                    .arg(mediaId);
-                emit finished();
-                return;
-            }
 
             job = c->getThumbnail(mediaId, requestedSize);
             // Connect to any possible outcome including abandonment
@@ -69,19 +71,8 @@ class ThumbnailResponse : public QQuickImageResponse
                     this, &ThumbnailResponse::prepareResult);
         }
 
-    private:
-        Connection* c;
-        const QString mediaId;
-        const QSize requestedSize;
-        QMatrixClient::MediaThumbnailJob* job = nullptr;
-
-        QImage image;
-        QString errorStr;
-        mutable QReadWriteLock lock; // Guards ONLY these two above
-
         void prepareResult()
         {
-            // Runs in the main thread, not QML thread
             Q_ASSERT(QThread::currentThread() == job->thread());
             Q_ASSERT(job->error() != BaseJob::Pending);
             {
@@ -106,11 +97,20 @@ class ThumbnailResponse : public QQuickImageResponse
 
         void doCancel()
         {
-            // Runs in the main thread, not QML thread
             Q_ASSERT(QThread::currentThread() == job->thread());
             if (job)
                 job->abandon();
         }
+
+    private:
+        Connection* c;
+        const QString mediaId;
+        const QSize requestedSize;
+        QMatrixClient::MediaThumbnailJob* job = nullptr;
+
+        QImage image;
+        QString errorStr;
+        mutable QReadWriteLock lock; // Guards ONLY these two above
 
         // The following overrides run in QML thread
 
