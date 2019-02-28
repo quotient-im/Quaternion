@@ -879,7 +879,7 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     </message>
     <message>
         <source>Enter tags to add to this room, one tag per line</source>
-        <translation>Gebe Text-Etiketten für den Raum ein – eines pro Zeile:</translation>
+        <translation>Gebe Etiketten für den Raum ein – eines pro Zeile:</translation>
     </message>
     <message>
         <source>Favourites</source>
