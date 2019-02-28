@@ -16,7 +16,7 @@ Item {
 
     function openExternally()
     {
-        if (progressInfo.localPath || downloaded)
+        if (progressInfo.localPath.toString() || downloaded)
             openLocalFile()
         else
         {
