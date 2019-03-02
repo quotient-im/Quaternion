@@ -97,9 +97,11 @@ class ThumbnailResponse : public QQuickImageResponse
 
         void doCancel()
         {
-            Q_ASSERT(QThread::currentThread() == job->thread());
             if (job)
+            {
+                Q_ASSERT(QThread::currentThread() == job->thread());
                 job->abandon();
+            }
         }
 
     private:
