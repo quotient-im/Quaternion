@@ -117,6 +117,13 @@ Rectangle {
                 console.log("QML view loaded")
                 model.modelAboutToBeReset.connect(onModelAboutToReset)
                 model.modelReset.connect(onModelReset)
+                controller.pageUpPressed.connect(function() {
+                    contentY = Math.max(originY, contentY - height)
+                })
+                controller.pageDownPressed.connect(function() {
+                    contentY = Math.min(originY + contentHeight - height,
+                                        contentY + height)
+                })
             }
 
             onMovementEnded: saveViewport()
@@ -135,6 +142,15 @@ Rectangle {
 
                     onRunningChanged: { if (!running) chatView.saveViewport() }
             }}
+            Keys.onUpPressed: {
+                contentY = Math.max(originY, contentY - height / 5)
+                event.accepted = true
+            }
+            Keys.onDownPressed: {
+                contentY = Math.min(originY + contentHeight - height,
+                                     contentY + height / 5)
+                event.accepted = true
+            }
 
             // itemAt is a function, not a property so is not bound to new items
             // showing up underneath; contentHeight is used for that instead.

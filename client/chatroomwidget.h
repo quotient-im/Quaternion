@@ -60,6 +60,8 @@ class ChatRoomWidget: public QWidget
         void showStatusMessage(const QString& message, int timeout = 0) const;
         void readMarkerMoved();
         void readMarkerCandidateMoved();
+        void pageUpPressed();
+        void pageDownPressed();
 
     public slots:
         void setRoom(QuaternionRoom* room);
@@ -73,9 +75,6 @@ class ChatRoomWidget: public QWidget
         void markShownAsRead();
         void saveFileAs(QString eventId);
 
-    protected:
-        void timerEvent(QTimerEvent* event) override;
-        void resizeEvent(QResizeEvent*) override;
 
     private slots:
         void sendInput();
@@ -112,4 +111,8 @@ class ChatRoomWidget: public QWidget
 
         void reStartShownTimer();
         QString doSendInput();
+
+        void timerEvent(QTimerEvent* event) override;
+        void resizeEvent(QResizeEvent*) override;
+        void keyPressEvent(QKeyEvent*) override;
 };

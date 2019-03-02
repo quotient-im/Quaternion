@@ -706,6 +706,18 @@ void ChatRoomWidget::resizeEvent(QResizeEvent*)
     m_chatEdit->setMaximumHeight(height() / 3);
 }
 
+void ChatRoomWidget::keyPressEvent(QKeyEvent* event)
+{
+    switch(event->key()) {
+        case Qt::Key_PageUp:
+            emit pageUpPressed();
+            break;
+        case Qt::Key_PageDown:
+            emit pageDownPressed();
+            break;
+    }
+}
+
 void ChatRoomWidget::markShownAsRead()
 {
     // FIXME: a case when a single message doesn't fit on the screen.
