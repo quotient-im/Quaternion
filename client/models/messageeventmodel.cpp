@@ -520,7 +520,9 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                 return tr("made something unknown");
             }
             , [] (const RoomAliasesEvent& e) {
-                return tr("set aliases to: %1").arg(e.aliases().join(", "));
+                return tr("has set room aliases on server %1 to: %2")
+                       .arg(e.stateKey(),
+                            QLocale().createSeparatedList(e.aliases()));
             }
             , [] (const RoomCanonicalAliasEvent& e) {
                 return (e.alias().isEmpty())
