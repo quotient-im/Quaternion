@@ -55,7 +55,7 @@ Rectangle {
             }
             verticalLayoutDirection: ListView.BottomToTop
             flickableDirection: Flickable.VerticalFlick
-            flickDeceleration: 10000
+            flickDeceleration: 8000
             boundsBehavior: Flickable.StopAtBounds
     //        pixelAligned: true
             cacheBuffer: 200
@@ -137,8 +137,8 @@ Rectangle {
                 enabled: !chatView.moving
                 SmoothedAnimation {
                     id: scrollAnimation
-                    duration: settings.fast_animations_duration_ms
-                    maximumEasingTime: settings.animations_duration_ms
+                    duration: settings.fast_animations_duration_ms / 4
+                    maximumEasingTime: settings.fast_animations_duration_ms / 2
 
                     onRunningChanged: { if (!running) chatView.saveViewport() }
             }}
