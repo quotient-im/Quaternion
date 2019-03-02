@@ -521,27 +521,27 @@ User-defined tags should start with &quot;u.&quot;</translation>
     <message>
         <location filename="../mainwindow.cpp" line="190"/>
         <source>Open room...</source>
-        <translation type="unfinished"></translation>
+        <translation>Open room...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="193"/>
         <source>Open room</source>
-        <translation type="unfinished"></translation>
+        <translation>Open room</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="194"/>
         <source>Room/user ID, room alias, or matrix.to link</source>
-        <translation type="unfinished"></translation>
+        <translation>Room/user ID, room alias, or matrix.to link</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="195"/>
         <source>Switch to room</source>
-        <translation type="unfinished"></translation>
+        <translation>Switch to room</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="198"/>
         <source>Open a room from the room list</source>
-        <translation type="unfinished"></translation>
+        <translation>Open a room from the room list</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="204"/>
@@ -552,12 +552,12 @@ User-defined tags should start with &quot;u.&quot;</translation>
     <message>
         <location filename="../mainwindow.cpp" line="206"/>
         <source>Show/hide Rooms dock panel</source>
-        <translation type="unfinished"></translation>
+        <translation>Show/hide Rooms dock panel</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="209"/>
         <source>Show/hide Users dock panel</source>
-        <translation type="unfinished"></translation>
+        <translation>Show/hide Users dock panel</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="362"/>
@@ -607,22 +607,22 @@ User-defined tags should start with &quot;u.&quot;</translation>
     <message>
         <location filename="../mainwindow.cpp" line="470"/>
         <source>Access token file found</source>
-        <translation type="unfinished"></translation>
+        <translation>Access token file found</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="471"/>
         <source>Do you want to migrate the access token for %1 from the file to keychain?</source>
-        <translation type="unfinished"></translation>
+        <translation>Do you want to migrate the access token for %1 from the file to keychain?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="487"/>
         <source>Couldn&apos;t migrate access token</source>
-        <translation type="unfinished"></translation>
+        <translation>Couldn&apos;t migrate access token</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="488"/>
         <source>Quaternion couldn&apos;t migrate access token %1 from the file to keychain.</source>
-        <translation type="unfinished"></translation>
+        <translation>Quaternion couldn&apos;t migrate access token %1 from the file to keychain.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="536"/>
@@ -647,12 +647,12 @@ User-defined tags should start with &quot;u.&quot;</translation>
     <message>
         <location filename="../mainwindow.cpp" line="586"/>
         <source>Couldn&apos;t save access token</source>
-        <translation type="unfinished"></translation>
+        <translation>Couldn&apos;t save access token</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="587"/>
         <source>Quaternion couldn&apos;t save the access token to keychain. Do you want to save the access token to file %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>Quaternion couldn&apos;t save the access token to keychain. Do you want to save the access token to file %1?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="631"/>
@@ -723,12 +723,12 @@ Response:
     <message>
         <location filename="../mainwindow.cpp" line="801"/>
         <source>Logging in into a logged in account</source>
-        <translation type="unfinished"></translation>
+        <translation>Logging in into a logged in account</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="802"/>
         <source>You&apos;re trying to log in into an account that&apos;s already logged in. Do you want to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>You&apos;re trying to log in into an account that&apos;s already logged in. Do you want to continue?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="817"/>
@@ -803,94 +803,95 @@ Response:
     <message>
         <location filename="../mainwindow.cpp" line="962"/>
         <source>Couldn&apos;t delete access token</source>
-        <translation type="unfinished"></translation>
+        <translation>Couldn&apos;t delete access token</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="963"/>
         <source>Quaternion couldn&apos;t delete the access token from keychain.</source>
-        <translation type="unfinished"></translation>
+        <translation>Quaternion couldn&apos;t delete the access token from keychain.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="984"/>
         <source>Open direct chat?</source>
-        <translation type="unfinished"></translation>
+        <translation>Open direct chat?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="985"/>
         <source>Open direct chat with user %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>Open direct chat with user %1?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="989"/>
         <source>Malformed user id</source>
-        <translation type="unfinished"></translation>
+        <translation>Malformed user id</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="990"/>
         <source>%1 is not a correct user id</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 is not a correct user id</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1000"/>
         <source>Room not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Room not found</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1001"/>
         <source>There&apos;s no room %1 in the room list. Check the spelling and the account</source>
-        <translation type="unfinished"></translation>
+        <translation>There&apos;s no room %1 in the room list. Check the spelling and the account</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1018"/>
         <source>Confirm your account to chat with %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Confirm your account to chat with %1</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1024"/>
         <source>Confirm your account to open %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Confirm your account to open %1</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1064"/>
         <source>Please connect to a server first</source>
-        <translation type="unfinished"></translation>
+        <translation>Please connect to a server first</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1081"/>
         <source>Confirm account</source>
-        <translation type="unfinished"></translation>
+        <translation>Confirm account</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1104"/>
         <source>Account</source>
-        <translation type="unfinished">Account</translation>
+        <translation>Account</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1147"/>
         <source>Enter room id or alias</source>
-        <translation type="unfinished"></translation>
+        <translation>Enter room id or alias</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1148"/>
         <source>Room ID (starting with !)
 or alias (starting with #)</source>
-        <translation type="unfinished"></translation>
+        <translation>Room ID (starting with !)
+or alias (starting with #)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1154"/>
         <location filename="../mainwindow.cpp" line="1160"/>
         <source>Confirm account to join %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Confirm account to join %1</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1190"/>
         <source>User ID (starting with @)</source>
-        <translation type="unfinished"></translation>
+        <translation>User ID (starting with @)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1190"/>
         <source>Start chat</source>
-        <translation type="unfinished"></translation>
+        <translation>Start chat</translation>
     </message>
     <message>
         <source>Choose the account to join the room</source>
@@ -1155,7 +1156,7 @@ or alias (starting with #)</source>
     <message>
         <location filename="../models/messageeventmodel.cpp" line="523"/>
         <source>has set room aliases on server %1 to: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>has set room aliases on server %1 to: %2</translation>
     </message>
     <message>
         <source>set aliases to: %1</source>
@@ -1636,7 +1637,7 @@ This operation cannot be reverted.</translation>
     <message>
         <location filename="../imageprovider.cpp" line="43"/>
         <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</translation>
     </message>
     <message>
         <location filename="../imageprovider.cpp" line="86"/>
