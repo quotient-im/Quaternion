@@ -1127,10 +1127,12 @@ Locator MainWindow::obtainIdentifier(Connection* initialConn,
     {
 #ifdef BROKEN_INITIALIZER_LISTS
         Locator l;
-        l.account = account->currentData().value<Connection*>();
+        l.account = connections.size() > 1 ?
+                        account->currentData().value<Connection*>() : initialConn;
         l.identifier = identifier->text();
 #else
-        Locator l { account->currentData().value<Connection*>()
+        Locator l { connections.size() > 1 ?
+                        account->currentData().value<Connection*>() : initialConn
                   , identifier->text() };
 #endif
         return l;
