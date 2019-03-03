@@ -48,6 +48,6 @@ deploy:
     APPVEYOR_REPO_TAG: true
 - provider: Environment
   name: Bintray
-  version: %VERSION%
+  version: "%VERSION%"
   on:
     branch: master
