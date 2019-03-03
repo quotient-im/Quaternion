@@ -17,12 +17,8 @@ init:
 - cd /D "%APPVEYOR_BUILD_FOLDER%"
 
 before_build:
-- cmd: "
-  if defined APPVEYOR_REPO_TAG_NAME
-    for /F %I in ('git rev-list --count HEAD') do set VERSION=%I
-  else
-    set VERSION=%APPVEYOR_REPO_TAG_NAME%
-  "
+# The following is
+- if defined APPVEYOR_REPO_TAG_NAME (set VERSION=%APPVEYOR_REPO_TAG_NAME%) else for /F %%I in ('git rev-list --count HEAD') do set VERSION=%%I
 - set DEPLOY_DIR=Quaternion-%VERSION%
 - git submodule update --init --recursive
 - cmake -LA -G "NMake Makefiles JOM" -H. -Bbuild -DCMAKE_CXX_FLAGS="/EHsc /W3" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="%DEPLOY_DIR%" -DUSE_INTREE_LIBQMC=1 -DDEPLOY_VERBOSITY=%DEPLOY_VERBOSITY%
