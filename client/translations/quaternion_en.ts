@@ -1044,13 +1044,13 @@ or alias (starting with #)</translation>
     </message>
     <message>
         <location filename="../models/messageeventmodel.cpp" line="430"/>
-        <location filename="../models/messageeventmodel.cpp" line="624"/>
+        <location filename="../models/messageeventmodel.cpp" line="628"/>
         <source>Redacted</source>
         <translation>Redacted</translation>
     </message>
     <message>
         <location filename="../models/messageeventmodel.cpp" line="432"/>
-        <location filename="../models/messageeventmodel.cpp" line="625"/>
+        <location filename="../models/messageeventmodel.cpp" line="629"/>
         <source>Redacted: %1</source>
         <translation>Redacted: %1</translation>
     </message>
@@ -1121,36 +1121,44 @@ or alias (starting with #)</translation>
     </message>
     <message>
         <location filename="../models/messageeventmodel.cpp" line="509"/>
-        <source>has put %1 out of the room</source>
-        <translation>has put %1 out of the room</translation>
+        <source>has put %1 out of the room: %2</source>
+        <translation>has put %1 out of the room: %2</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="510"/>
+        <location filename="../models/messageeventmodel.cpp" line="515"/>
+        <source>banned %1 from the room: %2</source>
+        <translation>banned %1 from the room: %2</translation>
+    </message>
+    <message>
+        <source>has put %1 out of the room</source>
+        <translation type="vanished">has put %1 out of the room</translation>
+    </message>
+    <message>
+        <location filename="../models/messageeventmodel.cpp" line="512"/>
         <source>left the room</source>
         <translation>left the room</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="513"/>
         <source>banned %1 from the room</source>
-        <translation>banned %1 from the room</translation>
+        <translation type="vanished">banned %1 from the room</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="514"/>
+        <location filename="../models/messageeventmodel.cpp" line="518"/>
         <source>self-banned from the room</source>
         <translation>self-banned from the room</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="516"/>
+        <location filename="../models/messageeventmodel.cpp" line="520"/>
         <source>knocked</source>
         <translation>knocked</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="520"/>
+        <location filename="../models/messageeventmodel.cpp" line="524"/>
         <source>made something unknown</source>
         <translation>made something unknown</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="523"/>
+        <location filename="../models/messageeventmodel.cpp" line="527"/>
         <source>has set room aliases on server %1 to: %2</source>
         <translation>has set room aliases on server %1 to: %2</translation>
     </message>
@@ -1159,75 +1167,75 @@ or alias (starting with #)</translation>
         <translation type="vanished">set aliases to: %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="529"/>
+        <location filename="../models/messageeventmodel.cpp" line="533"/>
         <source>cleared the room main alias</source>
         <translation>cleared the room main alias</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="530"/>
+        <location filename="../models/messageeventmodel.cpp" line="534"/>
         <source>set the room main alias to: %1</source>
         <translation>set the room main alias to: %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="534"/>
+        <location filename="../models/messageeventmodel.cpp" line="538"/>
         <source>cleared the room name</source>
         <translation>cleared the room name</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="535"/>
+        <location filename="../models/messageeventmodel.cpp" line="539"/>
         <source>set the room name to: %1</source>
         <translation>set the room name to: %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="539"/>
+        <location filename="../models/messageeventmodel.cpp" line="543"/>
         <source>cleared the topic</source>
         <translation>cleared the topic</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="540"/>
+        <location filename="../models/messageeventmodel.cpp" line="544"/>
         <source>set the topic to: %1</source>
         <translation>set the topic to: %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="543"/>
+        <location filename="../models/messageeventmodel.cpp" line="547"/>
         <source>changed the room avatar</source>
         <translation>changed the room avatar</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="546"/>
+        <location filename="../models/messageeventmodel.cpp" line="550"/>
         <source>activated End-to-End Encryption</source>
         <translation>activated End-to-End Encryption</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="550"/>
+        <location filename="../models/messageeventmodel.cpp" line="554"/>
         <source>upgraded the room to version %1</source>
         <translation>upgraded the room to version %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="551"/>
+        <location filename="../models/messageeventmodel.cpp" line="555"/>
         <source>created the room, version %1</source>
         <translation>created the room, version %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="557"/>
+        <location filename="../models/messageeventmodel.cpp" line="561"/>
         <source>updated the database</source>
         <comment>TWIM bot updated the database</comment>
         <translation>updated the database</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="559"/>
+        <location filename="../models/messageeventmodel.cpp" line="563"/>
         <source>updated %1 state</source>
         <comment>%1 - Matrix event type</comment>
         <translation>updated %1 state</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="561"/>
+        <location filename="../models/messageeventmodel.cpp" line="565"/>
         <source>updated %1 state for %2</source>
         <comment>%1 - Matrix event type, %2 - state key</comment>
         <translation>updated %1 state for %2</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="565"/>
+        <location filename="../models/messageeventmodel.cpp" line="569"/>
         <source>Unknown event</source>
         <translation>Unknown event</translation>
     </message>
@@ -1670,7 +1678,7 @@ This operation cannot be reverted.</translation>
         <translation>%1 GB</translation>
     </message>
     <message numerus="yes">
-        <location filename="../qml/Timeline.qml" line="267"/>
+        <location filename="../qml/Timeline.qml" line="269"/>
         <source>%Ln events back from now (%L1 cached%2)</source>
         <comment>%2 is optional &apos;and loading&apos;</comment>
         <translation>
@@ -1679,7 +1687,7 @@ This operation cannot be reverted.</translation>
         </translation>
     </message>
     <message>
-        <location filename="../qml/Timeline.qml" line="271"/>
+        <location filename="../qml/Timeline.qml" line="273"/>
         <source>and loading</source>
         <translation>and loading</translation>
     </message>

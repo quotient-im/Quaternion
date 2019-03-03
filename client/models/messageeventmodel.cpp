@@ -506,11 +506,15 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                                     : tr("self-unbanned");
                         }
                         return (e.senderId() != e.userId())
-                                ? tr("has put %1 out of the room").arg(subjectName)
+                                ? tr("has put %1 out of the room: %2")
+                                  .arg(subjectName,
+                                       e.contentJson()["reason"_ls].toString())
                                 : tr("left the room");
                     case MembershipType::Ban:
                         return (e.senderId() != e.userId())
-                                ? tr("banned %1 from the room").arg(subjectName)
+                                ? tr("banned %1 from the room: %2")
+                                  .arg(subjectName,
+                                       e.contentJson()["reason"_ls].toString())
                                 : tr("self-banned from the room");
                     case MembershipType::Knock:
                         return tr("knocked");
