@@ -75,7 +75,8 @@ matrix:
 before_script:
 - if [ -f /opt/qt57/bin/qt57-env.sh ]; then . /opt/qt57/bin/qt57-env.sh; fi
 - if [ -f /opt/qt512/bin/qt512-env.sh ]; then . /opt/qt512/bin/qt512-env.sh; fi
-- export VERSION=$(git rev-list --count HEAD) # also used by linuxdeployqt
+# VERSION is also used by linuxdeployqt
+- if [ -n "$TRAVIS_TAG" ]; then export VERSION="$TRAVIS_TAG"; else export VERSION="git$(git rev-list --count HEAD)"; fi
 
 script:
 - mkdir build && pushd build
@@ -105,12 +106,11 @@ script:
       ./linuxdeployqt-continuous-x86_64.AppImage \
         $DESTDIR/usr/share/applications/*.desktop -appimage -extra-plugins=iconengines,platformthemes/libqgtk3.so -qmldir=$TRAVIS_BUILD_DIR/client/qml -verbose=$DEPLOY_VERBOSITY
       export APPIMAGE_READY=1
-      mv Quaternion*.AppImage Quaternion.x86_64.AppImage
     popd
   fi
 
 after_success:
-- sed -i -e "s/VERSION_VALUE/git-$VERSION/g" .ci/bintray-release.json
+- sed -i -e "s/VERSION_VALUE/$VERSION/g" .ci/bintray-release.json
 - sed -i -e "s/VERSION_SUFFIX/$VERSION_SUFFIX/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_SUBJECT/$BINTRAY_SUBJECT/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_REPO/$BINTRAY_REPO/g" .ci/bintray-release.json

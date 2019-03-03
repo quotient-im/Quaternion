@@ -18,7 +18,7 @@ init:
 
 before_build:
 # The following is
-- if defined APPVEYOR_REPO_TAG_NAME (set VERSION=%APPVEYOR_REPO_TAG_NAME%) else for /F %%I in ('git rev-list --count HEAD') do set VERSION=%%I
+- if defined APPVEYOR_REPO_TAG_NAME (set VERSION=%APPVEYOR_REPO_TAG_NAME%) else for /F %%I in ('git rev-list --count HEAD') do set VERSION=git%%I
 - set DEPLOY_DIR=Quaternion-%VERSION%
 - git submodule update --init --recursive
 - cmake -LA -G "NMake Makefiles JOM" -H. -Bbuild -DCMAKE_CXX_FLAGS="/EHsc /W3" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="%DEPLOY_DIR%" -DUSE_INTREE_LIBQMC=1 -DDEPLOY_VERBOSITY=%DEPLOY_VERBOSITY%
@@ -49,6 +49,6 @@ deploy:
     APPVEYOR_REPO_TAG: true
 - provider: Environment
   name: Bintray
-  version: git-%VERSION%
+  version: %VERSION%
   on:
     branch: master
