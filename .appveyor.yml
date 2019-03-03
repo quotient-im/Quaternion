@@ -5,15 +5,17 @@ environment:
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     QTDIR: C:\Qt\5.11\msvc2017_64
     VCVARS: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
-    PLATFORM: win64
+    PLATFORM:
+    VER_SUFFIX: win64
   - QTDIR: C:\Qt\5.11\msvc2015
     VCVARS: "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\vcvarsall.bat"
-    PLATFORM: win32
+    PLATFORM: x86
+    VER_SUFFIX: win32
 
 init:
 - call "%QTDIR%\bin\qtenv2.bat"
 - set PATH=C:\Qt\Tools\QtCreator\bin;%PATH%
-- call "%VCVARS%" %platform%
+- call "%VCVARS%" %PLATFORM%
 - cd /D "%APPVEYOR_BUILD_FOLDER%"
 
 before_build:
@@ -30,7 +32,7 @@ after_build:
 - cd "%DEPLOY_DIR%"
 - rmdir /S /Q bearer qmltooling
 - cd ..
-- 7z a quaternion-%VERSION%-%PLATFORM%.zip "%DEPLOY_DIR%\"
+- 7z a quaternion-%VERSION%-%VER_SUFFIX%.zip "%DEPLOY_DIR%\"
 
 # Uncomment this to connect to the AppVeyor build worker
 #on_finish:
@@ -48,6 +50,6 @@ deploy:
     APPVEYOR_REPO_TAG: true
 - provider: Environment
   name: Bintray
-  version: "%VERSION%-%PLATFORM%"
+  version: "%VERSION%-%VER_SUFFIX%"
   on:
     branch: master
