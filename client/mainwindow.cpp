@@ -189,7 +189,9 @@ void MainWindow::createMenu()
     openRoomAction = viewMenu->addAction(QIcon::fromTheme("document-open"),
         tr("Open room..."), [this] {
             resolveLocator(obtainIdentifier(
-                    currentRoom ? currentRoom->connection() : nullptr,
+                    currentRoom ? currentRoom->connection() :
+                              connections.size() == 1 ? connections.front() :
+                              nullptr,
                     tr("Open room"),
                     tr("Room/user ID, room alias, or matrix.to link"),
                     tr("Switch to room")
