@@ -1098,9 +1098,10 @@ Locator MainWindow::obtainIdentifier(Connection* initialConn,
     Dialog dlg(prompt, this, Dialog::NoStatusLine, actionName,
                Dialog::NoExtraButtons);
     auto* layout = dlg.addLayout<QFormLayout>();
-    auto* account = new QComboBox(&dlg); // Pass parent to ensure cleanup
+    auto* account = new QComboBox;
     if (connections.size() > 1)
     {
+        account->setParent(&dlg);
         layout->addRow(tr("Account"), account);
         for (auto* c: connections)
         {
