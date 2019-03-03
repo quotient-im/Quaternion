@@ -953,10 +953,6 @@ or alias (starting with #)</translation>
         <translation type="vanished">Start direct chat with %1 under account %2?</translation>
     </message>
     <message>
-        <source>Start Chat</source>
-        <translation type="vanished">Start Chat</translation>
-    </message>
-    <message>
         <location filename="../mainwindow.cpp" line="1189"/>
         <source>Enter user id to start direct chat.</source>
         <translation>Enter user id to start direct chat.</translation>
