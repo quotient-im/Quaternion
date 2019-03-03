@@ -141,12 +141,23 @@ Settings not exposed in UI:
 - `UI/Fonts/render_type` - select how to render fonts in Quaternion timeline;
   possible values are "NativeRendering" (default) and "QtRendering".
 
-Since version 0.0.5, Quaternion tries to store your access tokens in a dedicated file with restricted access rights so that only the owner can access them. Every access token is stored in a separate file matching your user id in the following directory:
+Since version 0.0.9.4, AppImage binaries for Linux and .dmg files for macOS
+are compiled with Qt Keychain support. That means that Quaternion will try
+to store your access token(s) in the secure storage configured for your
+platform. If the storage or Qt Keychain are not available (Qt Keychain is off
+by default on Windows - you have to rebuild Quaternion to enable it),
+Quaternion will try to store your access token(s) in a dedicated file with
+restricted access rights so that only the owner can access them. Every
+access token is stored in a separate file matching your user id in
+the following directory:
 - Linux: `$HOME/.local/share/QMatrixClient/quaternion`
 - macOS: `$HOME/Library/Application Support/QMatrixClient/quaternion`
 - Windows: `%LOCALAPPDATA%/QMatrixClient/quaternion`
 
-Unfortunately, Quaternion cannot enforce proper access rights on Windows yet; you'll see a warning about it and will be able to either refuse saving your access token in that case or agree and setup file permissions outside Quaternion.
+Unfortunately, Quaternion cannot enforce proper access rights on Windows yet;
+you'll see a warning about it and will be able to either refuse saving your
+access token in that case or agree and setup file permissions outside Quaternion.
+The work is ongoing to enable Qt Keychain on Windows by default.
 
 Quaternion caches the rooms state and user/room avatars on the file system in a conventional location for your platform, as follows:
 - Linux: `$HOME/.cache/QMatrixClient/quaternion`
@@ -160,12 +171,24 @@ Cache files are safe to delete at any time but Quaternion only looks for them wh
 libqmatrixclient has its own section on troubleshooting - make sure to look into its README.md too.
 
 #### Continuously reconnecting though the network is fine
-If Quaternion starts displaying the message that it couldn't connect to the server and retries more than a couple of times without success, while you're sure you have the network connection - double-check that you don't have Qt bearer management libraries around: they cause issues with some WiFi networks. To do that, try to find "bearer" directory where your Qt is installed (on Windows it's next to Quaternion executable; on Linux it's a part of Qt installation in `/usr/lib/qt5/plugins`). Then delete or rename it (on Windows) or delete the package that this directory is in (on Linux).
+If Quaternion starts displaying the message that it couldn't connect to the server and retries more than a couple of times without success, while you're sure you have the network connection - double-check that you don't have Qt bearer management libraries around, as they cause issues with some WiFi networks. To do that, try to find "bearer" directory where your Qt is installed (on Windows it's next to Quaternion executable; on Linux it's a part of Qt installation, usually in `/usr/lib/qt5/plugins`). Then delete or rename it (on Windows) or delete the package that this directory is in (on Linux).
 
 #### No messages in the timeline
-If Quaternion runs but you can't see any messages in the chat (though you can type them in) - you have a problem with Qt Quick. Most likely, you don't have Qt Quick libraries and/or plugins installed. On Linux, double check "Pre-requisites" above and also see the stdout/stderr logs, they are quite clear in such cases. On Windows and Mac, just open an issue (see "Contacts" in the beginning of this README), because most likely not all necessary Qt parts got copied along with Quaternion (which is a bug).
-
-If the logs confirm that QML is up and running but there's still nothing for the timeline, you might have hit an issue with QML view stacking order, such as #356. As a workaround, you may try to use a highly experimental (=prone to crashes on some platforms) mode: pass `-DUSE_QQUICKWIDGET=ON` to CMake.
+If Quaternion runs but you can't see any messages in the chat (though you can
+type them in) - you have either of two problems with Qt Quick (or if you are
+extremely unlucky, both):
+- You might not have Qt Quick libraries and/or plugins installed. On Linux,
+  double check "Pre-requisites" above and also see the stdout/stderr logs,
+  they are quite clear in such cases. On Windows and Mac, just open an issue
+  (see "Contacts" in the beginning of this README), because most likely
+  not all necessary Qt parts were installed along with Quaternion (which is a bug).
+- If the logs confirm that QML is up and running but there's still nothing
+  for the timeline, you might have hit an issue with QML view stacking order,
+  such as #355/#356. If you use Qt 5.12, please file a bug (it should not happen
+  with Qt 5.12 at all). With older Qt, you will have to build Quaternion from
+  sources, passing `-DUSE_QQUICKWIDGET=ON` to CMake. Note that it's prone to
+  crashing on some platforms so it's best to still find a way to use
+  Quaternion with Qt 5.12.
 
 #### SSL problems
 Especially on Windows, if Quaternion starts up but upon an attempt to connect returns a message like "Failed to make SSL context" - you haven't made sure that SSL libraries are reachable by the Quaternion binary. Re-read the chapter "Requirements", section "Windows" in the beginning of this file and do as it advises.

@@ -18,40 +18,54 @@ options to use the library:
    repository, or as a result of building the library from the source code in
    another directory. In the latter case CMake internally registers the
    library upon succesfully building it so you shouldn't even need to pass
-   `CMAKE_PREFIX_PATH`
-2. As a Git submodule. This method is enabled by passing `-DUSE_INTREE_LIBQMC=1`
-   to the "configuring" (the one _without_ `--build`) invocation of CMake. If you
-   haven't cloned the Quaternion source code yet, the following will get you
-   all sources in one go:
+   `CMAKE_PREFIX_PATH`. This option can be forced by passing
+   `-DUSE_INTREE_LIBQMC=0` (or `NO`, or `OFF`) to the configuring
+   invocation of CMake (the one _without_ `--build`); alternatively, the build
+   system will fall back to this option if it doesn't find in-tree sources
+   for the library (under `lib/`) and `USE_INTREE_LIBQMC` is unset completely.
+2. As a Git submodule. This option can be forced (disabling the fallback
+   mentioned above) by passing `-DUSE_INTREE_LIBQMC=1` (or `YES`, or `ON`)
+   to CMake. If you haven't cloned Quaternion sources yet, the following will
+   get you all sources in one go:
    ```bash
    git clone --recursive https://github.com/QMatrixClient/Quaternion.git
    ```
-   If you already have cloned Quaternion, do the following in the top-level directory (NOT in `lib` subdirectory):
+   If you already have cloned Quaternion, do the following in the top-level
+   directory (NOT in `lib` subdirectory):
    ```bash
    git submodule init
    git submodule update
    ```
 
-Option 2 was historically used (without the CMake switch) since libQMatrixClient
-has got its own repo; it is not recommended for casual builds since the library
-code and API are more stable these days and since Git submodules have
-shortcomings of their own: being forgotten to be updated after updating
-Quaternion, and not being included into GitHub's releases source tarballs,
-to name a couple. This may still be the preferred method if you're actively
-hacking on Quaternion _and_ libQMatrixClient at the same time.
+Depending on your case, either option can be preferrable. For instance, Option 2
+is more convenient if you're actively hacking on Quaternion and libQMatrixClient
+at the same time. On the other hand, packagers should make a separate package
+for libQMatrixClient so should use Option 1. 0.0.9.3 is the only version using
+Option 1 as default; due to popular demand, Option 2 is used by default (but
+with a fallback to Option 1) from 0.0.9.4 beta.
 
 ### Pre-requisites
-- a Linux, macOS or Windows system (desktop versions tried; mobile Linux/Windows might work too)
-  - For Ubuntu flavours - zesty or later (or a derivative) is good enough out of the box; older ones will need PPAs at least for a newer Qt - in particular, if you have xenial you're advised to add Kubuntu Backports PPA for it
+- a Linux, macOS or Windows system (desktop versions tried; mobile Linux/Windows
+  might work too)
+  - For Ubuntu flavours - zesty or later (or a derivative) is good enough out
+  of the box; older ones will need PPAs at least for a newer Qt - in particular,
+  if you have xenial you're advised to add Kubuntu Backports PPA for it
 - a Git client to check out this repo
-- CMake (from your package management system or [the official website](https://cmake.org/download/))
-- Qt 5 (either Open Source or Commercial), version 5.7 or higher (5.12 is recommended)
-- a C++ toolchain supported by your version of Qt (see a link for your platform at [the Qt's platform requirements page](http://doc.qt.io/qt-5/gettingstarted.html#platform-requirements))
-  - GCC 5 (Windows, Linux, macOS), Clang 5 (Linux), Apple Clang 8.1 (macOS) and Visual C++ 2015 (Windows) are the oldest officially supported
-  - any build system that works with CMake should be fine: GNU Make, ninja (any platform), NMake, jom (Windows) are known to work.
-- libQMatrixClient development files (from your package management system), or
-  prebuilt libQMatrixClient (see "Getting the source code" above).
-- optionaly [QtKeychain](https://github.com/frankosterfeld/qtkeychain) to store access tokens in libsecret keyring or similar providers.
+- CMake (from your package management system or
+  [the official website](https://cmake.org/download/))
+- Qt 5 (either Open Source or Commercial), version 5.7 or higher
+  (5.12 is recommended)
+- a C++ toolchain supported by your version of Qt (see a link for your platform
+  at [the Qt's platform requirements page](http://doc.qt.io/qt-5/gettingstarted.html#platform-requirements))
+  - GCC 5 (Windows, Linux, macOS), Clang 5 (Linux), Apple Clang 8.1 (macOS)
+    and Visual C++ 2015 (Windows) are the oldest officially supported
+  - any build system that works with CMake should be fine: GNU Make,
+    ninja (any platform), NMake, jom (Windows) are known to work.
+- optionally, libQMatrixClient 0.5 development files (from your
+  package management system), or prebuilt libQMatrixClient
+  (see "Getting the source code" above).
+- optionaly, [QtKeychain](https://github.com/frankosterfeld/qtkeychain)
+  to store access tokens in libsecret keyring or similar providers.
 
 #### Linux
 Just install things from the list above using your preferred package manager. If your Qt package base is fine-grained you might want to take a look at `CMakeLists.txt` to figure out which specific libraries Quaternion uses (or blindly run cmake and look at error messages). Note also that you'll need several Qt Quick plugins for Quaternion to work (without them, it will compile and run but won't show the messages timeline). In case of Xenial Xerus following line should get you everything necessary to build and run Quaternion:
@@ -80,24 +94,38 @@ cmake .. -DCMAKE_PREFIX_PATH=../../libqmatrixclient -DUSE_QQUICKWIDGET=ON -DCMAK
 (read on to find out about `USE_QQUICKWIDGET`).
 
 #### Windows
-1. Install CMake. The commands in further sections imply that cmake is in your PATH - otherwise you have to prepend them with actual paths.
-1. Install Qt5, using their official installer. If for some reason you need to use Qt 5.2.1, select its Add-ons component in the installer as well; for later versions, no extras are needed. If you don't have a toolchain and/or IDE, you can easily get one by selecting Qt Creator and at least one toolchain under Qt Creator. At least Qt 5.3 is recommended on Windows; `windeployqt` in Qt 5.2.1 is not functional enough to provide a standalone installation for Quaternion though you can still compile and run from your build directory.
-1. Make sure CMake knows about Qt and the toolchain - the easiest way is to run a qtenv2.bat script that can be found in `C:\Qt\<Qt version>\<toolchain>\bin` (assuming you installed Qt to `C:\Qt`). The only thing it does is adding necessary paths to PATH - you might not want to run it on system startup but it's very handy to setup environment before building. Setting CMAKE_PREFIX_PATH, the same way as for macOS (see above), also helps.
+1. Install CMake. The commands in further sections imply that cmake is in your
+   PATH - otherwise you have to prepend them with actual paths.
+1. Install Qt5, using their official installer.
+1. Make sure CMake knows about Qt and the toolchain - the easiest way is to run
+   `qtenv2.bat` script that can be found in `C:\Qt\<Qt version>\<toolchain>\bin`
+   (assuming you installed Qt to `C:\Qt`). The only thing it does is adding
+   necessary paths to `PATH` - you might not want to run it on system startup
+   but it's very handy to setup environment before building.
+   Setting `CMAKE_PREFIX_PATH`, the same way as for macOS (see above), also helps.
 
-There are no official MinGW-based 64-bit packages for Qt. If you're determined to build 64-bit Quaternion, either use a Visual Studio toolchain or build Qt5 yourself as described in Qt documentation. Be prepared that a VS 64-bit build won't give you a working Quaternion - the last time checked Quaternion ran but could not get anything from the network. PRs are welcome.
+Be prepared that a VS 64-bit build won't give you a working Quaternion -
+the last time checked Quaternion ran but could not get anything from the network.
+PRs are welcome. MinGW-based 64-bit builds (with Qt 5.12) run fine.
 
 ### Build
 In the root directory of the project sources:
 ```bash
 mkdir build_dir
 cd build_dir
-cmake .. # Pass -DCMAKE_PREFIX_PATH and -DCMAKE_INSTALL_PREFIX here if needed
+cmake .. # Pass -D<variable> if needed
 cmake --build . --target all
 ```
 This will get you an executable in `build_dir` inside your project sources.
-`CMAKE_INSTALL_PREFIX` variable of CMake controls where Quaternion will be
-installed - pass it to `cmake ..` above if you wish to alter the default
-(see the output from `cmake ..` to find out the configured values).
+Noteworthy CMake variables that you can use:
+- `-DCMAKE_PREFIX_PATH=/path` - add a path to CMake's list of searched paths
+  for preinstalled software (Qt, libQMatrixClient, QtKeychain)
+- `-DCMAKE_INSTALL_PREFIX=/path` - controls where Quaternion will be installed
+  (see below on installing from sources)
+- `-DUSE_INTREE_LIBQMC=<ON|OFF>` - force using/not-using the in-tree copy of
+  libQMatrixClient sources (see "Getting the source code" above).
+- `-DUSE_QQUICKWIDGET=<ON|OFF>` - by default it's `ON` with Qt 5.12 and `OFF`
+  with earlier versions. See the next section for details.
 
 #### QQuickWidget
 
