@@ -105,6 +105,7 @@ script:
       ./linuxdeployqt-continuous-x86_64.AppImage \
         $DESTDIR/usr/share/applications/*.desktop -appimage -extra-plugins=iconengines,platformthemes/libqgtk3.so -qmldir=$TRAVIS_BUILD_DIR/client/qml -verbose=$DEPLOY_VERBOSITY
       export APPIMAGE_READY=1
+      mv Quaternion*.AppImage Quaternion.x86_64.AppImage
     popd
   fi
 
@@ -133,10 +134,11 @@ deploy:
 
 - provider: releases
   api_key: $GITHUB_API_KEY
-  file: AppImageKit/Quaternion*.AppImage
+  file_glob: true
+  file: AppImageKit/Quaternion.*\.AppImage
   skip_cleanup: true
   on:
-    condition: -n "$RELEASE_APPIMAGE"
+    condition: -n "$RELEASE_APPIMAGE" && -z "$VERSION_SUFFIX"
     tags: true
 
 notifications:
