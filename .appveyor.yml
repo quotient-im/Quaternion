@@ -1,7 +1,6 @@
 image: Visual Studio 2015
 
 environment:
-  DEPLOY_DIR: Quaternion-%APPVEYOR_BUILD_VERSION%
   matrix:
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     QTDIR: C:\Qt\5.11\msvc2017_64
@@ -18,6 +17,8 @@ init:
 - cd /D "%APPVEYOR_BUILD_FOLDER%"
 
 before_build:
+- if defined APPVEYOR_REPO_TAG_NAME (set VERSION="%APPVEYOR_REPO_TAG_NAME%") else for /F %%I in ('git rev-list --count HEAD') do set VERSION="git%%I"
+- set DEPLOY_DIR=Quaternion-%VERSION%
 - git submodule update --init --recursive
 - cmake -LA -G "NMake Makefiles JOM" -H. -Bbuild -DCMAKE_CXX_FLAGS="/EHsc /W3" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="%DEPLOY_DIR%" -DUSE_INTREE_LIBQMC=1 -DDEPLOY_VERBOSITY=%DEPLOY_VERBOSITY%
 
@@ -29,7 +30,7 @@ after_build:
 - cd "%DEPLOY_DIR%"
 - rmdir /S /Q bearer qmltooling
 - cd ..
-- 7z a quaternion.zip "%DEPLOY_DIR%\"
+- 7z a quaternion-%VERSION%-windows.zip "%DEPLOY_DIR%\"
 
 # Uncomment this to connect to the AppVeyor build worker
 #on_finish:
@@ -38,4 +39,15 @@ after_build:
 test: off
 
 artifacts:
-- path: quaternion.zip
+- path: quaternion*.zip
+
+deploy:
+- provider: Environment
+  name: GitHub
+  on:
+    APPVEYOR_REPO_TAG: true
+- provider: Environment
+  name: Bintray
+  version: "%VERSION%"
+  on:
+    branch: master
