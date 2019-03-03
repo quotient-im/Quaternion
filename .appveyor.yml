@@ -18,7 +18,7 @@ init:
 
 before_build:
 - |
-  if %APPVEYOR_REPO_TAG_NAME% == "" (
+  if "%APPVEYOR_REPO_TAG_NAME%" == "" (
     for /F %I in ('git rev-list --count HEAD') do set VERSION=%I
   ) else (
     set VERSION=%APPVEYOR_REPO_TAG_NAME%
