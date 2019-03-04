@@ -191,7 +191,8 @@ void MainWindow::createMenu()
             resolveLocator(obtainIdentifier(
                     currentRoom ? currentRoom->connection() : nullptr,
                     tr("Open room"),
-                    tr("Room/user ID, room alias, or matrix.to link"),
+                    tr("Room/user ID, room alias,\n"
+                       "or matrix.to link"),
                     tr("Switch to room")
             ));
         });
@@ -1095,32 +1096,43 @@ MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
 Locator MainWindow::obtainIdentifier(Connection* initialConn,
         const QString& prompt, const QString& label, const QString& actionName)
 {
+    if (connections.isEmpty())
+    {
+        QMessageBox::warning(this, tr("No connections"),
+            tr("Please connect to a server first"),
+            QMessageBox::Close, QMessageBox::Close);
+        return {};
+    }
     Dialog dlg(prompt, this, Dialog::NoStatusLine, actionName,
                Dialog::NoExtraButtons);
+    auto* account = new QComboBox(&dlg);
+    auto* identifier = new QLineEdit(&dlg);
+    for (auto* c: connections)
+    {
+        account->addItem(c->userId(), QVariant::fromValue(c));
+        if (c == initialConn)
+            account->setCurrentIndex(account->count() - 1);
+    }
+
+    // Lay out controls
     auto* layout = dlg.addLayout<QFormLayout>();
-    auto* account = new QComboBox(&dlg); // Pass parent to ensure cleanup
     if (connections.size() > 1)
     {
         layout->addRow(tr("Account"), account);
-        for (auto* c: connections)
-        {
-            account->addItem(c->userId(), QVariant::fromValue(c));
-            if (c == initialConn)
-                account->setCurrentIndex(account->count() - 1);
-        }
+        account->setFocus();
+    } else {
+        account->setCurrentIndex(0); // The only available
+        account->hide(); // #523
+        identifier->setFocus();
     }
-    auto* identifier = new QLineEdit(&dlg);
     layout->addRow(label, identifier);
+
     auto* okButton = dlg.button(QDialogButtonBox::Ok);
     okButton->setDisabled(identifier->text().isEmpty());
     connect(identifier, &QLineEdit::textChanged, &dlg,
         [identifier,okButton] {
             okButton->setDisabled(identifier->text().isEmpty());
         });
-    if (connections.size() > 1)
-        account->setFocus();
-    else
-        identifier->setFocus();
 
     if (dlg.exec() == QDialog::Accepted)
     {
