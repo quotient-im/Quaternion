@@ -144,6 +144,9 @@ void UserListModel::userRemoved(QMatrixClient::User* user)
 
 void UserListModel::filter(const QString& filterString)
 {
+    if (m_currentRoom == nullptr)
+        return;
+
     QElapsedTimer et; et.start();
 
     beginResetModel();
