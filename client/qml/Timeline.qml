@@ -60,7 +60,7 @@ Rectangle {
     //        pixelAligned: true
             cacheBuffer: 200
 
-            section { property: "section" }
+            section.property: "section"
 
             property int largestVisibleIndex: count > 0 ?
                 indexAt(contentX, contentY + height - 1) : -1
