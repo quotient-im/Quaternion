@@ -31,6 +31,7 @@ namespace QMatrixClient
 class UserListModel;
 class QTableView;
 class QMenu;
+class QLineEdit;
 
 class UserListDock: public QDockWidget
 {
@@ -57,6 +58,7 @@ class UserListDock: public QDockWidget
         QWidget* m_widget;
         QVBoxLayout* m_box;
         QTableView* m_view;
+        QLineEdit* m_filterline;
         UserListModel* m_model;
         QMatrixClient::Room* m_currentRoom = nullptr;
 
