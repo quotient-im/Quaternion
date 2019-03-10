@@ -24,7 +24,6 @@
 class KChatEdit::KChatEditPrivate
 {
 public:
-    void emitReturnPressed();
     QString getDocumentText(QTextDocument* doc) const;
     void updateAndMoveInHistory(int increment);
     void rewindHistory();
@@ -39,15 +38,6 @@ public:
     int index = 0;
     int maxHistorySize = 100;
 };
-
-void KChatEdit::KChatEditPrivate::emitReturnPressed()
-{
-    if (q->document()->isEmpty()) {
-        return;
-    }
-
-    emit q->returnPressed();
-}
 
 QString KChatEdit::KChatEditPrivate::getDocumentText(QTextDocument* doc) const
 {
@@ -218,7 +208,7 @@ void KChatEdit::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Enter:
     case Qt::Key_Return:
         if (!(QGuiApplication::keyboardModifiers() & Qt::ShiftModifier)) {
-            d->emitReturnPressed();
+            emit returnPressed();
             return;
         }
         break;

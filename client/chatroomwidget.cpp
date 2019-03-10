@@ -346,7 +346,8 @@ QString ChatRoomWidget::doSendInput()
     if (!attachedFileName.isEmpty())
     {
         Q_ASSERT(m_currentRoom != nullptr);
-        auto txnId = m_currentRoom->postFile(text,
+        auto txnId = m_currentRoom->postFile(text.isEmpty() ?
+                            QUrl(attachedFileName).fileName() : text,
                         QUrl::fromLocalFile(attachedFileName));
 
         attachedFileName.clear();
