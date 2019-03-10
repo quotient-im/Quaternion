@@ -40,9 +40,10 @@ UserListDock::UserListDock(QWidget* parent)
     m_box = new QVBoxLayout();
 
     m_box->addSpacing(1);
-    auto filterline = new QLineEdit(this);
-    filterline->setPlaceholderText(tr("Search"));
-    m_box->addWidget(filterline);
+    m_filterline = new QLineEdit(this);
+    m_filterline->setPlaceholderText(tr("Search"));
+    m_filterline->setDisabled(true);
+    m_box->addWidget(m_filterline);
 
     m_view = new QTableView(this);
     m_view->setShowGrid(false);
@@ -69,7 +70,7 @@ UserListDock::UserListDock(QWidget* parent)
              this, &UserListDock::refreshTitle );
     connect( m_model, &QAbstractListModel::modelReset,
              this, &UserListDock::refreshTitle );
-    connect(filterline, &QLineEdit::textEdited,
+    connect(m_filterline, &QLineEdit::textEdited,
              m_model, &UserListModel::filter);
 
     contextMenu->addAction(QIcon::fromTheme("contact-new"),
@@ -95,6 +96,7 @@ void UserListDock::setRoom(QMatrixClient::Room* room)
 {
     m_currentRoom = room;
     m_model->setRoom(room);
+    m_filterline->setEnabled(room);
 }
 
 void UserListDock::refreshTitle()
