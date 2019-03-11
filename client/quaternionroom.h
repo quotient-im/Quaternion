@@ -36,6 +36,9 @@ class QuaternionRoom: public QMatrixClient::Room
         Q_INVOKABLE int savedTopVisibleIndex() const;
         Q_INVOKABLE int savedBottomVisibleIndex() const;
         Q_INVOKABLE void saveViewport(int topIndex, int bottomIndex);
+        // FIXME: This should be deleted as soon as Room::prettyPrint becomes
+        // Q_INVOKABLE
+        Q_INVOKABLE QString prettyPrint(const QString& plainText) const;
 
     private slots:
         void countChanged();
