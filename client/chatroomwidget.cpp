@@ -123,7 +123,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     m_chatEdit = new ChatEdit(this);
     m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
     m_chatEdit->setAcceptRichText(false);
-    m_chatEdit->setMaximumHeight(parent->height() / 3);
+    m_chatEdit->setMaximumHeight(maximumChatEditHeight());
     connect( m_chatEdit, &KChatEdit::returnPressed, this, &ChatRoomWidget::sendInput );
     connect(m_chatEdit, &ChatEdit::proposedCompletion, this,
             [=](const QStringList& matches, int pos)
@@ -643,7 +643,7 @@ void ChatRoomWidget::timerEvent(QTimerEvent* qte)
 
 void ChatRoomWidget::resizeEvent(QResizeEvent*)
 {
-    m_chatEdit->setMaximumHeight(height() / 3);
+    m_chatEdit->setMaximumHeight(maximumChatEditHeight());
 }
 
 void ChatRoomWidget::keyPressEvent(QKeyEvent* event)
@@ -656,6 +656,11 @@ void ChatRoomWidget::keyPressEvent(QKeyEvent* event)
             emit pageDownPressed();
             break;
     }
+}
+
+int ChatRoomWidget::maximumChatEditHeight() const
+{
+    return maximumHeight() / 3;
 }
 
 void ChatRoomWidget::markShownAsRead()

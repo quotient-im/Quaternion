@@ -112,4 +112,6 @@ class ChatRoomWidget: public QWidget
         void timerEvent(QTimerEvent* event) override;
         void resizeEvent(QResizeEvent*) override;
         void keyPressEvent(QKeyEvent*) override;
+
+        int maximumChatEditHeight() const;
 };
