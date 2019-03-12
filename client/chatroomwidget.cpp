@@ -67,20 +67,6 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
             "RoomMessageEvent", "RoomMessageEvent is uncreatable");
     }
 
-    m_roomAvatar = new QLabel();
-    m_roomAvatar->setPixmap({});
-    m_roomAvatar->setFrameStyle(QFrame::Sunken);
-
-    m_topicLabel = new QLabel();
-    m_topicLabel->setTextFormat(Qt::RichText);
-    m_topicLabel->setWordWrap(true);
-    m_topicLabel->setTextInteractionFlags(Qt::TextBrowserInteraction
-                                          |Qt::TextSelectableByKeyboard);
-    m_topicLabel->setOpenExternalLinks(true);
-
-    auto topicSeparator = new QFrame();
-    topicSeparator->setFrameShape(QFrame::HLine);
-
     m_timelineWidget = new timelineWidget_t;
     qDebug() << "Rendering QML with"
              << timelineWidget_t::staticMetaObject.className();
@@ -97,10 +83,11 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     m_imageProvider = new ImageProvider();
     m_timelineWidget->engine()->addImageProvider("mtx", m_imageProvider);
 
-    QQmlContext* ctxt = m_timelineWidget->rootContext();
+    auto* ctxt = m_timelineWidget->rootContext();
     ctxt->setContextProperty("messageModel", m_messageModel);
     ctxt->setContextProperty("controller", this);
     ctxt->setContextProperty("debug", QVariant(false));
+    ctxt->setContextProperty("room", nullptr);
 
     m_timelineWidget->setSource(QUrl("qrc:///qml/Timeline.qml"));
 
@@ -148,14 +135,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     connect(m_chatEdit, &ChatEdit::cancelledCompletion,
             this, &ChatRoomWidget::typingChanged);
 
-    auto layout = new QVBoxLayout();
-    {
-        auto headerLayout = new QHBoxLayout;
-        headerLayout->addWidget(m_roomAvatar);
-        headerLayout->addWidget(m_topicLabel, 1);
-        layout->addLayout(headerLayout);
-    }
-    layout->addWidget(topicSeparator);
+    auto* layout = new QVBoxLayout();
     layout->addWidget(qmlContainer);
     layout->addWidget(m_hudCaption);
     {
@@ -196,7 +176,6 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
     m_chatEdit->cancelCompletion();
 
     m_currentRoom = room;
-    m_timelineWidget->rootContext()->setContextProperty("room", room);
     m_attachAction->setEnabled(m_currentRoom != nullptr);
     if( m_currentRoom )
     {
@@ -208,16 +187,6 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
         m_chatEdit->moveCursor(QTextCursor::End);
         connect( m_currentRoom, &Room::typingChanged,
                  this, &ChatRoomWidget::typingChanged );
-        connect( m_currentRoom, &Room::displaynameChanged,
-                 this, &ChatRoomWidget::updateHeader );
-        connect( m_currentRoom, &Room::namesChanged,
-                 this, &ChatRoomWidget::updateHeader );
-        connect( m_currentRoom, &Room::topicChanged,
-                 this, &ChatRoomWidget::updateHeader );
-        connect( m_currentRoom, &Room::avatarChanged,
-                 this, &ChatRoomWidget::updateHeader );
-        connect( m_currentRoom, &Room::stabilityUpdated,
-                 this, &ChatRoomWidget::updateHeader );
         connect( m_currentRoom, &Room::readMarkerMoved, this, [this] {
             const auto rm = m_currentRoom->readMarker();
             readMarkerOnScreen =
@@ -238,7 +207,7 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
         m_currentRoom->setDisplayed(true);
     } else
         m_imageProvider->setConnection(nullptr);
-    updateHeader();
+    m_timelineWidget->rootContext()->setContextProperty("room", room);
     typingChanged();
     encryptionChanged();
 
@@ -258,35 +227,6 @@ void ChatRoomWidget::typingChanged()
         typingNames << m_currentRoom->roomMembername(user);
     }
     setHudCaption( tr("Currently typing: %1").arg(typingNames.join(", ")) );
-}
-
-void ChatRoomWidget::updateHeader()
-{
-    if (m_currentRoom)
-    {
-        const auto topic = m_currentRoom->topic();
-        const auto prettyTopic = topic.isEmpty() ?
-                tr("(no topic)") : m_currentRoom->prettyPrint(topic);
-        QString unstableMarker;
-        if (m_currentRoom->isUnstable())
-        {
-            unstableMarker = "<em>" % tr("Unstable room version!");
-            if (m_currentRoom->canSwitchVersions())
-                unstableMarker += ' ' %
-                    tr("Consider upgrading the room (see Room settings)");
-            unstableMarker += "</em><br />";
-        }
-        m_topicLabel->setText("<strong>" % m_currentRoom->displayName() %
-                              "</strong><br />" % unstableMarker % prettyTopic);
-        auto avatarSize = m_topicLabel->heightForWidth(width());
-        m_roomAvatar->setPixmap(
-                QPixmap::fromImage(m_currentRoom->avatar(avatarSize)));
-    }
-    else
-    {
-        m_roomAvatar->clear();
-        m_topicLabel->clear();
-    }
 }
 
 void ChatRoomWidget::encryptionChanged()
