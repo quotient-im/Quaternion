@@ -1004,6 +1004,21 @@ void MainWindow::resolveLocator(const Locator& l, const QString& action)
             .arg(idOrAlias));
 }
 
+// FIXME: This should be decommisionned and inlined once we stop supporting
+// legacy compilers that have BROKEN_INITIALIZER_LISTS
+inline Locator makeLocator(QMatrixClient::Connection* c, QString id)
+{
+#ifdef BROKEN_INITIALIZER_LISTS
+    Locator l;
+    l.account = c;
+    l.identifier = std::move(id);
+    return l;
+#else
+    return { c, std::move(id) };
+#endif
+
+}
+
 void MainWindow::resolveResource(const QString& idOrUri, const QString& action)
 {
     if (idOrUri.isEmpty())
@@ -1012,25 +1027,20 @@ void MainWindow::resolveResource(const QString& idOrUri, const QString& action)
     auto* defaultConnection = currentRoom ? currentRoom->connection() :
                               connections.size() == 1 ? connections.front() :
                               nullptr;
-#ifdef BROKEN_INITIALIZER_LISTS
-    Locator l;
-    l.account = action == "mention" ? defaultConnection :
-                chooseConnection(defaultConnection,
-                    tr("Confirm your account to chat with %1")
-                    .arg(idOrUri));
-    l.identifier = idOrUri;
-#else
-    Locator l { action == "mention" ? defaultConnection :
-                chooseConnection(defaultConnection,
-                                 tr("Confirm your account to open %1")
-                                 .arg(idOrUri))
-              , idOrUri };
-#endif
-    resolveLocator(l, action);
+    resolveLocator(makeLocator(
+            action == "mention" ? defaultConnection
+            : chooseConnection(defaultConnection,
+                               tr("Confirm your account to open %1")
+                               .arg(idOrUri))
+        , idOrUri), action);
 }
 
 void MainWindow::selectRoom(QMatrixClient::Room* r)
 {
+    if (r)
+        qDebug() << "Opening room" << r->objectName();
+    else
+        qDebug() << "Closing room" << currentRoom->objectName();
     QElapsedTimer et; et.start();
     if (currentRoom)
         disconnect(currentRoom, &QuaternionRoom::displaynameChanged,
@@ -1136,15 +1146,8 @@ Locator MainWindow::obtainIdentifier(Connection* initialConn,
 
     if (dlg.exec() == QDialog::Accepted)
     {
-#ifdef BROKEN_INITIALIZER_LISTS
-        Locator l;
-        l.account = account->currentData().value<Connection*>();
-        l.identifier = identifier->text();
-#else
-        Locator l { account->currentData().value<Connection*>()
-                  , identifier->text() };
-#endif
-        return l;
+        return makeLocator(account->currentData().value<Connection*>(),
+                           identifier->text());
     }
     return {};
 }
