@@ -37,6 +37,12 @@ class ThumbnailResponse : public QQuickImageResponse
             : c(c), mediaId(std::move(id)), requestedSize(size)
             , errorStr(tr("Image request hasn't started"))
         {
+            if (!c)
+            {
+                errorStr = tr("No connection to perform image request");
+                emit finished();
+                return;
+            }
             if (mediaId.count('/') != 1)
             {
                 errorStr =

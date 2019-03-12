@@ -18,7 +18,7 @@ Rectangle {
     SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
     SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
 
-    color:  defaultPalette.base
+    color: defaultPalette.base
 
     function humanSize(bytes)
     {
@@ -35,9 +35,119 @@ Rectangle {
         return qsTr("%1 GB").arg(Math.round(bytes / 100) / 10)
     }
 
+    Rectangle {
+        id: roomHeader
+
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        height: headerText.height + 5
+
+        color: defaultPalette.window
+        border.color: disabledPalette.windowText
+        visible: room
+
+        Image {
+            id: roomAvatar
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.margins: 2
+            height: headerText.height
+
+            source: room && room.avatarMediaId
+                    ? "image://mtx/" + room.avatarMediaId : ""
+            fillMode: Image.PreserveAspectFit
+
+            Behavior on width { NumberAnimation {
+                duration: settings.animations_duration_ms
+                easing.type: Easing.OutQuad
+            }}
+        }
+
+        Column {
+            id: headerText
+            anchors.left: roomAvatar.right
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.margins: 2
+
+            spacing: 2
+
+            TextEdit {
+                id: roomName
+                width: parent.width
+
+                readonly property bool hasName: room && room.displayName !== ""
+                text: hasName ? room.displayName : qsTr("(no name)")
+                color: (hasName ? defaultPalette : disabledPalette).windowText
+                ToolTip { text: parent.text }
+
+                font.bold: true
+                renderType: settings.render_type
+                readOnly: true
+                selectByKeyboard: true;
+                selectByMouse: true;
+            }
+            Label {
+                id: versionNotice
+                visible: room && (room.isUnstable || room.successorId !== "")
+                width: parent.width
+
+                text: !room ? "" :
+                    room.successorId !== ""
+                    ? qsTr("This room has been upgraded")
+                    : room.isUnstable
+                      ? qsTr("Unstable room version!")
+                        + (room.canSwitchVersions()
+                           ? qsTr("\nGo to Room Settings to upgrade the room")
+                           : "")
+                      : ""
+                font.italic: true
+                renderType: settings.render_type
+                ToolTip { text: parent.text }
+            }
+
+            ScrollView {
+                id: topicField
+                width: parent.width
+                height: Math.min(topicText.contentHeight,
+                                 room ? root.height / 5 : 0)
+
+                horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
+                verticalScrollBarPolicy: Qt.ScrollBarAsNeeded
+                style: ScrollViewStyle { transientScrollBars: true }
+
+                Behavior on height { NumberAnimation {
+                    duration: settings.animations_duration_ms
+                    easing.type: Easing.OutQuad
+                }}
+
+                TextEdit {
+                    id: topicText
+                    width: topicField.width
+
+                    readonly property bool hasTopic: room && room.topic !== ""
+                    text: hasTopic
+                          ? room.prettyPrint(room.topic) : qsTr("(no topic)")
+                    color:
+                        (hasTopic ? defaultPalette : disabledPalette).windowText
+                    textFormat: TextEdit.RichText
+                    renderType: settings.render_type
+                    readOnly: true
+                    selectByKeyboard: true;
+                    selectByMouse: true;
+                    wrapMode: TextEdit.Wrap
+                }
+            }
+        }
+    }
+
     ScrollView {
         id: chatScrollView
-        anchors.fill: parent
+        anchors.top: roomHeader.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
         anchors.rightMargin: if (settings.use_shuttle_dial) { shuttleDial.width }
         horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
         verticalScrollBarPolicy: settings.use_shuttle_dial
@@ -60,7 +170,7 @@ Rectangle {
     //        pixelAligned: true
             cacheBuffer: 200
 
-            section { property: "section" }
+            section.property: "section"
 
             property int largestVisibleIndex: count > 0 ?
                 indexAt(contentX, contentY + height - 1) : -1

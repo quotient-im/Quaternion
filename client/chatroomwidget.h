@@ -65,7 +65,6 @@ class ChatRoomWidget: public QWidget
 
     public slots:
         void setRoom(QuaternionRoom* room);
-        void updateHeader();
 
         void insertMention(QMatrixClient::User* user);
         void focusInput();
@@ -93,8 +92,6 @@ class ChatRoomWidget: public QWidget
         using timelineWidget_t = QQuickWidget;
 #endif
         // Controls
-        QLabel* m_roomAvatar;
-        QLabel* m_topicLabel;
         timelineWidget_t* m_timelineWidget;
         QLabel* m_hudCaption; //< For typing and completion notifications
         QAction* m_attachAction;
@@ -115,4 +112,6 @@ class ChatRoomWidget: public QWidget
         void timerEvent(QTimerEvent* event) override;
         void resizeEvent(QResizeEvent*) override;
         void keyPressEvent(QKeyEvent*) override;
+
+        int maximumChatEditHeight() const;
 };
