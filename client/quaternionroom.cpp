@@ -82,6 +82,11 @@ QString QuaternionRoom::prettyPrint(const QString& plainText) const
     return Room::prettyPrint(plainText);
 }
 
+bool QuaternionRoom::canSwitchVersions() const
+{
+    return Room::canSwitchVersions();
+}
+
 void QuaternionRoom::countChanged()
 {
     if( displayed() && !hasUnreadMessages() )
