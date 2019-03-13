@@ -22,6 +22,7 @@
 #include "mainwindow.h"
 #include "quaternionroom.h"
 #include <settings.h>
+#include <qt_connection_util.h>
 
 SystemTrayIcon::SystemTrayIcon(MainWindow* parent)
     : QSystemTrayIcon(parent)
@@ -35,13 +36,13 @@ SystemTrayIcon::SystemTrayIcon(MainWindow* parent)
 void SystemTrayIcon::newRoom(QMatrixClient::Room* room)
 {
     connect(room, &QMatrixClient::Room::highlightCountChanged,
-            this, &SystemTrayIcon::highlightCountChanged);
+            this, [this,room] { highlightCountChanged(room); });
 }
 
 void SystemTrayIcon::highlightCountChanged(QMatrixClient::Room* room)
 {
-    auto mode = QMatrixClient::SettingsGroup("UI")
-                                .value("notifications", "intrusive");
+    using namespace QMatrixClient;
+    auto mode = SettingsGroup("UI").value("notifications", "intrusive");
     if (mode == "none")
         return;
     if( room->highlightCount() > 0 )
@@ -50,11 +51,9 @@ void SystemTrayIcon::highlightCountChanged(QMatrixClient::Room* room)
                     tr("%n highlight(s)", "", room->highlightCount()));
         if (mode != "non-intrusive")
             m_parent->activateWindow();
-        auto* qRoom = static_cast<QuaternionRoom*>(room);
-        connect(this, &SystemTrayIcon::messageClicked, m_parent, [this,qRoom] {
-            m_parent->selectRoom(qRoom);
-            disconnect(this, &SystemTrayIcon::messageClicked, nullptr, nullptr);
-        });
+        connectSingleShot(this, &SystemTrayIcon::messageClicked, m_parent,
+                          [this,qRoom=static_cast<QuaternionRoom*>(room)]
+                          { m_parent->selectRoom(qRoom); });
     }
 }
 
