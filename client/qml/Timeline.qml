@@ -122,6 +122,9 @@ Rectangle {
                     easing.type: Easing.OutQuad
                 }}
 
+                // FIXME: The below TextEdit+MouseArea is a massive copy-paste
+                // from TimelineItem.qml. We need to make a separate component
+                // for these (RichTextField?).
                 TextEdit {
                     id: topicText
                     width: topicField.width
@@ -137,7 +140,38 @@ Rectangle {
                     selectByKeyboard: true;
                     selectByMouse: true;
                     wrapMode: TextEdit.Wrap
+
+                    onHoveredLinkChanged:
+                        controller.showStatusMessage(hoveredLink)
+
+                    onLinkActivated: {
+                        if (link === "#mention")
+                        {
+                            controller.insertMention(author)
+                            controller.focusInput()
+                        }
+                        else if (link.startsWith("https://matrix.to/#/@"))
+                        {
+                            controller.resourceRequested(link, "mention")
+                            controller.focusInput()
+                        }
+                        else if (link.startsWith("https://matrix.to/"))
+                            controller.resourceRequested(link)
+                        else
+                            Qt.openUrlExternally(link)
+                    }
                 }
+            }
+        }
+        MouseArea {
+            anchors.fill: headerText
+            acceptedButtons: Qt.MiddleButton
+            cursorShape: topicText.hoveredLink
+                         ? Qt.PointingHandCursor : Qt.IBeamCursor
+
+            onClicked: {
+                if (topicText.hoveredLink)
+                    controller.resourceRequested(topicText.hoveredLink)
             }
         }
     }
