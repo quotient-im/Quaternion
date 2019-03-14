@@ -163,20 +163,23 @@ set(quaternion_QRC
     client/resources.qrc
     )
 
+# quaternion_en.ts is updated explicitly by building trbase target,
+# while all other translation files are created and updated externally at
+# Lokalise.co
 set(quaternion_en_TS client/translations/quaternion_en.ts)
+QT5_CREATE_TRANSLATION(client/translations ${quaternion_SRCS} ${quaternion_QRC} ${quaternion_en_TS})
+add_custom_target(trbase SOURCES ${quaternion_en_TS} VERBATIM)
+
 set(quaternion_TS
-    ${quaternion_en_TS}
     client/translations/quaternion_en_GB.ts
     client/translations/quaternion_de_DE.ts
     client/translations/quaternion_pl.ts
     client/translations/quaternion_ru.ts
     )
+QT5_ADD_TRANSLATION(quaternion_QM ${quaternion_TS})
 
 QT5_ADD_RESOURCES(quaternion_QRC_SRC ${quaternion_QRC})
 set_property(SOURCE qrc_resources.cpp PROPERTY SKIP_AUTOMOC ON)
-
-QT5_CREATE_TRANSLATION(client/translations ${quaternion_SRCS} ${quaternion_QRC} ${quaternion_en_TS})
-QT5_ADD_TRANSLATION(quaternion_QM ${quaternion_TS})
 
 if(WIN32)
     set(quaternion_WINRC quaternion_win32.rc)
