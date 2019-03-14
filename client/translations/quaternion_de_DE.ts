@@ -3,99 +3,95 @@
     <name>ChatRoomWidget</name>
     <message>
         <source>Choose a room to send messages or enter a command...</source>
-        <translation>Wähle einen Raum, um Nachrichten zu senden oder Kommandos einzugeben…</translation>
-    </message>
-    <message>
-        <source>(no topic)</source>
-        <translation>(kein Thema)</translation>
+        <translation>Wähle einen Raum, um Nachrichten zu senden oder Kommandos einzugebe….</translation>
     </message>
     <message>
         <source>Sending encrypted messages is not supported yet</source>
-        <translation>Das Senden von verschlüsselten Nachrichten wird noch nicht unterstützt.</translation>
+        <translation>Das Senden von verschlüsselten Nachrichten wird noch nicht unterstützt</translation>
     </message>
     <message>
         <source>Send a message (unencrypted) or enter a command...</source>
-        <translation>Sende eine (nicht verschlüsselte) Nachricht oder gebe einen Befehl ein…</translation>
+        <translation>Sende eine (nicht verschlüsselte) Nachricht oder gebe einen Befehl ein...</translation>
     </message>
     <message>
         <source>There&apos;s nothing to send</source>
-        <translation>Es gibt nichts zu senden.</translation>
+        <translation>Da ist nichts zum Senden</translation>
     </message>
     <message>
         <source>/join argument doesn&apos;t look like a room ID or alias</source>
-        <translation>Das /join-Argument sieht nicht wie eine Raum-ID oder ein Raum-Alias aus.</translation>
+        <translation>/join Argument sieht nicht nach einer Raum-ID oder Alias aus</translation>
     </message>
     <message>
         <source>Sending a farewell message is not supported yet. If you intended to leave another room, switch to it and type /leave there.</source>
-        <translation>Eine Abschiedsnachricht zu senden, wird aktuell nicht unterstützt. Wenn du einen anderen Raum verlassen willst, wechsele in diesen und tippe dort /leave ein.</translation>
+        <translation>Eine Abschieds-Nachricht zu senden, wird aktuell nicht unterstützt. Wenn du einen anderen Raum verlassen willst, wechsele in diesen und tippe /leave dort ein.</translation>
     </message>
     <message>
         <source>/forget must be followed by the room id/alias, even for the current room</source>
-        <translation>/forget benötigt als Argument eine(n) Raum-ID/-Alias – auch für den aktuellen Raum.</translation>
+        <translation>/forget benötigt als Argument eine(n) Raum-ID/Alias - auch für den aktuellen Raum</translation>
     </message>
     <message>
         <source>%1 doesn&apos;t look like a room id or alias</source>
-        <translation>%1 sieht nicht wie eine Raum-ID oder ein Raum-Alias aus.</translation>
+        <translation>%1 sieht nicht nach einer Raum-ID oder einem Raum-Alias aus</translation>
     </message>
     <message>
         <source>/invite &lt;memberId&gt;</source>
-        <translation>/invite [Benutzer-ID]</translation>
+        <translation>/invite &lt;Nutzer-ID&gt;</translation>
     </message>
     <message>
         <source>/%1 &lt;userId&gt; &lt;reason&gt;</source>
-        <translation>/%1 [Benutzer-ID] [Grund]</translation>
+        <translation>/%1 &lt;NutzerId&gt; &lt;Grund&gt;</translation>
     </message>
     <message>
         <source>%1 is not a member of this room</source>
-        <translation>%1 ist kein Mitglied dieses Raumes.</translation>
+        <translation>%1 ist kein Mitglied dieses Raumes</translation>
     </message>
     <message>
         <source>/unban &lt;userId&gt;</source>
-        <translation>/unban [Benutzer-ID]</translation>
+        <translation>/unban &lt;NutzerId&gt;</translation>
     </message>
     <message>
         <source>/unban argument doesn&apos;t look like a user ID</source>
-        <translation>Das /unban-Argument sieht nicht wie eine Benutzer-ID aus.</translation>
+        <translation>/unban-Argument sieht nicht nach einer Nutzer-ID aus</translation>
     </message>
     <message>
         <source>/ignore &lt;userId&gt;</source>
-        <translation>/ignore [Benutzer-ID]</translation>
+        <translation>/ignore &lt;NutzerID&gt;</translation>
     </message>
     <message>
         <source>/ignore argument doesn&apos;t look like a user ID</source>
-        <translation>Das /ignore-Argument sieht nicht wie eine Benutzer-ID aus.</translation>
+        <translation>/ignore-Argument sieht nicht nach einer Nutzer-ID aus</translation>
     </message>
     <message>
         <source>Couldn&apos;t find user %1 on the server</source>
-        <translation>Der Benutzer %1 konnte nicht auf dem Server gefunden werden.</translation>
+        <translation>Konnte den Benutzer %1 nicht auf dem Server finden</translation>
     </message>
     <message>
         <source>/me needs an argument</source>
-        <translation>/me braucht ein Argument.</translation>
+        <translation>/me braucht ein Argument</translation>
     </message>
     <message>
         <source>/notice needs an argument</source>
-        <translation>/notice braucht ein Argument.</translation>
+        <translation>/notice braucht ein Argument</translation>
     </message>
     <message>
         <source>/%1 &lt;memberId&gt; &lt;message&gt;</source>
-        <translation>/%1 [Benutzer-ID] [Nachricht]</translation>
+        <translation>/%1 &lt;NutzerId&gt; &lt;Nachricht&gt;</translation>
     </message>
     <message>
         <source>%1 doesn&apos;t seem to have joined room %2</source>
-        <translation>%1 hat Raum %2 anscheinend nicht betreten.</translation>
+        <translation>%1 ist dem Raum %2 anscheinend nicht beigetreten</translation>
     </message>
     <message>
         <source>%1 doesn&apos;t look like a user id or room alias</source>
-        <translation>%1 sieht nicht wie eine Benutzer- oder Raum-ID aus.</translation>
+        <translation>%1 sieht nicht nach einer Nutzer- oder Raum-ID aus</translation>
     </message>
     <message>
         <source>/%1 &lt;memberId&gt;</source>
-        <translation>/%1 [Benutzer-ID]</translation>
+        <translation>/%1 &lt;Nutzer-ID&gt;</translation>
     </message>
     <message>
         <source>Unknown /command. Use // to send this line literally</source>
-        <translation>Unbekannter /befehl. Beginne mit „//“, um diese Zeile normal zu senden.</translation>
+        <translation>Unbekannter /befehl. Starte mit // um diese Zeile normal zu senden</translation>
     </message>
     <message>
         <source>Save file as</source>
@@ -107,7 +103,7 @@
     </message>
     <message>
         <source>Currently typing: %1</source>
-        <translation>Aktuell tippen: %1</translation>
+        <translation>Actuell tippen: %1</translation>
     </message>
     <message>
         <source>Attach</source>
@@ -135,11 +131,66 @@
     </message>
     <message>
         <source>%1 doesn&apos;t look like a user id</source>
-        <translation>%1 sieht nicht wie eine Benutzer-ID aus.</translation>
+        <translation>%1 sieht nicht nach einer Nutzer-ID aus</translation>
     </message>
     <message>
         <source>%1 doesn&apos;t look like a user ID</source>
         <translation>%1 sieht nicht wie eine Benutzer-ID aus.</translation>
+    </message>
+</context>
+<context>
+    <name>Timeline</name>
+    <message>
+        <source>(no topic)</source>
+        <translation>(kein Thema)</translation>
+    </message>
+    <message>
+        <source>%1 bytes</source>
+        <translation>%1 Bytes</translation>
+    </message>
+    <message>
+        <source>%1 KB</source>
+        <translation>%1 KB</translation>
+    </message>
+    <message>
+        <source>%1 MB</source>
+        <translation>%1 MB</translation>
+    </message>
+    <message>
+        <source>%1 GB</source>
+        <translation>%1 GB</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation>Unbekannt</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln events back from now (%L1 cached%2)</source>
+        <translation>
+            <numerusform>%Ln Ereignis zurückgescrollt (%L1 zwischengespeichert%2)</numerusform>
+            <numerusform>%Ln Ereignisse zurückgescrollt (%L1 zwischengespeichert%2)</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>and loading</source>
+        <translation>und lädt</translation>
+    </message>
+    <message>
+        <source>Unstable room version!</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>(no name)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>This room has been upgraded</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>
+Go to Room Settings to upgrade the room</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -153,23 +204,23 @@
         <translation>Hinzufügen</translation>
     </message>
     <message>
-        <source>Please fill the fields as desired. None are mandatory</source>
-        <translation>Bitte fülle die Felder wie gewünscht. Keine Angabe ist verpflichtend.</translation>
-    </message>
-    <message>
         <source>Invite user(s)</source>
-        <translation>Benutzer einladen</translation>
+        <translation>Nutzer einladen</translation>
     </message>
     <message>
         <source>Creating the room, please wait</source>
-        <translation>Erstellung des Raumes. Bitte warten.</translation>
+        <translation>Erstelle den Raum. Bitte warten</translation>
+    </message>
+    <message>
+        <source>Please fill the fields as desired. None are mandatory</source>
+        <translation>Bitte fülle die Felder wie gewünscht. Alle sind optional</translation>
     </message>
 </context>
 <context>
     <name>Dialog</name>
     <message>
         <source>Applying changes, please wait</source>
-        <translation>Änderungen werden übernommen. Bitte warten.</translation>
+        <translation>Änderungen werden übernommen. Bitte warten</translation>
     </message>
 </context>
 <context>
@@ -200,7 +251,7 @@
     </message>
     <message>
         <source>Connecting and logging in, please wait</source>
-        <translation>Verbinde und melde an. Bitte warten.</translation>
+        <translation>Am Verbinden und anmelden. Bitte warten</translation>
     </message>
 </context>
 <context>
@@ -231,27 +282,27 @@
     </message>
     <message>
         <source>&amp;Display in timeline</source>
-        <translation>Im Gesprächs&amp;protokoll anzeigen</translation>
+        <translation>In &amp;Historie anzeigen</translation>
     </message>
     <message>
         <source>Normal &amp;join/leave events</source>
-        <translation>Normale &amp;Beitritts-/Verlassens-Ereignisse</translation>
+        <translation>Normale &amp;Zutritts-/Verlassens-Ereignisse</translation>
     </message>
     <message>
         <source>&amp;Redacted events</source>
-        <translation>&amp;Retouchierte Ereignisse</translation>
+        <translation>&amp;Gelöschte Ereignisse</translation>
     </message>
     <message>
         <source>Show redacted events in the timeline as &apos;Redacted&apos; instead of hiding them entirely</source>
-        <translation>Zeige retouchierte Ereignisse im Gesprächsprotokoll als „Retouchiert“, anstatt sie komplett zu verbergen.</translation>
+        <translation>Zeige entfernte Ereignisse in der Historie als &apos;Entfernt&apos; anstatt sie komplett zu verbergen</translation>
     </message>
     <message>
         <source>&amp;No-effect activity</source>
-        <translation>&amp;Folgenlose Aktivität</translation>
+        <translation>&amp;Effektlose Aktivität</translation>
     </message>
     <message>
         <source>Edit tags order</source>
-        <translation>Ändere Etiketten-Reihenfolge</translation>
+        <translation>Ändere Tag-Reihenfolge</translation>
     </message>
     <message>
         <source>&amp;Room</source>
@@ -267,7 +318,7 @@
     </message>
     <message>
         <source>&amp;Direct chat...</source>
-        <translation>Einzel&amp;gespräch…</translation>
+        <translation>&amp;Direkter Chat…</translation>
     </message>
     <message>
         <source>&amp;Join room...</source>
@@ -275,7 +326,7 @@
     </message>
     <message>
         <source>&amp;Close current room</source>
-        <translation>Aktuellen Raum &amp;schließen</translation>
+        <translation>Aktuellen Raum &amp;Schließen</translation>
     </message>
     <message>
         <source>&amp;Settings</source>
@@ -295,15 +346,15 @@
     </message>
     <message>
         <source>Notifications are entirely suppressed</source>
-        <translation>Benachrichtigungen werden komplett unterdrückt.</translation>
+        <translation>Benachrichtigungen werden komplett unterdrückt</translation>
     </message>
     <message>
         <source>&amp;Non-intrusive</source>
-        <translation>&amp;Nicht-aufdringlich</translation>
+        <translation>&amp;Nicht-Aufdringlich</translation>
     </message>
     <message>
         <source>Show notifications but do not activate the window</source>
-        <translation>Zeige Benachrichtigungen, aber aktiviere nicht das Fenster.</translation>
+        <translation>Zeige Benachrichtigungen, aber Fenster nicht aktivieren</translation>
     </message>
     <message>
         <source>&amp;Full</source>
@@ -311,7 +362,7 @@
     </message>
     <message>
         <source>Show notifications and activate the window</source>
-        <translation>Zeige Benachrichtigungen und aktiviere das Fenster.</translation>
+        <translation>Zeige Benachrichtigungen und aktiviere das Fenster</translation>
     </message>
     <message>
         <source>Notifications</source>
@@ -331,19 +382,19 @@
     </message>
     <message>
         <source>The layout with author labels to the left from each message</source>
-        <translation>Autor-Kennung links von jeder Nachricht</translation>
+        <translation>Autor-Kenung links von jeder Nachricht</translation>
     </message>
     <message>
         <source>Timeline layout</source>
-        <translation>Gestaltung des Gesprächsprotokolls</translation>
+        <translation>Layout der Historie</translation>
     </message>
     <message>
         <source>Load full-size images at once</source>
-        <translation>Lade Bilder gleich in voller Größe.</translation>
+        <translation>Lade Bilder in voller Größe auf einmal</translation>
     </message>
     <message>
         <source>Automatically download a full-size image instead of a thumbnail</source>
-        <translation>Lade automatisch komplette Bilder anstelle von Vorschaubildern.</translation>
+        <translation>Automatisch komplettes Bild anstelle eines Vorschaubildes laden</translation>
     </message>
     <message>
         <source>Configure &amp;network proxy...</source>
@@ -351,19 +402,19 @@
     </message>
     <message>
         <source>Couldn&apos;t open a file to save access token</source>
-        <translation>Konnte keine Datei öffnen, um die Authentisierungskennung zu speichern.</translation>
+        <translation>Konnte keine Datei öffnen, um den Zugangs-Token zu speichern</translation>
     </message>
     <message>
         <source>Quaternion couldn&apos;t open a file to write the access token to. You&apos;re logged in but will have to provide your password again when you restart the application.</source>
-        <translation>Quaternion konnte keine Datei öffnen, um die Authentisierungskennung darin zu speichern. Du wurdest angemeldet, wirst aber erneut ein Passwort eingeben müssen, wenn du die Anwendung neustartest.</translation>
+        <translation>Quaternion konnte keine Datei öffnen, um den Zugangs-Token darin zu speichern. Du wurdest angemeldet, wirst aber erneut ein Passwort eingeben müssen, wenn du die Anwendung neustartest.</translation>
     </message>
     <message>
         <source>Couldn&apos;t set access token file permissions</source>
-        <translation>Konnte Berechtigungen der Authentisierungskennungs-Datei nicht setzen.</translation>
+        <translation>Konnte Berechtigungen der Zugangs-Token-Datei nicht setzen</translation>
     </message>
     <message>
         <source>Quaternion couldn&apos;t restrict permissions on the access token file. Do you still want to save the access token to it?</source>
-        <translation>Quaternion konnte die Berechtigungen zur Authentisierungskennungs-Datei nicht einschränken. Möchtest du die Authentisierungskennung trotzdem darin speichern?</translation>
+        <translation>Quaternion konnte die Berechtigungen zur Zugangstoken-Datei nicht einschränken. Möchtest du den Zugangstoken trotzdem darin speichern?</translation>
     </message>
     <message>
         <source>Logged out as %1</source>
@@ -375,7 +426,7 @@
     </message>
     <message>
         <source>The last sync of account %1 has failed with error: %2</source>
-        <translation>Die letzte Synchronisierung von Konto %1 schlug fehl mit dem Fehler: %2</translation>
+        <translation>Die letzte Synchronisierung von Account %1 schlug fehl mit dem Fehler: %2</translation>
     </message>
     <message>
         <source>The last sync has failed with error: %1</source>
@@ -384,12 +435,12 @@
     <message>
         <source>Clicking &apos;Retry&apos; will attempt to resume synchronisation;
 Clicking &apos;Cancel&apos; will stop further synchronisation of this account until logout or Quaternion restart.</source>
-        <translation>„Erneut probieren“ wird weiter versuchen zu synchronisieren;
-„Abbrechen“ wird weitere Synchronisierungsversuche mit diesem Konto unterlassen bis zur Abmeldung oder Quaternion-Neustart.</translation>
+        <translation>&apos;Erneut probieren&apos; wird versuchen weiter zu Synchronisieren;
+&apos;Abbrechen&apos; wird weitere Synchronisierungsversuche dieses Kontos abbrechen bis zur Abmeldung oder Quaternion-Neustart.</translation>
     </message>
     <message>
         <source>Before this server can process your information, you have to agree with its terms and conditions; please click the button below to open the web page where you can do that</source>
-        <translation>Bevor dieser Server deine Informationen verarbeitet, musst du den Geschäftsbedingungen zustimmen. Untenstehende Schaltfläche öffnet eine Webseite, wo du dies tun kannst.</translation>
+        <translation>Bevor dieser Server deine Informationen verarbeiten kann, musst du den Betriebsbedingungen zustimmen. Bitte klicke auf den Button unten um eine Webseite zu öffnen, wo du dies tun kannst</translation>
     </message>
     <message>
         <source>Open web page</source>
@@ -397,15 +448,15 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Show &amp;access token</source>
-        <translation>Zeige &amp;Authentisierungskennung</translation>
+        <translation>Zeige &amp;Zugangs-Token</translation>
     </message>
     <message>
         <source>Access token for %1</source>
-        <translation>Authentisierungskennung für %1</translation>
+        <translation>Zugangs-Token für %1</translation>
     </message>
     <message>
         <source>Your access token is %1...%2; click &quot;Show details...&quot; for the full token</source>
-        <translation>Deine Authentisierungskennung ist %1…%2. Klicke „Zeige Details...“ für die kompletten Kennung.</translation>
+        <translation>Dein Zugangs-Token ist %1…%2; Klicke &quot;Zeige Details...&quot; für den kompletten Token</translation>
     </message>
     <message>
         <source>&amp;Logout</source>
@@ -417,99 +468,35 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Welcome to Quaternion</source>
-        <translation>Willkommen bei Quaternion.</translation>
-    </message>
-    <message>
-        <source>Choose the account to join the room</source>
-        <translation>Wähle ein Konto, um den Raum zu betreten.</translation>
+        <translation>Willkommen bei Quaternion</translation>
     </message>
     <message>
         <source>No connections</source>
         <translation>Keine Verbindung</translation>
     </message>
     <message>
-        <source>Please connect to a server before joining a room</source>
-        <translation>Bitte verbinde zu einem Server, bevor du einem Raum beitrittst.</translation>
-    </message>
-    <message>
-        <source>Joining %1 as %2</source>
-        <translation>Als %2 den Raum %1 betreten</translation>
-    </message>
-    <message>
-        <source>Join room %1 under account %2?</source>
-        <translation>Raum %1 mit Konto %2 betreten?</translation>
-    </message>
-    <message>
         <source>Join</source>
         <translation>Betreten</translation>
     </message>
     <message>
-        <source>Choose account...</source>
-        <translation>Wähle Konto…</translation>
-    </message>
-    <message>
-        <source>Enter room id or alias to join</source>
-        <translation>Gebe Raum-ID oder -Alias ein, um beizutreten.</translation>
-    </message>
-    <message>
-        <source>Enter an id or alias of the room. You will join as %1</source>
-        <translation>Gebe die ID oder einen Alias des Raumes ein. Du wirst als %1 beitreten.</translation>
-    </message>
-    <message>
-        <source>No room id or alias specified</source>
-        <translation>Keinen Raum-ID oder -Alias angegeben</translation>
-    </message>
-    <message>
-        <source>Please specify non-empty id or alias</source>
-        <translation>Bitte gebe einen nicht-leere Raum-ID oder -Alias an.</translation>
-    </message>
-    <message>
         <source>Joined %1 as %2</source>
-        <translation>%1 als %2 betreten</translation>
-    </message>
-    <message>
-        <source>Starting direct chat with %1 as %2</source>
-        <translation>Einzelgespräch mit %1 als %2 wird gestartet.</translation>
-    </message>
-    <message>
-        <source>Start direct chat with %1 under account %2?</source>
-        <translation>Einzelgespräch mit %1 über Konto %2 starten?</translation>
-    </message>
-    <message>
-        <source>Start Chat</source>
-        <translation>Gespräch beginnen</translation>
+        <translation>%1 als %2 beigetreten</translation>
     </message>
     <message>
         <source>Enter user id to start direct chat.</source>
-        <translation>Gebe Benutzer-ID ein, um ein Einzelgespräch zu starten.</translation>
-    </message>
-    <message>
-        <source>Enter the user id of who you would like to chat with. You will join as %1</source>
-        <translation>Gebe die Benutzer-ID deines Gesprächspartners ein. Du wirst als %1 beitreten.</translation>
-    </message>
-    <message>
-        <source>No user id specified</source>
-        <translation>Keine Benutzer-ID angegeben</translation>
-    </message>
-    <message>
-        <source>Please specify non-empty user id</source>
-        <translation>Bitte gebe eine nicht-leere Benutzer-ID an.</translation>
-    </message>
-    <message>
-        <source>Starting chat with %1 as %2</source>
-        <translation>Starte Gespräch mit %1 als %2</translation>
+        <translation>Gebe Nutzer-ID ein, um direkten Chat zu starten.</translation>
     </message>
     <message>
         <source>Sync completed - have a good chat</source>
-        <translation>Synchronisierung vollständig. – Gute Gespräche!</translation>
+        <translation>Synchronisierung vollständig – viel Spaß beim Unterhalten</translation>
     </message>
     <message>
         <source>Couldn&apos;t connect to the server as %1; will retry within %2 seconds</source>
-        <translation>Konnte nicht mit dem Server als %1 verbinden; versuche es in %2 Sekunden erneut.</translation>
+        <translation>Konnte nicht mit dem Server als %1 verbinden; Versuche es in %2 Sekunden erneut</translation>
     </message>
     <message>
         <source>Reconnecting...</source>
-        <translation>Wiederherstellen der Verbindung…</translation>
+        <translation>Wiederverbinden…</translation>
     </message>
     <message>
         <source>No SSL support</source>
@@ -517,7 +504,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Your SSL configuration does not allow Quaternion to establish secure connections.</source>
-        <translation>Deine SSL-Konfiguration erlaubt Quaternion nicht, sichere Verbindungen herzustellen.</translation>
+        <translation>Deine SSL-Konfiguration erlaubt Quaternion nicht eine sichere Verbindung herzustellen.</translation>
     </message>
     <message>
         <source>SSL error</source>
@@ -525,15 +512,15 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Proxy needs authentication</source>
-        <translation>Der Proxy verlangt Authentisierung.</translation>
+        <translation>Proxy braucht Authentifizierung</translation>
     </message>
     <message>
         <source>Authenticate</source>
-        <translation>Authentisieren</translation>
+        <translation>Authentifizieren</translation>
     </message>
     <message>
         <source>User name</source>
-        <translation>Benutzername</translation>
+        <translation>Nutzername</translation>
     </message>
     <message>
         <source>Password</source>
@@ -545,7 +532,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>&amp;Thanks</source>
-        <translation>&amp;Danksagungen</translation>
+        <translation>&amp;Danke</translation>
     </message>
     <message>
         <source>Original project author: %1</source>
@@ -565,19 +552,19 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Quaternion contributors @ GitHub</source>
-        <translation>Quaternion-Mitwirkende auf GitHub</translation>
+        <translation>Quaternion Mitwirkende @ GitHub</translation>
     </message>
     <message>
         <source>libQMatrixClient contributors @ GitHub</source>
-        <translation>libQMatrixClient-Mitwirkende auf GitHub</translation>
+        <translation>libQMatrixClient Mitwirkende @ GitHub</translation>
     </message>
     <message>
         <source>Quaternion translators @ Lokalise.co</source>
-        <translation>Quaternion-Übersetzer auf Lokalise.co</translation>
+        <translation>Quaternion Übersetzer @ Lokalise.co</translation>
     </message>
     <message>
         <source>Made with:</source>
-        <translation>Hergestellt mit:</translation>
+        <translation>Gemacht mit:</translation>
     </message>
     <message>
         <source>Show join and leave events</source>
@@ -623,11 +610,141 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     </message>
     <message>
         <source>Built from Git, commit SHA:</source>
-        <translation>Aus Git heraus kompiliert. Beitragsprüfsumme:</translation>
+        <translation>Aus Git heraus gebaut. Commit-SHA:</translation>
     </message>
     <message>
         <source>Library commit SHA:</source>
-        <translation>Beitragsprüfsumme der Bibliothek:</translation>
+        <translation>Commit-SHA der Bibliothek:</translation>
+    </message>
+    <message>
+        <source>Open room...</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Open room</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Switch to room</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Open a room from the room list</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Show/hide Rooms dock panel</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Show/hide Users dock panel</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Access token file found</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Do you want to migrate the access token for %1 from the file to keychain?</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t migrate access token</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t migrate access token %1 from the file to keychain.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t save access token</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t save the access token to keychain. Do you want to save the access token to file %1?</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Logging in into a logged in account</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>You&apos;re trying to log in into an account that&apos;s already logged in. Do you want to continue?</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t delete access token</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t delete the access token from keychain.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Open direct chat?</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Open direct chat with user %1?</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Malformed user id</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>%1 is not a correct user id</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Room not found</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>There&apos;s no room %1 in the room list. Check the spelling and the account</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Confirm your account to open %1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Please connect to a server first</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Confirm account</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Account</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter room id or alias</source>
+        <translation>Gebe Raum-ID oder -Alias</translation>
+    </message>
+    <message>
+        <source>Room ID (starting with !)
+or alias (starting with #)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Confirm account to join %1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>User ID (starting with @)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Start chat</source>
+        <translation>Starte Chat</translation>
+    </message>
+    <message>
+        <source>Room/user ID, room alias,
+or matrix.to link</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -646,11 +763,11 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     </message>
     <message>
         <source>Redacted</source>
-        <translation>Retouchiert</translation>
+        <translation>Entfernt</translation>
     </message>
     <message>
         <source>Redacted: %1</source>
-        <translation>Retouchiert: %1</translation>
+        <translation>Entfernt: %1</translation>
     </message>
     <message>
         <source>a file</source>
@@ -658,103 +775,99 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     </message>
     <message>
         <source>reinvited %1 to the room</source>
-        <translation>lud %1 erneut in den Raum ein.</translation>
+        <translation>lud %1 erneut in den Raum ein</translation>
     </message>
     <message>
         <source>joined the room (repeated)</source>
-        <translation>trat dem Raum wiederholt bei.</translation>
+        <translation>trat dem Raum wiederholt bei</translation>
     </message>
     <message>
         <source>invited %1 to the room</source>
-        <translation>lud %1 in den Raum ein.</translation>
+        <translation>lud %1 in den Raum ein</translation>
     </message>
     <message>
         <source>joined the room</source>
-        <translation>trat dem Raum bei.</translation>
+        <translation>trat dem Raum bei</translation>
     </message>
     <message>
         <source>cleared the display name</source>
-        <translation>retouchierte den Anzeigenamen.</translation>
+        <translation>löschte den Anzeigenamen</translation>
     </message>
     <message>
         <source>changed the display name to %1</source>
-        <translation>änderte den Anzeigenamen zu %1.</translation>
+        <translation>änderte den Anzeigenamen zu %1</translation>
     </message>
     <message>
         <source>cleared the avatar</source>
-        <translation>entfernte das Profilbild.</translation>
+        <translation>entfernte das Pofilbild</translation>
     </message>
     <message>
         <source>updated the avatar</source>
-        <translation>änderte das Profilbild.</translation>
+        <translation>änderte das Profilbild</translation>
     </message>
     <message>
         <source>unbanned %1</source>
-        <translation>hob Ausschluss von %1 auf.</translation>
+        <translation>hob Verbannung von %1 auf</translation>
     </message>
     <message>
         <source>self-unbanned</source>
-        <translation>hob seinen Selbstausschluss auf.</translation>
+        <translation>hob Verbannung von sich selbst auf</translation>
     </message>
     <message>
         <source>has put %1 out of the room</source>
-        <translation>hat %1 aus dem Raum entfernt.</translation>
+        <translation>hat %1 aus dem Raum entfernt</translation>
     </message>
     <message>
         <source>left the room</source>
-        <translation>verließ den Raum.</translation>
+        <translation>verließ den Raum</translation>
     </message>
     <message>
         <source>banned %1 from the room</source>
-        <translation>schloss %1 aus.</translation>
+        <translation>verbannte %1 aus dem Raum</translation>
     </message>
     <message>
         <source>self-banned from the room</source>
-        <translation>schloss sich selbst aus.</translation>
+        <translation>verbannte sich selbst aus dem Raum</translation>
     </message>
     <message>
         <source>knocked</source>
-        <translation>klopfte an.</translation>
+        <translation>klopfte an</translation>
     </message>
     <message>
         <source>made something unknown</source>
-        <translation>tat etwas unbekanntes.</translation>
-    </message>
-    <message>
-        <source>set aliases to: %1</source>
-        <translation>setzte Alias auf %1.</translation>
+        <translation>tat etwas Unbekanntes</translation>
     </message>
     <message>
         <source>cleared the room main alias</source>
-        <translation>entfernte den Haupt-Alias des Raumes.</translation>
+        <translation>entfernte den Haupt-Alias des Raumes</translation>
     </message>
     <message>
         <source>set the room main alias to: %1</source>
-        <translation>setzte den Haupt-Alias des Raumes auf %1.</translation>
+        <translation>setzte den Haupt-Alias des Raumes auf: %1</translation>
     </message>
     <message>
         <source>cleared the room name</source>
-        <translation>entfernte den Raum-Namen.</translation>
+        <translation>entfernte den Raum-Namen</translation>
     </message>
     <message>
         <source>set the room name to: %1</source>
-        <translation>setzte den Raum-Namen auf %1.</translation>
+        <translation>setzte den Raum-Namen auf: %1</translation>
     </message>
     <message>
         <source>cleared the topic</source>
-        <translation>entfernte das Thema.</translation>
+        <translation>entfernte das Thema</translation>
     </message>
     <message>
         <source>set the topic to: %1</source>
-        <translation>setzte das Thema auf %1.</translation>
+        <translation>setzte das Thema auf: %1</translation>
     </message>
     <message>
         <source>changed the room avatar</source>
-        <translation>änderte das Raumbild.</translation>
+        <translation>änderte das Raumbild</translation>
     </message>
     <message>
         <source>activated End-to-End Encryption</source>
-        <translation>aktivierte Ende-zu-Ende-Verschlüsselung.</translation>
+        <translation>aktivierte Ende-zu-Ende-Verschlüsselung</translation>
     </message>
     <message>
         <source>withdrew %1&apos;s invitation</source>
@@ -780,16 +893,36 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
         <source>Unknown event</source>
         <translation>Unbekanntes Ereignis</translation>
     </message>
+    <message>
+        <source>upgraded the room to version %1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>created the room, version %1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>has set room aliases on server %1 to: %2</source>
+        <translation>hat Raum-Aliase auf dem Server %1 auf %2 gesetzt</translation>
+    </message>
+    <message>
+        <source>has put %1 out of the room: %2</source>
+        <translation>hat %1 aus dem Raum entfernt: %2</translation>
+    </message>
+    <message>
+        <source>banned %1 from the room: %2</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>NetworkConfigDialog</name>
     <message>
         <source>Network proxy settings</source>
-        <translation>Netzwerk-Proxy-Einstellungen</translation>
+        <translation>Netzwerk Proxy-Einstellungen</translation>
     </message>
     <message>
         <source>&amp;Override system defaults</source>
-        <translation>System-Einstellungen &amp;übergehen</translation>
+        <translation>&amp;System-Einstellungen überschreiben</translation>
     </message>
     <message>
         <source>&amp;No proxy</source>
@@ -797,34 +930,34 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     </message>
     <message>
         <source>&amp;HTTP(S) proxy</source>
-        <translation>&amp;HTTP(S)-Proxy</translation>
+        <translation>&amp;HTTP(S) Proxy</translation>
     </message>
     <message>
         <source>&amp;SOCKS5 proxy</source>
-        <translation>&amp;SOCKS5-Proxy</translation>
+        <translation>&amp;SOCKS5 Proxy</translation>
     </message>
     <message>
         <source>Host</source>
-        <translation>Host:</translation>
+        <translation>Host</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation>Port:</translation>
+        <translation>Port</translation>
     </message>
     <message>
         <source>User name</source>
-        <translation>Benutzername:</translation>
+        <translation>Nutzername</translation>
     </message>
 </context>
 <context>
     <name>RoomDialogBase</name>
     <message>
         <source>Publish room in room directory</source>
-        <translation>Veröffentliche den Raum im Raumverzeichnis.</translation>
+        <translation>Raum im Raumverzeichnis veröffentlichen</translation>
     </message>
     <message>
         <source>Allow guest accounts to join the room</source>
-        <translation>Erlaube Gast-Kontos, diesen Raum zu betreten.</translation>
+        <translation>Erlaube Gast-Kontos diesen Raum zu betreten</translation>
     </message>
     <message>
         <source>Account</source>
@@ -842,16 +975,44 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
         <source>Topic</source>
         <translation>Thema</translation>
     </message>
+    <message>
+        <source>About room versions</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>(loading)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>default</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>stable</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Room version</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Continue with unstable version?</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>You are using an UNSTABLE room version (%1). The server may stop supporting it at any moment. Do you still want to use this version?</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>RoomListDock</name>
     <message>
         <source>Mark room as read</source>
-        <translation>Markiere den Raum als gelesen.</translation>
+        <translation>Markiere Raum als gelesen</translation>
     </message>
     <message>
         <source>Add tags...</source>
-        <translation>Etiketten hinzufügen…</translation>
+        <translation>Tags hinzufügen…</translation>
     </message>
     <message>
         <source>Join room</source>
@@ -863,7 +1024,7 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     </message>
     <message>
         <source>Remove tag</source>
-        <translation>Etikett entfernen</translation>
+        <translation>Tag entfernen</translation>
     </message>
     <message>
         <source>Reject invitation</source>
@@ -875,11 +1036,11 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     </message>
     <message>
         <source>Enter new tags for the room</source>
-        <translation>Neue Etiketten für den Raum eingeben</translation>
+        <translation>Neue Tags für den Raum eingeben</translation>
     </message>
     <message>
         <source>Enter tags to add to this room, one tag per line</source>
-        <translation>Gebe Etiketten für den Raum ein – eines pro Zeile:</translation>
+        <translation>Gebe Tags für den Raum ein - ein Tag pro Zeile</translation>
     </message>
     <message>
         <source>Favourites</source>
@@ -899,7 +1060,7 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     </message>
     <message>
         <source>Change room &amp;settings...</source>
-        <translation>Ändere Raum-&amp;Einstellungen…</translation>
+        <translation>Ändere Raum-&amp;Einstellungen...</translation>
     </message>
 </context>
 <context>
@@ -937,15 +1098,15 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     </message>
     <message>
         <source>You joined this room</source>
-        <translation>Du hast diesen Raum betreten.</translation>
+        <translation>Du bist diesem Raum beigetreten</translation>
     </message>
     <message>
         <source>You left this room</source>
-        <translation>Du hast diesen Raum verlassen.</translation>
+        <translation>Du hast diesen Raum verlassen</translation>
     </message>
     <message>
         <source>You were invited into this room</source>
-        <translation>Du wurdest in diesen Raum eingeladen.</translation>
+        <translation>Du wurdest in diesen Raum eingeladen</translation>
     </message>
     <message>
         <source>Main alias: %1</source>
@@ -967,11 +1128,11 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     </message>
     <message>
         <source>Direct chat with %1</source>
-        <translation>Einzelgespräch mit %1</translation>
+        <translation>Direkter Chat mit %1</translation>
     </message>
     <message>
         <source>The room enforces encryption</source>
-        <translation>Der Raum erzwingt Verschlüsselung.</translation>
+        <translation>Der Raum erzwingt Verschlüsselung</translation>
     </message>
     <message>
         <source>Unread messages: %1+</source>
@@ -997,6 +1158,14 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
         <source>as %1</source>
         <translation>als %1</translation>
     </message>
+    <message>
+        <source>This room&apos;s version is unstable!</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Consider upgrading to a stable version (use room settings for that)</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>RoomSettingsDialog</name>
@@ -1010,7 +1179,7 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     </message>
     <message>
         <source>Tags</source>
-        <translation>Etiketten</translation>
+        <translation>Tags</translation>
     </message>
     <message>
         <source>Favourites</source>
@@ -1019,6 +1188,27 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     <message>
         <source>Low priority</source>
         <translation>Niedrige Priorität</translation>
+    </message>
+    <message>
+        <source>This version is unstable! Consider upgrading.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Upgrade</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Choose new room version</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>You are about to upgrade %1.
+This operation cannot be reverted.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Creating the new room version, please wait</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1029,11 +1219,11 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     </message>
     <message>
         <source>Open direct chat</source>
-        <translation>Eröffne Einzelgespräch</translation>
+        <translation>Öffne direkten Chat</translation>
     </message>
     <message>
         <source>Mention user</source>
-        <translation>Benutzer erwähnen</translation>
+        <translation>Nutzer erwähnen</translation>
     </message>
     <message>
         <source>Search</source>
@@ -1072,7 +1262,7 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     <name>main</name>
     <message>
         <source>Display debug information</source>
-        <translation>Zeige Fehlerbehebungsinformationen</translation>
+        <translation>Zeige Debug-Informationen</translation>
     </message>
     <message>
         <source>Quaternion - an IM client for the Matrix protocol</source>
@@ -1099,7 +1289,7 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     </message>
     <message>
         <source>Open after downloading</source>
-        <translation>Öffne nach dem Herunterladen.</translation>
+        <translation>Nach dem Herunterladen öffnen</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -1146,45 +1336,11 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     </message>
     <message>
         <source>Save as...</source>
-        <translation>Speichern als…</translation>
+        <translation>Speichern als...</translation>
     </message>
     <message>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
-    </message>
-</context>
-<context>
-    <name>Timeline</name>
-    <message>
-        <source>%1 bytes</source>
-        <translation>%1 Bytes</translation>
-    </message>
-    <message>
-        <source>%1 KB</source>
-        <translation>%1 KB</translation>
-    </message>
-    <message>
-        <source>%1 MB</source>
-        <translation>%1 MB</translation>
-    </message>
-    <message>
-        <source>%1 GB</source>
-        <translation>%1 GB</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation>Unbekannt</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln events back from now (%L1 cached%2)</source>
-        <translation>
-            <numerusform>%Ln Ereignis zurückgeblättert (%L1 zwischengespeichert%2)</numerusform>
-            <numerusform>%Ln Ereignisse zurückgeblättert (%L1 zwischengespeichert%2)</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>and loading</source>
-        <translation>und lädt</translation>
     </message>
 </context>
 <context>
@@ -1199,11 +1355,11 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     </message>
     <message>
         <source>Redact</source>
-        <translation>Retouchieren</translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Copy link to clipboard</source>
-        <translation>Link in Zwischenablage kopieren</translation>
+        <translation>In Zwischenablage kopieren</translation>
     </message>
 </context>
 <context>
@@ -1236,6 +1392,14 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     <message>
         <source>Image request has been cancelled</source>
         <translation>Bildanfrage wurde abgebrochen.</translation>
+    </message>
+    <message>
+        <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>No connection to perform image request</source>
+        <translation></translation>
     </message>
 </context>
 </TS>
