@@ -6,10 +6,6 @@
         <translation>Выберите комнату для отправки сообщений или введите команду...</translation>
     </message>
     <message>
-        <source>(no topic)</source>
-        <translation>(без темы)</translation>
-    </message>
-    <message>
         <source>Sending encrypted messages is not supported yet</source>
         <translation>Отправка шифрованных сообщений пока не поддерживается</translation>
     </message>
@@ -143,6 +139,63 @@
     </message>
 </context>
 <context>
+    <name>Timeline</name>
+    <message>
+        <source>(no topic)</source>
+        <translation>(без темы)</translation>
+    </message>
+    <message>
+        <source>%1 bytes</source>
+        <translation>%1 байт</translation>
+    </message>
+    <message>
+        <source>%1 KB</source>
+        <translation>%1 КБ</translation>
+    </message>
+    <message>
+        <source>%1 MB</source>
+        <translation>%1 МБ</translation>
+    </message>
+    <message>
+        <source>%1 GB</source>
+        <translation>%1 ГБ</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation>Неизвестно</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln events back from now (%L1 cached%2)</source>
+        <translation>
+            <numerusform>%Ln событие до текущего времени (%L1 кешировано%2)</numerusform>
+            <numerusform>%Ln события до текущего времени (%L1 кешировано%2)</numerusform>
+            <numerusform>%Ln событий до текущего времени (%L1 кешировано%2)</numerusform>
+            <numerusform>%Ln события до текущего времени (%L1 кешировано%2)</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>and loading</source>
+        <translation>и загружается еще</translation>
+    </message>
+    <message>
+        <source>Unstable room version!</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>(no name)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>This room has been upgraded</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>
+Go to Room Settings to upgrade the room</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
     <name>CreateRoomDialog</name>
     <message>
         <source>Create room</source>
@@ -153,16 +206,16 @@
         <translation>Добавить</translation>
     </message>
     <message>
-        <source>Please fill the fields as desired. None are mandatory</source>
-        <translation>Пожалуйста, заполните поля по желанию. Обязательных полей нет.</translation>
-    </message>
-    <message>
         <source>Invite user(s)</source>
         <translation>Пригласить пользователя(ей)</translation>
     </message>
     <message>
         <source>Creating the room, please wait</source>
         <translation>Комната создаётся, пожалуйста подождите</translation>
+    </message>
+    <message>
+        <source>Please fill the fields as desired. None are mandatory</source>
+        <translation>Пожалуйста, заполните поля по желанию. Обязательных полей нет.</translation>
     </message>
 </context>
 <context>
@@ -420,84 +473,20 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
         <translation>Добро пожаловать в Quaternion</translation>
     </message>
     <message>
-        <source>Choose the account to join the room</source>
-        <translation>Выберите учетную запись для входа в комнату</translation>
-    </message>
-    <message>
         <source>No connections</source>
         <translation>Нет соединений</translation>
-    </message>
-    <message>
-        <source>Please connect to a server before joining a room</source>
-        <translation>Пожалуйста, подключитесь к серверу перед входом в комнату</translation>
-    </message>
-    <message>
-        <source>Joining %1 as %2</source>
-        <translation>Присоединяемся к %1 как %2</translation>
-    </message>
-    <message>
-        <source>Join room %1 under account %2?</source>
-        <translation>Войти в комнату %1 под учётной записью %2?</translation>
     </message>
     <message>
         <source>Join</source>
         <translation>Присоединиться</translation>
     </message>
     <message>
-        <source>Choose account...</source>
-        <translation>Выберите учетную запись...</translation>
-    </message>
-    <message>
-        <source>Enter room id or alias to join</source>
-        <translation>Введите идентификатор или адрес комнаты для входа</translation>
-    </message>
-    <message>
-        <source>Enter an id or alias of the room. You will join as %1</source>
-        <translation>Введите идентификатор или адрес комнаты. Вы присоединитесь как %1</translation>
-    </message>
-    <message>
-        <source>No room id or alias specified</source>
-        <translation>Не указан идентификатор комнаты или адрес комнаты</translation>
-    </message>
-    <message>
-        <source>Please specify non-empty id or alias</source>
-        <translation>Пожалуйста, укажите не пустой идентификатор или адрес</translation>
-    </message>
-    <message>
         <source>Joined %1 as %2</source>
-        <translation>Присоединился %1 как %2</translation>
-    </message>
-    <message>
-        <source>Starting direct chat with %1 as %2</source>
-        <translation>Начать прямой чат с %1 как %2</translation>
-    </message>
-    <message>
-        <source>Start direct chat with %1 under account %2?</source>
-        <translation>Начать прямой чат с %1 под учетной записью %2?</translation>
-    </message>
-    <message>
-        <source>Start Chat</source>
-        <translation>Начать чат</translation>
+        <translation>Присоединился к %1 как %2</translation>
     </message>
     <message>
         <source>Enter user id to start direct chat.</source>
         <translation>Введите идентификатор пользователя, чтобы начать прямой чат.</translation>
-    </message>
-    <message>
-        <source>Enter the user id of who you would like to chat with. You will join as %1</source>
-        <translation>Введите идентификатор пользователя, с которым вы хотите начать чат. Вы присоединитесь как %1</translation>
-    </message>
-    <message>
-        <source>No user id specified</source>
-        <translation>Не указан идентификатор пользователя</translation>
-    </message>
-    <message>
-        <source>Please specify non-empty user id</source>
-        <translation>Пожалуйста, укажите непустой идентификатор пользователя</translation>
-    </message>
-    <message>
-        <source>Starting chat with %1 as %2</source>
-        <translation>Начать чат с %1 как %2</translation>
     </message>
     <message>
         <source>Sync completed - have a good chat</source>
@@ -629,6 +618,136 @@ User-defined tags should start with &quot;u.&quot;</source>
         <source>Library commit SHA:</source>
         <translation>SHA-ключ коммита в репозитории:</translation>
     </message>
+    <message>
+        <source>Open room...</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Open room</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Switch to room</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Open a room from the room list</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Show/hide Rooms dock panel</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Show/hide Users dock panel</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Access token file found</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Do you want to migrate the access token for %1 from the file to keychain?</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t migrate access token</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t migrate access token %1 from the file to keychain.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t save access token</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t save the access token to keychain. Do you want to save the access token to file %1?</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Logging in into a logged in account</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>You&apos;re trying to log in into an account that&apos;s already logged in. Do you want to continue?</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t delete access token</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t delete the access token from keychain.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Open direct chat?</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Open direct chat with user %1?</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Malformed user id</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>%1 is not a correct user id</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Room not found</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>There&apos;s no room %1 in the room list. Check the spelling and the account</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Confirm your account to open %1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Please connect to a server first</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Confirm account</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Account</source>
+        <translation>Учетная запись</translation>
+    </message>
+    <message>
+        <source>Enter room id or alias</source>
+        <translation>Введите идентификатор или адрес комнаты</translation>
+    </message>
+    <message>
+        <source>Room ID (starting with !)
+or alias (starting with #)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Confirm account to join %1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>User ID (starting with @)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Start chat</source>
+        <translation>Начать чат</translation>
+    </message>
+    <message>
+        <source>Room/user ID, room alias,
+or matrix.to link</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>MessageEventModel</name>
@@ -721,10 +840,6 @@ User-defined tags should start with &quot;u.&quot;</source>
         <translation>сделал что-то неизвестное</translation>
     </message>
     <message>
-        <source>set aliases to: %1</source>
-        <translation>установил адрес комнаты: %1</translation>
-    </message>
-    <message>
         <source>cleared the room main alias</source>
         <translation>очистил основной адрес комнаты</translation>
     </message>
@@ -779,6 +894,26 @@ User-defined tags should start with &quot;u.&quot;</source>
     <message>
         <source>Unknown event</source>
         <translation>Неизвестное событие</translation>
+    </message>
+    <message>
+        <source>upgraded the room to version %1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>created the room, version %1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>has set room aliases on server %1 to: %2</source>
+        <translation>установил адреса комнаты на сервере %1: %2</translation>
+    </message>
+    <message>
+        <source>has put %1 out of the room: %2</source>
+        <translation>выгнал %1 из комнаты: %2</translation>
+    </message>
+    <message>
+        <source>banned %1 from the room: %2</source>
+        <translation>заблокировал %1 в комнате: %2</translation>
     </message>
 </context>
 <context>
@@ -841,6 +976,34 @@ User-defined tags should start with &quot;u.&quot;</source>
     <message>
         <source>Topic</source>
         <translation>Тема</translation>
+    </message>
+    <message>
+        <source>About room versions</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>(loading)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>default</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>stable</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Room version</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Continue with unstable version?</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>You are using an UNSTABLE room version (%1). The server may stop supporting it at any moment. Do you still want to use this version?</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -906,7 +1069,7 @@ User-defined tags should start with &quot;u.&quot;</source>
     <name>RoomListModel</name>
     <message>
         <source>Invited</source>
-        <translation>Приглашенные</translation>
+        <translation>Приглашения</translation>
     </message>
     <message>
         <source>Low priority</source>
@@ -1003,6 +1166,14 @@ User-defined tags should start with &quot;u.&quot;</source>
         <source>as %1</source>
         <translation>как %1</translation>
     </message>
+    <message>
+        <source>This room&apos;s version is unstable!</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Consider upgrading to a stable version (use room settings for that)</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>RoomSettingsDialog</name>
@@ -1025,6 +1196,27 @@ User-defined tags should start with &quot;u.&quot;</source>
     <message>
         <source>Low priority</source>
         <translation>Неважные</translation>
+    </message>
+    <message>
+        <source>This version is unstable! Consider upgrading.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Upgrade</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Choose new room version</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>You are about to upgrade %1.
+This operation cannot be reverted.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Creating the new room version, please wait</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1160,42 +1352,6 @@ User-defined tags should start with &quot;u.&quot;</source>
     </message>
 </context>
 <context>
-    <name>Timeline</name>
-    <message>
-        <source>%1 bytes</source>
-        <translation>%1 байт</translation>
-    </message>
-    <message>
-        <source>%1 KB</source>
-        <translation>%1 КБ</translation>
-    </message>
-    <message>
-        <source>%1 MB</source>
-        <translation>%1 МБ</translation>
-    </message>
-    <message>
-        <source>%1 GB</source>
-        <translation>%1 ГБ</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation>Неизвестно</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln events back from now (%L1 cached%2)</source>
-        <translation>
-            <numerusform>%Ln событие до текущего времени (%L1 кешировано%2)</numerusform>
-            <numerusform>%Ln события до текущего времени (%L1 кешировано%2)</numerusform>
-            <numerusform>%Ln событий до текущего времени (%L1 кешировано%2)</numerusform>
-            <numerusform>%Ln события до текущего времени (%L1 кешировано%2)</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>and loading</source>
-        <translation>и загружается еще</translation>
-    </message>
-</context>
-<context>
     <name>TimelineItem</name>
     <message>
         <source>Resend</source>
@@ -1246,6 +1402,14 @@ User-defined tags should start with &quot;u.&quot;</source>
     <message>
         <source>Image request has been cancelled</source>
         <translation>Запрос на изображение отменен</translation>
+    </message>
+    <message>
+        <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>No connection to perform image request</source>
+        <translation></translation>
     </message>
 </context>
 </TS>
