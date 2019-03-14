@@ -1039,7 +1039,7 @@ void MainWindow::selectRoom(QMatrixClient::Room* r)
 {
     if (r)
         qDebug() << "Opening room" << r->objectName();
-    else
+    else if (currentRoom)
         qDebug() << "Closing room" << currentRoom->objectName();
     QElapsedTimer et; et.start();
     if (currentRoom)
