@@ -299,18 +299,6 @@ QString ChatRoomWidget::doSendInput()
     if ( text.isEmpty() )
         return tr("There's nothing to send");
 
-    if (!text.startsWith('/'))
-    {
-        m_currentRoom->postPlainText(text);
-        return {};
-    }
-    if (text[1] == '/')
-    {
-        text.remove(0, 1);
-        m_currentRoom->postPlainText(text);
-        return {};
-    }
-
     static const auto ReFlags =
             QRegularExpression::DotMatchesEverythingOption|
             QRegularExpression::OptimizeOnFirstUsageOption;
@@ -341,7 +329,24 @@ QString ChatRoomWidget::doSendInput()
     }
     // --- Add more roomless commands here
     if (!m_currentRoom)
-        return tr("There's no such /command outside of room.");
+    {
+        if (text.startsWith('/'))
+            return tr("There's no such /command outside of room.");
+
+        return tr("You should select a room to send messages.");
+    }
+
+    if (!text.startsWith('/'))
+    {
+        m_currentRoom->postPlainText(text);
+        return {};
+    }
+    if (text[1] == '/')
+    {
+        text.remove(0, 1);
+        m_currentRoom->postPlainText(text);
+        return {};
+    }
 
     // Commands available only in the room context
     using namespace QMatrixClient;
