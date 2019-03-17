@@ -87,6 +87,11 @@ bool QuaternionRoom::canSwitchVersions() const
     return Room::canSwitchVersions();
 }
 
+QString QuaternionRoom::safeMemberName(const QString& userId) const
+{
+    return sanitized(roomMembername(userId)).toHtmlEscaped();
+}
+
 void QuaternionRoom::countChanged()
 {
     if( displayed() && !hasUnreadMessages() )

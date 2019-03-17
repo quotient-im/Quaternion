@@ -53,7 +53,7 @@ Item {
         highlight && settings.highlight_mode == "text" ? settings.highlight_color :
         (["state", "notice", "other"].indexOf(eventType) >= 0) ?
                 disabledPalette.text : defaultPalette.text
-    readonly property string authorName: room && room.roomMembername(author.id)
+    readonly property string authorName: room && room.safeMemberName(author.id)
 
     readonly property bool xchatStyle: settings.timeline_style === "xchat"
     readonly property bool actionEvent: eventType == "state" || eventType == "emote"

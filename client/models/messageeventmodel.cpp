@@ -425,12 +425,11 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
     {
         if (evt.isRedacted())
         {
-            auto reason = evt.redactedBecause()->reason();
+            auto reason = evt.redactedBecause()->reason().toHtmlEscaped();
             if (reason.isEmpty())
                 return tr("Redacted");
 
-            return tr("Redacted: %1")
-                .arg(evt.redactedBecause()->reason());
+            return tr("Redacted: %1").arg(reason);
         }
 
         return visit(evt
@@ -450,7 +449,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
             }
             , [this] (const RoomMemberEvent& e) {
                 // FIXME: Rewind to the name that was at the time of this event
-                QString subjectName = m_currentRoom->roomMembername(e.userId());
+                auto subjectName = m_currentRoom->safeMemberName(e.userId());
                 // The below code assumes senderName output in AuthorRole
                 switch( e.membership() )
                 {
@@ -508,13 +507,15 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                         return (e.senderId() != e.userId())
                                 ? tr("has put %1 out of the room: %2")
                                   .arg(subjectName,
-                                       e.contentJson()["reason"_ls].toString())
+                                       e.contentJson()["reason"_ls]
+                                       .toString().toHtmlEscaped())
                                 : tr("left the room");
                     case MembershipType::Ban:
                         return (e.senderId() != e.userId())
                                 ? tr("banned %1 from the room: %2")
                                   .arg(subjectName,
-                                       e.contentJson()["reason"_ls].toString())
+                                       e.contentJson()["reason"_ls]
+                                       .toString().toHtmlEscaped())
                                 : tr("self-banned from the room");
                     case MembershipType::Knock:
                         return tr("knocked");
