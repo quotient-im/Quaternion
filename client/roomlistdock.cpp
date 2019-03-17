@@ -155,7 +155,10 @@ RoomListDock::RoomListDock(MainWindow* parent)
         }
     });
     connect( model, &RoomListModel::groupAdded, this, [this] (int pos) {
-        view->expand(model->index(pos, 0));
+        QMatrixClient::SettingsGroup sg { QStringLiteral("UI/RoomsDock") };
+        const auto group = model->roomGroupAt(model->index(pos, 0)).toString();
+        if (sg.get<QString>(group) == "expand")
+            view->expand(model->index(pos, 0));
     });
     setWidget(view);
 
