@@ -35,6 +35,7 @@
 #endif
 #include <QtCore/QRegularExpression>
 #include <QtCore/QStringBuilder>
+#include <QtCore/QLocale>
 
 #include <events/roommessageevent.h>
 #include <csapi/message_pagination.h>
@@ -615,6 +616,42 @@ void ChatRoomWidget::onMessageShownChanged(const QString& eventId, bool shown)
             if (indicesOnScreen.erase(pos) == indicesOnScreen.end())
                 reStartShownTimer();
     }
+}
+
+void ChatRoomWidget::quote(const QString& htmlText)
+{
+    QMatrixClient::SettingsGroup sg { QStringLiteral("UI") };
+    const auto type = sg.get<int>("quote_type");
+    const auto defaultStyle = "> \\1\n";
+    const auto defaultRegex = "(.+)(?:\n|$)";
+    auto style = sg.get<QString>("quote_style");
+    auto regex = sg.get<QString>("quote_regex");
+
+    if (style.isEmpty())
+        style = defaultStyle;
+    if (regex.isEmpty())
+        regex = defaultRegex;
+
+    QTextDocument document;
+    document.setHtml(htmlText);
+    QString sendString;
+
+    switch (type)
+    {
+        case 0:
+            sendString = document.toPlainText()
+                .replace(QRegularExpression(defaultRegex), defaultStyle);
+            break;
+        case 1:
+            sendString = document.toPlainText()
+                .replace(QRegularExpression(regex), style);
+            break;
+        case 2:
+            sendString = QLocale().quoteString(document.toPlainText()) + "\n";
+            break;
+    }
+
+    m_chatEdit->insertPlainText(sendString);
 }
 
 void ChatRoomWidget::reStartShownTimer()

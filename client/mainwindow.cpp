@@ -261,6 +261,27 @@ void MainWindow::createMenu()
         }
     });
 
+    viewMenu->addAction(QIcon::fromTheme("format-text-blockquote"),
+        tr("Edit quote style"), [this]
+    {
+        QMatrixClient::SettingsGroup sg { "UI" };
+        const auto type = sg.get<int>("quote_type");
+
+        QStringList list;
+        list << tr("Markdown (prepend each line with >)")
+             << tr("Custom (apply regex from the config file)")
+             << tr("Locale's default (%1)")
+                  .arg(QLocale().quoteString(tr("Example quote")));
+        bool ok;
+        const auto newType = QInputDialog::getItem(this,
+                tr("Edit quote style"),
+                tr("Choose the default style of quotes"),
+                list, type, false, &ok);
+
+        if (ok)
+            sg.setValue("quote_type", list.indexOf(newType));
+    });
+
     // Room menu
     auto roomMenu = menuBar()->addMenu(tr("&Room"));
 

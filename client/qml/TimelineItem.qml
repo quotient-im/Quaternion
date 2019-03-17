@@ -497,11 +497,24 @@ Item {
 
                     text: qsTr("Redact")
 
-                    anchors.right: copyLinkButton.left
+                    anchors.right: quoteButton.left
                     z: 1
 
                     onClicked: {
                         room.redactEvent(eventId)
+                        showDetails.checked = false
+                    }
+                }
+                Button {
+                    id: quoteButton
+
+                    text: qsTr("Quote")
+
+                    anchors.right: copyLinkButton.left
+                    z: 1
+
+                    onClicked: {
+                        controller.quote(display)
                         showDetails.checked = false
                     }
                 }

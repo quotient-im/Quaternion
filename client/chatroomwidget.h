@@ -73,6 +73,7 @@ class ChatRoomWidget: public QWidget
         void onMessageShownChanged(const QString& eventId, bool shown);
         void markShownAsRead();
         void saveFileAs(QString eventId);
+        void quote(const QString& htmlText);
 
 
     private slots:
