@@ -140,6 +140,10 @@ Settings not exposed in UI:
   day-month-year triad) in the UI; the default is true.
 - `UI/Fonts/render_type` - select how to render fonts in Quaternion timeline;
   possible values are "NativeRendering" (default) and "QtRendering".
+- `UI/quote_style` - the quote template. The `\\1` means the quoted string.
+  By default it's `> \\1\n`.
+- `UI/quote_regex` - set to `^([\\s\\S]*)` to add `UI/quote_style` only at
+  the beginning and end of the quote. By default it's `(.+)(?:\n|$)`.
 
 Since version 0.0.9.4, AppImage binaries for Linux and .dmg files for macOS
 are compiled with Qt Keychain support. That means that Quaternion will try
