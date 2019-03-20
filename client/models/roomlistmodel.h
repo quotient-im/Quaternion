@@ -166,13 +166,7 @@ class RoomListModel: public QAbstractItemModel
         bool isValidRoomIndex(QModelIndex i) const;
 
         template <typename OrderT>
-        void setOrder()
-        {
-            beginResetModel();
-            m_roomOrder = std::make_unique<OrderT>(this);
-            doRebuild();
-            endResetModel();
-        }
+        void setOrder() { doSetOrder(std::make_unique<OrderT>(this)); }
 
     signals:
         void groupAdded(int row);
@@ -203,16 +197,15 @@ class RoomListModel: public QAbstractItemModel
 
         QMultiHash<const Room*, QPersistentModelIndex> m_roomIndices;
 
-        RoomGroups::iterator tryInsertGroup(const QVariant& key, bool notify);
-        void addRoomToGroups(Room* room, bool notify = true,
-                             QVariantList groups = {});
+        RoomGroups::iterator tryInsertGroup(const QVariant& key);
+        void addRoomToGroups(Room* room, QVariantList groups = {});
         void connectRoomSignals(Room* room);
         void doRemoveRoom(QModelIndex idx);
 
         void visitRoom(const Room& room,
                        const std::function<void(QModelIndex)>& visitor);
 
-        void doRebuild();
+        void doSetOrder(std::unique_ptr<AbstractRoomOrdering>&& newOrder);
 
         std::pair<QModelIndexList, QModelIndexList>
         preparePersistentIndexChange(int fromPos, int shiftValue);

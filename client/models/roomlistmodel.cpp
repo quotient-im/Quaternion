@@ -392,8 +392,7 @@ void RoomListModel::deleteRoom(Room* room)
     room->disconnect(this);
 }
 
-RoomGroups::iterator RoomListModel::tryInsertGroup(const QVariant& key,
-                                                   bool notify)
+RoomGroups::iterator RoomListModel::tryInsertGroup(const QVariant& key)
 {
     Q_ASSERT(!key.toString().isEmpty());
     auto gIt = lowerBoundGroup(key);
@@ -401,27 +400,22 @@ RoomGroups::iterator RoomListModel::tryInsertGroup(const QVariant& key,
     {
         const auto gPos = gIt - m_roomGroups.begin();
         const auto affectedIdxs = preparePersistentIndexChange(gPos, 1);
-        if (notify)
-            beginInsertRows({}, gPos, gPos);
+        beginInsertRows({}, gPos, gPos);
         gIt = m_roomGroups.insert(gIt, {key, {}});
-        if (notify)
-        {
-            endInsertRows();
-            emit groupAdded(gPos);
-        }
+        endInsertRows();
         changePersistentIndexList(affectedIdxs.first, affectedIdxs.second);
+        emit groupAdded(gPos);
     }
     return gIt;
 }
 
-void RoomListModel::addRoomToGroups(Room* room, bool notify,
-                                    QVariantList groups)
+void RoomListModel::addRoomToGroups(Room* room, QVariantList groups)
 {
     if (groups.empty())
         groups = m_roomOrder->roomGroups(room);
     for (const auto& g: groups)
     {
-        const auto gIt = tryInsertGroup(g, notify);
+        const auto gIt = tryInsertGroup(g);
         const auto rIt = lowerBoundRoom(*gIt, room);
         if (rIt != gIt->rooms.end() && *rIt == room)
         {
@@ -431,11 +425,9 @@ void RoomListModel::addRoomToGroups(Room* room, bool notify,
         }
         const auto rPos = rIt - gIt->rooms.begin();
         const auto gIdx = index(gIt - m_roomGroups.begin(), 0);
-        if (notify)
-            beginInsertRows(gIdx, rPos, rPos);
+        beginInsertRows(gIdx, rPos, rPos);
         gIt->rooms.insert(rIt, room);
-        if (notify)
-            endInsertRows();
+        endInsertRows();
         m_roomIndices.insert(room, index(rPos, 0, gIdx));
         qDebug() << "RoomListModel: Added" << room->objectName()
                  << "to group" << gIt->key.toString();
@@ -491,13 +483,16 @@ void RoomListModel::doRemoveRoom(QModelIndex idx)
     }
 }
 
-void RoomListModel::doRebuild()
+void RoomListModel::doSetOrder(std::unique_ptr<AbstractRoomOrdering>&& newOrder)
 {
+    beginResetModel();
     m_roomGroups.clear();
     m_roomIndices.clear();
+    m_roomOrder = std::move(newOrder);
+    endResetModel();
     for (const auto& c: m_connections)
         for (auto* r: c->roomMap())
-            addRoomToGroups(r, false);
+            addRoomToGroups(r);
 }
 
 std::pair<QModelIndexList, QModelIndexList>
@@ -726,7 +721,7 @@ void RoomListModel::updateGroups(Room* room)
             doRemoveRoom(oldIndex); // May invalidate `group` and `gIdx`
     }
     if (!groups.empty())
-        addRoomToGroups(room, true, groups); // Groups the room wasn't before
+        addRoomToGroups(room, groups); // Groups the room wasn't before
     qDebug() << "RoomListModel: groups for" << room->objectName() << "updated";
 }
 
