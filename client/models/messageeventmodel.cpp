@@ -425,11 +425,11 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
     {
         if (evt.isRedacted())
         {
-            auto reason = evt.redactedBecause()->reason().toHtmlEscaped();
+            auto reason = evt.redactedBecause()->reason();
             if (reason.isEmpty())
                 return tr("Redacted");
 
-            return tr("Redacted: %1").arg(reason);
+            return tr("Redacted: %1").arg(reason.toHtmlEscaped());
         }
 
         return visit(evt
@@ -440,7 +440,8 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                     return static_cast<const TextContent*>(e.content())->body;
                 if (e.hasFileContent())
                 {
-                    auto fileCaption = e.content()->fileInfo()->originalName;
+                    auto fileCaption =
+                        e.content()->fileInfo()->originalName.toHtmlEscaped();
                     if (fileCaption.isEmpty())
                         fileCaption = m_currentRoom->prettyPrint(e.plainBody());
                     return !fileCaption.isEmpty() ? fileCaption : tr("a file");
@@ -475,7 +476,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                                 text = tr("cleared the display name");
                             else
                                 text = tr("changed the display name to %1")
-                                            .arg(e.displayName());
+                                       .arg(e.displayName().toHtmlEscaped());
                         }
                         if (e.isAvatarUpdate())
                         {
@@ -537,12 +538,14 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
             , [] (const RoomNameEvent& e) {
                 return (e.name().isEmpty())
                         ? tr("cleared the room name")
-                        : tr("set the room name to: %1").arg(e.name());
+                        : tr("set the room name to: %1")
+                          .arg(e.name().toHtmlEscaped());
             }
-            , [] (const RoomTopicEvent& e) {
+            , [this] (const RoomTopicEvent& e) {
                 return (e.topic().isEmpty())
                         ? tr("cleared the topic")
-                        : tr("set the topic to: %1").arg(e.topic());
+                        : tr("set the topic to: %1")
+                          .arg(m_currentRoom->prettyPrint(e.topic()));
             }
             , [] (const RoomAvatarEvent&) {
                 return tr("changed the room avatar");
@@ -554,7 +557,8 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                 return (e.isUpgrade()
                         ? tr("upgraded the room to version %1")
                         : tr("created the room, version %1")
-                       ).arg(e.version().isEmpty() ? "1" : e.version());
+                       ).arg(e.version().isEmpty()
+                             ? "1" : e.version().toHtmlEscaped());
             }
             , [] (const StateEventBase& e) {
                 // A small hack for state events from TWIM bot
@@ -565,7 +569,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                       .arg(e.matrixType())
                     : tr("updated %1 state for %2",
                          "%1 - Matrix event type, %2 - state key")
-                      .arg(e.matrixType(), e.stateKey());
+                      .arg(e.matrixType(), e.stateKey().toHtmlEscaped());
             }
             , tr("Unknown event")
         );
@@ -624,10 +628,10 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
     {
         if (evt.isRedacted())
         {
-            auto reason = evt.redactedBecause()->reason();
+            const auto reason = evt.redactedBecause()->reason();
             return (reason.isEmpty())
                     ? tr("Redacted")
-                    : tr("Redacted: %1").arg(evt.redactedBecause()->reason());
+                    : tr("Redacted: %1").arg(reason.toHtmlEscaped());
         }
 
         if (auto e = eventCast<const RoomMessageEvent>(&evt))

@@ -102,7 +102,7 @@ QVariant UserListModel::data(const QModelIndex& index, int role) const
     if (role == Qt::ToolTipRole)
     {
         auto tooltip = QStringLiteral("<b>%1</b><br>%2")
-                .arg(user->name(m_currentRoom), user->id());
+                .arg(user->name(m_currentRoom).toHtmlEscaped(), user->id());
         if (!user->bridged().isEmpty())
             tooltip += "<br>" + tr("Bridged from: %1").arg(user->bridged());
         return tooltip;
