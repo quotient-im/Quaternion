@@ -26,6 +26,7 @@
 
 #include "mainwindow.h"
 #include "models/roomlistmodel.h"
+#include "models/orderbytag.h"
 #include "quaternionroom.h"
 #include "roomdialogs.h"
 #include <connection.h>

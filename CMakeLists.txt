@@ -156,6 +156,8 @@ set(quaternion_SRCS
     client/models/messageeventmodel.cpp
     client/models/userlistmodel.cpp
     client/models/roomlistmodel.cpp
+    client/models/abstractroomordering.cpp
+    client/models/orderbytag.cpp
     client/main.cpp
     )
 
