@@ -31,6 +31,11 @@
 
 int main( int argc, char* argv[] )
 {
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+    QApplication::setAttribute(Qt::AA_DisableWindowContextHelpButton);
+#endif
+
     QApplication app(argc, argv);
     QApplication::setOrganizationName("QMatrixClient");
     QApplication::setApplicationName("quaternion");
@@ -90,10 +95,6 @@ int main( int argc, char* argv[] )
             QStandardPaths::locate(QStandardPaths::AppLocalDataLocation,
             "translations", QStandardPaths::LocateDirectory));
     app.installTranslator(&appTranslator);
-
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
-    app.setAttribute(Qt::AA_DisableWindowContextHelpButton);
-#endif
 
     QMatrixClient::NetworkSettings().setupApplicationProxy();
 
