@@ -316,7 +316,7 @@ void RoomListDock::addTagsSelected()
             return;
 
         auto tags = room->tags();
-        for (const auto& tag: tagsInput.split('\n'))
+        for (const auto& tag: tagsInput.split('\n', QString::SkipEmptyParts))
         {
             // No overwriting, just ensure the tag exists
             tags[tag == tr("Favourites") ? QMatrixClient::FavouriteTag :
