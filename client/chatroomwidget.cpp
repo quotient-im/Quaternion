@@ -447,7 +447,8 @@ QString ChatRoomWidget::doSendInput()
     }
     if (command == "shrug") // Peeked at Discord
     {
-        m_currentRoom->postPlainText("¯\\_(ツ)_/¯");
+        m_currentRoom->postPlainText((argString.isEmpty() ? "" : argString + " ") +
+                                     "¯\\_(ツ)_/¯");
         return {};
     }
     if (command == "topic")
