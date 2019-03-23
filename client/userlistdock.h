@@ -24,11 +24,11 @@
 
 namespace QMatrixClient
 {
-    class Room;
     class User;
 }
 
 class UserListModel;
+class QuaternionRoom;
 class QTableView;
 class QMenu;
 class QLineEdit;
@@ -39,7 +39,7 @@ class UserListDock: public QDockWidget
     public:
         explicit UserListDock(QWidget* parent = nullptr);
 
-        void setRoom( QMatrixClient::Room* room );
+        void setRoom( QuaternionRoom* room );
 
     signals:
         void userMentionRequested(QMatrixClient::User* u);
@@ -60,7 +60,7 @@ class UserListDock: public QDockWidget
         QTableView* m_view;
         QLineEdit* m_filterline;
         UserListModel* m_model;
-        QMatrixClient::Room* m_currentRoom = nullptr;
+        QuaternionRoom* m_currentRoom = nullptr;
 
         QMenu* contextMenu;
         QAction* ignoreAction;

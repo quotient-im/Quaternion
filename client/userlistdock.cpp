@@ -30,6 +30,7 @@
 #include <room.h>
 #include <user.h>
 #include "models/userlistmodel.h"
+#include "quaternionroom.h"
 
 UserListDock::UserListDock(QWidget* parent)
     : QDockWidget(tr("Users"), parent)
@@ -92,11 +93,15 @@ UserListDock::UserListDock(QWidget* parent)
             this, &UserListDock::showContextMenu);
 }
 
-void UserListDock::setRoom(QMatrixClient::Room* room)
+void UserListDock::setRoom(QuaternionRoom* room)
 {
+    if (m_currentRoom)
+        m_currentRoom->setCachedUserFilter(m_filterline->text());
     m_currentRoom = room;
     m_model->setRoom(room);
     m_filterline->setEnabled(room);
+    m_filterline->setText(room ? room->cachedUserFilter() : "");
+    m_model->filter(m_filterline->text());
 }
 
 void UserListDock::refreshTitle()
