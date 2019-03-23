@@ -852,8 +852,8 @@ Response:
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1023"/>
-        <source>There&apos;s no room %1 in the room list. Check the spelling and the account</source>
-        <translation>There&apos;s no room %1 in the room list. Check the spelling and the account</translation>
+        <source>There&apos;s no room %1 in the room list. Check the spelling and the account.</source>
+        <translation>There&apos;s no room %1 in the room list. Check the spelling and the account.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1054"/>
@@ -1682,6 +1682,7 @@ This operation cannot be reverted.</translation>
     <message>
         <location filename="../qml/TimelineItem.qml" line="511"/>
         <source>Quote</source>
+        <comment>a verb (do quote), not a noun (a quote)</comment>
         <translation>Quote</translation>
     </message>
     <message>

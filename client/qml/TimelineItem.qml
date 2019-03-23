@@ -508,7 +508,7 @@ Item {
                 Button {
                     id: quoteButton
 
-                    text: qsTr("Quote")
+                    text: qsTr("Quote", "a verb (do quote), not a noun (a quote)")
 
                     anchors.right: copyLinkButton.left
                     z: 1

@@ -1021,7 +1021,7 @@ void MainWindow::resolveLocator(const Locator& l, const QString& action)
     else
         QMessageBox::warning(this, tr("Room not found"),
             tr("There's no room %1 in the room list."
-               " Check the spelling and the account")
+               " Check the spelling and the account.")
             .arg(idOrAlias));
 }
 

@@ -99,7 +99,7 @@ Rectangle {
                     : room.isUnstable
                       ? qsTr("Unstable room version!")
                         + (room.canSwitchVersions()
-                           ? qsTr("\nGo to Room Settings to upgrade the room")
+                           ? ("\n" + qsTr("Go to Room Settings to upgrade the room"))
                            : "")
                       : ""
                 font.italic: true
