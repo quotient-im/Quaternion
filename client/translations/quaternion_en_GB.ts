@@ -137,6 +137,10 @@
         <source>%1 doesn&apos;t look like a user ID</source>
         <translation>%1 doesn&apos;t look like a user ID</translation>
     </message>
+    <message>
+        <source>You should select a room to send messages.</source>
+        <translation>You should select a room to send messages.</translation>
+    </message>
 </context>
 <context>
     <name>Timeline</name>
@@ -190,6 +194,10 @@
     <message>
         <source>
 Go to Room Settings to upgrade the room</source>
+        <translation>Go to Room Settings to upgrade the room</translation>
+    </message>
+    <message>
+        <source>Go to Room Settings to upgrade the room</source>
         <translation>Go to Room Settings to upgrade the room</translation>
     </message>
 </context>
@@ -435,8 +443,8 @@ Go to Room Settings to upgrade the room</source>
     <message>
         <source>Clicking &apos;Retry&apos; will attempt to resume synchronisation;
 Clicking &apos;Cancel&apos; will stop further synchronisation of this account until logout or Quaternion restart.</source>
-        <translation>Clicking &apos;Retry&apos; will attempt to resume synchronisation;
-Clicking &apos;Cancel&apos; will stop further synchronisation of this account until logout or Quaternion restart.</translation>
+        <translation>Clicking &apos;Retry&apos; will attempt to resume synchronization;
+Clicking &apos;Cancel&apos; will stop further synchronization of this account until logout or Quaternion restart.</translation>
     </message>
     <message>
         <source>Before this server can process your information, you have to agree with its terms and conditions; please click the button below to open the web page where you can do that</source>
@@ -701,8 +709,8 @@ User-defined tags should start with &quot;u.&quot;</translation>
         <translation>Room not found</translation>
     </message>
     <message>
-        <source>There&apos;s no room %1 in the room list. Check the spelling and the account</source>
-        <translation>There&apos;s no room %1 in the room list. Check the spelling and the account</translation>
+        <source>There&apos;s no room %1 in the room list. Check the spelling and the account.</source>
+        <translation>There&apos;s no room %1 in the room list. Check the spelling and the account.</translation>
     </message>
     <message>
         <source>Confirm your account to open %1</source>
@@ -747,6 +755,30 @@ or alias (starting with #)</translation>
 or matrix.to link</source>
         <translation>Room/user ID, room alias,
 or matrix.to link</translation>
+    </message>
+    <message>
+        <source>Edit quote style</source>
+        <translation>Edit quote style</translation>
+    </message>
+    <message>
+        <source>Markdown (prepend each line with &gt;)</source>
+        <translation>Markdown (prepend each line with &gt;)</translation>
+    </message>
+    <message>
+        <source>Custom (apply regex from the config file)</source>
+        <translation>Custom (apply regex from the config file)</translation>
+    </message>
+    <message>
+        <source>Locale&apos;s default (%1)</source>
+        <translation>Locale&apos;s default (%1)</translation>
+    </message>
+    <message>
+        <source>Example quote</source>
+        <translation>Example quote</translation>
+    </message>
+    <message>
+        <source>Choose the default style of quotes</source>
+        <translation>Choose the default style of quotes</translation>
     </message>
 </context>
 <context>
@@ -1363,6 +1395,10 @@ This operation cannot be reverted.</translation>
     <message>
         <source>Copy link to clipboard</source>
         <translation>Copy link to clipboard</translation>
+    </message>
+    <message>
+        <source>Quote</source>
+        <translation>Quote</translation>
     </message>
 </context>
 <context>

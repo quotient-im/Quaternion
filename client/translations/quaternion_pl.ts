@@ -157,6 +157,14 @@
             <numerusform>%Ln wydarzeń od teraz (%L1 cached%2)</numerusform>
         </translation>
     </message>
+    <message>
+        <source>(no name)</source>
+        <translation>(bez nazwy)</translation>
+    </message>
+    <message>
+        <source>This room has been upgraded</source>
+        <translation>Ten pokój został zaktualizowany</translation>
+    </message>
 </context>
 <context>
     <name>CreateRoomDialog</name>
@@ -534,6 +542,38 @@ Kliknięcie „Anuluj” zatrzyma dalszą synchronizację tego konta do momentu 
     <message>
         <source>Open room</source>
         <translation>Otwórz pokój</translation>
+    </message>
+    <message>
+        <source>Switch to room</source>
+        <translation>Przełącz do pokoju</translation>
+    </message>
+    <message>
+        <source>Open a room from the room list</source>
+        <translation>Otwórz pokój z listy pokoi</translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t save access token</source>
+        <translation>Nie można zapisać tokena dostępu</translation>
+    </message>
+    <message>
+        <source>Logging in into a logged in account</source>
+        <translation>Logowanie do zalogowanego konta</translation>
+    </message>
+    <message>
+        <source>You&apos;re trying to log in into an account that&apos;s already logged in. Do you want to continue?</source>
+        <translation>Próbujesz się zalogować na konto, które jest już zalogowane. Chcesz kontynuować?</translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t delete access token</source>
+        <translation>Nie można usunąć tokena dostępu</translation>
+    </message>
+    <message>
+        <source>Open direct chat?</source>
+        <translation>Otworzyć bezpośrednią rozmowę?</translation>
+    </message>
+    <message>
+        <source>Open direct chat with user %1?</source>
+        <translation>Otworzyć bezpośrednią rozmowę z użytkownikiem %1?</translation>
     </message>
     <message>
         <source>%1 is not a correct user id</source>
@@ -1020,7 +1060,7 @@ lub link matrix.to</translation>
     </message>
     <message>
         <source>Quaternion - an IM client for the Matrix protocol</source>
-        <translation>Quaternion — komunikator internetowy dla protokołu Matrix</translation>
+        <translation>Quaternion - komunikator internetowy dla protokołu Matrix</translation>
     </message>
     <message>
         <source>Override locale</source>

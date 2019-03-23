@@ -103,7 +103,7 @@
     </message>
     <message>
         <source>Currently typing: %1</source>
-        <translation>Actuell tippen: %1</translation>
+        <translation>Aktuell tippen: %1</translation>
     </message>
     <message>
         <source>Attach</source>
@@ -127,7 +127,7 @@
     </message>
     <message>
         <source>There&apos;s no such /command outside of room.</source>
-        <translation>Es gibt keinen /befehl außerhalb von Räumen.</translation>
+        <translation>Es gibt keinen /Befehl außerhalb von Räumen.</translation>
     </message>
     <message>
         <source>%1 doesn&apos;t look like a user id</source>
@@ -174,6 +174,27 @@
     <message>
         <source>and loading</source>
         <translation>und lädt</translation>
+    </message>
+    <message>
+        <source>Unstable room version!</source>
+        <translation>Instabile Zimmerversion!</translation>
+    </message>
+    <message>
+        <source>(no name)</source>
+        <translation>(kein Name)</translation>
+    </message>
+    <message>
+        <source>This room has been upgraded</source>
+        <translation>Dieses Zimmer wurde aktualisiert</translation>
+    </message>
+    <message>
+        <source>
+Go to Room Settings to upgrade the room</source>
+        <translation>Gehen Sie zu Raumeinstellungen, um den Raum zu aktualisieren</translation>
+    </message>
+    <message>
+        <source>Go to Room Settings to upgrade the room</source>
+        <translation>Gehen Sie zu Raumeinstellungen, um den Raum zu aktualisieren</translation>
     </message>
 </context>
 <context>
@@ -600,12 +621,136 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
         <translation>Commit-SHA der Bibliothek:</translation>
     </message>
     <message>
+        <source>Open room...</source>
+        <translation>Offener Raum.....</translation>
+    </message>
+    <message>
+        <source>Open room</source>
+        <translation>Offener Raum</translation>
+    </message>
+    <message>
+        <source>Switch to room</source>
+        <translation>In den Raum wechseln</translation>
+    </message>
+    <message>
+        <source>Open a room from the room list</source>
+        <translation>Einen Raum aus der Raumliste öffnen</translation>
+    </message>
+    <message>
+        <source>Show/hide Rooms dock panel</source>
+        <translation>Dock-Panel der Räume ein-/ausblenden</translation>
+    </message>
+    <message>
+        <source>Show/hide Users dock panel</source>
+        <translation>Benutzer-Dock-Panel ein-/ausblenden</translation>
+    </message>
+    <message>
+        <source>Access token file found</source>
+        <translation>Zugriffstokendatei gefunden</translation>
+    </message>
+    <message>
+        <source>Do you want to migrate the access token for %1 from the file to keychain?</source>
+        <translation>Möchten Sie das Zugriffstoken für %1 aus der Datei in den Schlüsselbund migrieren?</translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t migrate access token</source>
+        <translation>Zugriffstoken konnte nicht migriert werden</translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t migrate access token %1 from the file to keychain.</source>
+        <translation>Quaternion konnte das Zugriffstoken %1 aus der Datei nicht in den Schlüsselbund migrieren.</translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t save access token</source>
+        <translation>Zugriffstoken konnte nicht gespeichert werden.</translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t save the access token to keychain. Do you want to save the access token to file %1?</source>
+        <translation>Quaternion konnte das Zugriffstoken nicht im Schlüsselbund speichern. Möchten Sie das Zugriffstoken in der Datei %1 speichern?</translation>
+    </message>
+    <message>
+        <source>Logging in into a logged in account</source>
+        <translation>Einloggen in ein angemeldetes Konto</translation>
+    </message>
+    <message>
+        <source>You&apos;re trying to log in into an account that&apos;s already logged in. Do you want to continue?</source>
+        <translation>Sie versuchen, sich bei einem bereits angemeldeten Konto anzumelden. Möchten Sie fortfahren?</translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t delete access token</source>
+        <translation>Zugriffstoken konnte nicht gelöscht werden.</translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t delete the access token from keychain.</source>
+        <translation>Quaternion konnte das Zugriffstoken nicht aus dem Schlüsselbund löschen.</translation>
+    </message>
+    <message>
+        <source>Open direct chat?</source>
+        <translation>Direkt-Chat öffnen?</translation>
+    </message>
+    <message>
+        <source>Open direct chat with user %1?</source>
+        <translation>Öffnen Sie einen direkten Chat mit Benutzer %1?</translation>
+    </message>
+    <message>
+        <source>Malformed user id</source>
+        <translation>Falsche Benutzer-ID</translation>
+    </message>
+    <message>
+        <source>%1 is not a correct user id</source>
+        <translation>% 1 ist keine korrekte Benutzer-ID</translation>
+    </message>
+    <message>
+        <source>Room not found</source>
+        <translation>Zimmer nicht gefunden</translation>
+    </message>
+    <message>
+        <source>There&apos;s no room %1 in the room list. Check the spelling and the account.</source>
+        <translation>Es gibt keinen Raum %1 in der Raumliste. Überprüfen Sie die Rechtschreibung und das Konto.</translation>
+    </message>
+    <message>
+        <source>Confirm your account to open %1</source>
+        <translation>Bestätigen Sie Ihr Konto, um %1 zu öffnen</translation>
+    </message>
+    <message>
+        <source>Please connect to a server first</source>
+        <translation>Bitte verbinden Sie sich zuerst mit einem Server</translation>
+    </message>
+    <message>
+        <source>Confirm account</source>
+        <translation>Konto bestätigen</translation>
+    </message>
+    <message>
+        <source>Account</source>
+        <translation>Konto</translation>
+    </message>
+    <message>
         <source>Enter room id or alias</source>
-        <translation>Gebe Raum-ID oder -Alias</translation>
+        <translation>Gebe Raum-ID oder Alias</translation>
+    </message>
+    <message>
+        <source>Room ID (starting with !)
+or alias (starting with #)</source>
+        <translation>Raum ID (beginnend mit !) 
+ oder Alias (beginnend mit #)</translation>
+    </message>
+    <message>
+        <source>Confirm account to join %1</source>
+        <translation>Bestätigen Sie das Konto, um %1 beizutreten</translation>
+    </message>
+    <message>
+        <source>User ID (starting with @)</source>
+        <translation>Benutzer-ID (beginnend mit @)</translation>
     </message>
     <message>
         <source>Start chat</source>
         <translation>Starte Chat</translation>
+    </message>
+    <message>
+        <source>Room/user ID, room alias,
+or matrix.to link</source>
+        <translation>Raum- / Benutzer-ID, Raumalias, 
+ oder matrix.to Verknüpfung</translation>
     </message>
 </context>
 <context>
@@ -755,12 +900,24 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
         <translation>Unbekanntes Ereignis</translation>
     </message>
     <message>
+        <source>upgraded the room to version %1</source>
+        <translation>Das Zimmer wurde auf Version %1 aktualisiert</translation>
+    </message>
+    <message>
+        <source>created the room, version %1</source>
+        <translation>Das Zimmer wurde erstellt, Version %1</translation>
+    </message>
+    <message>
         <source>has set room aliases on server %1 to: %2</source>
         <translation>hat Raum-Aliase auf dem Server %1 auf %2 gesetzt</translation>
     </message>
     <message>
         <source>has put %1 out of the room: %2</source>
         <translation>hat %1 aus dem Raum entfernt: %2</translation>
+    </message>
+    <message>
+        <source>banned %1 from the room: %2</source>
+        <translation>Verbannung von %1 aus dem Raum: %2</translation>
     </message>
 </context>
 <context>
@@ -823,6 +980,34 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     <message>
         <source>Topic</source>
         <translation>Thema</translation>
+    </message>
+    <message>
+        <source>About room versions</source>
+        <translation>Über Zimmerversionen</translation>
+    </message>
+    <message>
+        <source>(loading)</source>
+        <translation>(Laden)</translation>
+    </message>
+    <message>
+        <source>default</source>
+        <translation>Standard</translation>
+    </message>
+    <message>
+        <source>stable</source>
+        <translation>stabil</translation>
+    </message>
+    <message>
+        <source>Room version</source>
+        <translation>Zimmerversion</translation>
+    </message>
+    <message>
+        <source>Continue with unstable version?</source>
+        <translation>Mit instabiler Version fortfahren?</translation>
+    </message>
+    <message>
+        <source>You are using an UNSTABLE room version (%1). The server may stop supporting it at any moment. Do you still want to use this version?</source>
+        <translation>Sie verwenden eine UNSTABLE-Zimmerversion (% 1). Der Server kann die Unterstützung jederzeit einstellen. Möchten Sie diese Version noch verwenden?</translation>
     </message>
 </context>
 <context>
@@ -979,6 +1164,14 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
         <source>as %1</source>
         <translation>als %1</translation>
     </message>
+    <message>
+        <source>This room&apos;s version is unstable!</source>
+        <translation>Die Version dieses Raumes ist instabil!</translation>
+    </message>
+    <message>
+        <source>Consider upgrading to a stable version (use room settings for that)</source>
+        <translation>Erwägen Sie ein Upgrade auf eine stabile Version (verwenden Sie dafür die Raumeinstellungen).</translation>
+    </message>
 </context>
 <context>
     <name>RoomSettingsDialog</name>
@@ -1001,6 +1194,28 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     <message>
         <source>Low priority</source>
         <translation>Niedrige Priorität</translation>
+    </message>
+    <message>
+        <source>This version is unstable! Consider upgrading.</source>
+        <translation>Diese Version ist instabil! Erwägen Sie ein Upgrade.</translation>
+    </message>
+    <message>
+        <source>Upgrade</source>
+        <translation>Aktualisierung</translation>
+    </message>
+    <message>
+        <source>Choose new room version</source>
+        <translation>Neue Raumversion auswählen</translation>
+    </message>
+    <message>
+        <source>You are about to upgrade %1.
+This operation cannot be reverted.</source>
+        <translation>Sie sind dabei, %1 zu aktualisieren. 
+Dieser Vorgang kann nicht rückgängig gemacht werden.</translation>
+    </message>
+    <message>
+        <source>Creating the new room version, please wait</source>
+        <translation>Die neue Raumversion wird erstellt, bitte warten</translation>
     </message>
 </context>
 <context>
@@ -1027,7 +1242,7 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     </message>
     <message>
         <source>Kick user</source>
-        <translation>Benutzer rauswerfen</translation>
+        <translation>Benutzer herauswerfen</translation>
     </message>
     <message>
         <source>Ban user</source>
@@ -1153,6 +1368,10 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
         <source>Copy link to clipboard</source>
         <translation>In Zwischenablage kopieren</translation>
     </message>
+    <message>
+        <source>Quote</source>
+        <translation>Zitieren</translation>
+    </message>
 </context>
 <context>
     <name>SystemTrayIcon</name>
@@ -1184,6 +1403,10 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     <message>
         <source>Image request has been cancelled</source>
         <translation>Bildanfrage wurde abgebrochen.</translation>
+    </message>
+    <message>
+        <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
+        <translation>Die Medien-ID &apos;% 1&apos; folgt nicht dem Server / mediaId-Muster</translation>
     </message>
 </context>
 </TS>
