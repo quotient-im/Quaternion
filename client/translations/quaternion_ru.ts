@@ -19,7 +19,7 @@
     </message>
     <message>
         <source>/join argument doesn&apos;t look like a room ID or alias</source>
-        <translation>Аргумент /join не похож на идентификатор или адрес комнаты</translation>
+        <translation>Аргумент /join не похож на идентификатор или псевдоним комнаты</translation>
     </message>
     <message>
         <source>Sending a farewell message is not supported yet. If you intended to leave another room, switch to it and type /leave there.</source>
@@ -27,11 +27,11 @@
     </message>
     <message>
         <source>/forget must be followed by the room id/alias, even for the current room</source>
-        <translation>Команда /forget должна сопровождаться идентификатором или адресом комнаты, даже при использовании в текущей комнате</translation>
+        <translation>Команда /forget должна сопровождаться идентификатором или псевдонимом комнаты, даже при использовании в текущей комнате</translation>
     </message>
     <message>
         <source>%1 doesn&apos;t look like a room id or alias</source>
-        <translation>%1 не похож на идентификатор или адрес комнаты</translation>
+        <translation>%1 не похож на идентификатор или псевдоним комнаты</translation>
     </message>
     <message>
         <source>/invite &lt;memberId&gt;</source>
@@ -83,7 +83,7 @@
     </message>
     <message>
         <source>%1 doesn&apos;t look like a user id or room alias</source>
-        <translation>%1 не похож на идентификатор пользователя или адрес комнаты</translation>
+        <translation>%1 не похож на идентификатор пользователя или псевдоним комнаты</translation>
     </message>
     <message>
         <source>/%1 &lt;memberId&gt;</source>
@@ -137,6 +137,10 @@
         <source>%1 doesn&apos;t look like a user ID</source>
         <translation>%1 не похож на идентификатор пользователя</translation>
     </message>
+    <message>
+        <source>You should select a room to send messages.</source>
+        <translation>Для отправки сообщений нужно выбрать комнату.</translation>
+    </message>
 </context>
 <context>
     <name>Timeline</name>
@@ -170,12 +174,32 @@
             <numerusform>%Ln событие до текущего времени (%L1 кешировано%2)</numerusform>
             <numerusform>%Ln события до текущего времени (%L1 кешировано%2)</numerusform>
             <numerusform>%Ln событий до текущего времени (%L1 кешировано%2)</numerusform>
-            <numerusform>%Ln события до текущего времени (%L1 кешировано%2)</numerusform>
         </translation>
     </message>
     <message>
         <source>and loading</source>
         <translation>и загружается еще</translation>
+    </message>
+    <message>
+        <source>Unstable room version!</source>
+        <translation>Нестабильная версия комнаты!</translation>
+    </message>
+    <message>
+        <source>(no name)</source>
+        <translation>(без имени)</translation>
+    </message>
+    <message>
+        <source>This room has been upgraded</source>
+        <translation>Эта комната была обновлена</translation>
+    </message>
+    <message>
+        <source>
+Go to Room Settings to upgrade the room</source>
+        <translation>Перейдите в Настройки комнаты, чтобы изменить версию комнаты</translation>
+    </message>
+    <message>
+        <source>Go to Room Settings to upgrade the room</source>
+        <translation>Перейдите в Настройки комнаты, чтобы изменить версию комнаты</translation>
     </message>
 </context>
 <context>
@@ -602,16 +626,159 @@ User-defined tags should start with &quot;u.&quot;</source>
         <translation>SHA-ключ коммита в репозитории:</translation>
     </message>
     <message>
+        <source>Open room...</source>
+        <translation>Открыть комнату...</translation>
+    </message>
+    <message>
+        <source>Open room</source>
+        <translation>Открыть комнату</translation>
+    </message>
+    <message>
+        <source>Switch to room</source>
+        <translation>Переключиться на комнату</translation>
+    </message>
+    <message>
+        <source>Open a room from the room list</source>
+        <translation>Открыть комнату из списка комнат</translation>
+    </message>
+    <message>
+        <source>Show/hide Rooms dock panel</source>
+        <translation>Показать/скрыть панель «Комнаты»</translation>
+    </message>
+    <message>
+        <source>Show/hide Users dock panel</source>
+        <translation>Показать/скрыть панель «Пользователи»</translation>
+    </message>
+    <message>
+        <source>Access token file found</source>
+        <translation>Файл ключа доступа найден</translation>
+    </message>
+    <message>
+        <source>Do you want to migrate the access token for %1 from the file to keychain?</source>
+        <translation>Вы хотите перенести ключ доступа для %1 из файла в хранилище ключей?</translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t migrate access token</source>
+        <translation>Не удаётся переместить ключ доступа</translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t migrate access token %1 from the file to keychain.</source>
+        <translation>Quaternion не может переместить ключ доступа %1 из файла в хранилище ключей.</translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t save access token</source>
+        <translation>Не удаётся сохранить ключ доступа</translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t save the access token to keychain. Do you want to save the access token to file %1?</source>
+        <translation>Quaternion не может сохранить ключ доступа в хранилище ключей. Вы хотите сохранить ключ в файл %1?</translation>
+    </message>
+    <message>
+        <source>Logging in into a logged in account</source>
+        <translation>Вход в залогиненный аккаунт</translation>
+    </message>
+    <message>
+        <source>You&apos;re trying to log in into an account that&apos;s already logged in. Do you want to continue?</source>
+        <translation>Вы пытаетесь войти в учётную запись, в которую уже вошли. Хотите продолжить?</translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t delete access token</source>
+        <translation>Не удаётся удалить ключ доступа</translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t delete the access token from keychain.</source>
+        <translation>Quaternion не может удалить ключ доступа из хранилища ключей.</translation>
+    </message>
+    <message>
+        <source>Open direct chat?</source>
+        <translation>Открыть прямой чат?</translation>
+    </message>
+    <message>
+        <source>Open direct chat with user %1?</source>
+        <translation>Открыть прямой чат с пользователем %1?</translation>
+    </message>
+    <message>
+        <source>Malformed user id</source>
+        <translation>Неверный идентификатор пользователя</translation>
+    </message>
+    <message>
+        <source>%1 is not a correct user id</source>
+        <translation>%1 не является правильным идентификатором пользователя</translation>
+    </message>
+    <message>
+        <source>Room not found</source>
+        <translation>Комната не найдена</translation>
+    </message>
+    <message>
+        <source>There&apos;s no room %1 in the room list. Check the spelling and the account.</source>
+        <translation>В списке комнат нет комнаты %1. Проверьте орфографию и учётную запись.</translation>
+    </message>
+    <message>
+        <source>Confirm your account to open %1</source>
+        <translation>Подтвердите свою учётную запись, чтобы открыть %1</translation>
+    </message>
+    <message>
+        <source>Please connect to a server first</source>
+        <translation>Пожалуйста, сначала подключитесь к серверу</translation>
+    </message>
+    <message>
+        <source>Confirm account</source>
+        <translation>Подтвердить учётную запись</translation>
+    </message>
+    <message>
         <source>Account</source>
         <translation>Учетная запись</translation>
     </message>
     <message>
         <source>Enter room id or alias</source>
-        <translation>Введите идентификатор или адрес комнаты</translation>
+        <translation>Введите идентификатор или псевдоним комнаты</translation>
+    </message>
+    <message>
+        <source>Room ID (starting with !)
+or alias (starting with #)</source>
+        <translation>Идентификатор комнаты (начиная с !)
+или псевдоним комнаты (начиная с #)</translation>
+    </message>
+    <message>
+        <source>Confirm account to join %1</source>
+        <translation>Подтвердите учётную запись для присоединения к %1</translation>
+    </message>
+    <message>
+        <source>User ID (starting with @)</source>
+        <translation>Идентификатор пользователя (начиная с @)</translation>
     </message>
     <message>
         <source>Start chat</source>
         <translation>Начать чат</translation>
+    </message>
+    <message>
+        <source>Room/user ID, room alias,
+or matrix.to link</source>
+        <translation>Идентификатор комнаты/пользователя, псевдоним комнаты или ссылка на matrix.to</translation>
+    </message>
+    <message>
+        <source>Edit quote style</source>
+        <translation>Изменить стиль цитирования</translation>
+    </message>
+    <message>
+        <source>Markdown (prepend each line with &gt;)</source>
+        <translation>Markdown (&gt; перед каждой строчкой)</translation>
+    </message>
+    <message>
+        <source>Custom (apply regex from the config file)</source>
+        <translation>Пользовательский (применить регулярное выражение из файла конфигурации)</translation>
+    </message>
+    <message>
+        <source>Locale&apos;s default (%1)</source>
+        <translation>По умолчанию для региона (%1)</translation>
+    </message>
+    <message>
+        <source>Example quote</source>
+        <translation>Пример цитаты</translation>
+    </message>
+    <message>
+        <source>Choose the default style of quotes</source>
+        <translation>Выберите стиль цитирования по умолчанию</translation>
     </message>
 </context>
 <context>
@@ -706,11 +873,11 @@ User-defined tags should start with &quot;u.&quot;</source>
     </message>
     <message>
         <source>cleared the room main alias</source>
-        <translation>очистил основной адрес комнаты</translation>
+        <translation>очистил основной псевдоним комнаты</translation>
     </message>
     <message>
         <source>set the room main alias to: %1</source>
-        <translation>установил основной адрес комнаты: %1</translation>
+        <translation>установил основной псевдоним комнаты: %1</translation>
     </message>
     <message>
         <source>cleared the room name</source>
@@ -761,8 +928,16 @@ User-defined tags should start with &quot;u.&quot;</source>
         <translation>Неизвестное событие</translation>
     </message>
     <message>
+        <source>upgraded the room to version %1</source>
+        <translation>версия комнаты изменена на %1</translation>
+    </message>
+    <message>
+        <source>created the room, version %1</source>
+        <translation>создал комнату, версия %1</translation>
+    </message>
+    <message>
         <source>has set room aliases on server %1 to: %2</source>
-        <translation>установил адреса комнаты на сервере %1: %2</translation>
+        <translation>установил псевдоним комнаты на сервере %1: %2</translation>
     </message>
     <message>
         <source>has put %1 out of the room: %2</source>
@@ -828,11 +1003,39 @@ User-defined tags should start with &quot;u.&quot;</source>
     </message>
     <message>
         <source>Primary alias</source>
-        <translation>Основной адрес</translation>
+        <translation>Основной псевдоним</translation>
     </message>
     <message>
         <source>Topic</source>
         <translation>Тема</translation>
+    </message>
+    <message>
+        <source>About room versions</source>
+        <translation>О версиях комнаты</translation>
+    </message>
+    <message>
+        <source>(loading)</source>
+        <translation>(загрузка)</translation>
+    </message>
+    <message>
+        <source>default</source>
+        <translation>по-умолчанию</translation>
+    </message>
+    <message>
+        <source>stable</source>
+        <translation>стабильная</translation>
+    </message>
+    <message>
+        <source>Room version</source>
+        <translation>Версия комнаты</translation>
+    </message>
+    <message>
+        <source>Continue with unstable version?</source>
+        <translation>Продолжить с нестабильной версией?</translation>
+    </message>
+    <message>
+        <source>You are using an UNSTABLE room version (%1). The server may stop supporting it at any moment. Do you still want to use this version?</source>
+        <translation>Вы используете НЕСТАБИЛЬНУЮ версию комнаты (%1). Сервер может перестать поддерживать её в любой момент. Вы все еще хотите использовать эту версию?</translation>
     </message>
 </context>
 <context>
@@ -922,7 +1125,6 @@ User-defined tags should start with &quot;u.&quot;</source>
             <numerusform>%1 (%Ln комната)</numerusform>
             <numerusform>%1 (%Ln комнаты)</numerusform>
             <numerusform>%1 (%Ln комнат)</numerusform>
-            <numerusform>%1 (%Ln комнаты)</numerusform>
         </translation>
     </message>
     <message>
@@ -943,13 +1145,12 @@ User-defined tags should start with &quot;u.&quot;</source>
     </message>
     <message>
         <source>Main alias: %1</source>
-        <translation>Основной адрес: %1</translation>
+        <translation>Основной псевдоним: %1</translation>
     </message>
     <message numerus="yes">
         <source>Joined: %Ln</source>
         <translation>
             <numerusform>Присоединился: %Ln</numerusform>
-            <numerusform>Присоединились: %Ln</numerusform>
             <numerusform>Присоединились: %Ln</numerusform>
             <numerusform>Присоединились: %Ln</numerusform>
         </translation>
@@ -958,7 +1159,6 @@ User-defined tags should start with &quot;u.&quot;</source>
         <source>Invited: %Ln</source>
         <translation>
             <numerusform>Приглашен: %Ln</numerusform>
-            <numerusform>Приглашено: %Ln</numerusform>
             <numerusform>Приглашено: %Ln</numerusform>
             <numerusform>Приглашено: %Ln</numerusform>
         </translation>
@@ -995,6 +1195,14 @@ User-defined tags should start with &quot;u.&quot;</source>
         <source>as %1</source>
         <translation>как %1</translation>
     </message>
+    <message>
+        <source>This room&apos;s version is unstable!</source>
+        <translation>Версия этой комнаты нестабильна!</translation>
+    </message>
+    <message>
+        <source>Consider upgrading to a stable version (use room settings for that)</source>
+        <translation>Рекомендуется обновление до стабильной версии комнаты (используйте настройки комнаты для этого)</translation>
+    </message>
 </context>
 <context>
     <name>RoomSettingsDialog</name>
@@ -1017,6 +1225,28 @@ User-defined tags should start with &quot;u.&quot;</source>
     <message>
         <source>Low priority</source>
         <translation>Неважные</translation>
+    </message>
+    <message>
+        <source>This version is unstable! Consider upgrading.</source>
+        <translation>Эта версия нестабильна! Рекомендуется обновление.</translation>
+    </message>
+    <message>
+        <source>Upgrade</source>
+        <translation>Обновить</translation>
+    </message>
+    <message>
+        <source>Choose new room version</source>
+        <translation>Выберите новую версию комнаты</translation>
+    </message>
+    <message>
+        <source>You are about to upgrade %1.
+This operation cannot be reverted.</source>
+        <translation>Вы собираетесь обновить %1.
+Эта операция не может быть отменена.</translation>
+    </message>
+    <message>
+        <source>Creating the new room version, please wait</source>
+        <translation>Создание новой версии комнаты, подождите пожалуйста</translation>
     </message>
 </context>
 <context>
@@ -1169,6 +1399,10 @@ User-defined tags should start with &quot;u.&quot;</source>
         <source>Copy link to clipboard</source>
         <translation>Скопировать ссылку в буфер обмена</translation>
     </message>
+    <message>
+        <source>Quote</source>
+        <translation>Цитировать</translation>
+    </message>
 </context>
 <context>
     <name>SystemTrayIcon</name>
@@ -1182,7 +1416,6 @@ User-defined tags should start with &quot;u.&quot;</source>
             <numerusform>%n упоминание</numerusform>
             <numerusform>%n упоминания</numerusform>
             <numerusform>%n упоминаний</numerusform>
-            <numerusform>%n упоминания</numerusform>
         </translation>
     </message>
 </context>
@@ -1202,6 +1435,14 @@ User-defined tags should start with &quot;u.&quot;</source>
     <message>
         <source>Image request has been cancelled</source>
         <translation>Запрос на изображение отменен</translation>
+    </message>
+    <message>
+        <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
+        <translation>Идентификатор файла &quot;%1&quot; не соответствует шаблону server/mediaId</translation>
+    </message>
+    <message>
+        <source>No connection to perform image request</source>
+        <translation>Нет соединения для выполнения запроса изображения</translation>
     </message>
 </context>
 </TS>
