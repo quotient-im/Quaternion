@@ -57,6 +57,7 @@
 #include <QtWidgets/QDialogButtonBox>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QFormLayout>
+#include <QtWidgets/QCompleter>
 #include <QtGui/QMovie>
 #include <QtGui/QPixmap>
 #include <QtGui/QCloseEvent>
@@ -190,6 +191,7 @@ void MainWindow::createMenu()
         tr("Open room..."), [this] {
             resolveLocator(obtainIdentifier(
                     currentRoom ? currentRoom->connection() : nullptr,
+                    QFlag(Room|User),
                     tr("Open room"),
                     tr("Room/user ID, room alias,\n"
                        "or matrix.to link"),
@@ -1125,7 +1127,8 @@ MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
 }
 
 Locator MainWindow::obtainIdentifier(Connection* initialConn,
-        const QString& prompt, const QString& label, const QString& actionName)
+        QFlags<CompletionType> completionType, const QString& prompt,
+        const QString& label, const QString& actionName)
 {
     if (connections.isEmpty())
     {
@@ -1144,6 +1147,7 @@ Locator MainWindow::obtainIdentifier(Connection* initialConn,
         if (c == initialConn)
             account->setCurrentIndex(account->count() - 1);
     }
+    setCompleter(identifier, connections[0], completionType);
 
     // Lay out controls
     auto* layout = dlg.addLayout<QFormLayout>();
@@ -1160,6 +1164,10 @@ Locator MainWindow::obtainIdentifier(Connection* initialConn,
 
     auto* okButton = dlg.button(QDialogButtonBox::Ok);
     okButton->setDisabled(identifier->text().isEmpty());
+    connect(account, QOverload<int>::of(&QComboBox::currentIndexChanged),
+        [&] (int index) {
+            setCompleter(identifier, connections[index], completionType);
+        });
     connect(identifier, &QLineEdit::textChanged, &dlg,
         [identifier,okButton] {
             okButton->setDisabled(identifier->text().isEmpty());
@@ -1173,13 +1181,32 @@ Locator MainWindow::obtainIdentifier(Connection* initialConn,
     return {};
 }
 
+void MainWindow::setCompleter(QLineEdit* edit, Connection* connection,
+                              QFlags<CompletionType> type)
+{
+    QStringList list;
+    if (type & Room)
+    {
+        for (auto* room: connection->roomMap())
+            list << room->canonicalAlias();
+    }
+    if (type & User)
+    {
+        for (auto* user: connection->users())
+            list << user->id();
+    }
+    list.sort();
+    auto* completer = new QCompleter(list);
+    edit->setCompleter(completer);
+}
+
 void MainWindow::joinRoom(const QString& roomAlias)
 {
     auto* defaultConnection = currentRoom ? currentRoom->connection() :
                               connections.size() == 1 ? connections.front() :
                               nullptr;
     auto roomLocator = roomAlias.isEmpty()
-            ? obtainIdentifier(defaultConnection,
+            ? obtainIdentifier(defaultConnection, None,
                 tr("Enter room id or alias"),
                 tr("Room ID (starting with !)\nor alias (starting with #)"),
                 tr("Join"))
@@ -1221,7 +1248,7 @@ void MainWindow::directChat(const QString& userId)
         auto* defaultConnection = currentRoom ? currentRoom->connection() :
                                   connections.size() == 1 ? connections.front() :
                                   nullptr;
-        resolveLocator(obtainIdentifier(defaultConnection,
+        resolveLocator(obtainIdentifier(defaultConnection, User,
                 tr("Enter user id to start direct chat."),
                 tr("User ID (starting with @)"), tr("Start chat")
         ));
