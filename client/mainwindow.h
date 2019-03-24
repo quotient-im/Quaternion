@@ -39,6 +39,7 @@ class QMenuBar;
 class QSystemTrayIcon;
 class QMovie;
 class QLabel;
+class QLineEdit;
 
 class QNetworkReply;
 class QSslError;
@@ -91,6 +92,12 @@ class MainWindow: public QMainWindow
         void logout(Connection* c);
 
     private:
+        enum CompletionType {
+            None,
+            Room,
+            User
+        };
+
         QVector<Connection*> connections;
         QVector<Connection*> logoutOnExit;
 
@@ -139,12 +146,17 @@ class MainWindow: public QMainWindow
          * The identifier can be a room id or alias (to join/open rooms) or
          * a user MXID (e.g., to open direct chats or user profiles).
          * \param initialConn initially selected account, if there are several
+         * \param completionType - type of completion
          * \param prompt - dialog box title
          * \param label - the text next to the identifier field (e.g., "User ID")
          * \param actionName - the text on the accepting button
          */
-        Locator obtainIdentifier(Connection* initialConn, const QString& prompt,
-                                 const QString& label, const QString& actionName);
+        Locator obtainIdentifier(Connection* initialConn,
+                                 QFlags<CompletionType> completionType,
+                                 const QString& prompt, const QString& label,
+                                 const QString& actionName);
+        void setCompleter(QLineEdit* edit, Connection* connection,
+                          QFlags<CompletionType> type);
 
         void closeEvent(QCloseEvent* event) override;
 };
