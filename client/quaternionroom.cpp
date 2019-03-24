@@ -43,6 +43,16 @@ void QuaternionRoom::setCachedInput(const QString& input)
     m_cachedInput = input;
 }
 
+const QString& QuaternionRoom::cachedUserFilter() const
+{
+    return m_cachedUserFilter;
+}
+
+void QuaternionRoom::setCachedUserFilter(const QString& input)
+{
+    m_cachedUserFilter = input;
+}
+
 bool QuaternionRoom::isEventHighlighted(const RoomEvent* e) const
 {
     return highlights.contains(e);
