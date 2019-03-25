@@ -306,8 +306,8 @@ QString ChatRoomWidget::doSendInput()
 
     static const QRegularExpression
             CommandRe { "^/([^ ]+)( +(.*))?\\s*$", ReFlags },
-            RoomIdRE { "^[#!][-0-9a-z._=]+:\\S+$", ReFlags },
-            UserIdRE { "^@[-0-9a-z._=]+:\\S+$", ReFlags },
+            RoomIdRE { "^(#[-0-9a-z._=]+)|(!\\S+):\\S+$", ReFlags },
+            UserIdRE { "^@[-0-9a-zA-Z._=/]+:\\S+$", ReFlags },
             HtmlTagRE { "<[^>]+>", ReFlags };
 
     // Process a command
