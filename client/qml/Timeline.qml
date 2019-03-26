@@ -444,7 +444,10 @@ Rectangle {
         }
         MouseArea {
             anchors.fill: parent
-            onClicked: chatView.positionViewAtBeginning()
+            onClicked: {
+                chatView.positionViewAtBeginning()
+                chatView.saveViewport()
+            }
             cursorShape: Qt.PointingHandCursor
         }
     }
