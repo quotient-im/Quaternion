@@ -237,7 +237,8 @@ void ChatRoomWidget::encryptionChanged()
         m_currentRoom
             ? m_currentRoom->usesEncryption()
                 ? tr("Sending encrypted messages is not supported yet")
-                : tr("Send a message (over %1) or enter a command...")
+                : tr("Send a message (over %1) or enter a command...",
+                     "%1 is the protocol used by the server (usually HTTPS)")
                   .arg(m_currentRoom->connection()->homeserver()
                        .scheme().toUpper())
             : DefaultPlaceholderText);
