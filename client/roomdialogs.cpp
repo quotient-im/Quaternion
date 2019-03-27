@@ -474,7 +474,7 @@ void CreateRoomDialog::accountSwitched()
 {
     auto* connection = account->currentData(Qt::UserRole).value<Connection*>();
     refillVersionSelector(version, connection);
-    aliasServer->setText(':' + connection->homeserver().authority());
+    aliasServer->setText(':' + connection->domain());
 
     auto* completer = nextInvitee->completer();
     Q_ASSERT(completer != nullptr);
