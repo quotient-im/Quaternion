@@ -237,8 +237,10 @@ void ChatRoomWidget::encryptionChanged()
         m_currentRoom
             ? m_currentRoom->usesEncryption()
                 ? tr("Sending encrypted messages is not supported yet")
-                : tr("Send a message (unencrypted) or enter a command...")
-                : DefaultPlaceholderText);
+                : tr("Send a message (over %1) or enter a command...")
+                  .arg(m_currentRoom->connection()->homeserver()
+                       .scheme().toUpper())
+            : DefaultPlaceholderText);
 }
 
 void ChatRoomWidget::setHudCaption(QString newCaption)
