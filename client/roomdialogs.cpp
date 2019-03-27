@@ -265,7 +265,6 @@ void RoomSettingsDialog::apply()
     {
         using namespace QMatrixClient;
         setStatusMessage(tr("Creating the new room version, please wait"));
-        room->switchVersion(version->text());
         connectUntil(room, &Room::upgraded, this,
             [this] (QString, Room* newRoom) {
                 accept();
@@ -274,6 +273,7 @@ void RoomSettingsDialog::apply()
             });
         connectSingleShot(room, &Room::upgradeFailed,
                           this, &Dialog::applyFailed);
+        room->switchVersion(version->text());
         return; // It's either a version upgrade or everything else
     }
     if (roomName->text() != room->name())
