@@ -206,7 +206,7 @@ RoomSettingsDialog::RoomSettingsDialog(QuaternionRoom* room, MainWindow* parent)
                 apply();
             }
         });
-        versionBox->addWidget(changeActionButton, 0, 1, 2, 1);
+        versionBox->addWidget(changeActionButton, 0, 1, -1, 1);
     }
     addEssentials(account, versionBox);
     connect(room, &QuaternionRoom::avatarChanged, this, [this, room] {
