@@ -220,6 +220,16 @@ RoomSettingsDialog::RoomSettingsDialog(QuaternionRoom* room, MainWindow* parent)
     tagsList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     mainFormLayout->addRow(tr("Tags"), tagsList);
+
+    auto* roomIdLabel = new QLabel(room->id());
+    roomIdLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    mainFormLayout->addRow(tr("Room identifier"), roomIdLabel);
+
+    // Uncomment to debug room display name calculation code
+//    auto* refreshNameButton =
+//        buttonBox()->addButton(tr("Refresh name"), QDialogButtonBox::ApplyRole);
+//    connect(refreshNameButton, &QPushButton::clicked,
+//            room, &QuaternionRoom::refreshDisplayName);
 }
 
 void RoomSettingsDialog::load()
