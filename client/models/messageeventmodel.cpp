@@ -701,7 +701,8 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         if (auto e = eventCast<const RoomMessageEvent>(&evt))
             if (e->hasFileContent())
                 return QVariant::fromValue(
-                            m_currentRoom->fileTransferInfo(e->id()));
+                            m_currentRoom->fileTransferInfo(
+                                isPending ? e->transactionId() : e->id()));
     }
 
     if( role == AnnotationRole )

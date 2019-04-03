@@ -333,12 +333,12 @@ Item {
 
                 sourceComponent: ImageContent {
                     property var info:
-                        !progressInfo.uploading && !progressInfo.active &&
+                        !progressInfo.isUpload && !progressInfo.active &&
                         content.info && content.info.thumbnail_info
                         ? content.info.thumbnail_info
                         : content.info
                     sourceSize: if (info) { Qt.size(info.w, info.h) }
-                    source: downloaded || progressInfo.uploading
+                    source: downloaded || progressInfo.isUpload
                             ? progressInfo.localPath
                             : content.info && content.info.thumbnail_info
                               ? "image://mtx/" + content.thumbnailMediaId

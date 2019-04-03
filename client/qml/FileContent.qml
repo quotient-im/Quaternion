@@ -15,7 +15,7 @@ Attachment {
         text: qsTr("Size: %1, declared type: %2")
               .arg(content.info ? humanSize(content.info.size) : "")
               .arg(content.info ? content.info.mimetype : "unknown")
-              + (progressInfo && progressInfo.uploading
+              + (progressInfo && progressInfo.isUpload
                  ? " (" + (progressInfo.completed
                     ? qsTr("uploaded from %1", "%1 is a local file name")
                     : qsTr("being uploaded from %1", "%1 is a local file name"))
