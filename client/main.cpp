@@ -39,7 +39,7 @@ int main( int argc, char* argv[] )
     QApplication::setOrganizationName("QMatrixClient");
     QApplication::setApplicationName("quaternion");
     QApplication::setApplicationDisplayName("Quaternion");
-    QApplication::setApplicationVersion("0.0.9.4-beta2+git");
+    QApplication::setApplicationVersion("0.0.9.4-rc");
 
     QMatrixClient::Settings::setLegacyNames("Quaternion", "quaternion");
 
