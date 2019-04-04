@@ -184,28 +184,28 @@
 <context>
     <name>CreateRoomDialog</name>
     <message>
-        <location filename="../roomdialogs.cpp" line="336"/>
+        <location filename="../roomdialogs.cpp" line="346"/>
         <source>Create room</source>
         <translation>Create room</translation>
     </message>
     <message>
-        <location filename="../roomdialogs.cpp" line="342"/>
+        <location filename="../roomdialogs.cpp" line="352"/>
         <source>Add</source>
         <comment>Add a user to the list of invitees</comment>
         <translation>Add</translation>
     </message>
     <message>
-        <location filename="../roomdialogs.cpp" line="358"/>
+        <location filename="../roomdialogs.cpp" line="368"/>
         <source>Please fill the fields as desired. None are mandatory</source>
         <translation>Please fill the fields as desired. None are mandatory</translation>
     </message>
     <message>
-        <location filename="../roomdialogs.cpp" line="403"/>
+        <location filename="../roomdialogs.cpp" line="413"/>
         <source>Invite user(s)</source>
         <translation>Invite user(s)</translation>
     </message>
     <message>
-        <location filename="../roomdialogs.cpp" line="406"/>
+        <location filename="../roomdialogs.cpp" line="416"/>
         <source>Creating the room, please wait</source>
         <translation>Creating the room, please wait</translation>
     </message>
@@ -1541,17 +1541,22 @@ This operation cannot be reverted.</translation>
         <translation>Tags</translation>
     </message>
     <message>
-        <location filename="../roomdialogs.cpp" line="239"/>
+        <location filename="../roomdialogs.cpp" line="226"/>
+        <source>Room identifier</source>
+        <translation>Room identifier</translation>
+    </message>
+    <message>
+        <location filename="../roomdialogs.cpp" line="249"/>
         <source>Favourites</source>
         <translation>Favourites</translation>
     </message>
     <message>
-        <location filename="../roomdialogs.cpp" line="240"/>
+        <location filename="../roomdialogs.cpp" line="250"/>
         <source>Low priority</source>
         <translation>Low priority</translation>
     </message>
     <message>
-        <location filename="../roomdialogs.cpp" line="267"/>
+        <location filename="../roomdialogs.cpp" line="277"/>
         <source>Creating the new room version, please wait</source>
         <translation>Creating the new room version, please wait</translation>
     </message>
