@@ -122,6 +122,12 @@ int UserListModel::rowCount(const QModelIndex& parent) const
 void UserListModel::userAdded(QMatrixClient::User* user)
 {
     auto pos = findUserPos(user);
+    if (pos != m_users.size() && m_users[pos] == user)
+    {
+        qWarning() << "Trying to add the user" << user->id()
+                   << "but it's already in the user list";
+        return;
+    }
     beginInsertRows(QModelIndex(), pos, pos);
     m_users.insert(pos, user);
     endInsertRows();
@@ -131,16 +137,18 @@ void UserListModel::userAdded(QMatrixClient::User* user)
 void UserListModel::userRemoved(QMatrixClient::User* user)
 {
     auto pos = findUserPos(user);
-    if (pos != m_users.size())
+    if (pos == m_users.size())
     {
-        beginRemoveRows(QModelIndex(), pos, pos);
-        m_users.removeAt(pos);
-        endRemoveRows();
-        user->disconnect(this);
-    } else
-        qWarning() << "Trying to remove a room member not in the user list";
-}
+        qWarning() << "Trying to remove a room member not in the user list:"
+                   << user->id();
+        return;
+    }
 
+    beginRemoveRows(QModelIndex(), pos, pos);
+    m_users.removeAt(pos);
+    endRemoveRows();
+    user->disconnect(this);
+}
 
 void UserListModel::filter(const QString& filterString)
 {
