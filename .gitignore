@@ -6,7 +6,7 @@ flatpak/app
 flatpak/.flatpak-builder
 flatpak/repo
 
-CMakeLists.txt.user
+CMakeLists.txt.user*
 CMakeCache.txt
 cmake_install.cmake
 Makefile
