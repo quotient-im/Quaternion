@@ -1147,7 +1147,6 @@ Locator MainWindow::obtainIdentifier(Connection* initialConn,
         if (c == initialConn)
             account->setCurrentIndex(account->count() - 1);
     }
-    setCompleter(identifier, connections[0], completionType);
 
     // Lay out controls
     auto* layout = dlg.addLayout<QFormLayout>();
@@ -1161,6 +1160,7 @@ Locator MainWindow::obtainIdentifier(Connection* initialConn,
         identifier->setFocus();
     }
     layout->addRow(label, identifier);
+    setCompleter(identifier, connections[account->currentIndex()], completionType);
 
     auto* okButton = dlg.button(QDialogButtonBox::Ok);
     okButton->setDisabled(identifier->text().isEmpty());
