@@ -1,11 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
-project(quaternion CXX)
-
-set(APP_NAME "quaternion")
 set(IDENTIFIER "com.github.quaternion")
-set(VERSION "0.0.9.4")
 set(COPYRIGHT "Copyright © 2018-2019 QMatrixClient Project")
+
+project(quaternion VERSION 0.0.9.4 LANGUAGES CXX)
 
 if(UNIX AND NOT APPLE)
     set(LINUX 1)
@@ -192,43 +190,43 @@ endif()
 
 if(APPLE)
     set(MACOSX_BUNDLE_GUI_IDENTIFIER ${IDENTIFIER})
-    set(MACOSX_BUNDLE_BUNDLE_NAME ${APP_NAME})
+    set(MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME})
 
     set(MACOSX_BUNDLE_COPYRIGHT ${COPYRIGHT})
 
-    set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${VERSION})
-    set(MACOSX_BUNDLE_BUNDLE_VERSION ${VERSION})
+    set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${quaternion_VERSION})
+    set(MACOSX_BUNDLE_BUNDLE_VERSION ${quaternion_VERSION})
 
     set(ICON_NAME "quaternion.icns")
-    set(${APP_NAME}_MAC_ICON "${PROJECT_SOURCE_DIR}/icons/${ICON_NAME}")
+    set(${PROJECT_NAME}_MAC_ICON "${PROJECT_SOURCE_DIR}/icons/${ICON_NAME}")
     set(MACOSX_BUNDLE_ICON_FILE ${ICON_NAME})
-    set_property(SOURCE "${${APP_NAME}_MAC_ICON}" PROPERTY
+    set_property(SOURCE "${${PROJECT_NAME}_MAC_ICON}" PROPERTY
         MACOSX_PACKAGE_LOCATION Resources)
 endif(APPLE)
 
 # Windows, this is a GUI executable; OSX, make a bundle
-add_executable(${APP_NAME} WIN32 MACOSX_BUNDLE
+add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
     ${quaternion_SRCS} ${quaternion_QRC_SRC} ${quaternion_QM}
-    ${quaternion_WINRC} ${${APP_NAME}_MAC_ICON})
+    ${quaternion_WINRC} ${${PROJECT_NAME}_MAC_ICON})
 
-target_link_libraries(${APP_NAME}
+target_link_libraries(${PROJECT_NAME}
     QMatrixClient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
-target_compile_definitions(${APP_NAME} PRIVATE
+target_compile_definitions(${PROJECT_NAME} PRIVATE
     GIT_SHA1="${GIT_SHA1}" LIB_GIT_SHA1="${LIB_GIT_SHA1}")
 
 if (USE_QQUICKWIDGET)
-    target_compile_definitions(${APP_NAME} PRIVATE USE_QQUICKWIDGET)
-    target_link_libraries(${APP_NAME} Qt5::QuickWidgets)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE USE_QQUICKWIDGET)
+    target_link_libraries(${PROJECT_NAME} Qt5::QuickWidgets)
 endif()
 
 if(USE_KEYCHAIN)
-    target_compile_definitions(${APP_NAME} PRIVATE USE_KEYCHAIN)
-    target_link_libraries(${APP_NAME} ${QTKEYCHAIN_LIBRARIES})
+    target_compile_definitions(${PROJECT_NAME} PRIVATE USE_KEYCHAIN)
+    target_link_libraries(${PROJECT_NAME} ${QTKEYCHAIN_LIBRARIES})
     include_directories(${QTKEYCHAIN_INCLUDE_DIR})
 endif()
 
 # macOS specific config for bundling
-set_property(TARGET ${APP_NAME} PROPERTY
+set_property(TARGET ${PROJECT_NAME} PROPERTY
     MACOSX_BUNDLE_INFO_PLIST "${PROJECT_SOURCE_DIR}/cmake/MacOSXBundleInfo.plist.in")
 
 # Installation
@@ -237,7 +235,7 @@ if (NOT CMAKE_INSTALL_BINDIR)
     set(CMAKE_INSTALL_BINDIR ".")
 endif()
 
-install(TARGETS ${APP_NAME}
+install(TARGETS ${PROJECT_NAME}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR})
 if(LINUX)
@@ -285,10 +283,10 @@ endif(WIN32)
 # Packaging
 
 if(APPLE)
-    set(MACDEPLOYQT_ARGS ${APP_NAME}.app -dmg -qmldir="${QML_DIR}" -verbose=${DEPLOY_VERBOSITY})
+    set(MACDEPLOYQT_ARGS ${PROJECT_NAME}.app -dmg -qmldir="${QML_DIR}" -verbose=${DEPLOY_VERBOSITY})
     add_custom_target(image
         COMMAND "${Qt5_BinDir}/macdeployqt" ${MACDEPLOYQT_ARGS}
-        DEPENDS ${APP_NAME}
+        DEPENDS ${PROJECT_NAME}
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
         COMMENT "Running ${MACDEPLOYQT} with args: ${MACDEPLOYQT_ARGS}"
     )
