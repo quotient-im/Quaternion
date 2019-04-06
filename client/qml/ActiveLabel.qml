@@ -11,6 +11,6 @@ Label {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
         acceptedButtons: Qt.LeftButton
-        onClicked: parent.clicked
+        onClicked: parent.clicked()
     }
 }
