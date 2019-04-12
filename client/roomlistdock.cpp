@@ -62,27 +62,22 @@ void RoomListItemDelegate::paint(QPainter* painter,
         o.font.setBold(true);
     }
 
-    if (const auto* room =
-            index.data(RoomListModel::ObjectRole).value<QuaternionRoom*>())
+    if (index.data(RoomListModel::HasUnreadRole).toBool())
+        o.font.setBold(true);
+
+    if (index.data(RoomListModel::HighlightCountRole).toInt() > 0)
     {
-        if (room->hasUnreadMessages())
-            o.font.setBold(true);
-
-        if (room->highlightCount() > 0)
-        {
-            // Highlighting the text may not work out on monochrome colour schemes,
-            // hence duplicating with italic font.
-            o.palette.setColor(QPalette::Text, highlightColor);
-            o.font.setItalic(true);
-        }
-
-        using QMatrixClient::JoinState;
-        if (room->joinState() == JoinState::Invite)
-            o.font.setItalic(true);
-        else if (room->joinState() == JoinState::Leave ||
-                 !room->successorId().isEmpty())
-            o.font.setStrikeOut(true);
+        // Highlighting the text may not work out on monochrome colour schemes,
+        // hence duplicating with italic font.
+        o.palette.setColor(QPalette::Text, highlightColor);
+        o.font.setItalic(true);
     }
+
+    const auto joinState = index.data(RoomListModel::JoinStateRole).toString();
+    if (joinState == "invite")
+        o.font.setItalic(true);
+    else if (joinState == "leave" || joinState == "upgraded")
+        o.font.setStrikeOut(true);
 
     QStyledItemDelegate::paint(painter, o, index);
 }

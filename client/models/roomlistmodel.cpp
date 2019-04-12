@@ -478,6 +478,8 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         case HighlightCountRole:
             return room->highlightCount();
         case JoinStateRole:
+            if (!room->successorId().isEmpty())
+                return QStringLiteral("upgraded");
             return toCString(room->joinState()); // FIXME: better make the enum QVariant-convertible (only possible from Qt 5.8, see Q_ENUM_NS)
         case ObjectRole:
             return QVariant::fromValue(room);
