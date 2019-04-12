@@ -262,7 +262,8 @@ void RoomSettingsDialog::load()
 
 bool RoomSettingsDialog::validate()
 {
-    if (checkRoomVersion(version->text(), room->connection()))
+    if (room->canSwitchVersions()
+            && checkRoomVersion(version->text(), room->connection()))
         return true;
 
     version->setText(room->version());
