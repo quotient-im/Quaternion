@@ -20,14 +20,13 @@
 #include "logindialog.h"
 
 #include <connection.h>
+#include <settings.h>
 
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFormLayout>
-
-#include "settings.h"
 
 using QMatrixClient::Connection;
 
@@ -41,29 +40,15 @@ LoginDialog::LoginDialog(QWidget* parent)
     , saveTokenCheck(new QCheckBox(tr("Stay logged in"), this))
     , m_connection(new Connection)
 {
-
-    passwordEdit->setEchoMode( QLineEdit::Password );
-
-    auto* formLayout = addLayout<QFormLayout>();
-    formLayout->addRow(tr("Matrix ID"), userEdit);
-    formLayout->addRow(tr("Password"), passwordEdit);
-    formLayout->addRow(tr("Device name"), initialDeviceName);
-    formLayout->addRow(tr("Connect to server"), serverEdit);
-    formLayout->addRow(saveTokenCheck);
-
+    setup();
     setPendingApplyMessage(tr("Connecting and logging in, please wait"));
 
-    connect( userEdit, &QLineEdit::editingFinished, m_connection.data(),
-             [=] {
-                 auto userId = userEdit->text();
-                 if (userId.startsWith('@') && userId.indexOf(':') != -1)
-                     m_connection->resolveServer(userId);
-             });
-    connect( m_connection.data(), &Connection::homeserverChanged, serverEdit,
-             [=] (QUrl newUrl)
-             {
-                 serverEdit->setText(newUrl.toString());
-             });
+    connect(userEdit, &QLineEdit::editingFinished, m_connection.data(),
+            [=] {
+                auto userId = userEdit->text();
+                if (userId.startsWith('@') && userId.indexOf(':') != -1)
+                    m_connection->resolveServer(userId);
+            });
 
     {
         // Fill defaults
@@ -92,6 +77,38 @@ LoginDialog::LoginDialog(QWidget* parent)
     }
 }
 
+LoginDialog::LoginDialog(QWidget* parent,
+                         const QMatrixClient::AccountSettings& reloginData)
+    : Dialog(tr("Re-login"), parent, Dialog::StatusLine, tr("Re-login"),
+             Dialog::NoExtraButtons)
+    , userEdit(new QLineEdit(reloginData.userId(), this))
+    , passwordEdit(new QLineEdit(this))
+    , initialDeviceName(new QLineEdit(reloginData.deviceName(), this))
+    , serverEdit(new QLineEdit(reloginData.homeserver().toString(), this))
+    , saveTokenCheck(new QCheckBox(tr("Stay logged in"), this))
+    , m_connection(new Connection)
+{
+    setup();
+    userEdit->setReadOnly(true);
+    userEdit->setFrame(false);
+    setPendingApplyMessage(tr("Restoring access, please wait"));
+}
+
+void LoginDialog::setup()
+{
+    passwordEdit->setEchoMode( QLineEdit::Password );
+
+    connect(m_connection.data(), &Connection::homeserverChanged, serverEdit,
+            [=] (QUrl newUrl) { serverEdit->setText(newUrl.toString()); });
+
+    auto* formLayout = addLayout<QFormLayout>();
+    formLayout->addRow(tr("Matrix ID"), userEdit);
+    formLayout->addRow(tr("Password"), passwordEdit);
+    formLayout->addRow(tr("Device name"), initialDeviceName);
+    formLayout->addRow(tr("Connect to server"), serverEdit);
+    formLayout->addRow(saveTokenCheck);
+}
+
 LoginDialog::~LoginDialog() = default;
 
 Connection* LoginDialog::releaseConnection()
@@ -112,7 +129,7 @@ bool LoginDialog::keepLoggedIn() const
 void LoginDialog::apply()
 {
     auto url = QUrl::fromUserInput(serverEdit->text());
-    if (!serverEdit->text().isEmpty() && !serverEdit->text().startsWith("http"))
+    if (!serverEdit->text().isEmpty() && !serverEdit->text().startsWith("http:"))
         url.setScheme("https"); // Qt defaults to http (or even ftp for some)
     m_connection->setHomeserver(url);
     connect( m_connection.data(), &Connection::connected,

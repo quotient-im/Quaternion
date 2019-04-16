@@ -32,6 +32,7 @@ class UserListDock;
 class ChatRoomWidget;
 class SystemTrayIcon;
 class QuaternionRoom;
+class LoginDialog;
 
 class QAction;
 class QMenu;
@@ -88,6 +89,8 @@ class MainWindow: public QMainWindow
                                          QAuthenticator* auth);
 
         void showLoginWindow(const QString& statusMessage = {});
+        void showLoginWindow(const QString& statusMessage,
+            QMatrixClient::AccountSettings& reloginConnection);
         void showAboutWindow();
         void logout(Connection* c);
 
@@ -129,6 +132,7 @@ class MainWindow: public QMainWindow
         void showFirstSyncIndicator();
         void loadSettings();
         void saveSettings() const;
+        void processLogin(LoginDialog& dialog);
         QByteArray loadAccessToken(const QMatrixClient::AccountSettings& account);
         QByteArray loadAccessTokenFromFile(const QMatrixClient::AccountSettings& account);
         QByteArray loadAccessTokenFromKeyChain(const QMatrixClient::AccountSettings &account);

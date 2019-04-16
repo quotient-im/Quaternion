@@ -25,6 +25,7 @@ class QLineEdit;
 class QCheckBox;
 
 namespace QMatrixClient {
+    class AccountSettings;
     class Connection;
 }
 
@@ -33,6 +34,9 @@ class LoginDialog : public Dialog
         Q_OBJECT
     public:
         explicit LoginDialog(QWidget* parent = nullptr);
+        explicit LoginDialog(QWidget* parent,
+                             const QMatrixClient::AccountSettings& reloginData);
+        void setup();
         ~LoginDialog() override;
 
         QMatrixClient::Connection* releaseConnection();

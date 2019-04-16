@@ -794,46 +794,66 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
 {
     LoginDialog dialog(this);
     dialog.setStatusMessage(statusMessage);
-    if( dialog.exec() )
+    if (dialog.exec())
+        processLogin(dialog);
+}
+
+void MainWindow::showLoginWindow(const QString& statusMessage,
+                                 AccountSettings& reloginAccount)
+{
+    LoginDialog dialog { this, reloginAccount };
+
+    dialog.setStatusMessage(statusMessage);
+    if (dialog.exec())
+        processLogin(dialog);
+    else
     {
-        auto connection = dialog.releaseConnection();
-        AccountSettings account(connection->userId());
-        account.setKeepLoggedIn(dialog.keepLoggedIn());
-        account.clearAccessToken(); // Drop the legacy - just in case
-        if (dialog.keepLoggedIn())
-        {
-            account.setHomeserver(connection->homeserver());
-            account.setDeviceId(connection->deviceId());
-            account.setDeviceName(dialog.deviceName());
-            if (!saveAccessToken(account, connection->accessToken()))
-                qWarning() << "Couldn't save access token";
-        } else
-            logoutOnExit.push_back(connection);
-        account.sync();
-
-        showFirstSyncIndicator();
-
-        QString deviceName = dialog.deviceName();
-        const auto it = std::find_if(connections.cbegin(), connections.cend(),
-            [connection] (Connection* c) {
-                return c->userId() == connection->userId();
-            });
-
-        if (it != connections.cend())
-        {
-            int ret = QMessageBox::warning(this,
-                tr("Logging in into a logged in account"),
-                tr("You're trying to log in into an account that's "
-                   "already logged in. Do you want to continue?"),
-                QMessageBox::Yes, QMessageBox::No);
-
-            if (ret == QMessageBox::Yes)
-                deviceName += "-" + connection->deviceId();
-            else
-                return;
-        }
-        addConnection(connection, deviceName);
+        reloginAccount.clearAccessToken();
+        QFile(accessTokenFileName(reloginAccount)).remove();
+        // XXX: Maybe even remove the account altogether as below?
+//        QMatrixClient::SettingsGroup("Accounts").remove(reloginAccount.userId());
     }
+}
+
+void MainWindow::processLogin(LoginDialog& dialog)
+{
+    auto connection = dialog.releaseConnection();
+    AccountSettings account(connection->userId());
+    account.setKeepLoggedIn(dialog.keepLoggedIn());
+    account.clearAccessToken(); // Drop the legacy - just in case
+    account.setHomeserver(connection->homeserver());
+    account.setDeviceId(connection->deviceId());
+    account.setDeviceName(dialog.deviceName());
+    if (dialog.keepLoggedIn())
+    {
+        if (!saveAccessToken(account, connection->accessToken()))
+            qWarning() << "Couldn't save access token";
+    } else
+        logoutOnExit.push_back(connection);
+    account.sync();
+
+    showFirstSyncIndicator();
+
+    auto deviceName = dialog.deviceName();
+    const auto it = std::find_if(connections.cbegin(), connections.cend(),
+        [connection] (Connection* c) {
+            return c->userId() == connection->userId();
+        });
+
+    if (it != connections.cend())
+    {
+        int ret = QMessageBox::warning(this,
+            tr("Logging in into a logged in account"),
+            tr("You're trying to log in into an account that's "
+               "already logged in. Do you want to continue?"),
+            QMessageBox::Yes, QMessageBox::No);
+
+        if (ret == QMessageBox::Yes)
+            deviceName += "-" + connection->deviceId();
+        else
+            return;
+    }
+    addConnection(connection, deviceName);
 }
 
 void MainWindow::showAboutWindow()
@@ -961,8 +981,12 @@ void MainWindow::invokeLogin()
 void MainWindow::loginError(Connection* c, const QString& message)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Login error on a null connection");
+    AccountSettings as { c->userId() };
+    c->stopSync();
+    // Security over convenience: before allowing back in, remove
+    // the connection from the UI
     emit c->loggedOut(); // Short circuit login error to logged-out event
-    showLoginWindow(message);
+    showLoginWindow(message, as);
 }
 
 void MainWindow::logout(Connection* c)
