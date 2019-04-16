@@ -175,6 +175,7 @@ QModelIndex RoomListModel::parent(const QModelIndex& child) const
 
 void RoomListModel::addRoom(Room* room)
 {
+    Q_ASSERT(room && !room->id().isEmpty());
     addRoomToGroups(room);
     connectRoomSignals(room);
 }
@@ -199,6 +200,9 @@ RoomGroups::iterator RoomListModel::tryInsertGroup(const QVariant& key)
         changePersistentIndexList(affectedIdxs.first, affectedIdxs.second);
         emit groupAdded(gPos);
     }
+    // Check that the group is healthy
+    Q_ASSERT(gIt->key == key
+             && (gIt->rooms.empty() || !gIt->rooms.front()->id().isEmpty()));
     return gIt;
 }
 
@@ -297,7 +301,7 @@ void RoomListModel::doSetOrder(std::unique_ptr<AbstractRoomOrdering>&& newOrder)
 }
 
 std::pair<QModelIndexList, QModelIndexList>
-RoomListModel::preparePersistentIndexChange(int fromPos, int shiftValue)
+RoomListModel::preparePersistentIndexChange(int fromPos, int shiftValue) const
 {
     QModelIndexList from, to;
     for (auto& pIdx: persistentIndexList())

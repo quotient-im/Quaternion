@@ -101,7 +101,7 @@ class RoomListModel: public QAbstractItemModel
         void doSetOrder(std::unique_ptr<AbstractRoomOrdering>&& newOrder);
 
         std::pair<QModelIndexList, QModelIndexList>
-        preparePersistentIndexChange(int fromPos, int shiftValue);
+        preparePersistentIndexChange(int fromPos, int shiftValue) const;
 
         // Beware, the returned iterators are as short-lived as QModelIndex'es
         auto lowerBoundGroup(const QVariant& group)
