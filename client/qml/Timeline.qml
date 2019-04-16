@@ -11,7 +11,9 @@ Rectangle {
         id: settings
         readonly property bool autoload_images: value("UI/autoload_images", true)
         readonly property string render_type: value("UI/Fonts/render_type", "NativeRendering")
-        readonly property int animations_duration_ms: value("UI/animations_duration_ms", 400)
+        readonly property int animations_duration_ms_impl: value("UI/animations_duration_ms", 400)
+        readonly property int animations_duration_ms:
+            animations_duration_ms_impl == 0 ? 10 : animations_duration_ms_impl
         readonly property int fast_animations_duration_ms: animations_duration_ms / 2
         readonly property bool use_shuttle_dial: value("UI/use_shuttle_dial", true)
     }
