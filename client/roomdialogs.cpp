@@ -262,9 +262,10 @@ void RoomSettingsDialog::load()
 
 bool RoomSettingsDialog::validate()
 {
-    if (room->canSwitchVersions()
-            && checkRoomVersion(version->text(), room->connection()))
-        return true;
+    if (room->version() == version->text()
+            || (room->canSwitchVersions()
+                && checkRoomVersion(version->text(), room->connection())))
+        return true; // The room is the same, or it's allowed to change it
 
     version->setText(room->version());
     return false; // Cancel applying, stay on the settings dialog
