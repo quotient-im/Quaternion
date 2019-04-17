@@ -21,7 +21,8 @@
 
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QStyledItemDelegate>
-#include <QtWidgets/QInputDialog>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QPlainTextEdit>
 #include <QtGui/QGuiApplication>
 
 #include "mainwindow.h"
@@ -304,14 +305,21 @@ void RoomListDock::addTagsSelected()
 {
     if (auto room = getSelectedRoom())
     {
-        auto tagsInput = QInputDialog::getMultiLineText(this,
-                tr("Enter new tags for the room"),
-                tr("Enter tags to add to this room, one tag per line"));
-        if (tagsInput.isEmpty())
+        Dialog dlg(tr("Enter new tags for the room"), this, Dialog::NoStatusLine,
+                   tr("Add", "A caption on a button to add tags"),
+                   Dialog::NoExtraButtons);
+        dlg.addWidget(
+            new QLabel(tr("Enter tags to add to this room, one tag per line")));
+        auto tagsInput = new QPlainTextEdit();
+        tagsInput->setTabChangesFocus(true);
+        dlg.addWidget(tagsInput);
+        if (dlg.exec() != QDialog::Accepted)
             return;
 
         auto tags = room->tags();
-        for (const auto& tag: tagsInput.split('\n', QString::SkipEmptyParts))
+        const auto enteredTags =
+                tagsInput->toPlainText().split('\n', QString::SkipEmptyParts);
+        for (const auto& tag: enteredTags)
         {
             // No overwriting, just ensure the tag exists
             tags[tag == tr("Favourites") ? QMatrixClient::FavouriteTag :
