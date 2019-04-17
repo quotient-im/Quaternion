@@ -33,7 +33,8 @@ class LoginDialog : public Dialog
 {
         Q_OBJECT
     public:
-        explicit LoginDialog(QWidget* parent = nullptr);
+        explicit LoginDialog(QWidget* parent = nullptr,
+                             const QStringList& knownAccounts = {});
         explicit LoginDialog(QWidget* parent,
                              const QMatrixClient::AccountSettings& reloginData);
         void setup();

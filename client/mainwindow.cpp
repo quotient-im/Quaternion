@@ -792,7 +792,23 @@ void MainWindow::showFirstSyncIndicator()
 
 void MainWindow::showLoginWindow(const QString& statusMessage)
 {
-    LoginDialog dialog(this);
+    const auto& allKnownAccounts =
+        QMatrixClient::SettingsGroup("Accounts").childGroups();
+    QStringList loggedOffAccounts;
+    for (const auto& a: allKnownAccounts)
+    {
+        AccountSettings as { a };
+        // Skip accounts mentioned in active connections
+        if ([&] {
+                    for (auto c: connections)
+                        if (as.userId() == c->userId())
+                            return false;
+                    return true;
+                }())
+            loggedOffAccounts.push_back(a);
+    }
+
+    LoginDialog dialog(this, loggedOffAccounts);
     dialog.setStatusMessage(statusMessage);
     if (dialog.exec())
         processLogin(dialog);

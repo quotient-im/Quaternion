@@ -30,7 +30,7 @@
 
 using QMatrixClient::Connection;
 
-LoginDialog::LoginDialog(QWidget* parent)
+LoginDialog::LoginDialog(QWidget* parent, const QStringList& knownAccounts)
     : Dialog(tr("Login"), parent, Dialog::StatusLine, tr("Login"),
              Dialog::NoExtraButtons)
     , userEdit(new QLineEdit(this))
@@ -53,10 +53,9 @@ LoginDialog::LoginDialog(QWidget* parent)
     {
         // Fill defaults
         using namespace QMatrixClient;
-        QStringList accounts { SettingsGroup("Accounts").childGroups() };
-        if ( !accounts.empty() )
+        if ( !knownAccounts.empty() )
         {
-            AccountSettings account { accounts.front() };
+            AccountSettings account { knownAccounts.front() };
             userEdit->setText(account.userId());
 
             auto homeserver = account.homeserver();
