@@ -86,7 +86,7 @@ script:
 - cmake --build . --target all
 - export DESTDIR=$TRAVIS_BUILD_DIR/install
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then cmake --build . --target install; fi
-- if [ "$TRAVIS_OS_NAME" = "osx" ]; then cmake --build . --target image; fi
+- if [ "$TRAVIS_OS_NAME" = "osx" ]; then cmake --build . --target image; mv quaternion.dmg quaternion-$VERSION.dmg; fi
 - popd
 # TODO: maybe move AppImage generation to CMakeLists.txt
 # (pre-wgetting AppImageKit to avoid CMakeList.txt dependency on Internet?)
@@ -127,7 +127,8 @@ deploy:
 
 - provider: releases
   api_key: $GITHUB_API_KEY
-  file: build/quaternion.dmg
+  file_glob: true
+  file: build/quaternion.*\.dmg
   skip_cleanup: true
   on:
     tags: true
