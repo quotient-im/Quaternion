@@ -128,7 +128,7 @@ deploy:
 - provider: releases
   api_key: $GITHUB_API_KEY
   file_glob: true
-  file: build/quaternion.*\.dmg
+  file: build/quaternion*.dmg
   skip_cleanup: true
   on:
     tags: true
@@ -136,7 +136,7 @@ deploy:
 - provider: releases
   api_key: $GITHUB_API_KEY
   file_glob: true
-  file: AppImageKit/Quaternion.*\.AppImage
+  file: AppImageKit/Quaternion*.AppImage
   skip_cleanup: true
   on:
     condition: -n "$RELEASE_APPIMAGE" && -z "$VERSION_SUFFIX"
