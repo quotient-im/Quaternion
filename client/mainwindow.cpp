@@ -934,10 +934,11 @@ void MainWindow::showAboutWindow()
                 tr("libQMatrixClient contributors @ GitHub") + "</a><br/>" +
             "<a href='https://lokalise.co/contributors/730769035bbc328c31e863.62506391/'>" +
                 tr("Quaternion translators @ Lokalise.co") + "</a><br/>" +
-            "<br/>" +
+            tr("Special thanks to %1 for all the testing effort")
+            .arg("<a href='https://matrix.to/@nep:pink.packageloss.eu'>nepugia</a>") +
+            "<br/><br/>" +
             tr("Made with:") + "<br/>" +
             "<a href='https://www.qt.io/'>Qt 5</a><br/>"
-            "<a href='https://www.kdevelop.org/'>KDevelop</a><br/>"
             "<a href='https://www.qt.io/qt-features-libraries-apis-tools-and-ide/#ide'>Qt Creator</a><br/>"
             "<a href='https://www.jetbrains.com/clion/'>CLion</a><br/>"
             "<a href='https://lokalise.co'>Lokalise.co</a>"
