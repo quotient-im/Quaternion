@@ -156,7 +156,7 @@ void OrderByTag::connectSignals(Connection* connection)
 {
     using DCMap = Connection::DirectChatsMap;
     connect( connection, &Connection::directChatsListChanged, this,
-        [this,connection] (DCMap additions, DCMap removals) {
+        [this,connection] (const DCMap& additions, const DCMap& removals) {
             // The same room may show up in removals and in additions if it
             // moves from one userid to another (pretty weird but encountered
             // in the wild). Therefore process removals first.

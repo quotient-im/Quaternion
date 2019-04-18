@@ -36,12 +36,13 @@ int main( int argc, char* argv[] )
 #endif
 
     QApplication app(argc, argv);
-    QApplication::setOrganizationName("QMatrixClient");
-    QApplication::setApplicationName("quaternion");
-    QApplication::setApplicationDisplayName("Quaternion");
-    QApplication::setApplicationVersion("0.0.9.4-rc");
+    QApplication::setOrganizationName(QStringLiteral("QMatrixClient"));
+    QApplication::setApplicationName(QStringLiteral("quaternion"));
+    QApplication::setApplicationDisplayName(QStringLiteral("Quaternion"));
+    QApplication::setApplicationVersion(QStringLiteral("0.0.9.4"));
 
-    QMatrixClient::Settings::setLegacyNames("Quaternion", "quaternion");
+    QMatrixClient::Settings::setLegacyNames(
+                QStringLiteral("Quaternion"), QStringLiteral("quaternion"));
 
     // We should not need to do the following, as quitOnLastWindowClosed is
     // set to "true" by default; might be a bug, see
@@ -58,14 +59,14 @@ int main( int argc, char* argv[] )
     parser.addVersionOption();
 
     QList<QCommandLineOption> options;
-    QCommandLineOption locale { "locale",
+    QCommandLineOption locale { QStringLiteral("locale"),
         QApplication::translate("main", "Override locale"),
         QApplication::translate("main", "locale") };
     options.append(locale);
-    QCommandLineOption hideMainWindow { "hide-mainwindow",
+    QCommandLineOption hideMainWindow { QStringLiteral("hide-mainwindow"),
         QApplication::translate("main", "Hide main window on startup") };
     options.append(hideMainWindow);
-    QCommandLineOption debug { "debug",
+    QCommandLineOption debug { QStringLiteral("debug"),
         QApplication::translate("main", "Display debug information") };
     debug.setHidden(true); // FIXME, #415; also, setHidden is obsolete in Qt 5.11
     options.append(debug);

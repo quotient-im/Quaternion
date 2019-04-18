@@ -53,6 +53,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     : QWidget(parent)
     , m_messageModel(new MessageEventModel(this))
     , m_currentRoom(nullptr)
+    , indexToMaybeRead(-1)
     , readMarkerOnScreen(false)
 {
     {
@@ -82,13 +83,14 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     m_timelineWidget->setResizeMode(timelineWidget_t::SizeRootObjectToView);
 
     m_imageProvider = new ImageProvider();
-    m_timelineWidget->engine()->addImageProvider("mtx", m_imageProvider);
+    m_timelineWidget->engine()
+            ->addImageProvider(QStringLiteral("mtx"), m_imageProvider);
 
     auto* ctxt = m_timelineWidget->rootContext();
-    ctxt->setContextProperty("messageModel", m_messageModel);
-    ctxt->setContextProperty("controller", this);
-    ctxt->setContextProperty("debug", QVariant(false));
-    ctxt->setContextProperty("room", nullptr);
+    ctxt->setContextProperty(QStringLiteral("messageModel"), m_messageModel);
+    ctxt->setContextProperty(QStringLiteral("controller"), this);
+    ctxt->setContextProperty(QStringLiteral("debug"), QVariant(false));
+    ctxt->setContextProperty(QStringLiteral("room"), nullptr);
 
     m_timelineWidget->setSource(QUrl("qrc:///qml/Timeline.qml"));
 
@@ -151,7 +153,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
 void ChatRoomWidget::enableDebug()
 {
     QQmlContext* ctxt = m_timelineWidget->rootContext();
-    ctxt->setContextProperty("debug", true);
+    ctxt->setContextProperty(QStringLiteral("debug"), true);
 }
 
 void ChatRoomWidget::setRoom(QuaternionRoom* room)
@@ -208,7 +210,8 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
         m_currentRoom->setDisplayed(true);
     } else
         m_imageProvider->setConnection(nullptr);
-    m_timelineWidget->rootContext()->setContextProperty("room", room);
+    m_timelineWidget->rootContext()
+            ->setContextProperty(QStringLiteral("room"), room);
     typingChanged();
     encryptionChanged();
 
@@ -227,7 +230,8 @@ void ChatRoomWidget::typingChanged()
     {
         typingNames << m_currentRoom->roomMembername(user);
     }
-    setHudCaption( tr("Currently typing: %1").arg(typingNames.join(", ")) );
+    setHudCaption( tr("Currently typing: %1")
+                   .arg(typingNames.join(QStringLiteral(", "))) );
 }
 
 void ChatRoomWidget::encryptionChanged()
@@ -308,10 +312,10 @@ QString ChatRoomWidget::doSendInput()
             QRegularExpression::OptimizeOnFirstUsageOption;
 
     static const QRegularExpression
-            CommandRe { "^/([^ ]+)( +(.*))?\\s*$", ReFlags },
-            RoomIdRE { "^(#[-0-9a-z._=]+)|(!\\S+):\\S+$", ReFlags },
-            UserIdRE { "^@[-0-9a-zA-Z._=/]+:\\S+$", ReFlags },
-            HtmlTagRE { "<[^>]+>", ReFlags };
+            CommandRe { QStringLiteral("^/([^ ]+)( +(.*))?\\s*$"), ReFlags },
+            RoomIdRE { QStringLiteral("^(#[-0-9a-z._=]+)|(!\\S+):\\S+$"), ReFlags },
+            UserIdRE { QStringLiteral("^@[-0-9a-zA-Z._=/]+:\\S+$"), ReFlags },
+            HtmlTagRE { QStringLiteral("<[^>]+>"), ReFlags };
 
     // Process a command
     const auto matches = CommandRe.match(text);
@@ -626,8 +630,8 @@ void ChatRoomWidget::quote(const QString& htmlText)
 {
     QMatrixClient::SettingsGroup sg { QStringLiteral("UI") };
     const auto type = sg.get<int>("quote_type");
-    const auto defaultStyle = "> \\1\n";
-    const auto defaultRegex = "(.+)(?:\n|$)";
+    const auto defaultStyle = QStringLiteral("> \\1\n\n");
+    const auto defaultRegex = QStringLiteral("(.+)(?:\n|$)");
     auto style = sg.get<QString>("quote_style");
     auto regex = sg.get<QString>("quote_regex");
 

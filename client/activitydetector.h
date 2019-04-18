@@ -28,7 +28,7 @@ class ActivityDetector : public QObject
     Q_OBJECT
 
     public:
-        ActivityDetector(QApplication& a, MainWindow& c);
+        ActivityDetector(QApplication& a, MainWindow& w);
 
     public slots:
         void updateEnabled();
@@ -38,7 +38,7 @@ class ActivityDetector : public QObject
         void triggered();
 
     protected:
-        bool eventFilter(QObject* obj, QEvent* ev);
+        bool eventFilter(QObject* obj, QEvent* ev) override;
 
     private:
         QApplication& m_app;

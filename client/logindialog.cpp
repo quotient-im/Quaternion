@@ -36,7 +36,7 @@ LoginDialog::LoginDialog(QWidget* parent, const QStringList& knownAccounts)
     , userEdit(new QLineEdit(this))
     , passwordEdit(new QLineEdit(this))
     , initialDeviceName(new QLineEdit(this))
-    , serverEdit(new QLineEdit("https://matrix.org", this))
+    , serverEdit(new QLineEdit(QStringLiteral("https://matrix.org"), this))
     , saveTokenCheck(new QCheckBox(tr("Stay logged in"), this))
     , m_connection(new Connection)
 {
@@ -98,7 +98,7 @@ void LoginDialog::setup()
     passwordEdit->setEchoMode( QLineEdit::Password );
 
     connect(m_connection.data(), &Connection::homeserverChanged, serverEdit,
-            [=] (QUrl newUrl) { serverEdit->setText(newUrl.toString()); });
+            [=] (const QUrl& newUrl) { serverEdit->setText(newUrl.toString()); });
 
     auto* formLayout = addLayout<QFormLayout>();
     formLayout->addRow(tr("Matrix ID"), userEdit);

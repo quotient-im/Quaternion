@@ -90,7 +90,7 @@ class MainWindow: public QMainWindow
 
         void showLoginWindow(const QString& statusMessage = {});
         void showLoginWindow(const QString& statusMessage,
-            QMatrixClient::AccountSettings& reloginConnection);
+            QMatrixClient::AccountSettings& reloginAccount);
         void showAboutWindow();
         void logout(Connection* c);
 

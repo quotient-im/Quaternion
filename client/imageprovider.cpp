@@ -33,7 +33,7 @@ class ThumbnailResponse : public QQuickImageResponse
 {
         Q_OBJECT
     public:
-        ThumbnailResponse(Connection* c, QString id, const QSize& size)
+        ThumbnailResponse(Connection* c, QString id, QSize size)
             : c(c), mediaId(std::move(id)), requestedSize(size)
             , errorStr(tr("Image request hasn't started"))
         {

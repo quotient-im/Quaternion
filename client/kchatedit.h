@@ -48,7 +48,7 @@ class KChatEdit : public QTextEdit
 
 public:
     explicit KChatEdit(QWidget *parent = nullptr);
-    virtual ~KChatEdit();
+    ~KChatEdit() override;
 
     /**
      * The latest input text saved in the history.

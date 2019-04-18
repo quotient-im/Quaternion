@@ -44,4 +44,5 @@ class ImageProvider: public QQuickAsyncImageProvider
 
     private:
         QAtomicPointer<QMatrixClient::Connection> m_connection;
+        Q_DISABLE_COPY(ImageProvider)
 };

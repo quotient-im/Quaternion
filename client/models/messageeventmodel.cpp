@@ -74,7 +74,6 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
 
 MessageEventModel::MessageEventModel(QObject* parent)
     : QAbstractListModel(parent)
-    , m_currentRoom(nullptr)
 {
     using namespace QMatrixClient;
     qmlRegisterType<FileTransferInfo>(); qRegisterMetaType<FileTransferInfo>();

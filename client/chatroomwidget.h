@@ -110,7 +110,7 @@ class ChatRoomWidget: public QWidget
         void reStartShownTimer();
         QString doSendInput();
 
-        void timerEvent(QTimerEvent* event) override;
+        void timerEvent(QTimerEvent* qte) override;
         void resizeEvent(QResizeEvent*) override;
         void keyPressEvent(QKeyEvent*) override;
 
