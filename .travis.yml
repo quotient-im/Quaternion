@@ -131,8 +131,7 @@ deploy:
 
 - provider: releases
   api_key: $GITHUB_API_KEY
-  file_glob: true
-  file: build/quaternion*.dmg
+  file: build/quaternion-$VERSION.dmg
   skip_cleanup: true
   on:
     tags: true
