@@ -935,7 +935,7 @@ void MainWindow::showAboutWindow()
             "<a href='https://lokalise.co/contributors/730769035bbc328c31e863.62506391/'>" +
                 tr("Quaternion translators @ Lokalise.co") + "</a><br/>" +
             tr("Special thanks to %1 for all the testing effort")
-            .arg("<a href='https://matrix.to/@nep:pink.packageloss.eu'>nepugia</a>") +
+            .arg("<a href='https://matrix.to/#/@nep:pink.packageloss.eu'>nepugia</a>") +
             "<br/><br/>" +
             tr("Made with:") + "<br/>" +
             "<a href='https://www.qt.io/'>Qt 5</a><br/>"
