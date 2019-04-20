@@ -493,10 +493,10 @@ QByteArray MainWindow::loadAccessTokenFromKeyChain(const AccountSettings& accoun
         if(QMessageBox::warning(this,
                                 tr("Access token file found"),
                                 tr("Do you want to migrate the access token for %1 "
-                                   "from the file to keychain?").arg(account.userId()),
+                                   "from the file to the keychain?").arg(account.userId()),
                                 QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
         {
-            qDebug() << "Migrating the access token from file to keychain for " << account.userId();
+            qDebug() << "Migrating the access token from file to the keychain for " << account.userId();
             bool removed = false;
             bool saved = saveAccessTokenToKeyChain(account, accessToken);
             if(saved)
@@ -506,17 +506,17 @@ QByteArray MainWindow::loadAccessTokenFromKeyChain(const AccountSettings& accoun
             }
             if(!(saved && removed))
             {
-                qDebug() << "Migrating the access token from file to keychain failed";
+                qDebug() << "Migrating the access token from the file to the keychain failed";
                 QMessageBox::warning(this,
                                      tr("Couldn't migrate access token"),
                                      tr("Quaternion couldn't migrate access token %1 "
-                                        "from the file to keychain.").arg(account.userId()),
+                                        "from the file to the keychain.").arg(account.userId()),
                                      QMessageBox::Close);
             }
         }
     }
 
-    qDebug() << "Read access token from keychain for " << account.userId();
+    qDebug() << "Read the access token from the keychain for " << account.userId();
     QKeychain::ReadPasswordJob job(qAppName());
     job.setAutoDelete(false);
     job.setKey(account.userId());
@@ -527,7 +527,7 @@ QByteArray MainWindow::loadAccessTokenFromKeyChain(const AccountSettings& accoun
 
     if (job.error())
     {
-        qWarning() << "Could not read access token from keychain: " << qPrintable(job.errorString());
+        qWarning() << "Could not read the access token from the keychain: " << qPrintable(job.errorString());
         return {};
     }
 
@@ -593,7 +593,7 @@ bool MainWindow::saveAccessTokenToFile(const AccountSettings& account,
 bool MainWindow::saveAccessTokenToKeyChain(const AccountSettings& account,
                                            const QByteArray& accessToken)
 {
-    qDebug() << "Save access token to keychain for " << account.userId();
+    qDebug() << "Save the access token to the keychain for " << account.userId();
     QKeychain::WritePasswordJob job(qAppName());
     job.setAutoDelete(false);
     job.setKey(account.userId());
@@ -605,10 +605,10 @@ bool MainWindow::saveAccessTokenToKeyChain(const AccountSettings& account,
 
     if (job.error())
     {
-        qWarning() << "Could not save access token to keychain: " << qPrintable(job.errorString());
+        qWarning() << "Could not save access token to the keychain: " << qPrintable(job.errorString());
         const auto button = QMessageBox::warning(this,
                              tr("Couldn't save access token"),
-                             tr("Quaternion couldn't save the access token to keychain."
+                             tr("Quaternion couldn't save the access token to the keychain."
                                 " Do you want to save the access token to file %1?").arg(accessTokenFileName(account)),
                                 QMessageBox::Yes|QMessageBox::No);
         if (button == QMessageBox::Yes) {
@@ -1022,10 +1022,10 @@ void MainWindow::logout(Connection* c)
     loop.exec();
     if (job.error())
     {
-        qWarning() << "Could not delete access token from keychain: " << qPrintable(job.errorString());
+        qWarning() << "Could not delete access token from the keychain: " << qPrintable(job.errorString());
         QMessageBox::warning(this,
                              tr("Couldn't delete access token"),
-                             tr("Quaternion couldn't delete the access token from keychain."),
+                             tr("Quaternion couldn't delete the access token from the keychain."),
                              QMessageBox::Close);
     }
 #endif
