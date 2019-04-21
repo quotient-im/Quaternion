@@ -263,7 +263,6 @@ if(WIN32)
         message(STATUS \"Running windeployqt at \${CMAKE_INSTALL_PREFIX}\${CMAKE_INSTALL_BINDIR}\")
         execute_process(
             COMMAND \"${Qt5_BinDir}/windeployqt\" --verbose ${DEPLOY_VERBOSITY}
-                --no-opengl --no-angle --no-opengl-sw -no-system-d3d-compiler
                 --no-multimediaquick --no-declarative --no-test --no-winextras
                 --qmldir \"${QML_DIR}\"
                 \${CMAKE_INSTALL_PREFIX}\${CMAKE_INSTALL_BINDIR}
