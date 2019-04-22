@@ -449,7 +449,8 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
             }
             , [this] (const RoomMemberEvent& e) {
                 // FIXME: Rewind to the name that was at the time of this event
-                auto subjectName = m_currentRoom->safeMemberName(e.userId());
+                const auto subjectName =
+                    m_currentRoom->safeMemberName(e.userId()).toHtmlEscaped();
                 // The below code assumes senderName output in AuthorRole
                 switch( e.membership() )
                 {

@@ -157,6 +157,7 @@ Item {
                 elide: Text.ElideRight
 
                 color: textColor
+                textFormat: Label.PlainText
                 font.bold: !xchatStyle
                 renderType: settings.render_type
 
@@ -234,6 +235,15 @@ Item {
                     rightPadding: 2
                     x: -textScrollBar.position * contentWidth
 
+                    // Doesn't work for attributes
+                    function toHtmlEscaped(txt) {
+                        // Make sure to replace & first
+                        var eTxt = txt.replace(/&/g, '&amp;')
+                                  .replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                        console.log(eTxt)
+                        return eTxt
+                    }
+
                     selectByMouse: true
                     readOnly: true
                     textFormat: TextEdit.RichText
@@ -241,7 +251,7 @@ Item {
                     text: (actionEvent && !xchatStyle ?
                            ("<a href='#mention' style='text-decoration:none;color:\"" +
                                     defaultPalette.text + "\"'><b>" +
-                                    authorName + "</b></a> ") : ""
+                                    toHtmlEscaped(authorName) + "</b></a> ") : ""
                           ) + display +
                           (annotation ? "<br><em>" + annotation + "</em>" : "")
                     horizontalAlignment: Text.AlignLeft
