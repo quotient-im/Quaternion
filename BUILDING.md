@@ -41,8 +41,8 @@ Depending on your case, either option can be preferrable. For instance, Option 2
 is more convenient if you're actively hacking on Quaternion and libQMatrixClient
 at the same time. On the other hand, packagers should make a separate package
 for libQMatrixClient so should use Option 1. 0.0.9.3 is the only version using
-Option 1 as default; due to popular demand, Option 2 is used by default (but
-with a fallback to Option 1) from 0.0.9.4 beta.
+Option 1 as default; due to popular demand, Option 2 is used by default
+(with a fallback to Option 1) from 0.0.9.4 beta.
 
 ### Pre-requisites
 - a Linux, macOS or Windows system (desktop versions tried; mobile Linux/Windows
@@ -82,14 +82,16 @@ dnf install git cmake qt5-qtdeclarative-devel qt5-qtquickcontrols qt5-qtquickcon
 ```
 
 #### macOS
-`brew install qt5` should get you Qt5. You have to point CMake at the Qt5
-installation location, with something like:
+`brew install qt5` should get you Qt5. If you want to build with QtKeychain,
+call `brew install qtkeychain`.
+
+You have to point CMake at the Qt5 installation location, with something like:
 
 ```bash
 # if using in-tree libqmatrixclient:
-cmake .. -DUSE_INTREE_LIBQMC=1 -DUSE_QQUICKWIDGET=ON -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)
+cmake .. -DUSE_QQUICKWIDGET=ON -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)
 # or otherwise...
-cmake .. -DCMAKE_PREFIX_PATH=../../libqmatrixclient -DUSE_QQUICKWIDGET=ON -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)
+cmake .. -DCMAKE_PREFIX_PATH=/path/to/libqmatrixclient -DUSE_QQUICKWIDGET=ON -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)
 ```
 (read on to find out about `USE_QQUICKWIDGET`).
 
@@ -97,16 +99,14 @@ cmake .. -DCMAKE_PREFIX_PATH=../../libqmatrixclient -DUSE_QQUICKWIDGET=ON -DCMAK
 1. Install CMake. The commands in further sections imply that cmake is in your
    PATH - otherwise you have to prepend them with actual paths.
 1. Install Qt5, using their official installer.
+1. Optionally, get the QtKeychain sources and make them available to CMake
+   (TODO: elaborate the steps).
 1. Make sure CMake knows about Qt and the toolchain - the easiest way is to run
    `qtenv2.bat` script that can be found in `C:\Qt\<Qt version>\<toolchain>\bin`
    (assuming you installed Qt to `C:\Qt`). The only thing it does is adding
    necessary paths to `PATH` - you might not want to run it on system startup
    but it's very handy to setup environment before building.
    Setting `CMAKE_PREFIX_PATH`, the same way as for macOS (see above), also helps.
-
-Be prepared that a VS 64-bit build won't give you a working Quaternion -
-the last time checked Quaternion ran but could not get anything from the network.
-PRs are welcome. MinGW-based 64-bit builds (with Qt 5.12) run fine.
 
 ### Build
 In the root directory of the project sources:

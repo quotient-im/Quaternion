@@ -59,14 +59,26 @@ brew cask install quaternion
 ```
 
 ## Running
-Just start the executable in your most preferred way - either from build directory or from the installed location.
+Just start the executable in your most preferred way - either from the build
+directory or from the installed location. If you're interested in tweaking
+configuration beyond what's available in the UI, read the "Configuration"
+section further below.
 
-### Configuration and cache files
+## Translation
+Quaternion uses [Lokalise.co](https://lokalise.co) for the translation effort.
+It's easy to participate:
+[join the project at Lokalise.co](https://lokalise.co/public/730769035bbc328c31e863.62506391/),
+ask to add your language (either in #qmatrixclient:matrix.org or in
+the Lokalise project chat) and start translating! Many languages are still
+longing for contributors.
+
+## Configuration
 The only non-trivial command-line option available so far is `--locale` - it
 allows you to override the locale Quaternion uses (an equivalent of setting
 `LC_ALL` variable on UNIX-based systems). As of version 0.0.9.3, Quaternion has
 no translations to other languages, so you will hardly notice the difference in
-messages; number and date formats will be following the setting though.
+messages; number and date formats will be following the setting though. Version
+0.0.9.4 gains German, Polish, and Russian translations.
 
 Quaternion stores its configuration in a way standard for Qt applications. It will read and write the configuration in the user-specific location (creating it if non-existent) and will only read the system-wide location with reasonable defaults if the configuration is nowhere to be found.
 - Linux:
@@ -146,7 +158,7 @@ Settings not exposed in UI:
   the beginning and end of the quote. By default it's `(.+)(?:\n|$)`.
 
 Since version 0.0.9.4, AppImage binaries for Linux and .dmg files for macOS
-are compiled with Qt Keychain support. That means that Quaternion will try
+are compiled with Qt Keychain support. It means that Quaternion will try
 to store your access token(s) in the secure storage configured for your
 platform. If the storage or Qt Keychain are not available (Qt Keychain is off
 by default on Windows - you have to rebuild Quaternion to enable it),
@@ -168,7 +180,16 @@ Quaternion caches the rooms state and user/room avatars on the file system in a 
 - macOS: `$HOME/Library/Cache/QMatrixClient/quaternion`
 - Windows: `%LOCALAPPDATA%/QMatrixClient/quaternion/cache`
 
-Cache files are safe to delete at any time but Quaternion only looks for them when starting up and overwrites them regularly while running; so it only makes sense to delete cache files when Quaternion is not running. If Quaternion doesn't find cache files at startup it downloads the whole state from Matrix servers, which can take much time (up to a minute and even more, depending on the number of rooms and the number of users in them). Deleting cache files may help with problems such as missing avatars, rooms stuck in a wrong state etc.
+Cache files are safe to delete at any time but Quaternion only looks for them
+when starting up and overwrites them regularly while running; so it only
+makes sense to delete cache files when Quaternion is not running. If Quaternion
+doesn't find or cannot fully load cache files at startup it downloads
+the whole state from Matrix servers. It tries to optimise this process by
+lazy-loading if the server supports it; in an unlucky case when the server
+cannot do lazy-loading, initial sync can take much time (up to a minute and
+even more, depending on the number of rooms and the number of users in them).
+Deleting cache files may help with problems such as missing avatars,
+rooms stuck in a wrong state etc.
 
 ## Troubleshooting
 
@@ -201,15 +222,13 @@ Especially on Windows, if Quaternion starts up but upon an attempt to connect re
 If you have troubles with dynamic libraries on Windows, [the Dependencies Walker tool aka depends.exe](http://www.dependencywalker.com/) helps a lot in navigating the DLL hell - especially when you have a mixed 32/64-bit environment or have different versions of the same library scattered around. OpenSSL, in particular, is notoriously often dragged along by all kinds of software; and you may have other copies of Qt around which you didn't even know about - e.g., with CMake GUI.
 
 #### Logging
-If you run Quaternion from a console on Windows, you should set `QT_LOGGING_TO_CONSOLE=1` in order for the debug output be redirected to the console.
+If you run Quaternion from a console on Windows and want to see log messages,
+set `QT_LOGGING_TO_CONSOLE=1` so that the output is redirected to the console.
 
 When chasing bugs and investigating crashes, it helps to increase the debug level. Thanks to [@eang:matrix.org](https://matrix.to/#/@eang:matrix.org]), libqmatrixclient uses Qt logging categories - the "Troubleshooting" section of the library's `README.md` elaborates on how to setup logging. Note that Quaternion itself doesn't use Qt logging categories yet, only the library does.
 
 You may also want to set `QT_MESSAGE_PATTERN` to make logs slightly more informative (see https://doc.qt.io/qt-5/qtglobal.html#qSetMessagePattern for the format description). My (@kitsune's) `QT_MESSAGE_PATTERN` looks as follows:
 `%{time h:mm:ss.zzz}|%{category}|%{if-debug}D%{endif}%{if-info}I%{endif}%{if-warning}W%{endif}%{if-critical}C%{endif}%{if-fatal}F%{endif}|%{message}` (the scary `%{if}`s are just encoding the logging level into its initial letter).
-
-## Translation
-Quaternion uses [Lokalise.co](https://lokalise.co) for the translation effort. It's easy to participate: [join the project at Lokalise.co](https://lokalise.co/public/730769035bbc328c31e863.62506391/), ask to add your language (either in #qmatrixclient:matrix.org or in the Lokalise project chat) and start translating!
 
 ## Screenshot
 ![Screenshot](quaternion.png)
