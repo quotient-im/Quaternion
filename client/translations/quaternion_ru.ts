@@ -10,10 +10,6 @@
         <translation>Отправка шифрованных сообщений пока не поддерживается</translation>
     </message>
     <message>
-        <source>Send a message (unencrypted) or enter a command...</source>
-        <translation>Отправить сообщение (незашифрованное) или ввести команду...</translation>
-    </message>
-    <message>
         <source>There&apos;s nothing to send</source>
         <translation>Нечего отправлять</translation>
     </message>
@@ -141,6 +137,10 @@
         <source>You should select a room to send messages.</source>
         <translation>Для отправки сообщений нужно выбрать комнату.</translation>
     </message>
+    <message>
+        <source>Send a message (over %1) or enter a command...</source>
+        <translation>Отправить сообщение (через %1) или ввести команду...</translation>
+    </message>
 </context>
 <context>
     <name>Timeline</name>
@@ -261,6 +261,14 @@ Go to Room Settings to upgrade the room</source>
     <message>
         <source>Connecting and logging in, please wait</source>
         <translation>Выполняются подключение и вход в систему; пожалуйста, подождите</translation>
+    </message>
+    <message>
+        <source>Re-login</source>
+        <translation>Войти снова</translation>
+    </message>
+    <message>
+        <source>Restoring access, please wait</source>
+        <translation>Восстанавливается доступ, пожалуйста подождите</translation>
     </message>
 </context>
 <context>
@@ -754,7 +762,8 @@ or alias (starting with #)</source>
     <message>
         <source>Room/user ID, room alias,
 or matrix.to link</source>
-        <translation>Идентификатор комнаты/пользователя, псевдоним комнаты или ссылка на matrix.to</translation>
+        <translation>Идентификатор комнаты/пользователя,
+псевдоним комнаты или ссылка на matrix.to</translation>
     </message>
     <message>
         <source>Edit quote style</source>
@@ -779,6 +788,10 @@ or matrix.to link</source>
     <message>
         <source>Choose the default style of quotes</source>
         <translation>Выберите стиль цитирования по умолчанию</translation>
+    </message>
+    <message>
+        <source>Special thanks to %1 for all the testing effort</source>
+        <translation>Особые благодарности %1 за тестирование</translation>
     </message>
 </context>
 <context>
@@ -1096,6 +1109,10 @@ or matrix.to link</source>
         <source>Change room &amp;settings...</source>
         <translation>Изменить &amp;настройки комнаты...</translation>
     </message>
+    <message>
+        <source>Add</source>
+        <translation>Добавить</translation>
+    </message>
 </context>
 <context>
     <name>RoomListModel</name>
@@ -1247,6 +1264,10 @@ This operation cannot be reverted.</source>
     <message>
         <source>Creating the new room version, please wait</source>
         <translation>Создание новой версии комнаты, подождите пожалуйста</translation>
+    </message>
+    <message>
+        <source>Room identifier</source>
+        <translation>Идентификатор комнаты</translation>
     </message>
 </context>
 <context>
@@ -1423,7 +1444,7 @@ This operation cannot be reverted.</source>
     <name>UserListModel</name>
     <message>
         <source>Bridged from: %1</source>
-        <translation>Переправлено из: %1</translation>
+        <translation>Переправлен(а) из: %1</translation>
     </message>
 </context>
 <context>
