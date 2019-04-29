@@ -36,6 +36,7 @@
   </provides>
   
   <releases>
+    <release version="0.0.9.4" date="2019-04-29" />
     <release version="0.0.9.4-beta1" date="2019-03-03" type="development" />
     <release version="0.0.9.3" date="2018-10-21" />
     <release version="0.0.9.2" date="2018-06-17" />
@@ -46,7 +47,7 @@
 
   <translation type="qt"></translation>
 
-  <developer_name>Kitsune Ral et al.</developer_name>
+  <developer_name>QMatrixClient Project</developer_name>
   <content_rating type="oars-1.0">
     <content_attribute id="social-chat">intense</content_attribute>
     <content_attribute id="social-audio">intense</content_attribute>
