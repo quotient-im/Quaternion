@@ -10,10 +10,6 @@
         <translation>Sending encrypted messages is not supported yet</translation>
     </message>
     <message>
-        <source>Send a message (unencrypted) or enter a command...</source>
-        <translation>Send a message (unencrypted) or enter a command...</translation>
-    </message>
-    <message>
         <source>There&apos;s nothing to send</source>
         <translation>There&apos;s nothing to send</translation>
     </message>
@@ -141,6 +137,10 @@
         <source>You should select a room to send messages.</source>
         <translation>You should select a room to send messages.</translation>
     </message>
+    <message>
+        <source>Send a message (over %1) or enter a command...</source>
+        <translation>Send a message (over %1) or enter a command...</translation>
+    </message>
 </context>
 <context>
     <name>Timeline</name>
@@ -260,6 +260,14 @@ Go to Room Settings to upgrade the room</source>
     <message>
         <source>Connecting and logging in, please wait</source>
         <translation>Connecting and logging in, please wait</translation>
+    </message>
+    <message>
+        <source>Re-login</source>
+        <translation>Re-login</translation>
+    </message>
+    <message>
+        <source>Restoring access, please wait</source>
+        <translation>Restoring access, please wait</translation>
     </message>
 </context>
 <context>
@@ -780,6 +788,10 @@ or matrix.to link</translation>
         <source>Choose the default style of quotes</source>
         <translation>Choose the default style of quotes</translation>
     </message>
+    <message>
+        <source>Special thanks to %1 for all the testing effort</source>
+        <translation>Special thanks to %1 for all the testing effort</translation>
+    </message>
 </context>
 <context>
     <name>MessageEventModel</name>
@@ -1096,6 +1108,10 @@ or matrix.to link</translation>
         <source>Change room &amp;settings...</source>
         <translation>Change room &amp;settings...</translation>
     </message>
+    <message>
+        <source>Add</source>
+        <translation>Add</translation>
+    </message>
 </context>
 <context>
     <name>RoomListModel</name>
@@ -1244,6 +1260,10 @@ This operation cannot be reverted.</translation>
     <message>
         <source>Creating the new room version, please wait</source>
         <translation>Creating the new room version, please wait</translation>
+    </message>
+    <message>
+        <source>Room identifier</source>
+        <translation>Room identifier</translation>
     </message>
 </context>
 <context>
