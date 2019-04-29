@@ -10,10 +10,6 @@
         <translation>Wysyłanie zaszyfrowanych wiadomości nie jest jeszcze obsługiwane</translation>
     </message>
     <message>
-        <source>Send a message (unencrypted) or enter a command...</source>
-        <translation>Wyślij wiadomość (niezaszyfrowaną) lub wprowadź polecenie…</translation>
-    </message>
-    <message>
         <source>There&apos;s nothing to send</source>
         <translation>Nie ma niczego do przesłania</translation>
     </message>
@@ -118,8 +114,32 @@
         <translation>Dodaj wiadomość do pliku lub po prostu naciśnij Enter</translation>
     </message>
     <message>
+        <source>Attaching %1</source>
+        <translation>Załączanie %1</translation>
+    </message>
+    <message>
+        <source>Attaching cancelled</source>
+        <translation>Załączanie anulowano</translation>
+    </message>
+    <message>
+        <source>There&apos;s no such /command outside of room.</source>
+        <translation>Nie ma takiego /polecenia poza pokojem.</translation>
+    </message>
+    <message>
         <source>%1 doesn&apos;t look like a user id</source>
         <translation>%1 nie wygląda jak identyfikator użytkownika</translation>
+    </message>
+    <message>
+        <source>%1 doesn&apos;t look like a user ID</source>
+        <translation>%1 nie wygląda jak identyfikator użytkownika</translation>
+    </message>
+    <message>
+        <source>You should select a room to send messages.</source>
+        <translation>Powinieneś/Powinnaś wybrać pokój do wysyłania wiadomości.</translation>
+    </message>
+    <message>
+        <source>Send a message (over %1) or enter a command...</source>
+        <translation>Wyślij wiadomość (poprzez %1) lub wprowadź polecenie…</translation>
     </message>
 </context>
 <context>
@@ -158,12 +178,25 @@
         </translation>
     </message>
     <message>
+        <source>Unstable room version!</source>
+        <translation>Niestabilna wersja pokoju!</translation>
+    </message>
+    <message>
         <source>(no name)</source>
         <translation>(bez nazwy)</translation>
     </message>
     <message>
         <source>This room has been upgraded</source>
         <translation>Ten pokój został zaktualizowany</translation>
+    </message>
+    <message>
+        <source>
+Go to Room Settings to upgrade the room</source>
+        <translation>Przejdź do ustawień pokoju, aby zaktualizować pokój</translation>
+    </message>
+    <message>
+        <source>Go to Room Settings to upgrade the room</source>
+        <translation>Przejdź do ustawień pokoju, aby zaktualizować pokój</translation>
     </message>
 </context>
 <context>
@@ -225,6 +258,14 @@
     <message>
         <source>Connecting and logging in, please wait</source>
         <translation>Łączenie się i logowanie, proszę czekać</translation>
+    </message>
+    <message>
+        <source>Re-login</source>
+        <translation>Zaloguj ponownie</translation>
+    </message>
+    <message>
+        <source>Restoring access, please wait</source>
+        <translation>Przywracanie dostępu, proszę czekać</translation>
     </message>
 </context>
 <context>
@@ -413,7 +454,7 @@ Kliknięcie „Anuluj” zatrzyma dalszą synchronizację tego konta do momentu 
     </message>
     <message>
         <source>&amp;Logout</source>
-        <translation>&amp;Wyloguj się</translation>
+        <translation>&amp;Wyloguj</translation>
     </message>
     <message>
         <source>About Quaternion</source>
@@ -524,8 +565,30 @@ Kliknięcie „Anuluj” zatrzyma dalszą synchronizację tego konta do momentu 
         <translation>Pokaż zdarzenia dołączenia i wyjścia</translation>
     </message>
     <message>
+        <source>Request URL: %1
+Response:
+%2</source>
+        <translation>Żądany adres URL: %1 
+Odpowiedź: 
+%2</translation>
+    </message>
+    <message>
+        <source>Tags can be wildcarded by * next to dot(s)
+Clear the box to reset to defaults
+Special tags starting with &quot;org.qmatrixclient.&quot; are: %1
+User-defined tags should start with &quot;u.&quot;</source>
+        <translation>Tagi mogą być wieloznaczne przez * obok kropek
+Wyczyść pole, aby przywrócić domyślne ustawienia
+Specjalne tagi zaczynające się od „org.qmatrixclient” to: %1
+Tagi zdefiniowane przez użytkownika powinny zaczynać się od „u”</translation>
+    </message>
+    <message>
         <source>Close to tray</source>
         <translation>Zamykaj do zasobnika</translation>
+    </message>
+    <message>
+        <source>Show/hide meaningless activity (join-leave pairs and redacted events between)</source>
+        <translation>Pokaż/ukryj bezsensowną aktywność (pary dołączenia, opuszczenia i zredagowanych wydarzeń pomiędzy)</translation>
     </message>
     <message>
         <source>Built from Git, commit SHA:</source>
@@ -552,8 +615,28 @@ Kliknięcie „Anuluj” zatrzyma dalszą synchronizację tego konta do momentu 
         <translation>Otwórz pokój z listy pokoi</translation>
     </message>
     <message>
+        <source>Access token file found</source>
+        <translation>Znaleziono plik tokena dostępu</translation>
+    </message>
+    <message>
+        <source>Do you want to migrate the access token for %1 from the file to keychain?</source>
+        <translation>Czy chcesz migrować token dostępu dla %1 z pliku do pęku kluczy?</translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t migrate access token</source>
+        <translation>Nie można migrować tokena dostępu</translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t migrate access token %1 from the file to keychain.</source>
+        <translation>Quaternion nie mógł migrować tokena dostępu %1 z pliku do pęku kluczy.</translation>
+    </message>
+    <message>
         <source>Couldn&apos;t save access token</source>
         <translation>Nie można zapisać tokena dostępu</translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t save the access token to keychain. Do you want to save the access token to file %1?</source>
+        <translation>Quaternion nie mógł zapisać tokena dostępu do pęku kluczy. Czy chcesz zapisać token dostępu do pliku %1?</translation>
     </message>
     <message>
         <source>Logging in into a logged in account</source>
@@ -568,12 +651,20 @@ Kliknięcie „Anuluj” zatrzyma dalszą synchronizację tego konta do momentu 
         <translation>Nie można usunąć tokena dostępu</translation>
     </message>
     <message>
+        <source>Quaternion couldn&apos;t delete the access token from keychain.</source>
+        <translation>Quaternion nie mógł usunąć tokena dostępu z pęku kluczy.</translation>
+    </message>
+    <message>
         <source>Open direct chat?</source>
         <translation>Otworzyć bezpośrednią rozmowę?</translation>
     </message>
     <message>
         <source>Open direct chat with user %1?</source>
         <translation>Otworzyć bezpośrednią rozmowę z użytkownikiem %1?</translation>
+    </message>
+    <message>
+        <source>Malformed user id</source>
+        <translation>Niepoprawny identyfikator użytkownika</translation>
     </message>
     <message>
         <source>%1 is not a correct user id</source>
@@ -584,12 +675,42 @@ Kliknięcie „Anuluj” zatrzyma dalszą synchronizację tego konta do momentu 
         <translation>Nie znaleziono pokoju</translation>
     </message>
     <message>
+        <source>There&apos;s no room %1 in the room list. Check the spelling and the account.</source>
+        <translation>Nie ma pokoju %1 na liście pokoi. Sprawdź pisownię i konto.</translation>
+    </message>
+    <message>
+        <source>Confirm your account to open %1</source>
+        <translation>Potwierdź twoje konto, aby otworzyć %1</translation>
+    </message>
+    <message>
+        <source>Please connect to a server first</source>
+        <translation>Proszę najpierw połączyć się z serwerem</translation>
+    </message>
+    <message>
+        <source>Confirm account</source>
+        <translation>Potwierdź konto</translation>
+    </message>
+    <message>
         <source>Account</source>
         <translation>Konto</translation>
     </message>
     <message>
         <source>Enter room id or alias</source>
         <translation>Wprowadź identyfikator pokoju lub alias</translation>
+    </message>
+    <message>
+        <source>Room ID (starting with !)
+or alias (starting with #)</source>
+        <translation>Identyfikator pokoju (zaczynający się od !) 
+lub alias (zaczynający się od #)</translation>
+    </message>
+    <message>
+        <source>Confirm account to join %1</source>
+        <translation>Potwierdź konto, aby dołączyć do %1</translation>
+    </message>
+    <message>
+        <source>User ID (starting with @)</source>
+        <translation>Identyfikator użytkownika (zaczynający się od @)</translation>
     </message>
     <message>
         <source>Start chat</source>
@@ -600,6 +721,34 @@ Kliknięcie „Anuluj” zatrzyma dalszą synchronizację tego konta do momentu 
 or matrix.to link</source>
         <translation>ID pokoju/użytkownika, alias pokoju, 
 lub link matrix.to</translation>
+    </message>
+    <message>
+        <source>Edit quote style</source>
+        <translation>Edytuj styl cytowania</translation>
+    </message>
+    <message>
+        <source>Markdown (prepend each line with &gt;)</source>
+        <translation>Markdown (poprzedzaj każdą linię &gt;)</translation>
+    </message>
+    <message>
+        <source>Custom (apply regex from the config file)</source>
+        <translation>Niestandardowy (zastosuj wyrażenie regularne z pliku konfiguracyjnego)</translation>
+    </message>
+    <message>
+        <source>Locale&apos;s default (%1)</source>
+        <translation>Domyślne ustawienia regionalne (%1)</translation>
+    </message>
+    <message>
+        <source>Example quote</source>
+        <translation>Przykładowy cytat</translation>
+    </message>
+    <message>
+        <source>Choose the default style of quotes</source>
+        <translation>Wybierz domyślny styl cytatów</translation>
+    </message>
+    <message>
+        <source>Special thanks to %1 for all the testing effort</source>
+        <translation>Specjalne podziękowania dla %1 za cały wysiłek włożony w testowanie.</translation>
     </message>
 </context>
 <context>
@@ -741,6 +890,18 @@ lub link matrix.to</translation>
         <translation>Nieznane zdarzenie</translation>
     </message>
     <message>
+        <source>upgraded the room to version %1</source>
+        <translation>zaktualizował(a) pokój do wersji %1</translation>
+    </message>
+    <message>
+        <source>created the room, version %1</source>
+        <translation>stworzył(a) pokój, wersja %1</translation>
+    </message>
+    <message>
+        <source>has set room aliases on server %1 to: %2</source>
+        <translation>ustawił(a) alias pokoju na serwerze %1 na: %2</translation>
+    </message>
+    <message>
         <source>has put %1 out of the room: %2</source>
         <translation>wyrzucił(a) %1 z pokoju: %2</translation>
     </message>
@@ -811,6 +972,14 @@ lub link matrix.to</translation>
         <translation>Temat</translation>
     </message>
     <message>
+        <source>About room versions</source>
+        <translation>O wersjach pokoi</translation>
+    </message>
+    <message>
+        <source>(loading)</source>
+        <translation>(ładowanie)</translation>
+    </message>
+    <message>
         <source>default</source>
         <translation>domyślna</translation>
     </message>
@@ -821,6 +990,14 @@ lub link matrix.to</translation>
     <message>
         <source>Room version</source>
         <translation>Wersja pokoju</translation>
+    </message>
+    <message>
+        <source>Continue with unstable version?</source>
+        <translation>Kontynuować z niestabilną wersją?</translation>
+    </message>
+    <message>
+        <source>You are using an UNSTABLE room version (%1). The server may stop supporting it at any moment. Do you still want to use this version?</source>
+        <translation>Używasz NIESTABILNEJ wersji pokoju (%1). Serwer może przestać go obsługiwać w każdej chwili. Czy nadal chcesz używać tej wersji?</translation>
     </message>
 </context>
 <context>
@@ -881,6 +1058,10 @@ lub link matrix.to</translation>
         <source>Change room &amp;settings...</source>
         <translation>Zmień &amp;ustawienia pokoju…</translation>
     </message>
+    <message>
+        <source>Add</source>
+        <translation>Dodaj</translation>
+    </message>
 </context>
 <context>
     <name>RoomListModel</name>
@@ -931,7 +1112,25 @@ lub link matrix.to</translation>
     </message>
     <message>
         <source>Main alias: %1</source>
-        <translation>Główny alias %1</translation>
+        <translation>Główny alias: %1</translation>
+    </message>
+    <message numerus="yes">
+        <source>Joined: %Ln</source>
+        <translation>
+            <numerusform>Dołączeni: %Ln</numerusform>
+            <numerusform>Dołączeni: %Ln</numerusform>
+            <numerusform>Dołączeni: %Ln</numerusform>
+            <numerusform>Dołączeni: %Ln</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Invited: %Ln</source>
+        <translation>
+            <numerusform>Zaproszeni: %Ln</numerusform>
+            <numerusform>Zaproszeni: %Ln</numerusform>
+            <numerusform>Zaproszeni: %Ln</numerusform>
+            <numerusform>Zaproszeni: %Ln</numerusform>
+        </translation>
     </message>
     <message>
         <source>Direct chat with %1</source>
@@ -1003,6 +1202,20 @@ lub link matrix.to</translation>
     <message>
         <source>Choose new room version</source>
         <translation>Wybierz nową wersję pokoju</translation>
+    </message>
+    <message>
+        <source>You are about to upgrade %1.
+This operation cannot be reverted.</source>
+        <translation>Zamierzasz zaktualizować %1. 
+Ta operacja nie może zostać cofnięta.</translation>
+    </message>
+    <message>
+        <source>Creating the new room version, please wait</source>
+        <translation>Tworzenie nowej wersji pokoju, proszę czekać</translation>
+    </message>
+    <message>
+        <source>Room identifier</source>
+        <translation>Identyfikator pokoju</translation>
     </message>
 </context>
 <context>
@@ -1102,6 +1315,10 @@ lub link matrix.to</translation>
         <translation>Otwórz folder</translation>
     </message>
     <message>
+        <source>uploaded from %1</source>
+        <translation>przesłany z %1</translation>
+    </message>
+    <message>
         <source>downloaded to %1</source>
         <translation>pobrano do %1</translation>
     </message>
@@ -1147,6 +1364,10 @@ lub link matrix.to</translation>
         <source>Copy link to clipboard</source>
         <translation>Skopiuj link do schowka</translation>
     </message>
+    <message>
+        <source>Quote</source>
+        <translation>Cytuj</translation>
+    </message>
 </context>
 <context>
     <name>SystemTrayIcon</name>
@@ -1169,6 +1390,21 @@ lub link matrix.to</translation>
     <message>
         <source>Bridged from: %1</source>
         <translation>Mostkowany(-a) z: %1</translation>
+    </message>
+</context>
+<context>
+    <name>ThumbnailResponse</name>
+    <message>
+        <source>Image request hasn&apos;t started</source>
+        <translation>Żądanie obrazu nie zostało rozpoczęte</translation>
+    </message>
+    <message>
+        <source>Image request has been cancelled</source>
+        <translation>Żądanie obrazu zostało anulowane</translation>
+    </message>
+    <message>
+        <source>No connection to perform image request</source>
+        <translation>Brak połączeń do wykonania żądania obrazu</translation>
     </message>
 </context>
 </TS>
