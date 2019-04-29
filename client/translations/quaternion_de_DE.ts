@@ -10,10 +10,6 @@
         <translation>Das Senden von verschlüsselten Nachrichten wird noch nicht unterstützt</translation>
     </message>
     <message>
-        <source>Send a message (unencrypted) or enter a command...</source>
-        <translation>Sende eine (nicht verschlüsselte) Nachricht oder gebe einen Befehl ein...</translation>
-    </message>
-    <message>
         <source>There&apos;s nothing to send</source>
         <translation>Da ist nichts zum Senden</translation>
     </message>
@@ -137,6 +133,14 @@
         <source>%1 doesn&apos;t look like a user ID</source>
         <translation>%1 sieht nicht wie eine Benutzer-ID aus.</translation>
     </message>
+    <message>
+        <source>You should select a room to send messages.</source>
+        <translation>Wähle einen Raum, um Nachrichten zu senden.</translation>
+    </message>
+    <message>
+        <source>Send a message (over %1) or enter a command...</source>
+        <translation>Sende eine Nachricht (über %1) oder gebe einen Befehl ein...</translation>
+    </message>
 </context>
 <context>
     <name>Timeline</name>
@@ -256,6 +260,14 @@ Go to Room Settings to upgrade the room</source>
     <message>
         <source>Connecting and logging in, please wait</source>
         <translation>Am Verbinden und anmelden. Bitte warten</translation>
+    </message>
+    <message>
+        <source>Re-login</source>
+        <translation>Neu anmelden</translation>
+    </message>
+    <message>
+        <source>Restoring access, please wait</source>
+        <translation>Der Zugriff wird wiederhergestellt, warten Sie bitte</translation>
     </message>
 </context>
 <context>
@@ -622,11 +634,11 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     </message>
     <message>
         <source>Open room...</source>
-        <translation>Offener Raum.....</translation>
+        <translation>Einen Raum öffnen…</translation>
     </message>
     <message>
         <source>Open room</source>
-        <translation>Offener Raum</translation>
+        <translation>Einen Raum öffnen</translation>
     </message>
     <message>
         <source>Switch to room</source>
@@ -751,6 +763,34 @@ or alias (starting with #)</source>
 or matrix.to link</source>
         <translation>Raum- / Benutzer-ID, Raumalias, 
  oder matrix.to Verknüpfung</translation>
+    </message>
+    <message>
+        <source>Edit quote style</source>
+        <translation>Zitat-Stil bearbeiten</translation>
+    </message>
+    <message>
+        <source>Markdown (prepend each line with &gt;)</source>
+        <translation>Markdown (vor jeder Zeile mit &gt; )</translation>
+    </message>
+    <message>
+        <source>Custom (apply regex from the config file)</source>
+        <translation>Benutzerdefiniert (anwenden regex aus der Konfigurationsdatei)</translation>
+    </message>
+    <message>
+        <source>Locale&apos;s default (%1)</source>
+        <translation>Standard der Ländereinstellung (%1)</translation>
+    </message>
+    <message>
+        <source>Example quote</source>
+        <translation>Beispielzitat</translation>
+    </message>
+    <message>
+        <source>Choose the default style of quotes</source>
+        <translation>Wählen Sie den Standardstil für Zitate</translation>
+    </message>
+    <message>
+        <source>Special thanks to %1 for all the testing effort</source>
+        <translation>Besonderer Dank geht an %1 für all die Anstrengungen zum Testen</translation>
     </message>
 </context>
 <context>
@@ -1007,7 +1047,7 @@ or matrix.to link</source>
     </message>
     <message>
         <source>You are using an UNSTABLE room version (%1). The server may stop supporting it at any moment. Do you still want to use this version?</source>
-        <translation>Sie verwenden eine UNSTABLE-Zimmerversion (% 1). Der Server kann die Unterstützung jederzeit einstellen. Möchten Sie diese Version noch verwenden?</translation>
+        <translation>Sie verwenden eine INSTABILE Zimmerversion (%1). Der Server kann die Unterstützung jederzeit einstellen. Möchten Sie diese Version noch verwenden?</translation>
     </message>
 </context>
 <context>
@@ -1067,6 +1107,10 @@ or matrix.to link</source>
     <message>
         <source>Change room &amp;settings...</source>
         <translation>Ändere Raum-&amp;Einstellungen...</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Hinzufügen</translation>
     </message>
 </context>
 <context>
@@ -1216,6 +1260,10 @@ Dieser Vorgang kann nicht rückgängig gemacht werden.</translation>
     <message>
         <source>Creating the new room version, please wait</source>
         <translation>Die neue Raumversion wird erstellt, bitte warten</translation>
+    </message>
+    <message>
+        <source>Room identifier</source>
+        <translation>Raum-ID</translation>
     </message>
 </context>
 <context>
@@ -1407,6 +1455,10 @@ Dieser Vorgang kann nicht rückgängig gemacht werden.</translation>
     <message>
         <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
         <translation>Die Medien-ID &apos;% 1&apos; folgt nicht dem Server / mediaId-Muster</translation>
+    </message>
+    <message>
+        <source>No connection to perform image request</source>
+        <translation>Keine Verbindung zum Durchführen einer Image-Anfrage</translation>
     </message>
 </context>
 </TS>
