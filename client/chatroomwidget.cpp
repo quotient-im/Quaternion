@@ -273,7 +273,7 @@ void ChatRoomWidget::setHudCaption(QString newCaption)
 
 void ChatRoomWidget::insertMention(Quotient::User* user)
 {
-    m_chatEdit->insertMention(user->displayname(m_currentRoom));
+    m_chatEdit->insertMention(user->id());
 }
 
 void ChatRoomWidget::focusInput()
@@ -578,20 +578,14 @@ QStringList ChatRoomWidget::findCompletionMatches(const QString& pattern) const
     QStringList matches;
     if (m_currentRoom)
     {
-        for(auto name: m_currentRoom->memberNames() )
+        for(auto user: m_currentRoom->users() )
         {
-            if ( name.startsWith(pattern, Qt::CaseInsensitive) )
-            {
-                int ircSuffixPos = name.indexOf(" (IRC)");
-                if ( ircSuffixPos != -1 )
-                    name.truncate(ircSuffixPos);
-                matches.append(name);
-            }
+            if ( user->id().startsWith(pattern, Qt::CaseInsensitive) )
+                matches.append(user->id());
         }
         std::sort(matches.begin(), matches.end(),
             [] (const QString& s1, const QString& s2)
                 { return s1.localeAwareCompare(s2) < 0; });
-        matches.removeDuplicates();
     }
     return matches;
 }
