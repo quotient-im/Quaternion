@@ -238,10 +238,8 @@ Item {
                     // Doesn't work for attributes
                     function toHtmlEscaped(txt) {
                         // Make sure to replace & first
-                        var eTxt = txt.replace(/&/g, '&amp;')
+                        return txt.replace(/&/g, '&amp;')
                                   .replace(/</g, '&lt;').replace(/>/g, '&gt;')
-                        console.log(eTxt)
-                        return eTxt
                     }
 
                     selectByMouse: true
