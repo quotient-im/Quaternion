@@ -27,6 +27,26 @@ class MessageEventModel: public QAbstractListModel
 {
         Q_OBJECT
     public:
+        enum EventRoles {
+            EventTypeRole = Qt::UserRole + 1,
+            EventIdRole,
+            TimeRole,
+            SectionRole,
+            AboveSectionRole,
+            AuthorRole,
+            AboveAuthorRole,
+            ContentRole,
+            ContentTypeRole,
+            HighlightRole,
+            ReadMarkerRole,
+            SpecialMarksRole,
+            LongOperationRole,
+            AnnotationRole,
+            UserHueRole,
+            // For debugging
+            EventResolvedTypeRole,
+        };
+
         explicit MessageEventModel(QObject* parent = nullptr);
 
         void changeRoom(QuaternionRoom* room);
