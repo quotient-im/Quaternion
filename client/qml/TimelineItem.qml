@@ -46,7 +46,7 @@ Item {
                                         EventStatus.SendingFailed
                                     ].indexOf(marks) != -1
     readonly property bool failed: marks === EventStatus.SendingFailed
-    readonly property string textColor:
+    /*readonly*/ property string textColor:
         marks === EventStatus.Submitted || failed ? defaultPalette.mid :
         marks === EventStatus.Departed ? disabledPalette.text :
         redacted ? disabledPalette.text :
@@ -74,17 +74,9 @@ Item {
             shownChanged(true);
     }
 
-//    NumberAnimation on opacity {
-//        from: 0; to: 1
-//        // Reduce duration when flicking/scrolling
-//        duration: settings.fast_animations_duration_ms
-//        // Give time for chatView.displaced to complete
-//        easing.type: Easing.InExpo
-//    }
-//    Behavior on height { NumberAnimation {
-//        duration: settings.fast_animations_duration_ms
-//        easing.type: Easing.OutQuad
-//    }}
+    Behavior on textColor { ColorAnimation {
+        duration: settings.animations_duration_ms
+    }}
 
     Column {
         id: fullMessage

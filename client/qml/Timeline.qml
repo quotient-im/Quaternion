@@ -274,10 +274,34 @@ Rectangle {
 
             onMovementEnded: saveViewport()
 
-            displaced: Transition { NumberAnimation {
-                property: "y"; duration: settings.fast_animations_duration_ms
-                easing.type: Easing.OutQuad
+            populate: Transition { NumberAnimation {
+                property: "opacity"; from: 0; to: 1
+                duration: settings.fast_animations_duration_ms
             }}
+
+            add: Transition { NumberAnimation {
+                property: "opacity"; from: 0; to: 1
+                duration: settings.fast_animations_duration_ms
+            }}
+
+            move: Transition {
+                NumberAnimation {
+                    property: "y"; duration: settings.fast_animations_duration_ms
+                }
+                NumberAnimation {
+                    property: "opacity"; to: 1
+                }
+            }
+
+            displaced: Transition {
+                NumberAnimation {
+                    property: "y"; duration: settings.fast_animations_duration_ms
+                    easing.type: Easing.OutQuad
+                }
+                NumberAnimation {
+                    property: "opacity"; to: 1
+                }
+            }
 
             Behavior on contentY {
                 enabled: !chatView.moving
