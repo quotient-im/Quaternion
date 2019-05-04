@@ -208,44 +208,43 @@ Rectangle {
 
             section.property: "section"
 
-            property int largestVisibleIndex: count > 0 ?
+            readonly property int largestVisibleIndex: count > 0 ?
                 indexAt(contentX, contentY + height - 1) : -1
             readonly property bool loadingHistory:
                 room ? room.eventsHistoryJob : false
+            readonly property bool noNeedMoreContent:
+                !room || room.eventsHistoryJob || room.allHistoryLoaded
 
-            onLoadingHistoryChanged:
-                console.log("loadingHistory="+loadingHistory)
+            /// The number of events per height unit - always positive
+            readonly property real eventDensity:
+                contentHeight > 0 && count > 0 ? count / contentHeight : 0.03
+                // 0.03 is just an arbitrary reasonable number
 
             function ensurePreviousContent() {
-                if (loadingHistory)
+                if (noNeedMoreContent)
                     return
-                // Snapshot the current speed, or assume we scroll 10 screens/s
-                var curVelocity = moving ? -verticalVelocity : height * 10
-                // Check if we're about to bump into the ceiling in 2 seconds
-                if (curVelocity > 0 && contentY - curVelocity*2 < originY)
-                {
-                    // Request the amount of messages enough to scroll
-                    // at this rate for 3 more seconds
-                    var avgEventHeight = contentHeight / count
-                    room.getPreviousContent(curVelocity*3 / avgEventHeight);
-                }
+
+                // Take the current speed, or assume we can scroll 8 screens/s
+                var velocity = moving ? -verticalVelocity : height * 8
+                // Check if we're about to bump into the ceiling in
+                // 2 seconds and if yes, request the amount of messages
+                // enough to scroll at this rate for 3 more seconds
+                if (velocity > 0 && contentY - velocity*2 < originY)
+                    room.getPreviousContent(velocity * eventDensity * 3)
             }
+            onContentYChanged: ensurePreviousContent()
+            onContentHeightChanged: ensurePreviousContent()
 
             function saveViewport() {
                 room.saveViewport(indexAt(contentX, contentY),
                                   largestVisibleIndex)
             }
 
-            function onModelAboutToReset() {
-                console.log("Resetting timeline model")
-                contentYChanged.disconnect(ensurePreviousContent)
-            }
-
             function onModelReset() {
+                console.log("Model timeline reset")
                 if (room)
                 {
                     var lastScrollPosition = room.savedTopVisibleIndex()
-                    contentYChanged.connect(ensurePreviousContent)
                     if (lastScrollPosition === 0)
                         positionViewAtBeginning()
                     else
@@ -253,23 +252,28 @@ Rectangle {
                         console.log("Scrolling to position", lastScrollPosition)
                         positionViewAtIndex(lastScrollPosition, ListView.Contain)
                     }
-                    if (contentY < originY + 10)
-                        room.getPreviousContent(100)
                 }
-                console.log("Model timeline reset")
+            }
+
+            function pageUp() {
+                contentY = Math.max(originY, contentY - height)
+            }
+            function pageDown() {
+                contentY = Math.min(originY + contentHeight - height,
+                                    contentY + height)
+            }
+            Connections {
+                target: controller
+                onPageUpPressed: chatView.pageUp()
+                onPageDownPressed: chatView.pageDown()
             }
 
             Component.onCompleted: {
                 console.log("QML view loaded")
-                model.modelAboutToBeReset.connect(onModelAboutToReset)
+                // FIXME: This is not on the right place: ListView may or
+                // may not have updated his structures according to the new
+                // model by now
                 model.modelReset.connect(onModelReset)
-                controller.pageUpPressed.connect(function() {
-                    contentY = Math.max(originY, contentY - height)
-                })
-                controller.pageDownPressed.connect(function() {
-                    contentY = Math.min(originY + contentHeight - height,
-                                        contentY + height)
-                })
             }
 
             onMovementEnded: saveViewport()
