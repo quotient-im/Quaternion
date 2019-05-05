@@ -699,6 +699,8 @@ void ChatRoomWidget::resizeEvent(QResizeEvent*)
 
 void ChatRoomWidget::keyPressEvent(QKeyEvent* event)
 {
+    // This only handles keypresses not handled by ChatEdit; in particular,
+    // this means that PageUp/PageDown below are actually Ctrl-PageUp/PageDown
     switch(event->key()) {
         case Qt::Key_PageUp:
             emit pageUpPressed();
