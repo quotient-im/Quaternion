@@ -42,7 +42,8 @@ Attachment {
             acceptedButtons: Qt.RightButton
             cursorShape: Qt.IBeamCursor
 
-            onClicked: controller.showMenu(index, showingDetails)
+            onClicked: controller.showMenu(index, textFieldImpl.hoveredLink,
+                showingDetails)
         }
     }
     ProgressBar {

@@ -331,7 +331,8 @@ Item {
                 MouseArea {
                     anchors.fill: parent
                     acceptedButtons: Qt.RightButton
-                    onClicked: controller.showMenu(index, showingDetails)
+                    onClicked: controller.showMenu(index,
+                        textFieldImpl.hoveredLink, showingDetails)
                 }
 
                 MouseArea {

@@ -40,7 +40,8 @@ Attachment {
             anchors.fill: parent
             acceptedButtons: Qt.RightButton
             cursorShape: Qt.PointingHandCursor
-            onClicked: controller.showMenu(index, showingDetails)
+            onClicked: controller.showMenu(index, textFieldImpl.hoveredLink,
+                showingDetails)
         }
 
         Component.onCompleted:

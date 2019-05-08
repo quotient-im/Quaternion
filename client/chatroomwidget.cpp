@@ -665,7 +665,8 @@ void ChatRoomWidget::quote(const QString& htmlText)
     m_chatEdit->insertPlainText(sendString);
 }
 
-void ChatRoomWidget::showMenu(int index, bool showingDetails)
+void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
+                              bool showingDetails)
 {
     const auto modelIndex = m_messageModel->index(index, 0);
     const auto eventId = modelIndex.data(MessageEventModel::EventIdRole).toString();
@@ -674,6 +675,12 @@ void ChatRoomWidget::showMenu(int index, bool showingDetails)
     menu.addAction(QIcon::fromTheme("edit-delete"), tr("Redact"), [=] {
         m_currentRoom->redactEvent(eventId);
     });
+    if (!hoveredLink.isEmpty())
+    {
+        menu.addAction(tr("Copy link to clipboard"), [=] {
+            QApplication::clipboard()->setText(hoveredLink);
+        });
+    }
     menu.addAction(QIcon::fromTheme("link"), tr("Copy permalink to clipboard"), [=] {
         QApplication::clipboard()->setText("https://matrix.to/#/" +
             m_currentRoom->id() + "/" + QUrl::toPercentEncoding(eventId));
