@@ -84,6 +84,36 @@ Item {
         duration: settings.animations_duration_ms
     }}
 
+    property bool showingDetails
+
+    Connections {
+        target: controller
+        onShowDetails: {
+            if (currentIndex === index) {
+                showingDetails = !showingDetails
+                detailsAnimation.start()
+            }
+        }
+    }
+
+    SequentialAnimation {
+        id: detailsAnimation
+        PropertyAction {
+            target: detailsAreaLoader; property: "visible"
+            value: true
+        }
+        NumberAnimation {
+            target: detailsAreaLoader; property: "opacity"
+            to: showingDetails
+            duration: settings.fast_animations_duration_ms
+            easing.type: Easing.OutQuad
+        }
+        PropertyAction {
+            target: detailsAreaLoader; property: "visible"
+            value: showingDetails
+        }
+    }
+
     Column {
         id: fullMessage
         width: parent.width
@@ -300,6 +330,12 @@ Item {
 
                 MouseArea {
                     anchors.fill: parent
+                    acceptedButtons: Qt.RightButton
+                    onClicked: controller.showMenu(index, showingDetails)
+                }
+
+                MouseArea {
+                    anchors.fill: parent
                     cursorShape: textFieldImpl.hoveredLink
                                  ? Qt.PointingHandCursor : Qt.IBeamCursor
                     acceptedButtons: Qt.NoButton
@@ -385,46 +421,11 @@ Item {
                          && marks !== EventStatus.Departed
                 width: visible * implicitWidth
                 anchors.top: textField.top
-                anchors.right: showDetailsButton.left
+                anchors.right: parent.right
                 anchors.rightMargin: 2
                 text: qsTr("Discard")
 
                 onClicked: room.discardMessage(eventId)
-            }
-
-            ToolButton {
-                id: showDetailsButton
-                anchors.top: textField.top
-                anchors.right: parent.right
-                height: settings.condense_chat && textField.visible ?
-                            Math.min(implicitHeight, textField.height) :
-                            implicitHeight
-
-                text: "..."
-
-                action: Action {
-                    id: showDetails
-
-                    tooltip: "Show details and actions"
-                    checkable: true
-                }
-
-                onCheckedChanged: SequentialAnimation {
-                    PropertyAction {
-                        target: detailsAreaLoader; property: "visible"
-                        value: true
-                    }
-                    NumberAnimation {
-                        target: detailsAreaLoader; property: "opacity"
-                        to: showDetails.checked
-                        duration: settings.fast_animations_duration_ms
-                        easing.type: Easing.OutQuad
-                    }
-                    PropertyAction {
-                        target: detailsAreaLoader; property: "visible"
-                        value: showDetails.checked
-                    }
-                }
             }
         }
     }
@@ -477,7 +478,6 @@ Item {
 
                     anchors.left: parent.left
                     anchors.leftMargin: 3
-                    anchors.verticalCenter: copyLinkButton.verticalCenter
                     z: 1
                 }
                 TextEdit {
@@ -491,7 +491,6 @@ Item {
                     selectByKeyboard: true; selectByMouse: true
 
                     width: parent.width
-                    anchors.top: copyLinkButton.bottom
 
                     onLinkActivated: Qt.openUrlExternally(link)
 
@@ -501,46 +500,6 @@ Item {
                                          Qt.PointingHandCursor :
                                          Qt.IBeamCursor
                         acceptedButtons: Qt.NoButton
-                    }
-                }
-                Button {
-                    id: redactButton
-
-                    text: qsTr("Redact")
-
-                    anchors.right: quoteButton.left
-                    z: 1
-
-                    onClicked: {
-                        room.redactEvent(eventId)
-                        showDetails.checked = false
-                    }
-                }
-                Button {
-                    id: quoteButton
-
-                    text: qsTr("Quote", "a verb (do quote), not a noun (a quote)")
-
-                    anchors.right: copyLinkButton.left
-                    z: 1
-
-                    onClicked: {
-                        controller.quote(display)
-                        showDetails.checked = false
-                    }
-                }
-                Button {
-                    id: copyLinkButton
-
-                    text: qsTr("Copy link to clipboard")
-
-                    anchors.right: parent.right
-                    z: 1
-
-                    onClicked: {
-                        permalink.selectAll()
-                        permalink.copy()
-                        showDetails.checked = false
                     }
                 }
                 TextEdit {

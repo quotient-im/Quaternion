@@ -62,6 +62,8 @@ class ChatRoomWidget: public QWidget
         void readMarkerCandidateMoved();
         void pageUpPressed();
         void pageDownPressed();
+        void openExternally(int currentIndex);
+        void showDetails(int currentIndex);
 
     public slots:
         void setRoom(QuaternionRoom* room);
@@ -74,7 +76,7 @@ class ChatRoomWidget: public QWidget
         void markShownAsRead();
         void saveFileAs(QString eventId);
         void quote(const QString& htmlText);
-
+        void showMenu(int index, bool showingDetails);
 
     private slots:
         void sendInput();

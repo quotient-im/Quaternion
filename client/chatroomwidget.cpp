@@ -25,6 +25,9 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QMenu>
+#include <QtGui/QClipboard>
+#include <QtGui/QDesktopServices>
 
 #include <QtQml/QQmlContext>
 #include <QtQml/QQmlEngine>
@@ -660,6 +663,59 @@ void ChatRoomWidget::quote(const QString& htmlText)
     }
 
     m_chatEdit->insertPlainText(sendString);
+}
+
+void ChatRoomWidget::showMenu(int index, bool showingDetails)
+{
+    const auto modelIndex = m_messageModel->index(index, 0);
+    const auto eventId = modelIndex.data(MessageEventModel::EventIdRole).toString();
+
+    QMenu menu;
+    menu.addAction(QIcon::fromTheme("edit-delete"), tr("Redact"), [=] {
+        m_currentRoom->redactEvent(eventId);
+    });
+    menu.addAction(QIcon::fromTheme("link"), tr("Copy permalink to clipboard"), [=] {
+        QApplication::clipboard()->setText("https://matrix.to/#/" +
+            m_currentRoom->id() + "/" + QUrl::toPercentEncoding(eventId));
+    });
+    menu.addAction(QIcon::fromTheme("format-text-blockquote"),
+                   tr("Quote", "a verb (do quote), not a noun (a quote)"), [=] {
+        emit quote(modelIndex.data().toString());
+    });
+    auto a = menu.addAction(QIcon::fromTheme("view-list-details"), tr("Show details"), [=] {
+        emit showDetails(index);
+    });
+    a->setCheckable(true);
+    a->setChecked(showingDetails);
+
+    const auto eventType = modelIndex.data(MessageEventModel::EventTypeRole).toString();
+    if (eventType == "image" || eventType == "file")
+    {
+        const auto progressInfo = modelIndex.data(MessageEventModel::SpecialMarksRole)
+            .value<QMatrixClient::FileTransferInfo>();
+        const bool downloaded = !progressInfo.isUpload && progressInfo.completed();
+
+        menu.addSeparator();
+        menu.addAction(QIcon::fromTheme("document-open"), tr("Open externally"), [=] {
+            emit openExternally(index);
+        });
+        menu.addAction(QIcon::fromTheme("folder-open"), tr("Open Folder"), [=] {
+            if (!downloaded)
+                m_currentRoom->downloadFile(eventId);
+
+            QDesktopServices::openUrl(progressInfo.localDir);
+        });
+        if (!downloaded)
+        {
+            menu.addAction(QIcon::fromTheme("edit-download"), tr("Download"), [=] {
+                m_currentRoom->downloadFile(eventId);
+            });
+        }
+        menu.addAction(QIcon::fromTheme("document-save-as"), tr("Save file as..."), [=] {
+            saveFileAs(eventId);
+        });
+    }
+    menu.exec(QCursor::pos());
 }
 
 void ChatRoomWidget::reStartShownTimer()
