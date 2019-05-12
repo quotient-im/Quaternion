@@ -372,6 +372,7 @@ Item {
             ActiveLabel {
                 id: discardButton
                 visible: pending && marks !== EventStatus.ReachedServer
+                         && marks !== EventStatus.Departed
                 width: visible * implicitWidth
                 anchors.top: textField.top
                 anchors.right: showDetailsButton.left
