@@ -449,7 +449,7 @@ Item {
 
             readonly property url evtLink:
                 "https://matrix.to/#/" + room.id + "/" + eventId
-            property string sourceText: toolTip
+            readonly property string sourceText: toolTip
 
             Item {
                 id: detailsHeader
@@ -541,7 +541,7 @@ Item {
             }
 
             TextArea {
-                text: sourceText;
+                text: sourceText
                 textFormat: Text.PlainText
                 readOnly: true;
                 font.family: "Monospace"
@@ -549,7 +549,7 @@ Item {
 //                style: TextAreaStyle {
 //                    renderType: settings.render_type
 //                }
-                selectByKeyboard: true; selectByMouse: true;
+                selectByKeyboard: true; selectByMouse: true
 
                 width: parent.width
                 anchors.top: detailsHeader.bottom
