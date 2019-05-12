@@ -161,9 +161,17 @@ Item {
                 anchors.top: authorLabel.top
                 anchors.bottom:  authorLabel.bottom
                 cursorShape: Qt.PointingHandCursor
+                acceptedButtons: Qt.LeftButton|Qt.MiddleButton
+                hoverEnabled: true
+                onEntered: controller.showStatusMessage(author.id)
+                onExited: controller.showStatusMessage("")
                 onClicked: {
-                    controller.insertMention(author)
-                    controller.focusInput()
+                    if (mouse.button === Qt.LeftButton)
+                    {
+                        controller.insertMention(author)
+                        controller.focusInput()
+                    } else
+                        controller.resourceRequested(author.id)
                 }
             }
 
@@ -239,7 +247,7 @@ Item {
                     textFormat: TextEdit.RichText
                     // FIXME: The text is clumsy and slows down creation
                     text: (actionEvent && !xchatStyle ?
-                           ("<a href='#mention' style='text-decoration:none;color:\"" +
+                           ("<a href='" + author.id + "' style='text-decoration:none;color:\"" +
                                     defaultPalette.text + "\"'><b>" +
                                     toHtmlEscaped(authorName) + "</b></a> ") : ""
                           ) + display +
@@ -261,12 +269,8 @@ Item {
                         controller.showStatusMessage(hoveredLink)
 
                     onLinkActivated: {
-                        if (link === "#mention")
-                        {
-                            controller.insertMention(author)
-                            controller.focusInput()
-                        }
-                        else if (link.startsWith("https://matrix.to/#/@"))
+                        if (link.startsWith("@")
+                            || link.startsWith("https://matrix.to/#/@"))
                         {
                             controller.resourceRequested(link, "mention")
                             controller.focusInput()

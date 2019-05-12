@@ -1094,8 +1094,10 @@ void MainWindow::resolveResource(const QString& idOrUri, const QString& action)
     resolveLocator(makeLocator(
             action == "mention" ? defaultConnection
             : chooseConnection(defaultConnection,
-                               tr("Confirm your account to open %1")
-                               .arg(idOrUri))
+                idOrUri.startsWith('@')
+                ? tr("Confirm your account to open a direct chat with %1")
+                  .arg(idOrUri)
+                : tr("Confirm your account to open %1").arg(idOrUri))
         , idOrUri), action);
 }
 
