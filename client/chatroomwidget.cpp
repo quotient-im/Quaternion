@@ -362,7 +362,31 @@ QString ChatRoomWidget::doSendInput()
 
     if (!text.startsWith('/'))
     {
-        m_currentRoom->postPlainText(text);
+        const QRegularExpression MxIdRegExp {
+            QStringLiteral("(^|[^<>/])(@[-0-9a-zA-Z._=/]+:[-.a-z0-9]+)")};
+
+        if (!text.contains(MxIdRegExp))
+        {
+            m_currentRoom->postPlainText(text);
+            return {};
+        }
+
+        QString htmlText = text.toHtmlEscaped();
+        auto it = MxIdRegExp.globalMatch(text);
+        while (it.hasNext())
+        {
+            QRegularExpressionMatch match = it.next();
+
+            const QString pre = match.captured(1);
+            const QString id = match.captured(2);
+            const QString membername = m_currentRoom->roomMembername(id);
+            text.replace(pre + id, pre + membername);
+            htmlText.replace(pre + id, pre +
+                QStringLiteral(R"(<a href="https://matrix.to/#/%1">%2</a>)")
+                .arg(id, membername));
+        }
+
+        m_currentRoom->postHtmlText(text, htmlText);
         return {};
     }
     if (text[1] == '/')
