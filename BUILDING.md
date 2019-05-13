@@ -70,7 +70,7 @@ Option 1 as default; due to popular demand, Option 2 is used by default
 #### Linux
 Just install things from the list above using your preferred package manager. If your Qt package base is fine-grained you might want to take a look at `CMakeLists.txt` to figure out which specific libraries Quaternion uses (or blindly run cmake and look at error messages). Note also that you'll need several Qt Quick plugins for Quaternion to work (without them, it will compile and run but won't show the messages timeline). In case of Xenial Xerus following line should get you everything necessary to build and run Quaternion:
 ```bash
-sudo apt-get install git cmake qtdeclarative5-dev qtdeclarative5-qtquick2-plugin qtdeclarative5-controls-plugin qml-module-qtquick-controls qml-module-qtquick-controls2 qtmultimedia5-dev
+sudo apt-get install git cmake qtdeclarative5-dev qttools5-dev qtdeclarative5-controls-plugin qml-module-qtquick-controls qml-module-qtquick-controls2 qtmultimedia5-dev
 ```
 To enable libsecret keyring support, install QtKeychain by
 ```bash
