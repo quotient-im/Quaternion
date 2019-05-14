@@ -362,10 +362,11 @@ QString ChatRoomWidget::doSendInput()
 
     if (!text.startsWith('/'))
     {
+        const QMatrixClient::SettingsGroup sg { QStringLiteral("UI") };
         const QRegularExpression MxIdRegExp {
             QStringLiteral("(^|[^<>/])(@[-0-9a-zA-Z._=/]+:[-.a-z0-9]+)")};
 
-        if (!text.contains(MxIdRegExp))
+        if (!text.contains(MxIdRegExp) || !sg.get<bool>("hyperlink_users", true))
         {
             m_currentRoom->postPlainText(text);
             return {};
