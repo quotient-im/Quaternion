@@ -53,7 +53,13 @@ Item {
         highlight && settings.highlight_mode == "text" ? settings.highlight_color :
         (["state", "notice", "other"].indexOf(eventType) >= 0) ?
                 disabledPalette.text : defaultPalette.text
-    readonly property string authorName: room && room.safeMemberName(author.id)
+    readonly property string authorName: room && room.roomMembername(author.id)
+    // FIXME: boilerplate with models/userlistmodel.cpp:115
+    readonly property string authorColor: Qt.hsla(userHue,
+                                                  (1-defaultPalette.window.hslSaturation),
+                                                  /* contrast but not too heavy: */
+                                                  (-0.7*defaultPalette.window.hslLightness + 0.9),
+                                                  defaultPalette.buttonText.a)
 
     readonly property bool xchatStyle: settings.timeline_style === "xchat"
     readonly property bool actionEvent: eventType == "state" || eventType == "emote"
@@ -148,7 +154,7 @@ Item {
                     actionEvent ? Text.AlignRight : Text.AlignLeft
                 elide: Text.ElideRight
 
-                color: textColor
+                color: authorColor
                 textFormat: Label.PlainText
                 font.bold: !xchatStyle
                 renderType: settings.render_type
@@ -248,7 +254,7 @@ Item {
                     // FIXME: The text is clumsy and slows down creation
                     text: (actionEvent && !xchatStyle ?
                            ("<a href='" + author.id + "' style='text-decoration:none;color:\"" +
-                                    defaultPalette.text + "\"'><b>" +
+                                    authorColor + "\"'><b>" +
                                     toHtmlEscaped(authorName) + "</b></a> ") : ""
                           ) + display +
                           (annotation ? "<br><em>" + annotation + "</em>" : "")

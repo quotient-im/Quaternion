@@ -22,6 +22,8 @@
 #include <QElapsedTimer>
 #include <QtCore/QDebug>
 #include <QtGui/QPixmap>
+#include <QtGui/QPalette>
+#include <QtWidgets/QApplication>
 
 #include <connection.h>
 #include <room.h>
@@ -106,6 +108,16 @@ QVariant UserListModel::data(const QModelIndex& index, int role) const
         if (!user->bridged().isEmpty())
             tooltip += "<br>" + tr("Bridged from: %1").arg(user->bridged());
         return tooltip;
+    }
+
+    if (role == Qt::ForegroundRole)
+    {
+        // FIXME: boilerplate with TimelineItem.qml:57
+        return QColor::fromHslF(user->hueF(),
+                                1 - QApplication::palette().color(QPalette::Window).saturationF(),
+                                -0.7 * QApplication::palette().color(QPalette::Window).lightnessF() + 0.9,
+                                QApplication::palette().color(QPalette::ButtonText).alphaF()
+                                );
     }
 
     return QVariant();

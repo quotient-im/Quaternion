@@ -47,6 +47,7 @@ enum EventRoles {
     SpecialMarksRole,
     LongOperationRole,
     AnnotationRole,
+    UserHueRole,
     // For debugging
     EventResolvedTypeRole,
 };
@@ -68,6 +69,7 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
     roles[SpecialMarksRole] = "marks";
     roles[LongOperationRole] = "progressInfo";
     roles[AnnotationRole] = "annotation";
+    roles[UserHueRole] = "userHue";
     roles[EventResolvedTypeRole] = "eventResolvedType";
     return roles;
 }
@@ -725,6 +727,11 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                 return data(i, role == AboveSectionRole
                                 ? SectionRole : AuthorRole);
         }
+
+    if (role == UserHueRole)
+        return QVariant::fromValue(isPending
+                                   ? m_currentRoom->localUser()->hueF()
+                                   : m_currentRoom->user(evt.senderId())->hueF());
 
     return {};
 }
