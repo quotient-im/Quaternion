@@ -630,7 +630,7 @@ void ChatRoomWidget::quote(const QString& htmlText)
 {
     QMatrixClient::SettingsGroup sg { QStringLiteral("UI") };
     const auto type = sg.get<int>("quote_type");
-    const auto defaultStyle = QStringLiteral("> \\1\n\n");
+    const auto defaultStyle = QStringLiteral("> \\1\n");
     const auto defaultRegex = QStringLiteral("(.+)(?:\n|$)");
     auto style = sg.get<QString>("quote_style");
     auto regex = sg.get<QString>("quote_regex");
