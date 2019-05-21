@@ -21,6 +21,8 @@ Item {
         readonly property string timeline_style: value("UI/timeline_style", "")
         readonly property bool show_author_avatars:
             value("UI/show_author_avatars", timeline_style != "xchat")
+        readonly property string font_family: value("UI/Timeline/Message/font_family", "")
+        readonly property string font_pointSize: value("UI/Timeline/Message/font_pointSize", 0)
     }
 
     // Property interface
@@ -261,6 +263,8 @@ Item {
                     horizontalAlignment: Text.AlignLeft
                     wrapMode: Text.Wrap
                     color: textColor
+                    font.family: settings.font_family ? settings.font_family : textFieldImpl.font.family
+                    font.pointSize: settings.font_pointSize > 0 ? settings.font_pointSize : textFieldImpl.font.pointSize
                     renderType: settings.render_type
 
                     // TODO: In the code below, links should be resolved
