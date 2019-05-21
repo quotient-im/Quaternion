@@ -191,6 +191,10 @@ Settings not exposed in UI:
   By default it's `> \\1\n`.
 - `UI/quote_regex` - set to `^([\\s\\S]*)` to add `UI/quote_style` only at
   the beginning and end of the quote. By default it's `(.+)(?:\n|$)`.
+- `UI/Timeline/font_family` - font family (for example `Monospace`) to
+  display messages in the timeline.
+- `UI/Timeline/font_pointSize` - font size to display messages in the
+  timeline.
 
 Since version 0.0.9.4, AppImage binaries for Linux and .dmg files for macOS
 are compiled with Qt Keychain support. It means that Quaternion will try
