@@ -83,7 +83,7 @@ script:
 - mkdir build && pushd build
 # TODO: add building with an external lib
 - cmake .. -LA -DUSE_INTREE_LIBQMC=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY
-- if [ -f "$(which appstream-util)" ]; then appstream-util validate linux/*.appdata.xml; fi
+- if [ -f "$(which appstream-util)" ]; then appstream-util validate ../linux/*.appdata.xml; fi
 - cmake --build . --target all
 - export DESTDIR=$TRAVIS_BUILD_DIR/install
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then cmake --build . --target install; fi
