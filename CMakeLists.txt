@@ -239,10 +239,10 @@ install(TARGETS ${PROJECT_NAME}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR})
 if(LINUX)
-    install(FILES linux/quaternion.desktop
+    install(FILES linux/${IDENTIFIER}.desktop
             DESTINATION  ${CMAKE_INSTALL_DATADIR}/applications
             )
-    install(FILES linux/com.github.quaternion.appdata.xml
+    install(FILES linux/${IDENTIFIER}.appdata.xml
             DESTINATION  ${CMAKE_INSTALL_DATADIR}/metainfo
             )
     install(FILES ${quaternion_QM}

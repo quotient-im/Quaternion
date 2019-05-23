@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component type="desktop-application">
-  <id>com.github.quaternion</id>
+  <id>com.github.quaternion.desktop</id>
   <metadata_license>CC-BY-4.0</metadata_license>
   <project_license>GPL-3.0+</project_license>
   <name>Quaternion</name>
