@@ -29,6 +29,7 @@ matrix:
         - qt57quickcontrols2
         - qt57tools
         - qt5keychain-dev
+        - appstream-util
   - os: linux
     dist: trusty
     compiler: clang
@@ -47,6 +48,7 @@ matrix:
         - qt57quickcontrols
         - qt57quickcontrols2
         - qt57tools
+        - appstream-util
   - os: linux
     compiler: clang
     addons:
@@ -64,6 +66,7 @@ matrix:
         - qt512tools
         - qt512translations
         - qt5keychain-dev
+        - appstream-util
   - os: osx
     env: [ 'PATH=/usr/local/opt/qt/bin:$PATH' ]
     addons:
@@ -82,7 +85,7 @@ script:
 - mkdir build && pushd build
 # TODO: add building with an external lib
 - cmake .. -LA -DUSE_INTREE_LIBQMC=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY
-- appstream-util validate linux/*.appdata.xml
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; then appstream-util validate linux/*.appdata.xml; fi
 - cmake --build . --target all
 - export DESTDIR=$TRAVIS_BUILD_DIR/install
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then cmake --build . --target install; fi
