@@ -12,9 +12,13 @@
 Quaternion is a cross-platform desktop IM client for the [Matrix](https://matrix.org) protocol. This file contains general information about application usage and settings. See [BUILDING.md](./BUILDING.md) for building instructions.
 
 ## Contacts
-Most of talking around Quaternion happens in our Matrix room: [#quaternion:matrix.org](https://matrix.to/#/#quaternion:matrix.org).
+Most of talking around Quaternion happens in our Matrix room:
+[#quaternion:matrix.org](https://matrix.to/#/#quaternion:matrix.org).
 
-You can also file issues at [the project's issue tracker](https://github.com/QMatrixClient/Quaternion/issues). If you have what looks like a security issue, please contact Kitsune Ral ([@kitsune:matrix.org](https://matrix.to/#/@kitsune:matrix.org) or [Kitsune-Ral@users.sf.net](mailto:Kitsune-Ral@users.sf.net)).
+You can also file issues at
+[the project's issue tracker](https://github.com/QMatrixClient/Quaternion/issues).
+If you find what looks like a security issue, please use instructions
+in SECURITY.md.
 
 ## Download and install
 The latest release (with links to cross-platform source code archives, as well
