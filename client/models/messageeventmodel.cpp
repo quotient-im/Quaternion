@@ -32,26 +32,6 @@
 #include <events/roomavatarevent.h>
 #include <events/roomcreateevent.h>
 
-enum EventRoles {
-    EventTypeRole = Qt::UserRole + 1,
-    EventIdRole,
-    TimeRole,
-    SectionRole,
-    AboveSectionRole,
-    AuthorRole,
-    AboveAuthorRole,
-    ContentRole,
-    ContentTypeRole,
-    HighlightRole,
-    ReadMarkerRole,
-    SpecialMarksRole,
-    LongOperationRole,
-    AnnotationRole,
-    UserHueRole,
-    // For debugging
-    EventResolvedTypeRole,
-};
-
 QHash<int, QByteArray> MessageEventModel::roleNames() const
 {
     QHash<int, QByteArray> roles = QAbstractItemModel::roleNames();

@@ -41,4 +41,9 @@ Item {
             "Couldn't determine how to open the file or its folder.",
             5000)
     }
+
+    Connections {
+        target: controller
+        onOpenExternally: if (currentIndex === index) openExternally()
+    }
 }

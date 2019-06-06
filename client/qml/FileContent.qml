@@ -31,11 +31,19 @@ Attachment {
             anchors.fill: parent
             acceptedButtons: Qt.NoButton
             hoverEnabled: true
-            cursorShape: Qt.IBeamCursor
 
             onContainsMouseChanged:
                 controller.showStatusMessage(containsMouse
                                              ? room.fileSource(eventId) : "")
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.RightButton
+            cursorShape: Qt.IBeamCursor
+
+            onClicked: controller.showMenu(index, textFieldImpl.hoveredLink,
+                showingDetails)
         }
     }
     ProgressBar {
