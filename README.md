@@ -2,10 +2,10 @@
 
 <a href='https://matrix.org'><img src='https://matrix.org/docs/projects/images/made-for-matrix.png' alt='Made for Matrix' height=64 target=_blank /></a>
 
-[![license](https://img.shields.io/github/license/QMatrixClient/quaternion.svg)](https://github.com/QMatrixClient/quaternion/blob/master/COPYING)
+[![license](https://img.shields.io/github/license/quotient-im/quaternion.svg)](https://github.com/quotient-im/Quaternion/blob/master/COPYING)
 ![status](https://img.shields.io/badge/status-beta-yellow.svg)
-[![release](https://img.shields.io/github/release/QMatrixClient/quaternion/all.svg)](https://github.com/QMatrixClient/Quaternion/releases/latest)
-[![](https://img.shields.io/matrix/qmatrixclient%3Amatrix.org.svg)](https://matrix.to/#/!PCzUtxtOjUySxSelof:matrix.org)
+[![release](https://img.shields.io/github/release/quotient-im/quaternion/all.svg)](https://github.com/quotient-im/Quaternion/releases/latest)
+[![](https://img.shields.io/matrix/quotient:matrix.org.svg)](https://matrix.to/#/#quotient:matrix.org)
 [![](https://img.shields.io/cii/percentage/1663.svg?label=CII%20best%20practices)](https://bestpractices.coreinfrastructure.org/projects/1663/badge)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
@@ -16,20 +16,20 @@ Most of talking around Quaternion happens in our Matrix room:
 [#quaternion:matrix.org](https://matrix.to/#/#quaternion:matrix.org).
 
 You can also file issues at
-[the project's issue tracker](https://github.com/QMatrixClient/Quaternion/issues).
+[the project's issue tracker](https://github.com/quotient-im/Quaternion/issues).
 If you find what looks like a security issue, please use instructions
 in SECURITY.md.
 
 ## Download and install
 The latest release (with links to cross-platform source code archives, as well
 as archived binaries for Windows and macOS) can be found on the
-[GitHub Releases page](https://github.com/QMatrixClient/Quaternion/releases/latest).
+[GitHub Releases page](https://github.com/quotient-im/Quaternion/releases/latest).
 
 For those who want the very latest version (beware, you may find it not working
 at times), automatic builds from continuous integration pipelines can be found
 as follows (all these builds come with a fairly recent Qt bundled):
 - Windows: Surf to the
-  [AppVeyor CI page for Quaternion](https://ci.appveyor.com/project/QMatrixClient/quaternion),
+  [AppVeyor CI page for Quaternion](https://ci.appveyor.com/project/quotient/quaternion),
   then go to "Jobs", click on a job for your architecture and find the archive
   in "Artifacts".
 - Linux and macOS: go to the
@@ -55,7 +55,7 @@ Unofficial package for Arch Linux: https://aur.archlinux.org/packages/quaternion
 Flatpaks for Quaternion are available from Flathub. To install, use `flatpak install https://flathub.org/repo/appstream/com.github.quaternion.flatpakref`. This is still experimental - please file issues at https://github.com/flathub/com.github.quaternion if you believe there's a problem with Flatpakaging.
 
 #### macOS
-You can download the latest release from [GitHub](https://github.com/QMatrixClient/Quaternion/releases/latest).
+You can download the latest release from [GitHub](https://github.com/quotient-im/Quaternion/releases/latest).
 
 Alternatively, you can install Quaternion from [Homebrew Cask](https://brew.sh)
 ```
@@ -72,7 +72,7 @@ section further below.
 Quaternion uses [Lokalise.co](https://lokalise.co) for the translation effort.
 It's easy to participate:
 [join the project at Lokalise.co](https://lokalise.co/public/730769035bbc328c31e863.62506391/),
-ask to add your language (either in #qmatrixclient:matrix.org or in
+ask to add your language (either in #quotient:matrix.org or in
 the Lokalise project chat) and start translating! Many languages are still
 longing for contributors.
 
@@ -197,7 +197,7 @@ rooms stuck in a wrong state etc.
 
 ## Troubleshooting
 
-libqmatrixclient has its own section on troubleshooting - make sure to look into its README.md too.
+libQuotient has its own section on troubleshooting - make sure to look into its README.md too.
 
 #### Continuously reconnecting though the network is fine
 If Quaternion starts displaying the message that it couldn't connect to the server and retries more than a couple of times without success, while you're sure you have the network connection - double-check that you don't have Qt bearer management libraries around, as they cause issues with some WiFi networks. To do that, try to find "bearer" directory where your Qt is installed (on Windows it's next to Quaternion executable; on Linux it's a part of Qt installation, usually in `/usr/lib/qt5/plugins`). Then delete or rename it (on Windows) or delete the package that this directory is in (on Linux).
@@ -229,7 +229,7 @@ If you have troubles with dynamic libraries on Windows, [the Dependencies Walker
 If you run Quaternion from a console on Windows and want to see log messages,
 set `QT_LOGGING_TO_CONSOLE=1` so that the output is redirected to the console.
 
-When chasing bugs and investigating crashes, it helps to increase the debug level. Thanks to [@eang:matrix.org](https://matrix.to/#/@eang:matrix.org]), libqmatrixclient uses Qt logging categories - the "Troubleshooting" section of the library's `README.md` elaborates on how to setup logging. Note that Quaternion itself doesn't use Qt logging categories yet, only the library does.
+When chasing bugs and investigating crashes, it helps to increase the debug level. Thanks to [@eang:matrix.org](https://matrix.to/#/@eang:matrix.org]), libQuotient uses Qt logging categories - the "Troubleshooting" section of the library's `README.md` elaborates on how to setup logging. Note that Quaternion itself doesn't use Qt logging categories yet, only the library does.
 
 You may also want to set `QT_MESSAGE_PATTERN` to make logs slightly more informative (see https://doc.qt.io/qt-5/qtglobal.html#qSetMessagePattern for the format description). My (@kitsune's) `QT_MESSAGE_PATTERN` looks as follows:
 `%{time h:mm:ss.zzz}|%{category}|%{if-debug}D%{endif}%{if-info}I%{endif}%{if-warning}W%{endif}%{if-critical}C%{endif}%{if-fatal}F%{endif}|%{message}` (the scary `%{if}`s are just encoding the logging level into its initial letter).

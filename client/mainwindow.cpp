@@ -928,7 +928,7 @@ void MainWindow::showAboutWindow()
             .arg("<a href='https://github.com/KitsuneRal'>Kitsune Ral</a>") +
             "<br/><br/>" +
             tr("Contributors:") + "<br/>" +
-            "<a href='https://github.com/QMatrixClient/Quaternion/graphs/contributors'>" +
+            "<a href='https://github.com/quotient-im/Quaternion/graphs/contributors'>" +
                 tr("Quaternion contributors @ GitHub") + "</a><br/>" +
             "<a href='https://github.com/QMatrixClient/libqmatrixclient/graphs/contributors'>" +
                 tr("libQMatrixClient contributors @ GitHub") + "</a><br/>" +

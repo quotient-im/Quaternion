@@ -18,23 +18,23 @@
     <category>InstantMessaging</category>
     <category>Network</category>
   </categories>
-  
+
   <launchable type="desktop-id">quaternion.desktop</launchable>
 
   <screenshots>
     <screenshot type="default">
-        <image>https://raw.githubusercontent.com/QMatrixClient/Quaternion/master/quaternion.png</image>
+        <image>https://raw.githubusercontent.com/quotient-im/Quaternion/master/quaternion.png</image>
     </screenshot>
   </screenshots>
 
-  <url type="homepage">https://github.com/QMatrixClient/Quaternion</url>
-  <url type="bugtracker">https://github.com/QMatrixClient/Quaternion/issues</url>
-  <url type="help">https://github.com/QMatrixClient/Quaternion/blob/master/README.md</url>
+  <url type="homepage">https://github.com/quotient-im/Quaternion</url>
+  <url type="bugtracker">https://github.com/quotient-im/Quaternion/issues</url>
+  <url type="help">https://github.com/quotient-im/Quaternion/blob/master/README.md</url>
 
   <provides>
     <binary>quaternion</binary>
   </provides>
-  
+
   <releases>
     <release version="0.0.9.4" date="2019-04-29" />
     <release version="0.0.9.3" date="2018-10-21" />
