@@ -61,8 +61,8 @@ Option 1 as default; due to popular demand, Option 2 is used by default
     and Visual C++ 2015 (Windows) are the oldest officially supported
   - any build system that works with CMake should be fine: GNU Make,
     ninja (any platform), NMake, jom (Windows) are known to work.
-- optionally, libQMatrixClient 0.5 development files (from your
-  package management system), or prebuilt libQMatrixClient
+- optionally, libQuotient 0.5 development files (from your
+  package management system), or prebuilt libQuotient
   (see "Getting the source code" above).
 - optionaly, [QtKeychain](https://github.com/frankosterfeld/qtkeychain)
   to store access tokens in libsecret keyring or similar providers.
@@ -88,10 +88,10 @@ call `brew install qtkeychain`.
 You have to point CMake at the Qt5 installation location, with something like:
 
 ```bash
-# if using in-tree libqmatrixclient:
+# if using in-tree libQuotient:
 cmake .. -DUSE_QQUICKWIDGET=ON -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)
 # or otherwise...
-cmake .. -DCMAKE_PREFIX_PATH=/path/to/libqmatrixclient -DUSE_QQUICKWIDGET=ON -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)
+cmake .. -DCMAKE_PREFIX_PATH=/path/to/libQuotient -DUSE_QQUICKWIDGET=ON -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)
 ```
 (read on to find out about `USE_QQUICKWIDGET`).
 
@@ -119,11 +119,11 @@ cmake --build . --target all
 This will get you an executable in `build_dir` inside your project sources.
 Noteworthy CMake variables that you can use:
 - `-DCMAKE_PREFIX_PATH=/path` - add a path to CMake's list of searched paths
-  for preinstalled software (Qt, libQMatrixClient, QtKeychain)
+  for preinstalled software (Qt, libQuotient, QtKeychain)
 - `-DCMAKE_INSTALL_PREFIX=/path` - controls where Quaternion will be installed
   (see below on installing from sources)
 - `-DUSE_INTREE_LIBQMC=<ON|OFF>` - force using/not-using the in-tree copy of
-  libQMatrixClient sources (see "Getting the source code" above).
+  libQuotient sources (see "Getting the source code" above).
 - `-DUSE_QQUICKWIDGET=<ON|OFF>` - by default it's `ON` with Qt 5.12 and `OFF`
   with earlier versions. See the next section for details.
 
@@ -198,7 +198,7 @@ CMake Error at CMakeLists.txt:30 (add_subdirectory):
 
   does not contain a CMakeLists.txt file.
 ```
-...then you don't have libqmatrixclient sources - most likely because you didn't do the `git submodule init && git submodule update` dance.
+...then you don't have libQuotient sources - most likely because you didn't do the `git submodule init && git submodule update` dance.
 
 If you have made sure that your toolchain is in order (versions of compilers and Qt are among supported ones, `PATH` is set correctly etc.) but building fails with strange Qt-related errors such as not found symbols or undefined references, double-check that you don't have Qt 4.x packages around ([here is a typical example](https://github.com/quotient-im/Quaternion/issues/185)). If you need those packages reinstalling them may help; but if you use Qt4 by default you have to explicitly pass Qt5 location to CMake (see notes about `CMAKE_PREFIX_PATH` in "Building").
 
