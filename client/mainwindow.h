@@ -141,7 +141,7 @@ class MainWindow: public QMainWindow
         bool saveAccessTokenToFile(const QMatrixClient::AccountSettings& account,
                                    const QByteArray& accessToken);
         bool saveAccessTokenToKeyChain(const QMatrixClient::AccountSettings& account,
-                                       const QByteArray& accessToken);
+                                       const QByteArray& accessToken, bool writeToFile = true);
         Connection* chooseConnection(Connection* connection,
                                      const QString& prompt);
         void showMillisToRecon(Connection* c);
