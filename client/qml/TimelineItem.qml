@@ -387,7 +387,7 @@ Item {
                     sourceSize: if (info) { Qt.size(info.w, info.h) }
                     source: downloaded || progressInfo.isUpload
                             ? progressInfo.localPath
-                            : content.info && content.info.thumbnail_info
+                            : content.info && content.info.thumbnail_info && !autoload
                               ? "image://mtx/" + content.thumbnailMediaId
                               : ""
                     maxHeight: chatView.height - textField.height -
