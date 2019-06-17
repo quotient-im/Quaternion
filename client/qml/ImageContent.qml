@@ -45,7 +45,7 @@ Attachment {
         }
 
         Component.onCompleted:
-            if (visible && autoload && !(progressInfo && progressInfo.isUpload))
+            if (visible && autoload && !downloaded && !(progressInfo && progressInfo.isUpload))
                 room.downloadFile(eventId)
     }
 
