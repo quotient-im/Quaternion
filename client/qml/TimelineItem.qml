@@ -120,13 +120,17 @@ Item {
 
         Rectangle {
             width: parent.width
-            height: childrenRect.height + 2
+            height: sectionLabel.height + 2
             visible: sectionVisible
             color: defaultPalette.window
             Label {
+                id: sectionLabel
                 font.bold: true
                 renderType: settings.render_type
                 text: section
+            }
+            TimelineMouseArea {
+                anchors.fill: parent
             }
         }
         Loader {
@@ -138,12 +142,20 @@ Item {
             width: parent.width
 
             sourceComponent: detailsArea
+
+            TimelineMouseArea {
+                anchors.fill: parent
+            }
         }
 
         Item {
             id: message
             width: parent.width
             height: childrenRect.height
+
+            TimelineMouseArea {
+                anchors.fill: parent
+            }
 
             // There are several layout styles (av - author avatar,
             // al - author label, ts - timestamp, c - content

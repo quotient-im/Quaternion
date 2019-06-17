@@ -262,6 +262,21 @@ Rectangle {
                 contentY = Math.min(originY + contentHeight - height,
                                     contentY + height)
             }
+            function onWheel(wheel) {
+                if (wheel.angleDelta.x == 0) {
+                    var yDelta = wheel.angleDelta.y / 120 * 100
+
+                    if (yDelta > 0) {
+                        contentY = Math.max(originY, contentY - yDelta)
+                    } else {
+                        contentY = Math.min(contentY + (originY + contentHeight) - (contentY + height),
+                                            contentY + Math.abs(yDelta))
+                    }
+                    wheel.accepted = true
+                } else {
+                    wheel.accepted = false
+                }
+            }
             Connections {
                 target: controller
                 onPageUpPressed: chatView.pageUp()
