@@ -17,14 +17,19 @@ init:
 - set PATH=C:\Qt\Tools\QtCreator\bin;%PATH%
 - call "%VCVARS%" %PLATFORM%
 - cd /D "%APPVEYOR_BUILD_FOLDER%"
-
-before_build:
 - if defined APPVEYOR_REPO_TAG_NAME (set VERSION=%APPVEYOR_REPO_TAG_NAME%) else for /F %%I in ('git rev-list --count HEAD') do set VERSION=git%%I
 - set DEPLOY_DIR=Quaternion-%VERSION%
+
+before_build:
 - git submodule update --init --recursive
-- cmake -LA -G "NMake Makefiles JOM" -H. -Bbuild -DCMAKE_CXX_FLAGS="/EHsc /W3" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="%DEPLOY_DIR%" -DUSE_INTREE_LIBQMC=1 -DDEPLOY_VERBOSITY=%DEPLOY_VERBOSITY%
+- git clone https://github.com/frankosterfeld/qtkeychain.git
+- cd qtkeychain
+- cmake -LA -G "NMake Makefiles JOM" -H. -Bbuild -DCMAKE_CXX_FLAGS="/EHsc /W3" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="install" -DQTKEYCHAIN_STATIC=ON
+- cmake --build build --target install
+- cd ..
 
 build_script:
+- cmake -LA -G "NMake Makefiles JOM" -H. -Bbuild -DCMAKE_CXX_FLAGS="/EHsc /W3" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="%DEPLOY_DIR%" -DUSE_INTREE_LIBQMC=1 -DQt5Keychain_FOUND=TRUE -DQt5Keychain_DIR="qtkeychain/install" -DDEPLOY_VERBOSITY=%DEPLOY_VERBOSITY%
 - cmake --build build
 
 after_build:
