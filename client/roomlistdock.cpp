@@ -30,6 +30,8 @@
 #include "models/orderbytag.h"
 #include "quaternionroom.h"
 #include "roomdialogs.h"
+#include "systemtrayicon.h"
+#include "popupnotifier.h"
 #include <connection.h>
 #include <settings.h>
 
@@ -212,6 +214,10 @@ RoomListDock::RoomListDock(MainWindow* parent)
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested, this, &RoomListDock::showContextMenu);
+
+    systemTrayIcon = new SystemTrayIcon(parent, model);
+    popupNotifier = new PopupNotifier(parent, model, systemTrayIcon);
+
 }
 
 void RoomListDock::addConnection(Quotient::Connection* connection)

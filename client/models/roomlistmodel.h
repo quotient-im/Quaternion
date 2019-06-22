@@ -35,7 +35,7 @@ class RoomListModel: public QAbstractItemModel
     public:
         enum Roles {
             HasUnreadRole = Qt::UserRole + 1,
-            HighlightCountRole, JoinStateRole, ObjectRole
+            NotificationCountRole, HighlightCountRole, JoinStateRole, ObjectRole
         };
 
         using Room = Quotient::Room;

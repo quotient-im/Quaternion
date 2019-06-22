@@ -126,14 +126,6 @@ Quaternion stores its configuration in a way standard for Qt applications. It wi
 
 Some settings exposed in UI (Settings and View menus):
 
-- `UI/notifications` - a general setting whether Quaternion should distract
-  the user with notifications and how.
-  - `none` suppresses notifications entirely (rooms and messages are still
-    hightlighted but the tray icon is muted);
-  - `non-intrusive` allows the tray icon show notification popups;
-  - `intrusive` (default) adds to that activation of Quaternion window
-    (i.e. the application blinking in the task bar, or getting raised,
-    or otherwise demands attention in an environment-specific way).
 - `UI/timeline_layout` - this allows to choose the timeline layout. If this is
   set to "xchat", Quaternion will show the author to the left of each message,
   in a xchat/hexchat style (this was also the only available layout on
@@ -165,6 +157,26 @@ Some settings exposed in UI (Settings and View menus):
 
 Settings not exposed in UI:
 
+- `Notification/popup_mode` - a general setting whether Quaternion should distract
+  the user with **popup notifications** and how. As Quaternion doesn't support
+  push notifications, a compromise has to be made; if you make use of server side
+  push rules then only the affected room name will be displayed instead of the actual
+  message. If you don't, then your global notification rules stored on the server
+  won't be used by Quaternion. (Note: color markers on the tray icon are always based
+  on server side push rules.)
+  - `server` enables tray icon pop up when a notification sent by the server.
+  - `client` (default) enables tray icon pop up when Quaternion received a new
+    message (low priority rooms are excluded by default).
+  - `none` suppresses popup notifications entirely (rooms and messages are still
+    hightlighted but the tray icon is muted).
+- `Notification/popup_tweaks` - fine tuning popup notifications with the following
+  flags (many can be specified separated by commas).
+  - `highlight+` enables popup notifications only for highlights and private chats.
+  - `lowprio` enables popup notifications for low priority rooms too
+     (when `popup_mode=client`).
+  - `intrusive` activates Quaternion window on highlights
+    (i.e. the application blinking in the task bar, or getting raised,
+    or otherwise demands attention in an environment-specific way).
 - `UI/condense_chat` - set this to 1 to make the timeline rendered tighter,
   eliminating vertical gaps between messages as much as possible.
 - `UI/show_author_avatars` - set this to 1 (or true) to show author avatars in

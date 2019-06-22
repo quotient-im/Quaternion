@@ -27,6 +27,8 @@
 class MainWindow;
 class RoomListModel;
 class QuaternionRoom;
+class SystemTrayIcon;
+class PopupNotifier;
 
 namespace Quotient {
     class Connection;
@@ -54,6 +56,8 @@ class RoomListDock : public QDockWidget
         void refreshTitle();
 
     private:
+        SystemTrayIcon* systemTrayIcon = nullptr;
+        PopupNotifier* popupNotifier = nullptr;
         QTreeView* view;
         RoomListModel* model;
 //        QSortFilterProxyModel* proxyModel;
