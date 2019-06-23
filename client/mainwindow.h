@@ -104,6 +104,7 @@ class MainWindow: public QMainWindow
         void showLoginWindow(const QString& statusMessage = {});
         void showLoginWindow(const QString& statusMessage,
             Quotient::AccountSettings& reloginAccount);
+        void showSettingsWindow();
         void showAboutWindow();
         void logout(Connection* c);
 

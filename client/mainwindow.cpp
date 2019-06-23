@@ -23,6 +23,7 @@
 #include "userlistdock.h"
 #include "chatroomwidget.h"
 #include "logindialog.h"
+#include "settingsdialog.h"
 #include "networkconfigdialog.h"
 #include "roomdialogs.h"
 #include "systemtrayicon.h"
@@ -168,6 +169,24 @@ void MainWindow::createMenu()
 {
     using Quotient::Settings;
 
+    // Application menu
+    auto applicationMenu = menuBar()->addMenu(tr("A&pplication"));
+    applicationMenu->addAction(QIcon::fromTheme("preferences"), tr("&Preferences..."),
+        this, [=]{ showSettingsWindow(); } );
+
+    applicationMenu->addAction(QIcon::fromTheme("preferences-system-network"),
+        tr("Configure &network proxy..."), [this]
+    {
+        static QPointer<NetworkConfigDialog> dlg;
+        summon(dlg, this);
+    });
+
+    // Augment poor Windows users with a handy Ctrl-Q shortcut.
+    static const auto quitShortcut = QSysInfo::productType() == "windows"
+            ? QKeySequence(Qt::CTRL + Qt::Key_Q) : QKeySequence::Quit;
+    applicationMenu->addAction(QIcon::fromTheme("application-exit"),
+        tr("&Quit"), qApp, &QApplication::quit, quitShortcut);
+
     // Connection menu
     connectionMenu = menuBar()->addMenu(tr("&Accounts"));
 
@@ -177,12 +196,6 @@ void MainWindow::createMenu()
     connectionMenu->addSeparator();
     // Account submenus will be added in this place - see addConnection()
     accountListGrowthPoint = connectionMenu->addSeparator();
-
-    // Augment poor Windows users with a handy Ctrl-Q shortcut.
-    static const auto quitShortcut = QSysInfo::productType() == "windows"
-            ? QKeySequence(Qt::CTRL + Qt::Key_Q) : QKeySequence::Quit;
-    connectionMenu->addAction(QIcon::fromTheme("application-exit"),
-        tr("&Quit"), qApp, &QApplication::quit, quitShortcut);
 
     // View menu
     auto viewMenu = menuBar()->addMenu(tr("&View"));
@@ -307,114 +320,10 @@ void MainWindow::createMenu()
         tr("&Close current room"), [this] { selectRoom(nullptr); },
         QKeySequence::Close);
 
-    // Settings menu
-    auto settingsMenu = menuBar()->addMenu(tr("&Settings"));
-
     // Help menu
     auto helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(QIcon::fromTheme("help-about"), tr("&About"),
         [=]{ showAboutWindow(); });
-
-    {
-        auto notifGroup = new QActionGroup(this);
-        connect(notifGroup, &QActionGroup::triggered, this,
-            [] (QAction* notifAction)
-            {
-                notifAction->setChecked(true);
-                Settings().setValue("UI/notifications",
-                                    notifAction->data().toString());
-            });
-
-        auto noNotif = notifGroup->addAction(tr("&Highlight only"));
-        noNotif->setData(QStringLiteral("none"));
-        noNotif->setStatusTip(tr("Notifications are entirely suppressed"));
-        auto gentleNotif = notifGroup->addAction(tr("&Non-intrusive"));
-        gentleNotif->setData(QStringLiteral("non-intrusive"));
-        gentleNotif->setStatusTip(
-            tr("Show notifications but do not activate the window"));
-        auto fullNotif = notifGroup->addAction(tr("&Full"));
-        fullNotif->setData(QStringLiteral("intrusive"));
-        fullNotif->setStatusTip(
-            tr("Show notifications and activate the window"));
-
-        auto notifMenu = settingsMenu->addMenu(
-            QIcon::fromTheme("preferences-desktop-notification"),
-            tr("Notifications"));
-        for (auto a: {noNotif, gentleNotif, fullNotif})
-        {
-            a->setCheckable(true);
-            notifMenu->addAction(a);
-        }
-
-        const auto curSetting = Settings().value("UI/notifications",
-                                                 fullNotif->data().toString());
-        if (curSetting == noNotif->data().toString())
-            noNotif->setChecked(true);
-        else if (curSetting == gentleNotif->data().toString())
-            gentleNotif->setChecked(true);
-        else
-            fullNotif->setChecked(true);
-    }
-    {
-        auto layoutGroup = new QActionGroup(this);
-        connect(layoutGroup, &QActionGroup::triggered, this,
-            [this] (QAction* action)
-        {
-            action->setChecked(true);
-            Settings().setValue("UI/timeline_style", action->data().toString());
-            chatRoomWidget->setRoom(nullptr);
-            chatRoomWidget->setRoom(currentRoom);
-        });
-
-        auto defaultLayout = layoutGroup->addAction(tr("Default"));
-        defaultLayout->setStatusTip(
-            tr("The layout with author labels above blocks of messages"));
-        auto xchatLayout = layoutGroup->addAction("XChat");
-        xchatLayout->setData(QStringLiteral("xchat"));
-        xchatLayout->setStatusTip(
-            tr("The layout with author labels to the left from each message"));
-
-        auto layoutMenu = settingsMenu->addMenu(QIcon::fromTheme("table"),
-            tr("Timeline layout"));
-        for (auto a: {defaultLayout, xchatLayout})
-        {
-            a->setCheckable(true);
-            layoutMenu->addAction(a);
-        }
-
-        const auto curSetting = Settings().value("UI/timeline_style",
-                                                 defaultLayout->data().toString());
-        if (curSetting == xchatLayout->data().toString())
-            xchatLayout->setChecked(true);
-        else
-            defaultLayout->setChecked(true);
-    }
-    addTimelineOptionCheckbox(
-        settingsMenu,
-        tr("Use shuttle scrollbar (requires restart)"),
-        tr("Control scroll velocity instead of position with the timeline scrollbar"),
-        QStringLiteral("use_shuttle_dial"), true
-    );
-    addTimelineOptionCheckbox(
-        settingsMenu,
-        tr("Load full-size images at once"),
-        tr("Automatically download a full-size image instead of a thumbnail"),
-        QStringLiteral("autoload_images"), true
-    );
-    addTimelineOptionCheckbox(
-        settingsMenu,
-        tr("Close to tray"),
-        tr("Make close button [X] minimize to tray instead of closing main window"),
-        QStringLiteral("close_to_tray"), false
-    );
-
-    settingsMenu->addSeparator();
-    settingsMenu->addAction(QIcon::fromTheme("preferences-system-network"),
-        tr("Configure &network proxy..."), [this]
-    {
-        static QPointer<NetworkConfigDialog> dlg;
-        summon(dlg, this);
-    });
 }
 
 void MainWindow::loadSettings()
@@ -873,6 +782,16 @@ void MainWindow::processLogin(LoginDialog& dialog)
             return;
     }
     addConnection(connection, deviceName);
+}
+
+void MainWindow::showSettingsWindow()
+{
+    SettingsDialog settingsDialog(this);
+    connect(&settingsDialog, &SettingsDialog::timelineChanged, this, [=]() {
+        chatRoomWidget->setRoom(nullptr);
+        chatRoomWidget->setRoom(currentRoom);
+    });
+    settingsDialog.exec();
 }
 
 void MainWindow::showAboutWindow()

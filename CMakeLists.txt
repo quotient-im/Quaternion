@@ -152,6 +152,7 @@ set(quaternion_SRCS
     client/activitydetector.cpp
     client/dialog.cpp
     client/logindialog.cpp
+    client/settingsdialog.cpp
     client/networkconfigdialog.cpp
     client/roomdialogs.cpp
     client/mainwindow.cpp
@@ -173,6 +174,10 @@ set(quaternion_QRC
     client/resources.qrc
     )
 
+set(quaternion_UI
+    client/settingsgeneralpage.ui
+    )
+
 # quaternion_en.ts is updated explicitly by building trbase target,
 # while all other translation files are created and updated externally at
 # Lokalise.co
@@ -187,6 +192,8 @@ set(quaternion_TS
     client/translations/quaternion_ru.ts
     )
 QT5_ADD_TRANSLATION(quaternion_QM ${quaternion_TS})
+
+qt5_wrap_ui(quaternion_UI_OUT ${quaternion_UI})
 
 QT5_ADD_RESOURCES(quaternion_QRC_SRC ${quaternion_QRC})
 set_property(SOURCE qrc_resources.cpp PROPERTY SKIP_AUTOMOC ON)
@@ -216,7 +223,7 @@ endif(APPLE)
 
 # Windows, this is a GUI executable; OSX, make a bundle
 add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
-    ${quaternion_SRCS} ${quaternion_QRC_SRC} ${quaternion_QM}
+    ${quaternion_SRCS} ${quaternion_UI_OUT} ${quaternion_QRC_SRC} ${quaternion_QM}
     ${quaternion_WINRC} ${${PROJECT_NAME}_MAC_ICON})
 
 target_link_libraries(${PROJECT_NAME}
