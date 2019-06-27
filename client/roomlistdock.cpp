@@ -105,7 +105,7 @@ RoomListDock::RoomListDock(MainWindow* parent)
 
     static const auto Expanded = QStringLiteral("expand");
     static const auto Collapsed = QStringLiteral("collapse");
-//    connect( view, &QTreeView::activated, this, &RoomListDock::rowSelected );
+    connect( view, &QTreeView::activated, this, &RoomListDock::rowSelected );
     connect( view, &QTreeView::clicked, this, &RoomListDock::rowSelected);
     connect( view, &QTreeView::pressed, this, [this] {
         if (QGuiApplication::mouseButtons() & Qt::MidButton) {
