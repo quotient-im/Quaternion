@@ -15,6 +15,7 @@ Item {
         readonly property bool autoload_images: value("UI/autoload_images", true)
         readonly property string highlight_mode: value("UI/highlight_mode", "background")
         readonly property string highlight_color: value("UI/highlight_color", "orange")
+        readonly property string outgoing_color: value("UI/outgoing_color", "#204A87")
         readonly property string render_type: value("UI/Fonts/render_type", "NativeRendering")
         readonly property int animations_duration_ms: value("UI/animations_duration_ms", 400)
         readonly property int fast_animations_duration_ms: animations_duration_ms / 2
@@ -46,10 +47,12 @@ Item {
                                         EventStatus.SendingFailed
                                     ].indexOf(marks) != -1
     readonly property bool failed: marks === EventStatus.SendingFailed
+    readonly property bool eventWithTextPart: ["message", "emote", "image", "file"].indexOf(eventType) >= 0
     /*readonly*/ property string textColor:
         marks === EventStatus.Submitted || failed ? defaultPalette.mid :
         marks === EventStatus.Departed ? disabledPalette.text :
         redacted ? disabledPalette.text :
+        (eventWithTextPart && author === room.localUser) ? settings.outgoing_color :
         highlight && settings.highlight_mode == "text" ? settings.highlight_color :
         (["state", "notice", "other"].indexOf(eventType) >= 0) ?
                 disabledPalette.text : defaultPalette.text

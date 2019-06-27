@@ -145,6 +145,9 @@ Settings not exposed in UI:
 - `UI/animations_duration_ms` - defines the base duration (in milliseconds) of
   animation effects in the timline. The default is 400; set it to 0 to disable
   animation.
+- `UI/outgoing_color` - set this to the color name you prefer for text you sent;
+  HTML color names and SVG `#codes` are supported; by default it's `#204A87`
+  (navy blue).
 - `UI/highlight_color` - set this to the color name you prefer for highlighted
   rooms/messages; HTML color names and SVG `#codes` are supported;
   by default it's `orange`.
