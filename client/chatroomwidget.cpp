@@ -131,6 +131,11 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     m_chatEdit->setAcceptRichText(false);
     m_chatEdit->setMaximumHeight(maximumChatEditHeight());
     connect( m_chatEdit, &KChatEdit::returnPressed, this, &ChatRoomWidget::sendInput );
+    connect(m_chatEdit, &KChatEdit::copyRequested, this, [=] {
+        QApplication::clipboard()->setText(
+            m_chatEdit->textCursor().hasSelection() ? m_chatEdit->textCursor().selectedText() : selectedText
+        );
+    });
     connect(m_chatEdit, &ChatEdit::proposedCompletion, this,
             [=](const QStringList& matches, int pos)
             {
@@ -725,6 +730,14 @@ void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
     menu.exec(QCursor::pos());
 }
 
+void ChatRoomWidget::setGlobalSelectionBuffer(QString text)
+{
+    if (QApplication::clipboard()->supportsSelection())
+        QApplication::clipboard()->setText(text, QClipboard::Selection);
+
+    selectedText = text;
+}
+
 void ChatRoomWidget::reStartShownTimer()
 {
     if (!readMarkerOnScreen || indicesOnScreen.empty() ||
@@ -811,4 +824,9 @@ void ChatRoomWidget::fileDrop(const QString& url)
 void ChatRoomWidget::textDrop(const QString& text)
 {
     m_chatEdit->setText(text);
+}
+
+Qt::KeyboardModifiers ChatRoomWidget::getModifierKeys()
+{
+    return QGuiApplication::keyboardModifiers();
 }

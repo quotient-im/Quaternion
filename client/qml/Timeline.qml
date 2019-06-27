@@ -204,6 +204,13 @@ Rectangle {
             }
         }
 
+        // This covers the area above a short chatView.
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.AllButtons
+            onReleased: controller.focusInput()
+        }
+
         ListView {
             id: chatView
 
@@ -233,6 +240,8 @@ Rectangle {
             readonly property real eventDensity:
                 contentHeight > 0 && count > 0 ? count / contentHeight : 0.03
                 // 0.03 is just an arbitrary reasonable number
+
+            property var textEditWithSelection
 
             function ensurePreviousContent() {
                 if (noNeedMoreContent)

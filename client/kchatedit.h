@@ -109,6 +109,11 @@ Q_SIGNALS:
      */
     void returnPressed();
 
+    /**
+     * Emitted when the user presses Ctrl+C.
+     */
+    void copyRequested();
+
 protected:
     void keyPressEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
 

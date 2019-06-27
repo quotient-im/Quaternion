@@ -79,6 +79,8 @@ class ChatRoomWidget: public QWidget
         void showMenu(int index, const QString& hoveredLink, bool showingDetails);
         void fileDrop(const QString& url);
         void textDrop(const QString& text);
+        void setGlobalSelectionBuffer(QString text);
+        Qt::KeyboardModifiers getModifierKeys();
 
     private slots:
         void sendInput();
@@ -110,6 +112,7 @@ class ChatRoomWidget: public QWidget
         bool readMarkerOnScreen;
         QMap<QuaternionRoom*, QVector<QTextDocument*>> roomHistories;
         QString attachedFileName;
+        QString selectedText;
 
         void reStartShownTimer();
         QString doSendInput();
