@@ -798,3 +798,17 @@ bool ChatRoomWidget::pendingMarkRead() const
     const auto rm = m_currentRoom->readMarker();
     return rm != m_currentRoom->timelineEdge() && rm->index() < indexToMaybeRead;
 }
+
+void ChatRoomWidget::fileDrop(const QString& url)
+{
+    attachedFileName = QUrl(url).path();
+    m_attachAction->setChecked(true);
+    m_chatEdit->setPlaceholderText(
+        tr("Add a message to the file or just push Enter"));
+    emit showStatusMessage(tr("Attaching %1").arg(attachedFileName));
+}
+
+void ChatRoomWidget::textDrop(const QString& text)
+{
+    m_chatEdit->setText(text);
+}

@@ -77,6 +77,8 @@ class ChatRoomWidget: public QWidget
         void saveFileAs(QString eventId);
         void quote(const QString& htmlText);
         void showMenu(int index, const QString& hoveredLink, bool showingDetails);
+        void fileDrop(const QString& url);
+        void textDrop(const QString& text);
 
     private slots:
         void sendInput();
