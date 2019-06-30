@@ -69,6 +69,7 @@ matrix:
     env: [ 'PATH=/usr/local/opt/qt/bin:$PATH' ]
     addons:
       homebrew:
+        update: true
         packages:
         - qt5
         - qtkeychain
