@@ -194,7 +194,7 @@ void MainWindow::createMenu()
                     QFlag(Room|User),
                     tr("Open room"),
                     tr("Room/user ID, room alias,\n"
-                       "or matrix.to link"),
+                       "Matrix URI or matrix.to link"),
                     tr("Switch to room")
             ));
         });
@@ -1061,6 +1061,10 @@ bool MainWindow::resolveLocator(const Locator& l, const QString& action)
 
     auto idOrAlias = l.identifier;
     idOrAlias.remove(QRegularExpression("^https://matrix.to/#/"));
+    idOrAlias.remove("^matrix:");
+    idOrAlias.replace(QRegularExpression("^user/"), "@");
+    idOrAlias.replace(QRegularExpression("^roomid/"), "!");
+    idOrAlias.replace(QRegularExpression("^room/"), "#");
     if (idOrAlias.startsWith('@'))
     {
         if (auto* user = l.account->user(idOrAlias))
@@ -1267,23 +1271,23 @@ void MainWindow::setCompleter(QLineEdit* edit, Connection* connection,
     edit->setCompleter(completer);
 }
 
-void MainWindow::joinRoom(const QString& roomAlias)
+void MainWindow::joinRoom(const QString& roomIdOrAlias)
 {
     auto* defaultConnection = currentRoom ? currentRoom->connection() :
                               connections.size() == 1 ? connections.front() :
                               nullptr;
     if (defaultConnection
-            && resolveLocator(makeLocator(defaultConnection, roomAlias)))
+            && resolveLocator(makeLocator(defaultConnection, roomIdOrAlias)))
         return; // Already joined room
 
-    auto roomLocator = roomAlias.isEmpty()
+    auto roomLocator = roomIdOrAlias.isEmpty()
             ? obtainIdentifier(defaultConnection, None,
                 tr("Enter room id or alias"),
                 tr("Room ID (starting with !)\nor alias (starting with #)"),
                 tr("Join"))
             : makeLocator(chooseConnection(defaultConnection,
-                          tr("Confirm account to join %1").arg(roomAlias))
-                      , roomAlias);
+                          tr("Confirm account to join %1").arg(roomIdOrAlias))
+                      , roomIdOrAlias);
 
     // Check whether the user cancelled room/connection dialog or no connections
     // or the room is already joined.
