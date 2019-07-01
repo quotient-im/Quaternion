@@ -405,10 +405,11 @@ Item {
 
                 sourceComponent: FileContent { }
             }
-            ActiveLabel {
+            ToolButton {
                 id: resendButton
                 visible: failed
                 width: visible * implicitWidth
+                height: visible * implicitHeight
                 anchors.top: textField.top
                 anchors.right: discardButton.left
                 anchors.rightMargin: 2
@@ -416,17 +417,44 @@ Item {
 
                 onClicked: room.retryMessage(eventId)
             }
-            ActiveLabel {
+            ToolButton {
                 id: discardButton
                 visible: pending && marks !== EventStatus.ReachedServer
                          && marks !== EventStatus.Departed
                 width: visible * implicitWidth
+                height: visible * implicitHeight
                 anchors.top: textField.top
                 anchors.right: parent.right
                 anchors.rightMargin: 2
                 text: qsTr("Discard")
 
                 onClicked: room.discardMessage(eventId)
+            }
+            ToolButton {
+                id: goToPredecessorButton
+                visible: !pending && eventResolvedType == "m.room.create"
+                width: visible * implicitWidth
+                height: visible * implicitHeight
+                anchors.top: textField.top
+                anchors.right: parent.right
+                anchors.rightMargin: 2
+                text: qsTr("Go to\nolder room")
+
+                // TODO: Treat unjoined invite-only rooms specially
+                onClicked: controller.joinRequested(refId)
+            }
+            ToolButton {
+                id: goToSuccessorButton
+                visible: !pending && eventResolvedType == "m.room.tombstone"
+                width: visible * implicitWidth
+                height: visible * implicitHeight
+                anchors.top: textField.top
+                anchors.right: parent.right
+                anchors.rightMargin: 2
+                text: qsTr("Go to\nnew room")
+
+                // TODO: Treat unjoined invite-only rooms specially
+                onClicked: controller.joinRequested(refId)
             }
         }
     }

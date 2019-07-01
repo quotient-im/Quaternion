@@ -43,7 +43,7 @@ class MessageEventModel: public QAbstractListModel
             LongOperationRole,
             AnnotationRole,
             UserHueRole,
-            // For debugging
+            RefRole,
             EventResolvedTypeRole,
         };
 

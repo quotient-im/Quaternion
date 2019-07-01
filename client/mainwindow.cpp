@@ -88,7 +88,7 @@ MainWindow::MainWindow()
     setCentralWidget(chatRoomWidget);
     connect( chatRoomWidget, &ChatRoomWidget::resourceRequested,
              this, &MainWindow::resolveResource);
-    connect( chatRoomWidget, &ChatRoomWidget::joinCommandEntered,
+    connect( chatRoomWidget, &ChatRoomWidget::joinRequested,
              this, &MainWindow::joinRoom);
     connect( roomListDock, &RoomListDock::roomSelected,
              this, &MainWindow::selectRoom);
@@ -1054,10 +1054,10 @@ void MainWindow::logout(Connection* c)
     c->logout();
 }
 
-void MainWindow::resolveLocator(const Locator& l, const QString& action)
+bool MainWindow::resolveLocator(const Locator& l, const QString& action)
 {
     if (!l.account)
-        return;
+        return false;
 
     auto idOrAlias = l.identifier;
     idOrAlias.remove(QRegularExpression("^https://matrix.to/#/"));
@@ -1071,25 +1071,28 @@ void MainWindow::resolveLocator(const Locator& l, const QString& action)
                         tr("Open direct chat with user %1?")
                         .arg(user->fullName())) == QMessageBox::Yes)
                 l.account->requestDirectChat(user);
-        } else
-            QMessageBox::warning(this, tr("Malformed user id"),
-                    tr("%1 is not a correct user id").arg(idOrAlias),
-                QMessageBox::Close, QMessageBox::Close);
-        return;
+            return true;
+        }
+        QMessageBox::warning(this, tr("Malformed user id"),
+                tr("%1 is not a correct user id").arg(idOrAlias),
+            QMessageBox::Close, QMessageBox::Close);
+        return false;
     }
     auto* room = idOrAlias.startsWith('!') ?
                     l.account->room(idOrAlias) :
                     l.account->roomByAlias(idOrAlias);
-    if (room)
+    if (room) {
         selectRoom(room);
-    else
-        QMessageBox::warning(this, tr("Room not found"),
-            tr("There's no room %1 in the room list."
-               " Check the spelling and the account.")
-            .arg(idOrAlias));
+        return true;
+    }
+    QMessageBox::warning(this, tr("Room not found"),
+                         tr("There's no room %1 in the room list."
+                            " Check the spelling and the account.")
+                             .arg(idOrAlias));
+    return false;
 }
 
-// FIXME: This should be decommisionned and inlined once we stop supporting
+// FIXME: This should be decommissioned and inlined once we stop supporting
 // legacy compilers that have BROKEN_INITIALIZER_LISTS
 inline Locator makeLocator(QMatrixClient::Connection* c, QString id)
 {
@@ -1269,27 +1272,23 @@ void MainWindow::joinRoom(const QString& roomAlias)
     auto* defaultConnection = currentRoom ? currentRoom->connection() :
                               connections.size() == 1 ? connections.front() :
                               nullptr;
+    if (defaultConnection
+            && resolveLocator(makeLocator(defaultConnection, roomAlias)))
+        return; // Already joined room
+
     auto roomLocator = roomAlias.isEmpty()
             ? obtainIdentifier(defaultConnection, None,
                 tr("Enter room id or alias"),
                 tr("Room ID (starting with !)\nor alias (starting with #)"),
                 tr("Join"))
-#ifdef BROKEN_INITIALIZER_LISTS
-            : [=] {
-                Locator l;
-                l.account = chooseConnection(defaultConnection,
-                                tr("Confirm account to join %1").arg(roomAlias));
-                l.identifier = roomAlias;
-                return l;
-            }();
-#else
-            : Locator { chooseConnection(defaultConnection,
-                            tr("Confirm account to join %1").arg(roomAlias))
-                      , roomAlias };
-#endif
+            : makeLocator(chooseConnection(defaultConnection,
+                          tr("Confirm account to join %1").arg(roomAlias))
+                      , roomAlias);
 
-    if (!roomLocator.account)
-        return; // The user cancelled room/connection dialog or no connections
+    // Check whether the user cancelled room/connection dialog or no connections
+    // or the room is already joined.
+    if (!roomLocator.account || resolveLocator(roomLocator))
+        return;
 
     using QMatrixClient::BaseJob;
     auto* job = roomLocator.account->joinRoom(roomLocator.identifier);

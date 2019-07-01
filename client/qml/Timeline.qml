@@ -69,7 +69,7 @@ Rectangle {
         Column {
             id: headerText
             anchors.left: roomAvatar.right
-            anchors.right: parent.right
+            anchors.right: versionActionButton.left
             anchors.top: parent.top
             anchors.margins: 2
 
@@ -97,13 +97,8 @@ Rectangle {
 
                 text: !room ? "" :
                     room.successorId !== ""
-                    ? qsTr("This room has been upgraded")
-                    : room.isUnstable
-                      ? qsTr("Unstable room version!")
-                        + (room.canSwitchVersions()
-                           ? ("\n" + qsTr("Go to Room Settings to upgrade the room"))
-                           : "")
-                      : ""
+                              ? qsTr("This room has been upgraded.") :
+                    room.isUnstable ? qsTr("Unstable room version!") : ""
                 font.italic: true
                 renderType: settings.render_type
                 ToolTip { text: parent.text }
@@ -175,6 +170,22 @@ Rectangle {
                 if (topicText.hoveredLink)
                     controller.resourceRequested(topicText.hoveredLink)
             }
+        }
+        ToolButton {
+            id: versionActionButton
+            visible: room && ((room.isUnstable && room.canSwitchVersions())
+                              || room.successorId !== "")
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: parent.right
+            width: visible * implicitWidth
+            text: !room ? "" : room.successorId !== ""
+                                ? qsTr("Go to\nnew room") : qsTr("Room\nsettings")
+
+            onClicked:
+                if (room.successorId !== "")
+                    controller.joinRequested(room.successorId)
+                else
+                    controller.roomSettingsRequested(room.id)
         }
     }
 

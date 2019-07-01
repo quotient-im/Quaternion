@@ -69,7 +69,7 @@ class MainWindow: public QMainWindow
 
         ChatRoomWidget* getChatRoomWidget() const;
 
-        void resolveLocator(const Locator& l, const QString& action = {});
+        bool resolveLocator(const Locator& l, const QString& action = {});
 
     public slots:
         void resolveResource(const QString& idOrUri, const QString& action = {});

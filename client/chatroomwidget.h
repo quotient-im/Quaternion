@@ -54,7 +54,7 @@ class ChatRoomWidget: public QWidget
         QStringList findCompletionMatches(const QString& pattern) const;
 
     signals:
-        void joinCommandEntered(const QString& roomAlias);
+        void joinRequested(const QString& roomAlias);
         void resourceRequested(const QString& idOrUri,
                                const QString& action = {});
         void showStatusMessage(const QString& message, int timeout = 0) const;

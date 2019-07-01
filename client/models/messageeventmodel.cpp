@@ -31,6 +31,7 @@
 #include <events/redactionevent.h>
 #include <events/roomavatarevent.h>
 #include <events/roomcreateevent.h>
+#include <events/roomtombstoneevent.h>
 
 QHash<int, QByteArray> MessageEventModel::roleNames() const
 {
@@ -51,6 +52,7 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
     roles[AnnotationRole] = "annotation";
     roles[UserHueRole] = "userHue";
     roles[EventResolvedTypeRole] = "eventResolvedType";
+    roles[RefRole] = "refId";
     return roles;
 }
 
@@ -413,6 +415,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
             return tr("Redacted: %1").arg(reason.toHtmlEscaped());
         }
 
+        // clang-format off
         return visit(evt
             , [this] (const RoomMessageEvent& e) {
                 using namespace MessageEventContent;
@@ -542,6 +545,10 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                        ).arg(e.version().isEmpty()
                              ? "1" : e.version().toHtmlEscaped());
             }
+            , [] (const RoomTombstoneEvent& e) {
+                return tr("upgraded the room: %1")
+                       .arg(e.serverMessage().toHtmlEscaped());
+            }
             , [] (const StateEventBase& e) {
                 // A small hack for state events from TWIM bot
                 return e.stateKey() == "twim"
@@ -555,6 +562,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
             }
             , tr("Unknown event")
         );
+        // clang-format on
     }
 
     if( role == Qt::ToolTipRole )
@@ -691,7 +699,6 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         if (isPending)
             return pendingIt->annotation();
 
-
     if( role == TimeRole || role == SectionRole)
     {
         auto ts = isPending ? pendingIt->lastUpdated()
@@ -712,6 +719,11 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         return QVariant::fromValue(isPending
                                    ? m_currentRoom->localUser()->hueF()
                                    : m_currentRoom->user(evt.senderId())->hueF());
+
+    if (role == RefRole)
+        return visit(
+            evt, [](const RoomCreateEvent& e) { return e.predecessor().roomId; },
+            [](const RoomTombstoneEvent& e) { return e.successorRoomId(); });
 
     return {};
 }
