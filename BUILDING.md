@@ -1,15 +1,15 @@
 # Building and Packaging Quaternion
 
-[![Quaternion-master@Travis](https://img.shields.io/travis/QMatrixClient/Quaternion/master.svg)](https://travis-ci.org/QMatrixClient/Quaternion/branches)
-[![Quaternion-master@AppVeyor](https://img.shields.io/appveyor/ci/QMatrixClient/quaternion/master.svg?logo=appveyor)](https://ci.appveyor.com/project/QMatrixClient/quaternion)
-[![license](https://img.shields.io/github/license/QMatrixClient/quaternion.svg)](https://github.com/QMatrixClient/quaternion/blob/master/COPYING)
+[![Quaternion-master@Travis](https://img.shields.io/travis/quotient-im/Quaternion/master.svg)](https://travis-ci.org/quotient-im/Quaternion/branches)
+[![Quaternion-master@AppVeyor](https://img.shields.io/appveyor/ci/quotient/quaternion/master.svg?logo=appveyor)](https://ci.appveyor.com/project/quotient/quaternion)
+[![license](https://img.shields.io/github/license/quotient-im/quaternion.svg)](https://github.com/quotient-im/Quaternion/blob/master/COPYING)
 [![Chat](https://img.shields.io/badge/chat-%23quaternion-blue.svg)](https://matrix.to/#/#quaternion:matrix.org)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 
 ### Getting the source code
 
-The source code is hosted at GitHub: https://github.com/QMatrixClient/Quaternion. The best way for one-off building is checking out a tag for a given release from GitHub (master branch is unstable and may or may not work). If you plan to work on Quaternion code, feel free to fork/clone the repo and check out the master branch.
+The source code is hosted at GitHub: https://github.com/quotient-im/Quaternion. The best way for one-off building is checking out a tag for a given release from GitHub (master branch is unstable and may or may not work). If you plan to work on Quaternion code, feel free to fork/clone the repo and check out the master branch.
 
 Quaternion needs libQMatrixClient to build. Since version 0.0.9.3 there are two
 options to use the library:
@@ -28,7 +28,7 @@ options to use the library:
    to CMake. If you haven't cloned Quaternion sources yet, the following will
    get you all sources in one go:
    ```bash
-   git clone --recursive https://github.com/QMatrixClient/Quaternion.git
+   git clone --recursive https://github.com/quotient-im/Quaternion.git
    ```
    If you already have cloned Quaternion, do the following in the top-level
    directory (NOT in `lib` subdirectory):
@@ -61,8 +61,8 @@ Option 1 as default; due to popular demand, Option 2 is used by default
     and Visual C++ 2015 (Windows) are the oldest officially supported
   - any build system that works with CMake should be fine: GNU Make,
     ninja (any platform), NMake, jom (Windows) are known to work.
-- optionally, libQMatrixClient 0.5 development files (from your
-  package management system), or prebuilt libQMatrixClient
+- optionally, libQuotient 0.5 development files (from your
+  package management system), or prebuilt libQuotient
   (see "Getting the source code" above).
 - optionaly, [QtKeychain](https://github.com/frankosterfeld/qtkeychain)
   to store access tokens in libsecret keyring or similar providers.
@@ -88,10 +88,10 @@ call `brew install qtkeychain`.
 You have to point CMake at the Qt5 installation location, with something like:
 
 ```bash
-# if using in-tree libqmatrixclient:
+# if using in-tree libQuotient:
 cmake .. -DUSE_QQUICKWIDGET=ON -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)
 # or otherwise...
-cmake .. -DCMAKE_PREFIX_PATH=/path/to/libqmatrixclient -DUSE_QQUICKWIDGET=ON -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)
+cmake .. -DCMAKE_PREFIX_PATH=/path/to/libQuotient -DUSE_QQUICKWIDGET=ON -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)
 ```
 (read on to find out about `USE_QQUICKWIDGET`).
 
@@ -119,11 +119,11 @@ cmake --build . --target all
 This will get you an executable in `build_dir` inside your project sources.
 Noteworthy CMake variables that you can use:
 - `-DCMAKE_PREFIX_PATH=/path` - add a path to CMake's list of searched paths
-  for preinstalled software (Qt, libQMatrixClient, QtKeychain)
+  for preinstalled software (Qt, libQuotient, QtKeychain)
 - `-DCMAKE_INSTALL_PREFIX=/path` - controls where Quaternion will be installed
   (see below on installing from sources)
 - `-DUSE_INTREE_LIBQMC=<ON|OFF>` - force using/not-using the in-tree copy of
-  libQMatrixClient sources (see "Getting the source code" above).
+  libQuotient sources (see "Getting the source code" above).
 - `-DUSE_QQUICKWIDGET=<ON|OFF>` - by default it's `ON` with Qt 5.12 and `OFF`
   with earlier versions. See the next section for details.
 
@@ -165,7 +165,7 @@ favourite system!
 If you run Linux and your distribution supports flatpak, you can easily build and install Quaternion as a flatpak package:
 
 ```bash
-git clone https://github.com/QMatrixClient/Quaternion.git --recursive
+git clone https://github.com/quotient-im/Quaternion.git --recursive
 cd Quaternion/flatpak
 ./setup_runtime.sh
 ./build.sh
@@ -198,8 +198,8 @@ CMake Error at CMakeLists.txt:30 (add_subdirectory):
 
   does not contain a CMakeLists.txt file.
 ```
-...then you don't have libqmatrixclient sources - most likely because you didn't do the `git submodule init && git submodule update` dance.
+...then you don't have libQuotient sources - most likely because you didn't do the `git submodule init && git submodule update` dance.
 
-If you have made sure that your toolchain is in order (versions of compilers and Qt are among supported ones, `PATH` is set correctly etc.) but building fails with strange Qt-related errors such as not found symbols or undefined references, double-check that you don't have Qt 4.x packages around ([here is a typical example](https://github.com/QMatrixClient/Quaternion/issues/185)). If you need those packages reinstalling them may help; but if you use Qt4 by default you have to explicitly pass Qt5 location to CMake (see notes about `CMAKE_PREFIX_PATH` in "Building").
+If you have made sure that your toolchain is in order (versions of compilers and Qt are among supported ones, `PATH` is set correctly etc.) but building fails with strange Qt-related errors such as not found symbols or undefined references, double-check that you don't have Qt 4.x packages around ([here is a typical example](https://github.com/quotient-im/Quaternion/issues/185)). If you need those packages reinstalling them may help; but if you use Qt4 by default you have to explicitly pass Qt5 location to CMake (see notes about `CMAKE_PREFIX_PATH` in "Building").
 
 See also the Troubleshooting section in [README.md](./README.md)
