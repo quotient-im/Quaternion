@@ -52,7 +52,8 @@ Item {
         marks === EventStatus.Submitted || failed ? defaultPalette.mid :
         marks === EventStatus.Departed ? disabledPalette.text :
         redacted ? disabledPalette.text :
-        (eventWithTextPart && author === room.localUser) ? settings.outgoing_color :
+        (eventWithTextPart && author === room.localUser) ?
+            Qt.tint(defaultPalette.text, settings.outgoing_color) :
         highlight && settings.highlight_mode == "text" ? settings.highlight_color :
         (["state", "notice", "other"].indexOf(eventType) >= 0) ?
                 disabledPalette.text : defaultPalette.text
