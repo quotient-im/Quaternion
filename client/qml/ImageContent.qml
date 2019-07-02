@@ -25,7 +25,7 @@ Attachment {
 //            easing.type: Easing.OutQuad
 //        }}
 
-        MouseArea {
+        TimelineMouseArea {
             anchors.fill: parent
             acceptedButtons: Qt.LeftButton
             hoverEnabled: true
@@ -36,7 +36,7 @@ Attachment {
             onClicked: openExternally()
         }
 
-        MouseArea {
+        TimelineMouseArea {
             anchors.fill: parent
             acceptedButtons: Qt.RightButton
             cursorShape: Qt.PointingHandCursor

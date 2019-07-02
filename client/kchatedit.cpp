@@ -204,6 +204,11 @@ QSize KChatEdit::sizeHint() const
 
 void KChatEdit::keyPressEvent(QKeyEvent *event)
 {
+    if (event->matches(QKeySequence::Copy)) {
+        emit copyRequested();
+        return;
+    }
+
     switch (event->key()) {
     case Qt::Key_Enter:
     case Qt::Key_Return:

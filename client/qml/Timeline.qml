@@ -201,6 +201,27 @@ Rectangle {
                                  ? Qt.ScrollBarAlwaysOff : Qt.ScrollBarAlwaysOn
         style: ScrollViewStyle { transientScrollBars: true }
 
+        DropArea {
+            anchors.fill: parent
+            onEntered: if (!room) { drag.accepted = false }
+            onDropped: {
+                if (drop.hasUrls) {
+                    controller.fileDrop(drop.urls)
+                    drop.acceptProposedAction()
+                } else if (drop.hasText) {
+                    controller.textDrop(drop.text)
+                    drop.acceptProposedAction()
+                }
+            }
+        }
+
+        // This covers the area above a short chatView.
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.AllButtons
+            onReleased: controller.focusInput()
+        }
+
         ListView {
             id: chatView
 
@@ -230,6 +251,8 @@ Rectangle {
             readonly property real eventDensity:
                 contentHeight > 0 && count > 0 ? count / contentHeight : 0.03
                 // 0.03 is just an arbitrary reasonable number
+
+            property var textEditWithSelection
 
             function ensurePreviousContent() {
                 if (noNeedMoreContent)
@@ -272,6 +295,21 @@ Rectangle {
             function pageDown() {
                 contentY = Math.min(originY + contentHeight - height,
                                     contentY + height)
+            }
+            function onWheel(wheel) {
+                if (wheel.angleDelta.x == 0) {
+                    var yDelta = wheel.angleDelta.y / 120 * 100
+
+                    if (yDelta > 0) {
+                        contentY = Math.max(originY, contentY - yDelta)
+                    } else {
+                        contentY = Math.min(contentY + (originY + contentHeight) - (contentY + height),
+                                            contentY + Math.abs(yDelta))
+                    }
+                    wheel.accepted = true
+                } else {
+                    wheel.accepted = false
+                }
             }
             Connections {
                 target: controller

@@ -27,7 +27,7 @@ Attachment {
         textFormat: TextEdit.PlainText
         wrapMode: Text.Wrap;
 
-        MouseArea {
+        TimelineMouseArea {
             anchors.fill: parent
             acceptedButtons: Qt.NoButton
             hoverEnabled: true
@@ -37,7 +37,7 @@ Attachment {
                                              ? room.fileSource(eventId) : "")
         }
 
-        MouseArea {
+        TimelineMouseArea {
             anchors.fill: parent
             acceptedButtons: Qt.RightButton
             cursorShape: Qt.IBeamCursor
