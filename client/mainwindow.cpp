@@ -1268,6 +1268,7 @@ void MainWindow::setCompleter(QLineEdit* edit, Connection* connection,
     }
     list.sort();
     auto* completer = new QCompleter(list);
+    completer->setFilterMode(Qt::MatchContains);
     edit->setCompleter(completer);
 }
 
