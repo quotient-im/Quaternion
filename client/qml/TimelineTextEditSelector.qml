@@ -27,6 +27,10 @@ MouseArea {
                 chatView.textEditWithSelection.deselect()
         }
     }
+    onClicked: {
+        if (textEdit.hoveredLink)
+            textEdit.onLinkActivated(textEdit.hoveredLink)
+    }
     onDoubleClicked: {
         selectionMode = TextEdit.SelectWords
         textEdit.selectWord()
