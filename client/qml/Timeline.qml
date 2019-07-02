@@ -289,23 +289,22 @@ Rectangle {
                 }
             }
 
-            function pageUp() {
-                contentY = Math.max(originY, contentY - height)
+            function scrollUp(dy) {
+                contentY = Math.max(originY, contentY - dy)
             }
-            function pageDown() {
+            function scrollDown(dy) {
                 contentY = Math.min(originY + contentHeight - height,
-                                    contentY + height)
+                                    contentY + dy)
             }
-            function onWheel(wheel) {
-                if (wheel.angleDelta.x == 0) {
-                    var yDelta = wheel.angleDelta.y / 120 * 100
 
-                    if (yDelta > 0) {
-                        contentY = Math.max(originY, contentY - yDelta)
-                    } else {
-                        contentY = Math.min(contentY + (originY + contentHeight) - (contentY + height),
-                                            contentY + Math.abs(yDelta))
-                    }
+            function onWheel(wheel) {
+                if (wheel.angleDelta.x === 0) {
+                    var yDelta = wheel.angleDelta.y * 10 / 36
+
+                    if (yDelta > 0)
+                        scrollUp(yDelta)
+                    else
+                        scrollDown(-yDelta)
                     wheel.accepted = true
                 } else {
                     wheel.accepted = false
@@ -313,8 +312,8 @@ Rectangle {
             }
             Connections {
                 target: controller
-                onPageUpPressed: chatView.pageUp()
-                onPageDownPressed: chatView.pageDown()
+                onPageUpPressed: chatView.scrollUp(height)
+                onPageDownPressed: chatView.scrollDown(height)
             }
 
             Component.onCompleted: {
