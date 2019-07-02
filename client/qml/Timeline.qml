@@ -480,10 +480,14 @@ Rectangle {
         anchors.top: chatScrollView.top
         width: childrenRect.width + 3
         height: childrenRect.height + 3
-        visible: chatView.largestVisibleIndex >= 0 &&
-                 (scrollerArea.containsMouse || scrollAnimation.running)
         color: defaultPalette.window
-        opacity: 0.9
+        opacity: chatView.largestVisibleIndex >= 0
+            && (scrollerArea.containsMouse || scrollAnimation.running)
+            ? 0.9 : 0
+        Behavior on opacity {
+            NumberAnimation { duration: settings.fast_animations_duration_ms }
+        }
+
         Label {
             font.bold: true
             color: disabledPalette.text
