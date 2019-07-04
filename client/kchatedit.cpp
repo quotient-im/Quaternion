@@ -167,12 +167,14 @@ QSize KChatEdit::minimumSizeHint() const
     margins += contentsMargins();
 
     if (!placeholderText().isEmpty()) {
-        minimumSizeHint.setWidth(fontMetrics().width(placeholderText()) + margins.left()*2.5);
+        minimumSizeHint.setWidth(int(
+            fontMetrics().boundingRect(placeholderText()).width()
+            + margins.left()*2.5));
     }
     if (document()->isEmpty()) {
         minimumSizeHint.setHeight(fontMetrics().lineSpacing() + margins.top() + margins.bottom());
     } else {
-        minimumSizeHint.setHeight(document()->size().height());
+        minimumSizeHint.setHeight(int(document()->size().height()));
     }
 
     return minimumSizeHint;
