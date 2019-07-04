@@ -87,7 +87,7 @@ MainWindow::MainWindow()
     chatRoomWidget = new ChatRoomWidget(this);
     setCentralWidget(chatRoomWidget);
     connect( chatRoomWidget, &ChatRoomWidget::resourceRequested,
-             this, &MainWindow::resolveResource);
+             this, &MainWindow::openResource);
     connect( chatRoomWidget, &ChatRoomWidget::joinRequested,
              this, &MainWindow::joinRoom);
     connect( roomListDock, &RoomListDock::roomSelected,
@@ -187,20 +187,6 @@ void MainWindow::createMenu()
     // View menu
     auto viewMenu = menuBar()->addMenu(tr("&View"));
 
-    openRoomAction = viewMenu->addAction(QIcon::fromTheme("document-open"),
-        tr("Open room..."), [this] {
-            resolveLocator(obtainIdentifier(
-                    currentRoom ? currentRoom->connection() : nullptr,
-                    QFlag(Room|User),
-                    tr("Open room"),
-                    tr("Room/user ID, room alias,\n"
-                       "Matrix URI or matrix.to link"),
-                    tr("Switch to room")
-            ));
-        });
-    openRoomAction->setStatusTip(tr("Open a room from the room list"));
-    openRoomAction->setShortcut(QKeySequence::Open);
-    openRoomAction->setDisabled(true);
     viewMenu->addSeparator();
     auto dockPanesMenu = viewMenu->addMenu(
         QIcon::fromTheme("labplot-editvlayout"),
@@ -287,15 +273,6 @@ void MainWindow::createMenu()
     // Room menu
     auto roomMenu = menuBar()->addMenu(tr("&Room"));
 
-    roomSettingsAction =
-        roomMenu->addAction(QIcon::fromTheme("user-group-properties"),
-        tr("Change room &settings..."), [this]
-        {
-            static QHash<QuaternionRoom*, QPointer<RoomSettingsDialog>> dlgs;
-            summon(dlgs[currentRoom], currentRoom, this);
-        });
-    roomSettingsAction->setDisabled(true);
-    roomMenu->addSeparator();
     createRoomAction =
         roomMenu->addAction(QIcon::fromTheme("user-group-new"),
         tr("Create &new room..."), [this]
@@ -305,15 +282,27 @@ void MainWindow::createMenu()
         });
     createRoomAction->setShortcut(QKeySequence::New);
     createRoomAction->setDisabled(true);
-    dcAction = roomMenu->addAction(QIcon::fromTheme("list-add-user"),
-                    tr("&Direct chat..."), [this] { directChat(); });
-    dcAction->setShortcut(Qt::CTRL + Qt::Key_M);
-    dcAction->setDisabled(true);
     joinAction = roomMenu->addAction(QIcon::fromTheme("list-add"),
                     tr("&Join room..."), [this] { joinRoom(); } );
     joinAction->setShortcut(Qt::CTRL + Qt::Key_J);
     joinAction->setDisabled(true);
     roomMenu->addSeparator();
+    roomSettingsAction =
+        roomMenu->addAction(QIcon::fromTheme("user-group-properties"),
+            tr("Change room &settings..."),
+            [this] {
+                static QHash<QuaternionRoom*, QPointer<RoomSettingsDialog>> dlgs;
+                summon(dlgs[currentRoom], currentRoom, this);
+            });
+    roomSettingsAction->setDisabled(true);
+    roomMenu->addSeparator();
+    openRoomAction = roomMenu->addAction(
+        QIcon::fromTheme("document-open"), tr("Open room..."), [this] {
+            openResource({}, "interactive");
+        });
+    openRoomAction->setStatusTip(tr("Open a room from the room list"));
+    openRoomAction->setShortcut(QKeySequence::Open);
+    openRoomAction->setDisabled(true);
     roomMenu->addAction(QIcon::fromTheme("window-close"),
         tr("&Close current room"), [this] { selectRoom(nullptr); },
         QKeySequence::Close);
@@ -775,7 +764,6 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     });
     openRoomAction->setEnabled(true);
     createRoomAction->setEnabled(true);
-    dcAction->setEnabled(true);
     joinAction->setEnabled(true);
 
     getNewEvents(c);
@@ -791,7 +779,6 @@ void MainWindow::dropConnection(Connection* c)
     logoutOnExit.removeOne(c);
     openRoomAction->setDisabled(connections.isEmpty());
     createRoomAction->setDisabled(connections.isEmpty());
-    dcAction->setDisabled(connections.isEmpty());
     joinAction->setDisabled(connections.isEmpty());
 
     Q_ASSERT(!connections.contains(c) && !logoutOnExit.contains(c) &&
@@ -1054,17 +1041,22 @@ void MainWindow::logout(Connection* c)
     c->logout();
 }
 
-bool MainWindow::resolveLocator(const Locator& l, const QString& action)
+QString MainWindow::resolveToId(const QString &uri) {
+    auto id = uri;
+    id.remove(QRegularExpression("^https://matrix.to/#/"));
+    id.remove(QRegularExpression("^matrix:"));
+    id.replace(QRegularExpression("^user/"), "@");
+    id.replace(QRegularExpression("^roomid/"), "!");
+    id.replace(QRegularExpression("^room/"), "#");
+    return id;
+}
+
+Locator::ResolveResult MainWindow::openLocator(const Locator& l, const QString& action)
 {
     if (!l.account)
-        return false;
+        return Locator::NoAccount;
 
-    auto idOrAlias = l.identifier;
-    idOrAlias.remove(QRegularExpression("^https://matrix.to/#/"));
-    idOrAlias.remove("^matrix:");
-    idOrAlias.replace(QRegularExpression("^user/"), "@");
-    idOrAlias.replace(QRegularExpression("^roomid/"), "!");
-    idOrAlias.replace(QRegularExpression("^room/"), "#");
+    auto idOrAlias = resolveToId(l.identifier);
     if (idOrAlias.startsWith('@'))
     {
         if (auto* user = l.account->user(idOrAlias))
@@ -1075,25 +1067,18 @@ bool MainWindow::resolveLocator(const Locator& l, const QString& action)
                         tr("Open direct chat with user %1?")
                         .arg(user->fullName())) == QMessageBox::Yes)
                 l.account->requestDirectChat(user);
-            return true;
+            return Locator::Success;
         }
-        QMessageBox::warning(this, tr("Malformed user id"),
-                tr("%1 is not a correct user id").arg(idOrAlias),
-            QMessageBox::Close, QMessageBox::Close);
-        return false;
+        return Locator::MalformedId;
     }
-    auto* room = idOrAlias.startsWith('!') ?
-                    l.account->room(idOrAlias) :
-                    l.account->roomByAlias(idOrAlias);
-    if (room) {
+    if (auto* room = idOrAlias.startsWith('!')
+                     ? l.account->room(idOrAlias)
+                     : l.account->roomByAlias(idOrAlias))
+    {
         selectRoom(room);
-        return true;
+        return Locator::Success;
     }
-    QMessageBox::warning(this, tr("Room not found"),
-                         tr("There's no room %1 in the room list."
-                            " Check the spelling and the account.")
-                             .arg(idOrAlias));
-    return false;
+    return Locator::NotFound;
 }
 
 // FIXME: This should be decommissioned and inlined once we stop supporting
@@ -1111,22 +1096,54 @@ inline Locator makeLocator(QMatrixClient::Connection* c, QString id)
 
 }
 
-void MainWindow::resolveResource(const QString& idOrUri, const QString& action)
+MainWindow::Connection* MainWindow::getDefaultConnection() const
 {
-    if (idOrUri.isEmpty())
+    return currentRoom ? currentRoom->connection() :
+            connections.size() == 1 ? connections.front() : nullptr;
+}
+
+void MainWindow::openResource(const QString& idOrUri, const QString& action)
+{
+    const auto& id = resolveToId(idOrUri);
+    auto l =
+        action == "interactive"
+        ? id.isEmpty()
+          ? obtainIdentifier(getDefaultConnection(),
+                             QFlag(Room | User), tr("Open room"),
+                             tr("Room or user ID, room alias,\n"
+                                "Matrix URI or matrix.to link"),
+                             tr("Switch to room"))
+          : makeLocator(nullptr, id) // Force choosing the connection
+        : makeLocator(getDefaultConnection(), id);
+    if (l.identifier.isEmpty())
         return;
 
-    auto* defaultConnection = currentRoom ? currentRoom->connection() :
-                              connections.size() == 1 ? connections.front() :
-                              nullptr;
-    resolveLocator(makeLocator(
-            action == "mention" ? defaultConnection
-            : chooseConnection(defaultConnection,
-                idOrUri.startsWith('@')
+    if (QStringLiteral("!@#$+").indexOf(l.identifier.front()) != -1)
+    {
+        if (action != "mention" && !l.account)
+            l.account = chooseConnection(getDefaultConnection(),
+                l.identifier.startsWith('@')
                 ? tr("Confirm your account to open a direct chat with %1")
-                  .arg(idOrUri)
-                : tr("Confirm your account to open %1").arg(idOrUri))
-        , idOrUri), action);
+                  .arg(l.identifier)
+                : tr("Confirm your account to open %1").arg(idOrUri));
+
+        switch (openLocator(l, action)) {
+        case Locator::MalformedId:
+            break; // To the end of the function
+        case Locator::NotFound:
+            QMessageBox::warning(this, tr("Room not found"),
+                                 tr("There's no room %1 in the room list."
+                                    " Check the spelling and the account.")
+                                 .arg(idOrUri));
+            FALLTHROUGH;
+        default:
+            return; // If success or no account, do nothing
+        }
+    }
+    QMessageBox::warning(this, tr("Malformed user id"),
+                         tr("%1 is not a correct Matrix identifier")
+                         .arg(idOrUri),
+                         QMessageBox::Close, QMessageBox::Close);
 }
 
 void MainWindow::selectRoom(QMatrixClient::Room* r)
@@ -1274,11 +1291,10 @@ void MainWindow::setCompleter(QLineEdit* edit, Connection* connection,
 
 void MainWindow::joinRoom(const QString& roomIdOrAlias)
 {
-    auto* defaultConnection = currentRoom ? currentRoom->connection() :
-                              connections.size() == 1 ? connections.front() :
-                              nullptr;
+    auto* const defaultConnection = getDefaultConnection();
     if (defaultConnection
-            && resolveLocator(makeLocator(defaultConnection, roomIdOrAlias)))
+            && openLocator(makeLocator(defaultConnection, roomIdOrAlias))
+               == Locator::Success)
         return; // Already joined room
 
     auto roomLocator = roomIdOrAlias.isEmpty()
@@ -1291,8 +1307,8 @@ void MainWindow::joinRoom(const QString& roomIdOrAlias)
                       , roomIdOrAlias);
 
     // Check whether the user cancelled room/connection dialog or no connections
-    // or the room is already joined.
-    if (!roomLocator.account || resolveLocator(roomLocator))
+    // or the room is already joined from the newly chosen account.
+    if (!roomLocator.account || openLocator(roomLocator) == Locator::Success)
         return;
 
     using QMatrixClient::BaseJob;
@@ -1307,21 +1323,6 @@ void MainWindow::joinRoom(const QString& roomIdOrAlias)
             tr("Joined %1 as %2").arg(roomLocator.identifier,
                                       roomLocator.account->userId()));
     });
-}
-
-void MainWindow::directChat(const QString& userId)
-{
-    if (userId.isEmpty())
-    {
-        auto* defaultConnection = currentRoom ? currentRoom->connection() :
-                                  connections.size() == 1 ? connections.front() :
-                                  nullptr;
-        resolveLocator(obtainIdentifier(defaultConnection, User,
-                tr("Enter user id to start direct chat."),
-                tr("User ID (starting with @)"), tr("Start chat")
-        ));
-    } else
-        resolveResource(userId);
 }
 
 void MainWindow::getNewEvents(Connection* c)

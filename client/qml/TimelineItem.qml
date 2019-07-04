@@ -315,12 +315,14 @@ Item {
 
                     onLinkActivated: {
                         if (link.startsWith("@")
-                            || link.startsWith("https://matrix.to/#/@"))
+                            || link.startsWith("https://matrix.to/#/@")
+                            || link.startsWith("matrix:user/"))
                         {
                             controller.resourceRequested(link, "mention")
                             controller.focusInput()
                         }
-                        else if (link.startsWith("https://matrix.to/"))
+                        else if (link.startsWith("https://matrix.to/")
+                                 || link.startsWith("matrix:"))
                             controller.resourceRequested(link)
                         else
                             Qt.openUrlExternally(link)
@@ -339,7 +341,7 @@ Item {
                         if (mouse.button === Qt.MiddleButton) {
                             if (textFieldImpl.hoveredLink)
                                 controller.resourceRequested(
-                                    textFieldImpl.hoveredLink)
+                                    textFieldImpl.hoveredLink, "interactive")
                         } else if (mouse.button === Qt.RightButton) {
                             controller.showMenu(index,
                                 textFieldImpl.hoveredLink, showingDetails)
@@ -437,7 +439,7 @@ Item {
             }
             ToolButton {
                 id: goToPredecessorButton
-                visible: !pending && eventResolvedType == "m.room.create"
+                visible: !pending && eventResolvedType == "m.room.create" && refId
                 width: visible * implicitWidth
                 height: visible * implicitHeight
                 anchors.top: textField.top

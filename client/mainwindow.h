@@ -49,6 +49,8 @@ class QAuthenticator;
 
 struct Locator
 {
+    enum ResolveResult { Success, NotFound, MalformedId, NoAccount };
+
     QMatrixClient::Connection* account = nullptr;
     QString identifier; //< Room id, room alias, or user id
 };
@@ -69,16 +71,27 @@ class MainWindow: public QMainWindow
 
         ChatRoomWidget* getChatRoomWidget() const;
 
-        bool resolveLocator(const Locator& l, const QString& action = {});
+        /// Tries to resolve the locator using the specified action hint
+        /*!
+         * This method doesn't show warnings or errors in UI; it either
+         * executes what's requested or returns an error result. It is up to
+         * the caller to provide any messages upon failure. One exception
+         * is opening direct chats; openLocator() will always ask a confirmation
+         * from the user because this action may lead to creation of a new room
+         * and invitation being sent.
+         */
+        Locator::ResolveResult openLocator(const Locator& l,
+                                           const QString& action = {});
 
     public slots:
-        void resolveResource(const QString& idOrUri, const QString& action = {});
+        /// Opens non-empty id or URI using the specified action hint
+        /*! Asks the user to choose the connection if necessary */
+        void openResource(const QString& idOrUri, const QString& action = {});
         void selectRoom(QMatrixClient::Room* r);
 
     private slots:
         void invokeLogin();
         void joinRoom(const QString& roomAlias = {});
-        void directChat(const QString& userId = {});
         void getNewEvents(Connection* c);
         void gotEvents(Connection* c);
 
@@ -145,7 +158,17 @@ class MainWindow: public QMainWindow
         Connection* chooseConnection(Connection* connection,
                                      const QString& prompt);
         void showMillisToRecon(Connection* c);
-        /// Asks a user to pick an account and enter the Matrix identifier
+
+        /// Get the default connection to perform actions
+        /*!
+         * \return the connection of the current room; or, if there's only
+         *         one connection, that connection; failing that, nullptr
+         */
+        Connection* getDefaultConnection() const;
+
+        QString resolveToId(const QString &uri);
+
+        /// Ask a user to pick an account and enter the Matrix identifier
         /*!
          * The identifier can be a room id or alias (to join/open rooms) or
          * a user MXID (e.g., to open direct chats or user profiles).
