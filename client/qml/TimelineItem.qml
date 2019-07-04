@@ -118,24 +118,24 @@ Item {
         }
     }
 
+    TimelineMouseArea {
+        anchors.fill: fullMessage
+        acceptedButtons: Qt.AllButtons
+    }
+
     Column {
         id: fullMessage
         width: parent.width
 
         Rectangle {
             width: parent.width
-            height: sectionLabel.height + 2
+            height: childrenRect.height + 2
             visible: sectionVisible
             color: defaultPalette.window
             Label {
-                id: sectionLabel
                 font.bold: true
                 renderType: settings.render_type
                 text: section
-            }
-            TimelineMouseArea {
-                anchors.fill: parent
-                acceptedButtons: Qt.AllButtons
             }
         }
         Loader {
@@ -147,22 +147,12 @@ Item {
             width: parent.width
 
             sourceComponent: detailsArea
-
-            TimelineMouseArea {
-                anchors.fill: parent
-                acceptedButtons: Qt.AllButtons
-            }
         }
 
         Item {
             id: message
             width: parent.width
             height: childrenRect.height
-
-            TimelineMouseArea {
-                anchors.fill: parent
-                acceptedButtons: Qt.AllButtons
-            }
 
             // There are several layout styles (av - author avatar,
             // al - author label, ts - timestamp, c - content
@@ -341,27 +331,20 @@ Item {
 
                 TimelineMouseArea {
                     anchors.fill: parent
-                    acceptedButtons: Qt.MiddleButton
-
-                    onClicked: {
-                        if (textFieldImpl.hoveredLink)
-                            controller.resourceRequested(
-                                textFieldImpl.hoveredLink)
-                    }
-                }
-
-                TimelineMouseArea {
-                    anchors.fill: parent
-                    acceptedButtons: Qt.RightButton
-                    onClicked: controller.showMenu(index,
-                        textFieldImpl.hoveredLink, showingDetails)
-                }
-
-                TimelineMouseArea {
-                    anchors.fill: parent
                     cursorShape: textFieldImpl.hoveredLink
                                  ? Qt.PointingHandCursor : Qt.IBeamCursor
-                    acceptedButtons: Qt.NoButton
+                    acceptedButtons: Qt.MiddleButton | Qt.RightButton
+
+                    onClicked: {
+                        if (mouse.button === Qt.MiddleButton) {
+                            if (textFieldImpl.hoveredLink)
+                                controller.resourceRequested(
+                                    textFieldImpl.hoveredLink)
+                        } else if (mouse.button === Qt.RightButton) {
+                            controller.showMenu(index,
+                                textFieldImpl.hoveredLink, showingDetails)
+                        }
+                    }
 
                     onWheel: {
                         if (wheel.angleDelta.x != 0 &&
