@@ -26,6 +26,7 @@
 #include <connection.h>
 #include <user.h>
 #include <settings.h>
+#include <events/encryptionevent.h>
 #include <events/roommemberevent.h>
 #include <events/simplestateevents.h>
 #include <events/redactionevent.h>
