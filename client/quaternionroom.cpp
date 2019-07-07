@@ -23,7 +23,7 @@
 #include <events/roommessageevent.h>
 #include <QtCore/QRegularExpression>
 
-using namespace QMatrixClient;
+using namespace Quotient;
 
 QuaternionRoom::QuaternionRoom(Connection* connection, QString roomId,
                                JoinState joinState)
@@ -123,7 +123,7 @@ void QuaternionRoom::onAddHistoricalTimelineEvents(rev_iter_t from)
                   [this] (const TimelineItem& ti) { checkForHighlights(ti); });
 }
 
-void QuaternionRoom::checkForHighlights(const QMatrixClient::TimelineItem& ti)
+void QuaternionRoom::checkForHighlights(const Quotient::TimelineItem& ti)
 {
     auto localUserId = localUser()->id();
     if (ti->senderId() == localUserId)

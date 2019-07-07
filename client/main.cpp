@@ -41,7 +41,7 @@ int main( int argc, char* argv[] )
     QApplication::setApplicationDisplayName(QStringLiteral("Quaternion"));
     QApplication::setApplicationVersion(QStringLiteral("0.0.9.4+git"));
 
-    QMatrixClient::Settings::setLegacyNames(
+    Quotient::Settings::setLegacyNames(
                 QStringLiteral("Quaternion"), QStringLiteral("quaternion"));
 
     // We should not need to do the following, as quitOnLastWindowClosed is
@@ -96,7 +96,7 @@ int main( int argc, char* argv[] )
             "translations", QStandardPaths::LocateDirectory));
     app.installTranslator(&appTranslator);
 
-    QMatrixClient::NetworkSettings().setupApplicationProxy();
+    Quotient::NetworkSettings().setupApplicationProxy();
 
     MainWindow window;
     if (parser.isSet(debug))

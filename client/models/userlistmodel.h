@@ -21,7 +21,7 @@
 
 #include <QtCore/QAbstractListModel>
 
-namespace QMatrixClient
+namespace Quotient
 {
     class Connection;
     class Room;
@@ -32,12 +32,12 @@ class UserListModel: public QAbstractListModel
 {
         Q_OBJECT
     public:
-        using User = QMatrixClient::User;
+        using User = Quotient::User;
 
         UserListModel(QObject* parent = nullptr);
         virtual ~UserListModel();
 
-        void setRoom(QMatrixClient::Room* room);
+        void setRoom(Quotient::Room* room);
         User* userAt(QModelIndex index);
 
         QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
@@ -53,10 +53,10 @@ class UserListModel: public QAbstractListModel
         void userAdded(User* user);
         void userRemoved(User* user);
         void refresh(User* user, QVector<int> roles = {});
-        void avatarChanged(User* user, const QMatrixClient::Room* context);
+        void avatarChanged(User* user, const Quotient::Room* context);
 
     private:
-        QMatrixClient::Room* m_currentRoom;
+        Quotient::Room* m_currentRoom;
         QList<User*> m_users;
 
         int findUserPos(User* user) const;

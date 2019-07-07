@@ -21,7 +21,7 @@
 
 #include <QtWidgets/QSystemTrayIcon>
 
-namespace QMatrixClient
+namespace Quotient
 {
     class Room;
 }
@@ -35,10 +35,10 @@ class SystemTrayIcon: public QSystemTrayIcon
         explicit SystemTrayIcon(MainWindow* parent = nullptr);
 
     public slots:
-        void newRoom(QMatrixClient::Room* room);
+        void newRoom(Quotient::Room* room);
 
     private slots:
-        void highlightCountChanged(QMatrixClient::Room* room);
+        void highlightCountChanged(Quotient::Room* room);
         void systemTrayIconAction(QSystemTrayIcon::ActivationReason reason);
 
     private:

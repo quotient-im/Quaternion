@@ -22,7 +22,7 @@
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QDockWidget>
 
-namespace QMatrixClient
+namespace Quotient
 {
     class User;
 }
@@ -42,7 +42,7 @@ class UserListDock: public QDockWidget
         void setRoom( QuaternionRoom* room );
 
     signals:
-        void userMentionRequested(QMatrixClient::User* u);
+        void userMentionRequested(Quotient::User* u);
 
     private slots:
         void refreshTitle();
@@ -65,5 +65,5 @@ class UserListDock: public QDockWidget
         QMenu* contextMenu;
         QAction* ignoreAction;
 
-        QMatrixClient::User* getSelectedUser() const;
+        Quotient::User* getSelectedUser() const;
 };

@@ -120,7 +120,7 @@ void NetworkConfigDialog::maybeDisableControls()
 
 void NetworkConfigDialog::apply()
 {
-    QMatrixClient::NetworkSettings networkSettings;
+    Quotient::NetworkSettings networkSettings;
 
     auto proxyType = useProxyBox->isChecked() ?
                 QNetworkProxy::ProxyType(proxyTypeGroup->checkedId()) :
@@ -135,7 +135,7 @@ void NetworkConfigDialog::apply()
 
 void NetworkConfigDialog::load()
 {
-    QMatrixClient::NetworkSettings networkSettings;
+    Quotient::NetworkSettings networkSettings;
     auto proxyType = networkSettings.proxyType();
     if (proxyType == QNetworkProxy::DefaultProxy)
     {

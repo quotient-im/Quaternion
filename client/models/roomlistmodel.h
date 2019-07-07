@@ -31,14 +31,14 @@ class RoomListModel: public QAbstractItemModel
 {
         Q_OBJECT
         template <typename T>
-        using ConnectionsGuard = QMatrixClient::ConnectionsGuard<T>;
+        using ConnectionsGuard = Quotient::ConnectionsGuard<T>;
     public:
         enum Roles {
             HasUnreadRole = Qt::UserRole + 1,
             HighlightCountRole, JoinStateRole, ObjectRole
         };
 
-        using Room = QMatrixClient::Room;
+        using Room = Quotient::Room;
 
         explicit RoomListModel(QObject* parent = nullptr);
         ~RoomListModel() override = default;
@@ -67,8 +67,8 @@ class RoomListModel: public QAbstractItemModel
         void restoreCurrentSelection();
 
     public slots:
-        void addConnection(QMatrixClient::Connection* connection);
-        void deleteConnection(QMatrixClient::Connection* connection);
+        void addConnection(Quotient::Connection* connection);
+        void deleteConnection(Quotient::Connection* connection);
 
         // FIXME, quotient-im/libQuotient#63:
         // This should go to the library's ConnectionManager/RoomManager
@@ -84,7 +84,7 @@ class RoomListModel: public QAbstractItemModel
     private:
         friend class AbstractRoomOrdering;
 
-        std::vector<ConnectionsGuard<QMatrixClient::Connection>> m_connections;
+        std::vector<ConnectionsGuard<Quotient::Connection>> m_connections;
         RoomGroups m_roomGroups;
         AbstractRoomOrdering* m_roomOrder = nullptr;
 

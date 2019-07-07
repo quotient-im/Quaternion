@@ -21,12 +21,12 @@
 
 #include <room.h>
 
-class QuaternionRoom: public QMatrixClient::Room
+class QuaternionRoom: public Quotient::Room
 {
         Q_OBJECT
     public:
-        QuaternionRoom(QMatrixClient::Connection* connection,
-                       QString roomId, QMatrixClient::JoinState joinState);
+        QuaternionRoom(Quotient::Connection* connection,
+                       QString roomId, Quotient::JoinState joinState);
 
         const QString& cachedInput() const;
         void setCachedInput(const QString& input);
@@ -34,7 +34,7 @@ class QuaternionRoom: public QMatrixClient::Room
         const QString& cachedUserFilter() const;
         void setCachedUserFilter(const QString& input);
 
-        bool isEventHighlighted(const QMatrixClient::RoomEvent* e) const;
+        bool isEventHighlighted(const Quotient::RoomEvent* e) const;
 
         Q_INVOKABLE int savedTopVisibleIndex() const;
         Q_INVOKABLE int savedBottomVisibleIndex() const;
@@ -54,12 +54,12 @@ class QuaternionRoom: public QMatrixClient::Room
         void countChanged();
 
     private:
-        QSet<const QMatrixClient::RoomEvent*> highlights;
+        QSet<const Quotient::RoomEvent*> highlights;
         QString m_cachedInput;
         QString m_cachedUserFilter;
 
         void onAddNewTimelineEvents(timeline_iter_t from) override;
         void onAddHistoricalTimelineEvents(rev_iter_t from) override;
 
-        void checkForHighlights(const QMatrixClient::TimelineItem& ti);
+        void checkForHighlights(const Quotient::TimelineItem& ti);
 };

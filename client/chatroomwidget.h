@@ -68,7 +68,7 @@ class ChatRoomWidget: public QWidget
     public slots:
         void setRoom(QuaternionRoom* room);
 
-        void insertMention(QMatrixClient::User* user);
+        void insertMention(Quotient::User* user);
         void focusInput();
 
         void typingChanged();
@@ -105,7 +105,7 @@ class ChatRoomWidget: public QWidget
         ChatEdit* m_chatEdit;
 
         // Supplementary/cache data members
-        using timeline_index_t = QMatrixClient::TimelineItem::index_t;
+        using timeline_index_t = Quotient::TimelineItem::index_t;
         QVector<timeline_index_t> indicesOnScreen;
         timeline_index_t indexToMaybeRead;
         QBasicTimer maybeReadTimer;

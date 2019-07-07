@@ -246,8 +246,8 @@ void RoomSettingsDialog::load()
     for (const auto& tag: room->connection()->tagNames())
     {
         auto tagDisplayName =
-                tag == QMatrixClient::FavouriteTag ? tr("Favourites") :
-                tag == QMatrixClient::LowPriorityTag ? tr("Low priority") :
+                tag == Quotient::FavouriteTag ? tr("Favourites") :
+                tag == Quotient::LowPriorityTag ? tr("Low priority") :
                 tag.startsWith("u.") ? tag.mid(2) :
                 tag;
         auto* item = new QListWidgetItem(tagDisplayName, tagsList);
@@ -275,7 +275,7 @@ void RoomSettingsDialog::apply()
 {
     if (version->text() != room->version())
     {
-        using namespace QMatrixClient;
+        using namespace Quotient;
         setStatusMessage(tr("Creating the new room version, please wait"));
         connectUntil(room, &Room::upgraded, this,
             [this] (QString, Room* newRoom) {
@@ -391,7 +391,7 @@ CreateRoomDialog::CreateRoomDialog(QVector<Connection*> cs, QWidget* parent)
             if (userName.indexOf(':') == -1)
             {
                 auto* conn = account->currentData(Qt::UserRole)
-                                        .value<QMatrixClient::Connection*>();
+                                        .value<Quotient::Connection*>();
                 userName += ':' + conn->homeserver().authority();
             }
         }
@@ -459,7 +459,7 @@ bool CreateRoomDialog::validate()
 
 void CreateRoomDialog::apply()
 {
-    using namespace QMatrixClient;
+    using namespace Quotient;
     auto* connection = account->currentData().value<Connection*>();
     QStringList userIds;
     for (int i = 0; i < invitees->count(); ++i)
