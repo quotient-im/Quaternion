@@ -905,7 +905,7 @@ void MainWindow::showAboutWindow()
         layout->addWidget(linkLabel);
 
         layout->addWidget(
-                    new QLabel(tr("Copyright (C) 2018 QMatrixClient project.")));
+                    new QLabel(tr("Copyright (C) 2019 The Quotient project.")));
 
 #ifdef GIT_SHA1
         auto* commitLabel = new QLabel(tr("Built from Git, commit SHA:") + '\n' +
@@ -933,8 +933,8 @@ void MainWindow::showAboutWindow()
             tr("Contributors:") + "<br/>" +
             "<a href='https://github.com/quotient-im/Quaternion/graphs/contributors'>" +
                 tr("Quaternion contributors @ GitHub") + "</a><br/>" +
-            "<a href='https://github.com/QMatrixClient/libqmatrixclient/graphs/contributors'>" +
-                tr("libQMatrixClient contributors @ GitHub") + "</a><br/>" +
+            "<a href='https://github.com/quotient-im/libQuotient/graphs/contributors'>" +
+                tr("libQuotient contributors @ GitHub") + "</a><br/>" +
             "<a href='https://lokalise.co/contributors/730769035bbc328c31e863.62506391/'>" +
                 tr("Quaternion translators @ Lokalise.co") + "</a><br/>" +
             tr("Special thanks to %1 for all the testing effort")

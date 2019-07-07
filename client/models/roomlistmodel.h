@@ -70,7 +70,7 @@ class RoomListModel: public QAbstractItemModel
         void addConnection(QMatrixClient::Connection* connection);
         void deleteConnection(QMatrixClient::Connection* connection);
 
-        // FIXME, QMatrixClient/libqmatrixclient#63:
+        // FIXME, quotient-im/libQuotient#63:
         // This should go to the library's ConnectionManager/RoomManager
         void deleteTag(QModelIndex index);
 

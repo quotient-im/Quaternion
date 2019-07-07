@@ -62,7 +62,7 @@ MessageEventModel::MessageEventModel(QObject* parent)
 {
     using namespace QMatrixClient;
     qmlRegisterType<FileTransferInfo>(); qRegisterMetaType<FileTransferInfo>();
-    qmlRegisterUncreatableType<EventStatus>("QMatrixClient", 1, 0, "EventStatus",
+    qmlRegisterUncreatableType<EventStatus>("Quotient", 1, 0, "EventStatus",
         "EventStatus is not an creatable type");
 }
 

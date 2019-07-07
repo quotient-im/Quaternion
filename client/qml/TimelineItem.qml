@@ -2,7 +2,7 @@ import QtQuick 2.6
 import QtQuick.Controls 1.4
 import QtQuick.Controls 2.0 as QQC2
 //import QtGraphicalEffects 1.0 // For fancy highlighting
-import QMatrixClient 1.0
+import Quotient 1.0
 
 Item {
     // Supplementary components

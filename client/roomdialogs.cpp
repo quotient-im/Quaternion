@@ -90,7 +90,7 @@ RoomDialogBase::RoomDialogBase(const QString& title,
     if (!room) // TODO: Support this in RoomSettingsDialog as well
     {
         mainFormLayout->addRow(publishRoom);
-//        formLayout->addRow(guestCanJoin); // TODO: QMatrixClient/libqmatrixclient#36
+//        formLayout->addRow(guestCanJoin); // TODO: quotient-im/libQuotient#36
     }
 }
 
