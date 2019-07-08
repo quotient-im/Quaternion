@@ -74,6 +74,11 @@ matrix:
         - qt5
         - qtkeychain
 
+install:
+- pushd lib/3rdparty/libQtOlm
+- git clone https://gitlab.matrix.org/matrix-org/olm.git
+- popd
+
 before_script:
 - if [ -f /opt/qt57/bin/qt57-env.sh ]; then . /opt/qt57/bin/qt57-env.sh; fi
 - if [ -f /opt/qt512/bin/qt512-env.sh ]; then . /opt/qt512/bin/qt512-env.sh; fi
