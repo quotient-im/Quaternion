@@ -1118,7 +1118,7 @@ void MainWindow::openResource(const QString& idOrUri, const QString& action)
     if (l.identifier.isEmpty())
         return;
 
-    if (QStringLiteral("!@#$+").indexOf(l.identifier.front()) != -1)
+    if (QStringLiteral("!@#$+").indexOf(l.identifier[0]) != -1)
     {
         if (action != "mention" && !l.account)
             l.account = chooseConnection(getDefaultConnection(),
