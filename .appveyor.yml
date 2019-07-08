@@ -32,7 +32,7 @@ before_build:
 - cd ..
 
 build_script:
-- cmake -LA -G "NMake Makefiles JOM" -H. -Bbuild -DCMAKE_CXX_FLAGS="/EHsc /W3" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="%DEPLOY_DIR%" -DUSE_INTREE_LIBQMC=1 -DQt5Keychain_FOUND=TRUE -DQt5Keychain_DIR="qtkeychain/install" -DDEPLOY_VERBOSITY=%DEPLOY_VERBOSITY%
+- cmake -LA -G "NMake Makefiles JOM" -H. -Bbuild -DCMAKE_CXX_FLAGS="/EHsc /W3" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="%DEPLOY_DIR%" -DUSE_INTREE_LIBQMC=1 -DQt5Keychain_FOUND=TRUE -DQt5Keychain_DIR="qtkeychain/install/lib/cmake/Qt5Keychain" -DDEPLOY_VERBOSITY=%DEPLOY_VERBOSITY%
 - cmake --build build
 
 after_build:
