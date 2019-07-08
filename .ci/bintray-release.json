@@ -10,15 +10,15 @@
     }
   ],
   "package": {
-    "issue_tracker_url": "https://github.com/QMatrixClient/Quaternion/issues",
+    "issue_tracker_url": "https://github.com/quotient-im/Quaternion/issues",
     "licenses": [ "GPL-3.0" ],
     "name": "BINTRAY_NAME",
     "subject": "BINTRAY_SUBJECT",
     "repo": "BINTRAY_REPO",
     "public_download_numbers": true,
     "public_stats": true,
-    "vcs_url": "https://github.com/QMatrixClient/Quaternion.git",
-    "website_url": "https://github.com/QMatrixClient/Quaternion"
+    "vcs_url": "https://github.com/quotient-im/Quaternion.git",
+    "website_url": "https://github.com/quotient-im/Quaternion"
   },
   "version": {
     "name": "VERSION_VALUE"
