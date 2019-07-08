@@ -57,7 +57,7 @@ Item {
         highlight && settings.highlight_mode == "text" ? settings.highlight_color :
         (["state", "notice", "other"].indexOf(eventType) >= 0) ?
                 disabledPalette.text : defaultPalette.text
-    readonly property string authorName: room && room.safeMembername(author.id)
+    readonly property string authorName: room && room.safeMemberName(author.id)
     // FIXME: boilerplate with models/userlistmodel.cpp:115
     readonly property string authorColor: Qt.hsla(userHue,
                                                   (1-defaultPalette.window.hslSaturation),
