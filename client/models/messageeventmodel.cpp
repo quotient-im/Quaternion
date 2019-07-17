@@ -649,7 +649,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
             return !Settings().get<bool>("UI/suppress_local_echo")
                     ? pendingIt->deliveryStatus() : EventStatus::Hidden;
 
-        if (is<RedactionEvent>(evt))
+        if (is<RedactionEvent>(evt) || is<ReactionEvent>(evt))
             return EventStatus::Hidden;
 
         if (auto* msgEvent = timelineIt->viewAs<RoomMessageEvent>()) {
