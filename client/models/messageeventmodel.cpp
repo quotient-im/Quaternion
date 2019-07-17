@@ -33,6 +33,7 @@
 #include <events/roomavatarevent.h>
 #include <events/roomcreateevent.h>
 #include <events/roomtombstoneevent.h>
+#include <events/reactionevent.h>
 
 QHash<int, QByteArray> MessageEventModel::roleNames() const
 {
@@ -651,6 +652,11 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         if (is<RedactionEvent>(evt))
             return EventStatus::Hidden;
 
+        if (auto* msgEvent = timelineIt->viewAs<RoomMessageEvent>()) {
+            if (!msgEvent->replacedEvent().isEmpty())
+                return EventStatus::Hidden;
+        }
+
         auto* memberEvent = timelineIt->viewAs<RoomMemberEvent>();
         if (memberEvent)
         {
@@ -697,8 +703,25 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
     }
 
     if( role == AnnotationRole )
+    {
         if (isPending)
-            return pendingIt->annotation();
+            return QStringLiteral("<em>%1</em>").arg(pendingIt->annotation());
+
+        const auto& annotations =
+            m_currentRoom->relatedEvents(evt, EventRelation::Annotation());
+        if (annotations.isEmpty())
+            return {};
+        QHash<QString, int> reactions;
+        for (const auto& a : annotations) {
+            if (auto e = eventCast<const ReactionEvent>(a))
+                ++reactions[e->relation().key];
+        }
+        QStringList aggregatedReactions;
+        for (auto it = reactions.cbegin(); it != reactions.cend(); ++it)
+            aggregatedReactions
+                << QStringLiteral("%1 (%2)").arg(it.key()).arg(it.value());
+        return aggregatedReactions.join("  ");
+    }
 
     if( role == TimeRole || role == SectionRole)
     {

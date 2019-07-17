@@ -296,7 +296,7 @@ Item {
                                     authorColor + "\"'><b>" +
                                     toHtmlEscaped(authorName) + "</b></a> ") : ""
                           ) + display +
-                          (annotation ? "<br><em>" + annotation + "</em>" : "")
+                          (annotation ? "<br>" + annotation : "")
                     horizontalAlignment: Text.AlignLeft
                     wrapMode: Text.Wrap
                     color: textColor
