@@ -64,7 +64,7 @@ Option 1 as default; due to popular demand, Option 2 is used by default
 - optionally, libQuotient 0.5 development files (from your
   package management system), or prebuilt libQuotient
   (see "Getting the source code" above).
-- optionaly, [QtKeychain](https://github.com/frankosterfeld/qtkeychain)
+- optionally, [QtKeychain](https://github.com/frankosterfeld/qtkeychain)
   to store access tokens in libsecret keyring or similar providers.
 
 #### Linux
