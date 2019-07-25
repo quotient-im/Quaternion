@@ -32,7 +32,7 @@ matrix:
   - os: linux
     dist: trusty
     compiler: clang
-    env: [ 'VERSION_SUFFIX="-compat"' ]
+    env: [ 'VERSION_SUFFIX="-compat"', 'BUILD_APPIMAGE=1' ]
     addons:
       apt:
         sources:
@@ -49,6 +49,7 @@ matrix:
         - qt57tools
   - os: linux
     compiler: clang
+    env: [ 'BUILD_APPIMAGE=1' ]
     addons:
       apt:
         sources:
@@ -84,11 +85,12 @@ before_script:
 - if [ -f /opt/qt512/bin/qt512-env.sh ]; then . /opt/qt512/bin/qt512-env.sh; fi
 # VERSION is also used by linuxdeployqt
 - if [ -n "$TRAVIS_TAG" ]; then export VERSION="$TRAVIS_TAG"; else export VERSION="git$(git rev-list --count HEAD)"; fi
+- if [ -n "$BUILD_APPIMAGE" ]; then export CMAKE_ARGS="$CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF"; fi
 
 script:
 - mkdir build && pushd build
 # TODO: add building with an external lib
-- cmake .. -LA -DUSE_INTREE_LIBQMC=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY
+- cmake .. -LA -DUSE_INTREE_LIBQMC=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY $CMAKE_ARGS
 - if [ -f "$(which appstream-util)" ]; then appstream-util validate ../linux/*.appdata.xml; fi
 - cmake --build . --target all
 - export DESTDIR=$TRAVIS_BUILD_DIR/install
@@ -103,15 +105,15 @@ script:
 # (pre-wgetting AppImageKit to avoid CMakeList.txt dependency on Internet?)
 # FIXME: The AppImageKit downloadables should at the very least be verified
 - |
-  if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CC" = "clang" ]; then
+  if [ -n "$BUILD_APPIMAGE" ]; then
     mkdir AppImageKit && pushd AppImageKit
       wget -c -nv \
         "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" \
         "https://github.com/darealshinji/AppImageKit-checkrt/releases/download/continuous/exec-x86_64.so" \
         "https://github.com/darealshinji/AppImageKit-checkrt/releases/download/continuous/AppRun-patched-x86_64"
       chmod a+x ./linuxdeployqt-continuous-x86_64.AppImage
-      install -m "u=rw,go=r" -t $DESTDIR/usr/optional/libstdc++ /usr/lib/x86_64-linux-gnu/libstdc++.so.6
-      install -m "u=rw,go=r" ./exec*.so $DESTDIR/usr/optional/exec.so
+      install -D -m "u=rw,go=r" -t $DESTDIR/usr/optional/libstdc++ /usr/lib/x86_64-linux-gnu/libstdc++.so.6
+      install -D -m "u=rw,go=r" ./exec*.so $DESTDIR/usr/optional/exec.so
       install -m "u=rwx,go=rx" ./AppRun* $DESTDIR/AppRun
       unset QTDIR QT_PLUGIN_PATH LD_LIBRARY_PATH
       ./linuxdeployqt-continuous-x86_64.AppImage \
