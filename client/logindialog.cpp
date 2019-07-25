@@ -60,10 +60,9 @@ LoginDialog::LoginDialog(QWidget* parent, const QStringList& knownAccounts)
 
             auto homeserver = account.homeserver();
             if (!homeserver.isEmpty())
-            {
                 m_connection->setHomeserver(homeserver);
-                serverEdit->setText(homeserver.toString());
-            }
+//                serverEdit->setText(homeserver.toString());
+
             initialDeviceName->setText(account.deviceName());
             saveTokenCheck->setChecked(account.keepLoggedIn());
             passwordEdit->setFocus();
