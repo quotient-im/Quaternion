@@ -55,6 +55,7 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
     roles[UserHueRole] = "userHue";
     roles[EventResolvedTypeRole] = "eventResolvedType";
     roles[RefRole] = "refId";
+    roles[ReactionsRole] = "reactions";
     return roles;
 }
 
@@ -703,10 +704,10 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
     }
 
     if( role == AnnotationRole )
-    {
-        if (isPending)
-            return QStringLiteral("<em>%1</em>").arg(pendingIt->annotation());
+        return isPending ? pendingIt->annotation() : QString();
 
+    if( role == ReactionsRole )
+    {
         const auto& annotations =
             m_currentRoom->relatedEvents(evt, EventRelation::Annotation());
         if (annotations.isEmpty())
@@ -719,8 +720,8 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         QStringList aggregatedReactions;
         for (auto it = reactions.cbegin(); it != reactions.cend(); ++it)
             aggregatedReactions
-                << QStringLiteral("%1 (%2)").arg(it.key()).arg(it.value());
-        return aggregatedReactions.join("  ");
+                << QStringLiteral("%1 %2").arg(it.key()).arg(it.value());
+        return aggregatedReactions;
     }
 
     if( role == TimeRole || role == SectionRole)

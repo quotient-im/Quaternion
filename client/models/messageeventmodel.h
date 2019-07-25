@@ -44,6 +44,7 @@ class MessageEventModel: public QAbstractListModel
             AnnotationRole,
             UserHueRole,
             RefRole,
+            ReactionsRole,
             EventResolvedTypeRole,
         };
 

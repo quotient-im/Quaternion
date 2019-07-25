@@ -296,7 +296,7 @@ Item {
                                     authorColor + "\"'><b>" +
                                     toHtmlEscaped(authorName) + "</b></a> ") : ""
                           ) + display +
-                          (annotation ? "<br>" + annotation : "")
+                          (annotation ? "<br><em>" + annotation + "</em>" : "")
                     horizontalAlignment: Text.AlignLeft
                     wrapMode: Text.Wrap
                     color: textColor
@@ -462,6 +462,25 @@ Item {
 
                 // TODO: Treat unjoined invite-only rooms specially
                 onClicked: controller.joinRequested(refId)
+            }
+        }
+        Flow {
+            // anchors.left: textField.left doesn't work because textField
+            // is not a sibling; and inserting the Flow inside message makes
+            // really painful to position it due to the diversity of message
+            // contents. Hence calculating from the right.
+            anchors.right: message.right
+            width: textField.width
+            spacing: 5
+            Repeater {
+                model: reactions
+                Rectangle {
+                    width: childrenRect.width
+                    height: childrenRect.height
+                    radius: 4
+                    color: defaultPalette.button
+                    Label { text: modelData }
+                }
             }
         }
     }
