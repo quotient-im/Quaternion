@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
 
 set(IDENTIFIER "com.github.quaternion")
 set(COPYRIGHT "Copyright © 2016-2018 QMatrixClient, 2019 The Quotient Project")
@@ -79,10 +79,10 @@ if ((NOT DEFINED USE_INTREE_LIBQMC OR USE_INTREE_LIBQMC)
     endif ()
 endif ()
 if (NOT USE_INTREE_LIBQMC)
-    find_package(QMatrixClient 0.5.1 REQUIRED)
-    if (NOT QMatrixClient_FOUND)
-        message( WARNING "libQMatrixClient not found; configuration will most likely fail.")
-        message( WARNING "Make sure you have installed libQMatrixClient development files")
+    find_package(Quotient 0.6 REQUIRED)
+    if (NOT Quotient_FOUND)
+        message( WARNING "libQuotient not found; configuration will most likely fail.")
+        message( WARNING "Make sure you have installed libQuotient development files")
         message( WARNING "as a package or checked out the library sources in lib/.")
         message( WARNING "See also BUILDING.md")
     endif ()
@@ -114,7 +114,7 @@ endif()
 message( STATUS "Using compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}" )
 message( STATUS "Using Qt ${Qt5_VERSION} at ${Qt5_Prefix}" )
 if (USE_INTREE_LIBQMC)
-    message( STATUS "Using in-tree libQMatrixClient")
+    message( STATUS "Using in-tree libQuotient")
     if (GIT_FOUND)
         execute_process(COMMAND
             "${GIT_EXECUTABLE}" rev-parse -q HEAD
@@ -124,7 +124,7 @@ if (USE_INTREE_LIBQMC)
         message( STATUS "  Library git SHA1: ${LIB_GIT_SHA1}")
     endif (GIT_FOUND)
 else ()
-    message( STATUS "Using libQMatrixClient ${QMatrixClient_VERSION} at ${QMatrixClient_DIR}")
+    message( STATUS "Using libQuotient ${Quotient_VERSION} at ${Quotient_DIR}")
 endif ()
 if (USE_QQUICKWIDGET)
     message( STATUS "Using QQuickWidget to render QML")
@@ -210,7 +210,7 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
     ${quaternion_WINRC} ${${PROJECT_NAME}_MAC_ICON})
 
 target_link_libraries(${PROJECT_NAME}
-    QMatrixClient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
+    Quotient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     GIT_SHA1="${GIT_SHA1}" LIB_GIT_SHA1="${LIB_GIT_SHA1}")
 
@@ -246,7 +246,7 @@ if(LINUX)
             DESTINATION  ${CMAKE_INSTALL_DATADIR}/metainfo
             )
     install(FILES ${quaternion_QM}
-            DESTINATION ${CMAKE_INSTALL_DATADIR}/QMatrixClient/quaternion/translations
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/Quotient/quaternion/translations
             )
     file(GLOB quaternion_icons icons/quaternion/*-apps-quaternion.png)
     ecm_install_icons(ICONS ${quaternion_icons} icons/quaternion/sc-apps-quaternion.svgz
