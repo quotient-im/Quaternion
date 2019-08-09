@@ -33,7 +33,7 @@
 #include <connection.h>
 #include <settings.h>
 
-using QMatrixClient::SettingsGroup;
+using Quotient::SettingsGroup;
 
 class RoomListItemDelegate : public QStyledItemDelegate
 {
@@ -146,13 +146,13 @@ RoomListDock::RoomListDock(MainWindow* parent)
             const auto& i = model->index(row, 0);
             const auto groupKey = model->roomGroupAt(i).toString();
             const auto expanded = Expanded ==
-                    sg.get(groupKey, groupKey == QMatrixClient::FavouriteTag
+                    sg.get(groupKey, groupKey == Quotient::FavouriteTag
                                      ? Expanded : Collapsed);
             view->setExpanded(i, expanded);
         }
     });
     connect( model, &RoomListModel::groupAdded, this, [this] (int pos) {
-        QMatrixClient::SettingsGroup sg { QStringLiteral("UI/RoomsDock") };
+        Quotient::SettingsGroup sg { QStringLiteral("UI/RoomsDock") };
         const auto group = model->roomGroupAt(model->index(pos, 0)).toString();
         if (sg.get<QString>(group) == "expand")
             view->expand(model->index(pos, 0));
@@ -217,7 +217,7 @@ RoomListDock::RoomListDock(MainWindow* parent)
     connect(this, &QWidget::customContextMenuRequested, this, &RoomListDock::showContextMenu);
 }
 
-void RoomListDock::addConnection(QMatrixClient::Connection* connection)
+void RoomListDock::addConnection(Quotient::Connection* connection)
 {
     model->addConnection(connection);
 }
@@ -225,7 +225,7 @@ void RoomListDock::addConnection(QMatrixClient::Connection* connection)
 void RoomListDock::updateSortingMode()
 {
 //    const auto sortMode =
-//            QMatrixClient::Settings().value("UI/sort_rooms_by", 0).toInt();
+//            Quotient::Settings().value("UI/sort_rooms_by", 0).toInt();
 //    proxyModel->sort(sortMode,
 //                     sortMode == 0 ? Qt::AscendingOrder : Qt::DescendingOrder);
     model->setOrder<OrderByTag>();
@@ -274,7 +274,7 @@ void RoomListDock::showContextMenu(const QPoint& pos)
     auto room = model->roomAt(index);
 //    auto room = model->roomAt(proxyModel->mapToSource(index));
 
-    using QMatrixClient::JoinState;
+    using Quotient::JoinState;
     bool joined = room->joinState() == JoinState::Join;
     bool invited = room->joinState() == JoinState::Invite;
     markAsReadAction->setEnabled(joined);
@@ -322,8 +322,8 @@ void RoomListDock::addTagsSelected()
         for (const auto& tag: enteredTags)
         {
             // No overwriting, just ensure the tag exists
-            tags[tag == tr("Favourites") ? QMatrixClient::FavouriteTag :
-                 tag == tr("Low priority") ? QMatrixClient::LowPriorityTag :
+            tags[tag == tr("Favourites") ? Quotient::FavouriteTag :
+                 tag == tr("Low priority") ? Quotient::LowPriorityTag :
                  tag];
         }
         room->setTags(tags);

@@ -26,8 +26,8 @@
 #include <QtCore/QThread>
 #include <QtCore/QDebug>
 
-using QMatrixClient::Connection;
-using QMatrixClient::BaseJob;
+using Quotient::Connection;
+using Quotient::BaseJob;
 
 class ThumbnailResponse : public QQuickImageResponse
 {
@@ -114,7 +114,7 @@ class ThumbnailResponse : public QQuickImageResponse
         Connection* c;
         const QString mediaId;
         const QSize requestedSize;
-        QMatrixClient::MediaThumbnailJob* job = nullptr;
+        Quotient::MediaThumbnailJob* job = nullptr;
 
         QImage image;
         QString errorStr;

@@ -60,9 +60,9 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
 MessageEventModel::MessageEventModel(QObject* parent)
     : QAbstractListModel(parent)
 {
-    using namespace QMatrixClient;
+    using namespace Quotient;
     qmlRegisterType<FileTransferInfo>(); qRegisterMetaType<FileTransferInfo>();
-    qmlRegisterUncreatableType<EventStatus>("QMatrixClient", 1, 0, "EventStatus",
+    qmlRegisterUncreatableType<EventStatus>("Quotient", 1, 0, "EventStatus",
         "EventStatus is not an creatable type");
 }
 
@@ -83,7 +83,7 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
     {
         lastReadEventId = room->readMarkerEventId();
 
-        using namespace QMatrixClient;
+        using namespace Quotient;
         connect(m_currentRoom, &Room::aboutToAddNewMessages, this,
                 [=](RoomEventsRange events)
                 {
@@ -225,7 +225,7 @@ int MessageEventModel::refreshEventRoles(const QString& id,
     return row;
 }
 
-inline bool hasValidTimestamp(const QMatrixClient::TimelineItem& ti)
+inline bool hasValidTimestamp(const Quotient::TimelineItem& ti)
 {
     return ti->timestamp().isValid();
 }
@@ -240,7 +240,7 @@ QDateTime MessageEventModel::makeMessageTimestamp(
 
     // The event is most likely redacted or just invalid.
     // Look for the nearest date around and slap zero time to it.
-    using QMatrixClient::TimelineItem;
+    using Quotient::TimelineItem;
     auto rit = std::find_if(baseIt, timeline.rend(),
                       hasValidTimestamp);
     if (rit != timeline.rend())
@@ -257,7 +257,7 @@ QDateTime MessageEventModel::makeMessageTimestamp(
 QString MessageEventModel::renderDate(const QDateTime& timestamp) const
 {
     auto date = timestamp.toLocalTime().date();
-    if (QMatrixClient::SettingsGroup("UI")
+    if (Quotient::SettingsGroup("UI")
             .value("banner_human_friendly_date", true).toBool())
     {
         if (date == QDate::currentDate())
@@ -291,7 +291,7 @@ bool MessageEventModel::isUserActivityNotable(
     // double-check that there are no redactions and that it's not a single
     // join or leave.
 
-    using namespace QMatrixClient;
+    using namespace Quotient;
     bool joinFound = false, redactionsFound = false;
     // Find the nearest join of this user above, or a no-nonsense event.
     for (auto it = baseIt,
@@ -404,7 +404,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                                 std::min(row, timelineBaseIndex());
     const auto& evt = isPending ? **pendingIt : **timelineIt;
 
-    using namespace QMatrixClient;
+    using namespace Quotient;
     if( role == Qt::DisplayRole )
     {
         if (evt.isRedacted())

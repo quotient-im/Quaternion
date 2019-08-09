@@ -21,7 +21,7 @@
 
 #include <QtWidgets/QMainWindow>
 
-namespace QMatrixClient {
+namespace Quotient {
     class Room;
     class Connection;
     class AccountSettings;
@@ -51,7 +51,7 @@ struct Locator
 {
     enum ResolveResult { Success, NotFound, MalformedId, NoAccount };
 
-    QMatrixClient::Connection* account = nullptr;
+    Quotient::Connection* account = nullptr;
     QString identifier; //< Room id, room alias, or user id
 };
 
@@ -59,7 +59,7 @@ class MainWindow: public QMainWindow
 {
         Q_OBJECT
     public:
-        using Connection = QMatrixClient::Connection;
+        using Connection = Quotient::Connection;
 
         MainWindow();
         ~MainWindow() override;
@@ -87,7 +87,7 @@ class MainWindow: public QMainWindow
         /// Opens non-empty id or URI using the specified action hint
         /*! Asks the user to choose the connection if necessary */
         void openResource(const QString& idOrUri, const QString& action = {});
-        void selectRoom(QMatrixClient::Room* r);
+        void selectRoom(Quotient::Room* r);
 
     private slots:
         void invokeLogin();
@@ -103,7 +103,7 @@ class MainWindow: public QMainWindow
 
         void showLoginWindow(const QString& statusMessage = {});
         void showLoginWindow(const QString& statusMessage,
-            QMatrixClient::AccountSettings& reloginAccount);
+            Quotient::AccountSettings& reloginAccount);
         void showAboutWindow();
         void logout(Connection* c);
 
@@ -146,14 +146,14 @@ class MainWindow: public QMainWindow
         void loadSettings();
         void saveSettings() const;
         void processLogin(LoginDialog& dialog);
-        QByteArray loadAccessToken(const QMatrixClient::AccountSettings& account);
-        QByteArray loadAccessTokenFromFile(const QMatrixClient::AccountSettings& account);
-        QByteArray loadAccessTokenFromKeyChain(const QMatrixClient::AccountSettings &account);
-        bool saveAccessToken(const QMatrixClient::AccountSettings& account,
+        QByteArray loadAccessToken(const Quotient::AccountSettings& account);
+        QByteArray loadAccessTokenFromFile(const Quotient::AccountSettings& account);
+        QByteArray loadAccessTokenFromKeyChain(const Quotient::AccountSettings &account);
+        bool saveAccessToken(const Quotient::AccountSettings& account,
                              const QByteArray& accessToken);
-        bool saveAccessTokenToFile(const QMatrixClient::AccountSettings& account,
+        bool saveAccessTokenToFile(const Quotient::AccountSettings& account,
                                    const QByteArray& accessToken);
-        bool saveAccessTokenToKeyChain(const QMatrixClient::AccountSettings& account,
+        bool saveAccessTokenToKeyChain(const Quotient::AccountSettings& account,
                                        const QByteArray& accessToken, bool writeToFile = true);
         Connection* chooseConnection(Connection* connection,
                                      const QString& prompt);

@@ -42,11 +42,11 @@ RoomListModel::RoomListModel(QObject* parent)
             this, &RoomListModel::restoreCurrentSelection);
 }
 
-void RoomListModel::addConnection(QMatrixClient::Connection* connection)
+void RoomListModel::addConnection(Quotient::Connection* connection)
 {
     Q_ASSERT(connection);
 
-    using namespace QMatrixClient;
+    using namespace Quotient;
     m_connections.emplace_back(connection, this);
     connect( connection, &Connection::loggedOut,
              this, [=]{ deleteConnection(connection); } );
@@ -58,7 +58,7 @@ void RoomListModel::addConnection(QMatrixClient::Connection* connection)
         addRoom(r);
 }
 
-void RoomListModel::deleteConnection(QMatrixClient::Connection* connection)
+void RoomListModel::deleteConnection(Quotient::Connection* connection)
 {
     Q_ASSERT(connection);
     const auto connIt =
@@ -371,7 +371,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
 //    if (index.column() == 2)
 //        return room->lastAttended();
 
-    using QMatrixClient::JoinState;
+    using Quotient::JoinState;
     switch (role)
     {
         case Qt::DisplayRole:

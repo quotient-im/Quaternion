@@ -68,8 +68,8 @@ QVariant OrderByTag::groupLabel(const RoomGroup& g) const
             g.key == Invite ? InvitesLabel :
             g.key == DirectChat ? DirectChatsLabel :
             g.key == Left ? LeftLabel :
-            g.key == QMatrixClient::FavouriteTag ? FavouritesLabel :
-            g.key == QMatrixClient::LowPriorityTag ? LowPriorityLabel :
+            g.key == Quotient::FavouriteTag ? FavouritesLabel :
+            g.key == Quotient::LowPriorityTag ? LowPriorityLabel :
             g.key.toString().startsWith("u.") ? g.key.toString().mid(2) :
             g.key.toString();
     return RoomListModel::tr("%1 (%Ln room(s))", "", g.rooms.size()).arg(caption);
@@ -138,9 +138,9 @@ bool OrderByTag::roomLessThan(const QVariant& groupKey,
 
 AbstractRoomOrdering::groups_t OrderByTag::roomGroups(const Room* room) const
 {
-    if (room->joinState() == QMatrixClient::JoinState::Invite)
+    if (room->joinState() == Quotient::JoinState::Invite)
         return groups_t {{ Invite }};
-    if (room->joinState() == QMatrixClient::JoinState::Leave)
+    if (room->joinState() == Quotient::JoinState::Leave)
         return groups_t {{ Left }};
     auto tags = room->tags().keys();
     groups_t vl; vl.reserve(tags.size());
@@ -181,14 +181,14 @@ void OrderByTag::connectSignals(Room* room)
 
 QStringList OrderByTag::initTagsOrder()
 {
-    using namespace QMatrixClient;
+    using namespace Quotient;
     static const QStringList DefaultTagsOrder {
         Invite, FavouriteTag, QStringLiteral("u.*"), DirectChat, Untagged,
         LowPriorityTag, Left
     };
 
     static const auto SettingsKey = QStringLiteral("tags_order");
-    static QMatrixClient::SettingsGroup sg { "UI/RoomsDock" };
+    static Quotient::SettingsGroup sg { "UI/RoomsDock" };
     const auto savedOrder = sg.get<QStringList>(SettingsKey);
     if (savedOrder.isEmpty())
     {

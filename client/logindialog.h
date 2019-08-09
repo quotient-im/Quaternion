@@ -24,7 +24,7 @@
 class QLineEdit;
 class QCheckBox;
 
-namespace QMatrixClient {
+namespace Quotient {
     class AccountSettings;
     class Connection;
 }
@@ -36,11 +36,11 @@ class LoginDialog : public Dialog
         explicit LoginDialog(QWidget* parent = nullptr,
                              const QStringList& knownAccounts = {});
         explicit LoginDialog(QWidget* parent,
-                             const QMatrixClient::AccountSettings& reloginData);
+                             const Quotient::AccountSettings& reloginData);
         void setup();
         ~LoginDialog() override;
 
-        QMatrixClient::Connection* releaseConnection();
+        Quotient::Connection* releaseConnection();
         QString deviceName() const;
         bool keepLoggedIn() const;
 
@@ -54,6 +54,6 @@ class LoginDialog : public Dialog
         QLineEdit* serverEdit;
         QCheckBox* saveTokenCheck;
 
-        QScopedPointer<QMatrixClient::Connection, QScopedPointerDeleteLater>
+        QScopedPointer<Quotient::Connection, QScopedPointerDeleteLater>
             m_connection;
 };
