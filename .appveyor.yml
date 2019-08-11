@@ -16,7 +16,7 @@ init:
 - set PATH=C:\Qt\Tools\QtCreator\bin;%PATH%
 - call "%VCVARS%" %PLATFORM%
 - cd /D "%APPVEYOR_BUILD_FOLDER%"
-- if defined APPVEYOR_REPO_TAG_NAME (set VERSION=%APPVEYOR_REPO_TAG_NAME%) else for /F %%I in ('git rev-list --count HEAD') do set VERSION=git%%I
+- if not "%APPVEYOR_REPO_TAG_NAME%" == "" (set VERSION=%APPVEYOR_REPO_TAG_NAME%) else for /F %%I in ('git rev-list --count HEAD') do set VERSION=git%%I
 - set DEPLOY_DIR=Quaternion-%VERSION%
 
 before_build:
