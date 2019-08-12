@@ -19,7 +19,6 @@ matrix:
       apt:
         packages:
         - qtdeclarative5-dev
-        - qtdeclarative5-controls-plugin
         - qml-module-qtquick-controls
         - qml-module-qtquick-controls2
         - qtmultimedia5-dev

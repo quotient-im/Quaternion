@@ -73,7 +73,7 @@ several Qt Quick plugins for Quaternion to work (without them, it will compile
 and run but won't show the messages timeline). The following line should get you
 everything necessary to build and run Quaternion:
 ```bash
-sudo apt-get install cmake qtdeclarative5-dev qttools5-dev qtdeclarative5-controls-plugin qml-module-qtquick-controls qml-module-qtquick-controls2 qtmultimedia5-dev
+sudo apt-get install cmake qtdeclarative5-dev qttools5-dev qml-module-qtquick-controls qml-module-qtquick-controls2 qtmultimedia5-dev
 ```
 To enable libsecret keyring support, install QtKeychain by
 ```bash
