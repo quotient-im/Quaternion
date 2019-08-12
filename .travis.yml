@@ -32,10 +32,9 @@ matrix:
     addons:
       apt:
         sources:
-        - ubuntu-toolchain-r-test
         - sourceline: 'ppa:beineri/opt-qt-5.12.3-xenial'
         packages:
-        - mesa-common-dev # Forgotten dep of qt512base
+        - libgl1-mesa-dev # Forgotten Qt dep
         - qt512base
         - qt512imageformats
         - qt512svg
@@ -54,7 +53,7 @@ matrix:
         sources:
         - sourceline: 'ppa:beineri/opt-qt-5.12.3-bionic'
         packages:
-        - mesa-common-dev # Forgotten dep of qt512base
+        - libgl1-mesa-dev # Forgotten Qt dep
         - qt512base
         - qt512imageformats
         - qt512svg
