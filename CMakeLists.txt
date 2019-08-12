@@ -1,4 +1,7 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
+if (POLICY CMP0092)
+cmake_policy(SET CMP0092 NEW)
+endif()
 
 set(IDENTIFIER "com.github.quaternion")
 set(COPYRIGHT "Copyright © 2016-2018 QMatrixClient, 2019 The Quotient Project")
@@ -29,18 +32,25 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     "MinSizeRel" "RelWithDebInfo")
 endif()
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 # Setup command line parameters for the compiler and linker
-foreach (FLAG "" all pedantic extra no-unused-parameter)
-    CHECK_CXX_COMPILER_FLAG("-W${FLAG}" WARN_${FLAG}_SUPPORTED)
-    if ( WARN_${FLAG}_SUPPORTED AND NOT CMAKE_CXX_FLAGS MATCHES "(^| )-W?${FLAG}($| )")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W${FLAG}")
-    endif ()
-endforeach ()
+if (MSVC)
+    add_compile_options(/EHsc /W4
+        /wd4100 /wd4127 /wd4242 /wd4244 /wd4245 /wd4267 /wd4365 /wd4456 /wd4459
+        /wd4464 /wd4505 /wd4514 /wd4571 /wd4619 /wd4623 /wd4625 /wd4626 /wd4706
+        /wd4710 /wd4774 /wd4820 /wd4946 /wd5026 /wd5027)
+else()
+    foreach (FLAG "" all pedantic extra no-unused-parameter)
+        CHECK_CXX_COMPILER_FLAG("-W${FLAG}" WARN_${FLAG}_SUPPORTED)
+        if ( WARN_${FLAG}_SUPPORTED AND NOT CMAKE_CXX_FLAGS MATCHES "(^| )-W?${FLAG}($| )")
+            add_compile_options(-W${FLAG})
+        endif ()
+    endforeach ()
+endif()
 
 # Find the libraries
-find_package(Qt5 5.7 REQUIRED Widgets Network Quick Qml Gui LinguistTools Multimedia DBus)
+find_package(Qt5 5.9 REQUIRED Widgets Network Quick Qml Gui LinguistTools Multimedia DBus)
 # Qt5_Prefix is only used to show Qt path in message()
 # Qt5_BinDir is where all the binary tools for Qt are
 if (QT_QMAKE_EXECUTABLE)
@@ -51,7 +61,7 @@ else()
     get_filename_component(Qt5_Prefix "${Qt5_DIR}/../../../.." ABSOLUTE)
 endif()
 if (USE_QQUICKWIDGET)
-    find_package(Qt5 5.7 REQUIRED QuickWidgets)
+    find_package(Qt5 5.9 REQUIRED QuickWidgets)
 elseif(NOT DISABLE_QQUICKWIDGET)
     # QQuickWidget only stopped crashing in Qt 5.12, use it by default if found
     find_package(Qt5 5.12 QUIET COMPONENTS QuickWidgets)
