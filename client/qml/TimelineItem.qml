@@ -515,8 +515,6 @@ Item {
                     anchors.left: parent.left
                     anchors.leftMargin: 3
                     z: 1
-
-                    TimelineTextEditSelector {}
                 }
                 TextEdit {
                     text: "<a href=\"" + evtLink + "\">"+ eventId
@@ -532,9 +530,7 @@ Item {
 
                     onLinkActivated: Qt.openUrlExternally(link)
 
-                    TimelineTextEditSelector {}
-
-                    TimelineMouseArea {
+                    MouseArea {
                         anchors.fill: parent
                         cursorShape: parent.hoveredLink ?
                                          Qt.PointingHandCursor :
@@ -563,8 +559,6 @@ Item {
 
                 width: parent.width
                 anchors.top: detailsHeader.bottom
-
-                TimelineTextEditSelector {}
             }
         }
     }
