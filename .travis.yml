@@ -17,16 +17,13 @@ matrix:
     compiler: gcc
     addons:
       apt:
-        sources:
-        - sourceline: 'ppa:beineri/opt-qt597-bionic'
         packages:
-        - qt59base
-        - qt59imageformats
-        - qt59svg
-        - qt59multimedia
-        - qt59quickcontrols
-        - qt59quickcontrols2
-        - qt59tools
+        - qtdeclarative5-dev
+        - qtdeclarative5-controls-plugin
+        - qml-module-qtquick-controls
+        - qml-module-qtquick-controls2
+        - qtmultimedia5-dev
+        - qttools5-dev
         - qt5keychain-dev
   - os: linux
     dist: xenial
@@ -83,7 +80,6 @@ install:
 - popd
 
 before_script:
-- if [ -f /opt/qt59/bin/qt59-env.sh ]; then . /opt/qt59/bin/qt59-env.sh; fi
 - if [ -f /opt/qt512/bin/qt512-env.sh ]; then . /opt/qt512/bin/qt512-env.sh; fi
 # VERSION is also used by linuxdeployqt
 - if [ -n "$TRAVIS_TAG" ]; then export VERSION="$TRAVIS_TAG"; else export VERSION="git$(git rev-list --count HEAD)"; fi
