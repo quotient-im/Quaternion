@@ -38,18 +38,10 @@ using Quotient::SettingsGroup;
 class RoomListItemDelegate : public QStyledItemDelegate
 {
     public:
-        explicit RoomListItemDelegate(QObject* parent = nullptr)
-            : QStyledItemDelegate(parent)
-            , highlightColor(QSettings()
-                             .value("UI/highlight_color", QColor("orange"))
-                             .value<QColor>())
-        { }
+        using QStyledItemDelegate::QStyledItemDelegate;
 
         void paint(QPainter *painter, const QStyleOptionViewItem &option,
                    const QModelIndex &index) const override;
-
-    private:
-        QColor highlightColor;
 };
 
 void RoomListItemDelegate::paint(QPainter* painter,
@@ -68,9 +60,11 @@ void RoomListItemDelegate::paint(QPainter* painter,
 
     if (index.data(RoomListModel::HighlightCountRole).toInt() > 0)
     {
+        static const auto highlightColor =
+            Quotient::Settings().get("UI/highlight_color", QColor("orange"));
+        o.palette.setColor(QPalette::Text, highlightColor);
         // Highlighting the text may not work out on monochrome colour schemes,
         // hence duplicating with italic font.
-        o.palette.setColor(QPalette::Text, highlightColor);
         o.font.setItalic(true);
     }
 
