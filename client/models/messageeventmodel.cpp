@@ -443,7 +443,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                     case MembershipType::Invite:
                         if (e.repeatsState())
                             return tr("reinvited %1 to the room").arg(subjectName);
-                        FALLTHROUGH;
+                        Q_FALLTHROUGH;
                     case MembershipType::Join:
                     {
                         if (e.repeatsState())

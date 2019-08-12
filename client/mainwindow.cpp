@@ -1135,7 +1135,7 @@ void MainWindow::openResource(const QString& idOrUri, const QString& action)
                                  tr("There's no room %1 in the room list."
                                     " Check the spelling and the account.")
                                  .arg(idOrUri));
-            FALLTHROUGH;
+            Q_FALLTHROUGH;
         default:
             return; // If success or no account, do nothing
         }
