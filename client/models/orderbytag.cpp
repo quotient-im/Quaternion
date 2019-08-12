@@ -21,10 +21,10 @@
 
 #include <settings.h>
 
-const QString Invite = QStringLiteral("org.qmatrixclient.invite");
-const QString DirectChat = QStringLiteral("org.qmatrixclient.direct");
-const QString Untagged = QStringLiteral("org.qmatrixclient.none");
-const QString Left = QStringLiteral("org.qmatrixclient.left");
+static const auto Invite = RoomGroup::SystemPrefix + "invite";
+static const auto DirectChat = RoomGroup::SystemPrefix + "direct";
+static const auto Untagged = RoomGroup::SystemPrefix + "none";
+static const auto Left = RoomGroup::SystemPrefix + "left";
 
 template <typename LT, typename VT>
 inline auto findIndex(const QList<LT>& list, const VT& value)
@@ -181,19 +181,33 @@ void OrderByTag::connectSignals(Room* room)
 
 QStringList OrderByTag::initTagsOrder()
 {
-    using namespace Quotient;
-    static const QStringList DefaultTagsOrder {
-        Invite, FavouriteTag, QStringLiteral("u.*"), DirectChat, Untagged,
-        LowPriorityTag, Left
-    };
+    static const QStringList DefaultTagsOrder { Invite,
+                                                Quotient::FavouriteTag,
+                                                QStringLiteral("u.*"),
+                                                DirectChat,
+                                                Untagged,
+                                                Quotient::LowPriorityTag,
+                                                Left };
 
     static const auto SettingsKey = QStringLiteral("tags_order");
     static Quotient::SettingsGroup sg { "UI/RoomsDock" };
-    const auto savedOrder = sg.get<QStringList>(SettingsKey);
+    auto savedOrder = sg.get<QStringList>(SettingsKey);
     if (savedOrder.isEmpty())
     {
         sg.setValue(SettingsKey, DefaultTagsOrder);
         return DefaultTagsOrder;
     }
+    { // Check that the order doesn't use the old prefix and migrate if it does.
+        bool migrated = false;
+        for (auto& s : savedOrder)
+            if (s.startsWith(RoomGroup::LegacyPrefix)) {
+                s.replace(0, RoomGroup::LegacyPrefix.size(),
+                          RoomGroup::SystemPrefix);
+                migrated = true;
+            }
+        if (migrated)
+            sg.setValue(SettingsKey, savedOrder);
+    }
+
     return savedOrder;
 }

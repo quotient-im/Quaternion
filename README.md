@@ -12,10 +12,13 @@
 Quaternion is a cross-platform desktop IM client for the [Matrix](https://matrix.org) protocol. This file contains general information about application usage and settings. See [BUILDING.md](./BUILDING.md) for building instructions.
 
 ## Contacts
-Most of talking around Quaternion happens in our Matrix room:
-[#quaternion:matrix.org](https://matrix.to/#/#quaternion:matrix.org).
+Most of talking around Quaternion happens in the room of its parent project,
+Quotient: [#quotient:matrix.org](https://matrix.to/#/#quotient:matrix.org).
+`#quaternion:matrix.org` currently points to the old version of the Quotient
+room - if you ended up there, just go to the upgraded room instead
+(using Quaternion 0.0.9.4 or later, or Riot).
 
-You can also file issues at
+You can file issues at
 [the project's issue tracker](https://github.com/quotient-im/Quaternion/issues).
 If you find what looks like a security issue, please use instructions
 in SECURITY.md.
@@ -86,14 +89,15 @@ messages; number and date formats will be following the setting though. Version
 
 Quaternion stores its configuration in a way standard for Qt applications. It will read and write the configuration in the user-specific location (creating it if non-existent) and will only read the system-wide location with reasonable defaults if the configuration is nowhere to be found.
 - Linux:
-  - system-wide: `$XDG_CONFIG_DIR/QMatrixClient/quaternion` or `/etc/xdg/QMatrixClient/quaternion`
-  - user-specific: `$HOME/.config/QMatrixClient/quaternion.conf`
+  - system-wide: `$XDG_CONFIG_DIR/Quotient/quaternion` or
+    `/etc/xdg/Quotient/quaternion`
+  - user-specific: `$HOME/.config/Quotient/quaternion.conf`
 - macOS:
-  - system-wide: `/Library/Preferences/com.QMatrixClient.quaternion.plist`
-  - user-specific: `$HOME/Library/Preferences/com.QMatrixClient.quaternion.plist`
+  - system-wide: `/Library/Preferences/im.quotient.quaternion.plist`
+  - user-specific: `$HOME/Library/Preferences/im.quotient.quaternion.plist`
 - Windows: registry keys under
-  - system-wide: `HKEY_LOCAL_MACHINE\Software\QMatrixClient\quaternion`
-  - user-specific: `HKEY_CURRENT_USER\Software\QMatrixClient\quaternion`
+  - system-wide: `HKEY_LOCAL_MACHINE\Software\Quotient\quaternion`
+  - user-specific: `HKEY_CURRENT_USER\Software\Quotient\quaternion`
 
 Some settings exposed in UI (Settings and View menus):
 - `UI/notifications` - a general setting whether Quaternion should distract
@@ -128,7 +132,7 @@ Some settings exposed in UI (Settings and View menus):
   it so that you could edit it further. This is a list of tags/namespaces;
   `.*` at the end of the string means a namespace, other strings are treated
   as fully specified tags. E.g., the default order looks like this:
-  `m.favourite,u.*,org.qmatrixclient.direct,org.qmatrixclient.none,m.lowpriority`.
+  `m.favourite,u.*,im.quotient.direct,im.quotient.none,m.lowpriority`.
   If a tag is not mentioned and does not fit any namespace, it will be put at
   the end in lexicographic order. Tags within the same namespace are also
   ordered lexicographically.
@@ -167,15 +171,15 @@ Settings not exposed in UI:
 Since version 0.0.9.4, AppImage binaries for Linux and .dmg files for macOS
 are compiled with Qt Keychain support. It means that Quaternion will try
 to store your access token(s) in the secure storage configured for your
-platform. If the storage or Qt Keychain are not available (Qt Keychain is off
-by default on Windows - you have to rebuild Quaternion to enable it),
-Quaternion will try to store your access token(s) in a dedicated file with
-restricted access rights so that only the owner can access them. Every
+platform. If the storage or Qt Keychain are not available, Quaternion will try
+to store your access token(s) in a dedicated file with restricted access rights
+so that only the owner can access them (this doesn't really work on Windows
+where Qt support of file system access rights is very limited). Every
 access token is stored in a separate file matching your user id in
 the following directory:
-- Linux: `$HOME/.local/share/QMatrixClient/quaternion`
-- macOS: `$HOME/Library/Application Support/QMatrixClient/quaternion`
-- Windows: `%LOCALAPPDATA%/QMatrixClient/quaternion`
+- Linux: `$HOME/.local/share/Quotient/quaternion`
+- macOS: `$HOME/Library/Application Support/Quotient/quaternion`
+- Windows: `%LOCALAPPDATA%/Quotient/quaternion`
 
 Unfortunately, Quaternion cannot enforce proper access rights on Windows yet;
 you'll see a warning about it and will be able to either refuse saving your
@@ -183,9 +187,9 @@ access token in that case or agree and setup file permissions outside Quaternion
 The work is ongoing to enable Qt Keychain on Windows by default.
 
 Quaternion caches the rooms state and user/room avatars on the file system in a conventional location for your platform, as follows:
-- Linux: `$HOME/.cache/QMatrixClient/quaternion`
-- macOS: `$HOME/Library/Cache/QMatrixClient/quaternion`
-- Windows: `%LOCALAPPDATA%/QMatrixClient/quaternion/cache`
+- Linux: `$HOME/.cache/Quotient/quaternion`
+- macOS: `$HOME/Library/Cache/Quotient/quaternion`
+- Windows: `%LOCALAPPDATA%/Quotient/quaternion/cache`
 
 Cache files are safe to delete at any time but Quaternion only looks for them
 when starting up and overwrites them regularly while running; so it only

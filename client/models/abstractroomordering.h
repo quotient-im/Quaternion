@@ -51,6 +51,9 @@ struct RoomGroup
     {
         return !(group == otherCaption);
     }
+
+    static inline const auto SystemPrefix = QStringLiteral("im.quotient.");
+    static inline const auto LegacyPrefix = QStringLiteral("org.qmatrixclient.");
 };
 using RoomGroups = QVector<RoomGroup>;
 

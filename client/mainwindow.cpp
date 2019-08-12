@@ -235,7 +235,7 @@ void MainWindow::createMenu()
                 tr("Edit tags order"),
                 tr("Tags can be wildcarded by * next to dot(s)\n"
                    "Clear the box to reset to defaults\n"
-                   "Special tags starting with \"org.qmatrixclient.\" are: %1\n"
+                   "Special tags starting with \"im.quotient.\" are: %1\n"
                    "User-defined tags should start with \"u.\"")
                 .arg("invite, left, direct, none"),
                 savedOrder, &ok);

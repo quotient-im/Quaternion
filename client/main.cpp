@@ -36,13 +36,13 @@ int main( int argc, char* argv[] )
 #endif
 
     QApplication app(argc, argv);
-    QApplication::setOrganizationName(QStringLiteral("QMatrixClient"));
+    QApplication::setOrganizationName(QStringLiteral("Quotient"));
     QApplication::setApplicationName(QStringLiteral("quaternion"));
     QApplication::setApplicationDisplayName(QStringLiteral("Quaternion"));
     QApplication::setApplicationVersion(QStringLiteral("0.0.9.4+git"));
 
     Quotient::Settings::setLegacyNames(
-                QStringLiteral("Quaternion"), QStringLiteral("quaternion"));
+                QStringLiteral("QMatrixClient"), QStringLiteral("quaternion"));
 
     // We should not need to do the following, as quitOnLastWindowClosed is
     // set to "true" by default; might be a bug, see

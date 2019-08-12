@@ -86,7 +86,7 @@ void RoomListModel::deleteTag(QModelIndex index)
         qCritical() << "RoomListModel: Invalid tag at position" << index.row();
         return;
     }
-    if (tag.startsWith("org.qmatrixclient."))
+    if (tag.startsWith(RoomGroup::SystemPrefix))
     {
         qWarning() << "RoomListModel: System groups cannot be deleted "
                       "(tried to delete" << tag << "group)";

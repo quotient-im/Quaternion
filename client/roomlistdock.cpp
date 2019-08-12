@@ -107,14 +107,6 @@ RoomListDock::RoomListDock(MainWindow* parent)
                 room->markAllMessagesAsRead();
         }
     });
-    connect( view, &QTreeView::expanded, this, [this] (QModelIndex i) {
-        SettingsGroup("UI/RoomsDock")
-        .setValue(model->roomGroupAt(i).toString(), Expanded);
-    });
-    connect( view, &QTreeView::collapsed, this, [this] (QModelIndex i) {
-        SettingsGroup("UI/RoomsDock")
-        .setValue(model->roomGroupAt(i).toString(), Collapsed);
-    });
     connect( model, &RoomListModel::rowsInserted,
              this, &RoomListDock::refreshTitle );
     connect( model, &RoomListModel::rowsRemoved,
@@ -132,25 +124,36 @@ RoomListDock::RoomListDock(MainWindow* parent)
         selectedGroupCache.clear();
         selectedRoomCache = nullptr;
     });
-    connect( model, &RoomListModel::modelReset, this, [this] {
-        refreshTitle();
-        SettingsGroup sg("UI/RoomsDock");
-        for (int row = 0; row < model->rowCount({}); ++row)
-        {
-            const auto& i = model->index(row, 0);
-            const auto groupKey = model->roomGroupAt(i).toString();
-            const auto expanded = Expanded ==
-                    sg.get(groupKey, groupKey == Quotient::FavouriteTag
-                                     ? Expanded : Collapsed);
-            view->setExpanded(i, expanded);
+
+    static SettingsGroup dockSettings("UI/RoomsDock");
+    connect(model, &RoomListModel::groupAdded, this, [this](int groupPos) {
+        const auto& i = model->index(groupPos, 0);
+        const auto groupKey = model->roomGroupAt(i).toString();
+        Q_ASSERT(
+            !groupKey.startsWith("org.qmatrixclient")); // Fighting the legacy
+        auto groupState = dockSettings.value(groupKey);
+        if (!groupState.isValid()) {
+            if (groupKey.startsWith(RoomGroup::SystemPrefix)) {
+                const auto legacyKey = RoomGroup::LegacyPrefix
+                                       + groupKey.mid(
+                                           RoomGroup::SystemPrefix.size());
+                groupState = dockSettings.value(legacyKey);
+                dockSettings.setValue(groupKey, groupState);
+                if (groupState.isValid())
+                    dockSettings.remove(legacyKey);
+            }
         }
+        view->setExpanded(i, groupState.isValid()
+                                 ? groupState.toString() == Expanded
+                                 : groupKey == Quotient::FavouriteTag);
     });
-    connect( model, &RoomListModel::groupAdded, this, [this] (int pos) {
-        Quotient::SettingsGroup sg { QStringLiteral("UI/RoomsDock") };
-        const auto group = model->roomGroupAt(model->index(pos, 0)).toString();
-        if (sg.get<QString>(group) == "expand")
-            view->expand(model->index(pos, 0));
+    connect(view, &QTreeView::expanded, this, [this](QModelIndex i) {
+        dockSettings.setValue(model->roomGroupAt(i).toString(), Expanded);
     });
+    connect(view, &QTreeView::collapsed, this, [this](QModelIndex i) {
+        dockSettings.setValue(model->roomGroupAt(i).toString(), Collapsed);
+    });
+
     setWidget(view);
 
     roomContextMenu = new QMenu(this);
@@ -260,7 +263,7 @@ void RoomListDock::showContextMenu(const QPoint& pos)
         // Don't allow to delete system "tags"
         auto tagName = model->roomGroupAt(index);
         deleteTagAction->setDisabled(
-                    tagName.toString().startsWith("org.qmatrixclient."));
+            tagName.toString().startsWith(RoomGroup::SystemPrefix));
         groupContextMenu->popup(mapToGlobal(pos));
         return;
     }
