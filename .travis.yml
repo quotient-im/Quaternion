@@ -1,5 +1,5 @@
 language: cpp
-dist: xenial
+dist: bionic
 
 git:
   depth: false
@@ -18,42 +18,44 @@ matrix:
     addons:
       apt:
         sources:
-        - sourceline: 'ppa:beineri/opt-qt571-xenial'
+        - sourceline: 'ppa:beineri/opt-qt597-bionic'
         packages:
-        - mesa-common-dev # Forgotten dep of qt57base
-        - qt57base
-        - qt57imageformats
-        - qt57svg
-        - qt57multimedia
-        - qt57quickcontrols
-        - qt57quickcontrols2
-        - qt57tools
+        - qt59base
+        - qt59imageformats
+        - qt59svg
+        - qt59multimedia
+        - qt59quickcontrols
+        - qt59quickcontrols2
+        - qt59tools
         - qt5keychain-dev
   - os: linux
-    dist: trusty
+    dist: xenial
     compiler: clang
     env: [ 'VERSION_SUFFIX="-compat"', 'BUILD_APPIMAGE=1' ]
     addons:
       apt:
         sources:
         - ubuntu-toolchain-r-test
-        - sourceline: 'ppa:beineri/opt-qt571-trusty'
+        - sourceline: 'ppa:beineri/opt-qt-5.12.3-xenial'
         packages:
-        - libstdc++-5-dev
-        - qt57base
-        - qt57imageformats
-        - qt57svg
-        - qt57multimedia
-        - qt57quickcontrols
-        - qt57quickcontrols2
-        - qt57tools
+        - mesa-common-dev # Forgotten dep of qt512base
+        - qt512base
+        - qt512imageformats
+        - qt512svg
+        - qt512multimedia
+        - qt512quickcontrols
+        - qt512quickcontrols2
+        - qt512tools
+        - qt512translations
+        - qt5keychain-dev
+        - appstream-util
   - os: linux
     compiler: clang
     env: [ 'BUILD_APPIMAGE=1' ]
     addons:
       apt:
         sources:
-        - sourceline: 'ppa:beineri/opt-qt-5.12.0-xenial'
+        - sourceline: 'ppa:beineri/opt-qt-5.12.3-bionic'
         packages:
         - mesa-common-dev # Forgotten dep of qt512base
         - qt512base
@@ -81,7 +83,7 @@ install:
 - popd
 
 before_script:
-- if [ -f /opt/qt57/bin/qt57-env.sh ]; then . /opt/qt57/bin/qt57-env.sh; fi
+- if [ -f /opt/qt59/bin/qt59-env.sh ]; then . /opt/qt59/bin/qt59-env.sh; fi
 - if [ -f /opt/qt512/bin/qt512-env.sh ]; then . /opt/qt512/bin/qt512-env.sh; fi
 # VERSION is also used by linuxdeployqt
 - if [ -n "$TRAVIS_TAG" ]; then export VERSION="$TRAVIS_TAG"; else export VERSION="git$(git rev-list --count HEAD)"; fi
