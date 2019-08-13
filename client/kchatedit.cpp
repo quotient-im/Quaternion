@@ -16,10 +16,26 @@
  */
 
 #include "kchatedit.h"
+#include <settings.h>
 
 #include <QDebug>
 #include <QGuiApplication>
 #include <QKeyEvent>
+
+static QTextDocument* makeDocument()
+{
+    auto textDocument = new QTextDocument();
+
+    const auto fontFamily = Quotient::Settings().value("UI/Timeline/font_family");
+    const auto fontPointSize = Quotient::Settings().value("UI/Timeline/font_pointSize");
+    if (fontFamily.isValid() && fontPointSize.isValid() && fontPointSize.toReal() > 0) {
+        auto font = QFont(fontFamily.toString());
+        font.setPointSizeF(fontPointSize.toReal());
+        textDocument->setDefaultFont(font);
+    }
+
+    return textDocument;
+}
 
 class KChatEdit::KChatEditPrivate
 {
@@ -34,7 +50,7 @@ public:
     // History always ends with a placeholder string that is initially empty
     // but may be filled with tentative input when the user entered something
     // and then went out for history.
-    QVector<QTextDocument*> history { 1, new QTextDocument() };
+    QVector<QTextDocument*> history { 1, makeDocument() };
     int index = 0;
     int maxHistorySize = 100;
 };
@@ -98,7 +114,7 @@ void KChatEdit::KChatEditPrivate::saveInput()
             delete history.takeFirst();
         }
         // Make a new placeholder.
-        history << new QTextDocument();
+        history << makeDocument();
         emit q->savedInputChanged();
     }
 
@@ -112,6 +128,14 @@ KChatEdit::KChatEdit(QWidget *parent)
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
     connect(this, &QTextEdit::textChanged, this, &QWidget::updateGeometry);
     d->q = this; // KChatEdit initialization complete, pimpl can use it
+    setDocument(makeDocument());
+
+    // show the placeholder text in the same style
+    const auto fontFamily = Quotient::Settings().value("UI/Timeline/font_family");
+    const auto fontPointSize = Quotient::Settings().value("UI/Timeline/font_pointSize");
+    if (fontFamily.isValid() && fontPointSize.isValid() && fontPointSize.toReal() > 0)
+        setStyleSheet(QString("font-family: %1; font-size: %2pt;").arg(
+                fontFamily.toString(), fontPointSize.toString()));
 }
 
 KChatEdit::~KChatEdit() = default;
@@ -139,7 +163,7 @@ void KChatEdit::setHistory(const QVector<QTextDocument*> &history)
 {
     d->history = history;
     if (history.isEmpty() || !history.last()->isEmpty()) {
-        d->history << new QTextDocument();
+        d->history << makeDocument();
     }
 
     while (d->history.size() > maxHistorySize()) {

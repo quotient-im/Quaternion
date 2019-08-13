@@ -22,6 +22,8 @@ Item {
         readonly property string timeline_style: value("UI/timeline_style", "")
         readonly property bool show_author_avatars:
             value("UI/show_author_avatars", timeline_style != "xchat")
+        readonly property string font_family: value("UI/Timeline/font_family", "")
+        readonly property string font_pointSize: value("UI/Timeline/font_pointSize", 0)
     }
 
     // Property interface
@@ -195,6 +197,8 @@ Item {
 
                 color: authorColor
                 textFormat: Label.PlainText
+                font.family: settings.font_family ? settings.font_family : textFieldImpl.font.family
+                font.pointSize: settings.font_pointSize > 0 ? settings.font_pointSize : textFieldImpl.font.pointSize
                 font.bold: !xchatStyle
                 renderType: settings.render_type
 
@@ -223,18 +227,15 @@ Item {
             Label {
                 id: timelabel
                 anchors.top: xchatStyle ? authorAvatar.top : authorAvatar.bottom
-                anchors.topMargin: 1
-                anchors.bottomMargin: 1
                 anchors.left: parent.left
 
                 color: disabledPalette.text
-                textFormat: Text.RichText
                 renderType: settings.render_type
+                font.family: settings.font_family ? settings.font_family : textFieldImpl.font.family
+                font.pointSize: settings.font_pointSize > 0 ? settings.font_pointSize : textFieldImpl.font.pointSize
                 font.italic: pending
 
-                text: "<font size=-1>&lt;" +
-                      time.toLocaleTimeString(Qt.locale(), "hh:mm")
-                      + "&gt;</font>"
+                text: "<" + time.toLocaleTimeString(Qt.locale(), "hh:mm") + ">"
             }
 
             Item {
@@ -300,6 +301,8 @@ Item {
                     horizontalAlignment: Text.AlignLeft
                     wrapMode: Text.Wrap
                     color: textColor
+                    font.family: settings.font_family ? settings.font_family : textFieldImpl.font.family
+                    font.pointSize: settings.font_pointSize > 0 ? settings.font_pointSize : textFieldImpl.font.pointSize
                     renderType: settings.render_type
 
                     // TODO: In the code below, links should be resolved
