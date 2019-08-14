@@ -1,6 +1,7 @@
 import QtQuick 2.6
 import QtQuick.Controls 1.4
 import QtQuick.Controls 2.0 as QQC2
+import QtQuick.Controls.Styles 1.4
 //import QtGraphicalEffects 1.0 // For fancy highlighting
 import Quotient 1.0
 
@@ -419,11 +420,18 @@ Item {
                 id: resendButton
                 visible: failed
                 width: visible * implicitWidth
-                height: visible * implicitHeight
+                height: visible * textField.height
                 anchors.top: textField.top
                 anchors.right: discardButton.left
                 anchors.rightMargin: 2
                 text: qsTr("Resend")
+                style: ButtonStyle {
+                    label: Text {
+                      text: resendButton.text
+                      font.family: settings.font_family
+                      font.pointSize: settings.font_pointSize - 2
+                    }
+                  }
 
                 onClicked: room.retryMessage(eventId)
             }
@@ -432,11 +440,18 @@ Item {
                 visible: pending && marks !== EventStatus.ReachedServer
                          && marks !== EventStatus.Departed
                 width: visible * implicitWidth
-                height: visible * implicitHeight
+                height: visible * textField.height
                 anchors.top: textField.top
                 anchors.right: parent.right
                 anchors.rightMargin: 2
                 text: qsTr("Discard")
+                style: ButtonStyle {
+                    label: Text {
+                      text: discardButton.text
+                      font.family: settings.font_family
+                      font.pointSize: settings.font_pointSize - 2
+                    }
+                  }
 
                 onClicked: room.discardMessage(eventId)
             }
@@ -444,11 +459,18 @@ Item {
                 id: goToPredecessorButton
                 visible: !pending && eventResolvedType == "m.room.create" && refId
                 width: visible * implicitWidth
-                height: visible * implicitHeight
+                height: visible * textField.height
                 anchors.top: textField.top
                 anchors.right: parent.right
                 anchors.rightMargin: 2
                 text: qsTr("Go to\nolder room")
+                style: ButtonStyle {
+                    label: Text {
+                      text: goToPredecessorButton.text
+                      font.family: settings.font_family
+                      font.pointSize: settings.font_pointSize - 2
+                    }
+                  }
 
                 // TODO: Treat unjoined invite-only rooms specially
                 onClicked: controller.joinRequested(refId)
@@ -457,11 +479,18 @@ Item {
                 id: goToSuccessorButton
                 visible: !pending && eventResolvedType == "m.room.tombstone"
                 width: visible * implicitWidth
-                height: visible * implicitHeight
+                height: visible * textField.height
                 anchors.top: textField.top
                 anchors.right: parent.right
                 anchors.rightMargin: 2
                 text: qsTr("Go to\nnew room")
+                style: ButtonStyle {
+                    label: Text {
+                      text: goToSuccessorButton.text
+                      font.family: settings.font_family
+                      font.pointSize: settings.font_pointSize - 2
+                    }
+                  }
 
                 // TODO: Treat unjoined invite-only rooms specially
                 onClicked: controller.joinRequested(refId)
