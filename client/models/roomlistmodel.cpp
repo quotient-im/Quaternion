@@ -459,6 +459,10 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
             if (hlCount > 0)
                 result += "<br>" % tr("Unread highlights: %1").arg(hlCount);
 
+            auto nfCount = room->notificationCount();
+            if (nfCount > 0)
+                result += "<br>" % tr("Unread notifications: %1").arg(nfCount);
+
             result += "<br>" % tr("ID: %1").arg(room->id()) % "<br>";
             auto asUser = m_connections.size() < 2 ? QString() : ' ' +
                 tr("as %1",
