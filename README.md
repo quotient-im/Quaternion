@@ -112,6 +112,7 @@ messages; number and date formats will be following the setting though. Version
 0.0.9.4 gains German, Polish, and Russian translations.
 
 Quaternion stores its configuration in a way standard for Qt applications. It will read and write the configuration in the user-specific location (creating it if non-existent) and will only read the system-wide location with reasonable defaults if the configuration is nowhere to be found.
+
 - Linux:
   - system-wide: `$XDG_CONFIG_DIR/Quotient/quaternion` or
     `/etc/xdg/Quotient/quaternion`
@@ -124,6 +125,7 @@ Quaternion stores its configuration in a way standard for Qt applications. It wi
   - user-specific: `HKEY_CURRENT_USER\Software\Quotient\quaternion`
 
 Some settings exposed in UI (Settings and View menus):
+
 - `UI/notifications` - a general setting whether Quaternion should distract
   the user with notifications and how.
   - `none` suppresses notifications entirely (rooms and messages are still
@@ -162,6 +164,7 @@ Some settings exposed in UI (Settings and View menus):
   ordered lexicographically.
 
 Settings not exposed in UI:
+
 - `UI/condense_chat` - set this to 1 to make the timeline rendered tighter,
   eliminating vertical gaps between messages as much as possible.
 - `UI/show_author_avatars` - set this to 1 (or true) to show author avatars in
@@ -203,6 +206,7 @@ platform. If the storage or Qt Keychain are not available, Quaternion will try
 to store your access token(s) in a dedicated file with restricted access rights
 so that only the owner can access them (this doesn't really work on Windows -
 see below) and with the name matching your user id in the following directory:
+
 - Linux: `$HOME/.local/share/Quotient/quaternion`
 - macOS: `$HOME/Library/Application Support/Quotient/quaternion`
 - Windows: `%LOCALAPPDATA%/Quotient/quaternion`
@@ -213,6 +217,7 @@ access token in that case or agree and setup file permissions outside Quaternion
 
 Quaternion caches the rooms state and user/room avatars on the file system
 in a conventional location for your platform, as follows:
+
 - Linux: `$HOME/.cache/Quotient/quaternion`
 - macOS: `$HOME/Library/Cache/Quotient/quaternion`
 - Windows: `%LOCALAPPDATA%/Quotient/quaternion/cache`
@@ -239,6 +244,7 @@ If Quaternion starts displaying the message that it couldn't connect to the serv
 If Quaternion runs but you can't see any messages in the chat (though you can
 type them in) - you have either of two problems with Qt Quick (or if you are
 extremely unlucky, both):
+
 - You might not have Qt Quick libraries and/or plugins installed. On Linux,
   this may be a case when you are not using the official packages for your
   distro. Check the stdout/stderr logs, they are quite clear in such cases.
