@@ -68,7 +68,7 @@ int main( int argc, char* argv[] )
     options.append(hideMainWindow);
     QCommandLineOption debug { QStringLiteral("debug"),
         QApplication::translate("main", "Display debug information") };
-    debug.setHidden(true); // FIXME, #415; also, setHidden is obsolete in Qt 5.11
+    debug.setFlags(QCommandLineOption::HiddenFromHelp); // FIXME, #415
     options.append(debug);
     // Add more command line options before this line
 

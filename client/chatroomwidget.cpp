@@ -316,9 +316,7 @@ QString ChatRoomWidget::doSendInput()
     if ( text.isEmpty() )
         return tr("There's nothing to send");
 
-    static const auto ReFlags =
-            QRegularExpression::DotMatchesEverythingOption|
-            QRegularExpression::OptimizeOnFirstUsageOption;
+    static const auto ReFlags = QRegularExpression::DotMatchesEverythingOption;
 
     static const QRegularExpression
             CommandRe { QStringLiteral("^/([^ ]+)( +(.*))?\\s*$"), ReFlags },
