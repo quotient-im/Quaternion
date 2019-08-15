@@ -16,5 +16,6 @@
         <file>qml/ActiveLabel.qml</file>
         <file>qml/TimelineMouseArea.qml</file>
         <file>qml/TimelineTextEditSelector.qml</file>
+        <file>qml/TimelineItemToolButton.qml</file>
     </qresource>
 </RCC>

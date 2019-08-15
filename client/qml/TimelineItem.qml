@@ -22,8 +22,8 @@ Item {
         readonly property string timeline_style: value("UI/timeline_style", "")
         readonly property bool show_author_avatars:
             value("UI/show_author_avatars", timeline_style != "xchat")
-        readonly property string font_family: value("UI/Timeline/font_family", "")
-        readonly property string font_pointSize: value("UI/Timeline/font_pointSize", 0)
+        readonly property string font_family: value("UI/Timeline/font_family", "") ? value("UI/Timeline/font_family") : textFieldImpl.font.family
+        readonly property string font_pointSize: value("UI/Timeline/font_pointSize", 0) > 0 ? value("UI/Timeline/font_pointSize") : textFieldImpl.font.pointSize
     }
 
     // Property interface
@@ -197,8 +197,8 @@ Item {
 
                 color: authorColor
                 textFormat: Label.PlainText
-                font.family: settings.font_family ? settings.font_family : textFieldImpl.font.family
-                font.pointSize: settings.font_pointSize > 0 ? settings.font_pointSize : textFieldImpl.font.pointSize
+                font.family: settings.font_family
+                font.pointSize: settings.font_pointSize
                 font.bold: !xchatStyle
                 renderType: settings.render_type
 
@@ -231,8 +231,8 @@ Item {
 
                 color: disabledPalette.text
                 renderType: settings.render_type
-                font.family: settings.font_family ? settings.font_family : textFieldImpl.font.family
-                font.pointSize: settings.font_pointSize > 0 ? settings.font_pointSize : textFieldImpl.font.pointSize
+                font.family: settings.font_family
+                font.pointSize: settings.font_pointSize
                 font.italic: pending
 
                 text: "<" + time.toLocaleTimeString(Qt.locale(), "hh:mm") + ">"
@@ -301,8 +301,8 @@ Item {
                     horizontalAlignment: Text.AlignLeft
                     wrapMode: Text.Wrap
                     color: textColor
-                    font.family: settings.font_family ? settings.font_family : textFieldImpl.font.family
-                    font.pointSize: settings.font_pointSize > 0 ? settings.font_pointSize : textFieldImpl.font.pointSize
+                    font.family: settings.font_family
+                    font.pointSize: settings.font_pointSize
                     renderType: settings.render_type
 
                     // TODO: In the code below, links should be resolved
@@ -415,52 +415,36 @@ Item {
 
                 sourceComponent: FileContent { }
             }
-            ToolButton {
+            TimelineItemToolButton {
                 id: resendButton
                 visible: failed
-                width: visible * implicitWidth
-                height: visible * implicitHeight
-                anchors.top: textField.top
                 anchors.right: discardButton.left
-                anchors.rightMargin: 2
                 text: qsTr("Resend")
 
                 onClicked: room.retryMessage(eventId)
             }
-            ToolButton {
+            TimelineItemToolButton {
                 id: discardButton
                 visible: pending && marks !== EventStatus.ReachedServer
                          && marks !== EventStatus.Departed
-                width: visible * implicitWidth
-                height: visible * implicitHeight
-                anchors.top: textField.top
                 anchors.right: parent.right
-                anchors.rightMargin: 2
                 text: qsTr("Discard")
 
                 onClicked: room.discardMessage(eventId)
             }
-            ToolButton {
+            TimelineItemToolButton {
                 id: goToPredecessorButton
                 visible: !pending && eventResolvedType == "m.room.create" && refId
-                width: visible * implicitWidth
-                height: visible * implicitHeight
-                anchors.top: textField.top
                 anchors.right: parent.right
-                anchors.rightMargin: 2
                 text: qsTr("Go to\nolder room")
 
                 // TODO: Treat unjoined invite-only rooms specially
                 onClicked: controller.joinRequested(refId)
             }
-            ToolButton {
+            TimelineItemToolButton {
                 id: goToSuccessorButton
                 visible: !pending && eventResolvedType == "m.room.tombstone"
-                width: visible * implicitWidth
-                height: visible * implicitHeight
-                anchors.top: textField.top
                 anchors.right: parent.right
-                anchors.rightMargin: 2
                 text: qsTr("Go to\nnew room")
 
                 // TODO: Treat unjoined invite-only rooms specially
