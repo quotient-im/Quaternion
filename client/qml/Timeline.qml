@@ -7,15 +7,11 @@ import Quotient 1.0
 Rectangle {
     id: root
 
-    Settings {
+    TimelineSettings {
         id: settings
-        readonly property bool autoload_images: value("UI/autoload_images", true)
-        readonly property string render_type: value("UI/Fonts/render_type", "NativeRendering")
-        readonly property int animations_duration_ms_impl: value("UI/animations_duration_ms", 400)
-        readonly property int animations_duration_ms:
-            animations_duration_ms_impl == 0 ? 10 : animations_duration_ms_impl
-        readonly property int fast_animations_duration_ms: animations_duration_ms / 2
         readonly property bool use_shuttle_dial: value("UI/use_shuttle_dial", true)
+
+        Component.onCompleted: console.log("Using timeline font: " + font)
     }
     SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
     SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
@@ -85,6 +81,8 @@ Rectangle {
                 ToolTip { text: parent.text }
 
                 font.bold: true
+                font.family: settings.font.family
+                font.pointSize: settings.font.pointSize
                 renderType: settings.render_type
                 readOnly: true
                 selectByKeyboard: true;
@@ -100,6 +98,8 @@ Rectangle {
                               ? qsTr("This room has been upgraded.") :
                     room.isUnstable ? qsTr("Unstable room version!") : ""
                 font.italic: true
+                font.family: settings.font.family
+                font.pointSize: settings.font.pointSize
                 renderType: settings.render_type
                 ToolTip { text: parent.text }
             }
@@ -132,6 +132,7 @@ Rectangle {
                     color:
                         (hasTopic ? defaultPalette : disabledPalette).windowText
                     textFormat: TextEdit.RichText
+                    font: settings.font
                     renderType: settings.render_type
                     readOnly: true
                     selectByKeyboard: true;
@@ -393,6 +394,8 @@ Rectangle {
                 opacity: 0.9
                 Label {
                     font.bold: true
+                    font.family: settings.font.family
+                    font.pointSize: settings.font.pointSize
                     color: disabledPalette.text
                     renderType: settings.render_type
                     text: chatView.underlayingItem ?
@@ -490,6 +493,8 @@ Rectangle {
 
         Label {
             font.bold: true
+            font.family: settings.font.family
+            font.pointSize: settings.font.pointSize
             color: disabledPalette.text
             renderType: settings.render_type
             text: qsTr("%Ln events back from now (%L1 cached%2)",

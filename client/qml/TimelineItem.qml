@@ -7,24 +7,17 @@ import Quotient 1.0
 Item {
     // Supplementary components
 
-    SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
-    SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
-    Settings {
+    TimelineSettings {
         id: settings
-        readonly property bool condense_chat: value("UI/condense_chat", false)
         readonly property bool autoload_images: value("UI/autoload_images", true)
         readonly property string highlight_mode: value("UI/highlight_mode", "background")
         readonly property string highlight_color: value("UI/highlight_color", "orange")
         readonly property string outgoing_color: value("UI/outgoing_color", "#204A87")
-        readonly property string render_type: value("UI/Fonts/render_type", "NativeRendering")
-        readonly property int animations_duration_ms: value("UI/animations_duration_ms", 400)
-        readonly property int fast_animations_duration_ms: animations_duration_ms / 2
-        readonly property string timeline_style: value("UI/timeline_style", "")
         readonly property bool show_author_avatars:
             value("UI/show_author_avatars", timeline_style != "xchat")
-        readonly property string font_family: value("UI/Timeline/font_family", "") ? value("UI/Timeline/font_family") : textFieldImpl.font.family
-        readonly property string font_pointSize: value("UI/Timeline/font_pointSize", 0) > 0 ? value("UI/Timeline/font_pointSize") : textFieldImpl.font.pointSize
     }
+    SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
+    SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
 
     // Property interface
 
@@ -135,6 +128,8 @@ Item {
             visible: sectionVisible
             color: defaultPalette.window
             Label {
+                font.family: settings.font.family
+                font.pointSize: settings.font.pointSize
                 font.bold: true
                 renderType: settings.render_type
                 text: section
@@ -197,8 +192,8 @@ Item {
 
                 color: authorColor
                 textFormat: Label.PlainText
-                font.family: settings.font_family
-                font.pointSize: settings.font_pointSize
+                font.family: settings.font.family
+                font.pointSize: settings.font.pointSize
                 font.bold: !xchatStyle
                 renderType: settings.render_type
 
@@ -231,8 +226,8 @@ Item {
 
                 color: disabledPalette.text
                 renderType: settings.render_type
-                font.family: settings.font_family
-                font.pointSize: settings.font_pointSize
+                font.family: settings.font.family
+                font.pointSize: settings.font.pointSize
                 font.italic: pending
 
                 text: "<" + time.toLocaleTimeString(Qt.locale(), "hh:mm") + ">"
@@ -301,8 +296,7 @@ Item {
                     horizontalAlignment: Text.AlignLeft
                     wrapMode: Text.Wrap
                     color: textColor
-                    font.family: settings.font_family
-                    font.pointSize: settings.font_pointSize
+                    font: settings.font
                     renderType: settings.render_type
 
                     // TODO: In the code below, links should be resolved
@@ -495,6 +489,8 @@ Item {
                 TextEdit {
                     text: "<" + time.toLocaleString(Qt.locale(), Locale.ShortFormat) + ">"
                     font.bold: true
+                    font.family: settings.font.family
+                    font.pointSize: settings.font.pointSize
                     renderType: settings.render_type
                     readOnly: true
                     selectByKeyboard: true; selectByMouse: true
@@ -508,6 +504,8 @@ Item {
                           + "</a> (" + eventResolvedType + ")"
                     textFormat: Text.RichText
                     font.bold: true
+                    font.family: settings.font.family
+                    font.pointSize: settings.font.pointSize
                     renderType: settings.render_type
                     horizontalAlignment: Text.AlignHCenter
                     readOnly: true
@@ -528,6 +526,7 @@ Item {
                 TextEdit {
                     id: permalink
                     text: evtLink
+                    font: settings.font
                     renderType: settings.render_type
                     width: 0; height: 0; visible: false
                 }
@@ -538,6 +537,7 @@ Item {
                 textFormat: Text.PlainText
                 readOnly: true;
                 font.family: "Monospace"
+                font.pointSize: settings.font.pointSize
                 // FIXME: make settings.render_type an integer (but store as string to stay human-friendly)
 //                style: TextAreaStyle {
 //                    renderType: settings.render_type

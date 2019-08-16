@@ -10,9 +10,10 @@ ToolButton {
 
     style: ButtonStyle {
         label: Text {
-          text: control.text
-          font.family: settings.font_family
-          font.pointSize: settings.font_pointSize - 2
+            text: control.text
+            font.family: settings.font.family
+            font.pointSize: settings.font.pointSize - 2
+            renderType: settings.render_type
         }
       }
 }

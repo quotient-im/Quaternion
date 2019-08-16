@@ -22,19 +22,9 @@
 #include <QGuiApplication>
 #include <QKeyEvent>
 
-static QTextDocument* makeDocument()
+static inline QTextDocument* makeDocument()
 {
-    auto textDocument = new QTextDocument();
-
-    const auto fontFamily = Quotient::Settings().value("UI/Timeline/font_family");
-    const auto fontPointSize = Quotient::Settings().value("UI/Timeline/font_pointSize");
-    if (fontFamily.isValid() && fontPointSize.isValid() && fontPointSize.toReal() > 0) {
-        auto font = QFont(fontFamily.toString());
-        font.setPointSizeF(fontPointSize.toReal());
-        textDocument->setDefaultFont(font);
-    }
-
-    return textDocument;
+    return new QTextDocument;
 }
 
 class KChatEdit::KChatEditPrivate
@@ -128,14 +118,8 @@ KChatEdit::KChatEdit(QWidget *parent)
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
     connect(this, &QTextEdit::textChanged, this, &QWidget::updateGeometry);
     d->q = this; // KChatEdit initialization complete, pimpl can use it
-    setDocument(makeDocument());
 
-    // show the placeholder text in the same style
-    const auto fontFamily = Quotient::Settings().value("UI/Timeline/font_family");
-    const auto fontPointSize = Quotient::Settings().value("UI/Timeline/font_pointSize");
-    if (fontFamily.isValid() && fontPointSize.isValid() && fontPointSize.toReal() > 0)
-        setStyleSheet(QString("font-family: %1; font-size: %2pt;").arg(
-                fontFamily.toString(), fontPointSize.toString()));
+    setDocument(makeDocument());
 }
 
 KChatEdit::~KChatEdit() = default;

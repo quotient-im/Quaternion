@@ -147,6 +147,19 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     connect(m_chatEdit, &ChatEdit::cancelledCompletion,
             this, &ChatRoomWidget::typingChanged);
 
+    {
+        Quotient::Settings s;
+        QString styleSheet;
+        const auto fontFamily = s.value("UI/Fonts/timeline_family").toString();
+        if (!fontFamily.isEmpty())
+            styleSheet += "font-family: " + fontFamily + ";";
+        const auto fontPointSize = s.value("UI/Fonts/timeline_pointSize");
+        if (fontPointSize.toReal() > 0.0)
+            styleSheet += "font-size: " + fontPointSize.toString() + "pt;";
+        if (!styleSheet.isEmpty())
+            setStyleSheet(styleSheet);
+    }
+
     auto* layout = new QVBoxLayout();
     layout->addWidget(qmlContainer);
     layout->addWidget(m_hudCaption);

@@ -41,8 +41,28 @@ int main( int argc, char* argv[] )
     QApplication::setApplicationDisplayName(QStringLiteral("Quaternion"));
     QApplication::setApplicationVersion(QStringLiteral("0.0.9.4+git"));
 
-    Quotient::Settings::setLegacyNames(
-                QStringLiteral("QMatrixClient"), QStringLiteral("quaternion"));
+    using Quotient::Settings;
+    Settings::setLegacyNames(QStringLiteral("QMatrixClient"),
+                             QStringLiteral("quaternion"));
+
+    {
+        Settings s;
+        auto font = QApplication::font();
+        if (const auto fontFamily = s.value("UI/Fonts/family");
+            !fontFamily.toString().isEmpty())
+        {
+            font.setFamily(fontFamily.toString());
+        }
+
+        if (const auto fontPointSize = s.value("UI/Fonts/pointSize");
+            fontPointSize.toReal() > 0)
+        {
+            font.setPointSizeF(fontPointSize.toReal());
+        }
+
+        qDebug() << "Using application font:" << font.toString();
+        QApplication::setFont(font);
+    }
 
     // We should not need to do the following, as quitOnLastWindowClosed is
     // set to "true" by default; might be a bug, see
