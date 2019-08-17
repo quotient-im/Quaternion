@@ -11,7 +11,7 @@ Settings {
     readonly property string timeline_style: value("UI/timeline_style", "")
 
     readonly property string font_family_impl: value("UI/Fonts/timeline_family", "")
-    readonly property string font_pointSize_impl: value("UI/Fonts/timeline_pointSize", "")
+    readonly property real font_pointSize_impl: value("UI/Fonts/timeline_pointSize", 0.0)
     readonly property var defaultText: Text {}
     readonly property var font: Qt.font({
         family: font_family_impl ? font_family_impl : defaultText.fontInfo.family,
