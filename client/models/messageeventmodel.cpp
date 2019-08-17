@@ -402,9 +402,25 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                                 std::max(0, row - timelineBaseIndex());
     const auto pendingIt = m_currentRoom->pendingEvents().crbegin() +
                                 std::min(row, timelineBaseIndex());
-    const auto& evt = isPending ? **pendingIt : **timelineIt;
+    const auto& srcEvt = isPending ? **pendingIt : **timelineIt;
 
     using namespace Quotient;
+
+    bool isDecrypted = false;
+    RoomEventPtr decrypted;
+    if (auto e = eventCast<const EncryptedEvent>(&srcEvt))
+    {
+        decrypted = m_currentRoom->decryptMessage(*e);
+        if (decrypted) {
+            decrypted->setSender(e->senderId());
+            if (auto* msgEvent = eventCast<RoomMessageEvent>(decrypted)) {
+                isDecrypted = true;
+                isPending = false;
+            }
+        }
+    }
+    const auto& evt = isDecrypted ? *decrypted.get() : srcEvt;
+
     if( role == Qt::DisplayRole )
     {
         if (evt.isRedacted())
@@ -560,6 +576,9 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                     : tr("updated %1 state for %2",
                          "%1 - Matrix event type, %2 - state key")
                       .arg(e.matrixType(), e.stateKey().toHtmlEscaped());
+            }
+            , [] (const EncryptedEvent& e) {
+                return tr("Encrypted event");
             }
             , tr("Unknown event")
         );
