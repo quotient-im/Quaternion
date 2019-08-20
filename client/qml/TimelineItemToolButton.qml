@@ -4,8 +4,8 @@ import QtQuick.Controls.Styles 1.4
 
 ToolButton {
     width: visible * implicitWidth
-    height: visible * textField.height
-    anchors.top: textField.top
+    height: visible * parent.height
+    anchors.top: parent.top
     anchors.rightMargin: 2
 
     style: ButtonStyle {

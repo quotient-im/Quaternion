@@ -327,10 +327,14 @@ Rectangle {
 
             onMovementEnded: saveViewport()
 
-            populate: Transition { NumberAnimation {
-                property: "opacity"; from: 0; to: 1
-                duration: settings.fast_animations_duration_ms
-            }}
+            populate: Transition {
+                // TODO: It has huge negative impact on room changing speed
+                enabled: settings.animations_duration_ms_impl > 0
+                NumberAnimation {
+                    property: "opacity"; from: 0; to: 1
+                    duration: settings.fast_animations_duration_ms
+                }
+            }
 
             add: Transition { NumberAnimation {
                 property: "opacity"; from: 0; to: 1
@@ -360,10 +364,20 @@ Rectangle {
                 enabled: !chatView.moving
                 SmoothedAnimation {
                     id: scrollAnimation
-                    duration: settings.fast_animations_duration_ms / 4
-                    maximumEasingTime: settings.fast_animations_duration_ms / 2
+                    // It would mislead the benchmark below
+                    duration: settings.animations_duration_ms_impl > 0 ? settings.fast_animations_duration_ms / 4 : 0
+                    maximumEasingTime: settings.animations_duration_ms_impl > 0 ? settings.fast_animations_duration_ms / 2 : 0
 
-                    onRunningChanged: { if (!running) chatView.saveViewport() }
+                    onRunningChanged: {
+                        if (!running) {
+                            chatView.saveViewport()
+                            if (settings.animations_duration_ms_impl == 0)
+                                console.timeEnd("scroll")
+                        } else {
+                            if (settings.animations_duration_ms_impl == 0)
+                                console.time("scroll")
+                        }
+                    }
             }}
             Keys.onUpPressed: {
                 contentY = Math.max(originY, contentY - height / 5)
