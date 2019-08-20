@@ -313,8 +313,8 @@ Rectangle {
             }
             Connections {
                 target: controller
-                onPageUpPressed: chatView.scrollUp(height)
-                onPageDownPressed: chatView.scrollDown(height)
+                onPageUpPressed: chatView.scrollUp(chatView.height - sectionBanner.childrenRect.height)
+                onPageDownPressed: chatView.scrollDown(chatView.height - sectionBanner.childrenRect.height)
             }
 
             Component.onCompleted: {
