@@ -11,9 +11,12 @@ ToolButton {
     style: ButtonStyle {
         label: Text {
             text: control.text
-            font.family: settings.font.family
-            font.pointSize: settings.font.pointSize - 2
+            font: settings.font
+            fontSizeMode: Text.VerticalFit
+            minimumPointSize: settings.font.pointSize - 3
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
             renderType: settings.render_type
         }
-      }
+    }
 }
