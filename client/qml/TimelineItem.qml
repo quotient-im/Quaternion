@@ -263,7 +263,7 @@ Item {
                              ? authorLabel.bottom : authorAvatar.top
                 anchors.left: xchatStyle ? authorLabel.right : timelabel.right
                 anchors.leftMargin: 1
-                anchors.right: resendButton.left
+                anchors.right: parent.right
                 anchors.rightMargin: 1
                 height: textFieldImpl.height
                 clip: true
@@ -409,6 +409,45 @@ Item {
 
                 sourceComponent: FileContent { }
             }
+            Loader {
+                id: buttonAreaLoader
+                active: failed || // resendButton
+                        (pending && marks !== EventStatus.ReachedServer && marks !== EventStatus.Departed) || // discardButton
+                        (!pending && eventResolvedType == "m.room.create" && refId) || // goToPredecessorButton
+                        (!pending && eventResolvedType == "m.room.tombstone") // goToSuccessorButton
+
+                anchors.top: textField.top
+                anchors.right: parent.right
+                height: textField.height
+
+                sourceComponent: buttonArea
+            }
+        }
+    }
+    Rectangle {
+        id: readMarkerLine
+
+        width: readMarker && parent.width
+        height: 3
+        anchors.horizontalCenter: fullMessage.horizontalCenter
+        anchors.bottom: fullMessage.bottom
+        Behavior on width { NumberAnimation {
+            duration: settings.animations_duration_ms
+            easing.type: Easing.OutQuad
+        }}
+
+        gradient: Gradient {
+            GradientStop { position: 0; color: "transparent" }
+            GradientStop { position: 1; color: defaultPalette.highlight }
+        }
+    }
+
+    // Components loaded on demand
+
+    Component {
+        id: buttonArea
+
+        Item {
             TimelineItemToolButton {
                 id: resendButton
                 visible: failed
@@ -446,25 +485,6 @@ Item {
             }
         }
     }
-    Rectangle {
-        id: readMarkerLine
-
-        width: readMarker && parent.width
-        height: 3
-        anchors.horizontalCenter: fullMessage.horizontalCenter
-        anchors.bottom: fullMessage.bottom
-        Behavior on width { NumberAnimation {
-            duration: settings.animations_duration_ms
-            easing.type: Easing.OutQuad
-        }}
-
-        gradient: Gradient {
-            GradientStop { position: 0; color: "transparent" }
-            GradientStop { position: 1; color: defaultPalette.highlight }
-        }
-    }
-
-    // Components loaded on demand
 
     Component {
         id: detailsArea
