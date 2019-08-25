@@ -11,11 +11,12 @@ Settings {
     readonly property string timeline_style: value("UI/timeline_style", "")
 
     readonly property string font_family_impl: value("UI/Fonts/timeline_family", "")
-    readonly property real font_pointSize_impl: value("UI/Fonts/timeline_pointSize", 0.0)
+    readonly property real font_pointSize_impl:
+        parseFloat(value("UI/Fonts/timeline_pointSize", ""))
     readonly property var defaultText: Text {}
     readonly property var font: Qt.font({
         family: font_family_impl ? font_family_impl : defaultText.fontInfo.family,
-        pointSize: font_pointSize_impl ? font_pointSize_impl : defaultText.fontInfo.pointSize
+        pointSize: font_pointSize_impl > 0 ? font_pointSize_impl : defaultText.fontInfo.pointSize
     })
     readonly property string render_type:
         value("UI/Fonts/render_type", "NativeRendering")
