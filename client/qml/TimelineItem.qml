@@ -73,6 +73,10 @@ Item {
         if (!pending)
             controller.onMessageShownChanged(eventId, shown)
     }
+    onPendingChanged: {
+        if (!pending)
+            controller.onMessageShownChanged(eventId, shown)
+    }
 
     Component.onCompleted: {
         if (shown)
