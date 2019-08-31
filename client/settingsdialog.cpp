@@ -24,6 +24,7 @@
 #include <QTabWidget>
 #include <QVBoxLayout>
 #include <QDialog>
+#include <QFontComboBox>
 
 using Quotient::SettingsGroup;
 
@@ -59,6 +60,42 @@ GeneralPage::GeneralPage(SettingsDialog *parent):
 {
     Ui_GeneralPage::setupUi(this);
 
+    // uiFont
+    const auto curUIFontFamily = SettingsGroup("UI").value("Fonts/family", "").toString();
+    uiFontFamily->insertItem(0, tr("system default"));
+    if (curUIFontFamily == "") {
+        uiFontFamily->setCurrentIndex(0);
+        uiFontPointSize->setDisabled(true);
+    } else {
+        uiFontFamily->setCurrentIndex(uiFontFamily->findText(curUIFontFamily));
+    }
+
+    connect(uiFontFamily, &QFontComboBox::currentFontChanged, this, [this](const QFont &font) {
+        QString value;
+        if (font.family() == tr("system default")) {
+            uiFontPointSize->setDisabled(true);
+            SettingsGroup("UI").setValue("Fonts/pointSize", "");
+            value = "";
+        } else {
+            uiFontPointSize->setDisabled(false);
+            if (uiFontPointSize->currentIndex() == -1) {
+                uiFontPointSize->setCurrentIndex(3);
+                SettingsGroup("UI").setValue("Fonts/pointSize", "9");
+            }
+            value = font.family();
+        }
+        SettingsGroup("UI").setValue("Fonts/family", value);
+    });
+
+    for (int i = 6; i <= 18; i++)
+        uiFontPointSize->addItem(QString::number(i));
+    const auto curUIFontPointSize = SettingsGroup("UI").value("Fonts/pointSize", "");
+    uiFontPointSize->setCurrentIndex(curUIFontPointSize.toInt() - 6);
+
+    connect(uiFontPointSize, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), this, [this](const QString &text) {
+        SettingsGroup("UI").setValue("Fonts/pointSize", text);
+    });
+
     // closeToTray
     closeToTray->setChecked(SettingsGroup("UI").value("close_to_tray", false).toBool());
     connect(closeToTray, &QAbstractButton::toggled, this, [=](bool checked) {
@@ -75,6 +112,44 @@ GeneralPage::GeneralPage(SettingsDialog *parent):
     connect(timeline_layout, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int index) {
         auto new_layout = timeline_layout->itemData(index).toString();
         SettingsGroup("UI").setValue("timeline_style", new_layout);
+        emit timelineChanged();
+    });
+
+    // timelineFont
+    const auto curTimelineFontFamily = SettingsGroup("UI").value("Fonts/timeline_family", "").toString();
+    timelineFontFamily->insertItem(0, tr("system default"));
+    if (curTimelineFontFamily == "") {
+        timelineFontFamily->setCurrentIndex(0);
+        timelineFontPointSize->setDisabled(true);
+    } else {
+        timelineFontFamily->setCurrentIndex(timelineFontFamily->findText(curTimelineFontFamily));
+    }
+
+    connect(timelineFontFamily, &QFontComboBox::currentFontChanged, this, [this](const QFont &font) {
+        QString value;
+        if (font.family() == tr("system default")) {
+            timelineFontPointSize->setDisabled(true);
+            SettingsGroup("UI").setValue("Fonts/timeline_pointSize", "");
+            value = "";
+        } else {
+            timelineFontPointSize->setDisabled(false);
+            if (timelineFontPointSize->currentIndex() == -1) {
+                timelineFontPointSize->setCurrentIndex(3);
+                SettingsGroup("UI").setValue("Fonts/timeline_pointSize", "9");
+            }
+            value = font.family();
+        }
+        SettingsGroup("UI").setValue("Fonts/timeline_family", value);
+        emit timelineChanged();
+    });
+
+    for (int i = 6; i <= 18; i++)
+        timelineFontPointSize->addItem(QString::number(i));
+    const auto curTimelineFontPointSize = SettingsGroup("UI").value("Fonts/timeline_pointSize", "");
+    timelineFontPointSize->setCurrentIndex(curTimelineFontPointSize.toInt() - 6);
+
+    connect(timelineFontPointSize, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), this, [this](const QString &text) {
+        SettingsGroup("UI").setValue("Fonts/timeline_pointSize", text);
         emit timelineChanged();
     });
 
