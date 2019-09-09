@@ -916,8 +916,8 @@ void MainWindow::showAboutWindow()
 #endif
 
 #ifdef LIB_GIT_SHA1
-        auto* libCommitLabel = new QLabel(new QLabel(tr("Library commit SHA:") + '\n' +
-                                          QStringLiteral(LIB_GIT_SHA1)));
+        auto* libCommitLabel = new QLabel(tr("Library commit SHA:") + '\n' +
+                                          QStringLiteral(LIB_GIT_SHA1));
         libCommitLabel->setTextInteractionFlags(Qt::TextSelectableByKeyboard|
                                                 Qt::TextSelectableByMouse);
         layout->addWidget(libCommitLabel);
