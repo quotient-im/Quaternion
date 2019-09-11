@@ -32,8 +32,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     "MinSizeRel" "RelWithDebInfo")
 endif()
 
-set(CMAKE_CXX_STANDARD 17)
-
 # Setup command line parameters for the compiler and linker
 if (MSVC)
     add_compile_options(/EHsc /W4
@@ -219,10 +217,12 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
     ${quaternion_SRCS} ${quaternion_QRC_SRC} ${quaternion_QM}
     ${quaternion_WINRC} ${${PROJECT_NAME}_MAC_ICON})
 
-target_link_libraries(${PROJECT_NAME}
-    Quotient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
+
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     GIT_SHA1="${GIT_SHA1}" LIB_GIT_SHA1="${LIB_GIT_SHA1}")
+target_link_libraries(${PROJECT_NAME}
+    Quotient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
 
 if (USE_QQUICKWIDGET)
     target_compile_definitions(${PROJECT_NAME} PRIVATE USE_QQUICKWIDGET)
@@ -236,8 +236,10 @@ if(USE_KEYCHAIN)
 endif()
 
 # macOS specific config for bundling
-set_property(TARGET ${PROJECT_NAME} PROPERTY
-    MACOSX_BUNDLE_INFO_PLIST "${PROJECT_SOURCE_DIR}/cmake/MacOSXBundleInfo.plist.in")
+if (APPLE)
+    set_property(TARGET ${PROJECT_NAME} PROPERTY MACOSX_BUNDLE_INFO_PLIST
+                 "${PROJECT_SOURCE_DIR}/cmake/MacOSXBundleInfo.plist.in")
+endif()
 
 # Installation
 
