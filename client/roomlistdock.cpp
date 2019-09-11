@@ -317,12 +317,8 @@ void RoomListDock::addTagsSelected()
         const auto enteredTags =
                 tagsInput->toPlainText().split('\n', QString::SkipEmptyParts);
         for (const auto& tag: enteredTags)
-        {
-            // No overwriting, just ensure the tag exists
-            tags[tag == tr("Favourites") ? Quotient::FavouriteTag :
-                 tag == tr("Low priority") ? Quotient::LowPriorityTag :
-                 tag];
-        }
+            tags[captionToTag(tag)]; // No overwriting, just ensure existence
+
         room->setTags(tags);
     }
 }

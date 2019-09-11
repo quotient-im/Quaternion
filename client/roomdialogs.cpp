@@ -20,6 +20,7 @@
 
 #include "mainwindow.h"
 #include "quaternionroom.h"
+#include "models/orderbytag.h" // For tagToCaption()
 #include <user.h>
 #include <connection.h>
 #include <csapi/create_room.h>
@@ -245,12 +246,7 @@ void RoomSettingsDialog::load()
     auto roomTags = room->tagNames();
     for (const auto& tag: room->connection()->tagNames())
     {
-        auto tagDisplayName =
-                tag == Quotient::FavouriteTag ? tr("Favourites") :
-                tag == Quotient::LowPriorityTag ? tr("Low priority") :
-                tag.startsWith("u.") ? tag.mid(2) :
-                tag;
-        auto* item = new QListWidgetItem(tagDisplayName, tagsList);
+        auto* item = new QListWidgetItem(tagToCaption(tag), tagsList);
         item->setData(Qt::UserRole, tag);
         item->setFlags(Qt::ItemIsEnabled|Qt::ItemIsUserCheckable);
         item->setCheckState(

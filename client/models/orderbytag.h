@@ -19,6 +19,10 @@
 
 #include "abstractroomordering.h"
 
+// TODO: When the library l10n is enabled, these two should go down to it
+QString tagToCaption(const QString& tag);
+QString captionToTag(const QString& caption);
+
 class OrderByTag : public AbstractRoomOrdering
 {
     public:
