@@ -1023,17 +1023,21 @@ void MainWindow::logout(Connection* c)
     QKeychain::DeletePasswordJob::connect(&job, &QKeychain::Job::finished, &loop, &QEventLoop::quit);
     job.start();
     loop.exec();
-    if (job.error())
-    {
-        qWarning() << "Could not delete access token from the keychain: " << qPrintable(job.errorString());
-        if (job.error() != QKeychain::Error::NoBackendAvailable &&
-            job.error() != QKeychain::Error::NotImplemented &&
-            job.error() != QKeychain::Error::OtherError)
-        {
-            QMessageBox::warning(this,
-                                 tr("Couldn't delete access token"),
-                                 tr("Quaternion couldn't delete the access token from the keychain."),
-                                 QMessageBox::Close);
+    if (job.error()) {
+        if (job.error() == QKeychain::Error::EntryNotFound)
+            qDebug() << "Access token is not in the keychain, nothing to delete";
+        else {
+            qWarning() << "Could not delete access token from the keychain: "
+                       << qPrintable(job.errorString());
+            if (job.error() != QKeychain::Error::NoBackendAvailable &&
+                job.error() != QKeychain::Error::NotImplemented &&
+                job.error() != QKeychain::Error::OtherError)
+            {
+                QMessageBox::warning(this, tr("Couldn't delete access token"),
+                                     tr("Quaternion couldn't delete the access "
+                                        "token from the keychain."),
+                                     QMessageBox::Close);
+            }
         }
     }
 #endif
