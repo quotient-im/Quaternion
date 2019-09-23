@@ -129,8 +129,8 @@ RoomListDock::RoomListDock(MainWindow* parent)
     connect(model, &RoomListModel::groupAdded, this, [this](int groupPos) {
         const auto& i = model->index(groupPos, 0);
         const auto groupKey = model->roomGroupAt(i).toString();
-        Q_ASSERT(
-            !groupKey.startsWith("org.qmatrixclient")); // Fighting the legacy
+        if (groupKey.startsWith("org.qmatrixclient"))
+            qCritical() << groupKey << "is deprecated!"; // Fighting the legacy
         auto groupState = dockSettings.value(groupKey);
         if (!groupState.isValid()) {
             if (groupKey.startsWith(RoomGroup::SystemPrefix)) {
