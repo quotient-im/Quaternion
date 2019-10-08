@@ -1279,8 +1279,11 @@ void MainWindow::setCompleter(QLineEdit* edit, Connection* connection,
     QStringList list;
     if (type & Room)
     {
-        for (auto* room: connection->roomMap())
-            list << room->canonicalAlias();
+        for (auto* room : connection->allRooms()) {
+            list << room->id();
+            if (!room->canonicalAlias().isEmpty())
+                list << room->canonicalAlias();
+        }
     }
     if (type & User)
     {
