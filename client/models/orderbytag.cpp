@@ -136,12 +136,12 @@ bool OrderByTag::roomLessThan(const QVariant& groupKey,
     if (auto roomCmpRes = r1->displayName().localeAwareCompare(r2->displayName()))
         return roomCmpRes < 0;
 
-    // 4. Within the same display name, order by room id
+    // 3. Within the same display name, order by room id
     // (typically the case when both display names are completely empty)
     if (auto roomIdCmpRes = r1->id().compare(r2->id()))
         return roomIdCmpRes < 0;
 
-    // 3. Room ids are equal; order by connections (=userids)
+    // 4. Room ids are equal; order by connections (=userids)
     const auto c1 = r1->connection();
     const auto c2 = r2->connection();
     if (c1 != c2)
