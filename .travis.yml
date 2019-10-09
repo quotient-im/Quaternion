@@ -97,6 +97,8 @@ script:
     mv -v quaternion.dmg "quaternion-$VERSION.dmg"
   fi
 - popd
+
+after_success:
 # TODO: maybe move AppImage generation to CMakeLists.txt
 # (pre-wgetting AppImageKit to avoid CMakeList.txt dependency on Internet?)
 # FIXME: The AppImageKit downloadables should at the very least be verified
@@ -117,8 +119,6 @@ script:
       export APPIMAGE_READY=1
     popd
   fi
-
-after_success:
 - sed -i -e "s/VERSION_VALUE/$VERSION/g" .ci/bintray-release.json
 - sed -i -e "s/VERSION_SUFFIX/$VERSION_SUFFIX/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_SUBJECT/$BINTRAY_SUBJECT/g" .ci/bintray-release.json
