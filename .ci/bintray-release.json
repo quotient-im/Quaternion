@@ -1,7 +1,7 @@
 {
   "files": [
     {
-      "includePattern": "build/quaternion-VERSION_VALUE.dmg",
+      "includePattern": "quaternion-VERSION_VALUE.dmg",
       "uploadPattern": "quaternion-VERSION_VALUE.dmg"
     },
     {

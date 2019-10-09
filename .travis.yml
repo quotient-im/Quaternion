@@ -72,31 +72,32 @@ matrix:
         - qt5
         - qtkeychain
 
-install:
-- pushd lib/3rdparty/libQtOlm
-- git clone https://gitlab.matrix.org/matrix-org/olm.git
-- popd
-
-before_script:
+before_install:
 - if [ -f /opt/qt512/bin/qt512-env.sh ]; then . /opt/qt512/bin/qt512-env.sh; fi
 # VERSION is also used by linuxdeployqt
 - if [ -n "$TRAVIS_TAG" ]; then export VERSION="$TRAVIS_TAG"; else export VERSION="git$(git rev-list --count HEAD)"; fi
+- export DESTDIR=$TRAVIS_BUILD_DIR/install
+- export CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_PREFIX_PATH=$DESTDIR/usr"
 - if [ -n "$BUILD_APPIMAGE" ]; then export CMAKE_ARGS="$CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF"; fi
 
+install:
+- git clone https://gitlab.matrix.org/matrix-org/olm.git
+- pushd olm
+- cmake . -Bbuild $CMAKE_ARGS
+- cmake --build build --target install
+- popd
+
 script:
-- mkdir build && pushd build
 # TODO: add building with an external lib
-- cmake .. -LA -DUSE_INTREE_LIBQMC=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY $CMAKE_ARGS
-- if [ -f "$(which appstream-util)" ]; then appstream-util validate ../linux/*.appdata.xml; fi
-- cmake --build . --target all
-- export DESTDIR=$TRAVIS_BUILD_DIR/install
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then cmake --build . --target install; fi
+- cmake . -Bbuild -LA -DUSE_INTREE_LIBQMC=1 -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY $CMAKE_ARGS
+- if [ -f "$(which appstream-util)" ]; then appstream-util validate linux/*.appdata.xml; fi
+- cmake --build build --target all
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; then cmake --build build --target install; fi
 - |
   if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-    cmake --build . --target image
-    mv -v quaternion.dmg "quaternion-$VERSION.dmg"
+    cmake --build build --target image
+    mv -v build/quaternion.dmg "quaternion-$VERSION.dmg"
   fi
-- popd
 
 after_success:
 # TODO: maybe move AppImage generation to CMakeLists.txt
@@ -136,7 +137,7 @@ deploy:
 
 - provider: releases
   api_key: $GITHUB_API_KEY
-  file: build/quaternion-$VERSION.dmg
+  file: quaternion-$VERSION.dmg
   skip_cleanup: true
   on:
     tags: true
