@@ -4,6 +4,11 @@ dist: bionic
 git:
   depth: false
 
+env:
+  global:
+  - DESTDIR: "$TRAVIS_BUILD_DIR/install"
+  - CMAKE_ARGS="-DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_PREFIX_PATH=$DESTDIR/usr"
+
 matrix:
   include:
   - os: linux
@@ -77,26 +82,29 @@ before_install:
 # VERSION is also used by linuxdeployqt
 - if [ -n "$TRAVIS_TAG" ]; then export VERSION="$TRAVIS_TAG"; else export VERSION="git$(git rev-list --count HEAD)"; fi
 - if [ -f "$(which ninja)" ]; then export CMAKE_ARGS="$CMAKE_ARGS -GNinja"; fi
-- export DESTDIR=$TRAVIS_BUILD_DIR/install
-- export CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_PREFIX_PATH=$DESTDIR/usr"
 - if [ -n "$BUILD_APPIMAGE" ]; then export CMAKE_ARGS="$CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF"; fi
+# RPM spec-style: swallow a command with default parameters into a variable
+# and add/override parameters further in the code if/as necessary
+- shopt -s expand_aliases
+- alias _cmake_config='cmake $CMAKE_ARGS . -Bbuild'
+- alias _cmake_build='cmake --build build'
 
 install:
 - git clone https://gitlab.matrix.org/matrix-org/olm.git
 - pushd olm
-- cmake . -Bbuild $CMAKE_ARGS
-- cmake --build build --target install
+- _cmake_config
+- _cmake_build # TODO: --target install when the patch for olm lands
 - popd
 
 script:
 # TODO: add building with an external lib
-- cmake . -Bbuild -LA -DUSE_INTREE_LIBQMC=1 -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY $CMAKE_ARGS
+- _cmake_config -LA -DUSE_INTREE_LIBQMC=1 -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY
 - if [ -f "$(which appstream-util)" ]; then appstream-util validate linux/*.appdata.xml; fi
-- cmake --build build --target all
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then cmake --build build --target install; fi
+- _cmake_build --target all
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; then _cmake_build --target install; fi
 - |
   if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-    cmake --build build --target image
+    _cmake_build --target image
     mv -v build/quaternion.dmg "quaternion-$VERSION.dmg"
   fi
 
