@@ -18,6 +18,7 @@ matrix:
     addons:
       apt:
         packages:
+        - ninja-build
         - qtdeclarative5-dev
         - qml-module-qtquick-controls
         - qml-module-qtquick-controls2
@@ -52,6 +53,7 @@ matrix:
         sources:
         - sourceline: 'ppa:beineri/opt-qt-5.12.3-bionic'
         packages:
+        - ninja-build
         - libgl1-mesa-dev # Forgotten Qt dep
         - qt512base
         - qt512imageformats
@@ -76,6 +78,7 @@ before_install:
 - if [ -f /opt/qt512/bin/qt512-env.sh ]; then . /opt/qt512/bin/qt512-env.sh; fi
 # VERSION is also used by linuxdeployqt
 - if [ -n "$TRAVIS_TAG" ]; then export VERSION="$TRAVIS_TAG"; else export VERSION="git$(git rev-list --count HEAD)"; fi
+- if [ -f "$(which ninja)" ]; then export CMAKE_ARGS="$CMAKE_ARGS -GNinja"; fi
 - export DESTDIR=$TRAVIS_BUILD_DIR/install
 - export CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_PREFIX_PATH=$DESTDIR/usr"
 - if [ -n "$BUILD_APPIMAGE" ]; then export CMAKE_ARGS="$CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF"; fi
