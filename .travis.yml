@@ -4,6 +4,9 @@ dist: bionic
 git:
   depth: false
 
+cache:
+  apt: true
+
 env:
   global:
   - DESTDIR: "$TRAVIS_BUILD_DIR/install"
@@ -25,13 +28,19 @@ matrix:
         - qt5keychain-dev
   - os: linux
     dist: xenial
-    compiler: clang
-    env: [ 'VERSION_SUFFIX="-compat"', 'BUILD_APPIMAGE=1' ]
+    compiler: gcc
+    env:
+    - BUILD_APPIMAGE=1
+    - CMAKE_ARGS="$CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF"
+    - CC=gcc-7
+    - CXX=g++-7
     addons:
       apt:
         sources:
+        - ubuntu-toolchain-r-test
         - sourceline: 'ppa:beineri/opt-qt-5.12.3-xenial'
         packages:
+        - g++-7
         - libgl1-mesa-dev # Forgotten Qt dep
         - qt512base
         - qt512imageformats
@@ -43,9 +52,31 @@ matrix:
         - qt512translations
         - qt5keychain-dev
         - appstream-util
+    after_success:
+    # TODO: maybe move AppImage generation to CMakeLists.txt
+    # (pre-wgetting AppImageKit to avoid CMakeList.txt dependency on Internet?)
+    # FIXME: The AppImageKit downloadables should at the very least be verified
+    - mkdir AppImageKit && pushd AppImageKit
+    - |
+      wget -c -nv \
+        "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" \
+        "https://github.com/darealshinji/AppImageKit-checkrt/releases/download/continuous/exec-x86_64.so" \
+        "https://github.com/darealshinji/AppImageKit-checkrt/releases/download/continuous/AppRun-patched-x86_64"
+    - chmod a+x ./linuxdeployqt-continuous-x86_64.AppImage
+    - install -D -m "u=rw,go=r" -t $DESTDIR/usr/optional/libstdc++ /usr/lib/x86_64-linux-gnu/libstdc++.so.6
+    - install -D -m "u=rw,go=r" ./exec*.so $DESTDIR/usr/optional/exec.so
+    - install -m "u=rwx,go=rx" ./AppRun* $DESTDIR/AppRun
+    - unset QTDIR QT_PLUGIN_PATH LD_LIBRARY_PATH
+    - |
+      ./linuxdeployqt-continuous-x86_64.AppImage \
+        $DESTDIR/usr/share/applications/*.desktop -appimage \
+        -extra-plugins=iconengines,platformthemes/libqgtk3.so \
+        -qmldir=$TRAVIS_BUILD_DIR/client/qml -verbose=$DEPLOY_VERBOSITY
+    - export APPIMAGE_READY=1
+    - popd
+
   - os: linux
     compiler: clang
-    env: [ 'BUILD_APPIMAGE=1' ]
     addons:
       apt:
         sources:
@@ -76,13 +107,15 @@ matrix:
         packages:
         - qt5
         - qtkeychain
+    after_success:
+    - _cmake_build --target image
+    - mv -v build/quaternion.dmg "quaternion-$VERSION.dmg"
 
 before_install:
 - if [ -f /opt/qt512/bin/qt512-env.sh ]; then . /opt/qt512/bin/qt512-env.sh; fi
 # VERSION is also used by linuxdeployqt
 - if [ -n "$TRAVIS_TAG" ]; then export VERSION="$TRAVIS_TAG"; else export VERSION="git$(git rev-list --count HEAD)"; fi
 - if [ -f "$(which ninja)" ]; then export CMAKE_ARGS="$CMAKE_ARGS -GNinja"; fi
-- if [ -n "$BUILD_APPIMAGE" ]; then export CMAKE_ARGS="$CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF"; fi
 # RPM spec-style: swallow a command with default parameters into a variable
 # and add/override parameters further in the code if/as necessary
 - shopt -s expand_aliases
@@ -96,39 +129,18 @@ install:
 - _cmake_build # TODO: --target install when the patch for olm lands
 - popd
 
+#before_script is reserved for customisation in the build matrix
+
 script:
 # TODO: add building with an external lib
 - _cmake_config -LA -DUSE_INTREE_LIBQMC=1 -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY
 - if [ -f "$(which appstream-util)" ]; then appstream-util validate linux/*.appdata.xml; fi
 - _cmake_build --target all
 - if [ "$TRAVIS_OS_NAME" = "linux" ]; then _cmake_build --target install; fi
-- |
-  if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-    _cmake_build --target image
-    mv -v build/quaternion.dmg "quaternion-$VERSION.dmg"
-  fi
 
-after_success:
-# TODO: maybe move AppImage generation to CMakeLists.txt
-# (pre-wgetting AppImageKit to avoid CMakeList.txt dependency on Internet?)
-# FIXME: The AppImageKit downloadables should at the very least be verified
-- |
-  if [ -n "$BUILD_APPIMAGE" ]; then
-    mkdir AppImageKit && pushd AppImageKit
-      wget -c -nv \
-        "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" \
-        "https://github.com/darealshinji/AppImageKit-checkrt/releases/download/continuous/exec-x86_64.so" \
-        "https://github.com/darealshinji/AppImageKit-checkrt/releases/download/continuous/AppRun-patched-x86_64"
-      chmod a+x ./linuxdeployqt-continuous-x86_64.AppImage
-      install -D -m "u=rw,go=r" -t $DESTDIR/usr/optional/libstdc++ /usr/lib/x86_64-linux-gnu/libstdc++.so.6
-      install -D -m "u=rw,go=r" ./exec*.so $DESTDIR/usr/optional/exec.so
-      install -m "u=rwx,go=rx" ./AppRun* $DESTDIR/AppRun
-      unset QTDIR QT_PLUGIN_PATH LD_LIBRARY_PATH
-      ./linuxdeployqt-continuous-x86_64.AppImage \
-        $DESTDIR/usr/share/applications/*.desktop -appimage -extra-plugins=iconengines,platformthemes/libqgtk3.so -qmldir=$TRAVIS_BUILD_DIR/client/qml -verbose=$DEPLOY_VERBOSITY
-      export APPIMAGE_READY=1
-    popd
-  fi
+#after_success is reserved for customisation in the build matrix
+
+before_deploy:
 - sed -i -e "s/VERSION_VALUE/$VERSION/g" .ci/bintray-release.json
 - sed -i -e "s/VERSION_SUFFIX/$VERSION_SUFFIX/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_SUBJECT/$BINTRAY_SUBJECT/g" .ci/bintray-release.json
