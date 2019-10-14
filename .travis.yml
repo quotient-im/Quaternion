@@ -4,13 +4,6 @@ dist: bionic
 git:
   depth: false
 
-before_cache:
-  - brew cleanup
-
-cache:
-  directories:
-    - $HOME/Library/Caches/Homebrew
-
 matrix:
   include:
   - os: linux
@@ -67,6 +60,11 @@ matrix:
         - appstream-util
   - os: osx
     env: [ 'PATH=/usr/local/opt/qt/bin:$PATH' ]
+    before_cache:
+    - brew cleanup
+    cache:
+      directories:
+      - $HOME/Library/Caches/Homebrew
     addons:
       homebrew:
         update: true
