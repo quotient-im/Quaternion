@@ -26,11 +26,11 @@ before_build:
 - cmake %CMAKE_ARGS% -Holm -Bbuild/olm
 - cmake --build build/olm
 - git clone https://github.com/frankosterfeld/qtkeychain.git
-- cmake %CMAKE_ARGS% -Hqtkeychain -Bbuild/qtkeychain -DQTKEYCHAIN_STATIC=ON
-- cmake --build build/qtkeychain
+- cmake %CMAKE_ARGS% -Hqtkeychain -Bbuild/qtkeychain -DQTKEYCHAIN_STATIC=ON -DCMAKE_INSTALL_PREFIX=install
+- cmake --build build/qtkeychain --target install
 
 build_script:
-- cmake %CMAKE_ARGS% -LA -H. -Bbuild -DCMAKE_INSTALL_PREFIX="%DEPLOY_DIR%" -DUSE_INTREE_LIBQMC=1 -DOlm_DIR="build/olm" -DQt5Keychain_FOUND=TRUE -DQt5Keychain_DIR="build/qtkeychain" -DDEPLOY_VERBOSITY=%DEPLOY_VERBOSITY%
+- cmake %CMAKE_ARGS% -LA -H. -Bbuild -DCMAKE_INSTALL_PREFIX="%DEPLOY_DIR%" -DUSE_INTREE_LIBQMC=1 -DOlm_DIR="build/olm" -DQt5Keychain_FOUND=TRUE -DQt5Keychain_DIR="install/lib/cmake/Qt5Keychain" -DDEPLOY_VERBOSITY=%DEPLOY_VERBOSITY%
 - cmake --build build --target install
 
 after_build:
