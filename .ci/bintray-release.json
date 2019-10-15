@@ -1,12 +1,12 @@
 {
   "files": [
     {
-      "includePattern": "build/quaternion-VERSION_VALUE.dmg",
+      "includePattern": "quaternion-VERSION_VALUE.dmg",
       "uploadPattern": "quaternion-VERSION_VALUE.dmg"
     },
     {
       "includePattern": "\./(Quaternion.*\.AppImage)",
-      "uploadPattern": "quaternion-VERSION_VALUEVERSION_SUFFIX.x86_64.AppImage"
+      "uploadPattern": "quaternion-VERSION_VALUE.x86_64.AppImage"
     }
   ],
   "package": {

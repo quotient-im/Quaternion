@@ -1,6 +1,7 @@
 image: Visual Studio 2017
 
 environment:
+  CMAKE_ARGS: '-G "NMake Makefiles JOM" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=RelWithDebInfo'
   matrix:
   - QTDIR: C:\Qt\5.12.4\msvc2017_64
     VCVARS: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
@@ -21,21 +22,18 @@ before_build:
 - if %APPVEYOR_REPO_TAG% == true (set VERSION=%APPVEYOR_REPO_TAG_NAME%) else for /F %%I in ('git rev-list --count HEAD') do set VERSION=git%%I
 - set DEPLOY_DIR=Quaternion-%VERSION%
 - git submodule update --init --recursive
-- cd lib/3rdparty/libQtOlm
 - git clone https://gitlab.matrix.org/matrix-org/olm.git
-- cd ../../..
+- cmake %CMAKE_ARGS% -Holm -Bbuild/olm
+- cmake --build build/olm
 - git clone https://github.com/frankosterfeld/qtkeychain.git
-- cd qtkeychain
-- cmake -LA -G "NMake Makefiles JOM" -H. -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="install" -DQTKEYCHAIN_STATIC=ON
-- cmake --build build --target install
-- cd ..
+- cmake %CMAKE_ARGS% -Hqtkeychain -Bbuild/qtkeychain -DQTKEYCHAIN_STATIC=ON
+- cmake --build build/qtkeychain --target install
 
 build_script:
-- cmake -LA -G "NMake Makefiles JOM" -H. -Bbuild -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="%DEPLOY_DIR%" -DUSE_INTREE_LIBQMC=1 -DQt5Keychain_FOUND=TRUE -DQt5Keychain_DIR="qtkeychain/install/lib/cmake/Qt5Keychain" -DDEPLOY_VERBOSITY=%DEPLOY_VERBOSITY%
-- cmake --build build
+- cmake %CMAKE_ARGS% -LA -H. -Bbuild -DCMAKE_INSTALL_PREFIX="%DEPLOY_DIR%" -DUSE_INTREE_LIBQMC=1 -DOlm_DIR="build/olm" -DQt5Keychain_FOUND=TRUE -DQt5Keychain_DIR="install/lib/cmake/Qt5Keychain" -DDEPLOY_VERBOSITY=%DEPLOY_VERBOSITY%
+- cmake --build build --target install
 
 after_build:
-- cmake --build build --target install
 - cd "%DEPLOY_DIR%"
 - rmdir /S /Q bearer qmltooling
 - cd ..
