@@ -72,7 +72,6 @@ matrix:
         $DESTDIR/usr/share/applications/*.desktop -appimage \
         -extra-plugins=iconengines,platformthemes/libqgtk3.so \
         -qmldir=$TRAVIS_BUILD_DIR/client/qml -verbose=$DEPLOY_VERBOSITY
-    - export APPIMAGE_READY=1
     - popd
 
   - os: linux
@@ -142,7 +141,6 @@ script:
 
 before_deploy:
 - sed -i -e "s/VERSION_VALUE/$VERSION/g" .ci/bintray-release.json
-- sed -i -e "s/VERSION_SUFFIX/$VERSION_SUFFIX/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_SUBJECT/$BINTRAY_SUBJECT/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_REPO/$BINTRAY_REPO/g" .ci/bintray-release.json
 - sed -i -e "s/BINTRAY_NAME/$BINTRAY_NAME/g" .ci/bintray-release.json
@@ -169,7 +167,7 @@ deploy:
   file: AppImageKit/Quaternion*.AppImage
   skip_cleanup: true
   on:
-    condition: -n "$RELEASE_APPIMAGE" && -z "$VERSION_SUFFIX"
+    condition: -n "$RELEASE_APPIMAGE"
     tags: true
 
 notifications:

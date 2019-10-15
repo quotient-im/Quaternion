@@ -6,7 +6,7 @@
     },
     {
       "includePattern": "\./(Quaternion.*\.AppImage)",
-      "uploadPattern": "quaternion-VERSION_VALUEVERSION_SUFFIX.x86_64.AppImage"
+      "uploadPattern": "quaternion-VERSION_VALUE.x86_64.AppImage"
     }
   ],
   "package": {
