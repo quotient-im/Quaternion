@@ -20,6 +20,8 @@
 #pragma once
 
 #include <QtWidgets/QSystemTrayIcon>
+#include <QIconEngine>
+#include <functional>
 
 namespace Quotient
 {
@@ -27,21 +29,46 @@ namespace Quotient
 }
 
 class MainWindow;
+class RoomListModel;
+
+class ComposedTrayIcon : public QIconEngine {
+public:
+    ComposedTrayIcon(const QString& filename);
+
+    virtual void paint(QPainter* p, const QRect& rect, QIcon::Mode mode, QIcon::State state);
+    virtual QIconEngine* clone() const;
+    virtual QList<QSize> availableSizes(QIcon::Mode mode, QIcon::State state) const;
+    virtual QPixmap pixmap(const QSize& size, QIcon::Mode mode, QIcon::State state);
+
+    bool hasInvite;
+    bool hasNotification;
+    bool hasHighlight;
+    bool hasUnread;
+
+private:
+    const int BubbleDiameter = 8;
+
+    QIcon icon_;
+};
 
 class SystemTrayIcon: public QSystemTrayIcon
 {
         Q_OBJECT
     public:
-        explicit SystemTrayIcon(MainWindow* parent = nullptr);
+        explicit SystemTrayIcon(MainWindow* parent, RoomListModel* roomlistmodel);
 
     public slots:
-        void newRoom(Quotient::Room* room);
+        void evaluate();
 
     private slots:
-        void highlightCountChanged(Quotient::Room* room);
         void systemTrayIconAction(QSystemTrayIcon::ActivationReason reason);
+        void selectNextRoom();
 
     private:
         MainWindow* m_parent;
+        RoomListModel* m_roomlistmodel;
+        ComposedTrayIcon* m_icon;
         void showHide();
+        template<typename T> void roomIndicesForeach(std::function<T(const QModelIndex *)> callback) const;
+        void selectRoomByIndex(const QModelIndex *index);
 };

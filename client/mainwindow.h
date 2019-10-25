@@ -30,14 +30,12 @@ namespace Quotient {
 class RoomListDock;
 class UserListDock;
 class ChatRoomWidget;
-class SystemTrayIcon;
 class QuaternionRoom;
 class LoginDialog;
 
 class QAction;
 class QMenu;
 class QMenuBar;
-class QSystemTrayIcon;
 class QMovie;
 class QLabel;
 class QLineEdit;
@@ -131,8 +129,6 @@ class MainWindow: public QMainWindow
         QAction* createRoomAction = nullptr;
         QAction* dcAction = nullptr;
         QAction* joinAction = nullptr;
-
-        SystemTrayIcon* systemTrayIcon = nullptr;
 
         // FIXME: This will be a problem when we get ability to show
         // several rooms at once.

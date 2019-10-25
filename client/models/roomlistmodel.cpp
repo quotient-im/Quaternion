@@ -483,6 +483,8 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         }
         case HasUnreadRole:
             return room->hasUnreadMessages();
+        case NotificationCountRole:
+            return room->notificationCount();
         case HighlightCountRole:
             return room->highlightCount();
         case JoinStateRole:

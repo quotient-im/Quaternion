@@ -25,7 +25,6 @@
 #include "logindialog.h"
 #include "networkconfigdialog.h"
 #include "roomdialogs.h"
-#include "systemtrayicon.h"
 
 #include <csapi/joining.h>
 #include <connection.h>
@@ -98,8 +97,6 @@ MainWindow::MainWindow()
              chatRoomWidget, &ChatRoomWidget::insertMention);
 
     createMenu();
-    systemTrayIcon = new SystemTrayIcon(this);
-    systemTrayIcon->show();
 
     busyIndicator = new QMovie(QStringLiteral(":/busy.gif"));
     busyLabel = new QLabel(this);
@@ -315,46 +312,6 @@ void MainWindow::createMenu()
     helpMenu->addAction(QIcon::fromTheme("help-about"), tr("&About"),
         [=]{ showAboutWindow(); });
 
-    {
-        auto notifGroup = new QActionGroup(this);
-        connect(notifGroup, &QActionGroup::triggered, this,
-            [] (QAction* notifAction)
-            {
-                notifAction->setChecked(true);
-                Settings().setValue("UI/notifications",
-                                    notifAction->data().toString());
-            });
-
-        auto noNotif = notifGroup->addAction(tr("&Highlight only"));
-        noNotif->setData(QStringLiteral("none"));
-        noNotif->setStatusTip(tr("Notifications are entirely suppressed"));
-        auto gentleNotif = notifGroup->addAction(tr("&Non-intrusive"));
-        gentleNotif->setData(QStringLiteral("non-intrusive"));
-        gentleNotif->setStatusTip(
-            tr("Show notifications but do not activate the window"));
-        auto fullNotif = notifGroup->addAction(tr("&Full"));
-        fullNotif->setData(QStringLiteral("intrusive"));
-        fullNotif->setStatusTip(
-            tr("Show notifications and activate the window"));
-
-        auto notifMenu = settingsMenu->addMenu(
-            QIcon::fromTheme("preferences-desktop-notification"),
-            tr("Notifications"));
-        for (auto a: {noNotif, gentleNotif, fullNotif})
-        {
-            a->setCheckable(true);
-            notifMenu->addAction(a);
-        }
-
-        const auto curSetting = Settings().value("UI/notifications",
-                                                 fullNotif->data().toString());
-        if (curSetting == noNotif->data().toString())
-            noNotif->setChecked(true);
-        else if (curSetting == gentleNotif->data().toString())
-            gentleNotif->setChecked(true);
-        else
-            fullNotif->setChecked(true);
-    }
     {
         auto layoutGroup = new QActionGroup(this);
         connect(layoutGroup, &QActionGroup::triggered, this,
@@ -712,7 +669,6 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
         });
     connect( c, &Connection::loginError,
              this, [=](const QString& msg){ loginError(c, msg); } );
-    connect( c, &Connection::newRoom, systemTrayIcon, &SystemTrayIcon::newRoom );
     connect( c, &Connection::createdRoom, this, &MainWindow::selectRoom);
     connect( c, &Connection::joinedRoom, this, [this] (Room* r, Room* prev)
         {
