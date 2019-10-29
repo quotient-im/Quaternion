@@ -119,16 +119,16 @@ bool OrderByTag::roomLessThan(const QVariant& groupKey,
     const auto& tag = groupKey.toString();
     auto o1 = r1->tag(tag).order;
     auto o2 = r2->tag(tag).order;
-    if (o2.omitted() != o1.omitted())
-        return o2.omitted();
+    if (o2.has_value() != o1.has_value())
+        return !o2.has_value();
 
-    if (!o1.omitted() && !o2.omitted())
+    if (o1 && o2)
     {
         // Compare floats; fallthrough if neither is smaller
-        if (o1.value() < o2.value())
+        if (*o1 < *o2)
             return true;
 
-        if (o1.value() > o2.value())
+        if (*o1 > *o2)
             return false;
     }
 
@@ -178,7 +178,7 @@ AbstractRoomOrdering::groups_t OrderByTag::roomGroups(const Room* room) const
 
 void OrderByTag::connectSignals(Connection* connection)
 {
-    using DCMap = Connection::DirectChatsMap;
+    using DCMap = Quotient::DirectChatsMap;
     connect( connection, &Connection::directChatsListChanged, this,
         [this,connection] (const DCMap& additions, const DCMap& removals) {
             // The same room may show up in removals and in additions if it
