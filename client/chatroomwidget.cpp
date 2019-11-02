@@ -838,7 +838,7 @@ void ChatRoomWidget::textDrop(const QString& text)
     m_chatEdit->setText(text);
 }
 
-Qt::KeyboardModifiers ChatRoomWidget::getModifierKeys()
+Qt::KeyboardModifiers ChatRoomWidget::getModifierKeys() const
 {
     return QGuiApplication::keyboardModifiers();
 }

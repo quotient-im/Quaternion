@@ -52,6 +52,7 @@ class ChatRoomWidget: public QWidget
         bool pendingMarkRead() const;
 
         QStringList findCompletionMatches(const QString& pattern) const;
+        Qt::KeyboardModifiers getModifierKeys() const;
 
     signals:
         void joinRequested(const QString& roomAlias);
@@ -80,7 +81,6 @@ class ChatRoomWidget: public QWidget
         void fileDrop(const QString& url);
         void textDrop(const QString& text);
         void setGlobalSelectionBuffer(QString text);
-        Qt::KeyboardModifiers getModifierKeys();
 
     private slots:
         void sendInput();
