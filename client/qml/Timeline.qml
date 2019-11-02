@@ -226,7 +226,6 @@ Rectangle {
             anchors {
                 top: roomHeader.bottom; left: parent.left
                 right: parent.right; bottom: parent.bottom
-                rightMargin: settings.use_shuttle_dial ? scrollerArea.width : 0
             }
             clip: true
 
@@ -234,7 +233,7 @@ Rectangle {
             delegate: TimelineItem {
                 width: chatView.width
                 view: chatView
-                moving: chatView.moving || shuttleDial.value
+                moving: chatView.moving || shuttleDial.shifted
             }
             verticalLayoutDirection: ListView.BottomToTop
             flickableDirection: Flickable.VerticalFlick
@@ -245,8 +244,9 @@ Rectangle {
             section.property: "section"
 
             ScrollBar.vertical: ScrollBar {
-                enabled: !settings.use_shuttle_dial;
-                visible: enabled
+                policy: settings.use_shuttle_dial ? ScrollBar.AlwaysOff
+                                                  : ScrollBar.AlwaysOn
+                width: shuttleDial.width
             }
 
             readonly property int largestVisibleIndex: count > 0 ?
@@ -417,73 +417,66 @@ Rectangle {
         } // ListView chatView
 //    } // ScrollView chatScrollView
 
-    Slider {
+    ScrollBar {
+        // TODO: Maybe use the same component for both shuttle and classic
+        // modes - but not as ScrollBar.vertical (tried it, the attached object
+        // logic conflicts with the custom one in shuttle mode).
         id: shuttleDial
         orientation: Qt.Vertical
-        height: chatView.height
-        anchors.right: parent.right
-        anchors.verticalCenter: chatView.verticalCenter
-        width: 8
-        enabled: settings.use_shuttle_dial
-        visible: enabled
-        activeFocusOnTab: false
+        anchors { top: chatView.top; bottom: chatView.bottom; right: parent.right }
+        //width: default
 
-        background: Rectangle {
-            color: defaultPalette.window
-            border.color: defaultPalette.midlight
-            Rectangle {
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: parent.top
-                implicitWidth: 2
-                height: chatView.largestVisibleIndex < 0 ? 0 :
-                    chatView.height *
-                        (1 - chatView.largestVisibleIndex / chatView.count)
+        policy: settings.use_shuttle_dial ? ScrollBar.AlwaysOn
+                                          : ScrollBar.AlwaysOff
+        wheelEnabled: false
 
-                color: defaultPalette.highlight
-            }
-        }
-
-        from: -10.0
-        to: 10.0
+        size: 0.1
+        readonly property real neutralPos: (1.0 - size) / 2
+        position: neutralPos
+        readonly property real inverseShiftSize: neutralPos - position
+        readonly property bool shifted: Math.abs(inverseShiftSize) > 0.01
 
         onPressedChanged: {
             if (!pressed)
-                value = 0
+                position = neutralPos
         }
 
-        onValueChanged: {
-            if (value)
-                chatView.flick(0, parent.height * value)
+        onPositionChanged: {
+            if (position != neutralPos)
+                chatView.flick(0, parent.height * inverseShiftSize * 10)
         }
         Component.onCompleted: {
-            // Continue scrolling while the shuttle is held out of 0
-            chatView.flickEnded.connect(shuttleDial.valueChanged)
+            // Continue scrolling while the shuttle is held out of neutral pos
+            chatView.flickEnded.connect(shuttleDial.positionChanged)
+        }
+
+        Rectangle { // TODO: turn it to a ProgressBar?
+            id: eventMeter
+            anchors.top: parent.top
+            anchors.right: parent.right
+            implicitWidth: 2
+            height: chatView.largestVisibleIndex < 0 ? 0 :
+                chatView.height *
+                    (1 - chatView.largestVisibleIndex / chatView.count)
+
+            color: defaultPalette.highlight
         }
     }
-
-    MouseArea {
+    TimelineMouseArea {
         id: scrollerArea
-        anchors.top: chatView.top
-        anchors.bottom: chatView.bottom
-        anchors.right: parent.right
-        width: settings.use_shuttle_dial ? shuttleDial.width
-                                         : chatView.ScrollBar.vertical.width
+        anchors.fill: shuttleDial
 
         acceptedButtons: Qt.NoButton
         hoverEnabled: true
 
-        onWheel: {
-            if (settings.use_shuttle_dial)
-            {
-                wheel.accepted = true
-                chatView.onWheel(wheel)
-            }
-        }
+        onWheel: { wheel.accepted = true; chatView.onWheel(wheel) }
     }
 
-    Rectangle {
-        anchors.right: scrollerArea.left
-        anchors.top: chatView.top
+    Rectangle { // TODO: Turn it to a Label with background: Rectangle
+        anchors {
+            top: chatView.top;
+            right: chatView.right; rightMargin: shuttleDial.width
+        }
         width: childrenRect.width + 3
         height: childrenRect.height + 3
         color: defaultPalette.window
