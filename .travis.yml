@@ -94,6 +94,7 @@ matrix:
         - qt5keychain-dev
         - appstream-util
   - os: osx
+    osx_image: xcode10.1
     env: [ 'PATH=/usr/local/opt/qt/bin:$PATH' ]
     before_cache:
     - brew cleanup
