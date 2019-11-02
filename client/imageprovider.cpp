@@ -154,8 +154,8 @@ ImageProvider::ImageProvider(Connection* connection)
 { }
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-#    define LOAD_ATOMIC(ptr) ptr.load()
-#    define STORE_ATOMIC(ptr) ptr.store()
+#    define LOAD_ATOMIC(Ptr) Ptr.load()
+#    define STORE_ATOMIC(Ptr, NewValue) Ptr.store(NewValue)
 #else
 #    define LOAD_ATOMIC(Ptr) Ptr.loadRelaxed()
 #    define STORE_ATOMIC(Ptr, NewValue) Ptr.storeRelaxed(NewValue)
