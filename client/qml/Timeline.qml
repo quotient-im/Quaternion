@@ -379,16 +379,6 @@ Rectangle {
                         }
                     }
             }}
-            Keys.onUpPressed: {
-                contentY = Math.max(originY, contentY - height / 5)
-                event.accepted = true
-            }
-            Keys.onDownPressed: {
-                contentY = Math.min(originY + contentHeight - height,
-                                     contentY + height / 5)
-                event.accepted = true
-            }
-
             // itemAt is a function, not a property so is not bound to new items
             // showing up underneath; contentHeight is used for that instead.
             readonly property var underlayingItem: contentHeight >= height &&
