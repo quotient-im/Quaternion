@@ -40,6 +40,7 @@ int main( int argc, char* argv[] )
     QApplication::setApplicationName(QStringLiteral("quaternion"));
     QApplication::setApplicationDisplayName(QStringLiteral("Quaternion"));
     QApplication::setApplicationVersion(QStringLiteral("0.0.9.4+git"));
+    QApplication::setDesktopFileName(QStringLiteral("com.github.quaternion.desktop"));
 
     using Quotient::Settings;
     Settings::setLegacyNames(QStringLiteral("QMatrixClient"),
