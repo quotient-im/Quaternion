@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.9
 import Quotient 1.0
 
 Settings {
@@ -10,14 +10,24 @@ Settings {
 
     readonly property string timeline_style: value("UI/timeline_style", "")
 
-    readonly property string font_family_impl: value("UI/Fonts/timeline_family", "")
+    // TODO: derive components from Text, Label, TextEdit, and TextArea
+    // that would override font and render_type
+    readonly property string font_family_impl: value("UI/Fonts/timeline_family")
     readonly property real font_pointSize_impl:
-        parseFloat(value("UI/Fonts/timeline_pointSize", ""))
+        parseFloat(value("UI/Fonts/timeline_pointSize"))
     readonly property var defaultText: Text {}
     readonly property var font: Qt.font({
         family: font_family_impl ? font_family_impl : defaultText.fontInfo.family,
         pointSize: font_pointSize_impl > 0 ? font_pointSize_impl : defaultText.fontInfo.pointSize
     })
-    readonly property string render_type:
-        value("UI/Fonts/render_type", "NativeRendering")
+
+    readonly property string render_type_impl: value("UI/Fonts/render_type")
+    readonly property int render_type:
+        if (["QtRendering", "Qt", "qt"].indexOf(render_type_impl) != -1)
+        { Text.QtRendering }
+        else if (["NativeRendering", "Native", "native"]
+                 .indexOf(render_type_impl) != -1)
+        { Text.NativeRendering }
+        // else Qt-defined default, which is Text.QtRendering as of 5.14
+
 }

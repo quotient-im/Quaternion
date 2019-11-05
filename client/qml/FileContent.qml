@@ -1,5 +1,5 @@
 import QtQuick 2.0
-import QtQuick.Controls 1.4
+import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.1
 
 Attachment {
@@ -66,24 +66,24 @@ Attachment {
                      !progressInfo.isUpload && transferProgress.visible
             checked: openOnFinished
         }
-        Button {
+        ToolButton {
             text: qsTr("Cancel")
             visible: progressInfo && progressInfo.started
             onClicked: room.cancelFileTransfer(eventId)
         }
-        Button {
+        ToolButton {
             text: qsTr("Save as...")
             visible: !progressInfo ||
                      (!progressInfo.isUpload && !progressInfo.started)
             onClicked: controller.saveFileAs(eventId)
         }
 
-        Button {
+        ToolButton {
             text: qsTr("Open")
             visible: !openOnFinishedFlag.visible
             onClicked: openExternally()
         }
-        Button {
+        ToolButton {
             text: qsTr("Open folder")
             visible: progressInfo && progressInfo.localDir
             onClicked:

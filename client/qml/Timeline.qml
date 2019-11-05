@@ -1,6 +1,5 @@
 import QtQuick 2.2
-import QtQuick.Controls 1.4
-import QtQuick.Controls.Styles 1.0
+import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.1
 import Quotient 1.0
 
@@ -109,10 +108,10 @@ Rectangle {
                 width: parent.width
                 height: Math.min(topicText.contentHeight,
                                  room ? root.height / 5 : 0)
+                clip: true
 
-                horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
-                verticalScrollBarPolicy: Qt.ScrollBarAsNeeded
-                style: ScrollViewStyle { transientScrollBars: true }
+                ScrollBar.horizontal.policy: Qt.ScrollBarAlwaysOff
+                ScrollBar.vertical.policy: Qt.ScrollBarAsNeeded
 
                 Behavior on height { NumberAnimation {
                     duration: settings.animations_duration_ms
@@ -190,17 +189,16 @@ Rectangle {
         }
     }
 
-    ScrollView {
-        id: chatScrollView
-        anchors.top: roomHeader.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        anchors.rightMargin: if (settings.use_shuttle_dial) { shuttleDial.width }
-        horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
-        verticalScrollBarPolicy: settings.use_shuttle_dial
-                                 ? Qt.ScrollBarAlwaysOff : Qt.ScrollBarAlwaysOn
-        style: ScrollViewStyle { transientScrollBars: true }
+//    ScrollView {
+//        id: chatScrollView
+//        anchors.top: roomHeader.bottom
+//        anchors.left: parent.left
+//        anchors.right: parent.right
+//        anchors.bottom: parent.bottom
+//        anchors.rightMargin: if (settings.use_shuttle_dial) { shuttleDial.width }
+//        ScrollBar.horizontal.policy: Qt.ScrollBarAlwaysOff
+//        ScrollBar.vertical.policy: settings.use_shuttle_dial
+//                                   ? Qt.ScrollBarAlwaysOff : Qt.ScrollBarAlwaysOn
 
         DropArea {
             anchors.fill: parent
@@ -225,6 +223,12 @@ Rectangle {
 
         ListView {
             id: chatView
+            anchors {
+                top: roomHeader.bottom; left: parent.left
+                right: parent.right; bottom: parent.bottom
+                rightMargin: settings.use_shuttle_dial ? scrollerArea.width : 0
+            }
+            clip: true
 
             model: messageModel
             delegate: TimelineItem {
@@ -236,10 +240,14 @@ Rectangle {
             flickableDirection: Flickable.VerticalFlick
             flickDeceleration: 8000
             boundsBehavior: Flickable.StopAtBounds
-    //        pixelAligned: true
             cacheBuffer: 200
 
             section.property: "section"
+
+            ScrollBar.vertical: ScrollBar {
+                enabled: !settings.use_shuttle_dial;
+                visible: enabled
+            }
 
             readonly property int largestVisibleIndex: count > 0 ?
                 indexAt(contentX, contentY + height - 1) : -1
@@ -406,52 +414,37 @@ Rectangle {
                               chatView.underlayingItem.ListView.section : ""
                 }
             }
-        }
-    }
+        } // ListView chatView
+//    } // ScrollView chatScrollView
+
     Slider {
         id: shuttleDial
         orientation: Qt.Vertical
-        height: chatScrollView.height
+        height: chatView.height
         anchors.right: parent.right
-        anchors.verticalCenter: chatScrollView.verticalCenter
+        anchors.verticalCenter: chatView.verticalCenter
+        width: 8
         enabled: settings.use_shuttle_dial
         visible: enabled
+        activeFocusOnTab: false
 
-        style: SliderStyle {
-            // Width and height are swapped below because SliderStyle assumes
-            // a horizontal slider - but anchors are not :-\
-            groove: Rectangle {
-                color: defaultPalette.window
-                border.color: defaultPalette.midlight
-                implicitHeight: 8
-                Rectangle {
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.right: parent.right
-                    implicitHeight: 2
-                    width: chatView.largestVisibleIndex < 0 ? 0 :
-                        chatView.height *
-                            (1 - chatView.largestVisibleIndex / chatView.count)
+        background: Rectangle {
+            color: defaultPalette.window
+            border.color: defaultPalette.midlight
+            Rectangle {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                implicitWidth: 2
+                height: chatView.largestVisibleIndex < 0 ? 0 :
+                    chatView.height *
+                        (1 - chatView.largestVisibleIndex / chatView.count)
 
-                    color: defaultPalette.highlight
-                }
-            }
-            handle: Rectangle {
-                anchors.centerIn: parent
-                color: defaultPalette.button
-                border.color: defaultPalette.buttonText
-                border.width: 1
-                implicitWidth: 14
-                implicitHeight: 8
-                visible: chatView.count > 0
+                color: defaultPalette.highlight
             }
         }
 
-        maximumValue: 10.0
-        minimumValue: -10.0
-
-        activeFocusOnPress: false
-        activeFocusOnTab: false
-        // wheelEnabled: false // Only available in QQC 1.6, Qt 5.10
+        from: -10.0
+        to: 10.0
 
         onPressedChanged: {
             if (!pressed)
@@ -470,21 +463,27 @@ Rectangle {
 
     MouseArea {
         id: scrollerArea
-        anchors.top: chatScrollView.top
-        anchors.bottom: chatScrollView.bottom
+        anchors.top: chatView.top
+        anchors.bottom: chatView.bottom
         anchors.right: parent.right
         width: settings.use_shuttle_dial ? shuttleDial.width
-                                         : chatScrollView.width - chatView.width
-        acceptedButtons: Qt.NoButton
-        // FIXME: propagate wheel event to chatView
-        onWheel: { wheel.accepted = settings.use_shuttle_dial }
+                                         : chatView.ScrollBar.vertical.width
 
+        acceptedButtons: Qt.NoButton
         hoverEnabled: true
+
+        onWheel: {
+            if (settings.use_shuttle_dial)
+            {
+                wheel.accepted = true
+                chatView.onWheel(wheel)
+            }
+        }
     }
 
     Rectangle {
         anchors.right: scrollerArea.left
-        anchors.top: chatScrollView.top
+        anchors.top: chatView.top
         width: childrenRect.width + 3
         height: childrenRect.height + 3
         color: defaultPalette.window
@@ -510,17 +509,22 @@ Rectangle {
         }
     }
 
-    Rectangle {
-        id: scrollindicator
+    RoundButton {
+        id: scrollToBottomButton
         opacity: chatView.atYEnd ? 0 : 0.5
-        color: defaultPalette.text
-        height: 30
-        radius: height/2
-        width: height
-        anchors.left: parent.left
-        anchors.bottom: parent.bottom
-        anchors.leftMargin: width/2
-        anchors.bottomMargin: chatView.atYEnd ? -height : height/2
+        radius: 30
+        anchors {
+            bottom: parent.bottom;
+            bottomMargin: chatView.atYEnd ? -radius : radius / 2
+            right: parent.right; rightMargin: radius / 2
+        }
+
+        contentItem: Image { source: "qrc:///scrolldown.svg" }
+        onClicked: {
+            chatView.positionViewAtBeginning()
+            chatView.saveViewport()
+        }
+
         Behavior on opacity { NumberAnimation {
             duration: settings.animations_duration_ms
             easing.type: Easing.OutQuad
@@ -529,17 +533,5 @@ Rectangle {
             duration: settings.animations_duration_ms
             easing.type: Easing.OutQuad
         }}
-        Image {
-            anchors.fill: parent
-            source: "qrc:///scrolldown.svg"
-        }
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                chatView.positionViewAtBeginning()
-                chatView.saveViewport()
-            }
-            cursorShape: Qt.PointingHandCursor
-        }
     }
 }

@@ -1,6 +1,5 @@
 import QtQuick 2.6
-import QtQuick.Controls 1.4
-import QtQuick.Controls 2.0 as QQC2
+import QtQuick.Controls 2.2
 //import QtGraphicalEffects 1.0 // For fancy highlighting
 import Quotient 1.0
 
@@ -126,19 +125,21 @@ Item {
         id: fullMessage
         width: parent.width
 
-        Rectangle {
+        Label {
             width: parent.width
-            height: childrenRect.height + 2
+            bottomPadding: 2
             visible: sectionVisible
-            color: defaultPalette.window
-            Label {
-                font.family: settings.font.family
-                font.pointSize: settings.font.pointSize
-                font.bold: true
-                renderType: settings.render_type
-                text: section
+            background: Rectangle { color: defaultPalette.window }
+
+            font {
+                family: settings.font.family
+                pointSize: settings.font.pointSize
+                bold: true
             }
+            renderType: settings.render_type
+            text: section
         }
+
         Loader {
             id: detailsAreaLoader
 //            asynchronous: true // https://bugreports.qt.io/browse/QTBUG-50992
@@ -366,7 +367,7 @@ Item {
                             wheel.accepted = false
                     }
                 }
-                QQC2.ScrollBar {
+                ScrollBar {
                     id: textScrollBar
                     hoverEnabled: true
                     visible: textFieldImpl.contentWidth > textFieldImpl.width
@@ -413,7 +414,7 @@ Item {
 
                 sourceComponent: FileContent { }
             }
-            Loader {
+            Loader { // TODO: Make it the height of Item message
                 id: buttonAreaLoader
                 active: failed || // resendButton
                         (pending && marks !== EventStatus.ReachedServer && marks !== EventStatus.Departed) || // discardButton
@@ -426,8 +427,8 @@ Item {
 
                 sourceComponent: buttonArea
             }
-        }
-    }
+        } // Item message
+    } // Column fullMessage
     Rectangle {
         id: readMarkerLine
 
@@ -473,7 +474,7 @@ Item {
                 id: goToPredecessorButton
                 visible: !pending && eventResolvedType == "m.room.create" && refId
                 anchors.right: parent.right
-                text: qsTr("Go to\nolder room")
+                text: qsTr("Go to older room")
 
                 // TODO: Treat unjoined invite-only rooms specially
                 onClicked: controller.joinRequested(refId)
@@ -482,7 +483,7 @@ Item {
                 id: goToSuccessorButton
                 visible: !pending && eventResolvedType == "m.room.tombstone"
                 anchors.right: parent.right
-                text: qsTr("Go to\nnew room")
+                text: qsTr("Go to new room")
 
                 // TODO: Treat unjoined invite-only rooms specially
                 onClicked: controller.joinRequested(refId)
@@ -494,7 +495,7 @@ Item {
         id: detailsArea
 
         Rectangle {
-            height: childrenRect.height
+            height: detailsHeader.height + eventSource.height
             radius: 5
 
             color: defaultPalette.button
@@ -554,23 +555,34 @@ Item {
                     renderType: settings.render_type
                     width: 0; height: 0; visible: false
                 }
-            }
+            } // Item detailsHeader
 
-            TextArea {
-                text: sourceText
-                textFormat: Text.PlainText
-                readOnly: true;
-                font.family: "Monospace"
-                font.pointSize: settings.font.pointSize
-                // FIXME: make settings.render_type an integer (but store as string to stay human-friendly)
-//                style: TextAreaStyle {
-//                    renderType: settings.render_type
-//                }
-                selectByKeyboard: true; selectByMouse: true
-
-                width: parent.width
+            ScrollView {
+                id: eventSource
                 anchors.top: detailsHeader.bottom
+                width: parent.width
+                // Avoid nested vertical scrollbars, even at the expense of
+                // longer JSON filling the screen.
+                height: contentHeight
+                ScrollBar.vertical.policy: ScrollBar.AlwaysOff
+                clip: true
+
+                TextEdit {
+                    anchors.fill: parent
+
+                    text: sourceText
+                    textFormat: Text.PlainText
+                    readOnly: true;
+                    font.family: "Monospace"
+                    font.pointSize: settings.font.pointSize
+                    renderType: settings.render_type
+                    selectByKeyboard: true; selectByMouse: true
+                }
+            }
+            TimelineMouseArea {
+                anchors.fill: parent
+                acceptedButtons: Qt.NoButton
             }
         }
-    }
+    } // Component detailsArea
 }

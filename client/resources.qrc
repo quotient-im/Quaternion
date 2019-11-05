@@ -1,8 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>qml/Timeline.qml</file>
-        <file>qml/ToolTip.qml</file>
-        <file>qml/ToolTipArea.qml</file>
         <file alias="icon.png">../icons/quaternion/128-apps-quaternion.png</file>
         <file alias="irc-channel-joined.svg">../icons/breeze/irc-channel-joined.svg</file>
         <file alias="irc-channel-parted.svg">../icons/breeze/irc-channel-parted.svg</file>
@@ -13,7 +11,6 @@
         <file>qml/ImageContent.qml</file>
         <file>qml/FileContent.qml</file>
         <file>qml/TimelineItem.qml</file>
-        <file>qml/ActiveLabel.qml</file>
         <file>qml/TimelineMouseArea.qml</file>
         <file>qml/TimelineTextEditSelector.qml</file>
         <file>qml/TimelineItemToolButton.qml</file>
