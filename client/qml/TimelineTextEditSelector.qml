@@ -5,8 +5,8 @@ import QtQuick 2.2
  * is not compatible with our focus-cancelling mechanism, so we took over the task here.
  */
 MouseArea {
-    property var textEdit: parent
-    property var selectionMode: TextEdit.SelectCharacters
+    property TextEdit textEdit: parent
+    property int selectionMode: TextEdit.SelectCharacters
 
     anchors.fill: parent
     acceptedButtons: Qt.LeftButton
