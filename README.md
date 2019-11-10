@@ -162,6 +162,15 @@ Some settings exposed in UI (Settings and View menus):
   If a tag is not mentioned and does not fit any namespace, it will be put at
   the end in lexicographic order. Tags within the same namespace are also
   ordered lexicographically.
+- `UI/Fonts/family` - override the font family for the whole application.
+  If not specified, the default font for your environment is used.
+- `UI/Fonts/pointSize` - override the font size (in points) for the whole
+  application. If not specified, the default size for your environment is used.
+- `UI/Fonts/timeline_family` - font family (for example `Monospace`) to
+  display messages in the timeline. If not specified, the application-wide font
+  family is used.
+- `UI/Fonts/timeline_pointSize` - font size (in points) to display messages
+  in the timeline. If not specified, the application-wide point size is used.
 
 Settings not exposed in UI:
 
@@ -194,15 +203,6 @@ Settings not exposed in UI:
   the beginning and end of the quote. By default it's `(.+)(?:\n|$)`.
 - `UI/Fonts/render_type` - select how to render fonts in Quaternion timeline;
   possible values are "NativeRendering" (default) and "QtRendering".
-- `UI/Fonts/family` - override the font family for the whole application.
-  If not specified, the default font for your environment is used.
-- `UI/Fonts/pointSize` - override the font size (in points) for the whole
-  application. If not specified, the default size for your environment is used.
-- `UI/Fonts/timeline_family` - font family (for example `Monospace`) to
-  display messages in the timeline. If not specified, the application-wide font
-  family is used.
-- `UI/Fonts/timeline_pointSize` - font size (in points) to display messages
-  in the timeline. If not specified, the application-wide point size is used.
 
 Since version 0.0.9.4, AppImage binaries for Linux and .dmg files for macOS
 are compiled with Qt Keychain support. It means that Quaternion will try
