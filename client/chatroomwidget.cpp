@@ -756,7 +756,7 @@ void ChatRoomWidget::reStartShownTimer()
             indexToMaybeRead >= indicesOnScreen.back())
         return;
 
-    maybeReadTimer.start(1000, this);
+    maybeReadTimer.start(Quotient::Settings().get<int>("UI/maybe_read_timer", 1000), this);
     qDebug() << "Scheduled maybe-read message update:"
              << indexToMaybeRead << "->" << indicesOnScreen.back();
 }
