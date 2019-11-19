@@ -269,10 +269,11 @@ QString MessageEventModel::renderDate(const QDateTime& timestamp) const
             return tr("The day before yesterday");
         if (date > QDate::currentDate().addDays(-7))
         {
-            // Make sure to capitalise the day name.
             auto s = QLocale().standaloneDayName(date.dayOfWeek());
-            if (!s.isEmpty())
-                s[0] = QLocale().toUpper(s.mid(0,1))[0];
+            // Some locales (e.g., Russian on Windows) don't capitalise
+            // the day name so make sure the first letter is uppercase.
+            if (!s.isEmpty() && !s[0].isUpper())
+                s[0] = QLocale().toUpper(s.mid(0,1)).at(0);
             return s;
         }
     }
