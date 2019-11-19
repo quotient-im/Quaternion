@@ -203,6 +203,8 @@ Settings not exposed in UI:
   family is used.
 - `UI/Fonts/timeline_pointSize` - font size (in points) to display messages
   in the timeline. If not specified, the application-wide point size is used.
+- `UI/maybe_read_timer` - threshold time interval in milliseconds for a displayed
+  message to be considered as read.
 
 Since version 0.0.9.4, AppImage binaries for Linux and .dmg files for macOS
 are compiled with Qt Keychain support. It means that Quaternion will try
