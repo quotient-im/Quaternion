@@ -21,10 +21,11 @@
 
 #include <QtWidgets/QMainWindow>
 
+#include <settings.h>
+
 namespace Quotient {
     class Room;
     class Connection;
-    class AccountSettings;
 }
 
 class RoomListDock;
@@ -137,6 +138,8 @@ class MainWindow: public QMainWindow
         // FIXME: This will be a problem when we get ability to show
         // several rooms at once.
         QuaternionRoom* currentRoom = nullptr;
+
+        Quotient::SettingsGroup uiSettings;
 
         void createMenu();
         QAction* addTimelineOptionCheckbox(QMenu* parent,

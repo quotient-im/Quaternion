@@ -30,7 +30,6 @@
 #include <csapi/joining.h>
 #include <connection.h>
 #include <networkaccessmanager.h>
-#include <settings.h>
 #include <logging.h>
 #include <user.h>
 
@@ -67,6 +66,7 @@ using Quotient::NetworkAccessManager;
 using Quotient::AccountSettings;
 
 MainWindow::MainWindow()
+    : uiSettings("UI")
 {
     Connection::setRoomType<QuaternionRoom>();
 
@@ -148,26 +148,22 @@ QAction* MainWindow::addTimelineOptionCheckbox(QMenu* parent,
     const QString& text, const QString& statusTip, const QString& settingsKey,
     bool defaultValue)
 {
-    using Quotient::SettingsGroup;
     auto action =
         parent->addAction(text,
             [this,settingsKey] (bool checked)
             {
-                SettingsGroup("UI").setValue(settingsKey, checked);
+                uiSettings.setValue(settingsKey, checked);
                 chatRoomWidget->setRoom(nullptr);
                 chatRoomWidget->setRoom(currentRoom);
             });
     action->setStatusTip(statusTip);
     action->setCheckable(true);
-    action->setChecked(
-        SettingsGroup("UI").value(settingsKey, defaultValue).toBool());
+    action->setChecked(uiSettings.get(settingsKey, defaultValue));
     return action;
 }
 
 void MainWindow::createMenu()
 {
-    using Quotient::Settings;
-
     // Connection menu
     connectionMenu = menuBar()->addMenu(tr("&Accounts"));
 
@@ -227,9 +223,9 @@ void MainWindow::createMenu()
 
     viewMenu->addAction(tr("Edit tags order"), [this]
     {
-        static const auto SettingsKey = QStringLiteral("tags_order");
-        Quotient::SettingsGroup sg { QStringLiteral("UI/RoomsDock") };
-        const auto savedOrder = sg.get<QStringList>(SettingsKey).join('\n');
+        static const auto SettingsKey = QStringLiteral("RoomsDock/tags_order");
+        const auto savedOrder =
+            uiSettings.get<QStringList>(SettingsKey).join('\n');
         bool ok;
         const auto newOrder = QInputDialog::getMultiLineText(this,
                 tr("Edit tags order"),
@@ -242,9 +238,9 @@ void MainWindow::createMenu()
         if (ok)
         {
             if (newOrder.isEmpty())
-                sg.remove(SettingsKey);
+                uiSettings.remove(SettingsKey);
             else if (newOrder != savedOrder)
-                sg.setValue(SettingsKey, newOrder.split('\n'));
+                uiSettings.setValue(SettingsKey, newOrder.split('\n'));
             roomListDock->updateSortingMode();
         }
     });
@@ -252,8 +248,7 @@ void MainWindow::createMenu()
     viewMenu->addAction(QIcon::fromTheme("format-text-blockquote"),
         tr("Edit quote style"), [this]
     {
-        Quotient::SettingsGroup sg { "UI" };
-        const auto type = sg.get<int>("quote_type");
+        const auto type = uiSettings.get<int>("quote_type");
 
         QStringList list;
         list << tr("Markdown (prepend each line with >)")
@@ -267,7 +262,7 @@ void MainWindow::createMenu()
                 list, type, false, &ok);
 
         if (ok)
-            sg.setValue("quote_type", list.indexOf(newType));
+            uiSettings.setValue("quote_type", list.indexOf(newType));
     });
 
     // Room menu
@@ -318,10 +313,10 @@ void MainWindow::createMenu()
     {
         auto notifGroup = new QActionGroup(this);
         connect(notifGroup, &QActionGroup::triggered, this,
-            [] (QAction* notifAction)
+            [this] (QAction* notifAction)
             {
                 notifAction->setChecked(true);
-                Settings().setValue("UI/notifications",
+                uiSettings.setValue("notifications",
                                     notifAction->data().toString());
             });
 
@@ -346,8 +341,8 @@ void MainWindow::createMenu()
             notifMenu->addAction(a);
         }
 
-        const auto curSetting = Settings().value("UI/notifications",
-                                                 fullNotif->data().toString());
+        const auto curSetting = uiSettings.get("notifications",
+                                               fullNotif->data().toString());
         if (curSetting == noNotif->data().toString())
             noNotif->setChecked(true);
         else if (curSetting == gentleNotif->data().toString())
@@ -361,7 +356,7 @@ void MainWindow::createMenu()
             [this] (QAction* action)
         {
             action->setChecked(true);
-            Settings().setValue("UI/timeline_style", action->data().toString());
+            uiSettings.setValue("timeline_style", action->data().toString());
             chatRoomWidget->setRoom(nullptr);
             chatRoomWidget->setRoom(currentRoom);
         });
@@ -382,8 +377,8 @@ void MainWindow::createMenu()
             layoutMenu->addAction(a);
         }
 
-        const auto curSetting = Settings().value("UI/timeline_style",
-                                                 defaultLayout->data().toString());
+        const auto curSetting = uiSettings.get("timeline_style",
+                                               defaultLayout->data().toString());
         if (curSetting == xchatLayout->data().toString())
             xchatLayout->setChecked(true);
         else
@@ -1432,14 +1427,11 @@ void MainWindow::proxyAuthenticationRequired(const QNetworkProxy&,
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-    if (Quotient::SettingsGroup("UI")
-            .value("close_to_tray", false).toBool())
+    if (uiSettings.get("close_to_tray", false))
     {
         hide();
         event->ignore();
     }
     else
-    {
         event->accept();
-    }
 }
