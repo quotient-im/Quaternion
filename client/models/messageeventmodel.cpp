@@ -257,8 +257,9 @@ QDateTime MessageEventModel::makeMessageTimestamp(
 QString MessageEventModel::renderDate(const QDateTime& timestamp) const
 {
     auto date = timestamp.toLocalTime().date();
-    if (Quotient::SettingsGroup("UI")
-            .value("banner_human_friendly_date", true).toBool())
+    static Quotient::SettingsGroup sg { "UI" };
+    if (sg.get("use_human_friendly_dates",
+               sg.get("banner_human_friendly_date", true)))
     {
         if (date == QDate::currentDate())
             return tr("Today");
