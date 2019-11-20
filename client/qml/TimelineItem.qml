@@ -11,8 +11,13 @@ Item {
         id: settings
         readonly property bool autoload_images: value("UI/autoload_images", true)
         readonly property string highlight_mode: value("UI/highlight_mode", "background")
-        readonly property string highlight_color: value("UI/highlight_color", "orange")
-        readonly property string outgoing_color: value("UI/outgoing_color", "#204A87")
+        readonly property color highlight_color: value("UI/highlight_color", "orange")
+        readonly property color outgoing_color_base: value("UI/outgoing_color", "#4A8780")
+        readonly property color outgoing_color:
+            Qt.tint(defaultPalette.text,
+                    Qt.rgba(settings.outgoing_color_base.r,
+                            settings.outgoing_color_base.g,
+                            settings.outgoing_color_base.b, 0.7))
         readonly property bool show_author_avatars:
             value("UI/show_author_avatars", timeline_style != "xchat")
     }
@@ -47,8 +52,7 @@ Item {
         marks === EventStatus.Submitted || failed ? defaultPalette.mid :
         marks === EventStatus.Departed ? disabledPalette.text :
         redacted ? disabledPalette.text :
-        (eventWithTextPart && author === room.localUser) ?
-            Qt.tint(defaultPalette.text, settings.outgoing_color) :
+        (eventWithTextPart && author === room.localUser) ? settings.outgoing_color :
         highlight && settings.highlight_mode == "text" ? settings.highlight_color :
         (["state", "notice", "other"].indexOf(eventType) >= 0) ?
                 disabledPalette.text : defaultPalette.text
