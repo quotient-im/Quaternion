@@ -54,20 +54,20 @@ class RoomListDock : public QDockWidget
         void refreshTitle();
 
     private:
-        QTreeView* view;
-        RoomListModel* model;
-//        QSortFilterProxyModel* proxyModel;
-        QMenu* roomContextMenu;
-        QMenu* groupContextMenu;
-        QAction* markAsReadAction;
-        QAction* addTagsAction;
-        QAction* joinAction;
-        QAction* leaveAction;
-        QAction* forgetAction;
-        QAction* deleteTagAction;
-        QAction* roomSettingsAction;
-        QVariant selectedGroupCache;
-        QuaternionRoom* selectedRoomCache;
+        QTreeView* view = nullptr;
+        RoomListModel* model = nullptr;
+        //        QSortFilterProxyModel* proxyModel;
+        QMenu* roomContextMenu = nullptr;
+        QMenu* groupContextMenu = nullptr;
+        QAction* markAsReadAction = nullptr;
+        QAction* addTagsAction = nullptr;
+        QAction* joinAction = nullptr;
+        QAction* leaveAction = nullptr;
+        QAction* forgetAction = nullptr;
+        QAction* deleteTagAction = nullptr;
+        QAction* roomSettingsAction = nullptr;
+        QVariant selectedGroupCache = {};
+        QuaternionRoom* selectedRoomCache = nullptr;
 
         QVariant getSelectedGroup() const;
         QuaternionRoom* getSelectedRoom() const;
