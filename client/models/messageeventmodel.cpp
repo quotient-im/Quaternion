@@ -443,56 +443,13 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                 switch( e.membership() )
                 {
                     case MembershipType::Invite:
-                        if (e.repeatsState())
-                            return tr("reinvited %1 to the room").arg(subjectName);
                         Q_FALLTHROUGH();
                     case MembershipType::Join:
                     {
-                        if (e.repeatsState())
-                            return tr("joined the room (repeated)");
-                        if (!e.prevContent() ||
-                                e.membership() != e.prevContent()->membership)
-                        {
-                            return e.membership() == MembershipType::Invite
-                                    ? tr("invited %1 to the room").arg(subjectName)
-                                    : tr("joined the room");
-                        }
                         QString text {};
-                        if (e.isRename())
-                        {
-                            if (e.displayName().isEmpty())
-                                text = tr("cleared the display name");
-                            else
-                                text = tr("changed the display name to %1")
-                                       .arg(e.displayName().toHtmlEscaped());
-                        }
-                        if (e.isAvatarUpdate())
-                        {
-                            if (!text.isEmpty())
-                                text += " and ";
-                            if (e.avatarUrl().isEmpty())
-                                text += tr("cleared the avatar");
-                            else
-                                text += tr("updated the avatar");
-                        }
                         return text;
                     }
                     case MembershipType::Leave:
-                        if (e.prevContent() &&
-                            e.prevContent()->membership == MembershipType::Invite)
-                        {
-                            return (e.senderId() != e.userId())
-                                    ? tr("withdrew %1's invitation").arg(subjectName)
-                                    : tr("rejected the invitation");
-                        }
-
-                        if (e.prevContent() &&
-                                e.prevContent()->membership == MembershipType::Ban)
-                        {
-                            return (e.senderId() != e.userId())
-                                    ? tr("unbanned %1").arg(subjectName)
-                                    : tr("self-unbanned");
-                        }
                         return (e.senderId() != e.userId())
                                 ? tr("has put %1 out of the room: %2")
                                   .arg(subjectName,
@@ -677,11 +634,6 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         if (evt.isRedacted())
             return Settings().value("UI/show_redacted").toBool()
                     ? EventStatus::Redacted : EventStatus::Hidden;
-
-        if (evt.isStateEvent() &&
-                static_cast<const StateEventBase&>(evt).repeatsState() &&
-                !Settings().value("UI/show_noop_events").toBool())
-            return EventStatus::Hidden;
 
         return EventStatus::Normal;
     }

@@ -152,8 +152,6 @@ Some settings exposed in UI (Settings and View menus):
   once the message is shown on the screen. The default is to automatically load
   full-size images; set this to false (or 0) to disable that and only load
   a thumbnail initially.
-- `UI/show_noop_events` - set this to 1 to show state events that do not alter
-  the state (you'll see "(repeated)" next to most of those).
 - `UI/RoomsDock/tags_order` - allows to alter the order of tags in the room
   list. The default value for this key will be set by Quaternion if it doesn't
   it so that you could edit it further. This is a list of tags/namespaces;
