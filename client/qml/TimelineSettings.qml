@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.2
 import Quotient 1.0
 
 Settings {
@@ -18,6 +18,9 @@ Settings {
         family: font_family_impl ? font_family_impl : defaultText.fontInfo.family,
         pointSize: font_pointSize_impl > 0 ? font_pointSize_impl : defaultText.fontInfo.pointSize
     })
-    readonly property string render_type:
-        value("UI/Fonts/render_type", "NativeRendering")
+
+    readonly property var render_type_impl: value("UI/Fonts/render_type")
+    readonly property int render_type:
+        ["NativeRendering", "Native", "native"].indexOf(render_type_impl) != -1
+        ? Text.NativeRendering : Text.QtRendering
 }
