@@ -101,7 +101,7 @@ class AbstractRoomOrdering : public QObject
 
     protected slots:
         /// A facade for derived classes to trigger RoomListModel::updateGroups
-        void updateGroups(Room* room);
+        virtual void updateGroups(Room* room);
 
     protected:
         RoomListModel* model() const;
