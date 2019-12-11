@@ -503,10 +503,9 @@ int RoomListModel::columnCount(const QModelIndex&) const
 
 void RoomListModel::updateGroups(Room* room)
 {
-    const auto oldRoomIndices = m_roomIndices.values(room);
-    Q_ASSERT(!oldRoomIndices.empty()); // The room should have been somewhere
-
     auto groups = m_roomOrder->roomGroups(room);
+
+    const auto oldRoomIndices = m_roomIndices.values(room);
     for (const auto& oldIndex: oldRoomIndices)
     {
         Q_ASSERT(isValidRoomIndex(oldIndex));

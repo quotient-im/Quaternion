@@ -318,7 +318,7 @@ void RoomListDock::addTagsSelected()
         for (const auto& tag: enteredTags)
             tags[captionToTag(tag)]; // No overwriting, just ensure existence
 
-        room->setTags(tags);
+        room->setTags(tags, Quotient::Room::WithinSameState);
     }
 }
 
