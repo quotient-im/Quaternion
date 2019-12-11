@@ -30,6 +30,11 @@ class OrderByTag : public AbstractRoomOrdering
             : AbstractRoomOrdering(m), tagsOrder(initTagsOrder())
         { }
 
+    private:
+        QStringList tagsOrder;
+
+        // Overrides
+
         QString orderingName() const override { return QStringLiteral("tag"); }
         QVariant groupLabel(const RoomGroup& g) const override;
         bool groupLessThan(const RoomGroup& g1,
@@ -41,8 +46,7 @@ class OrderByTag : public AbstractRoomOrdering
         void connectSignals(Connection* connection) override;
         void connectSignals(Room* room) override;
 
-    private:
-        QStringList tagsOrder;
+        void updateGroups(Room* room) override;
 
         static QStringList initTagsOrder();
 };
