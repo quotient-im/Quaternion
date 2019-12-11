@@ -269,12 +269,12 @@ bool RoomSettingsDialog::validate()
 
 void RoomSettingsDialog::apply()
 {
+    using Quotient::Room;
     if (version->text() != room->version())
     {
-        using namespace Quotient;
         setStatusMessage(tr("Creating the new room version, please wait"));
         connectUntil(room, &Room::upgraded, this,
-            [this] (QString, Room* newRoom) {
+            [this] (const QString&, Room* newRoom) {
                 accept();
                 static_cast<MainWindow*>(parent())->selectRoom(newRoom);
                 return true;
@@ -300,7 +300,7 @@ void RoomSettingsDialog::apply()
         else
             tags.remove(tagName);
     }
-    room->setTags(tags);
+    room->setTags(tags, Room::WithinSameState);
     accept();
 }
 
