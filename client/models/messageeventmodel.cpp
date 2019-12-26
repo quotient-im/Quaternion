@@ -433,6 +433,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                 return m_currentRoom->prettyPrint(e.plainBody());
             }
             , [this] (const RoomMemberEvent& e) {
+                // clang-format on
                 // FIXME: Rewind to the name that was at the time of this event
                 const auto subjectName =
                     m_currentRoom->safeMemberName(e.userId()).toHtmlEscaped();
@@ -440,21 +441,31 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                 switch( e.membership() )
                 {
                     case MembershipType::Invite:
-                        if (e.repeatsState())
-                            return tr("reinvited %1 to the room").arg(subjectName);
+                        if (e.repeatsState()) {
+                            auto text =
+                                tr("reinvited %1 to the room").arg(subjectName);
+                            if (!e.reason().isEmpty())
+                                text += ": " + e.reason().toHtmlEscaped();
+                            return text;
+                        }
                         Q_FALLTHROUGH();
                     case MembershipType::Join:
                     {
+                        QString text {};
+                        // Part 1: invites and joins
                         if (e.repeatsState())
-                            return tr("joined the room (repeated)");
-                        if (!e.prevContent() ||
-                                e.membership() != e.prevContent()->membership)
-                        {
-                            return e.membership() == MembershipType::Invite
+                            text = tr("joined the room (repeated)");
+                        else if (e.changesMembership())
+                            text =
+                                e.membership() == MembershipType::Invite
                                     ? tr("invited %1 to the room").arg(subjectName)
                                     : tr("joined the room");
+                        if (!text.isEmpty()) {
+                            if (!e.reason().isEmpty())
+                                text += ": " + e.reason().toHtmlEscaped();
+                            return text;
                         }
-                        QString text {};
+                        // Part 2: profile changes of joined members
                         if (e.isRename())
                         {
                             if (e.displayName().isEmpty())
@@ -491,17 +502,13 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                                     : tr("self-unbanned");
                         }
                         return (e.senderId() != e.userId())
-                                ? tr("has put %1 out of the room: %2")
-                                  .arg(subjectName,
-                                       e.contentJson()["reason"_ls]
-                                       .toString().toHtmlEscaped())
+                                ? tr("kicked %1 from the room: %2")
+                                  .arg(subjectName, e.reason().toHtmlEscaped())
                                 : tr("left the room");
                     case MembershipType::Ban:
                         return (e.senderId() != e.userId())
                                 ? tr("banned %1 from the room: %2")
-                                  .arg(subjectName,
-                                       e.contentJson()["reason"_ls]
-                                       .toString().toHtmlEscaped())
+                                  .arg(subjectName, e.reason().toHtmlEscaped())
                                 : tr("self-banned from the room");
                     case MembershipType::Knock:
                         return tr("knocked");
@@ -509,6 +516,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                         ;
                 }
                 return tr("made something unknown");
+                // clang-format off
             }
             , [] (const RoomAliasesEvent& e) {
                 return tr("has set room aliases on server %1 to: %2")
