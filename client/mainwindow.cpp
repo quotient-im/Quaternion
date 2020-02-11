@@ -1132,11 +1132,19 @@ Locator::ResolveResult MainWindow::openLocator(const Locator& l, const QString& 
         }
         return Locator::MalformedId;
     }
-    if (auto* room = idOrAlias.startsWith('!')
-                     ? l.account->room(idOrAlias)
-                     : l.account->roomByAlias(idOrAlias))
+    if (idOrAlias.startsWith('!') or idOrAlias.startsWith('#'))
     {
+        QString eventId;
+        if (idOrAlias.contains('/')) {
+            eventId = idOrAlias.section('/', 1).section('?', 0, 0);
+            idOrAlias = idOrAlias.section('/', 0, 0);
+        }
+        auto room = idOrAlias.startsWith('!')
+                     ? l.account->room(idOrAlias)
+                     : l.account->roomByAlias(idOrAlias);
         selectRoom(room);
+        if (!eventId.isNull())
+            chatRoomWidget->flashMessage(eventId);
         return Locator::Success;
     }
     return Locator::NotFound;
@@ -1165,7 +1173,7 @@ MainWindow::Connection* MainWindow::getDefaultConnection() const
 
 void MainWindow::openResource(const QString& idOrUri, const QString& action)
 {
-    const auto& id = resolveToId(idOrUri);
+    const auto& id = resolveToId(QUrl::fromPercentEncoding(idOrUri.toLocal8Bit()));
     auto l =
         action == "interactive"
         ? id.isEmpty()
@@ -1331,7 +1339,7 @@ Locator MainWindow::obtainIdentifier(Connection* initialConn,
     if (dlg.exec() == QDialog::Accepted)
     {
         return makeLocator(account->currentData().value<Connection*>(),
-                           identifier->text());
+                           resolveToId(QUrl::fromPercentEncoding(identifier->text().toLocal8Bit())));
     }
     return {};
 }

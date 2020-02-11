@@ -237,6 +237,16 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
     m_messageModel->changeRoom( m_currentRoom );
 }
 
+void ChatRoomWidget::flashMessage(QString eventId)
+{
+    auto index = m_messageModel->findRow(eventId);
+    if (index >= 0) {
+        emit scrollViewTo(index);
+        emit animateMessage(index);
+    } else
+        setHudCaption( tr("Referenced message not found") );
+}
+
 void ChatRoomWidget::typingChanged()
 {
     if (!m_currentRoom || m_currentRoom->usersTyping().isEmpty())

@@ -102,6 +102,10 @@ Item {
                 detailsAnimation.start()
             }
         }
+        onAnimateMessage: {
+            if (currentIndex === index)
+                flashAnimation.start()
+        }
     }
 
     SequentialAnimation {
@@ -119,6 +123,27 @@ Item {
         PropertyAction {
             target: detailsAreaLoader; property: "visible"
             value: showingDetails
+        }
+    }
+    SequentialAnimation {
+        id: flashAnimation
+        PropertyAction {
+            target: messageFlasher; property: "visible"
+            value: true
+        }
+        NumberAnimation {
+            target: messageFlasher; property: "opacity"
+            to: 0.0
+            duration: 2000
+            easing.type: Easing.InQuad
+        }
+        PropertyAction {
+            target: messageFlasher; property: "visible"
+            value: false
+        }
+        PropertyAction {
+            target: messageFlasher; property: "opacity"
+            value: 1.0
         }
     }
 
@@ -271,6 +296,17 @@ Item {
                 Rectangle {
                     anchors.fill: parent
                     opacity: 0.2
+                    color: settings.highlight_color
+                    radius: 2
+                }
+            }
+            Item {
+                id: messageFlasher
+                anchors.fill: textField
+                visible: false
+                Rectangle {
+                    anchors.fill: parent
+                    opacity: 0.5
                     color: settings.highlight_color
                     radius: 2
                 }
