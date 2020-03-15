@@ -22,9 +22,7 @@
 #include <functional>
 using namespace std::placeholders;
 
-AbstractRoomOrdering::AbstractRoomOrdering(RoomListModel* m)
-    : QObject(m)
-{ }
+AbstractRoomOrdering::AbstractRoomOrdering(RoomListModel* m) : QObject(m) {}
 
 AbstractRoomOrdering::groupLessThan_closure_t
 AbstractRoomOrdering::groupLessThanFactory() const

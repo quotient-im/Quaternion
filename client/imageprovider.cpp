@@ -19,139 +19,134 @@
 
 #include "imageprovider.h"
 
-#include <connection.h>
-#include <jobs/mediathumbnailjob.h>
-
+#include <QtCore/QDebug>
 #include <QtCore/QReadWriteLock>
 #include <QtCore/QThread>
-#include <QtCore/QDebug>
+
+#include <connection.h>
+#include <jobs/mediathumbnailjob.h>
 
 using Quotient::Connection;
 using Quotient::BaseJob;
 
-class ThumbnailResponse : public QQuickImageResponse
-{
-        Q_OBJECT
-    public:
-        ThumbnailResponse(Connection* c, QString id, QSize size)
-            : c(c), mediaId(std::move(id)), requestedSize(size)
-            , errorStr(tr("Image request hasn't started"))
-        {
-            if (!c)
-            {
-                errorStr = tr("No connection to perform image request");
-                emit finished();
-                return;
-            }
-            if (mediaId.count('/') != 1)
-            {
-                errorStr =
-                    tr("Media id '%1' doesn't follow server/mediaId pattern")
-                    .arg(mediaId);
-                emit finished();
-                return;
-            }
-            // Execute a request on the main thread asynchronously
-            moveToThread(c->thread());
-            QMetaObject::invokeMethod(this,
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
-                &ThumbnailResponse::startRequest
-#else
-                "startRequest"
-#endif
-            );
-        }
-        ~ThumbnailResponse() override = default;
-
-    private slots:
-        // All these run in the main thread, not QML thread
-
-        void startRequest()
-        {
-            Q_ASSERT(QThread::currentThread() == c->thread());
-
-            job = c->getThumbnail(mediaId, requestedSize);
-            // Connect to any possible outcome including abandonment
-            // to make sure the QML thread is not left stuck forever.
-            connect(job, &BaseJob::finished,
-                    this, &ThumbnailResponse::prepareResult);
-        }
-
-        void prepareResult()
-        {
-            Q_ASSERT(QThread::currentThread() == job->thread());
-            Q_ASSERT(job->error() != BaseJob::Pending);
-            {
-                QWriteLocker _(&lock);
-                if (job->error() == BaseJob::Success)
-                {
-                    image = job->thumbnail();
-                    errorStr.clear();
-                    qDebug() << "ThumbnailResponse: image ready for" << mediaId;
-                } else if (job->error() == BaseJob::Abandoned) {
-                    errorStr = tr("Image request has been cancelled");
-                    qDebug() << "ThumbnailResponse: cancelled for" << mediaId;
-                } else {
-                    errorStr = job->errorString();
-                    qWarning() << "ThumbnailResponse: no valid image for" << mediaId
-                               << "-" << errorStr;
-                }
-            }
-            job = nullptr;
+class ThumbnailResponse : public QQuickImageResponse {
+    Q_OBJECT
+public:
+    ThumbnailResponse(Connection* c, QString id, QSize size)
+        : c(c)
+        , mediaId(std::move(id))
+        , requestedSize(size)
+        , errorStr(tr("Image request hasn't started"))
+    {
+        if (!c) {
+            errorStr = tr("No connection to perform image request");
             emit finished();
+            return;
         }
+        if (mediaId.count('/') != 1) {
+            errorStr = tr("Media id '%1' doesn't follow server/mediaId pattern")
+                           .arg(mediaId);
+            emit finished();
+            return;
+        }
+        // Execute a request on the main thread asynchronously
+        moveToThread(c->thread());
+        QMetaObject::invokeMethod(this,
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+                                  &ThumbnailResponse::startRequest
+#else
+                                  "startRequest"
+#endif
+        );
+    }
+    ~ThumbnailResponse() override = default;
 
-        void doCancel()
+private slots:
+    // All these run in the main thread, not QML thread
+
+    void startRequest()
+    {
+        Q_ASSERT(QThread::currentThread() == c->thread());
+
+        job = c->getThumbnail(mediaId, requestedSize);
+        // Connect to any possible outcome including abandonment
+        // to make sure the QML thread is not left stuck forever.
+        connect(job, &BaseJob::finished, this,
+                &ThumbnailResponse::prepareResult);
+    }
+
+    void prepareResult()
+    {
+        Q_ASSERT(QThread::currentThread() == job->thread());
+        Q_ASSERT(job->error() != BaseJob::Pending);
         {
-            if (job)
-            {
-                Q_ASSERT(QThread::currentThread() == job->thread());
-                job->abandon();
+            QWriteLocker _(&lock);
+            if (job->error() == BaseJob::Success) {
+                image = job->thumbnail();
+                errorStr.clear();
+                qDebug() << "ThumbnailResponse: image ready for" << mediaId;
+            } else if (job->error() == BaseJob::Abandoned) {
+                errorStr = tr("Image request has been cancelled");
+                qDebug() << "ThumbnailResponse: cancelled for" << mediaId;
+            } else {
+                errorStr = job->errorString();
+                qWarning() << "ThumbnailResponse: no valid image for" << mediaId
+                           << "-" << errorStr;
             }
         }
+        job = nullptr;
+        emit finished();
+    }
 
-    private:
-        Connection* c;
-        const QString mediaId;
-        const QSize requestedSize;
-        Quotient::MediaThumbnailJob* job = nullptr;
-
-        QImage image;
-        QString errorStr;
-        mutable QReadWriteLock lock; // Guards ONLY these two above
-
-        // The following overrides run in QML thread
-
-        QQuickTextureFactory *textureFactory() const override
-        {
-            QReadLocker _(&lock);
-            return QQuickTextureFactory::textureFactoryForImage(image);
+    void doCancel()
+    {
+        if (job) {
+            Q_ASSERT(QThread::currentThread() == job->thread());
+            job->abandon();
         }
+    }
 
-        QString errorString() const override
-        {
-            QReadLocker _(&lock);
-            return errorStr;
-        }
+private:
+    Connection* c;
+    const QString mediaId;
+    const QSize requestedSize;
+    Quotient::MediaThumbnailJob* job = nullptr;
 
-        void cancel() override
-        {
-            // Flip from QML thread to the main thread
-            QMetaObject::invokeMethod(this,
+    QImage image;
+    QString errorStr;
+    mutable QReadWriteLock lock; // Guards ONLY these two above
+
+    // The following overrides run in QML thread
+
+    QQuickTextureFactory* textureFactory() const override
+    {
+        QReadLocker _(&lock);
+        return QQuickTextureFactory::textureFactoryForImage(image);
+    }
+
+    QString errorString() const override
+    {
+        QReadLocker _(&lock);
+        return errorStr;
+    }
+
+    void cancel() override
+    {
+        // Flip from QML thread to the main thread
+        QMetaObject::invokeMethod(this,
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
-                &ThumbnailResponse::doCancel
+                                  &ThumbnailResponse::doCancel
 #else
-                "doCancel"
+                                  "doCancel"
 #endif
-            );
-        }
+        );
+    }
 };
 
 #include "imageprovider.moc" // Because we define a Q_OBJECT in the cpp file
 
-ImageProvider::ImageProvider(Connection* connection)
-    : m_connection(connection)
-{ }
+ImageProvider::ImageProvider(Connection* connection) : m_connection(connection)
+{}
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
 #    define LOAD_ATOMIC(Ptr) Ptr.load()
@@ -161,8 +156,9 @@ ImageProvider::ImageProvider(Connection* connection)
 #    define STORE_ATOMIC(Ptr, NewValue) Ptr.storeRelaxed(NewValue)
 #endif
 
-QQuickImageResponse* ImageProvider::requestImageResponse(
-        const QString& id, const QSize& requestedSize)
+QQuickImageResponse*
+ImageProvider::requestImageResponse(const QString& id,
+                                    const QSize& requestedSize)
 {
     qDebug() << "ImageProvider: requesting " << id;
     return new ThumbnailResponse(LOAD_ATOMIC(m_connection), id, requestedSize);

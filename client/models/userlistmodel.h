@@ -21,44 +21,43 @@
 
 #include <QtCore/QAbstractListModel>
 
-namespace Quotient
-{
-    class Connection;
-    class Room;
-    class User;
-}
+namespace Quotient {
+class Connection;
+class Room;
+class User;
+} // namespace Quotient
 
-class UserListModel: public QAbstractListModel
-{
-        Q_OBJECT
-    public:
-        using User = Quotient::User;
+class UserListModel : public QAbstractListModel {
+    Q_OBJECT
+public:
+    using User = Quotient::User;
 
-        UserListModel(QObject* parent = nullptr);
-        virtual ~UserListModel();
+    UserListModel(QObject* parent = nullptr);
+    virtual ~UserListModel();
 
-        void setRoom(Quotient::Room* room);
-        User* userAt(QModelIndex index);
+    void setRoom(Quotient::Room* room);
+    User* userAt(QModelIndex index);
 
-        QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
-        int rowCount(const QModelIndex& parent=QModelIndex()) const override;
-    
-    signals:
-        void membersChanged(); //< Reflection of Room::memberListChanged
+    QVariant data(const QModelIndex& index,
+                  int role = Qt::DisplayRole) const override;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
 
-    public slots:
-        void filter(const QString& filterString);
+signals:
+    void membersChanged(); //< Reflection of Room::memberListChanged
 
-    private slots:
-        void userAdded(User* user);
-        void userRemoved(User* user);
-        void refresh(User* user, QVector<int> roles = {});
-        void avatarChanged(User* user, const Quotient::Room* context);
+public slots:
+    void filter(const QString& filterString);
 
-    private:
-        Quotient::Room* m_currentRoom;
-        QList<User*> m_users;
+private slots:
+    void userAdded(User* user);
+    void userRemoved(User* user);
+    void refresh(User* user, QVector<int> roles = {});
+    void avatarChanged(User* user, const Quotient::Room* context);
 
-        int findUserPos(User* user) const;
-        int findUserPos(const QString& username) const;
+private:
+    Quotient::Room* m_currentRoom;
+    QList<User*> m_users;
+
+    int findUserPos(User* user) const;
+    int findUserPos(const QString& username) const;
 };

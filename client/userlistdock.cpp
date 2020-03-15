@@ -19,22 +19,22 @@
 
 #include "userlistdock.h"
 
-#include <QtWidgets/QTableView>
-#include <QtWidgets/QHeaderView>
-#include <QtWidgets/QMenu>
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QInputDialog>
+#include "models/userlistmodel.h"
+#include "quaternionroom.h"
+
 #include <QtGui/QGuiApplication>
+#include <QtWidgets/QHeaderView>
+#include <QtWidgets/QInputDialog>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QMenu>
+#include <QtWidgets/QTableView>
 
 #include <connection.h>
 #include <room.h>
 #include <user.h>
-#include "models/userlistmodel.h"
-#include "quaternionroom.h"
 
 UserListDock::UserListDock(QWidget* parent)
-    : QDockWidget(tr("Users"), parent)
-    , contextMenu(new QMenu(this))
+    : QDockWidget(tr("Users"), parent), contextMenu(new QMenu(this))
 {
     setObjectName(QStringLiteral("UsersDock"));
 
@@ -57,9 +57,9 @@ UserListDock::UserListDock(QWidget* parent)
     m_widget->setLayout(m_box);
     setWidget(m_widget);
 
-    connect(m_view, &QTableView::activated,
-            this, &UserListDock::requestUserMention);
-    connect( m_view, &QTableView::pressed, this, [this] {
+    connect(m_view, &QTableView::activated, this,
+            &UserListDock::requestUserMention);
+    connect(m_view, &QTableView::pressed, this, [this] {
         if (QGuiApplication::mouseButtons() & Qt::MidButton)
             startChatSelected();
     });
@@ -67,30 +67,32 @@ UserListDock::UserListDock(QWidget* parent)
     m_model = new UserListModel();
     m_view->setModel(m_model);
 
-    connect( m_model, &UserListModel::membersChanged,
-             this, &UserListDock::refreshTitle );
-    connect( m_model, &QAbstractListModel::modelReset,
-             this, &UserListDock::refreshTitle );
-    connect(m_filterline, &QLineEdit::textEdited,
-             m_model, &UserListModel::filter);
+    connect(m_model, &UserListModel::membersChanged, this,
+            &UserListDock::refreshTitle);
+    connect(m_model, &QAbstractListModel::modelReset, this,
+            &UserListDock::refreshTitle);
+    connect(m_filterline, &QLineEdit::textEdited, m_model,
+            &UserListModel::filter);
 
     contextMenu->addAction(QIcon::fromTheme("contact-new"),
-        tr("Open direct chat"), this, &UserListDock::startChatSelected);
+                           tr("Open direct chat"), this,
+                           &UserListDock::startChatSelected);
     contextMenu->addAction(tr("Mention user"), this,
-        &UserListDock::requestUserMention);
+                           &UserListDock::requestUserMention);
     ignoreAction =
         contextMenu->addAction(QIcon::fromTheme("mail-thread-ignored"),
-            tr("Ignore user"), this, &UserListDock::ignoreUser);
+                               tr("Ignore user"), this,
+                               &UserListDock::ignoreUser);
     ignoreAction->setCheckable(true);
     contextMenu->addSeparator();
     contextMenu->addAction(QIcon::fromTheme("im-ban-kick-user"),
-        tr("Kick user"), this,&UserListDock::kickUser);
-    contextMenu->addAction(QIcon::fromTheme("im-ban-user"),
-        tr("Ban user"), this, &UserListDock::banUser);
+                           tr("Kick user"), this, &UserListDock::kickUser);
+    contextMenu->addAction(QIcon::fromTheme("im-ban-user"), tr("Ban user"),
+                           this, &UserListDock::banUser);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this, &QWidget::customContextMenuRequested,
-            this, &UserListDock::showContextMenu);
+    connect(this, &QWidget::customContextMenuRequested, this,
+            &UserListDock::showContextMenu);
 }
 
 void UserListDock::setRoom(QuaternionRoom* room)
@@ -106,13 +108,18 @@ void UserListDock::setRoom(QuaternionRoom* room)
 
 void UserListDock::refreshTitle()
 {
-    setWindowTitle(tr("Users") +
-        (!m_currentRoom ? QString() :
-         ' ' + (m_model->rowCount() == m_currentRoom->joinedCount() ?
-                    QStringLiteral("(%L1)").arg(m_currentRoom->joinedCount()) :
-                    tr("(%L1 out of %L2)", "%found out of %total users")
-                    .arg(m_model->rowCount()).arg(m_currentRoom->joinedCount())))
-    );
+    setWindowTitle(
+        tr("Users")
+        + (!m_currentRoom
+               ? QString()
+               : ' '
+                     + (m_model->rowCount() == m_currentRoom->joinedCount()
+                            ? QStringLiteral("(%L1)").arg(
+                                m_currentRoom->joinedCount())
+                            : tr("(%L1 out of %L2)",
+                                 "%found out of %total users")
+                                  .arg(m_model->rowCount())
+                                  .arg(m_currentRoom->joinedCount()))));
 }
 
 void UserListDock::showContextMenu(QPoint pos)
@@ -135,12 +142,11 @@ void UserListDock::requestUserMention()
 
 void UserListDock::kickUser()
 {
-    if (auto* user = getSelectedUser())
-    {
+    if (auto* user = getSelectedUser()) {
         bool ok;
-        const auto reason = QInputDialog::getText(this,
-                tr("Kick %1").arg(user->id()), tr("Reason"),
-                QLineEdit::Normal, nullptr, &ok);
+        const auto reason =
+            QInputDialog::getText(this, tr("Kick %1").arg(user->id()),
+                                  tr("Reason"), QLineEdit::Normal, nullptr, &ok);
         if (ok) {
             m_currentRoom->kickMember(user->id(), reason);
         }
@@ -149,12 +155,11 @@ void UserListDock::kickUser()
 
 void UserListDock::banUser()
 {
-    if (auto* user = getSelectedUser())
-    {
+    if (auto* user = getSelectedUser()) {
         bool ok;
-        const auto reason = QInputDialog::getText(this,
-                tr("Ban %1").arg(user->id()), tr("Reason"),
-                QLineEdit::Normal, nullptr, &ok);
+        const auto reason =
+            QInputDialog::getText(this, tr("Ban %1").arg(user->id()),
+                                  tr("Reason"), QLineEdit::Normal, nullptr, &ok);
         if (ok) {
             m_currentRoom->ban(user->id(), reason);
         }

@@ -19,23 +19,21 @@
 
 #include "activitydetector.h"
 
+#include "chatroomwidget.h"
+#include "mainwindow.h"
+
 #include <QtCore/QDebug>
 
-#include "mainwindow.h"
-#include "chatroomwidget.h"
-
 ActivityDetector::ActivityDetector(QApplication& a, MainWindow& w)
-    : m_app(a)
-    , m_mainWindow(w)
-    , m_enabled(false)
+    : m_app(a), m_mainWindow(w), m_enabled(false)
 {
     const auto chatWidget = w.getChatRoomWidget();
-    connect( chatWidget, &ChatRoomWidget::readMarkerMoved,
-             this, &ActivityDetector::updateEnabled );
-    connect( chatWidget, &ChatRoomWidget::readMarkerCandidateMoved,
-             this, &ActivityDetector::updateEnabled );
-    connect( this, &ActivityDetector::triggered,
-             chatWidget, &ChatRoomWidget::markShownAsRead );
+    connect(chatWidget, &ChatRoomWidget::readMarkerMoved, this,
+            &ActivityDetector::updateEnabled);
+    connect(chatWidget, &ChatRoomWidget::readMarkerCandidateMoved, this,
+            &ActivityDetector::updateEnabled);
+    connect(this, &ActivityDetector::triggered, chatWidget,
+            &ChatRoomWidget::markShownAsRead);
 }
 
 void ActivityDetector::updateEnabled()
@@ -59,8 +57,7 @@ void ActivityDetector::setEnabled(bool enabled)
 
 bool ActivityDetector::eventFilter(QObject* obj, QEvent* ev)
 {
-    switch (ev->type())
-    {
+    switch (ev->type()) {
     case QEvent::KeyPress:
     case QEvent::FocusIn:
     case QEvent::MouseMove:

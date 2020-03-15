@@ -16,19 +16,15 @@
  */
 
 #include "kchatedit.h"
-#include <settings.h>
 
 #include <QDebug>
 #include <QGuiApplication>
 #include <QKeyEvent>
+#include <settings.h>
 
-static inline QTextDocument* makeDocument()
-{
-    return new QTextDocument;
-}
+static inline QTextDocument* makeDocument() { return new QTextDocument; }
 
-class KChatEdit::KChatEditPrivate
-{
+class KChatEdit::KChatEditPrivate {
 public:
     QString getDocumentText(QTextDocument* doc) const;
     void updateAndMoveInHistory(int increment);
@@ -36,7 +32,7 @@ public:
     void forwardHistory();
     void saveInput();
 
-    KChatEdit *q = nullptr;
+    KChatEdit* q = nullptr;
     // History always ends with a placeholder string that is initially empty
     // but may be filled with tentative input when the user entered something
     // and then went out for history.
@@ -55,8 +51,7 @@ void KChatEdit::KChatEditPrivate::updateAndMoveInHistory(int increment)
 {
     Q_ASSERT(index >= 0 && index < history.size());
     // Only save input if different from the latest one.
-    if (getDocumentText(q->document()) != getDocumentText(history[index]))
-    {
+    if (getDocumentText(q->document()) != getDocumentText(history[index])) {
         history[index] = q->document();
         history[index]->setParent(nullptr);
     }
@@ -86,8 +81,7 @@ void KChatEdit::KChatEditPrivate::saveInput()
 
     // Only save input if different from the latest one or from the history.
     const auto input = getDocumentText(q->document());
-    if (index < history.size() - 1 &&
-            input == getDocumentText(history[index])) {
+    if (index < history.size() - 1 && input == getDocumentText(history[index])) {
         // Take the history entry and move it to the most recent position (but
         // before the placeholder).
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
@@ -112,7 +106,7 @@ void KChatEdit::KChatEditPrivate::saveInput()
     q->clear();
 }
 
-KChatEdit::KChatEdit(QWidget *parent)
+KChatEdit::KChatEdit(QWidget* parent)
     : QTextEdit(parent), d(new KChatEditPrivate)
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
@@ -133,17 +127,11 @@ QTextDocument* KChatEdit::savedInput() const
     return d->history.front();
 }
 
-void KChatEdit::saveInput()
-{
-    d->saveInput();
-}
+void KChatEdit::saveInput() { d->saveInput(); }
 
-QVector<QTextDocument*> KChatEdit::history() const
-{
-    return d->history;
-}
+QVector<QTextDocument*> KChatEdit::history() const { return d->history; }
 
-void KChatEdit::setHistory(const QVector<QTextDocument*> &history)
+void KChatEdit::setHistory(const QVector<QTextDocument*>& history)
 {
     d->history = history;
     if (history.isEmpty() || !history.last()->isEmpty()) {
@@ -157,10 +145,7 @@ void KChatEdit::setHistory(const QVector<QTextDocument*> &history)
     d->index = d->history.size() - 1;
 }
 
-int KChatEdit::maxHistorySize() const
-{
-    return d->maxHistorySize;
-}
+int KChatEdit::maxHistorySize() const { return d->maxHistorySize; }
 
 void KChatEdit::setMaxHistorySize(int maxHistorySize)
 {
@@ -175,12 +160,13 @@ QSize KChatEdit::minimumSizeHint() const
     margins += contentsMargins();
 
     if (!placeholderText().isEmpty()) {
-        minimumSizeHint.setWidth(int(
-            fontMetrics().boundingRect(placeholderText()).width()
-            + margins.left()*2.5));
+        minimumSizeHint.setWidth(
+            int(fontMetrics().boundingRect(placeholderText()).width()
+                + margins.left() * 2.5));
     }
     if (document()->isEmpty()) {
-        minimumSizeHint.setHeight(fontMetrics().lineSpacing() + margins.top() + margins.bottom());
+        minimumSizeHint.setHeight(fontMetrics().lineSpacing() + margins.top()
+                                  + margins.bottom());
     } else {
         minimumSizeHint.setHeight(int(document()->size().height()));
     }
@@ -205,14 +191,16 @@ QSize KChatEdit::sizeHint() const
     size.rheight() += margins.top() + margins.bottom();
 
     // Be consistent with minimumSizeHint().
-    if (document()->lineCount() == 1 && !toPlainText().contains(QLatin1Char('\n'))) {
-        size.setHeight(fontMetrics().lineSpacing() + margins.top() + margins.bottom());
+    if (document()->lineCount() == 1
+        && !toPlainText().contains(QLatin1Char('\n'))) {
+        size.setHeight(fontMetrics().lineSpacing() + margins.top()
+                       + margins.bottom());
     }
 
     return size;
 }
 
-void KChatEdit::keyPressEvent(QKeyEvent *event)
+void KChatEdit::keyPressEvent(QKeyEvent* event)
 {
     if (event->matches(QKeySequence::Copy)) {
         emit copyRequested();
@@ -243,4 +231,3 @@ void KChatEdit::keyPressEvent(QKeyEvent *event)
 
     QTextEdit::keyPressEvent(event);
 }
-

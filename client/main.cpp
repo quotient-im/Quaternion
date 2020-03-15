@@ -17,19 +17,20 @@
  *                                                                        *
  **************************************************************************/
 
-#include <QtWidgets/QApplication>
-#include <QtCore/QTranslator>
-#include <QtCore/QLibraryInfo>
+#include "activitydetector.h"
+#include "mainwindow.h"
+#include "networksettings.h"
+
 #include <QtCore/QCommandLineParser>
 #include <QtCore/QDebug>
+#include <QtCore/QLibraryInfo>
 #include <QtCore/QStandardPaths>
+#include <QtCore/QTranslator>
+#include <QtWidgets/QApplication>
 
-#include "networksettings.h"
-#include "mainwindow.h"
-#include "activitydetector.h"
 #include <settings.h>
 
-int main( int argc, char* argv[] )
+int main(int argc, char* argv[])
 {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
     QApplication::setAttribute(Qt::AA_DisableWindowContextHelpButton);
@@ -40,7 +41,8 @@ int main( int argc, char* argv[] )
     QApplication::setApplicationName(QStringLiteral("quaternion"));
     QApplication::setApplicationDisplayName(QStringLiteral("Quaternion"));
     QApplication::setApplicationVersion(QStringLiteral("0.0.9.4+git"));
-    QApplication::setDesktopFileName(QStringLiteral("com.github.quaternion.desktop"));
+    QApplication::setDesktopFileName(
+        QStringLiteral("com.github.quaternion.desktop"));
 
     using Quotient::Settings;
     Settings::setLegacyNames(QStringLiteral("QMatrixClient"),
@@ -50,14 +52,12 @@ int main( int argc, char* argv[] )
         Settings s;
         auto font = QApplication::font();
         if (const auto fontFamily = s.value("UI/Fonts/family");
-            !fontFamily.toString().isEmpty())
-        {
+            !fontFamily.toString().isEmpty()) {
             font.setFamily(fontFamily.toString());
         }
 
         if (const auto fontPointSize = s.value("UI/Fonts/pointSize");
-            fontPointSize.toReal() > 0)
-        {
+            fontPointSize.toReal() > 0) {
             font.setPointSizeF(fontPointSize.toReal());
         }
 
@@ -68,27 +68,32 @@ int main( int argc, char* argv[] )
     // We should not need to do the following, as quitOnLastWindowClosed is
     // set to "true" by default; might be a bug, see
     // https://forum.qt.io/topic/71112/application-does-not-quit
-    QObject::connect(&app, &QApplication::lastWindowClosed, []{
+    QObject::connect(&app, &QApplication::lastWindowClosed, [] {
         qDebug() << "Last window closed!";
         QApplication::postEvent(qApp, new QEvent(QEvent::Quit));
     });
 
     QCommandLineParser parser;
-    parser.setApplicationDescription(QApplication::translate("main",
-            "Quaternion - an IM client for the Matrix protocol"));
+    parser.setApplicationDescription(QApplication::translate(
+        "main", "Quaternion - an IM client for the Matrix protocol"));
     parser.addHelpOption();
     parser.addVersionOption();
 
     QList<QCommandLineOption> options;
     QCommandLineOption locale { QStringLiteral("locale"),
-        QApplication::translate("main", "Override locale"),
-        QApplication::translate("main", "locale") };
+                                QApplication::translate("main",
+                                                        "Override locale"),
+                                QApplication::translate("main", "locale") };
     options.append(locale);
-    QCommandLineOption hideMainWindow { QStringLiteral("hide-mainwindow"),
-        QApplication::translate("main", "Hide main window on startup") };
+    QCommandLineOption hideMainWindow {
+        QStringLiteral("hide-mainwindow"),
+        QApplication::translate("main", "Hide main window on startup")
+    };
     options.append(hideMainWindow);
-    QCommandLineOption debug { QStringLiteral("debug"),
-        QApplication::translate("main", "Display debug information") };
+    QCommandLineOption debug {
+        QStringLiteral("debug"),
+        QApplication::translate("main", "Display debug information")
+    };
     debug.setFlags(QCommandLineOption::HiddenFromHelp); // FIXME, #415
     options.append(debug);
     // Add more command line options before this line
@@ -99,8 +104,7 @@ int main( int argc, char* argv[] )
     parser.process(app);
 
     const auto overrideLocale = parser.value(locale);
-    if (!overrideLocale.isEmpty())
-    {
+    if (!overrideLocale.isEmpty()) {
         QLocale::setDefault(overrideLocale);
         qInfo() << "Using locale" << QLocale().name();
     }
@@ -113,29 +117,28 @@ int main( int argc, char* argv[] )
     QTranslator appTranslator;
     if (!appTranslator.load(QLocale(), "quaternion", "_"))
         appTranslator.load(QLocale(), "quaternion", "_",
-            QStandardPaths::locate(QStandardPaths::AppLocalDataLocation,
-            "translations", QStandardPaths::LocateDirectory));
+                           QStandardPaths::locate(
+                               QStandardPaths::AppLocalDataLocation,
+                               "translations", QStandardPaths::LocateDirectory));
     app.installTranslator(&appTranslator);
 
     Quotient::NetworkSettings().setupApplicationProxy();
 
     MainWindow window;
-    if (parser.isSet(debug))
-    {
+    if (parser.isSet(debug)) {
         qInfo() << "Debug mode enabled";
         window.enableDebug();
     }
 
-    ActivityDetector ad(app, window); Q_UNUSED(ad);
+    ActivityDetector ad(app, window);
+    Q_UNUSED(ad);
     if (parser.isSet(hideMainWindow)) {
         qDebug() << "--- Hide time!";
         window.hide();
-    }
-    else {
+    } else {
         qDebug() << "--- Show time!";
         window.show();
     }
 
     return app.exec();
 }
-

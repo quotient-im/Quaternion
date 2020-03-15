@@ -25,36 +25,33 @@
 
 class ChatRoomWidget;
 
-class ChatEdit : public KChatEdit
-{
-        Q_OBJECT
-    public:
-        ChatEdit(ChatRoomWidget* c);
+class ChatEdit : public KChatEdit {
+    Q_OBJECT
+public:
+    ChatEdit(ChatRoomWidget* c);
 
-        void triggerCompletion();
-        void cancelCompletion();
+    void triggerCompletion();
+    void cancelCompletion();
 
-        void insertMention(QString author);
+    void insertMention(QString author);
 
-    signals:
-        void proposedCompletion(const QStringList& allCompletions, int curIndex);
-        void cancelledCompletion();
+signals:
+    void proposedCompletion(const QStringList& allCompletions, int curIndex);
+    void cancelledCompletion();
 
-    protected:
-        void keyPressEvent(QKeyEvent* event) override;
-        QString sanitizeMention(QString mentionText);
+protected:
+    void keyPressEvent(QKeyEvent* event) override;
+    QString sanitizeMention(QString mentionText);
 
-    private:
-        ChatRoomWidget* chatRoomWidget;
+private:
+    ChatRoomWidget* chatRoomWidget;
 
-        QTextCursor completionCursor;
-        QStringList completionMatches;
-        int matchesListPosition;
+    QTextCursor completionCursor;
+    QStringList completionMatches;
+    int matchesListPosition;
 
-        bool pickingMentions = false;
+    bool pickingMentions = false;
 
-        void startNewCompletion();
-        void appendTextAtCursor(const QString& text, bool select = false);
+    void startNewCompletion();
+    void appendTextAtCursor(const QString& text, bool select = false);
 };
-
-

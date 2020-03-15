@@ -19,14 +19,14 @@
 
 #include "logindialog.h"
 
-#include <connection.h>
-#include <settings.h>
-
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QLabel>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFormLayout>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QPushButton>
+
+#include <connection.h>
+#include <settings.h>
 
 using Quotient::Connection;
 
@@ -43,32 +43,28 @@ LoginDialog::LoginDialog(QWidget* parent, const QStringList& knownAccounts)
     setup();
     setPendingApplyMessage(tr("Connecting and logging in, please wait"));
 
-    connect(userEdit, &QLineEdit::editingFinished, m_connection.data(),
-            [=] {
-                auto userId = userEdit->text();
-                if (userId.startsWith('@') && userId.indexOf(':') != -1)
-                    m_connection->resolveServer(userId);
-            });
+    connect(userEdit, &QLineEdit::editingFinished, m_connection.data(), [=] {
+        auto userId = userEdit->text();
+        if (userId.startsWith('@') && userId.indexOf(':') != -1)
+            m_connection->resolveServer(userId);
+    });
 
     {
         // Fill defaults
         using namespace Quotient;
-        if ( !knownAccounts.empty() )
-        {
+        if (!knownAccounts.empty()) {
             AccountSettings account { knownAccounts.front() };
             userEdit->setText(account.userId());
 
             auto homeserver = account.homeserver();
             if (!homeserver.isEmpty())
                 m_connection->setHomeserver(homeserver);
-//                serverEdit->setText(homeserver.toString());
+            //                serverEdit->setText(homeserver.toString());
 
             initialDeviceName->setText(account.deviceName());
             saveTokenCheck->setChecked(account.keepLoggedIn());
             passwordEdit->setFocus();
-        }
-        else
-        {
+        } else {
             saveTokenCheck->setChecked(false);
             userEdit->setFocus();
         }
@@ -94,10 +90,10 @@ LoginDialog::LoginDialog(QWidget* parent,
 
 void LoginDialog::setup()
 {
-    passwordEdit->setEchoMode( QLineEdit::Password );
+    passwordEdit->setEchoMode(QLineEdit::Password);
 
     connect(m_connection.data(), &Connection::homeserverChanged, serverEdit,
-            [=] (const QUrl& newUrl) { serverEdit->setText(newUrl.toString()); });
+            [=](const QUrl& newUrl) { serverEdit->setText(newUrl.toString()); });
 
     auto* formLayout = addLayout<QFormLayout>();
     formLayout->addRow(tr("Matrix ID"), userEdit);
@@ -109,20 +105,11 @@ void LoginDialog::setup()
 
 LoginDialog::~LoginDialog() = default;
 
-Connection* LoginDialog::releaseConnection()
-{
-    return m_connection.take();
-}
+Connection* LoginDialog::releaseConnection() { return m_connection.take(); }
 
-QString LoginDialog::deviceName() const
-{
-    return initialDeviceName->text();
-}
+QString LoginDialog::deviceName() const { return initialDeviceName->text(); }
 
-bool LoginDialog::keepLoggedIn() const
-{
-    return saveTokenCheck->isChecked();
-}
+bool LoginDialog::keepLoggedIn() const { return saveTokenCheck->isChecked(); }
 
 void LoginDialog::apply()
 {
@@ -130,10 +117,9 @@ void LoginDialog::apply()
     if (!serverEdit->text().isEmpty() && !serverEdit->text().startsWith("http:"))
         url.setScheme("https"); // Qt defaults to http (or even ftp for some)
     m_connection->setHomeserver(url);
-    connect( m_connection.data(), &Connection::connected,
-             this, &Dialog::accept );
-    connect( m_connection.data(), &Connection::loginError,
-             this, &Dialog::applyFailed);
+    connect(m_connection.data(), &Connection::connected, this, &Dialog::accept);
+    connect(m_connection.data(), &Connection::loginError, this,
+            &Dialog::applyFailed);
     m_connection->connectToServer(userEdit->text(), passwordEdit->text(),
                                   initialDeviceName->text());
 }

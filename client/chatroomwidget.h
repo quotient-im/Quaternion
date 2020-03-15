@@ -19,13 +19,13 @@
 
 #pragma once
 
-#include <QtWidgets/QWidget>
-#include <QtCore/QBasicTimer>
-
 #include "quaternionroom.h"
 
+#include <QtCore/QBasicTimer>
+#include <QtWidgets/QWidget>
+
 #ifndef USE_QQUICKWIDGET
-#define DISABLE_QQUICKWIDGET
+#    define DISABLE_QQUICKWIDGET
 #endif
 
 class ChatEdit;
@@ -42,84 +42,82 @@ class QLabel;
 class QAction;
 class QTextDocument;
 
-class ChatRoomWidget: public QWidget
-{
-        Q_OBJECT
-    public:
-        explicit ChatRoomWidget(QWidget* parent = nullptr);
+class ChatRoomWidget : public QWidget {
+    Q_OBJECT
+public:
+    explicit ChatRoomWidget(QWidget* parent = nullptr);
 
-        void enableDebug();
-        bool pendingMarkRead() const;
+    void enableDebug();
+    bool pendingMarkRead() const;
 
-        QStringList findCompletionMatches(const QString& pattern) const;
-        Qt::KeyboardModifiers getModifierKeys() const;
+    QStringList findCompletionMatches(const QString& pattern) const;
+    Qt::KeyboardModifiers getModifierKeys() const;
 
-    signals:
-        void joinRequested(const QString& roomAlias);
-        void resourceRequested(const QString& idOrUri,
-                               const QString& action = {});
-        void showStatusMessage(const QString& message, int timeout = 0) const;
-        void readMarkerMoved();
-        void readMarkerCandidateMoved();
-        void pageUpPressed();
-        void pageDownPressed();
-        void openExternally(int currentIndex);
-        void showDetails(int currentIndex);
+signals:
+    void joinRequested(const QString& roomAlias);
+    void resourceRequested(const QString& idOrUri, const QString& action = {});
+    void showStatusMessage(const QString& message, int timeout = 0) const;
+    void readMarkerMoved();
+    void readMarkerCandidateMoved();
+    void pageUpPressed();
+    void pageDownPressed();
+    void openExternally(int currentIndex);
+    void showDetails(int currentIndex);
 
-    public slots:
-        void setRoom(QuaternionRoom* room);
+public slots:
+    void setRoom(QuaternionRoom* room);
 
-        void insertMention(Quotient::User* user);
-        void focusInput();
+    void insertMention(Quotient::User* user);
+    void focusInput();
 
-        void typingChanged();
-        void onMessageShownChanged(const QString& eventId, bool shown);
-        void markShownAsRead();
-        void saveFileAs(QString eventId);
-        void quote(const QString& htmlText);
-        void showMenu(int index, const QString& hoveredLink, bool showingDetails);
-        void fileDrop(const QString& url);
-        void textDrop(const QString& text);
-        void setGlobalSelectionBuffer(QString text);
+    void typingChanged();
+    void onMessageShownChanged(const QString& eventId, bool shown);
+    void markShownAsRead();
+    void saveFileAs(QString eventId);
+    void quote(const QString& htmlText);
+    void showMenu(int index, const QString& hoveredLink, bool showingDetails);
+    void fileDrop(const QString& url);
+    void textDrop(const QString& text);
+    void setGlobalSelectionBuffer(QString text);
 
-    private slots:
-        void sendInput();
-        void encryptionChanged();
-        void setHudCaption(QString newCaption);
+private slots:
+    void sendInput();
+    void encryptionChanged();
+    void setHudCaption(QString newCaption);
 
-    private:
-        // Data
-        MessageEventModel* m_messageModel;
-        QuaternionRoom* m_currentRoom;
-        ImageProvider* m_imageProvider;
+private:
+    // Data
+    MessageEventModel* m_messageModel;
+    QuaternionRoom* m_currentRoom;
+    ImageProvider* m_imageProvider;
 
 #ifdef DISABLE_QQUICKWIDGET
-        using timelineWidget_t = QQuickView;
+    using timelineWidget_t = QQuickView;
 #else
-        using timelineWidget_t = QQuickWidget;
+    using timelineWidget_t = QQuickWidget;
 #endif
-        // Controls
-        timelineWidget_t* m_timelineWidget;
-        QLabel* m_hudCaption; //< For typing and completion notifications
-        QAction* m_attachAction;
-        ChatEdit* m_chatEdit;
+    // Controls
+    timelineWidget_t* m_timelineWidget;
+    QLabel* m_hudCaption; //< For typing and completion notifications
+    QAction* m_attachAction;
+    ChatEdit* m_chatEdit;
 
-        // Supplementary/cache data members
-        using timeline_index_t = Quotient::TimelineItem::index_t;
-        QVector<timeline_index_t> indicesOnScreen;
-        timeline_index_t indexToMaybeRead;
-        QBasicTimer maybeReadTimer;
-        bool readMarkerOnScreen;
-        QMap<QuaternionRoom*, QVector<QTextDocument*>> roomHistories;
-        QString attachedFileName;
-        QString selectedText;
+    // Supplementary/cache data members
+    using timeline_index_t = Quotient::TimelineItem::index_t;
+    QVector<timeline_index_t> indicesOnScreen;
+    timeline_index_t indexToMaybeRead;
+    QBasicTimer maybeReadTimer;
+    bool readMarkerOnScreen;
+    QMap<QuaternionRoom*, QVector<QTextDocument*>> roomHistories;
+    QString attachedFileName;
+    QString selectedText;
 
-        void reStartShownTimer();
-        QString doSendInput();
+    void reStartShownTimer();
+    QString doSendInput();
 
-        void timerEvent(QTimerEvent* qte) override;
-        void resizeEvent(QResizeEvent*) override;
-        void keyPressEvent(QKeyEvent*) override;
+    void timerEvent(QTimerEvent* qte) override;
+    void resizeEvent(QResizeEvent*) override;
+    void keyPressEvent(QKeyEvent*) override;
 
-        int maximumChatEditHeight() const;
+    int maximumChatEditHeight() const;
 };

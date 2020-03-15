@@ -19,111 +19,117 @@
 
 #pragma once
 
-#include "abstractroomordering.h"
 #include "../quaternionroom.h"
-#include <connection.h>
-#include <util.h>
+#include "abstractroomordering.h"
 
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QMultiHash>
 
-class RoomListModel: public QAbstractItemModel
-{
-        Q_OBJECT
-        template <typename T>
-        using ConnectionsGuard = Quotient::ConnectionsGuard<T>;
-    public:
-        enum Roles {
-            HasUnreadRole = Qt::UserRole + 1,
-            HighlightCountRole, JoinStateRole, ObjectRole
-        };
+#include <connection.h>
+#include <util.h>
 
-        using Room = Quotient::Room;
+class RoomListModel : public QAbstractItemModel {
+    Q_OBJECT
+    template <typename T>
+    using ConnectionsGuard = Quotient::ConnectionsGuard<T>;
 
-        explicit RoomListModel(QObject* parent = nullptr);
-        ~RoomListModel() override = default;
+public:
+    enum Roles {
+        HasUnreadRole = Qt::UserRole + 1,
+        HighlightCountRole,
+        JoinStateRole,
+        ObjectRole
+    };
 
-        QVariant roomGroupAt(QModelIndex idx) const;
-        QuaternionRoom* roomAt(QModelIndex idx) const;
-        QModelIndex indexOf(const QVariant& group) const;
-        QModelIndex indexOf(const QVariant& group, Room* room) const;
+    using Room = Quotient::Room;
 
-        QModelIndex index(int row, int column,
-                          const QModelIndex& parent = {}) const override;
-        QModelIndex parent(const QModelIndex& index) const override;
-        QVariant data(const QModelIndex& index, int role) const override;
-        int columnCount(const QModelIndex&) const override;
-        int rowCount(const QModelIndex& parent) const override;
-        int totalRooms() const;
-        bool isValidGroupIndex(QModelIndex i) const;
-        bool isValidRoomIndex(QModelIndex i) const;
+    explicit RoomListModel(QObject* parent = nullptr);
+    ~RoomListModel() override = default;
 
-        template <typename OrderT>
-        void setOrder() { doSetOrder(std::make_unique<OrderT>(this)); }
+    QVariant roomGroupAt(QModelIndex idx) const;
+    QuaternionRoom* roomAt(QModelIndex idx) const;
+    QModelIndex indexOf(const QVariant& group) const;
+    QModelIndex indexOf(const QVariant& group, Room* room) const;
 
-    signals:
-        void groupAdded(int row);
-        void saveCurrentSelection();
-        void restoreCurrentSelection();
+    QModelIndex index(int row, int column,
+                      const QModelIndex& parent = {}) const override;
+    QModelIndex parent(const QModelIndex& index) const override;
+    QVariant data(const QModelIndex& index, int role) const override;
+    int columnCount(const QModelIndex&) const override;
+    int rowCount(const QModelIndex& parent) const override;
+    int totalRooms() const;
+    bool isValidGroupIndex(QModelIndex i) const;
+    bool isValidRoomIndex(QModelIndex i) const;
 
-    public slots:
-        void addConnection(Quotient::Connection* connection);
-        void deleteConnection(Quotient::Connection* connection);
+    template <typename OrderT>
+    void setOrder()
+    {
+        doSetOrder(std::make_unique<OrderT>(this));
+    }
 
-        // FIXME, quotient-im/libQuotient#63:
-        // This should go to the library's ConnectionManager/RoomManager
-        void deleteTag(QModelIndex index);
+signals:
+    void groupAdded(int row);
+    void saveCurrentSelection();
+    void restoreCurrentSelection();
 
-    private slots:
-        void addRoom(Room* room);
-        void refresh(Room* room, const QVector<int>& roles = {});
-        void deleteRoom(Room* room);
+public slots:
+    void addConnection(Quotient::Connection* connection);
+    void deleteConnection(Quotient::Connection* connection);
 
-        void updateGroups(Room* room);
+    // FIXME, quotient-im/libQuotient#63:
+    // This should go to the library's ConnectionManager/RoomManager
+    void deleteTag(QModelIndex index);
 
-    private:
-        friend class AbstractRoomOrdering;
+private slots:
+    void addRoom(Room* room);
+    void refresh(Room* room, const QVector<int>& roles = {});
+    void deleteRoom(Room* room);
 
-        std::vector<ConnectionsGuard<Quotient::Connection>> m_connections;
-        RoomGroups m_roomGroups;
-        AbstractRoomOrdering* m_roomOrder = nullptr;
+    void updateGroups(Room* room);
 
-        QMultiHash<const Room*, QPersistentModelIndex> m_roomIndices;
+private:
+    friend class AbstractRoomOrdering;
 
-        RoomGroups::iterator tryInsertGroup(const QVariant& key);
-        void addRoomToGroups(Room* room, QVariantList groups = {});
-        void connectRoomSignals(Room* room);
-        void doRemoveRoom(QModelIndex idx);
+    std::vector<ConnectionsGuard<Quotient::Connection>> m_connections;
+    RoomGroups m_roomGroups;
+    AbstractRoomOrdering* m_roomOrder = nullptr;
 
-        void visitRoom(const Room& room,
-                       const std::function<void(QModelIndex)>& visitor);
+    QMultiHash<const Room*, QPersistentModelIndex> m_roomIndices;
 
-        void doSetOrder(std::unique_ptr<AbstractRoomOrdering>&& newOrder);
+    RoomGroups::iterator tryInsertGroup(const QVariant& key);
+    void addRoomToGroups(Room* room, QVariantList groups = {});
+    void connectRoomSignals(Room* room);
+    void doRemoveRoom(QModelIndex idx);
 
-        std::pair<QModelIndexList, QModelIndexList>
-        preparePersistentIndexChange(int fromPos, int shiftValue) const;
+    void visitRoom(const Room& room,
+                   const std::function<void(QModelIndex)>& visitor);
 
-        // Beware, the returned iterators are as short-lived as QModelIndex'es
-        auto lowerBoundGroup(const QVariant& group)
-        {
-            return std::lower_bound(m_roomGroups.begin(), m_roomGroups.end(),
-                                    group, m_roomOrder->groupLessThanFactory());
-        }
-        auto lowerBoundGroup(const QVariant& group) const
-        {
-            return std::lower_bound(m_roomGroups.begin(), m_roomGroups.end(),
-                                    group, m_roomOrder->groupLessThanFactory());
-        }
+    void doSetOrder(std::unique_ptr<AbstractRoomOrdering>&& newOrder);
 
-        auto lowerBoundRoom(RoomGroup& group, Room* room) const
-        {
-            return std::lower_bound(group.rooms.begin(), group.rooms.end(),
-                    room, m_roomOrder->roomLessThanFactory(group.key));
-        }
+    std::pair<QModelIndexList, QModelIndexList>
+    preparePersistentIndexChange(int fromPos, int shiftValue) const;
 
-        auto lowerBoundRoom(const RoomGroup& group, Room* room) const
-        {
-            return std::lower_bound(group.rooms.begin(), group.rooms.end(),
-                    room, m_roomOrder->roomLessThanFactory(group.key));
-        }
+    // Beware, the returned iterators are as short-lived as QModelIndex'es
+    auto lowerBoundGroup(const QVariant& group)
+    {
+        return std::lower_bound(m_roomGroups.begin(), m_roomGroups.end(), group,
+                                m_roomOrder->groupLessThanFactory());
+    }
+    auto lowerBoundGroup(const QVariant& group) const
+    {
+        return std::lower_bound(m_roomGroups.begin(), m_roomGroups.end(), group,
+                                m_roomOrder->groupLessThanFactory());
+    }
+
+    auto lowerBoundRoom(RoomGroup& group, Room* room) const
+    {
+        return std::lower_bound(group.rooms.begin(), group.rooms.end(), room,
+                                m_roomOrder->roomLessThanFactory(group.key));
+    }
+
+    auto lowerBoundRoom(const RoomGroup& group, Room* room) const
+    {
+        return std::lower_bound(group.rooms.begin(), group.rooms.end(), room,
+                                m_roomOrder->roomLessThanFactory(group.key));
+    }
 };

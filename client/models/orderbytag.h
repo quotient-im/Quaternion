@@ -23,30 +23,29 @@
 QString tagToCaption(const QString& tag);
 QString captionToTag(const QString& caption);
 
-class OrderByTag : public AbstractRoomOrdering
-{
-    public:
-        explicit OrderByTag(RoomListModel* m)
-            : AbstractRoomOrdering(m), tagsOrder(initTagsOrder())
-        { }
+class OrderByTag : public AbstractRoomOrdering {
+public:
+    explicit OrderByTag(RoomListModel* m)
+        : AbstractRoomOrdering(m), tagsOrder(initTagsOrder())
+    {}
 
-    private:
-        QStringList tagsOrder;
+private:
+    QStringList tagsOrder;
 
-        // Overrides
+    // Overrides
 
-        QString orderingName() const override { return QStringLiteral("tag"); }
-        QVariant groupLabel(const RoomGroup& g) const override;
-        bool groupLessThan(const RoomGroup& g1,
-                           const QVariant& g2key) const override;
-        bool roomLessThan(const QVariant& groupKey,
-                          const Room* r1, const Room* r2) const override;
+    QString orderingName() const override { return QStringLiteral("tag"); }
+    QVariant groupLabel(const RoomGroup& g) const override;
+    bool groupLessThan(const RoomGroup& g1,
+                       const QVariant& g2key) const override;
+    bool roomLessThan(const QVariant& groupKey, const Room* r1,
+                      const Room* r2) const override;
 
-        groups_t roomGroups(const Room* room) const override;
-        void connectSignals(Connection* connection) override;
-        void connectSignals(Room* room) override;
+    groups_t roomGroups(const Room* room) const override;
+    void connectSignals(Connection* connection) override;
+    void connectSignals(Room* room) override;
 
-        void updateGroups(Room* room) override;
+    void updateGroups(Room* room) override;
 
-        static QStringList initTagsOrder();
+    static QStringList initTagsOrder();
 };

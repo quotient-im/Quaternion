@@ -21,27 +21,25 @@
 
 #include <QtWidgets/QSystemTrayIcon>
 
-namespace Quotient
-{
-    class Room;
+namespace Quotient {
+class Room;
 }
 
 class MainWindow;
 
-class SystemTrayIcon: public QSystemTrayIcon
-{
-        Q_OBJECT
-    public:
-        explicit SystemTrayIcon(MainWindow* parent = nullptr);
+class SystemTrayIcon : public QSystemTrayIcon {
+    Q_OBJECT
+public:
+    explicit SystemTrayIcon(MainWindow* parent = nullptr);
 
-    public slots:
-        void newRoom(Quotient::Room* room);
+public slots:
+    void newRoom(Quotient::Room* room);
 
-    private slots:
-        void highlightCountChanged(Quotient::Room* room);
-        void systemTrayIconAction(QSystemTrayIcon::ActivationReason reason);
+private slots:
+    void highlightCountChanged(Quotient::Room* room);
+    void systemTrayIconAction(QSystemTrayIcon::ActivationReason reason);
 
-    private:
-        MainWindow* m_parent;
-        void showHide();
+private:
+    MainWindow* m_parent;
+    void showHide();
 };

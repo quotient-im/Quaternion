@@ -19,11 +19,11 @@
 
 #pragma once
 
-#include <QtQuick/QQuickAsyncImageProvider>
 #include <QtCore/QAtomicPointer>
+#include <QtQuick/QQuickAsyncImageProvider>
 
 namespace Quotient {
-    class Connection;
+class Connection;
 }
 
 // FIXME: It's actually ThumbnailProvider, not ImageProvider, because internally
@@ -32,17 +32,16 @@ namespace Quotient {
 // because images loaded by QML are not necessarily cached to disk, so it's a
 // waste of bandwidth).
 
-class ImageProvider: public QQuickAsyncImageProvider
-{
-    public:
-        explicit ImageProvider(Quotient::Connection* connection = nullptr);
+class ImageProvider : public QQuickAsyncImageProvider {
+public:
+    explicit ImageProvider(Quotient::Connection* connection = nullptr);
 
-        QQuickImageResponse* requestImageResponse(
-                const QString& id, const QSize& requestedSize) override;
+    QQuickImageResponse*
+    requestImageResponse(const QString& id, const QSize& requestedSize) override;
 
-        void setConnection(Quotient::Connection* connection);
+    void setConnection(Quotient::Connection* connection);
 
-    private:
-        QAtomicPointer<Quotient::Connection> m_connection;
-        Q_DISABLE_COPY(ImageProvider)
+private:
+    QAtomicPointer<Quotient::Connection> m_connection;
+    Q_DISABLE_COPY(ImageProvider)
 };

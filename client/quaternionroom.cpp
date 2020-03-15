@@ -19,9 +19,10 @@
 
 #include "quaternionroom.h"
 
-#include <user.h>
-#include <events/roommessageevent.h>
 #include <QtCore/QRegularExpression>
+
+#include <events/roommessageevent.h>
+#include <user.h>
 
 using namespace Quotient;
 
@@ -29,14 +30,13 @@ QuaternionRoom::QuaternionRoom(Connection* connection, QString roomId,
                                JoinState joinState)
     : Room(connection, std::move(roomId), joinState)
 {
-    connect( this, &QuaternionRoom::notificationCountChanged, this, &QuaternionRoom::countChanged );
-    connect( this, &QuaternionRoom::highlightCountChanged, this, &QuaternionRoom::countChanged );
+    connect(this, &QuaternionRoom::notificationCountChanged, this,
+            &QuaternionRoom::countChanged);
+    connect(this, &QuaternionRoom::highlightCountChanged, this,
+            &QuaternionRoom::countChanged);
 }
 
-const QString& QuaternionRoom::cachedInput() const
-{
-    return m_cachedInput;
-}
+const QString& QuaternionRoom::cachedInput() const { return m_cachedInput; }
 
 void QuaternionRoom::setCachedInput(const QString& input)
 {
@@ -60,26 +60,28 @@ bool QuaternionRoom::isEventHighlighted(const RoomEvent* e) const
 
 int QuaternionRoom::savedTopVisibleIndex() const
 {
-    return firstDisplayedMarker() == timelineEdge() ? 0 :
-                firstDisplayedMarker() - messageEvents().rbegin();
+    return firstDisplayedMarker() == timelineEdge()
+               ? 0
+               : firstDisplayedMarker() - messageEvents().rbegin();
 }
 
 int QuaternionRoom::savedBottomVisibleIndex() const
 {
-    return lastDisplayedMarker() == timelineEdge() ? 0 :
-                lastDisplayedMarker() - messageEvents().rbegin();
+    return lastDisplayedMarker() == timelineEdge()
+               ? 0
+               : lastDisplayedMarker() - messageEvents().rbegin();
 }
 
 void QuaternionRoom::saveViewport(int topIndex, int bottomIndex)
 {
-    if (topIndex == -1 || bottomIndex == -1 ||
-            (bottomIndex == savedBottomVisibleIndex() &&
-             (bottomIndex == 0 || topIndex == savedTopVisibleIndex())))
+    if (topIndex == -1 || bottomIndex == -1
+        || (bottomIndex == savedBottomVisibleIndex()
+            && (bottomIndex == 0 || topIndex == savedTopVisibleIndex())))
         return;
-    if (bottomIndex == 0)
-    {
+    if (bottomIndex == 0) {
         qDebug() << "Saving viewport as the latest available";
-        setFirstDisplayedEventId({}); setLastDisplayedEventId({});
+        setFirstDisplayedEventId({});
+        setLastDisplayedEventId({});
         return;
     }
     qDebug() << "Saving viewport:" << topIndex << "thru" << bottomIndex;
@@ -104,8 +106,7 @@ QString QuaternionRoom::safeMemberName(const QString& userId) const
 
 void QuaternionRoom::countChanged()
 {
-    if( displayed() && !hasUnreadMessages() )
-    {
+    if (displayed() && !hasUnreadMessages()) {
         resetNotificationCount();
         resetHighlightCount();
     }
@@ -114,13 +115,13 @@ void QuaternionRoom::countChanged()
 void QuaternionRoom::onAddNewTimelineEvents(timeline_iter_t from)
 {
     std::for_each(from, messageEvents().cend(),
-                  [this] (const TimelineItem& ti) { checkForHighlights(ti); });
+                  [this](const TimelineItem& ti) { checkForHighlights(ti); });
 }
 
 void QuaternionRoom::onAddHistoricalTimelineEvents(rev_iter_t from)
 {
     std::for_each(from, messageEvents().crend(),
-                  [this] (const TimelineItem& ti) { checkForHighlights(ti); });
+                  [this](const TimelineItem& ti) { checkForHighlights(ti); });
 }
 
 void QuaternionRoom::checkForHighlights(const Quotient::TimelineItem& ti)
@@ -128,15 +129,23 @@ void QuaternionRoom::checkForHighlights(const Quotient::TimelineItem& ti)
     auto localUserId = localUser()->id();
     if (ti->senderId() == localUserId)
         return;
-    if (auto* e = ti.viewAs<RoomMessageEvent>())
-    {
-        const QRegularExpression localUserRe("(\\W|^)" + localUserId + "(\\W|$)", QRegularExpression::MultilineOption | QRegularExpression::CaseInsensitiveOption);
-        const QRegularExpression roomMembernameRe("(\\W|^)" + roomMembername(localUserId) + "(\\W|$)", QRegularExpression::MultilineOption | QRegularExpression::CaseInsensitiveOption);
+    if (auto* e = ti.viewAs<RoomMessageEvent>()) {
+        const QRegularExpression localUserRe(
+            "(\\W|^)" + localUserId + "(\\W|$)",
+            QRegularExpression::MultilineOption
+                | QRegularExpression::CaseInsensitiveOption);
+        const QRegularExpression roomMembernameRe(
+            "(\\W|^)" + roomMembername(localUserId) + "(\\W|$)",
+            QRegularExpression::MultilineOption
+                | QRegularExpression::CaseInsensitiveOption);
         const auto& text = e->plainBody();
-        QRegularExpressionMatch localMatch = localUserRe.match(text, 0, QRegularExpression::PartialPreferFirstMatch);
-        QRegularExpressionMatch roomMemberMatch = roomMembernameRe.match(text, 0, QRegularExpression::PartialPreferFirstMatch);
-        if (localMatch.hasMatch() ||
-                roomMemberMatch.hasMatch())
+        QRegularExpressionMatch localMatch =
+            localUserRe.match(text, 0,
+                              QRegularExpression::PartialPreferFirstMatch);
+        QRegularExpressionMatch roomMemberMatch =
+            roomMembernameRe.match(text, 0,
+                                   QRegularExpression::PartialPreferFirstMatch);
+        if (localMatch.hasMatch() || roomMemberMatch.hasMatch())
             highlights.insert(e);
     }
 }

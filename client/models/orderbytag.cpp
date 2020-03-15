@@ -28,15 +28,15 @@ static const auto Left = RoomGroup::SystemPrefix + "left";
 
 // TODO: maybe move the tr() strings below from RoomListModel context
 static const auto InvitesLabel =
-        RoomListModel::tr("Invited", "The caption for invitations");
+    RoomListModel::tr("Invited", "The caption for invitations");
 static const auto FavouritesLabel = RoomListModel::tr("Favourites");
 static const auto LowPriorityLabel = RoomListModel::tr("Low priority");
 static const auto ServerNoticeLabel = RoomListModel::tr("Server notices");
 static const auto DirectChatsLabel =
-        RoomListModel::tr("People", "The caption for direct chats");
+    RoomListModel::tr("People", "The caption for direct chats");
 static const auto UngroupedRoomsLabel = RoomListModel::tr("Ungrouped rooms");
 static const auto LeftLabel =
-        RoomListModel::tr("Left", "The caption for left rooms");
+    RoomListModel::tr("Left", "The caption for left rooms");
 
 QString tagToCaption(const QString& tag)
 {
@@ -78,9 +78,8 @@ auto findIndexWithWildcards(const QStringList& list, const QString& value)
 
     auto i = findIndex(list, value);
     // Try namespace groupings (".*" in the list), from right to left
-    for (int dotPos = 0;
-         i == list.size() && (dotPos = value.lastIndexOf('.', --dotPos)) != -1;)
-    {
+    for (int dotPos = 0; i == list.size()
+                         && (dotPos = value.lastIndexOf('.', --dotPos)) != -1;) {
         i = findIndex(list, value.left(dotPos + 1) + '*');
     }
     return i;
@@ -109,8 +108,8 @@ bool OrderByTag::groupLessThan(const RoomGroup& g1, const QVariant& g2key) const
     return li < ri || (li == ri && lkey < rkey);
 }
 
-bool OrderByTag::roomLessThan(const QVariant& groupKey,
-                              const Room* r1, const Room* r2) const
+bool OrderByTag::roomLessThan(const QVariant& groupKey, const Room* r1,
+                              const Room* r2) const
 {
     if (r1 == r2)
         return false; // 0. Short-circuit for coinciding room objects
@@ -122,8 +121,7 @@ bool OrderByTag::roomLessThan(const QVariant& groupKey,
     if (o2.has_value() != o1.has_value())
         return !o2.has_value();
 
-    if (o1 && o2)
-    {
+    if (o1 && o2) {
         // Compare floats; fallthrough if neither is smaller
         if (*o1 < *o2)
             return true;
@@ -144,8 +142,7 @@ bool OrderByTag::roomLessThan(const QVariant& groupKey,
     // 4. Room ids are equal; order by connections (=userids)
     const auto c1 = r1->connection();
     const auto c2 = r2->connection();
-    if (c1 != c2)
-    {
+    if (c1 != c2) {
         if (auto usersCmpRes = c1->userId().compare(c2->userId()))
             return usersCmpRes < 0;
 
@@ -163,9 +160,9 @@ bool OrderByTag::roomLessThan(const QVariant& groupKey,
 AbstractRoomOrdering::groups_t OrderByTag::roomGroups(const Room* room) const
 {
     if (room->joinState() == Quotient::JoinState::Invite)
-        return groups_t {{ Invite }};
+        return groups_t { { Invite } };
     if (room->joinState() == Quotient::JoinState::Leave)
-        return groups_t {{ Left }};
+        return groups_t { { Left } };
 
     auto tags = room->tags().keys();
     if (room->isDirectChat())
@@ -182,13 +179,14 @@ AbstractRoomOrdering::groups_t OrderByTag::roomGroups(const Room* room) const
         if (successorTags.empty())
             tags.removeOne(Untagged);
         else
-            for (const auto& t : successorTags)
+            for (const auto& t: successorTags)
                 if (tags.contains(t))
                     tags.removeOne(t);
         if (tags.empty())
             return {}; // No remaining groups, hide the room
     }
-    groups_t vl; vl.reserve(tags.size());
+    groups_t vl;
+    vl.reserve(tags.size());
     std::copy(tags.cbegin(), tags.cend(), std::back_inserter(vl));
     return vl;
 }
@@ -196,28 +194,28 @@ AbstractRoomOrdering::groups_t OrderByTag::roomGroups(const Room* room) const
 void OrderByTag::connectSignals(Connection* connection)
 {
     using DCMap = Quotient::DirectChatsMap;
-    connect( connection, &Connection::directChatsListChanged, this,
-        [this,connection] (const DCMap& additions, const DCMap& removals) {
-            // The same room may show up in removals and in additions if it
-            // moves from one userid to another (pretty weird but encountered
-            // in the wild). Therefore process removals first.
-            for (const auto& rId: removals)
-                if (auto* r = connection->room(rId))
-                    updateGroups(r);
-            for (const auto& rId: additions)
-                if (auto* r = connection->room(rId))
-                    updateGroups(r);
-        });
+    connect(connection, &Connection::directChatsListChanged, this,
+            [this, connection](const DCMap& additions, const DCMap& removals) {
+                // The same room may show up in removals and in additions if it
+                // moves from one userid to another (pretty weird but
+                // encountered in the wild). Therefore process removals first.
+                for (const auto& rId: removals)
+                    if (auto* r = connection->room(rId))
+                        updateGroups(r);
+                for (const auto& rId: additions)
+                    if (auto* r = connection->room(rId))
+                        updateGroups(r);
+            });
 }
 
 void OrderByTag::connectSignals(Room* room)
 {
-    connect(room, &Room::displaynameChanged,
-            this, [this,room] { updateGroups(room); });
-    connect(room, &Room::tagsChanged,
-            this, [this,room] { updateGroups(room); });
-    connect(room, &Room::joinStateChanged,
-            this, [this,room] { updateGroups(room); });
+    connect(room, &Room::displaynameChanged, this,
+            [this, room] { updateGroups(room); });
+    connect(room, &Room::tagsChanged, this,
+            [this, room] { updateGroups(room); });
+    connect(room, &Room::joinStateChanged, this,
+            [this, room] { updateGroups(room); });
 }
 
 void OrderByTag::updateGroups(Room* room)
@@ -242,14 +240,13 @@ QStringList OrderByTag::initTagsOrder()
     static const auto SettingsKey = QStringLiteral("tags_order");
     static Quotient::SettingsGroup sg { "UI/RoomsDock" };
     auto savedOrder = sg.get<QStringList>(SettingsKey);
-    if (savedOrder.isEmpty())
-    {
+    if (savedOrder.isEmpty()) {
         sg.setValue(SettingsKey, DefaultTagsOrder);
         return DefaultTagsOrder;
     }
     { // Check that the order doesn't use the old prefix and migrate if it does.
         bool migrated = false;
-        for (auto& s : savedOrder)
+        for (auto& s: savedOrder)
             if (s.startsWith(RoomGroup::LegacyPrefix)) {
                 s.replace(0, RoomGroup::LegacyPrefix.size(),
                           RoomGroup::SystemPrefix);

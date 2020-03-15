@@ -1,6 +1,6 @@
 /**************************************************************************
  *                                                                        *
- * Copyright (C) 2016 Malte Brandy <malte.brandy@maralorn.de>                        *
+ * Copyright (C) 2016 Malte Brandy <malte.brandy@maralorn.de> *
  *                                                                        *
  * This program is free software; you can redistribute it and/or          *
  * modify it under the terms of the GNU General Public License            *
@@ -23,25 +23,24 @@
 
 class MainWindow;
 
-class ActivityDetector : public QObject
-{
+class ActivityDetector : public QObject {
     Q_OBJECT
 
-    public:
-        ActivityDetector(QApplication& a, MainWindow& w);
+public:
+    ActivityDetector(QApplication& a, MainWindow& w);
 
-    public slots:
-        void updateEnabled();
-        void setEnabled(bool enabled);
+public slots:
+    void updateEnabled();
+    void setEnabled(bool enabled);
 
-    signals:
-        void triggered();
+signals:
+    void triggered();
 
-    protected:
-        bool eventFilter(QObject* obj, QEvent* ev) override;
+protected:
+    bool eventFilter(QObject* obj, QEvent* ev) override;
 
-    private:
-        QApplication& m_app;
-        MainWindow& m_mainWindow;
-        bool m_enabled;
+private:
+    QApplication& m_app;
+    MainWindow& m_mainWindow;
+    bool m_enabled;
 };

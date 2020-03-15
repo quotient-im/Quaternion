@@ -13,28 +13,27 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #include "dialog.h"
 
-#include <QtWidgets/QPushButton>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QPushButton>
 
-Dialog::Dialog(const QString& title, QWidget *parent,
+Dialog::Dialog(const QString& title, QWidget* parent,
                UseStatusLine useStatusLine, const QString& applyTitle,
                QDialogButtonBox::StandardButtons addButtons)
-    : Dialog(title
-        , QDialogButtonBox::Ok | QDialogButtonBox::Cancel | addButtons
-        , parent, useStatusLine)
+    : Dialog(title, QDialogButtonBox::Ok | QDialogButtonBox::Cancel | addButtons,
+             parent, useStatusLine)
 {
     if (!applyTitle.isEmpty())
         buttons->button(QDialogButtonBox::Ok)->setText(applyTitle);
 }
 
-
-Dialog::Dialog(const QString& title, QDialogButtonBox::StandardButtons setButtons,
-    QWidget *parent, UseStatusLine useStatusLine)
+Dialog::Dialog(const QString& title,
+               QDialogButtonBox::StandardButtons setButtons, QWidget* parent,
+               UseStatusLine useStatusLine)
     : QDialog(parent)
     , applyLatency(useStatusLine)
     , pendingApplyMessage(tr("Applying changes, please wait"))
@@ -67,15 +66,14 @@ void Dialog::addWidget(QWidget* w)
     outerLayout.insertWidget(outerLayout.count() - offset, w);
 }
 
-QPushButton*Dialog::button(QDialogButtonBox::StandardButton which)
+QPushButton* Dialog::button(QDialogButtonBox::StandardButton which)
 {
     return buttonBox()->button(which);
 }
 
 void Dialog::reactivate()
 {
-    if (!isVisible())
-    {
+    if (!isVisible()) {
         load();
         show();
     }
@@ -97,26 +95,23 @@ void Dialog::applyFailed(const QString& errorMessage)
 
 void Dialog::buttonClicked(QAbstractButton* button)
 {
-    switch (buttons->buttonRole(button))
-    {
-        case QDialogButtonBox::AcceptRole:
-        case QDialogButtonBox::YesRole:
-            if (validate())
-            {
-                if (statusLabel)
-                    statusLabel->setText(pendingApplyMessage);
-                setDisabled(true);
-                apply();
-            }
-            break;
-        case QDialogButtonBox::ResetRole:
-            load();
-            break;
-        case QDialogButtonBox::RejectRole:
-        case QDialogButtonBox::NoRole:
-            reject();
-            break;
-        default:
-            ; // Derived classes may completely replace or reuse this method
+    switch (buttons->buttonRole(button)) {
+    case QDialogButtonBox::AcceptRole:
+    case QDialogButtonBox::YesRole:
+        if (validate()) {
+            if (statusLabel)
+                statusLabel->setText(pendingApplyMessage);
+            setDisabled(true);
+            apply();
+        }
+        break;
+    case QDialogButtonBox::ResetRole:
+        load();
+        break;
+    case QDialogButtonBox::RejectRole:
+    case QDialogButtonBox::NoRole:
+        reject();
+        break;
+    default:; // Derived classes may completely replace or reuse this method
     }
 }

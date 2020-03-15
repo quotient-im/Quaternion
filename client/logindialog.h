@@ -25,35 +25,33 @@ class QLineEdit;
 class QCheckBox;
 
 namespace Quotient {
-    class AccountSettings;
-    class Connection;
-}
+class AccountSettings;
+class Connection;
+} // namespace Quotient
 
-class LoginDialog : public Dialog
-{
-        Q_OBJECT
-    public:
-        explicit LoginDialog(QWidget* parent = nullptr,
-                             const QStringList& knownAccounts = {});
-        explicit LoginDialog(QWidget* parent,
-                             const Quotient::AccountSettings& reloginData);
-        void setup();
-        ~LoginDialog() override;
+class LoginDialog : public Dialog {
+    Q_OBJECT
+public:
+    explicit LoginDialog(QWidget* parent = nullptr,
+                         const QStringList& knownAccounts = {});
+    explicit LoginDialog(QWidget* parent,
+                         const Quotient::AccountSettings& reloginData);
+    void setup();
+    ~LoginDialog() override;
 
-        Quotient::Connection* releaseConnection();
-        QString deviceName() const;
-        bool keepLoggedIn() const;
+    Quotient::Connection* releaseConnection();
+    QString deviceName() const;
+    bool keepLoggedIn() const;
 
-    private slots:
-        void apply() override;
-        
-    private:
-        QLineEdit* userEdit;
-        QLineEdit* passwordEdit;
-        QLineEdit* initialDeviceName;
-        QLineEdit* serverEdit;
-        QCheckBox* saveTokenCheck;
+private slots:
+    void apply() override;
 
-        QScopedPointer<Quotient::Connection, QScopedPointerDeleteLater>
-            m_connection;
+private:
+    QLineEdit* userEdit;
+    QLineEdit* passwordEdit;
+    QLineEdit* initialDeviceName;
+    QLineEdit* serverEdit;
+    QCheckBox* saveTokenCheck;
+
+    QScopedPointer<Quotient::Connection, QScopedPointerDeleteLater> m_connection;
 };

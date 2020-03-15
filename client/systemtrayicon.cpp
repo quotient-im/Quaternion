@@ -21,22 +21,23 @@
 
 #include "mainwindow.h"
 #include "quaternionroom.h"
-#include <settings.h>
+
 #include <qt_connection_util.h>
+#include <settings.h>
 
 SystemTrayIcon::SystemTrayIcon(MainWindow* parent)
-    : QSystemTrayIcon(parent)
-    , m_parent(parent)
+    : QSystemTrayIcon(parent), m_parent(parent)
 {
     setIcon(QIcon(":/icon.png"));
     setToolTip("Quaternion");
-    connect( this, &SystemTrayIcon::activated, this, &SystemTrayIcon::systemTrayIconAction);
+    connect(this, &SystemTrayIcon::activated, this,
+            &SystemTrayIcon::systemTrayIconAction);
 }
 
 void SystemTrayIcon::newRoom(Quotient::Room* room)
 {
-    connect(room, &Quotient::Room::highlightCountChanged,
-            this, [this,room] { highlightCountChanged(room); });
+    connect(room, &Quotient::Room::highlightCountChanged, this,
+            [this, room] { highlightCountChanged(room); });
 }
 
 void SystemTrayIcon::highlightCountChanged(Quotient::Room* room)
@@ -45,39 +46,34 @@ void SystemTrayIcon::highlightCountChanged(Quotient::Room* room)
     auto mode = SettingsGroup("UI").value("notifications", "intrusive");
     if (mode == "none")
         return;
-    if( room->highlightCount() > 0 )
-    {
+    if (room->highlightCount() > 0) {
         showMessage(tr("Highlight in %1").arg(room->displayName()),
                     tr("%n highlight(s)", "", room->highlightCount()));
         if (mode != "non-intrusive")
             m_parent->activateWindow();
         connectSingleShot(this, &SystemTrayIcon::messageClicked, m_parent,
-                          [this,qRoom=static_cast<QuaternionRoom*>(room)]
-                          { m_parent->selectRoom(qRoom); });
+                          [this, qRoom = static_cast<QuaternionRoom*>(room)] {
+                              m_parent->selectRoom(qRoom);
+                          });
     }
 }
 
 void SystemTrayIcon::systemTrayIconAction(QSystemTrayIcon::ActivationReason reason)
 {
-    switch (reason)
-    {
-        case QSystemTrayIcon::Trigger:
-        case QSystemTrayIcon::DoubleClick:
-            this->showHide();
-            break;
-        default:
-            ;
+    switch (reason) {
+    case QSystemTrayIcon::Trigger:
+    case QSystemTrayIcon::DoubleClick:
+        this->showHide();
+        break;
+    default:;
     }
 }
 
 void SystemTrayIcon::showHide()
 {
-    if( m_parent->isVisible() )
-    {
+    if (m_parent->isVisible()) {
         m_parent->hide();
-    }
-    else
-    {
+    } else {
         m_parent->show();
         m_parent->activateWindow();
         m_parent->raise();
