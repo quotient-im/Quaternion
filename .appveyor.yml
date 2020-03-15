@@ -3,11 +3,11 @@ image: Visual Studio 2017
 environment:
   CMAKE_ARGS: '-G "NMake Makefiles JOM" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=RelWithDebInfo'
   matrix:
-  - QTDIR: C:\Qt\5.12.4\msvc2017_64
+  - QTDIR: C:\Qt\5.13\msvc2017_64
     VCVARS: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
     PLATFORM:
     VER_SUFFIX: win64
-  - QTDIR: C:\Qt\5.12.4\msvc2017
+  - QTDIR: C:\Qt\5.13\msvc2017
     VCVARS: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars32.bat"
     PLATFORM: x86
     VER_SUFFIX: win32
