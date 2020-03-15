@@ -206,6 +206,9 @@ Settings not exposed in UI:
   in the timeline. If not specified, the application-wide point size is used.
 - `UI/maybe_read_timer` - threshold time interval in milliseconds for a displayed
   message to be considered as read.
+- `UI/use_keychain` - set this to false (or 0) if you explicitly do NOT want to
+  use keychain but prefer to store access token in dedicated file instead (see
+  next paragraph); the default is true.
 
 Since version 0.0.9.4, AppImage binaries for Linux and .dmg files for macOS
 are compiled with Qt Keychain support. It means that Quaternion will try
