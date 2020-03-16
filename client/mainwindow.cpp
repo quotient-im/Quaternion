@@ -448,7 +448,15 @@ inline QString accessTokenFileName(const AccountSettings& account)
 QByteArray MainWindow::loadAccessToken(const AccountSettings& account)
 {
 #ifdef USE_KEYCHAIN
-    return loadAccessTokenFromKeyChain(account);
+    if (Quotient::Settings().value("UI/use_keychain", true).toBool())
+    {
+        return loadAccessTokenFromKeyChain(account);
+    }
+    else
+    {
+        qDebug() << "Explicit opt-out from keychain by user setting";
+        return loadAccessTokenFromFile(account);
+    }
 #else
     return loadAccessTokenFromFile(account);
 #endif
@@ -531,7 +539,15 @@ bool MainWindow::saveAccessToken(const AccountSettings& account,
                                  const QByteArray& accessToken)
 {
 #ifdef USE_KEYCHAIN
-    return saveAccessTokenToKeyChain(account, accessToken);
+    if (Quotient::Settings().value("UI/use_keychain", true).toBool())
+    {
+        return saveAccessTokenToKeyChain(account, accessToken);
+    }
+    else
+    {
+        qDebug() << "Explicit opt-out from keychain by user setting";
+        return saveAccessTokenToFile(account, accessToken);
+    }
 #else
     return saveAccessTokenToFile(account, accessToken);
 #endif
@@ -1016,27 +1032,30 @@ void MainWindow::logout(Connection* c)
     QFile(accessTokenFileName(AccountSettings(c->userId()))).remove();
 
 #ifdef USE_KEYCHAIN
-    QKeychain::DeletePasswordJob job(qAppName());
-    job.setAutoDelete(false);
-    job.setKey(c->userId());
-    QEventLoop loop;
-    QKeychain::DeletePasswordJob::connect(&job, &QKeychain::Job::finished, &loop, &QEventLoop::quit);
-    job.start();
-    loop.exec();
-    if (job.error()) {
-        if (job.error() == QKeychain::Error::EntryNotFound)
-            qDebug() << "Access token is not in the keychain, nothing to delete";
-        else {
-            qWarning() << "Could not delete access token from the keychain: "
-                       << qPrintable(job.errorString());
-            if (job.error() != QKeychain::Error::NoBackendAvailable &&
-                job.error() != QKeychain::Error::NotImplemented &&
-                job.error() != QKeychain::Error::OtherError)
-            {
-                QMessageBox::warning(this, tr("Couldn't delete access token"),
-                                     tr("Quaternion couldn't delete the access "
-                                        "token from the keychain."),
-                                     QMessageBox::Close);
+    if (Quotient::Settings().value("UI/use_keychain", true).toBool())
+    {
+        QKeychain::DeletePasswordJob job(qAppName());
+        job.setAutoDelete(false);
+        job.setKey(c->userId());
+        QEventLoop loop;
+        QKeychain::DeletePasswordJob::connect(&job, &QKeychain::Job::finished, &loop, &QEventLoop::quit);
+        job.start();
+        loop.exec();
+        if (job.error()) {
+            if (job.error() == QKeychain::Error::EntryNotFound)
+                qDebug() << "Access token is not in the keychain, nothing to delete";
+            else {
+                qWarning() << "Could not delete access token from the keychain: "
+                           << qPrintable(job.errorString());
+                if (job.error() != QKeychain::Error::NoBackendAvailable &&
+                    job.error() != QKeychain::Error::NotImplemented &&
+                    job.error() != QKeychain::Error::OtherError)
+                {
+                    QMessageBox::warning(this, tr("Couldn't delete access token"),
+                                         tr("Quaternion couldn't delete the access "
+                                            "token from the keychain."),
+                                         QMessageBox::Close);
+                }
             }
         }
     }
