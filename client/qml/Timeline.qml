@@ -186,7 +186,7 @@ Rectangle {
                 if (room.successorId !== "")
                     controller.joinRequested(room.successorId)
                 else
-                    controller.roomSettingsRequested(room.id)
+                    controller.roomSettingsRequested()
         }
     }
 
