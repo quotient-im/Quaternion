@@ -90,6 +90,8 @@ MainWindow::MainWindow()
              this, &MainWindow::openResource);
     connect( chatRoomWidget, &ChatRoomWidget::joinRequested,
              this, &MainWindow::joinRoom);
+    connect( chatRoomWidget, &ChatRoomWidget::roomSettingsRequested,
+             this, &MainWindow::openRoomSettings);
     connect( roomListDock, &RoomListDock::roomSelected,
              this, &MainWindow::selectRoom);
     connect( chatRoomWidget, &ChatRoomWidget::showStatusMessage,
@@ -289,11 +291,7 @@ void MainWindow::createMenu()
     roomMenu->addSeparator();
     roomSettingsAction =
         roomMenu->addAction(QIcon::fromTheme("user-group-properties"),
-            tr("Change room &settings..."),
-            [this] {
-                static QHash<QuaternionRoom*, QPointer<RoomSettingsDialog>> dlgs;
-                summon(dlgs[currentRoom], currentRoom, this);
-            });
+            tr("Change room &settings..."), this, &MainWindow::openRoomSettings);
     roomSettingsAction->setDisabled(true);
     roomMenu->addSeparator();
     openRoomAction = roomMenu->addAction(
@@ -1167,6 +1165,12 @@ void MainWindow::openResource(const QString& idOrUri, const QString& action)
                          tr("%1 is not a correct Matrix identifier")
                          .arg(idOrUri),
                          QMessageBox::Close, QMessageBox::Close);
+}
+
+void MainWindow::openRoomSettings()
+{
+    static QHash<QuaternionRoom*, QPointer<RoomSettingsDialog>> dlgs;
+    summon(dlgs[currentRoom], currentRoom, this);
 }
 
 void MainWindow::selectRoom(Quotient::Room* r)

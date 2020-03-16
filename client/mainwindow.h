@@ -87,6 +87,7 @@ class MainWindow: public QMainWindow
         /// Opens non-empty id or URI using the specified action hint
         /*! Asks the user to choose the connection if necessary */
         void openResource(const QString& idOrUri, const QString& action = {});
+        void openRoomSettings();
         void selectRoom(Quotient::Room* r);
 
     private slots:
