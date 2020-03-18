@@ -46,6 +46,9 @@ class LoginDialog : public Dialog
 
     private slots:
         void apply() override;
+        void loginWithBestFlow();
+        void loginWithPassword();
+        void loginWithSso();
         
     private:
         QLineEdit* userEdit;
