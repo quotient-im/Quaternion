@@ -660,11 +660,6 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         if (is<RedactionEvent>(evt) || is<ReactionEvent>(evt))
             return EventStatus::Hidden;
 
-        if (auto* msgEvent = timelineIt->viewAs<RoomMessageEvent>()) {
-            if (!msgEvent->replacedEvent().isEmpty())
-                return EventStatus::Hidden;
-        }
-
         auto* memberEvent = timelineIt->viewAs<RoomMemberEvent>();
         if (memberEvent)
         {
