@@ -20,6 +20,7 @@
 #include "logindialog.h"
 
 #include <connection.h>
+#include <ssosession.h>
 #include <settings.h>
 
 #include <QtWidgets/QLineEdit>
@@ -27,6 +28,8 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFormLayout>
+#include <QtWidgets/QMessageBox>
+#include <QtGui/QDesktopServices>
 
 using QMatrixClient::Connection;
 
@@ -48,6 +51,26 @@ LoginDialog::LoginDialog(QWidget* parent, const QStringList& knownAccounts)
                 auto userId = userEdit->text();
                 if (userId.startsWith('@') && userId.indexOf(':') != -1)
                     m_connection->resolveServer(userId);
+            });
+
+    // This button is only shown when BOTH password auth and SSO are available
+    // If only one flow is there, the "Login" button text is changed instead
+    auto* ssoButton = buttonBox()->addButton(tr("Login with SSO"),
+                                             QDialogButtonBox::AcceptRole);
+    connect(ssoButton, &QPushButton::clicked, this, &LoginDialog::loginWithSso);
+    ssoButton->setHidden(true);
+    connect(m_connection.data(), &Connection::loginFlowsChanged, this,
+            [this, ssoButton] {
+                // There may be more ways to login but Quaternion only supports
+                // SSO and password for now; in the worst case of no known
+                // options password login is kept enabled as the last resort.
+                bool canUseSso = m_connection->supportsSso();
+                bool canUsePassword = m_connection->supportsPasswordAuth();
+                ssoButton->setVisible(canUseSso && canUsePassword);
+                button(QDialogButtonBox::Ok)
+                    ->setText(canUseSso && !canUsePassword
+                                  ? QStringLiteral("Login with SSO")
+                                  : QStringLiteral("Login"));
             });
 
     {
@@ -130,11 +153,52 @@ void LoginDialog::apply()
     auto url = QUrl::fromUserInput(serverEdit->text());
     if (!serverEdit->text().isEmpty() && !serverEdit->text().startsWith("http:"))
         url.setScheme("https"); // Qt defaults to http (or even ftp for some)
-    m_connection->setHomeserver(url);
-    connect( m_connection.data(), &Connection::connected,
-             this, &Dialog::accept );
-    connect( m_connection.data(), &Connection::loginError,
-             this, &Dialog::applyFailed);
+
+    // Whichever the flow, the two connections are the same
+    connect(m_connection.data(), &Connection::connected,
+            this, &Dialog::accept);
+    connect(m_connection.data(), &Connection::loginError,
+            this, &Dialog::applyFailed);
+    if (m_connection->homeserver() == url && !m_connection->loginFlows().empty())
+        loginWithBestFlow();
+    else {
+        m_connection->setHomeserver(url);
+
+        // Wait for new flows and check them
+        connectSingleShot(m_connection.data(), &Connection::loginFlowsChanged,
+                          this, [this] {
+                              qDebug()
+                                  << "Received login flows, trying to login";
+                              loginWithBestFlow();
+                          });
+    }
+}
+
+void LoginDialog::loginWithBestFlow()
+{
+    if (m_connection->loginFlows().empty()
+        || m_connection->supportsPasswordAuth())
+        loginWithPassword();
+    else if (m_connection->supportsSso())
+        loginWithSso();
+    else
+        emit applyFailed(tr("No supported login flows"));
+}
+
+void LoginDialog::loginWithPassword()
+{
     m_connection->connectToServer(userEdit->text(), passwordEdit->text(),
                                   initialDeviceName->text());
+}
+
+void LoginDialog::loginWithSso()
+{
+    auto* ssoSession = m_connection->prepareForSso(initialDeviceName->text());
+//    QMessageBox::information(
+//        this, tr("Single sign-on"),
+//        tr("Quaternion will now open a single sign-on session in another "
+//           "application (usually a web browser). After authentication, you may "
+//           "be asked to confirm that %1 can access your data")
+//            .arg(ssoSession->callbackUrl().toString()));
+    QDesktopServices::openUrl(ssoSession->ssoUrl());
 }
