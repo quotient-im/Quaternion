@@ -384,6 +384,7 @@ Item {
             }
 
             Loader {
+                id: imageLoader
                 active: eventType == "image"
 
                 anchors.top: textField.bottom
@@ -411,6 +412,7 @@ Item {
                 }
             }
             Loader {
+                id: fileLoader
                 active: eventType == "file"
 
                 anchors.top: textField.bottom
@@ -419,6 +421,21 @@ Item {
                 height: childrenRect.height
 
                 sourceComponent: FileContent { }
+            }
+            Flow {
+                anchors.top: imageLoader.active ? imageLoader.bottom : fileLoader.bottom
+                anchors.left: textField.left
+                anchors.right: textField.right
+
+                Repeater {
+                    model: reactions
+                    Button {
+                        text: modelData.key + ": " + modelData.count
+                        onClicked: controller.reactionButtonClicked(eventId, modelData.key)
+                        tooltip: qsTr("%1 reacted with %2", "", modelData.authors.length)
+                            .arg(modelData.authors.join(", ")).arg(modelData.key)
+                    }
+                }
             }
             Loader {
                 id: buttonAreaLoader
@@ -493,25 +510,6 @@ Item {
 
                 // TODO: Treat unjoined invite-only rooms specially
                 onClicked: controller.joinRequested(refId)
-            }
-        }
-        Flow {
-            // anchors.left: textField.left doesn't work because textField
-            // is not a sibling; and inserting the Flow inside message makes
-            // really painful to position it due to the diversity of message
-            // contents. Hence calculating from the right.
-            anchors.right: message.right
-            width: textField.width
-            spacing: 5
-            Repeater {
-                model: reactions
-                Rectangle {
-                    width: childrenRect.width
-                    height: childrenRect.height
-                    radius: 4
-                    color: defaultPalette.button
-                    Label { text: modelData }
-                }
             }
         }
     }

@@ -41,6 +41,7 @@
 #include <QtCore/QLocale>
 
 #include <events/roommessageevent.h>
+#include <events/reactionevent.h>
 #include <csapi/message_pagination.h>
 #include <user.h>
 #include <connection.h>
@@ -740,6 +741,23 @@ void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
         });
     }
     menu.exec(QCursor::pos());
+}
+
+void ChatRoomWidget::reactionButtonClicked(const QString& eventId, const QString& key)
+{
+    using namespace Quotient;
+    const auto& annotations =
+        m_currentRoom->relatedEvents(eventId, EventRelation::Annotation());
+
+    for (const auto& a : annotations) {
+        if (eventCast<const ReactionEvent>(a)->relation().key == key
+                && a->senderId() == m_currentRoom->localUser()->id()) {
+            m_currentRoom->redactEvent(a->id());
+            return;
+        }
+    }
+
+    m_currentRoom->postReaction(eventId, key);
 }
 
 void ChatRoomWidget::setGlobalSelectionBuffer(QString text)

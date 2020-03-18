@@ -167,6 +167,8 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                     refreshLastUserEvents(
                         refreshEvent(newEvent->id()) - timelineBaseIndex());
                 });
+        connect(m_currentRoom, &Room::updatedEvent,
+                this, &MessageEventModel::refreshEvent);
         connect(m_currentRoom, &Room::fileTransferProgress,
                 this, &MessageEventModel::refreshEvent);
         connect(m_currentRoom, &Room::fileTransferCompleted,
@@ -714,16 +716,36 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
             m_currentRoom->relatedEvents(evt, EventRelation::Annotation());
         if (annotations.isEmpty())
             return {};
-        QHash<QString, int> reactions;
+        QJsonArray reactions;
         for (const auto& a : annotations) {
-            if (auto e = eventCast<const ReactionEvent>(a))
-                ++reactions[e->relation().key];
+            if (auto e = eventCast<const ReactionEvent>(a)) {
+                QJsonObject obj;
+
+                for (const auto& reaction : reactions) {
+                    if (reaction.toObject()["key"] == e->relation().key) {
+                        obj = reaction.toObject();
+                        break;
+                    }
+                }
+
+                QJsonArray authors = obj["authors"].toArray()
+                    + m_currentRoom->roomMembername(e->senderId());
+
+                QJsonObject reaction {
+                    {"authors", authors},
+                    {"count", obj["count"].toInt() + 1},
+                    {"key", e->relation().key},
+                };
+
+                auto it = std::find(reactions.begin(), reactions.end(), obj);
+                if (it != reactions.end())
+                    reactions.replace(it - reactions.begin(), reaction);
+                else
+                    reactions.append(reaction);
+            }
         }
-        QStringList aggregatedReactions;
-        for (auto it = reactions.cbegin(); it != reactions.cend(); ++it)
-            aggregatedReactions
-                << QStringLiteral("%1 %2").arg(it.key()).arg(it.value());
-        return aggregatedReactions;
+
+        return reactions;
     }
 
     if( role == TimeRole || role == SectionRole)
