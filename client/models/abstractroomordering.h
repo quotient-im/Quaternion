@@ -23,7 +23,7 @@
 struct RoomGroup
 {
     QVariant key;
-    QVector<QMatrixClient::Room*> rooms;
+    QVector<Quotient::Room*> rooms;
 
     bool operator==(const RoomGroup& other) const
     {
@@ -51,6 +51,9 @@ struct RoomGroup
     {
         return !(group == otherCaption);
     }
+
+    static inline const auto SystemPrefix = QStringLiteral("im.quotient.");
+    static inline const auto LegacyPrefix = QStringLiteral("org.qmatrixclient.");
 };
 using RoomGroups = QVector<RoomGroup>;
 
@@ -60,8 +63,8 @@ class AbstractRoomOrdering : public QObject
 {
         Q_OBJECT
     public:
-        using Room = QMatrixClient::Room;
-        using Connection = QMatrixClient::Connection;
+        using Room = Quotient::Room;
+        using Connection = Quotient::Connection;
         using groups_t = QVariantList;
 
         explicit AbstractRoomOrdering(RoomListModel* m);
@@ -98,7 +101,7 @@ class AbstractRoomOrdering : public QObject
 
     protected slots:
         /// A facade for derived classes to trigger RoomListModel::updateGroups
-        void updateGroups(Room* room);
+        virtual void updateGroups(Room* room);
 
     protected:
         RoomListModel* model() const;

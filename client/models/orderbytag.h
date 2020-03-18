@@ -19,12 +19,21 @@
 
 #include "abstractroomordering.h"
 
+// TODO: When the library l10n is enabled, these two should go down to it
+QString tagToCaption(const QString& tag);
+QString captionToTag(const QString& caption);
+
 class OrderByTag : public AbstractRoomOrdering
 {
     public:
         explicit OrderByTag(RoomListModel* m)
             : AbstractRoomOrdering(m), tagsOrder(initTagsOrder())
         { }
+
+    private:
+        QStringList tagsOrder;
+
+        // Overrides
 
         QString orderingName() const override { return QStringLiteral("tag"); }
         QVariant groupLabel(const RoomGroup& g) const override;
@@ -37,8 +46,7 @@ class OrderByTag : public AbstractRoomOrdering
         void connectSignals(Connection* connection) override;
         void connectSignals(Room* room) override;
 
-    private:
-        QStringList tagsOrder;
+        void updateGroups(Room* room) override;
 
         static QStringList initTagsOrder();
 };

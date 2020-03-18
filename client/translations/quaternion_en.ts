@@ -804,8 +804,8 @@ Response:
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="934"/>
-        <source>libQMatrixClient contributors @ GitHub</source>
-        <translation>libQMatrixClient contributors @ GitHub</translation>
+        <source>libQuotient contributors @ GitHub</source>
+        <translation>libQuotient contributors @ GitHub</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="936"/>

@@ -20,7 +20,7 @@
 
 #include "dialog.h"
 
-namespace QMatrixClient {
+namespace Quotient {
     class Connection;
 }
 
@@ -39,7 +39,7 @@ class RoomDialogBase : public Dialog
 {
         Q_OBJECT
     protected:
-        using Connection = QMatrixClient::Connection;
+        using Connection = Quotient::Connection;
 
         RoomDialogBase(const QString& title, const QString& applyButtonText,
             QuaternionRoom* r, QWidget* parent,

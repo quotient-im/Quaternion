@@ -16,10 +16,16 @@
  */
 
 #include "kchatedit.h"
+#include <settings.h>
 
 #include <QDebug>
 #include <QGuiApplication>
 #include <QKeyEvent>
+
+static inline QTextDocument* makeDocument()
+{
+    return new QTextDocument;
+}
 
 class KChatEdit::KChatEditPrivate
 {
@@ -34,7 +40,7 @@ public:
     // History always ends with a placeholder string that is initially empty
     // but may be filled with tentative input when the user entered something
     // and then went out for history.
-    QVector<QTextDocument*> history { 1, new QTextDocument() };
+    QVector<QTextDocument*> history { 1, makeDocument() };
     int index = 0;
     int maxHistorySize = 100;
 };
@@ -98,7 +104,7 @@ void KChatEdit::KChatEditPrivate::saveInput()
             delete history.takeFirst();
         }
         // Make a new placeholder.
-        history << new QTextDocument();
+        history << makeDocument();
         emit q->savedInputChanged();
     }
 
@@ -112,6 +118,8 @@ KChatEdit::KChatEdit(QWidget *parent)
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
     connect(this, &QTextEdit::textChanged, this, &QWidget::updateGeometry);
     d->q = this; // KChatEdit initialization complete, pimpl can use it
+
+    setDocument(makeDocument());
 }
 
 KChatEdit::~KChatEdit() = default;
@@ -139,7 +147,7 @@ void KChatEdit::setHistory(const QVector<QTextDocument*> &history)
 {
     d->history = history;
     if (history.isEmpty() || !history.last()->isEmpty()) {
-        d->history << new QTextDocument();
+        d->history << makeDocument();
     }
 
     while (d->history.size() > maxHistorySize()) {

@@ -33,15 +33,15 @@ SystemTrayIcon::SystemTrayIcon(MainWindow* parent)
     connect( this, &SystemTrayIcon::activated, this, &SystemTrayIcon::systemTrayIconAction);
 }
 
-void SystemTrayIcon::newRoom(QMatrixClient::Room* room)
+void SystemTrayIcon::newRoom(Quotient::Room* room)
 {
-    connect(room, &QMatrixClient::Room::highlightCountChanged,
+    connect(room, &Quotient::Room::highlightCountChanged,
             this, [this,room] { highlightCountChanged(room); });
 }
 
-void SystemTrayIcon::highlightCountChanged(QMatrixClient::Room* room)
+void SystemTrayIcon::highlightCountChanged(Quotient::Room* room)
 {
-    using namespace QMatrixClient;
+    using namespace Quotient;
     auto mode = SettingsGroup("UI").value("notifications", "intrusive");
     if (mode == "none")
         return;

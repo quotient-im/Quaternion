@@ -26,8 +26,8 @@
 #include <QtCore/QThread>
 #include <QtCore/QDebug>
 
-using QMatrixClient::Connection;
-using QMatrixClient::BaseJob;
+using Quotient::Connection;
+using Quotient::BaseJob;
 
 class ThumbnailResponse : public QQuickImageResponse
 {
@@ -114,7 +114,7 @@ class ThumbnailResponse : public QQuickImageResponse
         Connection* c;
         const QString mediaId;
         const QSize requestedSize;
-        QMatrixClient::MediaThumbnailJob* job = nullptr;
+        Quotient::MediaThumbnailJob* job = nullptr;
 
         QImage image;
         QString errorStr;
@@ -153,14 +153,22 @@ ImageProvider::ImageProvider(Connection* connection)
     : m_connection(connection)
 { }
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+#    define LOAD_ATOMIC(Ptr) Ptr.load()
+#    define STORE_ATOMIC(Ptr, NewValue) Ptr.store(NewValue)
+#else
+#    define LOAD_ATOMIC(Ptr) Ptr.loadRelaxed()
+#    define STORE_ATOMIC(Ptr, NewValue) Ptr.storeRelaxed(NewValue)
+#endif
+
 QQuickImageResponse* ImageProvider::requestImageResponse(
         const QString& id, const QSize& requestedSize)
 {
     qDebug() << "ImageProvider: requesting " << id;
-    return new ThumbnailResponse(m_connection.load(), id, requestedSize);
+    return new ThumbnailResponse(LOAD_ATOMIC(m_connection), id, requestedSize);
 }
 
 void ImageProvider::setConnection(Connection* connection)
 {
-    m_connection.store(connection);
+    STORE_ATOMIC(m_connection, connection);
 }

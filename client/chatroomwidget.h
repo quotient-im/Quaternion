@@ -52,11 +52,13 @@ class ChatRoomWidget: public QWidget
         bool pendingMarkRead() const;
 
         QStringList findCompletionMatches(const QString& pattern) const;
+        Qt::KeyboardModifiers getModifierKeys() const;
 
     signals:
         void joinRequested(const QString& roomAlias);
         void resourceRequested(const QString& idOrUri,
                                const QString& action = {});
+        void roomSettingsRequested();
         void showStatusMessage(const QString& message, int timeout = 0) const;
         void readMarkerMoved();
         void readMarkerCandidateMoved();
@@ -68,7 +70,7 @@ class ChatRoomWidget: public QWidget
     public slots:
         void setRoom(QuaternionRoom* room);
 
-        void insertMention(QMatrixClient::User* user);
+        void insertMention(Quotient::User* user);
         void focusInput();
 
         void typingChanged();
@@ -80,7 +82,6 @@ class ChatRoomWidget: public QWidget
         void fileDrop(const QString& url);
         void textDrop(const QString& text);
         void setGlobalSelectionBuffer(QString text);
-        Qt::KeyboardModifiers getModifierKeys();
 
     private slots:
         void sendInput();
@@ -105,7 +106,7 @@ class ChatRoomWidget: public QWidget
         ChatEdit* m_chatEdit;
 
         // Supplementary/cache data members
-        using timeline_index_t = QMatrixClient::TimelineItem::index_t;
+        using timeline_index_t = Quotient::TimelineItem::index_t;
         QVector<timeline_index_t> indicesOnScreen;
         timeline_index_t indexToMaybeRead;
         QBasicTimer maybeReadTimer;

@@ -28,7 +28,7 @@
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFormLayout>
 
-using QMatrixClient::Connection;
+using Quotient::Connection;
 
 LoginDialog::LoginDialog(QWidget* parent, const QStringList& knownAccounts)
     : Dialog(tr("Login"), parent, Dialog::StatusLine, tr("Login"),
@@ -52,7 +52,7 @@ LoginDialog::LoginDialog(QWidget* parent, const QStringList& knownAccounts)
 
     {
         // Fill defaults
-        using namespace QMatrixClient;
+        using namespace Quotient;
         if ( !knownAccounts.empty() )
         {
             AccountSettings account { knownAccounts.front() };
@@ -60,10 +60,9 @@ LoginDialog::LoginDialog(QWidget* parent, const QStringList& knownAccounts)
 
             auto homeserver = account.homeserver();
             if (!homeserver.isEmpty())
-            {
                 m_connection->setHomeserver(homeserver);
-                serverEdit->setText(homeserver.toString());
-            }
+//                serverEdit->setText(homeserver.toString());
+
             initialDeviceName->setText(account.deviceName());
             saveTokenCheck->setChecked(account.keepLoggedIn());
             passwordEdit->setFocus();
@@ -77,7 +76,7 @@ LoginDialog::LoginDialog(QWidget* parent, const QStringList& knownAccounts)
 }
 
 LoginDialog::LoginDialog(QWidget* parent,
-                         const QMatrixClient::AccountSettings& reloginData)
+                         const Quotient::AccountSettings& reloginData)
     : Dialog(tr("Re-login"), parent, Dialog::StatusLine, tr("Re-login"),
              Dialog::NoExtraButtons)
     , userEdit(new QLineEdit(reloginData.userId(), this))

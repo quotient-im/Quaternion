@@ -11,7 +11,7 @@
 
 The source code is hosted at GitHub: https://github.com/quotient-im/Quaternion. The best way for one-off building is checking out a tag for a given release from GitHub (master branch is unstable and may or may not work). If you plan to work on Quaternion code, feel free to fork/clone the repo and check out the master branch.
 
-Quaternion needs libQMatrixClient to build. Since version 0.0.9.3 there are two
+Quaternion needs libQuotient to build. Since version 0.0.9.3 there are two
 options to use the library:
 1. Use the library installation known to CMake - either as a (possibly but not
    necessarily system-wide) package available from your favourite package
@@ -38,47 +38,50 @@ options to use the library:
    ```
 
 Depending on your case, either option can be preferrable. For instance, Option 2
-is more convenient if you're actively hacking on Quaternion and libQMatrixClient
+is more convenient if you're actively hacking on Quaternion and libQuotient
 at the same time. On the other hand, packagers should make a separate package
-for libQMatrixClient so should use Option 1. 0.0.9.3 is the only version using
+for libQuotient so should use Option 1. 0.0.9.3 is the only version using
 Option 1 as default; due to popular demand, Option 2 is used by default
-(with a fallback to Option 1) from 0.0.9.4 beta.
+(with a fallback to Option 1) from 0.0.9.4 beta onwards.
 
 ### Pre-requisites
-- a Linux, macOS or Windows system (desktop versions tried; mobile Linux/Windows
-  might work too)
-  - For Ubuntu flavours - zesty or later (or a derivative) is good enough out
-  of the box; older ones will need PPAs at least for a newer Qt - in particular,
-  if you have xenial you're advised to add Kubuntu Backports PPA for it
-- a Git client to check out this repo
-- CMake (from your package management system or
-  [the official website](https://cmake.org/download/))
-- Qt 5 (either Open Source or Commercial), version 5.7 or higher
+- a recent Linux, macOS or Windows system (desktop versions tried; mobile
+  Linux/Windows might work too but never tried)
+  - Recent enough Linux examples: Debian Buster; Fedora 28; OpenSUSE Leap 15;
+    Ubuntu Bionic Beaver.
+- Qt 5 (either Open Source or Commercial), version 5.9 or higher
   (5.12 is recommended)
-- a C++ toolchain supported by your version of Qt (see a link for your platform
-  at [the Qt's platform requirements page](http://doc.qt.io/qt-5/gettingstarted.html#platform-requirements))
-  - GCC 5 (Windows, Linux, macOS), Clang 5 (Linux), Apple Clang 8.1 (macOS)
-    and Visual C++ 2015 (Windows) are the oldest officially supported
-  - any build system that works with CMake should be fine: GNU Make,
-    ninja (any platform), NMake, jom (Windows) are known to work.
-- optionally, libQuotient 0.5 development files (from your
-  package management system), or prebuilt libQuotient
-  (see "Getting the source code" above).
-- optionaly, [QtKeychain](https://github.com/frankosterfeld/qtkeychain)
-  to store access tokens in libsecret keyring or similar providers.
+- CMake 3.10 or newer (from your package management system or
+  [the official website](https://cmake.org/download/))
+- A C++ toolchain with C++17 support:
+  - GCC 7 (Windows, Linux, macOS), Clang 6 (Linux), Apple Clang 10 (macOS)
+    and Visual Studio 2017 (Windows) are the oldest officially supported.
+- Any build system that works with CMake should be fine:
+  GNU Make, ninja (any platform), NMake, jom (Windows) are known to work.
+- optionally, libQuotient 0.6 development files (from your package management
+  system), or prebuilt libQuotient (see "Getting the source code" above).
+- optionally (but strongly recommended),
+  [QtKeychain](https://github.com/frankosterfeld/qtkeychain) to store
+  access tokens in libsecret keyring or similar providers.
 
 #### Linux
-Just install things from the list above using your preferred package manager. If your Qt package base is fine-grained you might want to take a look at `CMakeLists.txt` to figure out which specific libraries Quaternion uses (or blindly run cmake and look at error messages). Note also that you'll need several Qt Quick plugins for Quaternion to work (without them, it will compile and run but won't show the messages timeline). In case of Xenial Xerus following line should get you everything necessary to build and run Quaternion:
+Just install things from the list above using your preferred package manager.
+If your Qt package base is fine-grained you might want to take a look at
+`CMakeLists.txt` to figure out which specific libraries Quaternion uses
+(or blindly run cmake and look at error messages). Note also that you'll need
+several Qt Quick plugins for Quaternion to work (without them, it will compile
+and run but won't show the messages timeline). The following line should get you
+everything necessary to build and run Quaternion:
 ```bash
-sudo apt-get install git cmake qtdeclarative5-dev qttools5-dev qtdeclarative5-controls-plugin qml-module-qtquick-controls qml-module-qtquick-controls2 qtmultimedia5-dev
+sudo apt-get install cmake qtdeclarative5-dev qttools5-dev qml-module-qtquick-controls qml-module-qtquick-controls2 qtmultimedia5-dev
 ```
 To enable libsecret keyring support, install QtKeychain by
 ```bash
 sudo apt-get install qt5keychain-dev
 ```
-On Fedora 26, the following command should be enough for building and running:
+On Fedora 28, the following command should be enough for building and running:
 ```bash
-dnf install git cmake qt5-qtdeclarative-devel qt5-qtquickcontrols qt5-qtquickcontrols2 qt5-qtmultimedia-devel
+dnf install cmake qt5-qtdeclarative-devel qt5-qtquickcontrols qt5-qtquickcontrols2 qt5-qtmultimedia-devel
 ```
 
 #### macOS
@@ -86,7 +89,6 @@ dnf install git cmake qt5-qtdeclarative-devel qt5-qtquickcontrols qt5-qtquickcon
 call `brew install qtkeychain`.
 
 You have to point CMake at the Qt5 installation location, with something like:
-
 ```bash
 # if using in-tree libQuotient:
 cmake .. -DUSE_QQUICKWIDGET=ON -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)

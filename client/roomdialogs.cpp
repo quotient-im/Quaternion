@@ -20,6 +20,7 @@
 
 #include "mainwindow.h"
 #include "quaternionroom.h"
+#include "models/orderbytag.h" // For tagToCaption()
 #include <user.h>
 #include <connection.h>
 #include <csapi/create_room.h>
@@ -90,7 +91,7 @@ RoomDialogBase::RoomDialogBase(const QString& title,
     if (!room) // TODO: Support this in RoomSettingsDialog as well
     {
         mainFormLayout->addRow(publishRoom);
-//        formLayout->addRow(guestCanJoin); // TODO: QMatrixClient/libqmatrixclient#36
+//        formLayout->addRow(guestCanJoin); // TODO: quotient-im/libQuotient#36
     }
 }
 
@@ -245,12 +246,7 @@ void RoomSettingsDialog::load()
     auto roomTags = room->tagNames();
     for (const auto& tag: room->connection()->tagNames())
     {
-        auto tagDisplayName =
-                tag == QMatrixClient::FavouriteTag ? tr("Favourites") :
-                tag == QMatrixClient::LowPriorityTag ? tr("Low priority") :
-                tag.startsWith("u.") ? tag.mid(2) :
-                tag;
-        auto* item = new QListWidgetItem(tagDisplayName, tagsList);
+        auto* item = new QListWidgetItem(tagToCaption(tag), tagsList);
         item->setData(Qt::UserRole, tag);
         item->setFlags(Qt::ItemIsEnabled|Qt::ItemIsUserCheckable);
         item->setCheckState(
@@ -273,12 +269,12 @@ bool RoomSettingsDialog::validate()
 
 void RoomSettingsDialog::apply()
 {
+    using Quotient::Room;
     if (version->text() != room->version())
     {
-        using namespace QMatrixClient;
         setStatusMessage(tr("Creating the new room version, please wait"));
         connectUntil(room, &Room::upgraded, this,
-            [this] (QString, Room* newRoom) {
+            [this] (const QString&, Room* newRoom) {
                 accept();
                 static_cast<MainWindow*>(parent())->selectRoom(newRoom);
                 return true;
@@ -304,7 +300,7 @@ void RoomSettingsDialog::apply()
         else
             tags.remove(tagName);
     }
-    room->setTags(tags);
+    room->setTags(tags, Room::WithinSameState);
     accept();
 }
 
@@ -391,7 +387,7 @@ CreateRoomDialog::CreateRoomDialog(QVector<Connection*> cs, QWidget* parent)
             if (userName.indexOf(':') == -1)
             {
                 auto* conn = account->currentData(Qt::UserRole)
-                                        .value<QMatrixClient::Connection*>();
+                                        .value<Quotient::Connection*>();
                 userName += ':' + conn->homeserver().authority();
             }
         }
@@ -459,7 +455,7 @@ bool CreateRoomDialog::validate()
 
 void CreateRoomDialog::apply()
 {
-    using namespace QMatrixClient;
+    using namespace Quotient;
     auto* connection = account->currentData().value<Connection*>();
     QStringList userIds;
     for (int i = 0; i < invitees->count(); ++i)

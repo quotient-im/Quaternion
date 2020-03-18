@@ -42,11 +42,11 @@ RoomListModel::RoomListModel(QObject* parent)
             this, &RoomListModel::restoreCurrentSelection);
 }
 
-void RoomListModel::addConnection(QMatrixClient::Connection* connection)
+void RoomListModel::addConnection(Quotient::Connection* connection)
 {
     Q_ASSERT(connection);
 
-    using namespace QMatrixClient;
+    using namespace Quotient;
     m_connections.emplace_back(connection, this);
     connect( connection, &Connection::loggedOut,
              this, [=]{ deleteConnection(connection); } );
@@ -54,11 +54,11 @@ void RoomListModel::addConnection(QMatrixClient::Connection* connection)
              this, &RoomListModel::addRoom);
     m_roomOrder->connectSignals(connection);
 
-    for (auto* r: connection->roomMap())
+    for (auto* r: connection->allRooms())
         addRoom(r);
 }
 
-void RoomListModel::deleteConnection(QMatrixClient::Connection* connection)
+void RoomListModel::deleteConnection(Quotient::Connection* connection)
 {
     Q_ASSERT(connection);
     const auto connIt =
@@ -70,7 +70,7 @@ void RoomListModel::deleteConnection(QMatrixClient::Connection* connection)
         return;
     }
 
-    for (auto* r: connection->roomMap())
+    for (auto* r: connection->allRooms())
         deleteRoom(r);
     m_connections.erase(connIt);
     connection->disconnect(this);
@@ -86,7 +86,7 @@ void RoomListModel::deleteTag(QModelIndex index)
         qCritical() << "RoomListModel: Invalid tag at position" << index.row();
         return;
     }
-    if (tag.startsWith("org.qmatrixclient."))
+    if (tag.startsWith(RoomGroup::SystemPrefix))
     {
         qWarning() << "RoomListModel: System groups cannot be deleted "
                       "(tried to delete" << tag << "group)";
@@ -292,7 +292,7 @@ void RoomListModel::doSetOrder(std::unique_ptr<AbstractRoomOrdering>&& newOrder)
     for (const auto& c: m_connections)
     {
         m_roomOrder->connectSignals(c);
-        for (auto* r: c->roomMap())
+        for (auto* r: c->allRooms())
         {
             addRoomToGroups(r);
             m_roomOrder->connectSignals(r);
@@ -330,7 +330,7 @@ int RoomListModel::totalRooms() const
 {
     int result = 0;
     for (const auto& c: m_connections)
-        result += c->roomMap().size();
+        result += c->allRooms().size();
     return result;
 }
 
@@ -371,7 +371,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
 //    if (index.column() == 2)
 //        return room->lastAttended();
 
-    using QMatrixClient::JoinState;
+    using Quotient::JoinState;
     switch (role)
     {
         case Qt::DisplayRole:
@@ -459,6 +459,10 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
             if (hlCount > 0)
                 result += "<br>" % tr("Unread highlights: %1").arg(hlCount);
 
+            auto nfCount = room->notificationCount();
+            if (nfCount > 0)
+                result += "<br>" % tr("Unread notifications: %1").arg(nfCount);
+
             result += "<br>" % tr("ID: %1").arg(room->id()) % "<br>";
             auto asUser = m_connections.size() < 2 ? QString() : ' ' +
                 tr("as %1",
@@ -499,10 +503,9 @@ int RoomListModel::columnCount(const QModelIndex&) const
 
 void RoomListModel::updateGroups(Room* room)
 {
-    const auto oldRoomIndices = m_roomIndices.values(room);
-    Q_ASSERT(!oldRoomIndices.empty()); // The room should have been somewhere
-
     auto groups = m_roomOrder->roomGroups(room);
+
+    const auto oldRoomIndices = m_roomIndices.values(room);
     for (const auto& oldIndex: oldRoomIndices)
     {
         Q_ASSERT(isValidRoomIndex(oldIndex));

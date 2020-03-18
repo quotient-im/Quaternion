@@ -2,27 +2,27 @@ import QtQuick 2.6
 import QtQuick.Controls 1.4
 import QtQuick.Controls 2.0 as QQC2
 //import QtGraphicalEffects 1.0 // For fancy highlighting
-import QMatrixClient 1.0
+import Quotient 1.0
 
 Item {
     // Supplementary components
 
-    SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
-    SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
-    Settings {
+    TimelineSettings {
         id: settings
-        readonly property bool condense_chat: value("UI/condense_chat", false)
         readonly property bool autoload_images: value("UI/autoload_images", true)
         readonly property string highlight_mode: value("UI/highlight_mode", "background")
-        readonly property string highlight_color: value("UI/highlight_color", "orange")
-        readonly property string outgoing_color: value("UI/outgoing_color", "#204A87")
-        readonly property string render_type: value("UI/Fonts/render_type", "NativeRendering")
-        readonly property int animations_duration_ms: value("UI/animations_duration_ms", 400)
-        readonly property int fast_animations_duration_ms: animations_duration_ms / 2
-        readonly property string timeline_style: value("UI/timeline_style", "")
+        readonly property color highlight_color: value("UI/highlight_color", "orange")
+        readonly property color outgoing_color_base: value("UI/outgoing_color", "#4A8780")
+        readonly property color outgoing_color:
+            Qt.tint(defaultPalette.text,
+                    Qt.rgba(settings.outgoing_color_base.r,
+                            settings.outgoing_color_base.g,
+                            settings.outgoing_color_base.b, 0.7))
         readonly property bool show_author_avatars:
             value("UI/show_author_avatars", timeline_style != "xchat")
     }
+    SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
+    SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
 
     // Property interface
 
@@ -52,8 +52,7 @@ Item {
         marks === EventStatus.Submitted || failed ? defaultPalette.mid :
         marks === EventStatus.Departed ? disabledPalette.text :
         redacted ? disabledPalette.text :
-        (eventWithTextPart && author === room.localUser) ?
-            Qt.tint(defaultPalette.text, settings.outgoing_color) :
+        (eventWithTextPart && author === room.localUser) ? settings.outgoing_color :
         highlight && settings.highlight_mode == "text" ? settings.highlight_color :
         (["state", "notice", "other"].indexOf(eventType) >= 0) ?
                 disabledPalette.text : defaultPalette.text
@@ -75,6 +74,10 @@ Item {
         y + message.height - 1 < view.contentY + view.height
 
     onShownChanged: {
+        if (!pending)
+            controller.onMessageShownChanged(eventId, shown)
+    }
+    onPendingChanged: {
         if (!pending)
             controller.onMessageShownChanged(eventId, shown)
     }
@@ -133,6 +136,8 @@ Item {
             visible: sectionVisible
             color: defaultPalette.window
             Label {
+                font.family: settings.font.family
+                font.pointSize: settings.font.pointSize
                 font.bold: true
                 renderType: settings.render_type
                 text: section
@@ -195,6 +200,8 @@ Item {
 
                 color: authorColor
                 textFormat: Label.PlainText
+                font.family: settings.font.family
+                font.pointSize: settings.font.pointSize
                 font.bold: !xchatStyle
                 renderType: settings.render_type
 
@@ -223,18 +230,15 @@ Item {
             Label {
                 id: timelabel
                 anchors.top: xchatStyle ? authorAvatar.top : authorAvatar.bottom
-                anchors.topMargin: 1
-                anchors.bottomMargin: 1
                 anchors.left: parent.left
 
                 color: disabledPalette.text
-                textFormat: Text.RichText
                 renderType: settings.render_type
+                font.family: settings.font.family
+                font.pointSize: settings.font.pointSize
                 font.italic: pending
 
-                text: "<font size=-1>&lt;" +
-                      time.toLocaleTimeString(Qt.locale(), "hh:mm")
-                      + "&gt;</font>"
+                text: "<" + time.toLocaleTimeString(Qt.locale(), "hh:mm") + ">"
             }
 
             Item {
@@ -267,7 +271,7 @@ Item {
                              ? authorLabel.bottom : authorAvatar.top
                 anchors.left: xchatStyle ? authorLabel.right : timelabel.right
                 anchors.leftMargin: 1
-                anchors.right: resendButton.left
+                anchors.right: parent.right
                 anchors.rightMargin: 1
                 height: textFieldImpl.height
                 clip: true
@@ -300,6 +304,7 @@ Item {
                     horizontalAlignment: Text.AlignLeft
                     wrapMode: Text.Wrap
                     color: textColor
+                    font: settings.font
                     renderType: settings.render_type
 
                     // TODO: In the code below, links should be resolved
@@ -394,9 +399,12 @@ Item {
                     sourceSize: if (info) { Qt.size(info.w, info.h) }
                     source: downloaded || progressInfo.isUpload
                             ? progressInfo.localPath
-                            : content.info && content.info.thumbnail_info && !autoload
-                              ? "image://mtx/" + content.thumbnailMediaId
-                              : ""
+                            : progressInfo.failed
+                              ? ""
+                              : content.info && content.info.thumbnail_info
+                                && !autoload
+                                ? "image://mtx/" + content.thumbnailMediaId
+                                : ""
                     maxHeight: chatView.height - textField.height -
                                authorLabel.height * !xchatStyle
                     autoload: settings.autoload_images
@@ -412,52 +420,75 @@ Item {
 
                 sourceComponent: FileContent { }
             }
-            ToolButton {
+            Loader {
+                id: buttonAreaLoader
+                active: failed || // resendButton
+                        (pending && marks !== EventStatus.ReachedServer && marks !== EventStatus.Departed) || // discardButton
+                        (!pending && eventResolvedType == "m.room.create" && refId) || // goToPredecessorButton
+                        (!pending && eventResolvedType == "m.room.tombstone") // goToSuccessorButton
+
+                anchors.top: textField.top
+                anchors.right: parent.right
+                height: textField.height
+
+                sourceComponent: buttonArea
+            }
+        }
+    }
+    Rectangle {
+        id: readMarkerLine
+
+        width: readMarker && parent.width
+        height: 3
+        anchors.horizontalCenter: fullMessage.horizontalCenter
+        anchors.bottom: fullMessage.bottom
+        Behavior on width { NumberAnimation {
+            duration: settings.animations_duration_ms
+            easing.type: Easing.OutQuad
+        }}
+
+        gradient: Gradient {
+            GradientStop { position: 0; color: "transparent" }
+            GradientStop { position: 1; color: defaultPalette.highlight }
+        }
+    }
+
+    // Components loaded on demand
+
+    Component {
+        id: buttonArea
+
+        Item {
+            TimelineItemToolButton {
                 id: resendButton
                 visible: failed
-                width: visible * implicitWidth
-                height: visible * implicitHeight
-                anchors.top: textField.top
                 anchors.right: discardButton.left
-                anchors.rightMargin: 2
                 text: qsTr("Resend")
 
                 onClicked: room.retryMessage(eventId)
             }
-            ToolButton {
+            TimelineItemToolButton {
                 id: discardButton
                 visible: pending && marks !== EventStatus.ReachedServer
                          && marks !== EventStatus.Departed
-                width: visible * implicitWidth
-                height: visible * implicitHeight
-                anchors.top: textField.top
                 anchors.right: parent.right
-                anchors.rightMargin: 2
                 text: qsTr("Discard")
 
                 onClicked: room.discardMessage(eventId)
             }
-            ToolButton {
+            TimelineItemToolButton {
                 id: goToPredecessorButton
                 visible: !pending && eventResolvedType == "m.room.create" && refId
-                width: visible * implicitWidth
-                height: visible * implicitHeight
-                anchors.top: textField.top
                 anchors.right: parent.right
-                anchors.rightMargin: 2
                 text: qsTr("Go to\nolder room")
 
                 // TODO: Treat unjoined invite-only rooms specially
                 onClicked: controller.joinRequested(refId)
             }
-            ToolButton {
+            TimelineItemToolButton {
                 id: goToSuccessorButton
                 visible: !pending && eventResolvedType == "m.room.tombstone"
-                width: visible * implicitWidth
-                height: visible * implicitHeight
-                anchors.top: textField.top
                 anchors.right: parent.right
-                anchors.rightMargin: 2
                 text: qsTr("Go to\nnew room")
 
                 // TODO: Treat unjoined invite-only rooms specially
@@ -484,25 +515,6 @@ Item {
             }
         }
     }
-    Rectangle {
-        id: readMarkerLine
-
-        width: readMarker && parent.width
-        height: 3
-        anchors.horizontalCenter: fullMessage.horizontalCenter
-        anchors.bottom: fullMessage.bottom
-        Behavior on width { NumberAnimation {
-            duration: settings.animations_duration_ms
-            easing.type: Easing.OutQuad
-        }}
-
-        gradient: Gradient {
-            GradientStop { position: 0; color: "transparent" }
-            GradientStop { position: 1; color: defaultPalette.highlight }
-        }
-    }
-
-    // Components loaded on demand
 
     Component {
         id: detailsArea
@@ -527,6 +539,8 @@ Item {
                 TextEdit {
                     text: "<" + time.toLocaleString(Qt.locale(), Locale.ShortFormat) + ">"
                     font.bold: true
+                    font.family: settings.font.family
+                    font.pointSize: settings.font.pointSize
                     renderType: settings.render_type
                     readOnly: true
                     selectByKeyboard: true; selectByMouse: true
@@ -534,14 +548,14 @@ Item {
                     anchors.left: parent.left
                     anchors.leftMargin: 3
                     z: 1
-
-                    TimelineTextEditSelector {}
                 }
                 TextEdit {
                     text: "<a href=\"" + evtLink + "\">"+ eventId
                           + "</a> (" + eventResolvedType + ")"
                     textFormat: Text.RichText
                     font.bold: true
+                    font.family: settings.font.family
+                    font.pointSize: settings.font.pointSize
                     renderType: settings.render_type
                     horizontalAlignment: Text.AlignHCenter
                     readOnly: true
@@ -551,9 +565,7 @@ Item {
 
                     onLinkActivated: Qt.openUrlExternally(link)
 
-                    TimelineTextEditSelector {}
-
-                    TimelineMouseArea {
+                    MouseArea {
                         anchors.fill: parent
                         cursorShape: parent.hoveredLink ?
                                          Qt.PointingHandCursor :
@@ -564,6 +576,7 @@ Item {
                 TextEdit {
                     id: permalink
                     text: evtLink
+                    font: settings.font
                     renderType: settings.render_type
                     width: 0; height: 0; visible: false
                 }
@@ -574,6 +587,7 @@ Item {
                 textFormat: Text.PlainText
                 readOnly: true;
                 font.family: "Monospace"
+                font.pointSize: settings.font.pointSize
                 // FIXME: make settings.render_type an integer (but store as string to stay human-friendly)
 //                style: TextAreaStyle {
 //                    renderType: settings.render_type
@@ -582,8 +596,6 @@ Item {
 
                 width: parent.width
                 anchors.top: detailsHeader.bottom
-
-                TimelineTextEditSelector {}
             }
         }
     }

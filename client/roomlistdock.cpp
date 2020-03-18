@@ -33,23 +33,15 @@
 #include <connection.h>
 #include <settings.h>
 
-using QMatrixClient::SettingsGroup;
+using Quotient::SettingsGroup;
 
 class RoomListItemDelegate : public QStyledItemDelegate
 {
     public:
-        explicit RoomListItemDelegate(QObject* parent = nullptr)
-            : QStyledItemDelegate(parent)
-            , highlightColor(QSettings()
-                             .value("UI/highlight_color", QColor("orange"))
-                             .value<QColor>())
-        { }
+        using QStyledItemDelegate::QStyledItemDelegate;
 
         void paint(QPainter *painter, const QStyleOptionViewItem &option,
                    const QModelIndex &index) const override;
-
-    private:
-        QColor highlightColor;
 };
 
 void RoomListItemDelegate::paint(QPainter* painter,
@@ -68,9 +60,11 @@ void RoomListItemDelegate::paint(QPainter* painter,
 
     if (index.data(RoomListModel::HighlightCountRole).toInt() > 0)
     {
+        static const auto highlightColor =
+            Quotient::Settings().get("UI/highlight_color", QColor("orange"));
+        o.palette.setColor(QPalette::Text, highlightColor);
         // Highlighting the text may not work out on monochrome colour schemes,
         // hence duplicating with italic font.
-        o.palette.setColor(QPalette::Text, highlightColor);
         o.font.setItalic(true);
     }
 
@@ -85,7 +79,6 @@ void RoomListItemDelegate::paint(QPainter* painter,
 
 RoomListDock::RoomListDock(MainWindow* parent)
     : QDockWidget("Rooms", parent)
-    , selectedRoomCache(nullptr)
 {
     setObjectName("RoomsDock");
     model      = new RoomListModel(this);
@@ -113,14 +106,6 @@ RoomListDock::RoomListDock(MainWindow* parent)
                 room->markAllMessagesAsRead();
         }
     });
-    connect( view, &QTreeView::expanded, this, [this] (QModelIndex i) {
-        SettingsGroup("UI/RoomsDock")
-        .setValue(model->roomGroupAt(i).toString(), Expanded);
-    });
-    connect( view, &QTreeView::collapsed, this, [this] (QModelIndex i) {
-        SettingsGroup("UI/RoomsDock")
-        .setValue(model->roomGroupAt(i).toString(), Collapsed);
-    });
     connect( model, &RoomListModel::rowsInserted,
              this, &RoomListDock::refreshTitle );
     connect( model, &RoomListModel::rowsRemoved,
@@ -138,25 +123,36 @@ RoomListDock::RoomListDock(MainWindow* parent)
         selectedGroupCache.clear();
         selectedRoomCache = nullptr;
     });
-    connect( model, &RoomListModel::modelReset, this, [this] {
-        refreshTitle();
-        SettingsGroup sg("UI/RoomsDock");
-        for (int row = 0; row < model->rowCount({}); ++row)
-        {
-            const auto& i = model->index(row, 0);
-            const auto groupKey = model->roomGroupAt(i).toString();
-            const auto expanded = Expanded ==
-                    sg.get(groupKey, groupKey == QMatrixClient::FavouriteTag
-                                     ? Expanded : Collapsed);
-            view->setExpanded(i, expanded);
+
+    static SettingsGroup dockSettings("UI/RoomsDock");
+    connect(model, &RoomListModel::groupAdded, this, [this](int groupPos) {
+        const auto& i = model->index(groupPos, 0);
+        const auto groupKey = model->roomGroupAt(i).toString();
+        if (groupKey.startsWith("org.qmatrixclient"))
+            qCritical() << groupKey << "is deprecated!"; // Fighting the legacy
+        auto groupState = dockSettings.value(groupKey);
+        if (!groupState.isValid()) {
+            if (groupKey.startsWith(RoomGroup::SystemPrefix)) {
+                const auto legacyKey = RoomGroup::LegacyPrefix
+                                       + groupKey.mid(
+                                           RoomGroup::SystemPrefix.size());
+                groupState = dockSettings.value(legacyKey);
+                dockSettings.setValue(groupKey, groupState);
+                if (groupState.isValid())
+                    dockSettings.remove(legacyKey);
+            }
         }
+        view->setExpanded(i, groupState.isValid()
+                                 ? groupState.toString() == Expanded
+                                 : groupKey == Quotient::FavouriteTag);
     });
-    connect( model, &RoomListModel::groupAdded, this, [this] (int pos) {
-        QMatrixClient::SettingsGroup sg { QStringLiteral("UI/RoomsDock") };
-        const auto group = model->roomGroupAt(model->index(pos, 0)).toString();
-        if (sg.get<QString>(group) == "expand")
-            view->expand(model->index(pos, 0));
+    connect(view, &QTreeView::expanded, this, [this](QModelIndex i) {
+        dockSettings.setValue(model->roomGroupAt(i).toString(), Expanded);
     });
+    connect(view, &QTreeView::collapsed, this, [this](QModelIndex i) {
+        dockSettings.setValue(model->roomGroupAt(i).toString(), Collapsed);
+    });
+
     setWidget(view);
 
     roomContextMenu = new QMenu(this);
@@ -217,7 +213,7 @@ RoomListDock::RoomListDock(MainWindow* parent)
     connect(this, &QWidget::customContextMenuRequested, this, &RoomListDock::showContextMenu);
 }
 
-void RoomListDock::addConnection(QMatrixClient::Connection* connection)
+void RoomListDock::addConnection(Quotient::Connection* connection)
 {
     model->addConnection(connection);
 }
@@ -225,7 +221,7 @@ void RoomListDock::addConnection(QMatrixClient::Connection* connection)
 void RoomListDock::updateSortingMode()
 {
 //    const auto sortMode =
-//            QMatrixClient::Settings().value("UI/sort_rooms_by", 0).toInt();
+//            Quotient::Settings().value("UI/sort_rooms_by", 0).toInt();
 //    proxyModel->sort(sortMode,
 //                     sortMode == 0 ? Qt::AscendingOrder : Qt::DescendingOrder);
     model->setOrder<OrderByTag>();
@@ -266,7 +262,7 @@ void RoomListDock::showContextMenu(const QPoint& pos)
         // Don't allow to delete system "tags"
         auto tagName = model->roomGroupAt(index);
         deleteTagAction->setDisabled(
-                    tagName.toString().startsWith("org.qmatrixclient."));
+            tagName.toString().startsWith(RoomGroup::SystemPrefix));
         groupContextMenu->popup(mapToGlobal(pos));
         return;
     }
@@ -274,7 +270,7 @@ void RoomListDock::showContextMenu(const QPoint& pos)
     auto room = model->roomAt(index);
 //    auto room = model->roomAt(proxyModel->mapToSource(index));
 
-    using QMatrixClient::JoinState;
+    using Quotient::JoinState;
     bool joined = room->joinState() == JoinState::Join;
     bool invited = room->joinState() == JoinState::Invite;
     markAsReadAction->setEnabled(joined);
@@ -320,13 +316,9 @@ void RoomListDock::addTagsSelected()
         const auto enteredTags =
                 tagsInput->toPlainText().split('\n', QString::SkipEmptyParts);
         for (const auto& tag: enteredTags)
-        {
-            // No overwriting, just ensure the tag exists
-            tags[tag == tr("Favourites") ? QMatrixClient::FavouriteTag :
-                 tag == tr("Low priority") ? QMatrixClient::LowPriorityTag :
-                 tag];
-        }
-        room->setTags(tags);
+            tags[captionToTag(tag)]; // No overwriting, just ensure existence
+
+        room->setTags(tags, Quotient::Room::WithinSameState);
     }
 }
 

@@ -1,7 +1,10 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
+if (POLICY CMP0092)
+cmake_policy(SET CMP0092 NEW)
+endif()
 
 set(IDENTIFIER "com.github.quaternion")
-set(COPYRIGHT "Copyright © 2018-2019 QMatrixClient Project")
+set(COPYRIGHT "Copyright © 2016-2018 QMatrixClient, 2019 The Quotient Project")
 
 project(quaternion VERSION 0.0.9.5 LANGUAGES CXX)
 
@@ -29,18 +32,23 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     "MinSizeRel" "RelWithDebInfo")
 endif()
 
-set(CMAKE_CXX_STANDARD 14)
-
 # Setup command line parameters for the compiler and linker
-foreach (FLAG "" all pedantic extra no-unused-parameter)
-    CHECK_CXX_COMPILER_FLAG("-W${FLAG}" WARN_${FLAG}_SUPPORTED)
-    if ( WARN_${FLAG}_SUPPORTED AND NOT CMAKE_CXX_FLAGS MATCHES "(^| )-W?${FLAG}($| )")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W${FLAG}")
-    endif ()
-endforeach ()
+if (MSVC)
+    add_compile_options(/EHsc /W4
+        /wd4100 /wd4127 /wd4242 /wd4244 /wd4245 /wd4267 /wd4365 /wd4456 /wd4459
+        /wd4464 /wd4505 /wd4514 /wd4571 /wd4619 /wd4623 /wd4625 /wd4626 /wd4706
+        /wd4710 /wd4774 /wd4820 /wd4946 /wd5026 /wd5027)
+else()
+    foreach (FLAG "" all pedantic extra no-unused-parameter)
+        CHECK_CXX_COMPILER_FLAG("-W${FLAG}" WARN_${FLAG}_SUPPORTED)
+        if ( WARN_${FLAG}_SUPPORTED AND NOT CMAKE_CXX_FLAGS MATCHES "(^| )-W?${FLAG}($| )")
+            add_compile_options(-W${FLAG})
+        endif ()
+    endforeach ()
+endif()
 
 # Find the libraries
-find_package(Qt5 5.7 REQUIRED Widgets Network Quick Qml Gui LinguistTools Multimedia DBus)
+find_package(Qt5 5.9 REQUIRED Widgets Network Quick Qml Gui LinguistTools Multimedia DBus)
 # Qt5_Prefix is only used to show Qt path in message()
 # Qt5_BinDir is where all the binary tools for Qt are
 if (QT_QMAKE_EXECUTABLE)
@@ -51,7 +59,7 @@ else()
     get_filename_component(Qt5_Prefix "${Qt5_DIR}/../../../.." ABSOLUTE)
 endif()
 if (USE_QQUICKWIDGET)
-    find_package(Qt5 5.7 REQUIRED QuickWidgets)
+    find_package(Qt5 5.9 REQUIRED QuickWidgets)
 elseif(NOT DISABLE_QQUICKWIDGET)
     # QQuickWidget only stopped crashing in Qt 5.12, use it by default if found
     find_package(Qt5 5.12 QUIET COMPONENTS QuickWidgets)
@@ -79,10 +87,10 @@ if ((NOT DEFINED USE_INTREE_LIBQMC OR USE_INTREE_LIBQMC)
     endif ()
 endif ()
 if (NOT USE_INTREE_LIBQMC)
-    find_package(QMatrixClient 0.5.1 REQUIRED)
-    if (NOT QMatrixClient_FOUND)
-        message( WARNING "libQMatrixClient not found; configuration will most likely fail.")
-        message( WARNING "Make sure you have installed libQMatrixClient development files")
+    find_package(Quotient 0.6 REQUIRED)
+    if (NOT Quotient_FOUND)
+        message( WARNING "libQuotient not found; configuration will most likely fail.")
+        message( WARNING "Make sure you have installed libQuotient development files")
         message( WARNING "as a package or checked out the library sources in lib/.")
         message( WARNING "See also BUILDING.md")
     endif ()
@@ -114,7 +122,7 @@ endif()
 message( STATUS "Using compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}" )
 message( STATUS "Using Qt ${Qt5_VERSION} at ${Qt5_Prefix}" )
 if (USE_INTREE_LIBQMC)
-    message( STATUS "Using in-tree libQMatrixClient")
+    message( STATUS "Using in-tree libQuotient")
     if (GIT_FOUND)
         execute_process(COMMAND
             "${GIT_EXECUTABLE}" rev-parse -q HEAD
@@ -124,7 +132,7 @@ if (USE_INTREE_LIBQMC)
         message( STATUS "  Library git SHA1: ${LIB_GIT_SHA1}")
     endif (GIT_FOUND)
 else ()
-    message( STATUS "Using libQMatrixClient ${QMatrixClient_VERSION} at ${QMatrixClient_DIR}")
+    message( STATUS "Using libQuotient ${Quotient_VERSION} at ${Quotient_DIR}")
 endif ()
 if (USE_QQUICKWIDGET)
     message( STATUS "Using QQuickWidget to render QML")
@@ -209,10 +217,12 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
     ${quaternion_SRCS} ${quaternion_QRC_SRC} ${quaternion_QM}
     ${quaternion_WINRC} ${${PROJECT_NAME}_MAC_ICON})
 
-target_link_libraries(${PROJECT_NAME}
-    QMatrixClient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     GIT_SHA1="${GIT_SHA1}" LIB_GIT_SHA1="${LIB_GIT_SHA1}")
+target_link_libraries(${PROJECT_NAME}
+    Quotient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
 
 if (USE_QQUICKWIDGET)
     target_compile_definitions(${PROJECT_NAME} PRIVATE USE_QQUICKWIDGET)
@@ -226,8 +236,10 @@ if(USE_KEYCHAIN)
 endif()
 
 # macOS specific config for bundling
-set_property(TARGET ${PROJECT_NAME} PROPERTY
-    MACOSX_BUNDLE_INFO_PLIST "${PROJECT_SOURCE_DIR}/cmake/MacOSXBundleInfo.plist.in")
+if (APPLE)
+    set_property(TARGET ${PROJECT_NAME} PROPERTY MACOSX_BUNDLE_INFO_PLIST
+                 "${PROJECT_SOURCE_DIR}/cmake/MacOSXBundleInfo.plist.in")
+endif()
 
 # Installation
 
@@ -246,7 +258,7 @@ if(LINUX)
             DESTINATION  ${CMAKE_INSTALL_DATADIR}/metainfo
             )
     install(FILES ${quaternion_QM}
-            DESTINATION ${CMAKE_INSTALL_DATADIR}/QMatrixClient/quaternion/translations
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/Quotient/quaternion/translations
             )
     file(GLOB quaternion_icons icons/quaternion/*-apps-quaternion.png)
     ecm_install_icons(ICONS ${quaternion_icons} icons/quaternion/sc-apps-quaternion.svgz

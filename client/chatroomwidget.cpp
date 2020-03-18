@@ -60,16 +60,16 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     , readMarkerOnScreen(false)
 {
     {
-        using namespace QMatrixClient;
-        qmlRegisterUncreatableType<QuaternionRoom>("QMatrixClient", 1, 0, "Room",
-            "Room objects can only be created by libqmatrixclient");
-        qmlRegisterUncreatableType<User>("QMatrixClient", 1, 0, "User",
-            "User objects can only be created by libqmatrixclient");
+        using namespace Quotient;
+        qmlRegisterUncreatableType<QuaternionRoom>("Quotient", 1, 0, "Room",
+            "Room objects can only be created by libQuotient");
+        qmlRegisterUncreatableType<User>("Quotient", 1, 0, "User",
+            "User objects can only be created by libQuotient");
         qmlRegisterType<GetRoomEventsJob>();
         qRegisterMetaType<GetRoomEventsJob*>("GetRoomEventsJob*");
         qRegisterMetaType<User*>("User*");
-        qmlRegisterType<Settings>("QMatrixClient", 1, 0, "Settings");
-        qmlRegisterUncreatableType<RoomMessageEvent>("QMatrixClient", 1, 0,
+        qmlRegisterType<Settings>("Quotient", 1, 0, "Settings");
+        qmlRegisterUncreatableType<RoomMessageEvent>("Quotient", 1, 0,
             "RoomMessageEvent", "RoomMessageEvent is uncreatable");
     }
 
@@ -147,6 +147,19 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     connect(m_chatEdit, &ChatEdit::cancelledCompletion,
             this, &ChatRoomWidget::typingChanged);
 
+    {
+        Quotient::Settings s;
+        QString styleSheet;
+        const auto fontFamily = s.value("UI/Fonts/timeline_family").toString();
+        if (!fontFamily.isEmpty())
+            styleSheet += "font-family: " + fontFamily + ";";
+        const auto fontPointSize = s.value("UI/Fonts/timeline_pointSize");
+        if (fontPointSize.toReal() > 0.0)
+            styleSheet += "font-size: " + fontPointSize.toString() + "pt;";
+        if (!styleSheet.isEmpty())
+            setStyleSheet(styleSheet);
+    }
+
     auto* layout = new QVBoxLayout();
     layout->addWidget(qmlContainer);
     layout->addWidget(m_hudCaption);
@@ -191,7 +204,7 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
     m_attachAction->setEnabled(m_currentRoom != nullptr);
     if( m_currentRoom )
     {
-        using namespace QMatrixClient;
+        using namespace Quotient;
         m_imageProvider->setConnection(room->connection());
         m_chatEdit->setText( m_currentRoom->cachedInput() );
         m_chatEdit->setHistory(roomHistories.value(m_currentRoom));
@@ -262,7 +275,7 @@ void ChatRoomWidget::setHudCaption(QString newCaption)
     m_hudCaption->setText("<i>" + newCaption + "</i>");
 }
 
-void ChatRoomWidget::insertMention(QMatrixClient::User* user)
+void ChatRoomWidget::insertMention(Quotient::User* user)
 {
     m_chatEdit->insertMention(user->displayname(m_currentRoom));
 }
@@ -316,9 +329,7 @@ QString ChatRoomWidget::doSendInput()
     if ( text.isEmpty() )
         return tr("There's nothing to send");
 
-    static const auto ReFlags =
-            QRegularExpression::DotMatchesEverythingOption|
-            QRegularExpression::OptimizeOnFirstUsageOption;
+    static const auto ReFlags = QRegularExpression::DotMatchesEverythingOption;
 
     static const QRegularExpression
             CommandRe { QStringLiteral("^/([^ ]+)( +(.*))?\\s*$"), ReFlags },
@@ -366,7 +377,7 @@ QString ChatRoomWidget::doSendInput()
     }
 
     // Commands available only in the room context
-    using namespace QMatrixClient;
+    using namespace Quotient;
     if (command == "leave" || command == "part")
     {
         if (!argString.isEmpty())
@@ -637,7 +648,7 @@ void ChatRoomWidget::onMessageShownChanged(const QString& eventId, bool shown)
 
 void ChatRoomWidget::quote(const QString& htmlText)
 {
-    QMatrixClient::SettingsGroup sg { QStringLiteral("UI") };
+    Quotient::SettingsGroup sg { QStringLiteral("UI") };
     const auto type = sg.get<int>("quote_type");
     const auto defaultStyle = QStringLiteral("> \\1\n");
     const auto defaultRegex = QStringLiteral("(.+)(?:\n|$)");
@@ -705,7 +716,7 @@ void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
     if (eventType == "image" || eventType == "file")
     {
         const auto progressInfo = modelIndex.data(MessageEventModel::SpecialMarksRole)
-            .value<QMatrixClient::FileTransferInfo>();
+            .value<Quotient::FileTransferInfo>();
         const bool downloaded = !progressInfo.isUpload && progressInfo.completed();
 
         menu.addSeparator();
@@ -745,7 +756,7 @@ void ChatRoomWidget::reStartShownTimer()
             indexToMaybeRead >= indicesOnScreen.back())
         return;
 
-    maybeReadTimer.start(1000, this);
+    maybeReadTimer.start(Quotient::Settings().get<int>("UI/maybe_read_timer", 1000), this);
     qDebug() << "Scheduled maybe-read message update:"
              << indexToMaybeRead << "->" << indicesOnScreen.back();
 }
@@ -827,7 +838,7 @@ void ChatRoomWidget::textDrop(const QString& text)
     m_chatEdit->setText(text);
 }
 
-Qt::KeyboardModifiers ChatRoomWidget::getModifierKeys()
+Qt::KeyboardModifiers ChatRoomWidget::getModifierKeys() const
 {
     return QGuiApplication::keyboardModifiers();
 }

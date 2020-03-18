@@ -1,0 +1,19 @@
+extraction:
+  cpp:
+    prepare:
+      packages: # Assuming package base of cosmic
+      - ninja-build
+      - qt5-default
+      - qtmultimedia5-dev
+      - qml-module-qtquick-controls
+      - qml-module-qtquick-controls2
+      - qttools5-dev
+      - qt5keychain-dev
+    after_prepare:
+    - git clone https://gitlab.matrix.org/matrix-org/olm.git
+    - pushd olm
+    - cmake . -Bbuild -GNinja
+    - cmake --build build
+    - popd
+    configure:
+      command: "cmake . -GNinja -DOlm_DIR=olm/build"

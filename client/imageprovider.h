@@ -22,7 +22,7 @@
 #include <QtQuick/QQuickAsyncImageProvider>
 #include <QtCore/QAtomicPointer>
 
-namespace QMatrixClient {
+namespace Quotient {
     class Connection;
 }
 
@@ -35,14 +35,14 @@ namespace QMatrixClient {
 class ImageProvider: public QQuickAsyncImageProvider
 {
     public:
-        explicit ImageProvider(QMatrixClient::Connection* connection = nullptr);
+        explicit ImageProvider(Quotient::Connection* connection = nullptr);
 
         QQuickImageResponse* requestImageResponse(
                 const QString& id, const QSize& requestedSize) override;
 
-        void setConnection(QMatrixClient::Connection* connection);
+        void setConnection(Quotient::Connection* connection);
 
     private:
-        QAtomicPointer<QMatrixClient::Connection> m_connection;
+        QAtomicPointer<Quotient::Connection> m_connection;
         Q_DISABLE_COPY(ImageProvider)
 };

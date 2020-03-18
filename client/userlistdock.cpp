@@ -178,7 +178,7 @@ bool UserListDock::isIgnored()
     return false;
 }
 
-QMatrixClient::User* UserListDock::getSelectedUser() const
+Quotient::User* UserListDock::getSelectedUser() const
 {
     auto index = m_view->currentIndex();
     if (!index.isValid())

@@ -63,8 +63,8 @@
 #include <QtGui/QCloseEvent>
 #include <QtGui/QDesktopServices>
 
-using QMatrixClient::NetworkAccessManager;
-using QMatrixClient::AccountSettings;
+using Quotient::NetworkAccessManager;
+using Quotient::AccountSettings;
 
 MainWindow::MainWindow()
 {
@@ -90,6 +90,8 @@ MainWindow::MainWindow()
              this, &MainWindow::openResource);
     connect( chatRoomWidget, &ChatRoomWidget::joinRequested,
              this, &MainWindow::joinRoom);
+    connect( chatRoomWidget, &ChatRoomWidget::roomSettingsRequested,
+             this, &MainWindow::openRoomSettings);
     connect( roomListDock, &RoomListDock::roomSelected,
              this, &MainWindow::selectRoom);
     connect( chatRoomWidget, &ChatRoomWidget::showStatusMessage,
@@ -148,7 +150,7 @@ QAction* MainWindow::addTimelineOptionCheckbox(QMenu* parent,
     const QString& text, const QString& statusTip, const QString& settingsKey,
     bool defaultValue)
 {
-    using QMatrixClient::SettingsGroup;
+    using Quotient::SettingsGroup;
     auto action =
         parent->addAction(text,
             [this,settingsKey] (bool checked)
@@ -166,7 +168,7 @@ QAction* MainWindow::addTimelineOptionCheckbox(QMenu* parent,
 
 void MainWindow::createMenu()
 {
-    using QMatrixClient::Settings;
+    using Quotient::Settings;
 
     // Connection menu
     connectionMenu = menuBar()->addMenu(tr("&Accounts"));
@@ -228,14 +230,14 @@ void MainWindow::createMenu()
     viewMenu->addAction(tr("Edit tags order"), [this]
     {
         static const auto SettingsKey = QStringLiteral("tags_order");
-        QMatrixClient::SettingsGroup sg { QStringLiteral("UI/RoomsDock") };
+        Quotient::SettingsGroup sg { QStringLiteral("UI/RoomsDock") };
         const auto savedOrder = sg.get<QStringList>(SettingsKey).join('\n');
         bool ok;
         const auto newOrder = QInputDialog::getMultiLineText(this,
                 tr("Edit tags order"),
                 tr("Tags can be wildcarded by * next to dot(s)\n"
                    "Clear the box to reset to defaults\n"
-                   "Special tags starting with \"org.qmatrixclient.\" are: %1\n"
+                   "Special tags starting with \"im.quotient.\" are: %1\n"
                    "User-defined tags should start with \"u.\"")
                 .arg("invite, left, direct, none"),
                 savedOrder, &ok);
@@ -252,7 +254,7 @@ void MainWindow::createMenu()
     viewMenu->addAction(QIcon::fromTheme("format-text-blockquote"),
         tr("Edit quote style"), [this]
     {
-        QMatrixClient::SettingsGroup sg { "UI" };
+        Quotient::SettingsGroup sg { "UI" };
         const auto type = sg.get<int>("quote_type");
 
         QStringList list;
@@ -289,11 +291,7 @@ void MainWindow::createMenu()
     roomMenu->addSeparator();
     roomSettingsAction =
         roomMenu->addAction(QIcon::fromTheme("user-group-properties"),
-            tr("Change room &settings..."),
-            [this] {
-                static QHash<QuaternionRoom*, QPointer<RoomSettingsDialog>> dlgs;
-                summon(dlgs[currentRoom], currentRoom, this);
-            });
+            tr("Change room &settings..."), this, &MainWindow::openRoomSettings);
     roomSettingsAction->setDisabled(true);
     roomMenu->addSeparator();
     openRoomAction = roomMenu->addAction(
@@ -419,7 +417,7 @@ void MainWindow::createMenu()
 
 void MainWindow::loadSettings()
 {
-    QMatrixClient::SettingsGroup sg("UI/MainWindow");
+    Quotient::SettingsGroup sg("UI/MainWindow");
     if (sg.contains("normal_geometry"))
         setGeometry(sg.value("normal_geometry").toRect());
     if (sg.value("maximized").toBool())
@@ -430,7 +428,7 @@ void MainWindow::loadSettings()
 
 void MainWindow::saveSettings() const
 {
-    QMatrixClient::SettingsGroup sg("UI/MainWindow");
+    Quotient::SettingsGroup sg("UI/MainWindow");
     sg.setValue("normal_geometry", normalGeometry());
     sg.setValue("maximized", isMaximized());
     sg.setValue("window_parts_state", saveState());
@@ -448,7 +446,15 @@ inline QString accessTokenFileName(const AccountSettings& account)
 QByteArray MainWindow::loadAccessToken(const AccountSettings& account)
 {
 #ifdef USE_KEYCHAIN
-    return loadAccessTokenFromKeyChain(account);
+    if (Quotient::Settings().value("UI/use_keychain", true).toBool())
+    {
+        return loadAccessTokenFromKeyChain(account);
+    }
+    else
+    {
+        qDebug() << "Explicit opt-out from keychain by user setting";
+        return loadAccessTokenFromFile(account);
+    }
 #else
     return loadAccessTokenFromFile(account);
 #endif
@@ -531,7 +537,15 @@ bool MainWindow::saveAccessToken(const AccountSettings& account,
                                  const QByteArray& accessToken)
 {
 #ifdef USE_KEYCHAIN
-    return saveAccessTokenToKeyChain(account, accessToken);
+    if (Quotient::Settings().value("UI/use_keychain", true).toBool())
+    {
+        return saveAccessTokenToKeyChain(account, accessToken);
+    }
+    else
+    {
+        qDebug() << "Explicit opt-out from keychain by user setting";
+        return saveAccessTokenToFile(account, accessToken);
+    }
 #else
     return saveAccessTokenToFile(account, accessToken);
 #endif
@@ -636,7 +650,7 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Attempt to add a null connection");
 
-    using Room = QMatrixClient::Room;
+    using Room = Quotient::Room;
 
     c->setLazyLoading(true);
     connections.push_back(c);
@@ -679,7 +693,7 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
             if (msgBox.exec() == QMessageBox::Retry)
                 getNewEvents(c);
         });
-    using namespace QMatrixClient;
+    using namespace Quotient;
     connect( c, &Connection::requestFailed, this,
         [this] (BaseJob* job)
         {
@@ -796,7 +810,7 @@ void MainWindow::showFirstSyncIndicator()
 void MainWindow::showLoginWindow(const QString& statusMessage)
 {
     const auto& allKnownAccounts =
-        QMatrixClient::SettingsGroup("Accounts").childGroups();
+        Quotient::SettingsGroup("Accounts").childGroups();
     QStringList loggedOffAccounts;
     for (const auto& a: allKnownAccounts)
     {
@@ -830,7 +844,7 @@ void MainWindow::showLoginWindow(const QString& statusMessage,
         reloginAccount.clearAccessToken();
         QFile(accessTokenFileName(reloginAccount)).remove();
         // XXX: Maybe even remove the account altogether as below?
-//        QMatrixClient::SettingsGroup("Accounts").remove(reloginAccount.userId());
+//        Quotient::SettingsGroup("Accounts").remove(reloginAccount.userId());
     }
 }
 
@@ -905,7 +919,7 @@ void MainWindow::showAboutWindow()
         layout->addWidget(linkLabel);
 
         layout->addWidget(
-                    new QLabel(tr("Copyright (C) 2018 QMatrixClient project.")));
+                    new QLabel(tr("Copyright (C) 2019 The Quotient project.")));
 
 #ifdef GIT_SHA1
         auto* commitLabel = new QLabel(tr("Built from Git, commit SHA:") + '\n' +
@@ -916,8 +930,8 @@ void MainWindow::showAboutWindow()
 #endif
 
 #ifdef LIB_GIT_SHA1
-        auto* libCommitLabel = new QLabel(new QLabel(tr("Library commit SHA:") + '\n' +
-                                          QStringLiteral(LIB_GIT_SHA1)));
+        auto* libCommitLabel = new QLabel(tr("Library commit SHA:") + '\n' +
+                                          QStringLiteral(LIB_GIT_SHA1));
         libCommitLabel->setTextInteractionFlags(Qt::TextSelectableByKeyboard|
                                                 Qt::TextSelectableByMouse);
         layout->addWidget(libCommitLabel);
@@ -933,8 +947,8 @@ void MainWindow::showAboutWindow()
             tr("Contributors:") + "<br/>" +
             "<a href='https://github.com/quotient-im/Quaternion/graphs/contributors'>" +
                 tr("Quaternion contributors @ GitHub") + "</a><br/>" +
-            "<a href='https://github.com/QMatrixClient/libqmatrixclient/graphs/contributors'>" +
-                tr("libQMatrixClient contributors @ GitHub") + "</a><br/>" +
+            "<a href='https://github.com/quotient-im/libQuotient/graphs/contributors'>" +
+                tr("libQuotient contributors @ GitHub") + "</a><br/>" +
             "<a href='https://lokalise.co/contributors/730769035bbc328c31e863.62506391/'>" +
                 tr("Quaternion translators @ Lokalise.co") + "</a><br/>" +
             tr("Special thanks to %1 for all the testing effort")
@@ -959,7 +973,7 @@ void MainWindow::showAboutWindow()
 
 void MainWindow::invokeLogin()
 {
-    using namespace QMatrixClient;
+    using namespace Quotient;
     const auto accounts = SettingsGroup("Accounts").childGroups();
     bool autoLoggedIn = false;
     for(const auto& accountId: accounts)
@@ -1016,24 +1030,31 @@ void MainWindow::logout(Connection* c)
     QFile(accessTokenFileName(AccountSettings(c->userId()))).remove();
 
 #ifdef USE_KEYCHAIN
-    QKeychain::DeletePasswordJob job(qAppName());
-    job.setAutoDelete(false);
-    job.setKey(c->userId());
-    QEventLoop loop;
-    QKeychain::DeletePasswordJob::connect(&job, &QKeychain::Job::finished, &loop, &QEventLoop::quit);
-    job.start();
-    loop.exec();
-    if (job.error())
+    if (Quotient::Settings().value("UI/use_keychain", true).toBool())
     {
-        qWarning() << "Could not delete access token from the keychain: " << qPrintable(job.errorString());
-        if (job.error() != QKeychain::Error::NoBackendAvailable &&
-            job.error() != QKeychain::Error::NotImplemented &&
-            job.error() != QKeychain::Error::OtherError)
-        {
-            QMessageBox::warning(this,
-                                 tr("Couldn't delete access token"),
-                                 tr("Quaternion couldn't delete the access token from the keychain."),
-                                 QMessageBox::Close);
+        QKeychain::DeletePasswordJob job(qAppName());
+        job.setAutoDelete(false);
+        job.setKey(c->userId());
+        QEventLoop loop;
+        QKeychain::DeletePasswordJob::connect(&job, &QKeychain::Job::finished, &loop, &QEventLoop::quit);
+        job.start();
+        loop.exec();
+        if (job.error()) {
+            if (job.error() == QKeychain::Error::EntryNotFound)
+                qDebug() << "Access token is not in the keychain, nothing to delete";
+            else {
+                qWarning() << "Could not delete access token from the keychain: "
+                           << qPrintable(job.errorString());
+                if (job.error() != QKeychain::Error::NoBackendAvailable &&
+                    job.error() != QKeychain::Error::NotImplemented &&
+                    job.error() != QKeychain::Error::OtherError)
+                {
+                    QMessageBox::warning(this, tr("Couldn't delete access token"),
+                                         tr("Quaternion couldn't delete the access "
+                                            "token from the keychain."),
+                                         QMessageBox::Close);
+                }
+            }
         }
     }
 #endif
@@ -1083,7 +1104,7 @@ Locator::ResolveResult MainWindow::openLocator(const Locator& l, const QString& 
 
 // FIXME: This should be decommissioned and inlined once we stop supporting
 // legacy compilers that have BROKEN_INITIALIZER_LISTS
-inline Locator makeLocator(QMatrixClient::Connection* c, QString id)
+inline Locator makeLocator(Quotient::Connection* c, QString id)
 {
 #ifdef BROKEN_INITIALIZER_LISTS
     Locator l;
@@ -1135,7 +1156,7 @@ void MainWindow::openResource(const QString& idOrUri, const QString& action)
                                  tr("There's no room %1 in the room list."
                                     " Check the spelling and the account.")
                                  .arg(idOrUri));
-            FALLTHROUGH;
+            Q_FALLTHROUGH();
         default:
             return; // If success or no account, do nothing
         }
@@ -1146,7 +1167,13 @@ void MainWindow::openResource(const QString& idOrUri, const QString& action)
                          QMessageBox::Close, QMessageBox::Close);
 }
 
-void MainWindow::selectRoom(QMatrixClient::Room* r)
+void MainWindow::openRoomSettings()
+{
+    static QHash<QuaternionRoom*, QPointer<RoomSettingsDialog>> dlgs;
+    summon(dlgs[currentRoom], currentRoom, this);
+}
+
+void MainWindow::selectRoom(Quotient::Room* r)
 {
     if (r)
         qDebug() << "Opening room" << r->objectName();
@@ -1275,8 +1302,11 @@ void MainWindow::setCompleter(QLineEdit* edit, Connection* connection,
     QStringList list;
     if (type & Room)
     {
-        for (auto* room: connection->roomMap())
-            list << room->canonicalAlias();
+        for (auto* room : connection->allRooms()) {
+            list << room->id();
+            if (!room->canonicalAlias().isEmpty())
+                list << room->canonicalAlias();
+        }
     }
     if (type & User)
     {
@@ -1311,7 +1341,7 @@ void MainWindow::joinRoom(const QString& roomIdOrAlias)
     if (!roomLocator.account || openLocator(roomLocator) == Locator::Success)
         return;
 
-    using QMatrixClient::BaseJob;
+    using Quotient::BaseJob;
     auto* job = roomLocator.account->joinRoom(roomLocator.identifier);
     // Connection::joinRoom() already connected to success() the code that
     // initialises the room in the library, which in turn causes RoomListModel
@@ -1425,7 +1455,7 @@ void MainWindow::proxyAuthenticationRequired(const QNetworkProxy&,
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-    if (QMatrixClient::SettingsGroup("UI")
+    if (Quotient::SettingsGroup("UI")
             .value("close_to_tray", false).toBool())
     {
         hide();

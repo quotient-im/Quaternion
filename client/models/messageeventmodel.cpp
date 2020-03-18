@@ -62,9 +62,9 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
 MessageEventModel::MessageEventModel(QObject* parent)
     : QAbstractListModel(parent)
 {
-    using namespace QMatrixClient;
+    using namespace Quotient;
     qmlRegisterType<FileTransferInfo>(); qRegisterMetaType<FileTransferInfo>();
-    qmlRegisterUncreatableType<EventStatus>("QMatrixClient", 1, 0, "EventStatus",
+    qmlRegisterUncreatableType<EventStatus>("Quotient", 1, 0, "EventStatus",
         "EventStatus is not an creatable type");
 }
 
@@ -85,7 +85,7 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
     {
         lastReadEventId = room->readMarkerEventId();
 
-        using namespace QMatrixClient;
+        using namespace Quotient;
         connect(m_currentRoom, &Room::aboutToAddNewMessages, this,
                 [=](RoomEventsRange events)
                 {
@@ -227,29 +227,26 @@ int MessageEventModel::refreshEventRoles(const QString& id,
     return row;
 }
 
-inline bool hasValidTimestamp(const QMatrixClient::TimelineItem& ti)
+inline bool hasValidTimestamp(const Quotient::TimelineItem& ti)
 {
-    return ti->timestamp().isValid();
+    return ti->originTimestamp().isValid();
 }
 
 QDateTime MessageEventModel::makeMessageTimestamp(
             const QuaternionRoom::rev_iter_t& baseIt) const
 {
     const auto& timeline = m_currentRoom->messageEvents();
-    auto ts = baseIt->event()->timestamp();
-    if (ts.isValid())
+    if (auto ts = baseIt->event()->originTimestamp(); ts.isValid())
         return ts;
 
     // The event is most likely redacted or just invalid.
     // Look for the nearest date around and slap zero time to it.
-    using QMatrixClient::TimelineItem;
-    auto rit = std::find_if(baseIt, timeline.rend(),
-                      hasValidTimestamp);
-    if (rit != timeline.rend())
-        return { rit->event()->timestamp().date(), {0,0}, Qt::LocalTime };
-    auto it = std::find_if(baseIt.base(), timeline.end(), hasValidTimestamp);
-    if (it != timeline.end())
-        return { it->event()->timestamp().date(), {0,0}, Qt::LocalTime };
+    if (auto rit = std::find_if(baseIt, timeline.rend(), hasValidTimestamp);
+            rit != timeline.rend())
+        return { rit->event()->originTimestamp().date(), {0,0}, Qt::LocalTime };
+    if (auto it = std::find_if(baseIt.base(), timeline.end(), hasValidTimestamp);
+            it != timeline.end())
+        return { it->event()->originTimestamp().date(), {0,0}, Qt::LocalTime };
 
     // What kind of room is that?..
     qCritical() << "No valid timestamps in the room timeline!";
@@ -259,8 +256,9 @@ QDateTime MessageEventModel::makeMessageTimestamp(
 QString MessageEventModel::renderDate(const QDateTime& timestamp) const
 {
     auto date = timestamp.toLocalTime().date();
-    if (QMatrixClient::SettingsGroup("UI")
-            .value("banner_human_friendly_date", true).toBool())
+    static Quotient::SettingsGroup sg { "UI" };
+    if (sg.get("use_human_friendly_dates",
+               sg.get("banner_human_friendly_date", true)))
     {
         if (date == QDate::currentDate())
             return tr("Today");
@@ -270,10 +268,11 @@ QString MessageEventModel::renderDate(const QDateTime& timestamp) const
             return tr("The day before yesterday");
         if (date > QDate::currentDate().addDays(-7))
         {
-            // Make sure to capitalise the day name.
             auto s = QLocale().standaloneDayName(date.dayOfWeek());
-            if (!s.isEmpty())
-                s[0] = QLocale().toUpper(s.mid(0,1))[0];
+            // Some locales (e.g., Russian on Windows) don't capitalise
+            // the day name so make sure the first letter is uppercase.
+            if (!s.isEmpty() && !s[0].isUpper())
+                s[0] = QLocale().toUpper(s.mid(0,1)).at(0);
             return s;
         }
     }
@@ -293,7 +292,7 @@ bool MessageEventModel::isUserActivityNotable(
     // double-check that there are no redactions and that it's not a single
     // join or leave.
 
-    using namespace QMatrixClient;
+    using namespace Quotient;
     bool joinFound = false, redactionsFound = false;
     // Find the nearest join of this user above, or a no-nonsense event.
     for (auto it = baseIt,
@@ -406,7 +405,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                                 std::min(row, timelineBaseIndex());
     const auto& evt = isPending ? **pendingIt : **timelineIt;
 
-    using namespace QMatrixClient;
+    using namespace Quotient;
     if( role == Qt::DisplayRole )
     {
         if (evt.isRedacted())
@@ -436,6 +435,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                 return m_currentRoom->prettyPrint(e.plainBody());
             }
             , [this] (const RoomMemberEvent& e) {
+                // clang-format on
                 // FIXME: Rewind to the name that was at the time of this event
                 const auto subjectName =
                     m_currentRoom->safeMemberName(e.userId()).toHtmlEscaped();
@@ -443,21 +443,31 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                 switch( e.membership() )
                 {
                     case MembershipType::Invite:
-                        if (e.repeatsState())
-                            return tr("reinvited %1 to the room").arg(subjectName);
-                        FALLTHROUGH;
+                        if (e.repeatsState()) {
+                            auto text =
+                                tr("reinvited %1 to the room").arg(subjectName);
+                            if (!e.reason().isEmpty())
+                                text += ": " + e.reason().toHtmlEscaped();
+                            return text;
+                        }
+                        Q_FALLTHROUGH();
                     case MembershipType::Join:
                     {
+                        QString text {};
+                        // Part 1: invites and joins
                         if (e.repeatsState())
-                            return tr("joined the room (repeated)");
-                        if (!e.prevContent() ||
-                                e.membership() != e.prevContent()->membership)
-                        {
-                            return e.membership() == MembershipType::Invite
+                            text = tr("joined the room (repeated)");
+                        else if (e.changesMembership())
+                            text =
+                                e.membership() == MembershipType::Invite
                                     ? tr("invited %1 to the room").arg(subjectName)
                                     : tr("joined the room");
+                        if (!text.isEmpty()) {
+                            if (!e.reason().isEmpty())
+                                text += ": " + e.reason().toHtmlEscaped();
+                            return text;
                         }
-                        QString text {};
+                        // Part 2: profile changes of joined members
                         if (e.isRename())
                         {
                             if (e.displayName().isEmpty())
@@ -494,17 +504,13 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                                     : tr("self-unbanned");
                         }
                         return (e.senderId() != e.userId())
-                                ? tr("has put %1 out of the room: %2")
-                                  .arg(subjectName,
-                                       e.contentJson()["reason"_ls]
-                                       .toString().toHtmlEscaped())
+                                ? tr("kicked %1 from the room: %2")
+                                  .arg(subjectName, e.reason().toHtmlEscaped())
                                 : tr("left the room");
                     case MembershipType::Ban:
                         return (e.senderId() != e.userId())
                                 ? tr("banned %1 from the room: %2")
-                                  .arg(subjectName,
-                                       e.contentJson()["reason"_ls]
-                                       .toString().toHtmlEscaped())
+                                  .arg(subjectName, e.reason().toHtmlEscaped())
                                 : tr("self-banned from the room");
                     case MembershipType::Knock:
                         return tr("knocked");
@@ -512,6 +518,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                         ;
                 }
                 return tr("made something unknown");
+                // clang-format off
             }
             , [] (const RoomAliasesEvent& e) {
                 return tr("has set room aliases on server %1 to: %2")

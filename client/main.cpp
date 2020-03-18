@@ -36,13 +36,34 @@ int main( int argc, char* argv[] )
 #endif
 
     QApplication app(argc, argv);
-    QApplication::setOrganizationName(QStringLiteral("QMatrixClient"));
+    QApplication::setOrganizationName(QStringLiteral("Quotient"));
     QApplication::setApplicationName(QStringLiteral("quaternion"));
     QApplication::setApplicationDisplayName(QStringLiteral("Quaternion"));
     QApplication::setApplicationVersion(QStringLiteral("0.0.9.4+git"));
+    QApplication::setDesktopFileName(QStringLiteral("com.github.quaternion.desktop"));
 
-    QMatrixClient::Settings::setLegacyNames(
-                QStringLiteral("Quaternion"), QStringLiteral("quaternion"));
+    using Quotient::Settings;
+    Settings::setLegacyNames(QStringLiteral("QMatrixClient"),
+                             QStringLiteral("quaternion"));
+
+    {
+        Settings s;
+        auto font = QApplication::font();
+        if (const auto fontFamily = s.value("UI/Fonts/family");
+            !fontFamily.toString().isEmpty())
+        {
+            font.setFamily(fontFamily.toString());
+        }
+
+        if (const auto fontPointSize = s.value("UI/Fonts/pointSize");
+            fontPointSize.toReal() > 0)
+        {
+            font.setPointSizeF(fontPointSize.toReal());
+        }
+
+        qDebug() << "Using application font:" << font.toString();
+        QApplication::setFont(font);
+    }
 
     // We should not need to do the following, as quitOnLastWindowClosed is
     // set to "true" by default; might be a bug, see
@@ -68,7 +89,7 @@ int main( int argc, char* argv[] )
     options.append(hideMainWindow);
     QCommandLineOption debug { QStringLiteral("debug"),
         QApplication::translate("main", "Display debug information") };
-    debug.setHidden(true); // FIXME, #415; also, setHidden is obsolete in Qt 5.11
+    debug.setFlags(QCommandLineOption::HiddenFromHelp); // FIXME, #415
     options.append(debug);
     // Add more command line options before this line
 
@@ -96,7 +117,7 @@ int main( int argc, char* argv[] )
             "translations", QStandardPaths::LocateDirectory));
     app.installTranslator(&appTranslator);
 
-    QMatrixClient::NetworkSettings().setupApplicationProxy();
+    Quotient::NetworkSettings().setupApplicationProxy();
 
     MainWindow window;
     if (parser.isSet(debug))

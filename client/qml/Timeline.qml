@@ -2,20 +2,16 @@ import QtQuick 2.2
 import QtQuick.Controls 1.4
 import QtQuick.Controls.Styles 1.0
 import QtQuick.Layouts 1.1
-import QMatrixClient 1.0
+import Quotient 1.0
 
 Rectangle {
     id: root
 
-    Settings {
+    TimelineSettings {
         id: settings
-        readonly property bool autoload_images: value("UI/autoload_images", true)
-        readonly property string render_type: value("UI/Fonts/render_type", "NativeRendering")
-        readonly property int animations_duration_ms_impl: value("UI/animations_duration_ms", 400)
-        readonly property int animations_duration_ms:
-            animations_duration_ms_impl == 0 ? 10 : animations_duration_ms_impl
-        readonly property int fast_animations_duration_ms: animations_duration_ms / 2
         readonly property bool use_shuttle_dial: value("UI/use_shuttle_dial", true)
+
+        Component.onCompleted: console.log("Using timeline font: " + font)
     }
     SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
     SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
@@ -85,6 +81,8 @@ Rectangle {
                 ToolTip { text: parent.text }
 
                 font.bold: true
+                font.family: settings.font.family
+                font.pointSize: settings.font.pointSize
                 renderType: settings.render_type
                 readOnly: true
                 selectByKeyboard: true;
@@ -100,6 +98,8 @@ Rectangle {
                               ? qsTr("This room has been upgraded.") :
                     room.isUnstable ? qsTr("Unstable room version!") : ""
                 font.italic: true
+                font.family: settings.font.family
+                font.pointSize: settings.font.pointSize
                 renderType: settings.render_type
                 ToolTip { text: parent.text }
             }
@@ -132,6 +132,7 @@ Rectangle {
                     color:
                         (hasTopic ? defaultPalette : disabledPalette).windowText
                     textFormat: TextEdit.RichText
+                    font: settings.font
                     renderType: settings.render_type
                     readOnly: true
                     selectByKeyboard: true;
@@ -185,7 +186,7 @@ Rectangle {
                 if (room.successorId !== "")
                     controller.joinRequested(room.successorId)
                 else
-                    controller.roomSettingsRequested(room.id)
+                    controller.roomSettingsRequested()
         }
     }
 
@@ -312,8 +313,8 @@ Rectangle {
             }
             Connections {
                 target: controller
-                onPageUpPressed: chatView.scrollUp(height)
-                onPageDownPressed: chatView.scrollDown(height)
+                onPageUpPressed: chatView.scrollUp(chatView.height - sectionBanner.childrenRect.height)
+                onPageDownPressed: chatView.scrollDown(chatView.height - sectionBanner.childrenRect.height)
             }
 
             Component.onCompleted: {
@@ -326,10 +327,14 @@ Rectangle {
 
             onMovementEnded: saveViewport()
 
-            populate: Transition { NumberAnimation {
-                property: "opacity"; from: 0; to: 1
-                duration: settings.fast_animations_duration_ms
-            }}
+            populate: Transition {
+                // TODO: It has huge negative impact on room changing speed
+                enabled: settings.animations_duration_ms_impl > 0
+                NumberAnimation {
+                    property: "opacity"; from: 0; to: 1
+                    duration: settings.fast_animations_duration_ms
+                }
+            }
 
             add: Transition { NumberAnimation {
                 property: "opacity"; from: 0; to: 1
@@ -359,21 +364,21 @@ Rectangle {
                 enabled: !chatView.moving
                 SmoothedAnimation {
                     id: scrollAnimation
-                    duration: settings.fast_animations_duration_ms / 4
-                    maximumEasingTime: settings.fast_animations_duration_ms / 2
+                    // It would mislead the benchmark below
+                    duration: settings.animations_duration_ms_impl > 0 ? settings.fast_animations_duration_ms / 4 : 0
+                    maximumEasingTime: settings.animations_duration_ms_impl > 0 ? settings.fast_animations_duration_ms / 2 : 0
 
-                    onRunningChanged: { if (!running) chatView.saveViewport() }
+                    onRunningChanged: {
+                        if (!running) {
+                            chatView.saveViewport()
+                            if (settings.animations_duration_ms_impl == 0)
+                                console.timeEnd("scroll")
+                        } else {
+                            if (settings.animations_duration_ms_impl == 0)
+                                console.time("scroll")
+                        }
+                    }
             }}
-            Keys.onUpPressed: {
-                contentY = Math.max(originY, contentY - height / 5)
-                event.accepted = true
-            }
-            Keys.onDownPressed: {
-                contentY = Math.min(originY + contentHeight - height,
-                                     contentY + height / 5)
-                event.accepted = true
-            }
-
             // itemAt is a function, not a property so is not bound to new items
             // showing up underneath; contentHeight is used for that instead.
             readonly property var underlayingItem: contentHeight >= height &&
@@ -393,6 +398,8 @@ Rectangle {
                 opacity: 0.9
                 Label {
                     font.bold: true
+                    font.family: settings.font.family
+                    font.pointSize: settings.font.pointSize
                     color: disabledPalette.text
                     renderType: settings.render_type
                     text: chatView.underlayingItem ?
@@ -490,6 +497,8 @@ Rectangle {
 
         Label {
             font.bold: true
+            font.family: settings.font.family
+            font.pointSize: settings.font.pointSize
             color: disabledPalette.text
             renderType: settings.render_type
             text: qsTr("%Ln events back from now (%L1 cached%2)",

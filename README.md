@@ -7,15 +7,19 @@
 [![release](https://img.shields.io/github/release/quotient-im/quaternion/all.svg)](https://github.com/quotient-im/Quaternion/releases/latest)
 [![](https://img.shields.io/matrix/quotient:matrix.org.svg)](https://matrix.to/#/#quotient:matrix.org)
 [![](https://img.shields.io/cii/percentage/1663.svg?label=CII%20best%20practices)](https://bestpractices.coreinfrastructure.org/projects/1663/badge)
+[![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/quotient-im/Quaternion.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/quotient-im/Quaternion/context:cpp)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 Quaternion is a cross-platform desktop IM client for the [Matrix](https://matrix.org) protocol. This file contains general information about application usage and settings. See [BUILDING.md](./BUILDING.md) for building instructions.
 
 ## Contacts
-Most of talking around Quaternion happens in our Matrix room:
-[#quaternion:matrix.org](https://matrix.to/#/#quaternion:matrix.org).
+Most of talking around Quaternion happens in the room of its parent project,
+Quotient: [#quotient:matrix.org](https://matrix.to/#/#quotient:matrix.org).
+`#quaternion:matrix.org` currently points to the old version of the Quotient
+room - if you ended up there, just go to the upgraded room instead
+(using Quaternion 0.0.9.4 or later, or Riot).
 
-You can also file issues at
+You can file issues at
 [the project's issue tracker](https://github.com/quotient-im/Quaternion/issues).
 If you find what looks like a security issue, please use instructions
 in SECURITY.md.
@@ -25,34 +29,44 @@ The latest release (with links to cross-platform source code archives, as well
 as archived binaries for Windows and macOS) can be found on the
 [GitHub Releases page](https://github.com/quotient-im/Quaternion/releases/latest).
 
-For those who want the very latest version (beware, you may find it not working
-at times), automatic builds from continuous integration pipelines can be found
-as follows (all these builds come with a fairly recent Qt bundled):
-- Windows: Surf to the
-  [AppVeyor CI page for Quaternion](https://ci.appveyor.com/project/quotient/quaternion),
-  then go to "Jobs", click on a job for your architecture and find the archive
-  in "Artifacts".
-- Linux and macOS: go to the
-  [Quaternion CI repo at bintray](https://bintray.com/qmatrixclient/ci/Quaternion),
-  pick a version under "Versions", then click on "Files" and find a .dmg for
-  macOS and an AppImage for Linux.
+For those who want to run the bleeding edge code, automatic builds from
+continuous integration pipelines can be found in the
+[Quaternion CI repo at bintray](https://bintray.com/quotient/ci/Quaternion/#files).
+All these builds come with fairly recent Qt bundled. Beware: these builds may
+tell you obscenities in your local language, steal your smartphone and
+share your private photos. Jokes aside: unless you are ready for very bad and
+sweeping surprises, do NOT run those. Before you do, make sure you have your
+backups in order.
 
 If you want to build Quaternion from sources, see [BUILDING.md](./BUILDING.md).
 Packagers are still scarce, so please step up and support your favourite system!
 
 ### Requirements
-Quaternion needs Qt version 5.7 or higher. On Linux, this is compatible with Debian Stretch and Ubuntu Xenial Xerus with Kubuntu Backports overlay. On Windows, all needed Qt libraries are included in the archive - you only need to separately install OpenSSL (see below).
+Quaternion 0.0.9.5 packages on Linux need Qt version 5.9 or higher;
+Debian Buster, Ubuntu Bionic Beaver, Fedora 28 and OpenSUSE 15 are new enough.
+For Windows, macOS, AppImage, Flatpak all needed Qt libraries are included
+in the packages. On Windows, you need to separately install OpenSSL
+(see the next section).
 
 #### Windows
-Since we can't rely on package management on Windows, Qt libraries and a C++ runtime are packaged/installed together with Quaternion. However, OpenSSL libraries (ssleay32.dll and libeay32.dll) are not installed automatically because of export restrictions. Unless you already have them around (e.g., they are a part of any Qt development installation, see `Tools/<MinGW toolchain>/opt/bin`), your best bet is to:
-- find the pre-compiled libraries yourself (searching Internet for "OpenSSL Windows" should work);
-- download them
-- either install them system-wide (which probably makes sense as soon as you keep them up-to-date; make sure the location is in your PATH) or put them next to quaternion.exe.
+Since we can't rely on package management on Windows, Qt libraries and
+a C++ runtime are packaged/installed together with Quaternion. However,
+OpenSSL libraries are not installed automatically because of export restrictions.
+Unless you already have them around (e.g., they are a part of any
+Qt development installation), you should install OpenSSL yourself.
+[OpenSSL's Wiki](https://wiki.openssl.org/index.php/Binaries) lists a few links
+to OpenSSL installers. They come in different build configurations; Quaternion
+archives need OpenSSL made with/for Visual Studio (not MinGW), and the version
+should be chosen as follows:
+* If the Quaternion archive is produced before 11-08-2019 (including older
+  CI builds and releases 0.0.9.4 and older), download OpenSSL 1.0.x; be aware
+  that this version is only supported until the end of 2019.
+* If the archive is made on 11-08-2019 or later, download OpenSSL 1.1.x.
 
-#### Linux
-Unofficial package for Arch Linux: https://aur.archlinux.org/packages/quaternion/
-
-Flatpaks for Quaternion are available from Flathub. To install, use `flatpak install https://flathub.org/repo/appstream/com.github.quaternion.flatpakref`. This is still experimental - please file issues at https://github.com/flathub/com.github.quaternion if you believe there's a problem with Flatpakaging.
+The deciding point is the used Qt version. To avoid any doubt, go to the folder
+you unpacked Quaternion to and check the version of Qt5Network.dll (it's shown
+in "Properties" dialog box that you can get from the context menu). If it's
+Qt 5.12.3 or older, you need OpenSSL 1.0; if it's newer, take OpenSSL 1.1.
 
 #### macOS
 You can download the latest release from [GitHub](https://github.com/quotient-im/Quaternion/releases/latest).
@@ -61,6 +75,20 @@ Alternatively, you can install Quaternion from [Homebrew Cask](https://brew.sh)
 ```
 brew cask install quaternion
 ```
+
+#### Linux and others
+Quaternion is packaged for many distributions, including various versions of
+Debian, Ubuntu and OpenSUSE, as well as Arch Linux, NixOS and FreeBSD.
+A pretty comprehensive list can be found at
+[Repology](https://repology.org/project/quaternion/versions).
+
+Flatpaks for Quaternion are available from Flathub. To install, use:
+```
+flatpak install https://flathub.org/repo/appstream/com.github.quaternion.flatpakref
+```
+While generally working well, Flatpak support is still a bit experimental.
+Please file issues at https://github.com/flathub/com.github.quaternion
+if you believe there's a problem specific to Flatpak.
 
 ## Running
 Just start the executable in your most preferred way - either from the build
@@ -85,17 +113,20 @@ messages; number and date formats will be following the setting though. Version
 0.0.9.4 gains German, Polish, and Russian translations.
 
 Quaternion stores its configuration in a way standard for Qt applications. It will read and write the configuration in the user-specific location (creating it if non-existent) and will only read the system-wide location with reasonable defaults if the configuration is nowhere to be found.
+
 - Linux:
-  - system-wide: `$XDG_CONFIG_DIR/QMatrixClient/quaternion` or `/etc/xdg/QMatrixClient/quaternion`
-  - user-specific: `$HOME/.config/QMatrixClient/quaternion.conf`
+  - system-wide: `$XDG_CONFIG_DIR/Quotient/quaternion` or
+    `/etc/xdg/Quotient/quaternion`
+  - user-specific: `$HOME/.config/Quotient/quaternion.conf`
 - macOS:
-  - system-wide: `/Library/Preferences/com.QMatrixClient.quaternion.plist`
-  - user-specific: `$HOME/Library/Preferences/com.QMatrixClient.quaternion.plist`
+  - system-wide: `/Library/Preferences/im.quotient.quaternion.plist`
+  - user-specific: `$HOME/Library/Preferences/im.quotient.quaternion.plist`
 - Windows: registry keys under
-  - system-wide: `HKEY_LOCAL_MACHINE\Software\QMatrixClient\quaternion`
-  - user-specific: `HKEY_CURRENT_USER\Software\QMatrixClient\quaternion`
+  - system-wide: `HKEY_LOCAL_MACHINE\Software\Quotient\quaternion`
+  - user-specific: `HKEY_CURRENT_USER\Software\Quotient\quaternion`
 
 Some settings exposed in UI (Settings and View menus):
+
 - `UI/notifications` - a general setting whether Quaternion should distract
   the user with notifications and how.
   - `none` suppresses notifications entirely (rooms and messages are still
@@ -128,12 +159,13 @@ Some settings exposed in UI (Settings and View menus):
   it so that you could edit it further. This is a list of tags/namespaces;
   `.*` at the end of the string means a namespace, other strings are treated
   as fully specified tags. E.g., the default order looks like this:
-  `m.favourite,u.*,org.qmatrixclient.direct,org.qmatrixclient.none,m.lowpriority`.
+  `m.favourite,u.*,im.quotient.direct,im.quotient.none,m.lowpriority`.
   If a tag is not mentioned and does not fit any namespace, it will be put at
   the end in lexicographic order. Tags within the same namespace are also
   ordered lexicographically.
 
 Settings not exposed in UI:
+
 - `UI/condense_chat` - set this to 1 to make the timeline rendered tighter,
   eliminating vertical gaps between messages as much as possible.
 - `UI/show_author_avatars` - set this to 1 (or true) to show author avatars in
@@ -157,35 +189,49 @@ Settings not exposed in UI:
 - `UI/use_human_friendly_dates` - set this to false (or 0) if you do NOT want
   usage of human-friendly dates ("Today", "Monday" instead of the standard
   day-month-year triad) in the UI; the default is true.
-- `UI/Fonts/render_type` - select how to render fonts in Quaternion timeline;
-  possible values are "NativeRendering" (default) and "QtRendering".
 - `UI/quote_style` - the quote template. The `\\1` means the quoted string.
   By default it's `> \\1\n`.
 - `UI/quote_regex` - set to `^([\\s\\S]*)` to add `UI/quote_style` only at
   the beginning and end of the quote. By default it's `(.+)(?:\n|$)`.
+- `UI/Fonts/render_type` - select how to render fonts in Quaternion timeline;
+  possible values are "NativeRendering" (default) and "QtRendering".
+- `UI/Fonts/family` - override the font family for the whole application.
+  If not specified, the default font for your environment is used.
+- `UI/Fonts/pointSize` - override the font size (in points) for the whole
+  application. If not specified, the default size for your environment is used.
+- `UI/Fonts/timeline_family` - font family (for example `Monospace`) to
+  display messages in the timeline. If not specified, the application-wide font
+  family is used.
+- `UI/Fonts/timeline_pointSize` - font size (in points) to display messages
+  in the timeline. If not specified, the application-wide point size is used.
+- `UI/maybe_read_timer` - threshold time interval in milliseconds for a displayed
+  message to be considered as read.
+- `UI/use_keychain` - set this to false (or 0) if you explicitly do NOT want to
+  use keychain but prefer to store access token in dedicated file instead (see
+  next paragraph); the default is true.
 
 Since version 0.0.9.4, AppImage binaries for Linux and .dmg files for macOS
 are compiled with Qt Keychain support. It means that Quaternion will try
 to store your access token(s) in the secure storage configured for your
-platform. If the storage or Qt Keychain are not available (Qt Keychain is off
-by default on Windows - you have to rebuild Quaternion to enable it),
-Quaternion will try to store your access token(s) in a dedicated file with
-restricted access rights so that only the owner can access them. Every
-access token is stored in a separate file matching your user id in
-the following directory:
-- Linux: `$HOME/.local/share/QMatrixClient/quaternion`
-- macOS: `$HOME/Library/Application Support/QMatrixClient/quaternion`
-- Windows: `%LOCALAPPDATA%/QMatrixClient/quaternion`
+platform. If the storage or Qt Keychain are not available, Quaternion will try
+to store your access token(s) in a dedicated file with restricted access rights
+so that only the owner can access them (this doesn't really work on Windows -
+see below) and with the name matching your user id in the following directory:
 
-Unfortunately, Quaternion cannot enforce proper access rights on Windows yet;
+- Linux: `$HOME/.local/share/Quotient/quaternion`
+- macOS: `$HOME/Library/Application Support/Quotient/quaternion`
+- Windows: `%LOCALAPPDATA%/Quotient/quaternion`
+
+Unfortunately, Quaternion cannot enforce proper access rights on Windows;
 you'll see a warning about it and will be able to either refuse saving your
 access token in that case or agree and setup file permissions outside Quaternion.
-The work is ongoing to enable Qt Keychain on Windows by default.
 
-Quaternion caches the rooms state and user/room avatars on the file system in a conventional location for your platform, as follows:
-- Linux: `$HOME/.cache/QMatrixClient/quaternion`
-- macOS: `$HOME/Library/Cache/QMatrixClient/quaternion`
-- Windows: `%LOCALAPPDATA%/QMatrixClient/quaternion/cache`
+Quaternion caches the rooms state and user/room avatars on the file system
+in a conventional location for your platform, as follows:
+
+- Linux: `$HOME/.cache/Quotient/quaternion`
+- macOS: `$HOME/Library/Cache/Quotient/quaternion`
+- Windows: `%LOCALAPPDATA%/Quotient/quaternion/cache`
 
 Cache files are safe to delete at any time but Quaternion only looks for them
 when starting up and overwrites them regularly while running; so it only
@@ -209,21 +255,28 @@ If Quaternion starts displaying the message that it couldn't connect to the serv
 If Quaternion runs but you can't see any messages in the chat (though you can
 type them in) - you have either of two problems with Qt Quick (or if you are
 extremely unlucky, both):
+
 - You might not have Qt Quick libraries and/or plugins installed. On Linux,
-  double check "Pre-requisites" above and also see the stdout/stderr logs,
-  they are quite clear in such cases. On Windows and Mac, just open an issue
-  (see "Contacts" in the beginning of this README), because most likely
-  not all necessary Qt parts were installed along with Quaternion (which is a bug).
+  this may be a case when you are not using the official packages for your
+  distro. Check the stdout/stderr logs, they are quite clear in such cases.
+  On Windows and Mac, just open an issue (see "Contacts" in the beginning of
+  this README), because most likely not all necessary Qt parts were installed
+  along with Quaternion (which is a bug).
 - If the logs confirm that QML is up and running but there's still nothing
   for the timeline, you might have hit an issue with QML view stacking order,
-  such as #355/#356. If you use Qt 5.12, please file a bug (it should not happen
-  with Qt 5.12 at all). With older Qt, you will have to build Quaternion from
-  sources, passing `-DUSE_QQUICKWIDGET=ON` to CMake. Note that it's prone to
-  crashing on some platforms so it's best to still find a way to use
-  Quaternion with Qt 5.12.
+  such as #355/#356. If you use Qt 5.12 or newer (as is the case on Windows
+  and macOS recently), please file a bug: it should not happen with
+  recent Qt at all. If you are on Linux and have to use older Qt, you have
+  to build Quaternion from sources, passing `-DUSE_QQUICKWIDGET=ON` to CMake.
+  Note that it's prone to crashing on some platforms so it's best to still
+  find a way to run Quaternion with Qt 5.12 (using AppImage, e.g.).
 
 #### SSL problems
-Especially on Windows, if Quaternion starts up but upon an attempt to connect returns a message like "Failed to make SSL context" - you haven't made sure that SSL libraries are reachable by the Quaternion binary. Re-read the chapter "Requirements", section "Windows" in the beginning of this file and do as it advises.
+Especially on Windows, if Quaternion starts up but upon an attempt to connect
+returns a message like "Failed to make SSL context" - correct SSL libraries
+are not reachable by the Quaternion binary. Re-read the chapter "Requirements",
+section "Windows" in the beginning of this file and do as it advises. Make sure
+you use correct version OpenSSL.
 
 #### DLL hell
 If you have troubles with dynamic libraries on Windows, [the Dependencies Walker tool aka depends.exe](http://www.dependencywalker.com/) helps a lot in navigating the DLL hell - especially when you have a mixed 32/64-bit environment or have different versions of the same library scattered around. OpenSSL, in particular, is notoriously often dragged along by all kinds of software; and you may have other copies of Qt around which you didn't even know about - e.g., with CMake GUI.
