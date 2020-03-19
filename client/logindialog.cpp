@@ -196,11 +196,20 @@ void LoginDialog::loginWithPassword()
 void LoginDialog::loginWithSso()
 {
     auto* ssoSession = m_connection->prepareForSso(initialDeviceName->text());
-//    QMessageBox::information(
-//        this, tr("Single sign-on"),
-//        tr("Quaternion will now open a single sign-on session in another "
-//           "application (usually a web browser). After authentication, you may "
-//           "be asked to confirm that %1 can access your data")
-//            .arg(ssoSession->callbackUrl().toString()));
-    QDesktopServices::openUrl(ssoSession->ssoUrl());
+    if (!QDesktopServices::openUrl(ssoSession->ssoUrl())) {
+        auto* instructionsBox =
+            new Dialog(tr("Single sign-on"), QDialogButtonBox::NoButton, this);
+        instructionsBox->addWidget(new QLabel(
+            tr("Quaternion couldn't automatically open the single sign-on URL. "
+               "Please copy and paste it to the right application (usually "
+               "a web browser):")));
+        auto* urlBox = new QLineEdit(ssoSession->ssoUrl().toString());
+        urlBox->setReadOnly(true);
+        instructionsBox->addWidget(urlBox);
+        instructionsBox->addWidget(
+            new QLabel(tr("After authentication, the browser will follow "
+                          "the temporary local address setup by Quaternion "
+                          "to conclude the login sequence.")));
+        instructionsBox->open();
+    }
 }
