@@ -786,6 +786,14 @@ void MainWindow::dropConnection(Connection* c)
     c->deleteLater();
 }
 
+bool MainWindow::isInConnections(const QString& userId)
+{
+    return std::any_of(connections.cbegin(), connections.cend(),
+                       [&userId](Connection* c) {
+                           return c->userId() == userId;
+                       });
+}
+
 void MainWindow::showFirstSyncIndicator()
 {
     busyLabel->show();
@@ -799,80 +807,63 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
         Quotient::SettingsGroup("Accounts").childGroups();
     QStringList loggedOffAccounts;
     for (const auto& a: allKnownAccounts)
-    {
-        AccountSettings as { a };
         // Skip accounts mentioned in active connections
-        if ([&] {
-                    for (auto c: connections)
-                        if (as.userId() == c->userId())
-                            return false;
-                    return true;
-                }())
+        if (!isInConnections(AccountSettings(a).userId()))
             loggedOffAccounts.push_back(a);
-    }
 
-    LoginDialog dialog(this, loggedOffAccounts);
-    dialog.setStatusMessage(statusMessage);
-    if (dialog.exec())
-        processLogin(dialog);
+    doOpenLoginDialog(new LoginDialog(statusMessage, this, loggedOffAccounts));
 }
 
 void MainWindow::showLoginWindow(const QString& statusMessage,
-                                 AccountSettings& reloginAccount)
+                                 const QString& userId)
 {
-    LoginDialog dialog { this, reloginAccount };
-
-    dialog.setStatusMessage(statusMessage);
-    if (dialog.exec())
-        processLogin(dialog);
-    else
-    {
-        reloginAccount.clearAccessToken();
-        QFile(accessTokenFileName(reloginAccount)).remove();
+    auto* reloginAccount = new AccountSettings(userId);
+    auto* dialog = new LoginDialog(statusMessage, this, *reloginAccount);
+    reloginAccount->setParent(dialog); // => Delete with the dialog box
+    doOpenLoginDialog(dialog);
+    connect(dialog, &QDialog::rejected, this, [reloginAccount] {
+        reloginAccount->clearAccessToken();
+        QFile(accessTokenFileName(*reloginAccount)).remove();
         // XXX: Maybe even remove the account altogether as below?
-//        Quotient::SettingsGroup("Accounts").remove(reloginAccount.userId());
-    }
+        // Quotient::SettingsGroup("Accounts").remove(reloginAccount->userId());
+    });
 }
 
-void MainWindow::processLogin(LoginDialog& dialog)
+void MainWindow::doOpenLoginDialog(LoginDialog* dialog)
 {
-    auto connection = dialog.releaseConnection();
-    AccountSettings account(connection->userId());
-    account.setKeepLoggedIn(dialog.keepLoggedIn());
-    account.clearAccessToken(); // Drop the legacy - just in case
-    account.setHomeserver(connection->homeserver());
-    account.setDeviceId(connection->deviceId());
-    account.setDeviceName(dialog.deviceName());
-    if (dialog.keepLoggedIn())
-    {
-        if (!saveAccessToken(account, connection->accessToken()))
-            qWarning() << "Couldn't save access token";
-    } else
-        logoutOnExit.push_back(connection);
-    account.sync();
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->open();
+    connect(dialog, &QDialog::accepted, this, [this, dialog] {
+        auto connection = dialog->releaseConnection();
+        AccountSettings account(connection->userId());
+        account.setKeepLoggedIn(dialog->keepLoggedIn());
+        account.clearAccessToken(); // Drop the legacy - just in case
+        account.setHomeserver(connection->homeserver());
+        account.setDeviceId(connection->deviceId());
+        account.setDeviceName(dialog->deviceName());
+        if (dialog->keepLoggedIn()) {
+            if (!saveAccessToken(account, connection->accessToken()))
+                qWarning() << "Couldn't save access token";
+        } else
+            logoutOnExit.push_back(connection);
+        account.sync();
 
-    showFirstSyncIndicator();
+        showFirstSyncIndicator();
 
-    auto deviceName = dialog.deviceName();
-    const auto it = std::find_if(connections.cbegin(), connections.cend(),
-        [connection] (Connection* c) {
-            return c->userId() == connection->userId();
-        });
+        auto deviceName = dialog->deviceName();
+        if (isInConnections(connection->userId())) {
+            if (QMessageBox::warning(
+                    this, tr("Logging in into a logged in account"),
+                    tr("You're trying to log in into an account that's "
+                       "already logged in. Do you want to continue?"),
+                    QMessageBox::Yes, QMessageBox::No)
+                != QMessageBox::Yes)
+                return;
 
-    if (it != connections.cend())
-    {
-        int ret = QMessageBox::warning(this,
-            tr("Logging in into a logged in account"),
-            tr("You're trying to log in into an account that's "
-               "already logged in. Do you want to continue?"),
-            QMessageBox::Yes, QMessageBox::No);
-
-        if (ret == QMessageBox::Yes)
             deviceName += "-" + connection->deviceId();
-        else
-            return;
-    }
-    addConnection(connection, deviceName);
+        }
+        addConnection(connection, deviceName);
+    });
 }
 
 void MainWindow::showAboutWindow()
@@ -1001,12 +992,11 @@ void MainWindow::invokeLogin()
 void MainWindow::loginError(Connection* c, const QString& message)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Login error on a null connection");
-    AccountSettings as { c->userId() };
     c->stopSync();
     // Security over convenience: before allowing back in, remove
     // the connection from the UI
     emit c->loggedOut(); // Short circuit login error to logged-out event
-    showLoginWindow(message, as);
+    showLoginWindow(message, c->userId());
 }
 
 void MainWindow::logout(Connection* c)

@@ -33,11 +33,12 @@ class LoginDialog : public Dialog
 {
         Q_OBJECT
     public:
-        explicit LoginDialog(QWidget* parent = nullptr,
+        explicit LoginDialog(const QString& statusMessage,
+                             QWidget* parent = nullptr,
                              const QStringList& knownAccounts = {});
-        explicit LoginDialog(QWidget* parent,
+        explicit LoginDialog(const QString& statusMessage, QWidget* parent,
                              const Quotient::AccountSettings& reloginData);
-        void setup();
+        void setup(const QString &statusMessage);
         ~LoginDialog() override;
 
         Quotient::Connection* releaseConnection();
