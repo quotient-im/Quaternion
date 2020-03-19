@@ -33,7 +33,8 @@
 
 using QMatrixClient::Connection;
 
-LoginDialog::LoginDialog(QWidget* parent, const QStringList& knownAccounts)
+LoginDialog::LoginDialog(const QString& statusMessage, QWidget* parent,
+                         const QStringList& knownAccounts)
     : Dialog(tr("Login"), parent, Dialog::StatusLine, tr("Login"),
              Dialog::NoExtraButtons)
     , userEdit(new QLineEdit(this))
@@ -43,7 +44,7 @@ LoginDialog::LoginDialog(QWidget* parent, const QStringList& knownAccounts)
     , saveTokenCheck(new QCheckBox(tr("Stay logged in"), this))
     , m_connection(new Connection)
 {
-    setup();
+    setup(statusMessage);
     setPendingApplyMessage(tr("Connecting and logging in, please wait"));
 
     connect(userEdit, &QLineEdit::editingFinished, m_connection.data(),
@@ -99,7 +100,7 @@ LoginDialog::LoginDialog(QWidget* parent, const QStringList& knownAccounts)
     }
 }
 
-LoginDialog::LoginDialog(QWidget* parent,
+LoginDialog::LoginDialog(const QString &statusMessage, QWidget* parent,
                          const QMatrixClient::AccountSettings& reloginData)
     : Dialog(tr("Re-login"), parent, Dialog::StatusLine, tr("Re-login"),
              Dialog::NoExtraButtons)
@@ -110,14 +111,15 @@ LoginDialog::LoginDialog(QWidget* parent,
     , saveTokenCheck(new QCheckBox(tr("Stay logged in"), this))
     , m_connection(new Connection)
 {
-    setup();
+    setup(statusMessage);
     userEdit->setReadOnly(true);
     userEdit->setFrame(false);
     setPendingApplyMessage(tr("Restoring access, please wait"));
 }
 
-void LoginDialog::setup()
+void LoginDialog::setup(const QString& statusMessage)
 {
+    setStatusMessage(statusMessage);
     passwordEdit->setEchoMode( QLineEdit::Password );
 
     connect(m_connection.data(), &Connection::homeserverChanged, serverEdit,
