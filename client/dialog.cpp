@@ -25,7 +25,7 @@ Dialog::Dialog(const QString& title, QWidget *parent,
                UseStatusLine useStatusLine, const QString& applyTitle,
                QDialogButtonBox::StandardButtons addButtons)
     : Dialog(title
-        , QDialogButtonBox::Ok | QDialogButtonBox::Cancel | addButtons
+        , QDialogButtonBox::Ok | /*QDialogButtonBox::Cancel |*/ addButtons
         , parent, useStatusLine)
 {
     if (!applyTitle.isEmpty())

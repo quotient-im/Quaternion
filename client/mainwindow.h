@@ -68,6 +68,7 @@ class MainWindow: public QMainWindow
 
         void addConnection(Connection* c, const QString& deviceName);
         void dropConnection(Connection* c);
+        bool isInConnections(const QString& userId);
 
         ChatRoomWidget* getChatRoomWidget() const;
 
@@ -104,7 +105,7 @@ class MainWindow: public QMainWindow
 
         void showLoginWindow(const QString& statusMessage = {});
         void showLoginWindow(const QString& statusMessage,
-            Quotient::AccountSettings& reloginAccount);
+                             const QString& userId);
         void showAboutWindow();
         void logout(Connection* c);
 
@@ -146,7 +147,7 @@ class MainWindow: public QMainWindow
         void showFirstSyncIndicator();
         void loadSettings();
         void saveSettings() const;
-        void processLogin(LoginDialog& dialog);
+        void doOpenLoginDialog(LoginDialog* dialog);
         QByteArray loadAccessToken(const Quotient::AccountSettings& account);
         QByteArray loadAccessTokenFromFile(const Quotient::AccountSettings& account);
         QByteArray loadAccessTokenFromKeyChain(const Quotient::AccountSettings &account);
