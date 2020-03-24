@@ -33,6 +33,7 @@
 #include <events/roomavatarevent.h>
 #include <events/roomcreateevent.h>
 #include <events/roomtombstoneevent.h>
+#include <events/roomcanonicalaliasevent.h>
 
 QHash<int, QByteArray> MessageEventModel::roleNames() const
 {
