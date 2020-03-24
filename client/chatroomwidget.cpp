@@ -258,11 +258,10 @@ void ChatRoomWidget::typingChanged()
 
 void ChatRoomWidget::encryptionChanged()
 {
-    m_chatEdit->setReadOnly(m_currentRoom && m_currentRoom->usesEncryption());
     m_chatEdit->setPlaceholderText(
         m_currentRoom
             ? m_currentRoom->usesEncryption()
-                ? tr("Sending encrypted messages is not supported yet")
+                ? tr("Send a message (no end-to-end encryption support yet)...")
                 : tr("Send a message (over %1) or enter a command...",
                      "%1 is the protocol used by the server (usually HTTPS)")
                   .arg(m_currentRoom->connection()->homeserver()
