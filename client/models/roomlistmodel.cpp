@@ -54,7 +54,7 @@ void RoomListModel::addConnection(QMatrixClient::Connection* connection)
              this, &RoomListModel::addRoom);
     m_roomOrder->connectSignals(connection);
 
-    for (auto* r: connection->roomMap())
+    for (auto* r: connection->allRooms())
         addRoom(r);
 }
 
@@ -70,7 +70,7 @@ void RoomListModel::deleteConnection(QMatrixClient::Connection* connection)
         return;
     }
 
-    for (auto* r: connection->roomMap())
+    for (auto* r: connection->allRooms())
         deleteRoom(r);
     m_connections.erase(connIt);
     connection->disconnect(this);
@@ -292,7 +292,7 @@ void RoomListModel::doSetOrder(std::unique_ptr<AbstractRoomOrdering>&& newOrder)
     for (const auto& c: m_connections)
     {
         m_roomOrder->connectSignals(c);
-        for (auto* r: c->roomMap())
+        for (auto* r: c->allRooms())
         {
             addRoomToGroups(r);
             m_roomOrder->connectSignals(r);
@@ -330,7 +330,7 @@ int RoomListModel::totalRooms() const
 {
     int result = 0;
     for (const auto& c: m_connections)
-        result += c->roomMap().size();
+        result += c->allRooms().size();
     return result;
 }
 

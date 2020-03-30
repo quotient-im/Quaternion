@@ -33,11 +33,12 @@ class LoginDialog : public Dialog
 {
         Q_OBJECT
     public:
-        explicit LoginDialog(QWidget* parent = nullptr,
+        explicit LoginDialog(const QString& statusMessage,
+                             QWidget* parent = nullptr,
                              const QStringList& knownAccounts = {});
-        explicit LoginDialog(QWidget* parent,
+        explicit LoginDialog(const QString& statusMessage, QWidget* parent,
                              const QMatrixClient::AccountSettings& reloginData);
-        void setup();
+        void setup(const QString &statusMessage);
         ~LoginDialog() override;
 
         QMatrixClient::Connection* releaseConnection();
@@ -46,6 +47,9 @@ class LoginDialog : public Dialog
 
     private slots:
         void apply() override;
+        void loginWithBestFlow();
+        void loginWithPassword();
+        void loginWithSso();
         
     private:
         QLineEdit* userEdit;
