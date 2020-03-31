@@ -1,7 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
 set(IDENTIFIER "com.github.quaternion")
-set(COPYRIGHT "Copyright © 2018-2019 QMatrixClient Project")
+set(COPYRIGHT "Copyright © 2018-2020 QMatrixClient Project")
 
 project(quaternion VERSION 0.0.9.4 LANGUAGES CXX)
 
