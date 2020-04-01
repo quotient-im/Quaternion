@@ -828,8 +828,11 @@ void MainWindow::showLoginWindow(const QString& statusMessage,
 
 void MainWindow::doOpenLoginDialog(LoginDialog* dialog)
 {
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->open();
+    // See #666: WA_DeleteOnClose kills the dialog object too soon,
+    // invalidating the connection object before it's released to the local
+    // variable below; so the dialog object is explicitly deleted instead of
+    // using WA_DeleteOnClose automagic.
     connect(dialog, &QDialog::accepted, this, [this, dialog] {
         auto connection = dialog->releaseConnection();
         AccountSettings account(connection->userId());
@@ -845,9 +848,11 @@ void MainWindow::doOpenLoginDialog(LoginDialog* dialog)
             logoutOnExit.push_back(connection);
         account.sync();
 
+        auto deviceName = dialog->deviceName();
+        dialog->deleteLater();
+
         showFirstSyncIndicator();
 
-        auto deviceName = dialog->deviceName();
         if (isInConnections(connection->userId())) {
             if (QMessageBox::warning(
                     this, tr("Logging in into a logged in account"),
@@ -861,6 +866,7 @@ void MainWindow::doOpenLoginDialog(LoginDialog* dialog)
         }
         addConnection(connection, deviceName);
     });
+    connect(dialog, &QDialog::rejected, dialog, &QObject::deleteLater);
 }
 
 void MainWindow::showAboutWindow()
