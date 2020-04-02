@@ -103,7 +103,7 @@ MainWindow::MainWindow()
     systemTrayIcon = new SystemTrayIcon(this);
     systemTrayIcon->show();
 
-    busyIndicator = new QMovie(QStringLiteral(":/busy.gif"));
+    busyIndicator = new QMovie(QStringLiteral(":/busy.gif"), {}, this);
     busyLabel = new QLabel(this);
     busyLabel->setMovie(busyIndicator);
     statusBar()->setSizeGripEnabled(false);
