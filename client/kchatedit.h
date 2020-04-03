@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2017 Elvis Angelaccio <elvis.angelaccio@kde.org>
+ * Copyright (C) 2020 The Quotient project
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,35 +16,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef KCHATEDIT_H
-#define KCHATEDIT_H
+#pragma once
 
-#include <QTextEdit>
+#include <QtWidgets/QTextEdit>
 
 /**
  * @class KChatEdit kchatedit.h KChatEdit
  *
  * @brief An input widget with history for chat applications.
  *
- * This widget can be used to get input for chat windows, which tipically corresponds to chat messages or
- * protocol-specific commands (for example the "/whois" IRC command).
+ * This widget can be used to get input for chat windows, which typically
+ * corresponds to chat messages or protocol-specific commands (for example the
+ * "/whois" IRC command).
  *
- * By default the widget takes as less space as possible, which is the same space as used by a QLineEdit.
- * It is possible to expand the widget and enter "multi-line" messages, by pressing Shift + Return.
+ * By default the widget takes as little space as possible, which is the same
+ * space as used by a QLineEdit. It is possible to expand the widget and enter
+ * "multi-line" messages, by pressing Shift + Return.
  *
- * Chat applications usually maintain a history of what the user typed, which can be browsed with the
- * Up and Down keys (exactly like in command-line shells). This feature is fully supported by this widget.
- * The widget emits the inputRequested() signal upon pressing the Return key.
- * You can then call saveInput() to make the input text disappear, as typical in chat applications.
- * The input goes in the history and can be retrieved with the savedInput() method.
+ * Chat applications usually maintain a history of what the user typed, which
+ * can be browsed with the Up and Down keys (exactly like in command-line
+ * shells). This feature is fully supported by this widget. The widget emits the
+ * inputRequested() signal upon pressing the Return key. You can then call
+ * saveInput() to make the input text disappear, as typical in chat
+ * applications. The input goes in the history and can be retrieved with the
+ * savedInput() method.
  *
  * @author Elvis Angelaccio <elvis.angelaccio@kde.org>
+ * @author Kitsune Ral <kitsune-ral@users.sf.net>
  */
 class KChatEdit : public QTextEdit
 {
     Q_OBJECT
     Q_PROPERTY(QTextDocument* savedInput READ savedInput NOTIFY savedInputChanged)
-    Q_PROPERTY(QVector<QTextDocument*> history READ history WRITE setHistory)
     Q_PROPERTY(int maxHistorySize READ maxHistorySize WRITE setMaxHistorySize)
 
 public:
@@ -74,13 +78,6 @@ public:
     QVector<QTextDocument*> history() const;
 
     /**
-     * Set the history of this widget to @p history.
-     * This can be useful when sharing a single instance of KChatEdit with many "channels" or "rooms"
-     * that maintain their own private history.
-     */
-    void setHistory(const QVector<QTextDocument*> &history);
-
-    /**
      * @return The maximum number of input items that the history can store.
      * @see history()
      */
@@ -94,6 +91,16 @@ public:
 
     QSize minimumSizeHint() const Q_DECL_OVERRIDE;
     QSize sizeHint() const Q_DECL_OVERRIDE;
+
+public Q_SLOTS:
+    /**
+     * @brief Switch the context (e.g., a chat room) of the widget
+     *
+     * This clears the current entry and the history of the chat edit
+     * and replaces them with the entry and the history for the object
+     * passed as a parameter, if there are any.
+     */
+    virtual void switchContext(QObject* contextKey);
 
 Q_SIGNALS:
     /**
@@ -114,8 +121,11 @@ Q_SIGNALS:
      */
     void copyRequested();
 
+    /** A new context has been selected */
+    void contextSwitched();
+
 protected:
-    void keyPressEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
+    void keyPressEvent(QKeyEvent *event) override;
 
 private:
     class KChatEditPrivate;
@@ -123,5 +133,3 @@ private:
 
     Q_DISABLE_COPY(KChatEdit)
 };
-
-#endif

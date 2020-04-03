@@ -36,12 +36,14 @@ class ChatEdit : public KChatEdit
 
         void insertMention(QString author);
 
+    public slots:
+        void switchContext(QObject* contextKey) override;
+
     signals:
         void proposedCompletion(const QStringList& allCompletions, int curIndex);
         void cancelledCompletion();
 
     protected:
-        void keyPressEvent(QKeyEvent* event) override;
         QString sanitizeMention(QString mentionText);
 
     private:
@@ -55,6 +57,7 @@ class ChatEdit : public KChatEdit
 
         void startNewCompletion();
         void appendTextAtCursor(const QString& text, bool select = false);
+        void keyPressEvent(QKeyEvent* event) override;
 };
 
 

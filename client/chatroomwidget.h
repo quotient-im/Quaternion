@@ -111,7 +111,7 @@ class ChatRoomWidget: public QWidget
         timeline_index_t indexToMaybeRead;
         QBasicTimer maybeReadTimer;
         bool readMarkerOnScreen;
-        QMap<QuaternionRoom*, QVector<QTextDocument*>> roomHistories;
+        QHash<QuaternionRoom*, QVector<QTextDocument*>> roomHistories;
         QString attachedFileName;
         QString selectedText;
 

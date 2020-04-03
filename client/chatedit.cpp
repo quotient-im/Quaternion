@@ -39,6 +39,12 @@ void ChatEdit::keyPressEvent(QKeyEvent* event)
     KChatEdit::keyPressEvent(event);
 }
 
+void ChatEdit::switchContext(QObject* contextKey)
+{
+    cancelCompletion();
+    KChatEdit::switchContext(contextKey);
+}
+
 QString ChatEdit::sanitizeMention(QString mentionText)
 {
     if (mentionText.startsWith('/'))
