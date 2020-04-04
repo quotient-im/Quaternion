@@ -28,9 +28,6 @@ class QuaternionRoom: public Quotient::Room
         QuaternionRoom(Quotient::Connection* connection,
                        QString roomId, Quotient::JoinState joinState);
 
-        const QString& cachedInput() const;
-        void setCachedInput(const QString& input);
-
         const QString& cachedUserFilter() const;
         void setCachedUserFilter(const QString& input);
 
@@ -55,7 +52,6 @@ class QuaternionRoom: public Quotient::Room
 
     private:
         QSet<const Quotient::RoomEvent*> highlights;
-        QString m_cachedInput;
         QString m_cachedUserFilter;
 
         void onAddNewTimelineEvents(timeline_iter_t from) override;

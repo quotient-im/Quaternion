@@ -33,16 +33,6 @@ QuaternionRoom::QuaternionRoom(Connection* connection, QString roomId,
     connect( this, &QuaternionRoom::highlightCountChanged, this, &QuaternionRoom::countChanged );
 }
 
-const QString& QuaternionRoom::cachedInput() const
-{
-    return m_cachedInput;
-}
-
-void QuaternionRoom::setCachedInput(const QString& input)
-{
-    m_cachedInput = input;
-}
-
 const QString& QuaternionRoom::cachedUserFilter() const
 {
     return m_cachedUserFilter;
