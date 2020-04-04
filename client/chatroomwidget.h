@@ -52,7 +52,7 @@ class ChatRoomWidget: public QWidget
         bool pendingMarkRead() const;
 
         QStringList findCompletionMatches(const QString& pattern) const;
-        Qt::KeyboardModifiers getModifierKeys() const;
+        Q_INVOKABLE Qt::KeyboardModifiers getModifierKeys() const;
 
     signals:
         void joinRequested(const QString& roomAlias);
