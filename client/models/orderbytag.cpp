@@ -167,7 +167,11 @@ AbstractRoomOrdering::groups_t OrderByTag::roomGroups(const Room* room) const
     if (room->joinState() == Quotient::JoinState::Leave)
         return groups_t {{ Left }};
 
-    auto tags = room->tags().keys();
+    QStringList tags;
+    for(const auto& t: room->tags().keys())
+        if (findIndexWithWildcards(tagsOrder, '-' + t) == tagsOrder.size())
+            tags.push_back(t); // Only copy tags that are not disabled
+
     if (room->isDirectChat())
         tags.push_back(DirectChat);
     if (tags.empty())
@@ -182,7 +186,7 @@ AbstractRoomOrdering::groups_t OrderByTag::roomGroups(const Room* room) const
         if (successorTags.empty())
             tags.removeOne(Untagged);
         else
-            for (const auto& t : successorTags)
+            for (const auto& t: successorTags)
                 if (tags.contains(t))
                     tags.removeOne(t);
         if (tags.empty())
