@@ -172,11 +172,14 @@ void KChatEdit::setMaxHistorySize(int maxHistorySize)
 
 void KChatEdit::switchContext(QObject* contextKey)
 {
+    if (!contextKey)
+        contextKey = this;
     if (d->contextKey == contextKey)
         return;
 
     Q_ASSERT(d->contexts.contains(d->contextKey));
-    d->contexts.find(d->contextKey)->cachedInput = document();
+    d->contexts.find(d->contextKey)->cachedInput =
+        document()->isEmpty() ? nullptr : document();
     d->setContext(contextKey);
     auto& cachedInput = d->contexts.find(d->contextKey)->cachedInput;
     setDocument(cachedInput ? cachedInput : d->makeDocument());
