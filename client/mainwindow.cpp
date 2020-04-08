@@ -205,11 +205,26 @@ void MainWindow::createMenu()
     auto showEventsMenu = viewMenu->addMenu(tr("&Display in timeline"));
     addTimelineOptionCheckbox(
         showEventsMenu,
+        tr("Invite events"),
+        tr("Show invite and withdrawn invitation events"),
+        QStringLiteral("show_invite"),
+        true
+    );
+    addTimelineOptionCheckbox(
+        showEventsMenu,
         tr("Normal &join/leave events"),
         tr("Show join and leave events"),
         QStringLiteral("show_joinleave"),
         true
     );
+    addTimelineOptionCheckbox(
+        showEventsMenu,
+        tr("Ban events"),
+        tr("Show ban and unban events"),
+        QStringLiteral("show_ban"),
+        true
+    );
+    showEventsMenu->addSeparator();
     addTimelineOptionCheckbox(
         showEventsMenu,
         tr("&Redacted events"),
@@ -219,10 +234,37 @@ void MainWindow::createMenu()
     );
     addTimelineOptionCheckbox(
         showEventsMenu,
+        tr("Changes in display na&me"),
+        tr("Show display name change"),
+        QStringLiteral("show_rename"),
+        true
+    );
+    addTimelineOptionCheckbox(
+        showEventsMenu,
+        tr("Avatar &changes"),
+        tr("Show avatar update events"),
+        QStringLiteral("show_avatar_update"),
+        true
+    );
+    addTimelineOptionCheckbox(
+        showEventsMenu,
+        tr("Room alias &updates"),
+        tr("Show room alias updates events"),
+        QStringLiteral("show_alias_update"),
+        true
+    );
+    addTimelineOptionCheckbox(
+        showEventsMenu,
         tr("&No-effect activity",
            "A menu item to show/hide meaningless activity such as redacted spam"),
         tr("Show/hide meaningless activity (join-leave pairs and redacted events between)"),
         QStringLiteral("show_spammy")
+    );
+    addTimelineOptionCheckbox(
+        showEventsMenu,
+        tr("Un&known event types"),
+        tr("Show/hide unknown event types"),
+        QStringLiteral("show_unknown_events")
     );
 
     viewMenu->addSeparator();

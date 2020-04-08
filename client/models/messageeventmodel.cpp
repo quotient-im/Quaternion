@@ -467,7 +467,8 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                             return text;
                         }
                         // Part 2: profile changes of joined members
-                        if (e.isRename())
+                        if (e.isRename()
+                            && Settings().value("UI/show_rename", true).toBool())
                         {
                             if (e.displayName().isEmpty())
                                 text = tr("cleared the display name");
@@ -475,7 +476,8 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                                 text = tr("changed the display name to %1")
                                        .arg(e.displayName().toHtmlEscaped());
                         }
-                        if (e.isAvatarUpdate())
+                        if (e.isAvatarUpdate()
+                            && Settings().value("UI/show_avatar_update", true).toBool())
                         {
                             if (!text.isEmpty())
                                 text += " and ";
@@ -664,12 +666,35 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
             if (!e->replacedEvent().isEmpty())
                 return EventStatus::Hidden;
 
+        if ((is<RoomAliasesEvent>(evt) || is<RoomCanonicalAliasEvent>(evt))
+                && !Settings().value("UI/show_alias_update", true).toBool())
+            return EventStatus::Hidden;
+
         auto* memberEvent = timelineIt->viewAs<RoomMemberEvent>();
         if (memberEvent)
         {
             if ((memberEvent->isJoin() || memberEvent->isLeave()) &&
                     !Settings().value("UI/show_joinleave", true).toBool())
                 return EventStatus::Hidden;
+
+            if ((memberEvent->isInvite() || memberEvent->isRejectedInvite())
+                    && !Settings().value("UI/show_invite", true).toBool())
+                return EventStatus::Hidden;
+
+            if ((memberEvent->isBan() || memberEvent->isUnban())
+                    && !Settings().value("UI/show_ban", true).toBool())
+                return EventStatus::Hidden;
+
+            bool hideRename = memberEvent->isRename()
+                && (!memberEvent->isJoin() && !memberEvent->isLeave())
+                && !Settings().value("UI/show_rename", true).toBool();
+            bool hideAvatarUpdate = memberEvent->isAvatarUpdate()
+                && !Settings().value("UI/show_avatar_update", true).toBool();
+            if ((hideRename && hideAvatarUpdate)
+                    || (hideRename && !memberEvent->isAvatarUpdate())
+                    || (hideAvatarUpdate && !memberEvent->isRename())) {
+                return EventStatus::Hidden;
+            }
         }
         if (memberEvent || evt.isRedacted())
         {
@@ -692,6 +717,10 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         if (evt.isStateEvent() &&
                 static_cast<const StateEventBase&>(evt).repeatsState() &&
                 !Settings().value("UI/show_noop_events").toBool())
+            return EventStatus::Hidden;
+
+        if (!evt.isStateEvent() && !is<RoomMessageEvent>(evt)
+                && !Settings().value("UI/show_unknown_events").toBool())
             return EventStatus::Hidden;
 
         return evt.isReplaced() ? EventStatus::Replaced : EventStatus::Normal;
