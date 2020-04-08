@@ -745,7 +745,8 @@ void ChatRoomWidget::reactionButtonClicked(const QString& eventId, const QString
         m_currentRoom->relatedEvents(eventId, EventRelation::Annotation());
 
     for (const auto& a : annotations) {
-        if (eventCast<const ReactionEvent>(a)->relation().key == key
+        auto* e = eventCast<const ReactionEvent>(a);
+        if (e != nullptr && e->relation().key == key
                 && a->senderId() == m_currentRoom->localUser()->id()) {
             m_currentRoom->redactEvent(a->id());
             return;
