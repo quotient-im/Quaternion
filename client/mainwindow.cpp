@@ -260,6 +260,12 @@ void MainWindow::createMenu()
         tr("Show/hide meaningless activity (join-leave pairs and redacted events between)"),
         QStringLiteral("show_spammy")
     );
+    addTimelineOptionCheckbox(
+        showEventsMenu,
+        tr("Un&known event types"),
+        tr("Show/hide unknown event types"),
+        QStringLiteral("show_unknown_events")
+    );
 
     viewMenu->addSeparator();
 
