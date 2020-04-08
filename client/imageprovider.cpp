@@ -51,6 +51,14 @@ class ThumbnailResponse : public QQuickImageResponse
                 emit finished();
                 return;
             }
+            if (!requestedSize.isValid()) {
+                errorStr = tr("Invalid size (%1x%2) supplied for media id %3")
+                               .arg(QString::number(requestedSize.width()),
+                                    QString::number(requestedSize.height()),
+                                    mediaId);
+                emit finished();
+                return;
+            }
             // Execute a request on the main thread asynchronously
             moveToThread(c->thread());
             QMetaObject::invokeMethod(this,
@@ -164,7 +172,9 @@ ImageProvider::ImageProvider(Connection* connection)
 QQuickImageResponse* ImageProvider::requestImageResponse(
         const QString& id, const QSize& requestedSize)
 {
-    qDebug() << "ImageProvider: requesting " << id;
+    qDebug().nospace() << "ImageProvider: requesting " << id
+                       << ", h=" << requestedSize.height()
+                       << ", w=" << requestedSize.width();
     return new ThumbnailResponse(LOAD_ATOMIC(m_connection), id, requestedSize);
 }
 
