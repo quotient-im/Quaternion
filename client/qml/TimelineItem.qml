@@ -40,6 +40,7 @@ Item {
     readonly property bool authorSectionVisible:
                             sectionVisible || author !== aboveAuthor
     readonly property bool redacted: marks === EventStatus.Redacted
+    readonly property bool replaced: marks === EventStatus.Replaced
     readonly property bool pending: [
                                         EventStatus.Submitted,
                                         EventStatus.Departed,
@@ -300,6 +301,10 @@ Item {
                                     authorColor + "\"'><b>" +
                                     toHtmlEscaped(authorName) + "</b></a> ") : ""
                           ) + display +
+                          (replaced
+                           ? "<small style='color:\"" + disabledPalette.text
+                             + "\"'>" + "(" + qsTr("edited") + ")</small>"
+                           : "") +
                           (annotation ? "<br><em>" + annotation + "</em>" : "")
                     horizontalAlignment: Text.AlignLeft
                     wrapMode: Text.Wrap

@@ -694,7 +694,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                 !Settings().value("UI/show_noop_events").toBool())
             return EventStatus::Hidden;
 
-        return EventStatus::Normal;
+        return evt.isReplaced() ? EventStatus::Replaced : EventStatus::Normal;
     }
 
     if( role == EventIdRole )
