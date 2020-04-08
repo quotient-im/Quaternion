@@ -425,7 +425,7 @@ Item {
             Flow {
                 anchors.top: imageLoader.active ? imageLoader.bottom : fileLoader.bottom
                 anchors.left: textField.left
-                anchors.right: textField.right
+                anchors.right: parent.right
 
                 Repeater {
                     model: reactions
