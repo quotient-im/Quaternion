@@ -174,19 +174,28 @@ Item {
             //   ts av *(asterisk) al c
 
             Image {
+                function desiredHeight() {
+                    return xchatStyle ? authorLabel.height :
+                           visible ? authorLabel.height * 2 - timelabel.height : 0
+                }
+                function desiredWidth() {
+                    return !xchatStyle ? timelabel.width :
+                           !visible ? 0 : undefined
+                }
+
                 id: authorAvatar
                 visible: settings.show_author_avatars && source &&
                          (authorSectionVisible || xchatStyle)
                 anchors.left: xchatStyle ? timelabel.right : parent.left
                 anchors.leftMargin: xchatStyle * 3
-                width: if (!xchatStyle) { timelabel.width }
-                       else if (!visible) { 0 }
-                height: xchatStyle ? authorLabel.height :
-                        visible ? authorLabel.height * 2 - timelabel.height : 0
+                height: desiredHeight()
+                width: desiredWidth()
                 fillMode: Image.PreserveAspectFit
 
                 source: author.avatarMediaId ?
                             "image://mtx/" + author.avatarMediaId : ""
+                sourceSize.height: desiredHeight()
+                sourceSize.width: desiredWidth()
             }
             Label {
                 id: authorLabel
