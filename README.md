@@ -155,14 +155,27 @@ Some settings exposed in UI (Settings and View menus):
 - `UI/show_noop_events` - set this to 1 to show state events that do not alter
   the state (you'll see "(repeated)" next to most of those).
 - `UI/RoomsDock/tags_order` - allows to alter the order of tags in the room
-  list. The default value for this key will be set by Quaternion if it doesn't
-  it so that you could edit it further. This is a list of tags/namespaces;
-  `.*` at the end of the string means a namespace, other strings are treated
-  as fully specified tags. E.g., the default order looks like this:
-  `m.favourite,u.*,im.quotient.direct,im.quotient.none,m.lowpriority`.
-  If a tag is not mentioned and does not fit any namespace, it will be put at
-  the end in lexicographic order. Tags within the same namespace are also
-  ordered lexicographically.
+  list. This is a comma-separated list of tags/namespaces;
+  a few characters have special meaning as described below.If a tag is
+  not mentioned and does not fit any namespace, it will be put at the end of
+  the room list in lexicographic order. Tags within the same namespace are
+  also ordered lexicographically.
+  
+  `.*` (only recognised at the end of the string) means the whole namespace,
+  other strings are treated as fully specified tags.
+  
+  `-` in front of the tag/namespace means it should not be used for grouping;
+  e.g., if you don't want People group you can add `-im.quotient.direct`
+  anywhere in the list. `im.quotient.none` ("Rooms") always exists and
+  cannot be disabled. 
+  
+  The default tags order is as follows:
+  `m.favourite,u.*,im.quotient.direct,im.quotient.none,m.lowpriority`,
+  meaning: Favourites, followed by all user custom tags, then People,
+  rooms with no enabled tags (the "Rooms" group) and finally Low priority
+  rooms. If Quaternion doesn't find the setting in the configuration it
+  will write down this line to the configuration so that you don't need
+  to enter it from scratch.
 
 Settings not exposed in UI:
 

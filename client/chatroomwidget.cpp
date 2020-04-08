@@ -132,18 +132,19 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
     m_chatEdit->setAcceptRichText(false);
     m_chatEdit->setMaximumHeight(maximumChatEditHeight());
-    connect( m_chatEdit, &KChatEdit::returnPressed, this, &ChatRoomWidget::sendInput );
+    connect(m_chatEdit, &KChatEdit::returnPressed, this,
+            &ChatRoomWidget::sendInput);
     connect(m_chatEdit, &KChatEdit::copyRequested, this, [=] {
         QApplication::clipboard()->setText(
-            m_chatEdit->textCursor().hasSelection() ? m_chatEdit->textCursor().selectedText() : selectedText
-        );
+            m_chatEdit->textCursor().hasSelection()
+                ? m_chatEdit->textCursor().selectedText()
+                : selectedText);
     });
     connect(m_chatEdit, &ChatEdit::proposedCompletion, this,
-            [=](const QStringList& matches, int pos)
-            {
+            [=](const QStringList& matches, int pos) {
                 setHudCaption(
                     tr("Next completion: %1")
-                    .arg(QStringList(matches.mid(pos, 5)).join(", ")) );
+                        .arg(QStringList(matches.mid(pos, 5)).join(", ")));
             });
     connect(m_chatEdit, &ChatEdit::cancelledCompletion,
             this, &ChatRoomWidget::typingChanged);
@@ -182,15 +183,13 @@ void ChatRoomWidget::enableDebug()
 void ChatRoomWidget::setRoom(QuaternionRoom* room)
 {
     if (m_currentRoom == room) {
-        m_chatEdit->setFocus();
+        focusInput();
         return;
     }
 
     if( m_currentRoom )
     {
         m_currentRoom->setDisplayed(false);
-        m_currentRoom->setCachedInput( m_chatEdit->toPlainText() );
-        roomHistories.insert(m_currentRoom, m_chatEdit->history());
         m_currentRoom->connection()->disconnect(this);
         m_currentRoom->disconnect( this );
     }
@@ -199,18 +198,15 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
     indicesOnScreen.clear();
     attachedFileName.clear();
     m_attachAction->setChecked(false);
-    m_chatEdit->cancelCompletion();
 
     m_currentRoom = room;
     m_attachAction->setEnabled(m_currentRoom != nullptr);
+    m_chatEdit->switchContext(room);
     if( m_currentRoom )
     {
         using namespace Quotient;
         m_imageProvider->setConnection(room->connection());
-        m_chatEdit->setText( m_currentRoom->cachedInput() );
-        m_chatEdit->setHistory(roomHistories.value(m_currentRoom));
-        m_chatEdit->setFocus();
-        m_chatEdit->moveCursor(QTextCursor::End);
+        focusInput();
         connect( m_currentRoom, &Room::typingChanged,
                  this, &ChatRoomWidget::typingChanged );
         connect( m_currentRoom, &Room::readMarkerMoved, this, [this] {
@@ -259,11 +255,10 @@ void ChatRoomWidget::typingChanged()
 
 void ChatRoomWidget::encryptionChanged()
 {
-    m_chatEdit->setReadOnly(m_currentRoom && m_currentRoom->usesEncryption());
     m_chatEdit->setPlaceholderText(
         m_currentRoom
             ? m_currentRoom->usesEncryption()
-                ? tr("Sending encrypted messages is not supported yet")
+                ? tr("Send a message (no end-to-end encryption support yet)...")
                 : tr("Send a message (over %1) or enter a command...",
                      "%1 is the protocol used by the server (usually HTTPS)")
                   .arg(m_currentRoom->connection()->homeserver()

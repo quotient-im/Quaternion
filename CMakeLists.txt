@@ -48,7 +48,7 @@ else()
 endif()
 
 # Find the libraries
-find_package(Qt5 5.9 REQUIRED Widgets Network Quick Qml Gui LinguistTools Multimedia DBus)
+find_package(Qt5 5.9 REQUIRED Widgets Network Quick Gui LinguistTools Multimedia DBus)
 # Qt5_Prefix is only used to show Qt path in message()
 # Qt5_BinDir is where all the binary tools for Qt are
 if (QT_QMAKE_EXECUTABLE)
@@ -80,7 +80,7 @@ endif()
 
 if ((NOT DEFINED USE_INTREE_LIBQMC OR USE_INTREE_LIBQMC)
         AND EXISTS ${PROJECT_SOURCE_DIR}/lib/lib/util.h)
-    add_subdirectory(lib EXCLUDE_FROM_ALL)
+    add_subdirectory(lib)
     include_directories(lib)
     if (NOT DEFINED USE_INTREE_LIBQMC)
         set (USE_INTREE_LIBQMC 1)

@@ -52,7 +52,7 @@ class ChatRoomWidget: public QWidget
         bool pendingMarkRead() const;
 
         QStringList findCompletionMatches(const QString& pattern) const;
-        Qt::KeyboardModifiers getModifierKeys() const;
+        Q_INVOKABLE Qt::KeyboardModifiers getModifierKeys() const;
 
     signals:
         void joinRequested(const QString& roomAlias);
@@ -112,7 +112,6 @@ class ChatRoomWidget: public QWidget
         timeline_index_t indexToMaybeRead;
         QBasicTimer maybeReadTimer;
         bool readMarkerOnScreen;
-        QMap<QuaternionRoom*, QVector<QTextDocument*>> roomHistories;
         QString attachedFileName;
         QString selectedText;
 
