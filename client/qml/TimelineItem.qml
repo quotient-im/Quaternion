@@ -20,6 +20,7 @@ Item {
                             settings.outgoing_color_base.b, 0.7))
         readonly property bool show_author_avatars:
             value("UI/show_author_avatars", timeline_style != "xchat")
+        readonly property real dimmer_read_marker: parseFloat(value("UI/dimmer_read_marker", "1.0"))
     }
     SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
     SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
@@ -318,6 +319,7 @@ Item {
                     horizontalAlignment: Text.AlignLeft
                     wrapMode: Text.Wrap
                     color: textColor
+                    opacity: dimmerReadMarker ? settings.dimmer_read_marker : textFieldImpl.opacity
                     font: settings.font
                     renderType: settings.render_type
 

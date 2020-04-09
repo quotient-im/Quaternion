@@ -46,6 +46,7 @@ class MessageEventModel: public QAbstractListModel
             RefRole,
             ReactionsRole,
             EventResolvedTypeRole,
+            DimmerReadMarkerRole,
         };
 
         explicit MessageEventModel(QObject* parent = nullptr);

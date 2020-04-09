@@ -222,6 +222,11 @@ Settings not exposed in UI:
 - `UI/use_keychain` - set this to false (or 0) if you explicitly do NOT want to
   use keychain but prefer to store access token in dedicated file instead (see
   next paragraph); the default is true.
+- `UI/dimmer_read_marker` - setting it to a value less than 1.0 will add
+  corresponding transparency to the already read messages making them more
+  easily distinguishable in the time line (in addition to the reader marker
+  line). The default is 1.0, i.e. no visual difference between read and unread
+  messages.
 
 Since version 0.0.9.4, AppImage binaries for Linux and .dmg files for macOS
 are compiled with Qt Keychain support. It means that Quaternion will try

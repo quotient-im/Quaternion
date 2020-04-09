@@ -57,6 +57,7 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
     roles[EventResolvedTypeRole] = "eventResolvedType";
     roles[RefRole] = "refId";
     roles[ReactionsRole] = "reactions";
+    roles[DimmerReadMarkerRole] = "dimmerReadMarker";
     return roles;
 }
 
@@ -156,12 +157,17 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
         connect(m_currentRoom, &Room::pendingEventDiscarded,
                 this, &MessageEventModel::endRemoveRows);
         connect(m_currentRoom, &Room::readMarkerMoved,
-            this, [this] {
+            this, [this] (QString fromEventId, QString toEventId) {
             refreshEventRoles(
                 std::exchange(lastReadEventId,
                               m_currentRoom->readMarkerEventId()),
                 {ReadMarkerRole});
             refreshEventRoles(lastReadEventId, {ReadMarkerRole});
+            // the iterators are revert iterators
+            const auto fromEventIdIt = m_currentRoom->findInTimeline(fromEventId);
+            const auto toEventIdIt = m_currentRoom->findInTimeline(toEventId);
+            auto refreshDimming = [this](auto& timeLineEvent){ refreshEventRoles(timeLineEvent.event()->id(), {DimmerReadMarkerRole}); };
+            std::for_each(toEventIdIt, fromEventIdIt, refreshDimming);
         });
         connect(m_currentRoom, &Room::replacedEvent, this,
                 [this] (const RoomEvent* newEvent) {
@@ -808,6 +814,12 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         return visit(
             evt, [](const RoomCreateEvent& e) { return e.predecessor().roomId; },
             [](const RoomTombstoneEvent& e) { return e.successorRoomId(); });
+
+    if (role == DimmerReadMarkerRole)
+    {
+        if (!isPending) { return timelineIt >= m_currentRoom->readMarker(); }
+        return false;
+    }
 
     return {};
 }
