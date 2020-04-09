@@ -398,6 +398,7 @@ Item {
             }
 
             Loader {
+                id: imageLoader
                 active: eventType == "image"
 
                 anchors.top: textField.bottom
@@ -425,6 +426,7 @@ Item {
                 }
             }
             Loader {
+                id: fileLoader
                 active: eventType == "file"
 
                 anchors.top: textField.bottom
@@ -433,6 +435,21 @@ Item {
                 height: childrenRect.height
 
                 sourceComponent: FileContent { }
+            }
+            Flow {
+                anchors.top: imageLoader.active ? imageLoader.bottom : fileLoader.bottom
+                anchors.left: textField.left
+                anchors.right: parent.right
+
+                Repeater {
+                    model: reactions
+                    Button {
+                        text: modelData.key + ": " + modelData.count
+                        onClicked: controller.reactionButtonClicked(eventId, modelData.key)
+                        tooltip: qsTr("%1 reacted with %2", "", modelData.authors.length)
+                            .arg(modelData.authors.join(", ")).arg(modelData.key)
+                    }
+                }
             }
             Loader {
                 id: buttonAreaLoader
