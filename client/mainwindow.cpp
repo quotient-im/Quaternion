@@ -352,8 +352,10 @@ void MainWindow::createMenu()
 
     // Help menu
     auto helpMenu = menuBar()->addMenu(tr("&Help"));
-    helpMenu->addAction(QIcon::fromTheme("help-about"), tr("&About"),
-        [=]{ showAboutWindow(); });
+    helpMenu->addAction(QIcon::fromTheme("help-about"), tr("&About Quaternion"),
+                        [this] { showAboutWindow(); });
+    helpMenu->addAction(QIcon::fromTheme("help-about-qt"), tr("About &Qt"),
+                        [this] { QMessageBox::aboutQt(this); });
 
     {
         auto notifGroup = new QActionGroup(this);
