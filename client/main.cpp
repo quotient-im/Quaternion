@@ -29,6 +29,34 @@
 #include "activitydetector.h"
 #include <settings.h>
 
+void loadTranslations(
+    const std::initializer_list<std::pair<QStringList, QString>>& translationConfigs)
+{
+    for (const auto& [configNames, configPath]: translationConfigs)
+        for (const auto& configName: configNames) {
+            auto* translator = new QTranslator(qApp);
+            bool loaded = false;
+            // Check the current directory then configPath
+            if (translator->load(QLocale(), configName, "_")
+                || translator->load(QLocale(), configName, "_", configPath)) {
+                auto path =
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
+                    translator->filePath();
+#else
+                    configPath;
+#endif
+                if ((loaded = QApplication::installTranslator(translator)))
+                    qDebug().noquote() << "Loaded translations from" << path;
+                else
+                    qWarning().noquote()
+                        << "Failed to load translations from" << path;
+            } else
+                qDebug() << "No translations for" << configName << "at" << configPath;
+            if (!loaded)
+                delete translator;
+        }
+}
+
 int main( int argc, char* argv[] )
 {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
@@ -105,17 +133,23 @@ int main( int argc, char* argv[] )
         qInfo() << "Using locale" << QLocale().name();
     }
 
-    QTranslator qtTranslator;
-    qtTranslator.load(QLocale(), "qt", "_",
-                      QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-    app.installTranslator(&qtTranslator);
-
-    QTranslator appTranslator;
-    if (!appTranslator.load(QLocale(), "quaternion", "_"))
-        appTranslator.load(QLocale(), "quaternion", "_",
+    loadTranslations(
+        { { { "qt", "qtbase", "qtnetwork", "qtdeclarative", "qtmultimedia",
+              "qtquickcontrols", "qtquickcontrols2",
+              // QtKeychain tries to install its translations to Qt's path;
+              // try to look there, just in case (see also below)
+              "qtkeychain" },
+            QLibraryInfo::location(QLibraryInfo::TranslationsPath) },
+          { { "qtkeychain" },
+            // Assuming https://github.com/frankosterfeld/qtkeychain/pull/166
+            // is accepted and QtKeychain is installed at a default location
+            QStandardPaths::locate(QStandardPaths::GenericDataLocation,
+                                   "qt5keychain/translations",
+                                   QStandardPaths::LocateDirectory) },
+          { { "qt", "qtkeychain", "quotient", "quaternion" },
             QStandardPaths::locate(QStandardPaths::AppLocalDataLocation,
-            "translations", QStandardPaths::LocateDirectory));
-    app.installTranslator(&appTranslator);
+                                   "translations",
+                                   QStandardPaths::LocateDirectory) } });
 
     Quotient::NetworkSettings().setupApplicationProxy();
 
