@@ -314,14 +314,13 @@ Rectangle {
             }
             Connections {
                 target: controller
-                function onPageUpPressed() {
+                onPageUpPressed:
                     chatView.scrollUp(chatView.height
                                       - sectionBanner.childrenRect.height)
-                }
-                function onPageDownPressed() {
+
+                onPageDownPressed:
                     chatView.scrollDown(chatView.height
                                         - sectionBanner.childrenRect.height)
-                }
             }
 
             Component.onCompleted: {
