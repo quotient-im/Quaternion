@@ -800,9 +800,10 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         }
 
     if (role == UserHueRole)
-        return QVariant::fromValue(isPending
-                                   ? m_currentRoom->localUser()->hueF()
-                                   : m_currentRoom->user(evt.senderId())->hueF());
+        return QVariant::fromValue(
+            isPending ? m_currentRoom->localUser()->hueF() :
+            evt.senderId().isEmpty() ? 0.0 :
+            m_currentRoom->user(evt.senderId())->hueF());
 
     if (role == RefRole)
         return visit(
