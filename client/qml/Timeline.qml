@@ -242,8 +242,9 @@ Rectangle {
 
             section.property: "section"
 
+            readonly property bool atBeginning: contentY + height == 0
             readonly property int largestVisibleIndex: count > 0 ?
-                indexAt(contentX, contentY + height - 1) : -1
+                atBeginning ? 0 : indexAt(contentX, contentY + height - 1) : -1
             readonly property bool loadingHistory:
                 room ? room.eventsHistoryJob : false
             readonly property bool noNeedMoreContent:
