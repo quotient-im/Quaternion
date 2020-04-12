@@ -36,16 +36,6 @@ class QuaternionRoom: public Quotient::Room
         Q_INVOKABLE int savedTopVisibleIndex() const;
         Q_INVOKABLE int savedBottomVisibleIndex() const;
         Q_INVOKABLE void saveViewport(int topIndex, int bottomIndex);
-        // FIXME: This should be deleted as soon as Room::prettyPrint and
-        // Room::canSwitchVersions() become Q_INVOKABLE (canSwitchVersions()
-        // may - or may not - become a Q_PROPERTY even).
-        Q_INVOKABLE QString prettyPrint(const QString& plainText) const;
-        Q_INVOKABLE bool canSwitchVersions() const;
-
-        /*! Get a display-safe member name in the context of this room
-         * Display-safe means HTML-safe + without RLO/LRO markers (see #545)
-         */
-        Q_INVOKABLE QString safeMemberName(const QString& userId) const;
 
     private slots:
         void countChanged();

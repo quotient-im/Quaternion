@@ -77,21 +77,6 @@ void QuaternionRoom::saveViewport(int topIndex, int bottomIndex)
     setLastDisplayedEvent(maxTimelineIndex() - bottomIndex);
 }
 
-QString QuaternionRoom::prettyPrint(const QString& plainText) const
-{
-    return Room::prettyPrint(plainText);
-}
-
-bool QuaternionRoom::canSwitchVersions() const
-{
-    return Room::canSwitchVersions();
-}
-
-QString QuaternionRoom::safeMemberName(const QString& userId) const
-{
-    return sanitized(roomMembername(userId));
-}
-
 void QuaternionRoom::countChanged()
 {
     if( displayed() && !hasUnreadMessages() )
