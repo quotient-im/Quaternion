@@ -23,14 +23,14 @@ Rectangle {
         if (!bytes)
             return qsTr("Unknown", "Unknown attachment size")
         if (bytes < 4000)
-            return qsTr("%1 bytes").arg(bytes)
+            return qsTr("%Ln byte(s)", "", bytes)
         bytes = Math.round(bytes / 100) / 10
         if (bytes < 2000)
-            return qsTr("%1 KB").arg(bytes)
+            return qsTr("%L1 KB").arg(bytes)
         bytes = Math.round(bytes / 100) / 10
         if (bytes < 2000)
-            return qsTr("%1 MB").arg(bytes)
-        return qsTr("%1 GB").arg(Math.round(bytes / 100) / 10)
+            return qsTr("%L1 MB").arg(bytes)
+        return qsTr("%L1 GB").arg(Math.round(bytes / 100) / 10)
     }
 
     Rectangle {
