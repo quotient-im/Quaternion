@@ -658,12 +658,12 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
 
     if( role == SpecialMarksRole )
     {
+        if (is<RedactionEvent>(evt) || is<ReactionEvent>(evt))
+            return EventStatus::Hidden; // Never show, even pending
+
         if (isPending)
             return !Settings().get<bool>("UI/suppress_local_echo")
                     ? pendingIt->deliveryStatus() : EventStatus::Hidden;
-
-        if (is<RedactionEvent>(evt) || is<ReactionEvent>(evt))
-            return EventStatus::Hidden;
 
         // isReplacement?
         if (auto e = eventCast<const RoomMessageEvent>(&evt))
