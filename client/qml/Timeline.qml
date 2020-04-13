@@ -33,6 +33,12 @@ Rectangle {
         return qsTr("%L1 GB").arg(Math.round(bytes / 100) / 10)
     }
 
+    function mixColors(baseColor, mixedColor, mixRatio)
+    {
+        return Qt.tint(baseColor,
+                Qt.rgba(mixedColor.r, mixedColor.g, mixedColor.b, mixRatio))
+    }
+
     Rectangle {
         id: roomHeader
 

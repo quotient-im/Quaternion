@@ -14,10 +14,7 @@ Item {
         readonly property color highlight_color: value("UI/highlight_color", "orange")
         readonly property color outgoing_color_base: value("UI/outgoing_color", "#4A8780")
         readonly property color outgoing_color:
-            Qt.tint(defaultPalette.text,
-                    Qt.rgba(settings.outgoing_color_base.r,
-                            settings.outgoing_color_base.g,
-                            settings.outgoing_color_base.b, 0.7))
+            mixColors(defaultPalette.text, settings.outgoing_color_base, 0.7)
         readonly property bool show_author_avatars:
             value("UI/show_author_avatars", timeline_style != "xchat")
     }
