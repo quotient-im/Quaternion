@@ -417,12 +417,14 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
             QString result =
                 QStringLiteral("<b>%1</b>").arg(room->displayName()) % "<br>" %
                 tr("Main alias: %1").arg(room->canonicalAlias()) % "<br>" %
-                tr("Joined: %Ln",
-                   "The number of joined members", room->joinedCount());
+                tr("Joined: %L1",
+                   "The number of joined members", room->joinedCount())
+                .arg(room->joinedCount());
             if (room->invitedCount() > 0)
-                result += "<br>" % tr("Invited: %Ln",
-                                      "The number of invited users",
-                                      room->invitedCount());
+                result += "<br>"
+                          % tr("Invited: %L1", "The number of invited users",
+                               room->invitedCount())
+                            .arg(room->invitedCount());
 
             auto directChatUsers = room->directChatUsers();
             if (!directChatUsers.isEmpty())
@@ -450,18 +452,18 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
             {
                 const auto unreadLine =
                     room->readMarker() == room->timelineEdge()
-                        ? tr("Unread messages: %1+")
-                        : tr("Unread messages: %1");
+                        ? tr("Unread messages: %L1+", "", unreadCount)
+                        : tr("Unread messages: %L1", "", unreadCount);
                 result += "<br>" % unreadLine.arg(unreadCount);
             }
 
             auto hlCount = room->highlightCount();
             if (hlCount > 0)
-                result += "<br>" % tr("Unread highlights: %1").arg(hlCount);
+                result += "<br>" % tr("Unread highlights: %L1").arg(hlCount);
 
             auto nfCount = room->notificationCount();
             if (nfCount > 0)
-                result += "<br>" % tr("Unread notifications: %1").arg(nfCount);
+                result += "<br>" % tr("Unread notifications: %L1").arg(nfCount);
 
             result += "<br>" % tr("ID: %1").arg(room->id()) % "<br>";
             auto asUser = m_connections.size() < 2 ? QString() : ' ' +
