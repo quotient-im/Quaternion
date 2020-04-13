@@ -63,10 +63,13 @@ Rectangle {
             sourceSize.height: root.height / 3 // A kinda safe upper limit
             fillMode: Image.PreserveAspectFit
 
-            Behavior on width { NumberAnimation {
-                duration: settings.animations_duration_ms
-                easing.type: Easing.OutQuad
-            }}
+            Behavior on width {
+                enabled: settings.enable_animations
+                NumberAnimation {
+                    duration: settings.animations_duration_ms
+                    easing.type: Easing.OutQuad
+                }
+            }
         }
 
         Column {
@@ -121,10 +124,13 @@ Rectangle {
                 verticalScrollBarPolicy: Qt.ScrollBarAsNeeded
                 style: ScrollViewStyle { transientScrollBars: true }
 
-                Behavior on height { NumberAnimation {
-                    duration: settings.animations_duration_ms
-                    easing.type: Easing.OutQuad
-                }}
+                Behavior on height {
+                    enabled: settings.enable_animations
+                    NumberAnimation {
+                        duration: settings.animations_duration_ms
+                        easing.type: Easing.OutQuad
+                    }
+                }
 
                 // FIXME: The below TextEdit+MouseArea is a massive copy-paste
                 // from TimelineItem.qml. We need to make a separate component
@@ -341,20 +347,23 @@ Rectangle {
             onMovementEnded: saveViewport()
 
             populate: Transition {
-                // TODO: It has huge negative impact on room changing speed
-                enabled: settings.animations_duration_ms_impl > 0
+                enabled: settings.enable_animations
                 NumberAnimation {
                     property: "opacity"; from: 0; to: 1
                     duration: settings.fast_animations_duration_ms
                 }
             }
 
-            add: Transition { NumberAnimation {
-                property: "opacity"; from: 0; to: 1
-                duration: settings.fast_animations_duration_ms
-            }}
+            add: Transition {
+                enabled: settings.enable_animations
+                NumberAnimation {
+                    property: "opacity"; from: 0; to: 1
+                    duration: settings.fast_animations_duration_ms
+                }
+            }
 
             move: Transition {
+                enabled: settings.enable_animations
                 NumberAnimation {
                     property: "y"; duration: settings.fast_animations_duration_ms
                 }
@@ -364,6 +373,7 @@ Rectangle {
             }
 
             displaced: Transition {
+                enabled: settings.enable_animations
                 NumberAnimation {
                     property: "y"; duration: settings.fast_animations_duration_ms
                     easing.type: Easing.OutQuad
@@ -374,7 +384,7 @@ Rectangle {
             }
 
             Behavior on contentY {
-                enabled: !chatView.moving
+                enabled: !chatView.moving && settings.enable_animations
                 SmoothedAnimation {
                     id: scrollAnimation
                     // It would mislead the benchmark below
@@ -505,6 +515,7 @@ Rectangle {
             && (scrollerArea.containsMouse || scrollAnimation.running)
             ? 0.9 : 0
         Behavior on opacity {
+            enabled: settings.enable_animations
             NumberAnimation { duration: settings.fast_animations_duration_ms }
         }
 
@@ -534,14 +545,20 @@ Rectangle {
         anchors.bottom: parent.bottom
         anchors.leftMargin: width/2
         anchors.bottomMargin: chatView.atYEnd ? -height : height/2
-        Behavior on opacity { NumberAnimation {
-            duration: settings.animations_duration_ms
-            easing.type: Easing.OutQuad
-        }}
-        Behavior on anchors.bottomMargin { NumberAnimation {
-            duration: settings.animations_duration_ms
-            easing.type: Easing.OutQuad
-        }}
+        Behavior on opacity {
+            enabled: settings.enable_animations
+            NumberAnimation {
+                duration: settings.animations_duration_ms
+                easing.type: Easing.OutQuad
+            }
+        }
+        Behavior on anchors.bottomMargin {
+            enabled: settings.enable_animations
+            NumberAnimation {
+                duration: settings.animations_duration_ms
+                easing.type: Easing.OutQuad
+            }
+        }
         Image {
             anchors.fill: parent
             source: "qrc:///scrolldown.svg"

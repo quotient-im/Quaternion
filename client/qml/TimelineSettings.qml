@@ -4,6 +4,7 @@ import Quotient 1.0
 Settings {
     readonly property int animations_duration_ms_impl:
         value("UI/animations_duration_ms", 400)
+    readonly property bool enable_animations: animations_duration_ms_impl > 0
     readonly property int animations_duration_ms:
         animations_duration_ms_impl == 0 ? 10 : animations_duration_ms_impl
     readonly property int fast_animations_duration_ms: animations_duration_ms / 2

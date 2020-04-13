@@ -85,9 +85,12 @@ Item {
             shownChanged(true);
     }
 
-    Behavior on textColor { ColorAnimation {
-        duration: settings.animations_duration_ms
-    }}
+    Behavior on textColor {
+        enabled: settings.enable_animations
+        ColorAnimation {
+            duration: settings.animations_duration_ms
+        }
+    }
 
     property bool showingDetails
 
@@ -96,7 +99,11 @@ Item {
         onShowDetails: {
             if (currentIndex === index) {
                 showingDetails = !showingDetails
-                detailsAnimation.start()
+                if (!settings.enable_animations) {
+                    detailsAreaLoader.visible = showingDetails
+                    detailsAreaLoader.opacity = showingDetails
+                } else
+                    detailsAnimation.start()
             }
         }
     }
@@ -470,10 +477,13 @@ Item {
         height: 3
         anchors.horizontalCenter: fullMessage.horizontalCenter
         anchors.bottom: fullMessage.bottom
-        Behavior on width { NumberAnimation {
-            duration: settings.animations_duration_ms
-            easing.type: Easing.OutQuad
-        }}
+        Behavior on width {
+            enabled: settings.enable_animations
+            NumberAnimation {
+                duration: settings.animations_duration_ms
+                easing.type: Easing.OutQuad
+            }
+        }
 
         gradient: Gradient {
             GradientStop { position: 0; color: "transparent" }
