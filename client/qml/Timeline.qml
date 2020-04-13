@@ -257,8 +257,6 @@ Rectangle {
             readonly property bool atBeginning: contentY + height == 0
             readonly property int largestVisibleIndex: count > 0 ?
                 atBeginning ? 0 : indexAt(contentX, contentY + height - 1) : -1
-            readonly property bool loadingHistory:
-                room ? room.eventsHistoryJob : false
             readonly property bool noNeedMoreContent:
                 !room || room.eventsHistoryJob || room.allHistoryLoaded
 
@@ -267,6 +265,7 @@ Rectangle {
                 contentHeight > 0 && count > 0 ? count / contentHeight : 0.03
                 // 0.03 is just an arbitrary reasonable number
 
+            property int lastRequestedEvents: 0
             property var textEditWithSelection
 
             function ensurePreviousContent() {
@@ -278,8 +277,10 @@ Rectangle {
                 // Check if we're about to bump into the ceiling in
                 // 2 seconds and if yes, request the amount of messages
                 // enough to scroll at this rate for 3 more seconds
-                if (velocity > 0 && contentY - velocity*2 < originY)
-                    room.getPreviousContent(velocity * eventDensity * 3)
+                if (velocity > 0 && contentY - velocity*2 < originY) {
+                    lastRequestedEvents = velocity * eventDensity * 3
+                    room.getPreviousContent(lastRequestedEvents)
+                }
             }
             onContentYChanged: ensurePreviousContent()
             onContentHeightChanged: ensurePreviousContent()
@@ -442,18 +443,45 @@ Rectangle {
 
         style: SliderStyle {
             // Width and height are swapped below because SliderStyle assumes
-            // a horizontal slider - but anchors are not :-\
+            // a horizontal slider
             groove: Rectangle {
                 color: defaultPalette.window
                 border.color: defaultPalette.midlight
                 implicitHeight: 8
+
+                readonly property int requestedHistoryEventsCount:
+                    room && room.eventsHistoryJob
+                    ? chatView.lastRequestedEvents : 0
+                readonly property real averageEvtHeight:
+                    chatView.count == 0 && requestedHistoryEventsCount == 0 ? 0
+                    : chatView.height
+                      / (chatView.count + requestedHistoryEventsCount)
+
                 Rectangle {
+                    // Loading history events bar, stacked above
+                    // the cached events bar when more history is being loaded
                     anchors.verticalCenter: parent.verticalCenter
-                    anchors.right: parent.right
+                    anchors.left: cachedEventsBar.right
+                    implicitHeight: 2
+                    width: averageEvtHeight * requestedHistoryEventsCount
+                    Behavior on width { NumberAnimation {
+                        duration: settings.animations_duration_ms
+                    } }
+
+                    opacity: 0.4
+                    color: defaultPalette.highlight
+                }
+                Rectangle {
+                    id: cachedEventsBar
+
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin:
+                        averageEvtHeight * chatView.largestVisibleIndex
                     implicitHeight: 2
                     width: chatView.largestVisibleIndex < 0 ? 0 :
-                        chatView.height *
-                            (1 - chatView.largestVisibleIndex / chatView.count)
+                        averageEvtHeight
+                        * (chatView.count - chatView.largestVisibleIndex)
 
                     color: defaultPalette.highlight
                 }
@@ -525,12 +553,11 @@ Rectangle {
             font.pointSize: settings.font.pointSize
             color: disabledPalette.text
             renderType: settings.render_type
-            text: qsTr("%Ln events back from now (%L1 cached%2)",
-                       "%2 is optional 'and loading'",
-                       chatView.largestVisibleIndex)
-                  .arg(chatView.count)
-                  .arg(chatView.loadingHistory ? (" " + qsTr("and loading"))
-                                               : "")
+            text: (chatView.largestVisibleIndex === 0
+                   ? qsTr("Latest events") : qsTr("%Ln events back from now","",
+                                                  chatView.largestVisibleIndex))
+                  + '\n' + qsTr("%Ln cached", "", chatView.count)
+            horizontalAlignment: Label.AlignRight
         }
     }
 
