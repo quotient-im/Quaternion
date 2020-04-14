@@ -104,7 +104,7 @@ Item {
         }
         onAnimateMessage: {
             if (currentIndex === index)
-                flashAnimation.start()
+                blinkAnimation.start()
         }
     }
 
@@ -126,24 +126,24 @@ Item {
         }
     }
     SequentialAnimation {
-        id: flashAnimation
+        id: blinkAnimation
+        loops: 3
         PropertyAction {
             target: messageFlasher; property: "visible"
             value: true
         }
-        NumberAnimation {
-            target: messageFlasher; property: "opacity"
-            to: 0.0
-            duration: 2000
-            easing.type: Easing.InQuad
+        PauseAnimation {
+            // `settings.animations_duration_ms` intentionally is not in use here
+            // because this is not just an eye candy animation - the user will lose
+            // functionality if this animation stops working.
+            duration: 200
         }
         PropertyAction {
             target: messageFlasher; property: "visible"
             value: false
         }
-        PropertyAction {
-            target: messageFlasher; property: "opacity"
-            value: 1.0
+        PauseAnimation {
+            duration: 200
         }
     }
 
