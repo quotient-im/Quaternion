@@ -71,7 +71,7 @@ class ChatRoomWidget: public QWidget
 
     public slots:
         void setRoom(QuaternionRoom* room);
-        void flashMessage(QString eventId);
+        void spotlightEvent(QString eventId);
 
         void insertMention(Quotient::User* user);
         void focusInput();

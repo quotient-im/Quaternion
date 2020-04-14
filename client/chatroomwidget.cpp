@@ -237,7 +237,7 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
     m_messageModel->changeRoom( m_currentRoom );
 }
 
-void ChatRoomWidget::flashMessage(QString eventId)
+void ChatRoomWidget::spotlightEvent(QString eventId)
 {
     auto index = m_messageModel->findRow(eventId);
     if (index >= 0) {

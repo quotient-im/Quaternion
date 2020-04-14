@@ -1144,7 +1144,7 @@ Locator::ResolveResult MainWindow::openLocator(const Locator& l, const QString& 
                      : l.account->roomByAlias(idOrAlias);
         selectRoom(room);
         if (!eventId.isNull())
-            chatRoomWidget->flashMessage(eventId);
+            chatRoomWidget->spotlightEvent(eventId);
         return Locator::Success;
     }
     return Locator::NotFound;
