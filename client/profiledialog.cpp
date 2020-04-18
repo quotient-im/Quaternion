@@ -29,7 +29,7 @@ using Quotient::Connection;
 using Quotient::BaseJob;
 
 ProfileDialog::ProfileDialog(Connection *c, QWidget *parent)
-    : QDialog(parent)
+    : Dialog(c->userId(), parent)
 {
     tabWidget = new QTabWidget;
 
@@ -60,16 +60,5 @@ ProfileDialog::ProfileDialog(Connection *c, QWidget *parent)
         });
     }
 
-    buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
-                                     | QDialogButtonBox::Cancel);
-
-    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-
-    auto layout = new QVBoxLayout;
-    layout->addWidget(tabWidget);
-    layout->addWidget(buttonBox);
-    setLayout(layout);
-
-    setWindowTitle(tr("Tab Dialog"));
+    addWidget(tabWidget);
 }

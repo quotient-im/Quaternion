@@ -29,7 +29,7 @@ namespace Quotient {
     class Connection;
 }
 
-class ProfileDialog : public QDialog
+class ProfileDialog : public Dialog
 {
         Q_OBJECT
 
@@ -38,5 +38,4 @@ class ProfileDialog : public QDialog
 
     private:
         QTabWidget *tabWidget;
-        QDialogButtonBox *buttonBox;
 };
