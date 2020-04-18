@@ -25,6 +25,7 @@
 #include <connection.h>
 #include <csapi/create_room.h>
 #include <logging.h>
+#include <events/roompowerlevelsevent.h>
 
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QLineEdit>
@@ -235,9 +236,16 @@ RoomSettingsDialog::RoomSettingsDialog(QuaternionRoom* room, MainWindow* parent)
 
 void RoomSettingsDialog::load()
 {
+    const auto* plEvt =
+        room->getCurrentState<Quotient::RoomPowerLevelsEvent>();
+    const int userPl = plEvt->powerLevelForUser(room->localUser()->id());
+
     roomName->setText(room->name());
+    roomName->setReadOnly(plEvt && plEvt->powerLevelForState("m.room.name") > userPl);
     alias->setText(room->canonicalAlias());
+    alias->setReadOnly(plEvt && plEvt->powerLevelForState("m.room.canonical_alias") > userPl);
     topic->setPlainText(room->topic());
+    topic->setReadOnly(plEvt && plEvt->powerLevelForState("m.room.topic") > userPl);
     // QPlainTextEdit may change some characters before any editing occurs;
     // so save this already adjusted topic to compare later.
     previousTopic = topic->toPlainText();
