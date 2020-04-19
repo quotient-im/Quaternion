@@ -46,7 +46,7 @@ ProfileDialog::ProfileDialog(Connection *c, QWidget *parent)
         tableWidget->setHorizontalHeaderLabels(QStringList()
             << tr("Display Name")
             << tr("Device ID")
-            << tr("Last Seen IP Address"));
+            << tr("Last Seen"));
 
         auto devicesJob = c->callApi<QMatrixClient::GetDevicesJob>();
 
@@ -54,12 +54,17 @@ ProfileDialog::ProfileDialog(Connection *c, QWidget *parent)
             tableWidget->setRowCount(devicesJob->devices().size());
 
             for (int i = 0; i < devicesJob->devices().size(); i++) {
-                auto name = new QTableWidgetItem(devicesJob->devices()[i].displayName);
-                auto id = new QTableWidgetItem(devicesJob->devices()[i].deviceId);
-                auto ip = new QTableWidgetItem(devicesJob->devices()[i].lastSeenIp);
-
+                auto device = devicesJob->devices()[i];
+                auto name = new QTableWidgetItem(device.displayName);
                 tableWidget->setItem(i, 0, name);
+
+                auto id = new QTableWidgetItem(device.deviceId);
                 tableWidget->setItem(i, 1, id);
+
+                QDateTime lastSeen;
+                lastSeen.setMSecsSinceEpoch(device.lastSeenTs.value_or(0));
+                auto ip = new QTableWidgetItem(device.lastSeenIp
+                    + " @ " + QLocale().toString(lastSeen, QLocale::ShortFormat));
                 tableWidget->setItem(i, 2, ip);
             }
         });
