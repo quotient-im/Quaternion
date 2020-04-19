@@ -21,12 +21,14 @@
 
 #include "dialog.h"
 
-class QDialogButtonBox;
+class QAction;
+class QLabel;
 class QLineEdit;
 class QTabWidget;
 
 namespace Quotient {
     class Connection;
+    class User;
 }
 
 class ProfileDialog : public Dialog
@@ -36,6 +38,18 @@ class ProfileDialog : public Dialog
     public:
         explicit ProfileDialog(Quotient::Connection *c, QWidget *parent = 0);
 
+    private slots:
+        void load() override;
+        void apply() override;
+
     private:
-        QTabWidget *tabWidget;
+        Quotient::User* m_user;
+        QTabWidget* tabWidget;
+
+        QAction* m_attachAction;
+        QLabel* m_avatar;
+        QLabel* m_userId;
+        QLineEdit* m_displayName;
+
+        QString m_avatarUrl;
 };

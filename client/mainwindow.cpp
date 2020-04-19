@@ -813,10 +813,10 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
         accountTokenBox->setAttribute(Qt::WA_DeleteOnClose);
         accountTokenBox->show();
     });
-    accountMenu->addAction(QIcon::fromTheme("user-properties"), "Profile", this, [=]
+    accountMenu->addAction(QIcon::fromTheme("user-properties"), tr("Profile"),
+        this, [this,c,dlg=QPointer<ProfileDialog>{}]() mutable
     {
-        ProfileDialog dialog(c, this);
-        dialog.exec();
+        summon(dlg, c, this);
     });
 
     accountMenu->addAction(QIcon::fromTheme("system-log-out"), tr("&Logout"),

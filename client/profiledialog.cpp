@@ -20,9 +20,16 @@
 #include "profiledialog.h"
 
 #include <connection.h>
+#include <user.h>
 #include <csapi/device_management.h>
 
+#include <QtWidgets/QAction>
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QFormLayout>
 #include <QtWidgets/QHeaderView>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QTabWidget>
 #include <QtWidgets/QTableWidgetItem>
 
@@ -31,12 +38,48 @@ using Quotient::BaseJob;
 
 ProfileDialog::ProfileDialog(Connection *c, QWidget *parent)
     : Dialog(c->userId(), parent)
+    , m_user(c->user())
+    , tabWidget(new QTabWidget)
+    , m_avatar(new QLabel)
+    , m_userId(new QLabel)
+    , m_displayName(new QLineEdit)
 {
-    tabWidget = new QTabWidget;
+    auto profileWidget = new QWidget(this);
+    {
+        auto topLayout = new QHBoxLayout;
+        {
+            auto avatarLayout = new QVBoxLayout;
+            m_avatar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+            m_avatar->setPixmap({64, 64});
+            avatarLayout->addWidget(m_avatar);
+
+            auto uploadButton = new QPushButton(tr("Set Avatar..."));
+            connect(uploadButton, &QPushButton::clicked, this, [this] {
+                m_avatarUrl =
+                    QFileDialog::getOpenFileName(this, tr("Set avatar"),
+                        {}, tr("Images (*.png *.jpg)"));
+                if (!m_avatarUrl.isEmpty()) {
+                    QImage img = QImage(m_avatarUrl).scaled({64, 64}, Qt::KeepAspectRatio);
+                    m_avatar->setPixmap(QPixmap::fromImage(img));
+                }
+            });
+
+            avatarLayout->addWidget(uploadButton);
+            topLayout->addLayout(avatarLayout);
+        }
+
+        {
+            auto essentialsLayout = new QFormLayout;
+            essentialsLayout->addRow(tr("Account"), m_userId);
+            essentialsLayout->addRow(tr("Display Name"), m_displayName);
+            topLayout->addLayout(essentialsLayout);
+        }
+
+        profileWidget->setLayout(topLayout);
+    }
+    tabWidget->addTab(profileWidget, tr("Profile"));
 
     auto tableWidget = new QTableWidget(this);
-    tabWidget->addTab(tableWidget, "Devices");
-
     {
         tableWidget->setColumnCount(3);
         tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
@@ -69,6 +112,23 @@ ProfileDialog::ProfileDialog(Connection *c, QWidget *parent)
             }
         });
     }
+    tabWidget->addTab(tableWidget, tr("Devices"));
 
     addWidget(tabWidget);
+}
+
+void ProfileDialog::load()
+{
+    m_avatar->setPixmap(QPixmap::fromImage(m_user->avatar(64)));
+    m_userId->setText(m_user->id());
+    m_displayName->setText(m_user->displayname());
+}
+
+void ProfileDialog::apply()
+{
+    if (m_displayName->text() != m_user->displayname())
+        m_user->rename(m_displayName->text());
+    if (!m_avatarUrl.isEmpty())
+        m_user->setAvatar(m_avatarUrl);
+    accept();
 }
