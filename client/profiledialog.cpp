@@ -99,7 +99,11 @@ ProfileDialog::ProfileDialog(Quotient::User* u, QWidget* parent)
 
 void ProfileDialog::load()
 {
-    m_avatar->setPixmap(QPixmap::fromImage(m_user->avatar(64)));
+    auto avatar = m_user->avatar(64);
+    if (avatar.isNull())
+        m_avatar->setText(tr("No Avatar"));
+    else
+        m_avatar->setPixmap(QPixmap::fromImage(avatar));
     m_userId->setText(m_user->id());
     m_displayName->setText(m_user->displayname());
 
