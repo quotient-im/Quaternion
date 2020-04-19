@@ -25,9 +25,9 @@ class QAction;
 class QLabel;
 class QLineEdit;
 class QTabWidget;
+class QTableWidget;
 
 namespace Quotient {
-    class Connection;
     class User;
 }
 
@@ -36,7 +36,7 @@ class ProfileDialog : public Dialog
         Q_OBJECT
 
     public:
-        explicit ProfileDialog(Quotient::Connection *c, QWidget *parent = 0);
+        explicit ProfileDialog(Quotient::User* u, QWidget* parent = 0);
 
     private slots:
         void load() override;
@@ -46,10 +46,12 @@ class ProfileDialog : public Dialog
         Quotient::User* m_user;
         QTabWidget* tabWidget;
 
+        QTableWidget* m_deviceTable;
         QAction* m_attachAction;
         QLabel* m_avatar;
         QLabel* m_userId;
         QLineEdit* m_displayName;
 
+        QHash<QString, QString> m_devices;
         QString m_avatarUrl;
 };

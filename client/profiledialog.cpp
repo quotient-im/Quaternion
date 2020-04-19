@@ -33,12 +33,11 @@
 #include <QtWidgets/QTabWidget>
 #include <QtWidgets/QTableWidgetItem>
 
-using Quotient::Connection;
 using Quotient::BaseJob;
 
-ProfileDialog::ProfileDialog(Connection *c, QWidget *parent)
-    : Dialog(c->userId(), parent)
-    , m_user(c->user())
+ProfileDialog::ProfileDialog(Quotient::User* u, QWidget* parent)
+    : Dialog(u->id(), parent)
+    , m_user(u)
     , tabWidget(new QTabWidget)
     , m_avatar(new QLabel)
     , m_userId(new QLabel)
@@ -79,40 +78,21 @@ ProfileDialog::ProfileDialog(Connection *c, QWidget *parent)
     }
     tabWidget->addTab(profileWidget, tr("Profile"));
 
-    auto tableWidget = new QTableWidget(this);
+    m_deviceTable = new QTableWidget;
     {
-        tableWidget->setColumnCount(3);
-        tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-        tableWidget->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-        tableWidget->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+        m_deviceTable->setColumnCount(3);
+        m_deviceTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+        m_deviceTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+        m_deviceTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+        m_deviceTable->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+        m_deviceTable->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-        tableWidget->setHorizontalHeaderLabels(QStringList()
+        m_deviceTable->setHorizontalHeaderLabels(QStringList()
             << tr("Display Name")
             << tr("Device ID")
             << tr("Last Seen"));
-
-        auto devicesJob = c->callApi<QMatrixClient::GetDevicesJob>();
-
-        connect(devicesJob, &BaseJob::success, this, [=] {
-            tableWidget->setRowCount(devicesJob->devices().size());
-
-            for (int i = 0; i < devicesJob->devices().size(); i++) {
-                auto device = devicesJob->devices()[i];
-                auto name = new QTableWidgetItem(device.displayName);
-                tableWidget->setItem(i, 0, name);
-
-                auto id = new QTableWidgetItem(device.deviceId);
-                tableWidget->setItem(i, 1, id);
-
-                QDateTime lastSeen;
-                lastSeen.setMSecsSinceEpoch(device.lastSeenTs.value_or(0));
-                auto ip = new QTableWidgetItem(device.lastSeenIp
-                    + " @ " + QLocale().toString(lastSeen, QLocale::ShortFormat));
-                tableWidget->setItem(i, 2, ip);
-            }
-        });
     }
-    tabWidget->addTab(tableWidget, tr("Devices"));
+    tabWidget->addTab(m_deviceTable, tr("Devices"));
 
     addWidget(tabWidget);
 }
@@ -122,6 +102,30 @@ void ProfileDialog::load()
     m_avatar->setPixmap(QPixmap::fromImage(m_user->avatar(64)));
     m_userId->setText(m_user->id());
     m_displayName->setText(m_user->displayname());
+
+    auto devicesJob = m_user->connection()->callApi<Quotient::GetDevicesJob>();
+    connect(devicesJob, &BaseJob::success, this, [=] {
+        m_deviceTable->setRowCount(devicesJob->devices().size());
+
+        for (int i = 0; i < devicesJob->devices().size(); ++i) {
+            auto device = devicesJob->devices()[i];
+            m_devices[device.deviceId] = device.displayName;
+
+            auto name = new QTableWidgetItem(device.displayName);
+            m_deviceTable->setItem(i, 0, name);
+
+            auto id = new QTableWidgetItem(device.deviceId);
+            id->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+            m_deviceTable->setItem(i, 1, id);
+
+            QDateTime lastSeen;
+            lastSeen.setMSecsSinceEpoch(device.lastSeenTs.value_or(0));
+            auto ip = new QTableWidgetItem(device.lastSeenIp
+                + " @ " + QLocale().toString(lastSeen, QLocale::ShortFormat));
+            ip->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+            m_deviceTable->setItem(i, 2, ip);
+       }
+    });
 }
 
 void ProfileDialog::apply()
@@ -130,5 +134,12 @@ void ProfileDialog::apply()
         m_user->rename(m_displayName->text());
     if (!m_avatarUrl.isEmpty())
         m_user->setAvatar(m_avatarUrl);
+
+    for (auto deviceIt = m_devices.cbegin(); deviceIt != m_devices.cend(); ++deviceIt) {
+        auto list = m_deviceTable->findItems(deviceIt.key(), Qt::MatchExactly);
+        auto newName = m_deviceTable->item(list[0]->row(), 0)->text();
+        if (!list.isEmpty() && newName != deviceIt.value())
+            m_user->connection()->callApi<Quotient::UpdateDeviceJob>(deviceIt.key(), newName);
+    }
     accept();
 }

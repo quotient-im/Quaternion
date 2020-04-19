@@ -816,7 +816,7 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     accountMenu->addAction(QIcon::fromTheme("user-properties"), tr("Profile"),
         this, [this,c,dlg=QPointer<ProfileDialog>{}]() mutable
     {
-        summon(dlg, c, this);
+        summon(dlg, c->user(), this);
     });
 
     accountMenu->addAction(QIcon::fromTheme("system-log-out"), tr("&Logout"),
