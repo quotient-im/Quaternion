@@ -22,6 +22,7 @@
 #include <connection.h>
 #include <csapi/device_management.h>
 
+#include <QtWidgets/QHeaderView>
 #include <QtWidgets/QTabWidget>
 #include <QtWidgets/QTableWidgetItem>
 
@@ -38,6 +39,10 @@ ProfileDialog::ProfileDialog(Connection *c, QWidget *parent)
 
     {
         tableWidget->setColumnCount(3);
+        tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+        tableWidget->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+        tableWidget->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+
         tableWidget->setHorizontalHeaderLabels(QStringList()
             << tr("Display Name")
             << tr("Device ID")
