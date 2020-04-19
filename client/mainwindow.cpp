@@ -796,6 +796,11 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     if (connections.size() < 10)
         menuCaption.prepend('&' % QString::number(connections.size()) % ' ');
     auto accountMenu = new QMenu(menuCaption, connectionMenu);
+    accountMenu->addAction(QIcon::fromTheme("user-properties"), tr("Profile"),
+        this, [this,c,dlg=QPointer<ProfileDialog>{}]() mutable
+    {
+        summon(dlg, c->user(), this);
+    });
     accountMenu->addAction(QIcon::fromTheme("view-certificate"),
         tr("Show &access token"), this, [=]
     {
@@ -812,11 +817,6 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
         accountTokenBox->setDetailedText(aToken);
         accountTokenBox->setAttribute(Qt::WA_DeleteOnClose);
         accountTokenBox->show();
-    });
-    accountMenu->addAction(QIcon::fromTheme("user-properties"), tr("Profile"),
-        this, [this,c,dlg=QPointer<ProfileDialog>{}]() mutable
-    {
-        summon(dlg, c->user(), this);
     });
 
     accountMenu->addAction(QIcon::fromTheme("system-log-out"), tr("&Logout"),
