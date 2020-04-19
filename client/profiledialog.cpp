@@ -21,6 +21,7 @@
 
 #include <connection.h>
 #include <user.h>
+#include <room.h>
 #include <csapi/device_management.h>
 
 #include <QtWidgets/QAction>
@@ -61,6 +62,17 @@ ProfileDialog::ProfileDialog(Quotient::User* u, QWidget* parent)
                     QImage img = QImage(m_avatarUrl).scaled({64, 64}, Qt::KeepAspectRatio);
                     m_avatar->setPixmap(QPixmap::fromImage(img));
                 }
+            });
+            connect(m_user, &Quotient::User::avatarChanged, this,
+                    [=] (Quotient::User* user, const Quotient::Room* room) {
+                if (room)
+                    return;
+
+                QImage img = user->avatar(64);
+                if (img.isNull())
+                    m_avatar->setText(tr("No Avatar"));
+                else
+                    m_avatar->setPixmap(QPixmap::fromImage(img));
             });
 
             avatarLayout->addWidget(uploadButton);
