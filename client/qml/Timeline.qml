@@ -71,6 +71,13 @@ Rectangle {
                 }
             }
         }
+        Binding {
+            target: roomAvatar
+            property: "width"
+            value: roomHeader.width ? roomHeader.width / 2 : 0
+            when: roomAvatar.width && roomHeader.width
+                  && roomAvatar.width > roomHeader.width / 2
+        }
 
         Column {
             id: headerText
