@@ -1132,7 +1132,7 @@ Locator::ResolveResult MainWindow::openLocator(const Locator& l, const QString& 
         }
         return Locator::MalformedId;
     }
-    if (idOrAlias.startsWith('!') or idOrAlias.startsWith('#'))
+    if (idOrAlias.startsWith('!') || idOrAlias.startsWith('#'))
     {
         QString eventId;
         if (idOrAlias.contains('/')) {
