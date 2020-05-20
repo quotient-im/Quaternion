@@ -66,9 +66,12 @@ class ChatRoomWidget: public QWidget
         void pageDownPressed();
         void openExternally(int currentIndex);
         void showDetails(int currentIndex);
+        void scrollViewTo(int currentIndex);
+        void animateMessage(int currentIndex);
 
     public slots:
         void setRoom(QuaternionRoom* room);
+        void spotlightEvent(QString eventId);
 
         void insertMention(Quotient::User* user);
         void focusInput();

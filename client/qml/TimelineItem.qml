@@ -106,6 +106,10 @@ Item {
                     detailsAnimation.start()
             }
         }
+        onAnimateMessage: {
+            if (currentIndex === index)
+                blinkAnimation.start()
+        }
     }
 
     SequentialAnimation {
@@ -123,6 +127,27 @@ Item {
         PropertyAction {
             target: detailsAreaLoader; property: "visible"
             value: showingDetails
+        }
+    }
+    SequentialAnimation {
+        id: blinkAnimation
+        loops: 3
+        PropertyAction {
+            target: messageFlasher; property: "visible"
+            value: true
+        }
+        PauseAnimation {
+            // `settings.animations_duration_ms` intentionally is not in use here
+            // because this is not just an eye candy animation - the user will lose
+            // functionality if this animation stops working.
+            duration: 200
+        }
+        PropertyAction {
+            target: messageFlasher; property: "visible"
+            value: false
+        }
+        PauseAnimation {
+            duration: 200
         }
     }
 
@@ -275,6 +300,17 @@ Item {
                 Rectangle {
                     anchors.fill: parent
                     opacity: 0.2
+                    color: settings.highlight_color
+                    radius: 2
+                }
+            }
+            Item {
+                id: messageFlasher
+                anchors.fill: textField
+                visible: false
+                Rectangle {
+                    anchors.fill: parent
+                    opacity: 0.5
                     color: settings.highlight_color
                     radius: 2
                 }

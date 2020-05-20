@@ -335,6 +335,7 @@ Rectangle {
                 onPageDownPressed:
                     chatView.scrollDown(chatView.height
                                         - sectionBanner.childrenRect.height)
+                onScrollViewTo: chatView.positionViewAtIndex(currentIndex, ListView.Contain)
             }
 
             Component.onCompleted: {
