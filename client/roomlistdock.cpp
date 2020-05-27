@@ -313,8 +313,13 @@ void RoomListDock::addTagsSelected()
             return;
 
         auto tags = room->tags();
-        const auto enteredTags =
-                tagsInput->toPlainText().split('\n', QString::SkipEmptyParts);
+        const auto enteredTags = tagsInput->toPlainText().split('\n',
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+                                                                Qt::SkipEmptyParts
+#else
+                                                                QString::SkipEmptyParts
+#endif
+        );
         for (const auto& tag: enteredTags)
             tags[captionToTag(tag)]; // No overwriting, just ensure existence
 
