@@ -95,7 +95,9 @@ class ThumbnailResponse : public QQuickImageResponse
                 {
                     image = job->thumbnail();
                     errorStr.clear();
-                    qDebug() << "ThumbnailResponse: image ready for" << mediaId;
+                    qDebug().nospace() << "ThumbnailResponse: image ready for "
+                                       << mediaId << ", w=" << image.width()
+                                       << ", h=" << image.height();
                 } else if (job->error() == BaseJob::Abandoned) {
                     errorStr = tr("Image request has been cancelled");
                     qDebug() << "ThumbnailResponse: cancelled for" << mediaId;
@@ -173,8 +175,8 @@ QQuickImageResponse* ImageProvider::requestImageResponse(
         const QString& id, const QSize& requestedSize)
 {
     qDebug().nospace() << "ImageProvider: requesting " << id
-                       << ", h=" << requestedSize.height()
-                       << ", w=" << requestedSize.width();
+                       << ", w=" << requestedSize.width()
+                       << ", h=" << requestedSize.height();
     return new ThumbnailResponse(LOAD_ATOMIC(m_connection), id, requestedSize);
 }
 
