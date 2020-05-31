@@ -62,10 +62,10 @@ NetworkConfigDialog::NetworkConfigDialog(QWidget* parent)
     proxyTypeGroup->addButton(new QRadioButton(tr("&SOCKS5 proxy")),
                               QNetworkProxy::Socks5Proxy);
     connect(proxyTypeGroup,
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 7, 0))
+#if (QT_VERSION < QT_VERSION_CHECK(5, 15, 0))
             QOverload<int,bool>::of(&QButtonGroup::buttonToggled),
 #else
-            static_cast<void (QButtonGroup::*)(int,bool)>(&QButtonGroup::buttonToggled),
+            &QButtonGroup::idToggled,
 #endif
             this, &NetworkConfigDialog::maybeDisableControls);
 
