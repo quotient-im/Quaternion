@@ -66,7 +66,7 @@ MessageEventModel::MessageEventModel(QObject* parent)
     using namespace Quotient;
     qmlRegisterType<FileTransferInfo>(); qRegisterMetaType<FileTransferInfo>();
     qmlRegisterUncreatableType<EventStatus>("Quotient", 1, 0, "EventStatus",
-        "EventStatus is not an creatable type");
+        "EventStatus is not a creatable type");
 }
 
 void MessageEventModel::changeRoom(QuaternionRoom* room)
