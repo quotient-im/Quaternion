@@ -223,8 +223,8 @@ Settings not exposed in UI:
 - `maybe_read_timer` - threshold time interval in milliseconds for a displayed
   message to be considered as read.
 - `use_keychain` - set this to false (or 0) if you explicitly do NOT want to
-  use keychain but prefer to store access token in dedicated file instead (see
-  next paragraph); the default is true.
+  use keychain but prefer to store access token in a dedicated file instead (see
+  the next paragraph); the default is true.
 - `hyperlink_users` - set this to false (or 0) if you do NOT want to
   hyperlink matrix user IDs in messages. By default it's true.
 - `auto_markdown` - since version 0.0.9.5, and only if built with Qt 5.14
