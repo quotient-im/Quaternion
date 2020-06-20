@@ -284,7 +284,7 @@ QString MessageEventModel::renderDate(const QDateTime& timestamp) const
             return s;
         }
     }
-    return QLocale().dateFormat(QLocale::ShortFormat);
+    return QLocale().toString(date, QLocale::ShortFormat);
 }
 
 bool MessageEventModel::isUserActivityNotable(
