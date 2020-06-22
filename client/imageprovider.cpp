@@ -51,11 +51,12 @@ class ThumbnailResponse : public QQuickImageResponse
                 emit finished();
                 return;
             }
-            if (!requestedSize.isValid()) {
-                errorStr = tr("Invalid size (%1x%2) supplied for media id %3")
-                               .arg(QString::number(requestedSize.width()),
-                                    QString::number(requestedSize.height()),
-                                    mediaId);
+            if (requestedSize.isEmpty()) {
+                errorStr =
+                    tr("Empty box (%1x%2) requested as size for media id %3")
+                        .arg(QString::number(requestedSize.width()),
+                             QString::number(requestedSize.height()),
+                             mediaId);
                 emit finished();
                 return;
             }
@@ -174,10 +175,15 @@ ImageProvider::ImageProvider(Connection* connection)
 QQuickImageResponse* ImageProvider::requestImageResponse(
         const QString& id, const QSize& requestedSize)
 {
+    auto size = requestedSize;
+    if (size.width() == -1)
+        size.setWidth(ushort(-1));
+    if (size.height() == -1)
+        size.setHeight(ushort(-1));
     qDebug().nospace() << "ImageProvider: requesting " << id
-                       << ", w=" << requestedSize.width()
-                       << ", h=" << requestedSize.height();
-    return new ThumbnailResponse(LOAD_ATOMIC(m_connection), id, requestedSize);
+                       << ", w=" << size.width()
+                       << ", h=" << size.height();
+    return new ThumbnailResponse(LOAD_ATOMIC(m_connection), id, size);
 }
 
 void ImageProvider::setConnection(Connection* connection)
