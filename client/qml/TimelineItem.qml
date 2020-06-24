@@ -205,11 +205,11 @@ Item {
             Image {
                 function desiredHeight() {
                     return xchatStyle ? authorLabel.height :
-                           visible ? authorLabel.height * 2 - timelabel.height : 0
+                           visible ? authorLabel.height * 2 - timelabel.height
+                                   : undefined
                 }
                 function desiredWidth() {
-                    return !xchatStyle ? timelabel.width :
-                           !visible ? 0 : undefined
+                    return !xchatStyle ? timelabel.width : undefined
                 }
 
                 id: authorAvatar
@@ -223,8 +223,7 @@ Item {
 
                 source: author.avatarMediaId ?
                             "image://mtx/" + author.avatarMediaId : ""
-                sourceSize.height: desiredHeight()
-                sourceSize.width: desiredWidth()
+                sourceSize: Qt.size(desiredWidth() * 2, desiredHeight() * 2)
             }
             Label {
                 id: authorLabel

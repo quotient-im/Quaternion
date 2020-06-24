@@ -60,7 +60,10 @@ Rectangle {
 
             source: room && room.avatarMediaId
                     ? "image://mtx/" + room.avatarMediaId : ""
-            sourceSize.height: root.height / 3 // A kinda safe upper limit
+            sourceSize { // Kinda safe upper limits
+                height: root.height / 3
+                width: parent.width
+            }
             fillMode: Image.PreserveAspectFit
 
             Behavior on width {
