@@ -226,6 +226,8 @@ RoomSettingsDialog::RoomSettingsDialog(QuaternionRoom* room, MainWindow* parent)
     roomIdLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
     mainFormLayout->addRow(tr("Room identifier"), roomIdLabel);
 
+    connect(room, &QObject::destroyed, this, &QObject::deleteLater);
+
     // Uncomment to debug room display name calculation code
 //    auto* refreshNameButton =
 //        buttonBox()->addButton(tr("Refresh name"), QDialogButtonBox::ApplyRole);
