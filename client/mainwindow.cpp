@@ -90,8 +90,8 @@ MainWindow::MainWindow()
              this, &MainWindow::openResource);
     connect( chatRoomWidget, &ChatRoomWidget::joinRequested,
              this, &MainWindow::joinRoom);
-    connect( chatRoomWidget, &ChatRoomWidget::roomSettingsRequested,
-             this, &MainWindow::openRoomSettings);
+    connect(chatRoomWidget, &ChatRoomWidget::roomSettingsRequested,
+            this, [this] { openRoomSettings(); });
     connect( roomListDock, &RoomListDock::roomSelected,
              this, &MainWindow::selectRoom);
     connect( chatRoomWidget, &ChatRoomWidget::showStatusMessage,
@@ -333,7 +333,8 @@ void MainWindow::createMenu()
     roomMenu->addSeparator();
     roomSettingsAction =
         roomMenu->addAction(QIcon::fromTheme("user-group-properties"),
-            tr("Change room &settings..."), this, &MainWindow::openRoomSettings);
+                            tr("Change room &settings..."), this,
+                            [this] { openRoomSettings(); });
     roomSettingsAction->setDisabled(true);
     roomMenu->addSeparator();
     openRoomAction = roomMenu->addAction(
@@ -1198,10 +1199,15 @@ void MainWindow::openResource(const QString& idOrUri, const QString& action)
                          QMessageBox::Close, QMessageBox::Close);
 }
 
-void MainWindow::openRoomSettings()
+void MainWindow::openRoomSettings(QuaternionRoom* r)
 {
-    static QHash<QuaternionRoom*, QPointer<RoomSettingsDialog>> dlgs;
-    summon(dlgs[currentRoom], currentRoom, this);
+    if (!r)
+        r = currentRoom;
+    static std::unordered_map<QuaternionRoom*, QPointer<RoomSettingsDialog>> dlgs;
+    const auto [it, inserted] = dlgs.try_emplace(r);
+    summon(it->second, r, this);
+    if (inserted)
+        connect(it->second, &QObject::destroyed, [r] { dlgs.erase(r); });
 }
 
 void MainWindow::selectRoom(Quotient::Room* r)
