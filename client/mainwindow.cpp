@@ -436,6 +436,14 @@ void MainWindow::createMenu()
         else
             defaultLayout->setChecked(true);
     }
+#if defined Q_OS_UNIX && !defined Q_OS_MAC
+    addTimelineOptionCheckbox(
+        settingsMenu,
+        tr("Use Breeze style (requires restart)"),
+        tr("Force use Breeze style and icon theme"),
+        QStringLiteral("use_breeze_style"), inFlatpak()
+    );
+#endif
     addTimelineOptionCheckbox(
         settingsMenu,
         tr("Use shuttle scrollbar (requires restart)"),

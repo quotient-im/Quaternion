@@ -23,10 +23,12 @@
 #include <QtCore/QCommandLineParser>
 #include <QtCore/QDebug>
 #include <QtCore/QStandardPaths>
+#include <QtWidgets/QStyleFactory>
 
 #include "networksettings.h"
 #include "mainwindow.h"
 #include "activitydetector.h"
+#include "linuxutils.h"
 #include <settings.h>
 
 void loadTranslations(
@@ -92,6 +94,22 @@ int main( int argc, char* argv[] )
         qDebug() << "Using application font:" << font.toString();
         QApplication::setFont(font);
     }
+
+#if defined Q_OS_UNIX && !defined Q_OS_MAC
+    const auto useBreezeStyle = Quotient::Settings().get("UI/use_breeze_style", inFlatpak());
+
+    // Set style to Breeze since Qt applications defaults to
+    // a very ugly Fusion style in Flatpak outside KDE
+    if (useBreezeStyle)
+    {
+        // Set icon theme as well to have uniform design
+        QApplication::setStyle("Breeze");
+        QIcon::setThemeName("breeze");
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        QIcon::setFallbackThemeName("breeze");
+#endif
+    }
+#endif
 
     // We should not need to do the following, as quitOnLastWindowClosed is
     // set to "true" by default; might be a bug, see
