@@ -19,8 +19,13 @@
 
 #include "systemtrayicon.h"
 
+#include <QtGui/QWindow>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QMenu>
+
 #include "mainwindow.h"
 #include "quaternionroom.h"
+#include "linuxutils.h"
 #include <settings.h>
 #include <qt_connection_util.h>
 
@@ -28,8 +33,16 @@ SystemTrayIcon::SystemTrayIcon(MainWindow* parent)
     : QSystemTrayIcon(parent)
     , m_parent(parent)
 {
+    auto contextMenu = new QMenu(parent);
+    auto showHideAction = contextMenu->addAction(tr("Hide"), this, &SystemTrayIcon::showHide);
+    contextMenu->addAction(tr("Quit"), QApplication::quit);
+    connect(m_parent->windowHandle(), &QWindow::visibleChanged, [showHideAction](bool visible) {
+        showHideAction->setText(visible ? tr("Hide") : tr("Show"));
+    });
+
     setIcon(QIcon(":/icon.png"));
     setToolTip("Quaternion");
+    setContextMenu(contextMenu);
     connect( this, &SystemTrayIcon::activated, this, &SystemTrayIcon::systemTrayIconAction);
 }
 

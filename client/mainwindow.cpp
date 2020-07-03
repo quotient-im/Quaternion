@@ -100,6 +100,7 @@ MainWindow::MainWindow()
              chatRoomWidget, &ChatRoomWidget::insertMention);
 
     createMenu();
+    createWinId();
     systemTrayIcon = new SystemTrayIcon(this);
     systemTrayIcon->show();
 
