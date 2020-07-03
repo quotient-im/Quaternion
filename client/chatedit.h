@@ -42,9 +42,12 @@ class ChatEdit : public KChatEdit
     signals:
         void proposedCompletion(const QStringList& allCompletions, int curIndex);
         void cancelledCompletion();
+        void insertFromMimeDataRequested(const QMimeData* source);
 
     protected:
         QString sanitizeMention(QString mentionText);
+        bool canInsertFromMimeData(const QMimeData* source) const;
+        void insertFromMimeData(const QMimeData* source);
 
     private:
         ChatRoomWidget* chatRoomWidget;

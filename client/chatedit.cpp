@@ -19,6 +19,7 @@
 
 #include "chatedit.h"
 
+#include <QtCore/QMimeData>
 #include <QtGui/QKeyEvent>
 
 #include "chatroomwidget.h"
@@ -50,6 +51,22 @@ QString ChatEdit::sanitizeMention(QString mentionText)
     if (mentionText.startsWith('/'))
         mentionText.push_front('/');
     return mentionText;
+}
+
+bool ChatEdit::canInsertFromMimeData(const QMimeData *source) const
+{
+    if (source->hasImage())
+        return true;
+
+    return QTextEdit::canInsertFromMimeData(source);
+}
+
+void ChatEdit::insertFromMimeData(const QMimeData *source)
+{
+    if (source->hasImage())
+        emit insertFromMimeDataRequested(source);
+    else
+        QTextEdit::insertFromMimeData(source);
 }
 
 void ChatEdit::appendTextAtCursor(const QString& text, bool select)

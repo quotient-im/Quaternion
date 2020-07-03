@@ -39,6 +39,8 @@
 #include <QtCore/QRegularExpression>
 #include <QtCore/QStringBuilder>
 #include <QtCore/QLocale>
+#include <QtCore/QTemporaryFile>
+#include <QtCore/QMimeData>
 
 #include <events/roommessageevent.h>
 #include <events/reactionevent.h>
@@ -110,10 +112,14 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     m_attachAction->setDisabled(true);
     connect(m_attachAction, &QAction::triggered, this, [this] (bool checked) {
         if (checked)
+        {
             attachedFileName =
                     QFileDialog::getOpenFileName(this, tr("Attach file"));
-        else
+        } else {
+            if (m_fileToAttach->isOpen())
+                m_fileToAttach->remove();
             attachedFileName.clear();
+        }
 
         if (!attachedFileName.isEmpty())
         {
@@ -128,6 +134,8 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     });
     attachButton->setDefaultAction(m_attachAction);
 
+    m_fileToAttach = new QTemporaryFile(this);
+
     m_chatEdit = new ChatEdit(this);
     m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
     m_chatEdit->setAcceptRichText(false);
@@ -139,6 +147,20 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
             m_chatEdit->textCursor().hasSelection()
                 ? m_chatEdit->textCursor().selectedText()
                 : selectedText);
+    });
+    connect(m_chatEdit, &ChatEdit::insertFromMimeDataRequested,
+            this, [=] (const QMimeData* source) {
+        if (m_fileToAttach->isOpen() || m_currentRoom == nullptr)
+            return;
+        m_fileToAttach->open();
+
+        qvariant_cast<QImage>(source->imageData()).save(m_fileToAttach, "PNG");
+
+        attachedFileName = m_fileToAttach->fileName();
+        m_attachAction->setChecked(true);
+        m_chatEdit->setPlaceholderText(
+            tr("Add a message to the file or just push Enter"));
+        emit showStatusMessage(tr("Attaching an image from clipboard"));
     });
     connect(m_chatEdit, &ChatEdit::proposedCompletion, this,
             [=](const QStringList& matches, int pos) {
@@ -198,6 +220,7 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
     indicesOnScreen.clear();
     attachedFileName.clear();
     m_attachAction->setChecked(false);
+    m_fileToAttach->remove();
 
     m_currentRoom = room;
     m_attachAction->setEnabled(m_currentRoom != nullptr);
@@ -326,6 +349,8 @@ QString ChatRoomWidget::doSendInput()
                             QUrl(attachedFileName).fileName() : text,
                         QUrl::fromLocalFile(attachedFileName));
 
+        if (m_fileToAttach->isOpen())
+            m_fileToAttach->remove();
         attachedFileName.clear();
         m_attachAction->setChecked(false);
         m_chatEdit->setPlaceholderText(DefaultPlaceholderText);

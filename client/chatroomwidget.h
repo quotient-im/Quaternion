@@ -41,6 +41,8 @@ class QQuickWidget;
 class QLabel;
 class QAction;
 class QTextDocument;
+class QMimeData;
+class QTemporaryFile;
 
 class ChatRoomWidget: public QWidget
 {
@@ -97,6 +99,7 @@ class ChatRoomWidget: public QWidget
         MessageEventModel* m_messageModel;
         QuaternionRoom* m_currentRoom;
         ImageProvider* m_imageProvider;
+        QTemporaryFile* m_fileToAttach;
 
 #ifdef DISABLE_QQUICKWIDGET
         using timelineWidget_t = QQuickView;
