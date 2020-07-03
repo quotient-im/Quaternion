@@ -55,10 +55,7 @@ QString ChatEdit::sanitizeMention(QString mentionText)
 
 bool ChatEdit::canInsertFromMimeData(const QMimeData *source) const
 {
-    if (source->hasImage())
-        return true;
-
-    return QTextEdit::canInsertFromMimeData(source);
+    return source->hasImage() || QTextEdit::canInsertFromMimeData(source);
 }
 
 void ChatEdit::insertFromMimeData(const QMimeData *source)
