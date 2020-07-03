@@ -46,8 +46,8 @@ class ChatEdit : public KChatEdit
 
     protected:
         QString sanitizeMention(QString mentionText);
-        bool canInsertFromMimeData(const QMimeData* source) const;
-        void insertFromMimeData(const QMimeData* source);
+        bool canInsertFromMimeData(const QMimeData* source) const override;
+        void insertFromMimeData(const QMimeData* source) override;
 
     private:
         ChatRoomWidget* chatRoomWidget;
