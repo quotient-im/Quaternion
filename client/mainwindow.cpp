@@ -26,6 +26,7 @@
 #include "networkconfigdialog.h"
 #include "roomdialogs.h"
 #include "systemtrayicon.h"
+#include "linuxutils.h"
 
 #include <csapi/joining.h>
 #include <connection.h>
@@ -78,7 +79,7 @@ MainWindow::MainWindow()
     connect(nam, &QNetworkAccessManager::sslErrors,
             this, &MainWindow::sslErrors);
 
-    setWindowIcon(QIcon(":/icon.png"));
+    setWindowIcon(QIcon::fromTheme(appIconName(), QIcon(":/icon.png")));
 
     roomListDock = new RoomListDock(this);
     addDockWidget(Qt::LeftDockWidgetArea, roomListDock);
