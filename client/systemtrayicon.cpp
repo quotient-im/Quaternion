@@ -40,7 +40,7 @@ SystemTrayIcon::SystemTrayIcon(MainWindow* parent)
         showHideAction->setText(visible ? tr("Hide") : tr("Show"));
     });
 
-    setIcon(QIcon(":/icon.png"));
+    setIcon(QIcon::fromTheme(appIconName(), QIcon(":/icon.png")));
     setToolTip("Quaternion");
     setContextMenu(contextMenu);
     connect( this, &SystemTrayIcon::activated, this, &SystemTrayIcon::systemTrayIconAction);
