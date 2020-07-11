@@ -110,10 +110,11 @@ class MainWindow: public QMainWindow
         void logout(Connection* c);
 
     private:
-        enum CompletionType {
-            None,
-            Room,
-            User
+        enum CompletionType : uint8_t {
+            NoCompletion = 0,
+            RoomCompletion,
+            UserCompletion,
+            RoomAndUserCompletion = RoomCompletion|UserCompletion
         };
 
         QVector<Connection*> connections;
@@ -183,11 +184,9 @@ class MainWindow: public QMainWindow
          * \param actionName - the text on the accepting button
          */
         Locator obtainIdentifier(Connection* initialConn,
-                                 QFlags<CompletionType> completionType,
+                                 CompletionType completionType,
                                  const QString& prompt, const QString& label,
                                  const QString& actionName);
-        void setCompleter(QLineEdit* edit, Connection* connection,
-                          QFlags<CompletionType> type);
 
         void closeEvent(QCloseEvent* event) override;
 };

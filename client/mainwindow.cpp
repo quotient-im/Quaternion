@@ -63,6 +63,8 @@
 #include <QtGui/QCloseEvent>
 #include <QtGui/QDesktopServices>
 
+#include <set>
+
 using Quotient::NetworkAccessManager;
 using Quotient::AccountSettings;
 
@@ -1182,7 +1184,7 @@ void MainWindow::openResource(const QString& idOrUri, const QString& action)
         action == "interactive"
         ? id.isEmpty()
           ? obtainIdentifier(getDefaultConnection(),
-                             QFlag(Room | User), tr("Open room"),
+                             RoomAndUserCompletion, tr("Open room"),
                              tr("Room or user ID, room alias,\n"
                                 "Matrix URI or matrix.to link"),
                              tr("Switch to room"))
@@ -1299,7 +1301,7 @@ MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
 }
 
 Locator MainWindow::obtainIdentifier(Connection* initialConn,
-        QFlags<CompletionType> completionType, const QString& prompt,
+        CompletionType completionType, const QString& prompt,
         const QString& label, const QString& actionName)
 {
     if (connections.isEmpty())
@@ -1332,14 +1334,40 @@ Locator MainWindow::obtainIdentifier(Connection* initialConn,
         identifier->setFocus();
     }
     layout->addRow(label, identifier);
-    setCompleter(identifier, connections[account->currentIndex()], completionType);
+
+    const auto setCompleter = [this, identifier, completionType](int index) {
+        auto* connection = connections.at(index);
+        std::set<QString> completions;
+        if (completionType & RoomCompletion)
+            for (auto* room : connection->allRooms()) {
+                completions.insert(room->id());
+                if (!room->canonicalAlias().isEmpty())
+                    completions.insert(room->canonicalAlias());
+            }
+
+        if (completionType & UserCompletion)
+            for (auto* user: connection->users())
+                completions.insert(user->id());
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+        QStringList completionsList;
+        copy(completions.cbegin(), completions.cend(),
+             std::back_inserter(completionsList));
+        auto* completer = new QCompleter(completionsList);
+#else
+        auto* completer =
+            new QCompleter({ completions.cbegin(), completions.cend() });
+#endif
+        completer->setFilterMode(Qt::MatchContains);
+        identifier->setCompleter(completer);
+    };
+
+    setCompleter(account->currentIndex());
 
     auto* okButton = dlg.button(QDialogButtonBox::Ok);
     okButton->setDisabled(identifier->text().isEmpty());
     connect(account, QOverload<int>::of(&QComboBox::currentIndexChanged),
-        [&] (int index) {
-            setCompleter(identifier, connections[index], completionType);
-        });
+            identifier, setCompleter);
     connect(identifier, &QLineEdit::textChanged, &dlg,
         [identifier,okButton] {
             okButton->setDisabled(identifier->text().isEmpty());
@@ -1353,29 +1381,6 @@ Locator MainWindow::obtainIdentifier(Connection* initialConn,
     return {};
 }
 
-void MainWindow::setCompleter(QLineEdit* edit, Connection* connection,
-                              QFlags<CompletionType> type)
-{
-    QStringList list;
-    if (type & Room)
-    {
-        for (auto* room : connection->allRooms()) {
-            list << room->id();
-            if (!room->canonicalAlias().isEmpty())
-                list << room->canonicalAlias();
-        }
-    }
-    if (type & User)
-    {
-        for (auto* user: connection->users())
-            list << user->id();
-    }
-    list.sort();
-    auto* completer = new QCompleter(list);
-    completer->setFilterMode(Qt::MatchContains);
-    edit->setCompleter(completer);
-}
-
 void MainWindow::joinRoom(const QString& roomIdOrAlias)
 {
     auto* const defaultConnection = getDefaultConnection();
@@ -1385,7 +1390,7 @@ void MainWindow::joinRoom(const QString& roomIdOrAlias)
         return; // Already joined room
 
     auto roomLocator = roomIdOrAlias.isEmpty()
-            ? obtainIdentifier(defaultConnection, None,
+            ? obtainIdentifier(defaultConnection, NoCompletion,
                 tr("Enter room id or alias"),
                 tr("Room ID (starting with !)\nor alias (starting with #)"),
                 tr("Join"))
