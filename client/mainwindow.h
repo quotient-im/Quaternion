@@ -96,8 +96,6 @@ class MainWindow: public QMainWindow
     private slots:
         void invokeLogin();
         void joinRoom(const QString& roomAlias = {});
-        void getNewEvents(Connection* c);
-        void gotEvents(Connection* c);
 
         void loginError(Connection* c, const QString& message = {});
         void networkError(Connection* c);
@@ -120,6 +118,7 @@ class MainWindow: public QMainWindow
 
         QVector<Connection*> connections;
         QVector<Connection*> logoutOnExit;
+        QVector<Connection*> firstSyncing;
 
         RoomListDock* roomListDock = nullptr;
         UserListDock* userListDock = nullptr;
@@ -147,6 +146,7 @@ class MainWindow: public QMainWindow
             const QString& text, const QString& statusTip,
             const QString& settingsKey, bool defaultValue = false);
         void showFirstSyncIndicator();
+        void firstSyncOver(Connection* c);
         void loadSettings();
         void saveSettings() const;
         void doOpenLoginDialog(LoginDialog* dialog);

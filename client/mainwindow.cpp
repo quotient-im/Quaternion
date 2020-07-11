@@ -685,15 +685,18 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
 
     roomListDock->addConnection(c);
 
-    connect( c, &Connection::syncDone, this, [=]
-    {
-        gotEvents(c);
+    c->syncLoop();
+    connect(c, &Connection::syncDone, this, [this, c, counter = 0]() mutable {
+        if (counter == 0) {
+            firstSyncOver(c);
+            statusBar()->showMessage(
+                tr("First sync completed for %1", "%1 is user id")
+                    .arg(c->userId()),
+                3000);
+        }
 
         // Borrowed the logic from Quiark's code in Tensor to cache not too
-        // aggressively and not on the first sync. The static variable instance
-        // is created per-closure, meaning per-connection (which is why this
-        // code is not in gotEvents() ).
-        static int counter = 0;
+        // aggressively and not on the first sync.
         if (++counter % 17 == 2)
             c->saveState();
     } );
@@ -719,7 +722,7 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
                 "account until logout or Quaternion restart."));
             msgBox.setDetailedText(details);
             if (msgBox.exec() == QMessageBox::Retry)
-                getNewEvents(c);
+                c->syncLoop();
         });
     using namespace Quotient;
     connect( c, &Connection::requestFailed, this,
@@ -772,6 +775,8 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
                     selectRoom(nullptr);
              });
 
+    // Update the menu
+
     QString accountCaption = c->userId();
     if (!deviceName.isEmpty())
         accountCaption += '/' % deviceName;
@@ -807,8 +812,6 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     openRoomAction->setEnabled(true);
     createRoomAction->setEnabled(true);
     joinAction->setEnabled(true);
-
-    getNewEvents(c);
 }
 
 void MainWindow::dropConnection(Connection* c)
@@ -841,6 +844,17 @@ void MainWindow::showFirstSyncIndicator()
     busyLabel->show();
     busyIndicator->start();
     statusBar()->showMessage("Syncing, please wait");
+}
+
+void MainWindow::firstSyncOver(Connection *c)
+{
+    Q_ASSERT(c != nullptr);
+    firstSyncing.removeOne(c);
+    if (firstSyncing.empty()) {
+        busyLabel->hide();
+        busyIndicator->stop();
+    }
+    qDebug() << "Connections still in first sync: " << firstSyncing.size();
 }
 
 void MainWindow::showLoginWindow(const QString& statusMessage)
@@ -896,6 +910,7 @@ void MainWindow::doOpenLoginDialog(LoginDialog* dialog)
         auto deviceName = dialog->deviceName();
         dialog->deleteLater();
 
+        firstSyncing.push_back(connection);
         showFirstSyncIndicator();
 
         if (isInConnections(connection->userId())) {
@@ -1021,14 +1036,19 @@ void MainWindow::invokeLogin()
 
             autoLoggedIn = true;
             auto c = new Connection(account.homeserver());
+            firstSyncing.push_back(c);
             auto deviceName = account.deviceName();
             connect(c, &Connection::connected, this,
                 [=] {
                     c->loadState();
                     addConnection(c, deviceName);
                 });
-            c->connectWithToken(account.userId(), accessToken,
-                                account.deviceId());
+            connect(c, &Connection::resolveError, this, [this, c] {
+                firstSyncOver(c);
+                statusBar()->showMessage(
+                    tr("Failed to resolve server %1").arg(c->domain()), 4000);
+            });
+            c->assumeIdentity(account.userId(), accessToken, account.deviceId());
         }
     }
     if (autoLoggedIn)
@@ -1390,24 +1410,6 @@ void MainWindow::joinRoom(const QString& roomIdOrAlias)
             tr("Joined %1 as %2").arg(roomLocator.identifier,
                                       roomLocator.account->userId()));
     });
-}
-
-void MainWindow::getNewEvents(Connection* c)
-{
-    Q_ASSERT_X(c, __FUNCTION__, "Attempt to sync on null connection");
-    c->sync(30*1000);
-}
-
-void MainWindow::gotEvents(Connection* c)
-{
-    Q_ASSERT_X(c, __FUNCTION__, "Null connection");
-    if( busyLabel->isVisible() )
-    {
-        busyLabel->hide();
-        busyIndicator->stop();
-        statusBar()->showMessage(tr("Sync completed - have a good chat"), 3000);
-    }
-    getNewEvents(c);
 }
 
 void MainWindow::showMillisToRecon(Connection* c)
