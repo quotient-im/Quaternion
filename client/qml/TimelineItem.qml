@@ -1,6 +1,6 @@
 import QtQuick 2.6
 import QtQuick.Controls 1.4
-import QtQuick.Controls 2.0 as QQC2
+import QtQuick.Controls 2.1 as QQC2
 //import QtGraphicalEffects 1.0 // For fancy highlighting
 import Quotient 1.0
 
@@ -476,17 +476,51 @@ Item {
                 sourceComponent: FileContent { }
             }
             Flow {
-                anchors.top: imageLoader.active ? imageLoader.bottom : fileLoader.bottom
+                anchors.top: imageLoader.active ? imageLoader.bottom
+                                                : fileLoader.bottom
                 anchors.left: textField.left
                 anchors.right: parent.right
 
                 Repeater {
                     model: reactions
-                    Button {
-                        text: modelData.key + ": " + modelData.count
-                        onClicked: controller.reactionButtonClicked(eventId, modelData.key)
-                        tooltip: qsTr("%1 reacted with %2", "", modelData.authors.length)
-                            .arg(modelData.authors.join(", ")).arg(modelData.key)
+                    QQC2.ToolButton {
+                        contentItem: Text {
+                            text: modelData.key + " \u00d7" /* Math "multiply" */
+                                  + modelData.authors.length
+                            font.family: settings.font.family
+                            font.pointSize: settings.font.pointSize - 1
+                        }
+
+                        background: Rectangle {
+                            radius: 4
+                            color: parent.down ? defaultPalette.button
+                                               : "transparent"
+                            border.color:
+                                modelData.authors.indexOf(
+                                    room.safeMemberName(room.localUser.id)) !== -1
+                                ? defaultPalette.highlight
+                                : disabledPalette.buttonText
+                            border.width: 1
+                        }
+
+                        hoverEnabled: true
+                        ToolTip {
+                            y: -height // Just above the button
+                            visible: hovered
+                            color: defaultPalette.mid
+                            text: qsTr("%1 reacted with '%2'",
+                                       "%1 is a list of users, %2 is " +
+                                       "the reaction (usually an emoji)",
+                                       modelData.authors.length)
+                                  .arg(modelData.authors.length <= 10
+                                       ? modelData.authors.join(", ")
+                                       : qsTr("%n author(s)", "",
+                                              model.data.authors.length))
+                                  .arg(modelData.key)
+                        }
+
+                        onClicked: controller.reactionButtonClicked(eventId,
+                                                                    modelData.key)
                     }
                 }
             }
