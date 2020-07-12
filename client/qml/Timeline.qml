@@ -66,12 +66,8 @@ Rectangle {
             }
             fillMode: Image.PreserveAspectFit
 
-            Behavior on width {
-                enabled: settings.enable_animations
-                NumberAnimation {
-                    duration: settings.animations_duration_ms
-                    easing.type: Easing.OutQuad
-                }
+            AnimationBehavior on width {
+                NormalNumberAnimation { easing.type: Easing.OutQuad }
             }
         }
         Binding {
@@ -134,12 +130,8 @@ Rectangle {
                 verticalScrollBarPolicy: Qt.ScrollBarAsNeeded
                 style: ScrollViewStyle { transientScrollBars: true }
 
-                Behavior on height {
-                    enabled: settings.enable_animations
-                    NumberAnimation {
-                        duration: settings.animations_duration_ms
-                        easing.type: Easing.OutQuad
-                    }
+                AnimationBehavior on height {
+                    NormalNumberAnimation { easing.type: Easing.OutQuad }
                 }
 
                 // FIXME: The below TextEdit+MouseArea is a massive copy-paste
@@ -358,41 +350,25 @@ Rectangle {
 
             onMovementEnded: saveViewport()
 
-            populate: Transition {
-                enabled: settings.enable_animations
-                NumberAnimation {
-                    property: "opacity"; from: 0; to: 1
-                    duration: settings.fast_animations_duration_ms
-                }
+            populate: AnimatedTransition {
+                FastNumberAnimation { property: "opacity"; from: 0; to: 1 }
             }
 
-            add: Transition {
-                enabled: settings.enable_animations
-                NumberAnimation {
-                    property: "opacity"; from: 0; to: 1
-                    duration: settings.fast_animations_duration_ms
-                }
+            add: AnimatedTransition {
+                FastNumberAnimation { property: "opacity"; from: 0; to: 1 }
             }
 
-            move: Transition {
-                enabled: settings.enable_animations
-                NumberAnimation {
-                    property: "y"; duration: settings.fast_animations_duration_ms
-                }
-                NumberAnimation {
-                    property: "opacity"; to: 1
-                }
+            move: AnimatedTransition {
+                FastNumberAnimation { property: "y"; }
+                FastNumberAnimation { property: "opacity"; to: 1 }
             }
 
-            displaced: Transition {
-                enabled: settings.enable_animations
-                NumberAnimation {
-                    property: "y"; duration: settings.fast_animations_duration_ms
+            displaced: AnimatedTransition {
+                FastNumberAnimation {
+                    property: "y";
                     easing.type: Easing.OutQuad
                 }
-                NumberAnimation {
-                    property: "opacity"; to: 1
-                }
+                FastNumberAnimation { property: "opacity"; to: 1 }
             }
 
             Behavior on contentY {
@@ -459,6 +435,7 @@ Rectangle {
                 color: defaultPalette.window
                 border.color: defaultPalette.midlight
                 implicitHeight: 8
+                clip: true
 
                 readonly property int requestedHistoryEventsCount:
                     room && room.eventsHistoryJob
@@ -469,18 +446,18 @@ Rectangle {
                       / (chatView.count + requestedHistoryEventsCount)
 
                 Rectangle {
+                    id: loadingEventsBar
                     // Loading history events bar, stacked above
                     // the cached events bar when more history is being loaded
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.left: cachedEventsBar.right
                     implicitHeight: 2
                     width: averageEvtHeight * requestedHistoryEventsCount
-                    Behavior on width { NumberAnimation {
-                        duration: settings.animations_duration_ms
-                    } }
 
                     opacity: 0.4
                     color: defaultPalette.highlight
+
+                    AnimationBehavior on width { NormalNumberAnimation { } }
                 }
                 Rectangle {
                     id: cachedEventsBar
@@ -495,6 +472,8 @@ Rectangle {
                         * (chatView.count - chatView.largestVisibleIndex)
 
                     color: defaultPalette.highlight
+
+                    AnimationBehavior on width { FastNumberAnimation { } }
                 }
             }
             handle: Rectangle {
@@ -553,10 +532,7 @@ Rectangle {
         opacity: chatView.largestVisibleIndex >= 0
             && (scrollerArea.containsMouse || scrollAnimation.running)
             ? 0.9 : 0
-        Behavior on opacity {
-            enabled: settings.enable_animations
-            NumberAnimation { duration: settings.fast_animations_duration_ms }
-        }
+        AnimationBehavior on opacity { FastNumberAnimation { } }
 
         Label {
             font.bold: true
@@ -583,19 +559,11 @@ Rectangle {
         anchors.bottom: parent.bottom
         anchors.leftMargin: width/2
         anchors.bottomMargin: chatView.atYEnd ? -height : height/2
-        Behavior on opacity {
-            enabled: settings.enable_animations
-            NumberAnimation {
-                duration: settings.animations_duration_ms
-                easing.type: Easing.OutQuad
-            }
+        AnimationBehavior on opacity {
+            NormalNumberAnimation { easing.type: Easing.OutQuad }
         }
-        Behavior on anchors.bottomMargin {
-            enabled: settings.enable_animations
-            NumberAnimation {
-                duration: settings.animations_duration_ms
-                easing.type: Easing.OutQuad
-            }
+        AnimationBehavior on anchors.bottomMargin {
+            NormalNumberAnimation { easing.type: Easing.OutQuad }
         }
         Image {
             anchors.fill: parent

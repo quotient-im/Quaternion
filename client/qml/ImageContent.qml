@@ -20,10 +20,9 @@ Attachment {
         source: parent.source
         sourceSize: parent.sourceSize
 
-//        Behavior on height { NumberAnimation {
-//            duration: settings.fast_animations_duration_ms
-//            easing.type: Easing.OutQuad
-//        }}
+//        AnimationBehavior on height {
+//            FastNumberAnimation { easing.type: Easing.OutQuad }
+//        }
 
         TimelineMouseArea {
             anchors.fill: parent

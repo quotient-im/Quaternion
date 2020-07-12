@@ -18,5 +18,9 @@
         <file>qml/TimelineTextEditSelector.qml</file>
         <file>qml/TimelineItemToolButton.qml</file>
         <file>qml/TimelineSettings.qml</file>
+        <file>qml/NormalNumberAnimation.qml</file>
+        <file>qml/FastNumberAnimation.qml</file>
+        <file>qml/AnimationBehavior.qml</file>
+        <file>qml/AnimatedTransition.qml</file>
     </qresource>
 </RCC>

@@ -85,11 +85,8 @@ Item {
             shownChanged(true);
     }
 
-    Behavior on textColor {
-        enabled: settings.enable_animations
-        ColorAnimation {
-            duration: settings.animations_duration_ms
-        }
+    AnimationBehavior on textColor {
+        ColorAnimation { duration: settings.animations_duration_ms }
     }
 
     property bool showingDetails
@@ -118,10 +115,9 @@ Item {
             target: detailsAreaLoader; property: "visible"
             value: true
         }
-        NumberAnimation {
+        FastNumberAnimation {
             target: detailsAreaLoader; property: "opacity"
             to: showingDetails
-            duration: settings.fast_animations_duration_ms
             easing.type: Easing.OutQuad
         }
         PropertyAction {
@@ -546,12 +542,8 @@ Item {
         height: 3
         anchors.horizontalCenter: fullMessage.horizontalCenter
         anchors.bottom: fullMessage.bottom
-        Behavior on width {
-            enabled: settings.enable_animations
-            NumberAnimation {
-                duration: settings.animations_duration_ms
-                easing.type: Easing.OutQuad
-            }
+        AnimationBehavior on width {
+            NormalNumberAnimation { easing.type: Easing.OutQuad }
         }
 
         gradient: Gradient {
