@@ -94,15 +94,15 @@ Rectangle {
                 readonly property bool hasName: room && room.displayName !== ""
                 text: hasName ? room.displayName : qsTr("(no name)")
                 color: (hasName ? defaultPalette : disabledPalette).windowText
-                ToolTip { text: parent.text }
+                ToolTipArea { text: parent.text }
 
                 font.bold: true
                 font.family: settings.font.family
                 font.pointSize: settings.font.pointSize
                 renderType: settings.render_type
                 readOnly: true
-                selectByKeyboard: true;
-                selectByMouse: true;
+                selectByKeyboard: true
+                selectByMouse: true
             }
             Label {
                 id: versionNotice
@@ -117,7 +117,7 @@ Rectangle {
                 font.family: settings.font.family
                 font.pointSize: settings.font.pointSize
                 renderType: settings.render_type
-                ToolTip { text: parent.text }
+                ToolTipArea { text: parent.text }
             }
 
             ScrollView {

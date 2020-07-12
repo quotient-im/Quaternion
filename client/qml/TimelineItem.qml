@@ -501,9 +501,7 @@ Item {
 
                         hoverEnabled: true
                         ToolTip {
-                            y: -height // Just above the button
                             visible: hovered
-                            color: defaultPalette.mid
                             text: qsTr("%1 reacted with '%2'",
                                        "%1 is a list of users, %2 is " +
                                        "the reaction (usually an emoji)",
