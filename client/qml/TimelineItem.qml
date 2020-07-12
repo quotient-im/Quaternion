@@ -480,22 +480,30 @@ Item {
                 Repeater {
                     model: reactions
                     QQC2.ToolButton {
+                        id: reactionButton
+                        readonly property bool includesLocalUser:
+                            modelData.authors.indexOf(
+                                room.safeMemberName(room.localUser.id)) !== -1
+
+                        verticalPadding: 2
+
                         contentItem: Text {
                             text: modelData.key + " \u00d7" /* Math "multiply" */
                                   + modelData.authors.length
                             font.family: settings.font.family
                             font.pointSize: settings.font.pointSize - 1
+                            color: reactionButton.includesLocalUser
+                                       ? defaultPalette.highlight
+                                       : defaultPalette.buttonText
                         }
 
                         background: Rectangle {
                             radius: 4
-                            color: parent.down ? defaultPalette.button
-                                               : "transparent"
-                            border.color:
-                                modelData.authors.indexOf(
-                                    room.safeMemberName(room.localUser.id)) !== -1
-                                ? defaultPalette.highlight
-                                : disabledPalette.buttonText
+                            color: reactionButton.down ? defaultPalette.button
+                                                       : "transparent"
+                            border.color: reactionButton.includesLocalUser
+                                              ? defaultPalette.highlight
+                                              : disabledPalette.buttonText
                             border.width: 1
                         }
 
