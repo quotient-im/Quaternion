@@ -67,6 +67,7 @@
 #include <set>
 
 using Quotient::NetworkAccessManager;
+using Quotient::Settings;
 using Quotient::AccountSettings;
 
 MainWindow::MainWindow()
@@ -172,8 +173,6 @@ QAction* MainWindow::addTimelineOptionCheckbox(QMenu* parent,
 
 void MainWindow::createMenu()
 {
-    using Quotient::Settings;
-
     // Connection menu
     connectionMenu = menuBar()->addMenu(tr("&Accounts"));
 
@@ -503,7 +502,7 @@ inline QString accessTokenFileName(const AccountSettings& account)
 QByteArray MainWindow::loadAccessToken(const AccountSettings& account)
 {
 #ifdef USE_KEYCHAIN
-    if (Quotient::Settings().value("UI/use_keychain", true).toBool())
+    if (Settings().value("UI/use_keychain", true).toBool())
     {
         return loadAccessTokenFromKeyChain(account);
     }
@@ -589,7 +588,7 @@ bool MainWindow::saveAccessToken(const AccountSettings& account,
                                  const QByteArray& accessToken)
 {
 #ifdef USE_KEYCHAIN
-    if (Quotient::Settings().value("UI/use_keychain", true).toBool())
+    if (Settings().value("UI/use_keychain", true).toBool())
         return saveAccessTokenToKeyChain(account, accessToken);
 
     qDebug() << "Explicit opt-out from keychain by user setting";
@@ -1086,7 +1085,7 @@ void MainWindow::logout(Connection* c)
     QFile(accessTokenFileName(AccountSettings(c->userId()))).remove();
 
 #ifdef USE_KEYCHAIN
-    if (Quotient::Settings().value("UI/use_keychain", true).toBool())
+    if (Settings().value("UI/use_keychain", true).toBool())
     {
         QKeychain::DeletePasswordJob job(qAppName());
         job.setAutoDelete(false);
@@ -1288,7 +1287,7 @@ MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
 
     QStringList names; names.reserve(connections.size());
     int defaultIdx = -1;
-    for (auto c: qAsConst(connections))
+    for (auto c: std::as_const(connections))
     {
         names.push_back(c->userId());
         if (c == connection)
@@ -1300,7 +1299,7 @@ MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
     if (!ok || choice.isEmpty())
         return nullptr;
 
-    for (auto c: qAsConst(connections))
+    for (auto c: std::as_const(connections))
         if (c->userId() == choice)
         {
             connection = c;
