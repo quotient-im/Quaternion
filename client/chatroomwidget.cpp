@@ -307,6 +307,7 @@ void ChatRoomWidget::setHudCaption(QString newCaption)
 void ChatRoomWidget::insertMention(Quotient::User* user)
 {
     m_chatEdit->insertMention(user->displayname(m_currentRoom));
+    m_chatEdit->setFocus();
 }
 
 void ChatRoomWidget::focusInput()

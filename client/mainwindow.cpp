@@ -57,6 +57,7 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QDialogButtonBox>
 #include <QtWidgets/QComboBox>
+#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QCompleter>
 #include <QtGui/QMovie>
@@ -69,6 +70,7 @@
 using Quotient::NetworkAccessManager;
 using Quotient::Settings;
 using Quotient::AccountSettings;
+using Quotient::Uri;
 
 MainWindow::MainWindow()
 {
@@ -327,8 +329,9 @@ void MainWindow::createMenu()
         });
     createRoomAction->setShortcut(QKeySequence::New);
     createRoomAction->setDisabled(true);
-    joinAction = roomMenu->addAction(QIcon::fromTheme("list-add"),
-                    tr("&Join room..."), [this] { joinRoom(); } );
+    joinAction =
+        roomMenu->addAction(QIcon::fromTheme("list-add"), tr("&Join room..."),
+                            [this] { openUserInput(ForJoining); });
     joinAction->setShortcut(Qt::CTRL + Qt::Key_J);
     joinAction->setDisabled(true);
     roomMenu->addSeparator();
@@ -338,10 +341,9 @@ void MainWindow::createMenu()
                             [this] { openRoomSettings(); });
     roomSettingsAction->setDisabled(true);
     roomMenu->addSeparator();
-    openRoomAction = roomMenu->addAction(
-        QIcon::fromTheme("document-open"), tr("Open room..."), [this] {
-            openResource({}, "interactive");
-        });
+    openRoomAction = roomMenu->addAction(QIcon::fromTheme("document-open"),
+                                         tr("Open room..."),
+                                         [this] { openUserInput(); });
     openRoomAction->setStatusTip(tr("Open a room from the room list"));
     openRoomAction->setShortcut(QKeySequence::Open);
     openRoomAction->setDisabled(true);
@@ -1115,67 +1117,80 @@ void MainWindow::logout(Connection* c)
     c->logout();
 }
 
-QString MainWindow::resolveToId(const QString &uri) {
-    auto id = uri;
-    id.remove(QRegularExpression("^https://matrix.to/#/"));
-    id.remove(QRegularExpression("^matrix:"));
-    id.replace(QRegularExpression("^user/"), "@");
-    id.replace(QRegularExpression("^roomid/"), "!");
-    id.replace(QRegularExpression("^room/"), "#");
-    return id;
+Quotient::UriResolveResult MainWindow::visitUser(Quotient::User* user,
+                                                 const QString& action)
+{
+    if (action == "mention" || action.isEmpty())
+        chatRoomWidget->insertMention(user);
+    // action=_interactive is checked in openResource() and
+    // converted to "chat" in openUserInput()
+    else if (action == "_interactive"
+             || (action == "chat"
+                 && QMessageBox::question(this, tr("Open direct chat?"),
+                                          tr("Open direct chat with user %1?")
+                                              .arg(user->fullName()))
+                        == QMessageBox::Yes))
+        user->requestDirectChat();
+    else
+        return Quotient::IncorrectAction;
+
+    return Quotient::UriResolved;
 }
 
-Locator::ResolveResult MainWindow::openLocator(const Locator& l, const QString& action)
+void MainWindow::visitRoom(Quotient::Room* room, const QString& eventId)
 {
-    if (!l.account)
-        return Locator::NoAccount;
-
-    auto idOrAlias = resolveToId(l.identifier);
-    if (idOrAlias.startsWith('@'))
-    {
-        if (auto* user = l.account->user(idOrAlias))
-        {
-            if (action == "mention")
-                chatRoomWidget->insertMention(user);
-            else if (QMessageBox::question(this, tr("Open direct chat?"),
-                        tr("Open direct chat with user %1?")
-                        .arg(user->fullName())) == QMessageBox::Yes)
-                l.account->requestDirectChat(user);
-            return Locator::Success;
-        }
-        return Locator::MalformedId;
-    }
-    if (idOrAlias.startsWith('!') || idOrAlias.startsWith('#'))
-    {
-        QString eventId;
-        if (idOrAlias.contains('/')) {
-            eventId = idOrAlias.section('/', 1).section('?', 0, 0);
-            idOrAlias = idOrAlias.section('/', 0, 0);
-        }
-        auto room = idOrAlias.startsWith('!')
-                     ? l.account->room(idOrAlias)
-                     : l.account->roomByAlias(idOrAlias);
-        selectRoom(room);
-        if (!eventId.isNull())
-            chatRoomWidget->spotlightEvent(eventId);
-        return Locator::Success;
-    }
-    return Locator::NotFound;
+    selectRoom(room);
+    if (!eventId.isEmpty())
+        chatRoomWidget->spotlightEvent(eventId);
 }
 
-// FIXME: This should be decommissioned and inlined once we stop supporting
-// legacy compilers that have BROKEN_INITIALIZER_LISTS
-inline Locator makeLocator(Quotient::Connection* c, QString id)
+void MainWindow::joinRoom(Quotient::Connection* account,
+                          const QString& roomAliasOrId,
+                          const QStringList& viaServers)
 {
-#ifdef BROKEN_INITIALIZER_LISTS
-    Locator l;
-    l.account = c;
-    l.identifier = std::move(id);
-    return l;
-#else
-    return { c, std::move(id) };
-#endif
+    auto* job = account->joinRoom(roomAliasOrId, viaServers);
+    // Connection::joinRoom() already connected to success() the code that
+    // initialises the room in the library, which in turn causes RoomListModel
+    // to update the room list. So the below connection to success() will be
+    // triggered after all the initialisation have happened.
+    connect(job, &Quotient::BaseJob::success, this,
+            [this, account, roomAliasOrId] {
+                statusBar()->showMessage(
+                    tr("Joined %1 as %2").arg(roomAliasOrId, account->userId()));
+            });
+}
 
+bool MainWindow::visitNonMatrix(const QUrl& url)
+{
+    // Return true if the user cancels, treating it as an alternative normal
+    // flow (rather than an abnormal flow when the navigation itself fails).
+    auto doVisit = [this, url] {
+        if (!QDesktopServices::openUrl(url))
+            QMessageBox::warning(this, tr("No application for the link"),
+                                 tr("Your operating system could not find an "
+                                    "application for the link."));
+    };
+    static const auto SettingPath = QStringLiteral("UI/confirm_external_links");
+    if (Settings().get(SettingPath, true)) {
+        auto* confirmation = new QMessageBox(
+            QMessageBox::Warning, tr("External link confirmation"),
+            tr("An external application will be opened to visit a "
+               "non-Matrix link:\n\n%1\n\nIs that right?")
+                .arg(url.toDisplayString()),
+            QMessageBox::Ok | QMessageBox::Cancel, this, Qt::Dialog);
+        confirmation->setDefaultButton(nullptr);
+        confirmation->setCheckBox(new QCheckBox(tr("Do not ask again")));
+        confirmation->setWindowModality(Qt::WindowModal);
+        confirmation->show();
+        Settings().setValue(SettingPath, confirmation->checkBox()->checkState()
+                                             == Qt::Unchecked);
+        connect(confirmation, &QDialog::finished, this, [doVisit](int result) {
+            if (result == QMessageBox::Ok)
+                doVisit();
+        });
+    } else
+        doVisit();
+    return true;
 }
 
 MainWindow::Connection* MainWindow::getDefaultConnection() const
@@ -1186,46 +1201,48 @@ MainWindow::Connection* MainWindow::getDefaultConnection() const
 
 void MainWindow::openResource(const QString& idOrUri, const QString& action)
 {
-    const auto& id = resolveToId(QUrl::fromPercentEncoding(idOrUri.toLocal8Bit()));
-    auto l =
-        action == "interactive"
-        ? id.isEmpty()
-          ? obtainIdentifier(getDefaultConnection(),
-                             RoomAndUserCompletion, tr("Open room"),
-                             tr("Room or user ID, room alias,\n"
-                                "Matrix URI or matrix.to link"),
-                             tr("Switch to room"))
-          : makeLocator(nullptr, id) // Force choosing the connection
-        : makeLocator(getDefaultConnection(), id);
-    if (l.identifier.isEmpty())
+    Uri uri { idOrUri };
+    if (!uri.isValid()) {
+        QMessageBox::warning(
+            this, tr("Malformed or empty Matrix id"),
+            tr("%1 is not a correct Matrix identifier").arg(idOrUri),
+            QMessageBox::Close, QMessageBox::Close);
         return;
-
-    if (QStringLiteral("!@#$+").indexOf(l.identifier[0]) != -1)
-    {
-        if (action != "mention" && !l.account)
-            l.account = chooseConnection(getDefaultConnection(),
-                l.identifier.startsWith('@')
-                ? tr("Confirm your account to open a direct chat with %1")
-                  .arg(l.identifier)
-                : tr("Confirm your account to open %1").arg(idOrUri));
-
-        switch (openLocator(l, action)) {
-        case Locator::MalformedId:
-            break; // To the end of the function
-        case Locator::NotFound:
-            QMessageBox::warning(this, tr("Room not found"),
-                                 tr("There's no room %1 in the room list."
-                                    " Check the spelling and the account.")
-                                 .arg(idOrUri));
-            Q_FALLTHROUGH();
-        default:
-            return; // If success or no account, do nothing
-        }
     }
-    QMessageBox::warning(this, tr("Malformed user id"),
-                         tr("%1 is not a correct Matrix identifier")
-                         .arg(idOrUri),
-                         QMessageBox::Close, QMessageBox::Close);
+    auto* account = getDefaultConnection();
+    if (uri.type() != Uri::NonMatrix) {
+        if (!account) {
+            showLoginWindow(tr("Please connect to a server"));
+            return;
+        }
+        if (!action.isEmpty())
+            uri.setAction(action);
+
+        if (uri.action() == "join"
+            && currentRoom
+            // NB: We can't reliably check aliases for being in the upgrade chain
+            && currentRoom->successorId() != uri.primaryId()
+            && currentRoom->predecessorId() != uri.primaryId())
+            account = chooseConnection(
+                account, tr("Confirm account to join %1").arg(uri.primaryId()));
+        else if (uri.action() == "_interactive")
+            account = chooseConnection(
+                account,
+                uri.type() == Uri::UserId
+                    ? tr("Confirm your account to open a direct chat with %1")
+                          .arg(uri.primaryId())
+                    : tr("Confirm your account to open %1").arg(idOrUri));
+        if (!account)
+            return; // The user cancelled the confirmation dialog
+    }
+    const auto result = visitResource(account, uri);
+    if (result == Quotient::CouldNotResolve)
+        QMessageBox::warning(this, tr("Room not found"),
+                             tr("There's no room %1 in the room list."
+                                " Check the spelling and the account.")
+                                 .arg(idOrUri));
+    else // Invalid cases should have been eliminated earlier
+        Q_ASSERT(result == Quotient::UriResolved);
 }
 
 void MainWindow::openRoomSettings(QuaternionRoom* r)
@@ -1270,16 +1287,7 @@ void MainWindow::selectRoom(Quotient::Room* r)
 MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
                                                      const QString& prompt)
 {
-    if (connections.isEmpty())
-    {
-        if (connection)
-            return connection;
-
-        QMessageBox::warning(this, tr("No connections"),
-            tr("Please connect to a server first"),
-            QMessageBox::Close, QMessageBox::Close);
-        return nullptr;
-    }
+    Q_ASSERT(!connections.isEmpty());
     if (connections.size() == 1)
         return connections.front();
 
@@ -1307,25 +1315,37 @@ MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
     return connection;
 }
 
-Locator MainWindow::obtainIdentifier(Connection* initialConn,
-        CompletionType completionType, const QString& prompt,
-        const QString& label, const QString& actionName)
+void MainWindow::openUserInput(bool forJoining)
 {
-    if (connections.isEmpty())
-    {
-        QMessageBox::warning(this, tr("No connections"),
-            tr("Please connect to a server first"),
-            QMessageBox::Close, QMessageBox::Close);
-        return {};
+    if (connections.isEmpty()) {
+        showLoginWindow(tr("Please connect to a server"));
+        return;
     }
-    Dialog dlg(prompt, this, Dialog::NoStatusLine, actionName,
+
+    struct D {
+        QString dlgTitle;
+        QString dlgText;
+        QString actionText;
+    };
+    static const D map[] = {
+        { tr("Open room"),
+          tr("Room or user ID, room alias,\nMatrix URI or matrix.to link"),
+          tr("Go to room") },
+        { tr("Join room"),
+          tr("Room ID (starting with !)\nor alias (starting with #)"),
+          tr("Join room") }
+    };
+    const auto& entry = map[forJoining];
+
+    Dialog dlg(entry.dlgTitle, this, Dialog::NoStatusLine, entry.actionText,
                Dialog::NoExtraButtons);
     auto* account = new QComboBox(&dlg);
     auto* identifier = new QLineEdit(&dlg);
+    auto* defaultConn = getDefaultConnection();
     for (auto* c: connections)
     {
         account->addItem(c->userId(), QVariant::fromValue(c));
-        if (c == initialConn)
+        if (c == defaultConn)
             account->setCurrentIndex(account->count() - 1);
     }
 
@@ -1340,88 +1360,92 @@ Locator MainWindow::obtainIdentifier(Connection* initialConn,
         account->hide(); // #523
         identifier->setFocus();
     }
-    layout->addRow(label, identifier);
+    layout->addRow(entry.dlgText, identifier);
 
-    const auto setCompleter = [this, identifier, completionType](int index) {
-        auto* connection = connections.at(index);
-        std::set<QString> completions;
-        if (completionType & RoomCompletion)
-            for (auto* room : connection->allRooms()) {
-                completions.insert(room->id());
+    if (!forJoining) {
+        const auto setCompleter = [this, identifier](int index) {
+            auto* connection = connections.at(index);
+            QStringList completions;
+            for (auto* room: connection->allRooms()) {
+                completions << room->id();
                 if (!room->canonicalAlias().isEmpty())
-                    completions.insert(room->canonicalAlias());
+                    completions << room->canonicalAlias();
             }
 
-        if (completionType & UserCompletion)
             for (auto* user: connection->users())
-                completions.insert(user->id());
+                completions << user->id();
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-        QStringList completionsList;
-        copy(completions.cbegin(), completions.cend(),
-             std::back_inserter(completionsList));
-        auto* completer = new QCompleter(completionsList);
-#else
-        auto* completer =
-            new QCompleter({ completions.cbegin(), completions.cend() });
-#endif
-        completer->setFilterMode(Qt::MatchContains);
-        identifier->setCompleter(completer);
-    };
+            completions.sort();
+            completions.erase(std::unique(completions.begin(), completions.end()),
+                              completions.end());
 
-    setCompleter(account->currentIndex());
+            auto* completer = new QCompleter(completions);
+            completer->setFilterMode(Qt::MatchContains);
+            identifier->setCompleter(completer);
+        };
+
+        setCompleter(account->currentIndex());
+        connect(account, QOverload<int>::of(&QComboBox::currentIndexChanged),
+                identifier, setCompleter);
+    }
 
     auto* okButton = dlg.button(QDialogButtonBox::Ok);
-    okButton->setDisabled(identifier->text().isEmpty());
-    connect(account, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            identifier, setCompleter);
+    okButton->setDisabled(true);
     connect(identifier, &QLineEdit::textChanged, &dlg,
-        [identifier,okButton] {
-            okButton->setDisabled(identifier->text().isEmpty());
-        });
+            [identifier, okButton, buttonText = entry.actionText] {
+                Uri uri { identifier->text() };
+                switch (uri.type()) {
+                case Uri::RoomId:
+                case Uri::RoomAlias:
+                    okButton->setEnabled(true);
+                    okButton->setText(buttonText);
+                    break;
+                case Uri::UserId:
+                    okButton->setEnabled(true);
+                    okButton->setText(tr("Chat with user",
+                                         "On a button in 'Open room' dialog"
+                                         " when a user identifier is entered"));
+                    break;
+                default:
+                    okButton->setDisabled(true);
+                    okButton->setText(
+                        tr("Can't open",
+                           "On a disabled button in 'Open room' dialog when"
+                           " an invalid/unsupported URI is entered"));
+                }
+            });
 
-    if (dlg.exec() == QDialog::Accepted)
-    {
-        return makeLocator(account->currentData().value<Connection*>(),
-                           resolveToId(QUrl::fromPercentEncoding(identifier->text().toLocal8Bit())));
-    }
-    return {};
-}
-
-void MainWindow::joinRoom(const QString& roomIdOrAlias)
-{
-    auto* const defaultConnection = getDefaultConnection();
-    if (defaultConnection
-            && openLocator(makeLocator(defaultConnection, roomIdOrAlias))
-               == Locator::Success)
-        return; // Already joined room
-
-    auto roomLocator = roomIdOrAlias.isEmpty()
-            ? obtainIdentifier(defaultConnection, NoCompletion,
-                tr("Enter room id or alias"),
-                tr("Room ID (starting with !)\nor alias (starting with #)"),
-                tr("Join"))
-            : makeLocator(chooseConnection(defaultConnection,
-                          tr("Confirm account to join %1").arg(roomIdOrAlias))
-                      , roomIdOrAlias);
-
-    // Check whether the user cancelled room/connection dialog or no connections
-    // or the room is already joined from the newly chosen account.
-    if (!roomLocator.account || openLocator(roomLocator) == Locator::Success)
+    if (dlg.exec() != QDialog::Accepted)
         return;
 
-    using Quotient::BaseJob;
-    auto* job = roomLocator.account->joinRoom(roomLocator.identifier);
-    // Connection::joinRoom() already connected to success() the code that
-    // initialises the room in the library, which in turn causes RoomListModel
-    // to update the room list. So the below connection to success() will be
-    // triggered after all the initialisation have happened.
-    connect(job, &BaseJob::success, this, [this,roomLocator]
+    Uri uri { identifier->text() };
+    if (uri.type() == Uri::UserId) {
+        if (uri.action().isEmpty() || uri.action() == "_interactive")
+            uri.setAction("chat"); // The default action for users is "mention"
+    }
+    switch (visitResource(account->currentData().value<Connection*>(), uri))
     {
-        statusBar()->showMessage(
-            tr("Joined %1 as %2").arg(roomLocator.identifier,
-                                      roomLocator.account->userId()));
-    });
+    case Quotient::UriResolved:
+        break;
+    case Quotient::CouldNotResolve:
+        QMessageBox::warning(
+            this, tr("Could not resolve id"),
+            (uri.type() == Uri::NonMatrix
+                 ? tr("Could not find an external application to open the URI:")
+                 : tr("Could not resolve Matrix identifier"))
+                + "\n\n" + uri.toDisplayString());
+        break;
+    case Quotient::IncorrectAction:
+        QMessageBox::warning(
+            this, tr("Incorrect action on a Matrix resource"),
+            tr("The URI contains an action '%1' that cannot be applied"
+               " to Matrix resource %2")
+                .arg(uri.action())
+                .arg(uri.toDisplayString(QUrl::RemoveQuery)));
+        break;
+    default:
+        Q_ASSERT(false); // No other values should occur
+    }
 }
 
 void MainWindow::showMillisToRecon(Connection* c)
