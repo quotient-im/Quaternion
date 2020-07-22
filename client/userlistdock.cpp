@@ -27,6 +27,7 @@
 #include <QtGui/QGuiApplication>
 
 #include <connection.h>
+#include <events/roompowerlevelsevent.h>
 #include <room.h>
 #include <user.h>
 #include "models/userlistmodel.h"
@@ -34,7 +35,6 @@
 
 UserListDock::UserListDock(QWidget* parent)
     : QDockWidget(tr("Users"), parent)
-    , contextMenu(new QMenu(this))
 {
     setObjectName(QStringLiteral("UsersDock"));
 
@@ -74,20 +74,6 @@ UserListDock::UserListDock(QWidget* parent)
     connect(m_filterline, &QLineEdit::textEdited,
              m_model, &UserListModel::filter);
 
-    contextMenu->addAction(QIcon::fromTheme("contact-new"),
-        tr("Open direct chat"), this, &UserListDock::startChatSelected);
-    contextMenu->addAction(tr("Mention user"), this,
-        &UserListDock::requestUserMention);
-    ignoreAction =
-        contextMenu->addAction(QIcon::fromTheme("mail-thread-ignored"),
-            tr("Ignore user"), this, &UserListDock::ignoreUser);
-    ignoreAction->setCheckable(true);
-    contextMenu->addSeparator();
-    contextMenu->addAction(QIcon::fromTheme("im-ban-kick-user"),
-        tr("Kick user"), this,&UserListDock::kickUser);
-    contextMenu->addAction(QIcon::fromTheme("im-ban-user"),
-        tr("Ban user"), this, &UserListDock::banUser);
-
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested,
             this, &UserListDock::showContextMenu);
@@ -117,6 +103,34 @@ void UserListDock::refreshTitle()
 
 void UserListDock::showContextMenu(QPoint pos)
 {
+    if (!getSelectedUser())
+        return;
+
+    auto* contextMenu = new QMenu(this);
+
+    contextMenu->addAction(QIcon::fromTheme("contact-new"),
+        tr("Open direct chat"), this, &UserListDock::startChatSelected);
+    contextMenu->addAction(tr("Mention user"), this,
+        &UserListDock::requestUserMention);
+    QAction* ignoreAction =
+        contextMenu->addAction(QIcon::fromTheme("mail-thread-ignored"),
+            tr("Ignore user"), this, &UserListDock::ignoreUser);
+    ignoreAction->setCheckable(true);
+    contextMenu->addSeparator();
+
+    const auto* plEvt =
+        m_currentRoom->getCurrentState<Quotient::RoomPowerLevelsEvent>();
+    int userPl = plEvt->powerLevelForUser(m_currentRoom->localUser()->id());
+
+    if (!plEvt || userPl >= plEvt->kick()) {
+        contextMenu->addAction(QIcon::fromTheme("im-ban-kick-user"),
+            tr("Kick user"), this,&UserListDock::kickUser);
+    }
+    if (!plEvt || userPl >= plEvt->ban()) {
+        contextMenu->addAction(QIcon::fromTheme("im-ban-user"),
+            tr("Ban user"), this, &UserListDock::banUser);
+    }
+
     contextMenu->popup(mapToGlobal(pos));
     ignoreAction->setChecked(isIgnored());
 }

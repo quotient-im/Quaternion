@@ -43,6 +43,7 @@
 #include <QtCore/QMimeData>
 
 #include <events/roommessageevent.h>
+#include <events/roompowerlevelsevent.h>
 #include <events/reactionevent.h>
 #include <csapi/message_pagination.h>
 #include <user.h>
@@ -720,9 +721,18 @@ void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
     const auto eventId = modelIndex.data(MessageEventModel::EventIdRole).toString();
 
     QMenu menu;
-    menu.addAction(QIcon::fromTheme("edit-delete"), tr("Redact"), [=] {
-        m_currentRoom->redactEvent(eventId);
-    });
+
+    const auto* plEvt =
+        m_currentRoom->getCurrentState<Quotient::RoomPowerLevelsEvent>();
+    const auto localUserId = m_currentRoom->localUser()->id();
+    const int userPl = plEvt->powerLevelForUser(localUserId);
+    const auto* modelUser =
+        modelIndex.data(MessageEventModel::AuthorRole).value<Quotient::User*>();
+    if (!plEvt || userPl >= plEvt->redact() || localUserId == modelUser->id()) {
+        menu.addAction(QIcon::fromTheme("edit-delete"), tr("Redact"), [=] {
+            m_currentRoom->redactEvent(eventId);
+        });
+    }
     if (!hoveredLink.isEmpty())
     {
         menu.addAction(tr("Copy link to clipboard"), [=] {
