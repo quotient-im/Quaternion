@@ -157,22 +157,7 @@ Rectangle {
                     onHoveredLinkChanged:
                         controller.showStatusMessage(hoveredLink)
 
-                    onLinkActivated: {
-                        if (link === "#mention")
-                        {
-                            controller.insertMention(author)
-                            controller.focusInput()
-                        }
-                        else if (link.startsWith("https://matrix.to/#/@"))
-                        {
-                            controller.resourceRequested(link, "mention")
-                            controller.focusInput()
-                        }
-                        else if (link.startsWith("https://matrix.to/"))
-                            controller.resourceRequested(link)
-                        else
-                            Qt.openUrlExternally(link)
-                    }
+                    onLinkActivated: controller.resourceRequested(link)
                 }
             }
         }
@@ -184,7 +169,8 @@ Rectangle {
 
             onClicked: {
                 if (topicText.hoveredLink)
-                    controller.resourceRequested(topicText.hoveredLink)
+                    controller.resourceRequested(topicText.hoveredLink,
+                                                 "_interactive")
             }
         }
         ToolButton {
@@ -199,7 +185,7 @@ Rectangle {
 
             onClicked:
                 if (room.successorId !== "")
-                    controller.joinRequested(room.successorId)
+                    controller.resourceRequested(room.successorId, "join")
                 else
                     controller.roomSettingsRequested()
         }

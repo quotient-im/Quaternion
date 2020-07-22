@@ -251,14 +251,10 @@ Item {
                 hoverEnabled: true
                 onEntered: controller.showStatusMessage(author.id)
                 onExited: controller.showStatusMessage("")
-                onClicked: {
-                    if (mouse.button === Qt.LeftButton)
-                    {
-                        controller.insertMention(author)
-                        controller.focusInput()
-                    } else
-                        controller.resourceRequested(author.id)
-                }
+                onClicked:
+                    controller.resourceRequested(author.id,
+                                                 mouse.button === Qt.LeftButton
+                                                 ? "mention" : "_interactive")
             }
 
             Label {
@@ -367,20 +363,7 @@ Item {
                     onHoveredLinkChanged:
                         controller.showStatusMessage(hoveredLink)
 
-                    onLinkActivated: {
-                        if (link.startsWith("@")
-                            || link.startsWith("https://matrix.to/#/@")
-                            || link.startsWith("matrix:user/"))
-                        {
-                            controller.resourceRequested(link, "mention")
-                            controller.focusInput()
-                        }
-                        else if (link.startsWith("https://matrix.to/")
-                                 || link.startsWith("matrix:"))
-                            controller.resourceRequested(link)
-                        else
-                            Qt.openUrlExternally(link)
-                    }
+                    onLinkActivated: controller.resourceRequested(link)
 
                     TimelineTextEditSelector {}
                 }
@@ -395,7 +378,7 @@ Item {
                         if (mouse.button === Qt.MiddleButton) {
                             if (textFieldImpl.hoveredLink)
                                 controller.resourceRequested(
-                                    textFieldImpl.hoveredLink, "interactive")
+                                    textFieldImpl.hoveredLink, "_interactive")
                         } else if (mouse.button === Qt.RightButton) {
                             controller.showMenu(index,
                                 textFieldImpl.hoveredLink, showingDetails)
@@ -588,7 +571,7 @@ Item {
                 text: qsTr("Go to\nolder room")
 
                 // TODO: Treat unjoined invite-only rooms specially
-                onClicked: controller.joinRequested(refId)
+                onClicked: controller.resourceRequested(refId, "join")
             }
             TimelineItemToolButton {
                 id: goToSuccessorButton
@@ -597,7 +580,7 @@ Item {
                 text: qsTr("Go to\nnew room")
 
                 // TODO: Treat unjoined invite-only rooms specially
-                onClicked: controller.joinRequested(refId)
+                onClicked: controller.resourceRequested(refId, "join")
             }
         }
     }
