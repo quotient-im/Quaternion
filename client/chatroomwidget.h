@@ -57,7 +57,6 @@ class ChatRoomWidget: public QWidget
         Q_INVOKABLE Qt::KeyboardModifiers getModifierKeys() const;
 
     signals:
-        void joinRequested(const QString& roomAlias);
         void resourceRequested(const QString& idOrUri,
                                const QString& action = {});
         void roomSettingsRequested();

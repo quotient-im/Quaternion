@@ -378,7 +378,7 @@ QString ChatRoomWidget::doSendInput()
     {
         if (!argString.contains(RoomIdRE))
             return tr("/join argument doesn't look like a room ID or alias");
-        emit joinRequested(argString);
+        emit resourceRequested(argString, "join");
         return {};
     }
     if (command == "quit")

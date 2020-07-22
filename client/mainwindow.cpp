@@ -92,8 +92,6 @@ MainWindow::MainWindow()
     setCentralWidget(chatRoomWidget);
     connect( chatRoomWidget, &ChatRoomWidget::resourceRequested,
              this, &MainWindow::openResource);
-    connect( chatRoomWidget, &ChatRoomWidget::joinRequested,
-             this, &MainWindow::joinRoom);
     connect(chatRoomWidget, &ChatRoomWidget::roomSettingsRequested,
             this, [this] { openRoomSettings(); });
     connect( roomListDock, &RoomListDock::roomSelected,

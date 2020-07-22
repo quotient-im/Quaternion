@@ -588,7 +588,7 @@ Item {
                 text: qsTr("Go to\nolder room")
 
                 // TODO: Treat unjoined invite-only rooms specially
-                onClicked: controller.joinRequested(refId)
+                onClicked: controller.resourceRequested(refId, "join")
             }
             TimelineItemToolButton {
                 id: goToSuccessorButton
@@ -597,7 +597,7 @@ Item {
                 text: qsTr("Go to\nnew room")
 
                 // TODO: Treat unjoined invite-only rooms specially
-                onClicked: controller.joinRequested(refId)
+                onClicked: controller.resourceRequested(refId, "join")
             }
         }
     }

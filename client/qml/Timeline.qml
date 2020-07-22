@@ -199,7 +199,7 @@ Rectangle {
 
             onClicked:
                 if (room.successorId !== "")
-                    controller.joinRequested(room.successorId)
+                    controller.resourceRequested(room.successorId, "join")
                 else
                     controller.roomSettingsRequested()
         }
