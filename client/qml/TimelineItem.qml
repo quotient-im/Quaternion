@@ -1,6 +1,6 @@
 import QtQuick 2.6
 import QtQuick.Controls 1.4
-import QtQuick.Controls 2.1 as QQC2
+import QtQuick.Controls 2.2 as QQC2
 //import QtGraphicalEffects 1.0 // For fancy highlighting
 import Quotient 1.0
 
@@ -614,13 +614,14 @@ Item {
                     readOnly: true
                     selectByKeyboard: true; selectByMouse: true
 
+                    anchors.top: eventTitle.bottom
                     anchors.left: parent.left
                     anchors.leftMargin: 3
                     z: 1
                 }
                 TextEdit {
-                    text: "<a href=\"" + evtLink + "\">"+ eventId
-                          + "</a> (" + eventResolvedType + ")"
+                    id: eventTitle
+                    text: "<a href=\"" + evtLink + "\">"+ eventId + "</a>"
                     textFormat: Text.RichText
                     font.bold: true
                     font.family: settings.font.family
@@ -643,6 +644,19 @@ Item {
                     }
                 }
                 TextEdit {
+                    text: eventResolvedType
+                    textFormat: Text.PlainText
+                    font.bold: true
+                    font.family: settings.font.family
+                    font.pointSize: settings.font.pointSize
+                    renderType: settings.render_type
+
+                    anchors.top: eventTitle.bottom
+                    anchors.right: parent.right
+                    anchors.rightMargin: 3
+                }
+
+                TextEdit {
                     id: permalink
                     text: evtLink
                     font: settings.font
@@ -651,20 +665,23 @@ Item {
                 }
             }
 
-            TextArea {
-                text: sourceText
-                textFormat: Text.PlainText
-                readOnly: true;
-                font.family: "Monospace"
-                font.pointSize: settings.font.pointSize
-                // FIXME: make settings.render_type an integer (but store as string to stay human-friendly)
-//                style: TextAreaStyle {
-//                    renderType: settings.render_type
-//                }
-                selectByKeyboard: true; selectByMouse: true
-
-                width: parent.width
+            QQC2.ScrollView {
                 anchors.top: detailsHeader.bottom
+                width: parent.width
+                height: Math.min(implicitContentHeight, chatView.height / 2)
+                clip: true
+                QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOn
+                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
+
+                TextEdit {
+                    text: sourceText
+                    textFormat: Text.PlainText
+                    readOnly: true;
+                    font.family: "Monospace"
+                    font.pointSize: settings.font.pointSize
+                    renderType: settings.render_type
+                    selectByKeyboard: true; selectByMouse: true
+                }
             }
         }
     }
