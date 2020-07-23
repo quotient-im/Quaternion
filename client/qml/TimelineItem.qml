@@ -1,6 +1,5 @@
 import QtQuick 2.6
-import QtQuick.Controls 1.4
-import QtQuick.Controls 2.2 as QQC2
+import QtQuick.Controls 2.2
 //import QtGraphicalEffects 1.0 // For fancy highlighting
 import Quotient 1.0
 
@@ -402,7 +401,7 @@ Item {
                             wheel.accepted = false
                     }
                 }
-                QQC2.ScrollBar {
+                ScrollBar {
                     id: textScrollBar
                     hoverEnabled: true
                     visible: textFieldImpl.contentWidth > textFieldImpl.width
@@ -462,7 +461,7 @@ Item {
 
                 Repeater {
                     model: reactions
-                    QQC2.ToolButton {
+                    ToolButton {
                         id: reactionButton
                         readonly property bool includesLocalUser:
                             modelData.authors.indexOf(
@@ -665,13 +664,13 @@ Item {
                 }
             }
 
-            QQC2.ScrollView {
+            ScrollView {
                 anchors.top: detailsHeader.bottom
                 width: parent.width
                 height: Math.min(implicitContentHeight, chatView.height / 2)
                 clip: true
-                QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOn
-                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AlwaysOn
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOn
+                ScrollBar.vertical.policy: ScrollBar.AlwaysOn
 
                 TextEdit {
                     text: sourceText
