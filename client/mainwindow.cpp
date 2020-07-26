@@ -22,6 +22,7 @@
 #include "roomlistdock.h"
 #include "userlistdock.h"
 #include "chatroomwidget.h"
+#include "profiledialog.h"
 #include "logindialog.h"
 #include "networkconfigdialog.h"
 #include "roomdialogs.h"
@@ -795,6 +796,11 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     if (connections.size() < 10)
         menuCaption.prepend('&' % QString::number(connections.size()) % ' ');
     auto accountMenu = new QMenu(menuCaption, connectionMenu);
+    accountMenu->addAction(QIcon::fromTheme("user-properties"), tr("Profile"),
+        this, [this,c,dlg=QPointer<ProfileDialog>{}]() mutable
+    {
+        summon(dlg, c->user(), this);
+    });
     accountMenu->addAction(QIcon::fromTheme("view-certificate"),
         tr("Show &access token"), this, [=]
     {
@@ -812,6 +818,7 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
         accountTokenBox->setAttribute(Qt::WA_DeleteOnClose);
         accountTokenBox->show();
     });
+
     accountMenu->addAction(QIcon::fromTheme("system-log-out"), tr("&Logout"),
                            this, [=] { logout(c); });
     auto menuAction =
