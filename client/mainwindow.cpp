@@ -1419,10 +1419,12 @@ void MainWindow::openUserInput(bool forJoining)
         return;
 
     Uri uri { identifier->text() };
-    if (uri.type() == Uri::UserId) {
-        if (uri.action().isEmpty() || uri.action() == "_interactive")
-            uri.setAction("chat"); // The default action for users is "mention"
-    }
+    if (forJoining)
+        uri.setAction("join");
+    else if (uri.type() == Uri::UserId
+             && (uri.action().isEmpty() || uri.action() == "_interactive"))
+        uri.setAction("chat"); // The default action for users is "mention"
+
     switch (visitResource(account->currentData().value<Connection*>(), uri))
     {
     case Quotient::UriResolved:
