@@ -7,7 +7,8 @@ ToolTip {
     TimelineSettings { id: settings }
 
     delay: settings.animations_duration_ms
-    verticalPadding: 2
+    topMargin: 2
+    bottomMargin: 2
     font: settings.font
 
     background: Rectangle {
