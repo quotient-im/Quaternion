@@ -467,7 +467,8 @@ Item {
                             modelData.authors.indexOf(
                                 room.safeMemberName(room.localUser.id)) !== -1
 
-                        verticalPadding: 2
+                        topPadding: 2
+                        bottomPadding: 2
 
                         contentItem: Text {
                             text: modelData.key + " \u00d7" /* Math "multiply" */
@@ -490,7 +491,7 @@ Item {
                         }
 
                         hoverEnabled: true
-                        ToolTip {
+                        MyToolTip {
                             visible: hovered
                             text: qsTr("%1 reacted with '%2'",
                                        "%1 is a list of users, %2 is " +

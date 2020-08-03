@@ -6,9 +6,7 @@ ToolTip {
     id:tooltip
     TimelineSettings { id: settings }
 
-    delay: settings.animations_duration_ms
-    topMargin: 2
-    bottomMargin: 2
+    padding: 4
     font: settings.font
 
     background: Rectangle {
@@ -25,7 +23,7 @@ ToolTip {
         from: 0
         to: 0.9
     } }
-    exit: AnimatedTransition { NormalNumberAnimation {
+    exit: AnimatedTransition { FastNumberAnimation {
         target: tooltip
         property: "opacity"
         easing.type: Easing.InQuad

@@ -8,5 +8,5 @@ MouseArea {
     acceptedButtons: Qt.NoButton
     hoverEnabled: true
 
-    ToolTip { id: tooltip; visible: containsMouse }
+    MyToolTip { id: tooltip; visible: containsMouse }
 }
