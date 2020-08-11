@@ -24,6 +24,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPlainTextEdit>
 #include <QtGui/QGuiApplication>
+#include <QtGui/QClipboard>
 
 #include "mainwindow.h"
 #include "models/roomlistmodel.h"
@@ -170,6 +171,11 @@ RoomListDock::RoomListDock(MainWindow* parent)
         QIcon::fromTheme("user-group-properties"),
         tr("Change room &settings..."),
         [this, parent] { parent->openRoomSettings(getSelectedRoom()); });
+    roomPermalinkAction = roomContextMenu->addAction(
+        QIcon::fromTheme("link"), tr("Copy room link to clipboard"), [this] {
+            QGuiApplication::clipboard()->setText(
+                "https://matrix.to/#/" + getSelectedRoom()->canonicalAlias());
+        });
     roomContextMenu->addSeparator();
     joinAction =
         roomContextMenu->addAction(QIcon::fromTheme("irc-join-channel"),
