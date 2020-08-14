@@ -221,7 +221,8 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
     indicesOnScreen.clear();
     attachedFileName.clear();
     m_attachAction->setChecked(false);
-    m_fileToAttach->remove();
+    if (m_fileToAttach->isOpen())
+        m_fileToAttach->remove();
 
     m_currentRoom = room;
     m_attachAction->setEnabled(m_currentRoom != nullptr);
