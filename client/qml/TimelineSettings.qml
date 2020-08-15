@@ -20,7 +20,7 @@ Settings {
         pointSize: font_pointSize_impl > 0 ? font_pointSize_impl : defaultText.fontInfo.pointSize
     })
 
-    readonly property var render_type_impl: value("UI/Fonts/render_type")
+    readonly property var render_type_impl: value("UI/Fonts/render_type", "NativeRendering")
     readonly property int render_type:
         ["NativeRendering", "Native", "native"].indexOf(render_type_impl) != -1
         ? Text.NativeRendering : Text.QtRendering
