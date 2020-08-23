@@ -105,8 +105,9 @@ QVariant UserListModel::data(const QModelIndex& index, int role) const
     {
         auto tooltip = QStringLiteral("<b>%1</b><br>%2")
                 .arg(user->name(m_currentRoom).toHtmlEscaped(), user->id());
-        if (!user->bridged().isEmpty())
-            tooltip += "<br>" + tr("Bridged from: %1").arg(user->bridged());
+        // TODO: Find a new way to determine that the user is bridged
+//        if (!user->bridged().isEmpty())
+//            tooltip += "<br>" + tr("Bridged from: %1").arg(user->bridged());
         return tooltip;
     }
 
@@ -174,7 +175,7 @@ void UserListModel::filter(const QString& filterString)
     const auto all = m_currentRoom->users();
     std::remove_copy_if(all.begin(), all.end(), std::back_inserter(m_users),
         [&](User* u) {
-            return !(u->rawName(m_currentRoom).contains(filterString) ||
+            return !(u->name(m_currentRoom).contains(filterString) ||
                      u->id().contains(filterString));
         });
     std::sort(m_users.begin(), m_users.end(), m_currentRoom->memberSorter());

@@ -64,7 +64,11 @@ MessageEventModel::MessageEventModel(QObject* parent)
     : QAbstractListModel(parent)
 {
     using namespace Quotient;
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+    qmlRegisterAnonymousType<FileTransferInfo>("Quotient", 1);
+#else
     qmlRegisterType<FileTransferInfo>(); qRegisterMetaType<FileTransferInfo>();
+#endif
     qmlRegisterUncreatableType<EventStatus>("Quotient", 1, 0, "EventStatus",
         "EventStatus is not a creatable type");
 }
@@ -658,7 +662,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
     if( role == HighlightRole )
         return m_currentRoom->isEventHighlighted(&evt);
 
-    if( role == ReadMarkerRole )
+    if (role == ReadMarkerRole)
         return evt.id() == lastReadEventId;
 
     if( role == SpecialMarksRole )

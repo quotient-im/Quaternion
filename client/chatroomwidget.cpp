@@ -69,8 +69,12 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
             "Room objects can only be created by libQuotient");
         qmlRegisterUncreatableType<User>("Quotient", 1, 0, "User",
             "User objects can only be created by libQuotient");
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+        qmlRegisterAnonymousType<GetRoomEventsJob>("Quotient", 1);
+#else
         qmlRegisterType<GetRoomEventsJob>();
         qRegisterMetaType<GetRoomEventsJob*>("GetRoomEventsJob*");
+#endif
         qRegisterMetaType<User*>("User*");
         qmlRegisterType<Settings>("Quotient", 1, 0, "Settings");
         qmlRegisterUncreatableType<RoomMessageEvent>("Quotient", 1, 0,
