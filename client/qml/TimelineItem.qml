@@ -267,7 +267,7 @@ Item {
                 font.pointSize: settings.font.pointSize
                 font.italic: pending
 
-                text: "<" + time.toLocaleTimeString(Qt.locale(), "hh:mm") + ">"
+                text: "<" + time.toLocaleTimeString(Qt.locale(), Locale.ShortFormat) + ">"
             }
 
             Item {
