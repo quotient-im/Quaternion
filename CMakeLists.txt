@@ -155,6 +155,7 @@ set(quaternion_SRCS
     client/mainwindow.cpp
     client/roomlistdock.cpp
     client/userlistdock.cpp
+    client/accountcombobox.cpp
     client/kchatedit.cpp
     client/chatedit.cpp
     client/chatroomwidget.cpp

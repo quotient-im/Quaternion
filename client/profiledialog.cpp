@@ -19,143 +19,226 @@
 
 #include "profiledialog.h"
 
+#include "accountcombobox.h"
+
 #include <connection.h>
 #include <user.h>
 #include <room.h>
 #include <csapi/device_management.h>
 
-#include <QtWidgets/QAction>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QComboBox>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
-#include <QtWidgets/QTabWidget>
 #include <QtWidgets/QTableWidgetItem>
+#include <QtGui/QClipboard>
+#include <QtGui/QGuiApplication>
+#include <QtCore/QStandardPaths>
 
-using Quotient::BaseJob;
+using Quotient::BaseJob, Quotient::User, Quotient::Room;
 
-ProfileDialog::ProfileDialog(Quotient::User* u, QWidget* parent)
-    : Dialog(u->id(), parent)
-    , m_user(u)
-    , tabWidget(new QTabWidget)
-    , m_avatar(new QLabel)
-    , m_userId(new QLabel)
-    , m_displayName(new QLineEdit)
+void updateAvatarButton(Quotient::User* user, QPushButton* btn)
 {
-    auto profileWidget = new QWidget(this);
-    {
-        auto topLayout = new QHBoxLayout;
-        {
-            auto avatarLayout = new QVBoxLayout;
-            m_avatar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-            m_avatar->setPixmap({64, 64});
-            avatarLayout->addWidget(m_avatar);
-
-            auto uploadButton = new QPushButton(tr("Set Avatar..."));
-            connect(uploadButton, &QPushButton::clicked, this, [this] {
-                m_avatarUrl =
-                    QFileDialog::getOpenFileName(this, tr("Set avatar"),
-                        {}, tr("Images (*.png *.jpg)"));
-                if (!m_avatarUrl.isEmpty()) {
-                    QImage img = QImage(m_avatarUrl).scaled({64, 64}, Qt::KeepAspectRatio);
-                    m_avatar->setPixmap(QPixmap::fromImage(img));
-                }
-            });
-            connect(m_user, &Quotient::User::avatarChanged, this,
-                    [=] (Quotient::User* user, const Quotient::Room* room) {
-                if (room)
-                    return;
-
-                QImage img = user->avatar(64);
-                if (img.isNull())
-                    m_avatar->setText(tr("No Avatar"));
-                else
-                    m_avatar->setPixmap(QPixmap::fromImage(img));
-            });
-
-            avatarLayout->addWidget(uploadButton);
-            topLayout->addLayout(avatarLayout);
-        }
-
-        {
-            auto essentialsLayout = new QFormLayout;
-            essentialsLayout->addRow(tr("Account"), m_userId);
-            essentialsLayout->addRow(tr("Display Name"), m_displayName);
-            topLayout->addLayout(essentialsLayout);
-        }
-
-        profileWidget->setLayout(topLayout);
+    const auto img = user->avatar(128);
+    if (img.isNull()) {
+        btn->setText(ProfileDialog::tr("No Avatar"));
+        btn->setIcon({});
+    } else {
+        btn->setText({});
+        btn->setIcon(QPixmap::fromImage(img));
+        btn->setIconSize(img.size());
     }
-    tabWidget->addTab(profileWidget, tr("Profile"));
+}
 
-    m_deviceTable = new QTableWidget;
-    {
-        m_deviceTable->setColumnCount(3);
-        m_deviceTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-        m_deviceTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-        m_deviceTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
-        m_deviceTable->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-        m_deviceTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+ProfileDialog::ProfileDialog(QVector<Quotient::Connection*> accounts,
+                             QWidget* parent)
+    : Dialog(tr("User accounts"), parent)
+    , m_settings("UI/ProfileDialog")
+    , m_avatar(new QPushButton)
+    , m_accountChooser(new AccountComboBox(accounts))
+    , m_displayName(new QLineEdit)
+    , m_accessTokenLabel(new QLabel)
+    , m_currentAccount(nullptr)
+{
+    auto* accountLayout = addLayout<QFormLayout>();
+    accountLayout->addRow(tr("Account"), m_accountChooser);
 
-        m_deviceTable->setHorizontalHeaderLabels(QStringList()
-            << tr("Display Name")
-            << tr("Device ID")
-            << tr("Last Seen"));
-    }
-    tabWidget->addTab(m_deviceTable, tr("Devices"));
+    connect(m_accountChooser, &AccountComboBox::currentAccountChanged, this,
+            &ProfileDialog::load);
 
-    addWidget(tabWidget);
+    auto cardLayout = addLayout<QHBoxLayout>();
+    m_avatar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    cardLayout->addWidget(m_avatar, Qt::AlignLeft|Qt::AlignTop);
+
+    connect(m_avatar, &QPushButton::clicked, this, [this] {
+        const auto& dirs =
+            QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
+        auto* fDlg = new QFileDialog(this, tr("Set avatar"),
+                                     dirs.isEmpty() ? QString() : dirs.back());
+        fDlg->setFileMode(QFileDialog::ExistingFile);
+        fDlg->setMimeTypeFilters({ "image/*", "application/octet-stream" });
+        fDlg->open();
+        connect(fDlg, &QFileDialog::fileSelected, this,
+                [this](const QString& fileName) {
+                    m_newAvatarPath = fileName;
+                    if (!m_newAvatarPath.isEmpty()) {
+                        auto img = QImage(m_newAvatarPath)
+                                       .scaled(m_avatar->iconSize(),
+                                               Qt::KeepAspectRatio);
+                        m_avatar->setIcon(QPixmap(m_newAvatarPath));
+                    }
+                });
+    });
+
+    auto essentialsLayout = new QFormLayout();
+    essentialsLayout->addRow(tr("Display Name"), m_displayName);
+    essentialsLayout->addRow(tr("Access token"), m_accessTokenLabel);
+    auto copyAccessToken = new QPushButton(tr("Copy to clipboard"));
+    connect(copyAccessToken, &QAbstractButton::clicked, this, [this] {
+        QGuiApplication::clipboard()->setText(account()->accessToken());
+    });
+    essentialsLayout->addWidget(copyAccessToken);
+    cardLayout->addLayout(essentialsLayout);
+
+    static const QStringList deviceTableHeaders { tr("Device display name"),
+                                                  tr("Device ID"),
+                                                  tr("Last time seen"),
+                                                  tr("Last IP address") };
+    m_deviceTable = new QTableWidget(0, deviceTableHeaders.size());
+    m_deviceTable->setHorizontalHeaderLabels(deviceTableHeaders);
+    auto* headerCtl = m_deviceTable->horizontalHeader();
+    headerCtl->setSectionResizeMode(QHeaderView::Interactive);
+    headerCtl->setSectionsMovable(true);
+    headerCtl->setSortIndicatorShown(true);
+    m_deviceTable->verticalHeader()->setSectionResizeMode(
+        QHeaderView::ResizeToContents);
+    m_deviceTable->verticalHeader()->hide();
+    m_deviceTable->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    m_deviceTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_deviceTable->setTabKeyNavigation(false);
+    m_deviceTable->setSortingEnabled(true);
+//    m_deviceTable->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+    addWidget(m_deviceTable);
+
+    if (m_settings.contains("normal_geometry"))
+        setGeometry(m_settings.value("normal_geometry").toRect());
+}
+
+ProfileDialog::~ProfileDialog()
+{
+    m_settings.setValue("normal_geometry", normalGeometry());
+    m_settings.setValue("device_table_state",
+                        m_deviceTable->horizontalHeader()->saveState());
+    m_settings.sync();
+}
+
+void ProfileDialog::setAccount(Connection* account)
+{
+    m_accountChooser->setAccount(account);
+}
+
+ProfileDialog::Connection* ProfileDialog::account() const
+{
+    return m_currentAccount;
+}
+
+inline auto* makeTableItem(const QString& text,
+                           Qt::ItemFlags addFlags = Qt::NoItemFlags)
+{
+    auto* item = new QTableWidgetItem(text);
+    item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | addFlags);
+    return item;
 }
 
 void ProfileDialog::load()
 {
-    auto avatar = m_user->avatar(64);
-    if (avatar.isNull())
-        m_avatar->setText(tr("No Avatar"));
-    else
-        m_avatar->setPixmap(QPixmap::fromImage(avatar));
-    m_userId->setText(m_user->id());
-    m_displayName->setText(m_user->displayname());
+    if (m_currentAccount)
+        disconnect(m_currentAccount->user(), nullptr, this, nullptr);
 
-    auto devicesJob = m_user->connection()->callApi<Quotient::GetDevicesJob>();
-    connect(devicesJob, &BaseJob::success, this, [=] {
-        m_deviceTable->setRowCount(devicesJob->devices().size());
+    m_currentAccount = m_accountChooser->currentAccount();
+    if (!m_currentAccount)
+        return;
 
-        for (int i = 0; i < devicesJob->devices().size(); ++i) {
-            auto device = devicesJob->devices()[i];
-            m_devices[device.deviceId] = device.displayName;
+    auto* user = m_currentAccount->user();
+    updateAvatarButton(user, m_avatar);
+    connect(user, &User::avatarChanged, this, [this](User*, const Room* room) {
+        if (!room)
+            updateAvatarButton(account()->user(), m_avatar);
+    });
 
-            auto name = new QTableWidgetItem(device.displayName);
-            m_deviceTable->setItem(i, 0, name);
+    m_displayName->setText(user->name());
+    m_displayName->setFocus();
+    connect(user, &User::nameChanged, this,
+            [this](const QString& newName, auto, const Room* room) {
+                if (!room)
+                    m_displayName->setText(newName);
+            });
 
-            auto id = new QTableWidgetItem(device.deviceId);
-            id->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-            m_deviceTable->setItem(i, 1, id);
+    auto accessToken = account()->accessToken();
+    if (Q_LIKELY(accessToken.size() > 10))
+        accessToken.replace(5, accessToken.size() - 10, "...");
+    m_accessTokenLabel->setText(accessToken);
 
-            QDateTime lastSeen;
-            lastSeen.setMSecsSinceEpoch(device.lastSeenTs.value_or(0));
-            auto ip = new QTableWidgetItem(device.lastSeenIp
-                + " @ " + QLocale().toString(lastSeen, QLocale::ShortFormat));
-            ip->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-            m_deviceTable->setItem(i, 2, ip);
-       }
+    m_deviceTable->clearContents();
+    m_deviceTable->setRowCount(1);
+    m_deviceTable->setItem(0, 0, new QTableWidgetItem(tr("Loading...")));
+    auto devicesJob = m_currentAccount->callApi<Quotient::GetDevicesJob>();
+    // TODO: Give some feedback while the thing is loading
+    connect(devicesJob, &BaseJob::success, this, [this, devicesJob] {
+        m_devices = devicesJob->devices();
+        m_deviceTable->setRowCount(m_devices.size());
+
+        for (int i = 0; i < m_devices.size(); ++i) {
+            auto device = m_devices[i];
+
+            m_deviceTable->setItem(
+                i, 0, makeTableItem(device.displayName, Qt::ItemIsEditable));
+            m_deviceTable->setItem(i, 1, makeTableItem(device.deviceId));
+            if (device.lastSeenTs) {
+                const auto& lastSeen =
+                    QDateTime::fromMSecsSinceEpoch(*device.lastSeenTs);
+                m_deviceTable->setItem(i, 2,
+                                       makeTableItem(QLocale().toString(
+                                           lastSeen, QLocale::ShortFormat)));
+            }
+            m_deviceTable->setItem(i, 3, makeTableItem(device.lastSeenIp));
+        }
+
+        if (m_settings.contains("device_table_state"))
+            m_deviceTable->horizontalHeader()->restoreState(
+                m_settings.value("device_table_state").toByteArray());
+        else {
+            // Initialise the state
+            m_deviceTable->sortByColumn(2, Qt::DescendingOrder);
+            m_deviceTable->resizeColumnsToContents();
+        }
     });
 }
 
 void ProfileDialog::apply()
 {
-    if (m_displayName->text() != m_user->displayname())
-        m_user->rename(m_displayName->text());
-    if (!m_avatarUrl.isEmpty())
-        m_user->setAvatar(m_avatarUrl);
+    if (!m_currentAccount) {
+        qWarning() << "ProfileDialog: no account chosen, can't apply changes";
+        return;
+    }
+    auto* user = m_currentAccount->user();
+    if (m_displayName->text() != user->displayname())
+        user->rename(m_displayName->text());
+    if (!m_newAvatarPath.isEmpty())
+        user->setAvatar(m_newAvatarPath);
 
-    for (auto deviceIt = m_devices.cbegin(); deviceIt != m_devices.cend(); ++deviceIt) {
-        auto list = m_deviceTable->findItems(deviceIt.key(), Qt::MatchExactly);
-        auto newName = m_deviceTable->item(list[0]->row(), 0)->text();
-        if (!list.isEmpty() && newName != deviceIt.value())
-            m_user->connection()->callApi<Quotient::UpdateDeviceJob>(deviceIt.key(), newName);
+    for (const auto& device: m_devices) {
+        const auto& list =
+            m_deviceTable->findItems(device.deviceId, Qt::MatchExactly);
+        if (list.empty())
+            continue;
+        const auto& newName = m_deviceTable->item(list[0]->row(), 0)->text();
+        if (!list.isEmpty() && newName != device.displayName)
+            m_currentAccount->callApi<Quotient::UpdateDeviceJob>(device.deviceId,
+                                                                 newName);
     }
     accept();
 }

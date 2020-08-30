@@ -26,6 +26,7 @@
 #include "logindialog.h"
 #include "networkconfigdialog.h"
 #include "roomdialogs.h"
+#include "accountcombobox.h"
 #include "systemtrayicon.h"
 #include "linuxutils.h"
 
@@ -797,10 +798,11 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
         menuCaption.prepend('&' % QString::number(connections.size()) % ' ');
     auto accountMenu = new QMenu(menuCaption, connectionMenu);
     accountMenu->addAction(QIcon::fromTheme("user-properties"), tr("Profile"),
-        this, [this,c,dlg=QPointer<ProfileDialog>{}]() mutable
-    {
-        summon(dlg, c->user(), this);
-    });
+                           this,
+                           [this, c, dlg = QPointer<ProfileDialog> {}]() mutable {
+                               summon(dlg, connections, this);
+                               dlg->setAccount(c);
+                           });
     accountMenu->addAction(QIcon::fromTheme("view-certificate"),
         tr("Show &access token"), this, [=]
     {
@@ -1346,32 +1348,26 @@ void MainWindow::openUserInput(bool forJoining)
 
     Dialog dlg(entry.dlgTitle, this, Dialog::NoStatusLine, entry.actionText,
                Dialog::NoExtraButtons);
-    auto* account = new QComboBox(&dlg);
+    auto* accountChooser = new AccountComboBox(connections, &dlg);
     auto* identifier = new QLineEdit(&dlg);
     auto* defaultConn = getDefaultConnection();
-    for (auto* c: connections)
-    {
-        account->addItem(c->userId(), QVariant::fromValue(c));
-        if (c == defaultConn)
-            account->setCurrentIndex(account->count() - 1);
-    }
+    accountChooser->setAccount(defaultConn);
 
     // Lay out controls
     auto* layout = dlg.addLayout<QFormLayout>();
     if (connections.size() > 1)
     {
-        layout->addRow(tr("Account"), account);
-        account->setFocus();
+        layout->addRow(tr("Account"), accountChooser);
+        accountChooser->setFocus();
     } else {
-        account->setCurrentIndex(0); // The only available
-        account->hide(); // #523
+        accountChooser->setCurrentIndex(0); // The only available
+        accountChooser->hide(); // #523
         identifier->setFocus();
     }
     layout->addRow(entry.dlgText, identifier);
 
     if (!forJoining) {
-        const auto setCompleter = [this, identifier](int index) {
-            auto* connection = connections.at(index);
+        const auto setCompleter = [identifier](Connection* connection) {
             QStringList completions;
             for (auto* room: connection->allRooms()) {
                 completions << room->id();
@@ -1391,8 +1387,8 @@ void MainWindow::openUserInput(bool forJoining)
             identifier->setCompleter(completer);
         };
 
-        setCompleter(account->currentIndex());
-        connect(account, QOverload<int>::of(&QComboBox::currentIndexChanged),
+        setCompleter(accountChooser->currentAccount());
+        connect(accountChooser, &AccountComboBox::currentAccountChanged,
                 identifier, setCompleter);
     }
 
@@ -1432,7 +1428,7 @@ void MainWindow::openUserInput(bool forJoining)
              && (uri.action().isEmpty() || uri.action() == "_interactive"))
         uri.setAction("chat"); // The default action for users is "mention"
 
-    switch (visitResource(account->currentData().value<Connection*>(), uri))
+    switch (visitResource(accountChooser->currentAccount(), uri))
     {
     case Quotient::UriResolved:
         break;

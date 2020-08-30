@@ -21,37 +21,47 @@
 
 #include "dialog.h"
 
-class QAction;
-class QLabel;
+#include <settings.h>
+#include <csapi/definitions/client_device.h>
+
+class AccountComboBox;
+
+class QComboBox;
 class QLineEdit;
 class QTabWidget;
 class QTableWidget;
 
 namespace Quotient {
-    class User;
+    class Connection;
 }
 
 class ProfileDialog : public Dialog
 {
-        Q_OBJECT
+    Q_OBJECT
+public:
+    using Connection = Quotient::Connection;
 
-    public:
-        explicit ProfileDialog(Quotient::User* u, QWidget* parent = 0);
+    explicit ProfileDialog(QVector<Connection*> accounts,
+                           QWidget* parent = nullptr);
+    ~ProfileDialog() override;
 
-    private slots:
-        void load() override;
-        void apply() override;
+    void setAccount(Connection* account);
+    Connection* account() const;
 
-    private:
-        Quotient::User* m_user;
-        QTabWidget* tabWidget;
+private slots:
+    void load() override;
+    void apply() override;
 
-        QTableWidget* m_deviceTable;
-        QAction* m_attachAction;
-        QLabel* m_avatar;
-        QLabel* m_userId;
-        QLineEdit* m_displayName;
+private:
+    Quotient::SettingsGroup m_settings;
 
-        QHash<QString, QString> m_devices;
-        QString m_avatarUrl;
+    QTableWidget* m_deviceTable;
+    QPushButton* m_avatar;
+    AccountComboBox* m_accountChooser;
+    QLineEdit* m_displayName;
+    QLabel* m_accessTokenLabel;
+    QVector<Quotient::Device> m_devices;
+
+    Connection* m_currentAccount;
+    QString m_newAvatarPath;
 };
