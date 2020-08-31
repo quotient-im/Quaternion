@@ -78,6 +78,7 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         /*! If \p r is empty, the currently open room is used */
         void openRoomSettings(QuaternionRoom* r = nullptr);
         void selectRoom(Quotient::Room* r);
+        void logout(Connection* c);
 
     private slots:
         void invokeLogin();
@@ -92,7 +93,6 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         void showLoginWindow(const QString& statusMessage,
                              const QString& userId);
         void showAboutWindow();
-        void logout(Connection* c);
 
         // UriResolverBase overrides
         Quotient::UriResolveResult visitUser(Quotient::User* user,
