@@ -117,7 +117,7 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         QLabel* busyLabel = nullptr;
 
         QMenu* connectionMenu = nullptr;
-        QAction* accountListGrowthPoint = nullptr;
+        QMenu* logoutMenu = nullptr;
         QAction* openRoomAction = nullptr;
         QAction* roomSettingsAction = nullptr;
         QAction* createRoomAction = nullptr;

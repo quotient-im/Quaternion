@@ -182,8 +182,16 @@ void MainWindow::createMenu()
         this, [=]{ showLoginWindow(); } );
 
     connectionMenu->addSeparator();
-    // Account submenus will be added in this place - see addConnection()
-    accountListGrowthPoint = connectionMenu->addSeparator();
+    connectionMenu->addAction(
+        QIcon::fromTheme("user-properties"), tr("User &profiles..."), this,
+        [this, dlg = QPointer<ProfileDialog> {}]() mutable {
+            summon(dlg, &accountRegistry, this);
+            if (currentRoom)
+                dlg->setAccount(currentRoom->connection());
+        });
+    connectionMenu->addSeparator();
+    logoutMenu = connectionMenu->addMenu(QIcon::fromTheme("system-log-out"),
+                                         tr("Log&out"));
 
     // Augment poor Windows users with a handy Ctrl-Q shortcut.
     static const auto quitShortcut = QSysInfo::productType() == "windows"
@@ -797,39 +805,9 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     QString menuCaption = accountCaption;
     if (accountRegistry.size() < 10)
         menuCaption.prepend('&' % QString::number(accountRegistry.size()) % ' ');
-    auto accountMenu = new QMenu(menuCaption, connectionMenu);
-    accountMenu->addAction(QIcon::fromTheme("user-properties"), tr("Profile"),
-                           this,
-                           [this, c, dlg = QPointer<ProfileDialog> {}]() mutable {
-                               summon(dlg, &accountRegistry, this);
-                               dlg->setAccount(c);
-                           });
-    accountMenu->addAction(QIcon::fromTheme("view-certificate"),
-        tr("Show &access token"), this, [=]
-    {
-        const QString aToken = c->accessToken();
-        auto accountTokenBox = new QMessageBox(QMessageBox::Information,
-            tr("Access token for %1").arg(accountCaption),
-            tr("Your access token is %1...%2;"
-               " click \"Show details...\" for the full token")
-               .arg(aToken.left(5), aToken.right(5)),
-            QMessageBox::Close, this, Qt::Dialog);
-        accountTokenBox->setModal(false);
-        accountTokenBox->setTextInteractionFlags(
-                    Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
-        accountTokenBox->setDetailedText(aToken);
-        accountTokenBox->setAttribute(Qt::WA_DeleteOnClose);
-        accountTokenBox->show();
-    });
-
-    accountMenu->addAction(QIcon::fromTheme("system-log-out"), tr("&Logout"),
-                           this, [=] { logout(c); });
-    auto menuAction =
-            connectionMenu->insertMenu(accountListGrowthPoint, accountMenu);
-    connect( c, &Connection::destroyed, connectionMenu, [this, menuAction]
-    {
-        connectionMenu->removeAction(menuAction);
-    });
+    auto logoutAction = logoutMenu->addAction(menuCaption);
+    connect(c, &Connection::destroyed, logoutMenu,
+            std::bind(&QMenu::removeAction, logoutMenu, logoutAction));
     openRoomAction->setEnabled(true);
     createRoomAction->setEnabled(true);
     joinAction->setEnabled(true);
