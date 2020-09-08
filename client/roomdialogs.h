@@ -36,6 +36,7 @@ class QCheckBox;
 class QPushButton;
 class QListWidget;
 class QFormLayout;
+class QStandardItemModel;
 
 class RoomDialogBase : public Dialog
 {
@@ -107,4 +108,6 @@ class CreateRoomDialog : public RoomDialogBase
         QComboBox* nextInvitee;
         QPushButton* inviteButton;
         QListWidget* invitees;
+
+        QHash<Connection*, QStandardItemModel*> userLists;
 };

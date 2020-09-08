@@ -486,7 +486,9 @@ void CreateRoomDialog::accountSwitched()
     auto* completer = nextInvitee->completer();
     Q_ASSERT(completer != nullptr && connection != nullptr);
 
-    auto* model = new QStandardItemModel(completer);
+    auto*& model = userLists[connection];
+    if (!model) {
+        model = new QStandardItemModel(completer);
 
 //    auto prefix =
 //            savedCurrentText.midRef(savedCurrentText.startsWith('@') ? 1 : 0);
@@ -497,15 +499,20 @@ void CreateRoomDialog::accountSwitched()
         {
             if (!u->isGuest())
             {
-                auto* item = new QStandardItem(u->fullName());
+                // It would be great to show u->fullName() rather than
+                // just u->id(); unfortunately, this implies fetching profiles
+                // for the whole list of users known to a given account, which
+                // is terribly inefficient
+                auto* item = new QStandardItem(u->id());
                 item->setData(QVariant::fromValue(u));
                 model->appendRow(item);
             }
         }
         qDebug() << "Completion candidates:" << model->rowCount()
                  << "out of" << connection->users().size()
-                 << "filtered in" << et;
+                 << "filled in" << et;
 //    }
+    }
     nextInvitee->setModel(model);
     nextInvitee->setEditText(savedCurrentText);
     completer->setCompletionPrefix(savedCurrentText);
