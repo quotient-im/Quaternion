@@ -145,6 +145,7 @@ message( STATUS )
 
 # Set up source files
 set(quaternion_SRCS
+    client/accountregistry.cpp
     client/quaternionroom.cpp
     client/imageprovider.cpp
     client/activitydetector.cpp
@@ -155,7 +156,7 @@ set(quaternion_SRCS
     client/mainwindow.cpp
     client/roomlistdock.cpp
     client/userlistdock.cpp
-    client/accountcombobox.cpp
+    client/accountselector.cpp
     client/kchatedit.cpp
     client/chatedit.cpp
     client/chatroomwidget.cpp

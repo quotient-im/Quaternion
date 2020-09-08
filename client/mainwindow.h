@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "accountregistry.h"
+
 #include <uriresolver.h>
 
 #include <QtWidgets/QMainWindow>
@@ -61,7 +63,6 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
 
         void addConnection(Connection* c, const QString& deviceName);
         void dropConnection(Connection* c);
-        bool isInConnections(const QString& userId);
 
         ChatRoomWidget* getChatRoomWidget() const;
 
@@ -104,7 +105,7 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         bool visitNonMatrix(const QUrl& url) override;
 
     private:
-        QVector<Connection*> connections;
+        AccountRegistry accountRegistry;
         QVector<Connection*> logoutOnExit;
         QVector<Connection*> firstSyncing;
 

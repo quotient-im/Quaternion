@@ -19,7 +19,8 @@
 
 #include "profiledialog.h"
 
-#include "accountcombobox.h"
+#include "accountselector.h"
+#include "mainwindow.h"
 
 #include <connection.h>
 #include <user.h>
@@ -53,21 +54,26 @@ void updateAvatarButton(Quotient::User* user, QPushButton* btn)
     }
 }
 
-ProfileDialog::ProfileDialog(QVector<Quotient::Connection*> accounts,
-                             QWidget* parent)
-    : Dialog(tr("User accounts"), parent)
+ProfileDialog::ProfileDialog(AccountRegistry* accounts, MainWindow* parent)
+    : Dialog(tr("User profiles"), parent)
     , m_settings("UI/ProfileDialog")
     , m_avatar(new QPushButton)
-    , m_accountChooser(new AccountComboBox(accounts))
+    , m_accountSelector(new AccountSelector(accounts))
     , m_displayName(new QLineEdit)
     , m_accessTokenLabel(new QLabel)
     , m_currentAccount(nullptr)
 {
+    Q_ASSERT(accounts != nullptr);
     auto* accountLayout = addLayout<QFormLayout>();
-    accountLayout->addRow(tr("Account"), m_accountChooser);
+    accountLayout->addRow(tr("Account"), m_accountSelector);
 
-    connect(m_accountChooser, &AccountComboBox::currentAccountChanged, this,
+    connect(m_accountSelector, &AccountSelector::currentAccountChanged, this,
             &ProfileDialog::load);
+    connect(accounts, &AccountRegistry::aboutToDropAccount, this,
+            [this, accounts] {
+                if (accounts->size() == 1)
+                    close(); // The last account is about to be dropped
+            });
 
     auto cardLayout = addLayout<QHBoxLayout>();
     m_avatar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -93,15 +99,20 @@ ProfileDialog::ProfileDialog(QVector<Quotient::Connection*> accounts,
                 });
     });
 
-    auto essentialsLayout = new QFormLayout();
-    essentialsLayout->addRow(tr("Display Name"), m_displayName);
-    essentialsLayout->addRow(tr("Access token"), m_accessTokenLabel);
-    auto copyAccessToken = new QPushButton(tr("Copy to clipboard"));
-    connect(copyAccessToken, &QAbstractButton::clicked, this, [this] {
-        QGuiApplication::clipboard()->setText(account()->accessToken());
-    });
-    essentialsLayout->addWidget(copyAccessToken);
-    cardLayout->addLayout(essentialsLayout);
+    {
+	    auto essentialsLayout = new QFormLayout();
+	    essentialsLayout->addRow(tr("Display Name"), m_displayName);
+	    auto accessTokenLayout = new QHBoxLayout();
+        accessTokenLayout->addWidget(m_accessTokenLabel);
+	    auto copyAccessToken = new QPushButton(tr("Copy to clipboard"));
+        accessTokenLayout->addWidget(copyAccessToken);
+        essentialsLayout->addRow(tr("Access token"), accessTokenLayout);
+        cardLayout->addLayout(essentialsLayout);
+
+        connect(copyAccessToken, &QPushButton::clicked, this, [this] {
+            QGuiApplication::clipboard()->setText(account()->accessToken());
+        });
+	}
 
     static const QStringList deviceTableHeaders { tr("Device display name"),
                                                   tr("Device ID"),
@@ -120,8 +131,10 @@ ProfileDialog::ProfileDialog(QVector<Quotient::Connection*> accounts,
     m_deviceTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_deviceTable->setTabKeyNavigation(false);
     m_deviceTable->setSortingEnabled(true);
-//    m_deviceTable->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+    m_deviceTable->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     addWidget(m_deviceTable);
+
+    button(QDialogButtonBox::Ok)->setText(tr("Apply and close"));
 
     if (m_settings.contains("normal_geometry"))
         setGeometry(m_settings.value("normal_geometry").toRect());
@@ -135,12 +148,12 @@ ProfileDialog::~ProfileDialog()
     m_settings.sync();
 }
 
-void ProfileDialog::setAccount(Connection* account)
+void ProfileDialog::setAccount(Account* newAccount)
 {
-    m_accountChooser->setAccount(account);
+    m_accountSelector->setAccount(newAccount);
 }
 
-ProfileDialog::Connection* ProfileDialog::account() const
+ProfileDialog::Account* ProfileDialog::account() const
 {
     return m_currentAccount;
 }
@@ -157,8 +170,13 @@ void ProfileDialog::load()
 {
     if (m_currentAccount)
         disconnect(m_currentAccount->user(), nullptr, this, nullptr);
+    m_deviceTable->clearContents();
+    m_avatar->setText(tr("No avatar"));
+    m_avatar->setIcon({});
+    m_displayName->clear();
+    m_accessTokenLabel->clear();
 
-    m_currentAccount = m_accountChooser->currentAccount();
+    m_currentAccount = m_accountSelector->currentAccount();
     if (!m_currentAccount)
         return;
 
@@ -182,7 +200,6 @@ void ProfileDialog::load()
         accessToken.replace(5, accessToken.size() - 10, "...");
     m_accessTokenLabel->setText(accessToken);
 
-    m_deviceTable->clearContents();
     m_deviceTable->setRowCount(1);
     m_deviceTable->setItem(0, 0, new QTableWidgetItem(tr("Loading...")));
     auto devicesJob = m_currentAccount->callApi<Quotient::GetDevicesJob>();
@@ -225,7 +242,7 @@ void ProfileDialog::apply()
         return;
     }
     auto* user = m_currentAccount->user();
-    if (m_displayName->text() != user->displayname())
+    if (m_displayName->text() != user->name())
         user->rename(m_displayName->text());
     if (!m_newAvatarPath.isEmpty())
         user->setAvatar(m_newAvatarPath);

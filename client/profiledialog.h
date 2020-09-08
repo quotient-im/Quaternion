@@ -20,15 +20,16 @@
 #pragma once
 
 #include "dialog.h"
+#include "accountregistry.h"
 
 #include <settings.h>
 #include <csapi/definitions/client_device.h>
 
-class AccountComboBox;
+class AccountSelector;
+class MainWindow;
 
 class QComboBox;
 class QLineEdit;
-class QTabWidget;
 class QTableWidget;
 
 namespace Quotient {
@@ -39,14 +40,13 @@ class ProfileDialog : public Dialog
 {
     Q_OBJECT
 public:
-    using Connection = Quotient::Connection;
+    using Account = AccountRegistry::Account;
 
-    explicit ProfileDialog(QVector<Connection*> accounts,
-                           QWidget* parent = nullptr);
+    explicit ProfileDialog(AccountRegistry* accounts, MainWindow* parent);
     ~ProfileDialog() override;
 
-    void setAccount(Connection* account);
-    Connection* account() const;
+    void setAccount(Account* newAccount);
+    Account* account() const;
 
 private slots:
     void load() override;
@@ -57,11 +57,11 @@ private:
 
     QTableWidget* m_deviceTable;
     QPushButton* m_avatar;
-    AccountComboBox* m_accountChooser;
+    AccountSelector* m_accountSelector;
     QLineEdit* m_displayName;
     QLabel* m_accessTokenLabel;
     QVector<Quotient::Device> m_devices;
 
-    Connection* m_currentAccount;
+    Account* m_currentAccount;
     QString m_newAvatarPath;
 };

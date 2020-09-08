@@ -20,7 +20,10 @@
 
 #include "mainwindow.h"
 #include "quaternionroom.h"
+#include "accountregistry.h"
+#include "accountselector.h"
 #include "models/orderbytag.h" // For tagToCaption()
+
 #include <user.h>
 #include <connection.h>
 #include <csapi/create_room.h>
@@ -350,28 +353,22 @@ class InviteeList : public QListWidget
         }
 };
 
-CreateRoomDialog::CreateRoomDialog(QVector<Connection*> cs, QWidget* parent)
+CreateRoomDialog::CreateRoomDialog(const AccountRegistry* accounts, QWidget* parent)
     : RoomDialogBase(tr("Create room"), tr("Create room"),
                      nullptr, parent, NoExtraButtons)
-    , connections(std::move(cs))
-    , account(new QComboBox)
+    , accountChooser(new AccountSelector(accounts))
     , version(nullptr) // Will be initialized below
     , nextInvitee(new NextInvitee)
     , inviteButton(new QPushButton(tr("Add", "Add a user to the list of invitees")))
     , invitees(new QListWidget)
 {
-    Q_ASSERT(!connections.isEmpty());
+    Q_ASSERT(accounts && !accounts->isEmpty());
 
     auto* versionBox = new QHBoxLayout;
     version = addVersionSelector(versionBox);
-    addEssentials(account, versionBox);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
-    connect(account, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    addEssentials(accountChooser, versionBox);
+    connect(accountChooser, &AccountSelector::currentAccountChanged,
             this, &CreateRoomDialog::accountSwitched);
-#else
-    connect(account, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this, &CreateRoomDialog::accountSwitched);
-#endif
     mainFormLayout->insertRow(0, new QLabel(
             tr("Please fill the fields as desired. None are mandatory")));
 
@@ -395,11 +392,7 @@ CreateRoomDialog::CreateRoomDialog(QVector<Connection*> cs, QWidget* parent)
         {
             userName.prepend('@');
             if (userName.indexOf(':') == -1)
-            {
-                auto* conn = account->currentData(Qt::UserRole)
-                                        .value<Quotient::Connection*>();
-                userName += ':' + conn->homeserver().authority();
-            }
+                userName += ':' + accountChooser->currentAccount()->domain();
         }
         auto* item = new QListWidgetItem(userName);
         if (nextInvitee->currentIndex() != -1)
@@ -423,8 +416,8 @@ CreateRoomDialog::CreateRoomDialog(QVector<Connection*> cs, QWidget* parent)
 
     setPendingApplyMessage(tr("Creating the room, please wait"));
 
-    if (connections.size() > 1)
-        account->setFocus();
+    if (accounts->size() > 1)
+        accountChooser->setFocus();
     else
         roomName->setFocus();
 }
@@ -441,9 +434,6 @@ void CreateRoomDialog::updatePushButtons()
 void CreateRoomDialog::load()
 {
     qDebug() << "Loading the dialog";
-    account->clear();
-    for (auto* c: connections)
-        account->addItem(c->userId(), QVariant::fromValue(c));
     roomName->clear();
     alias->clear();
     topic->clear();
@@ -455,7 +445,7 @@ void CreateRoomDialog::load()
 
 bool CreateRoomDialog::validate()
 {
-    auto* connection = account->currentData().value<Connection*>();
+    auto* connection = accountChooser->currentAccount();
     if (checkRoomVersion(version->currentData().toString(), connection))
         return true;
 
@@ -466,17 +456,14 @@ bool CreateRoomDialog::validate()
 void CreateRoomDialog::apply()
 {
     using namespace Quotient;
-    auto* connection = account->currentData().value<Connection*>();
     QStringList userIds;
     for (int i = 0; i < invitees->count(); ++i)
-    {
-        auto userVar = invitees->item(i)->data(Qt::UserRole);
-        if (auto* user = userVar.value<User*>())
+        if (auto* user = invitees->item(i)->data(Qt::UserRole).value<User*>())
             userIds.push_back(user->id());
         else
             userIds.push_back(invitees->item(i)->text());
-    }
-    auto* job = connection->createRoom(
+
+    auto* job = accountChooser->currentAccount()->createRoom(
             publishRoom->isChecked() ?
                 Connection::PublishRoom : Connection::UnpublishRoom,
             alias->text(), roomName->text(), topic->toPlainText(),
@@ -490,20 +477,21 @@ void CreateRoomDialog::apply()
 
 void CreateRoomDialog::accountSwitched()
 {
-    auto* connection = account->currentData(Qt::UserRole).value<Connection*>();
+    const auto& savedCurrentText = nextInvitee->currentText();
+
+    auto* connection = accountChooser->currentAccount();
     refillVersionSelector(version, connection);
     aliasServer->setText(':' + connection->domain());
 
     auto* completer = nextInvitee->completer();
-    Q_ASSERT(completer != nullptr);
+    Q_ASSERT(completer != nullptr && connection != nullptr);
+
     auto* model = new QStandardItemModel(completer);
 
-    auto savedCurrentText = nextInvitee->currentText();
 //    auto prefix =
 //            savedCurrentText.midRef(savedCurrentText.startsWith('@') ? 1 : 0);
 //    if (prefix.size() >= 3)
 //    {
-        Q_ASSERT(connection != nullptr);
         QElapsedTimer et; et.start();
         for (auto* u: connection->users())
         {

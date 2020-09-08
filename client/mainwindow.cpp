@@ -26,7 +26,7 @@
 #include "logindialog.h"
 #include "networkconfigdialog.h"
 #include "roomdialogs.h"
-#include "accountcombobox.h"
+#include "accountselector.h"
 #include "systemtrayicon.h"
 #include "linuxutils.h"
 
@@ -125,13 +125,13 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
-    for (auto c: qAsConst(connections))
+    for (auto* acc: accountRegistry)
     {
-        c->saveState();
-        c->stopSync(); // Instead of deleting the connection, merely stop it
+        acc->saveState();
+        acc->stopSync(); // Instead of deleting the connection, merely stop it
     }
-    for (auto c: qAsConst(logoutOnExit))
-        logout(c);
+    for (auto* acc: qAsConst(logoutOnExit))
+        logout(acc);
     saveSettings();
 }
 
@@ -327,7 +327,7 @@ void MainWindow::createMenu()
         tr("Create &new room..."), [this]
         {
             static QPointer<CreateRoomDialog> dlg;
-            summon(dlg, connections, this);
+            summon(dlg, &accountRegistry, this);
         });
     createRoomAction->setShortcut(QKeySequence::New);
     createRoomAction->setDisabled(true);
@@ -694,7 +694,7 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     using Room = Quotient::Room;
 
     c->setLazyLoading(true);
-    connections.push_back(c);
+    accountRegistry.add(c);
 
     roomListDock->addConnection(c);
 
@@ -716,13 +716,14 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     connect( c, &Connection::loggedOut, this, [=]
     {
         statusBar()->showMessage(tr("Logged out as %1").arg(c->userId()), 3000);
+        accountRegistry.drop(c);
         dropConnection(c);
     });
     connect( c, &Connection::networkError, this, [=]{ networkError(c); } );
     connect( c, &Connection::syncError, this,
         [this,c] (const QString& message, const QString& details) {
             QMessageBox msgBox(QMessageBox::Warning, tr("Sync failed"),
-                connections.size() > 1
+                accountRegistry.size() > 1
                     ? tr("The last sync of account %1 has failed with error: %2")
                         .arg(c->userId(), message)
                     : tr("The last sync has failed with error: %1").arg(message),
@@ -794,13 +795,13 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     if (!deviceName.isEmpty())
         accountCaption += '/' % deviceName;
     QString menuCaption = accountCaption;
-    if (connections.size() < 10)
-        menuCaption.prepend('&' % QString::number(connections.size()) % ' ');
+    if (accountRegistry.size() < 10)
+        menuCaption.prepend('&' % QString::number(accountRegistry.size()) % ' ');
     auto accountMenu = new QMenu(menuCaption, connectionMenu);
     accountMenu->addAction(QIcon::fromTheme("user-properties"), tr("Profile"),
                            this,
                            [this, c, dlg = QPointer<ProfileDialog> {}]() mutable {
-                               summon(dlg, connections, this);
+                               summon(dlg, &accountRegistry, this);
                                dlg->setAccount(c);
                            });
     accountMenu->addAction(QIcon::fromTheme("view-certificate"),
@@ -840,23 +841,16 @@ void MainWindow::dropConnection(Connection* c)
 
     if (currentRoom && currentRoom->connection() == c)
         selectRoom(nullptr);
-    connections.removeOne(c);
+    accountRegistry.drop(c);
+
     logoutOnExit.removeOne(c);
-    openRoomAction->setDisabled(connections.isEmpty());
-    createRoomAction->setDisabled(connections.isEmpty());
-    joinAction->setDisabled(connections.isEmpty());
+    const auto noMoreAccounts = accountRegistry.isEmpty();
+    openRoomAction->setDisabled(noMoreAccounts);
+    createRoomAction->setDisabled(noMoreAccounts);
+    joinAction->setDisabled(noMoreAccounts);
 
-    Q_ASSERT(!connections.contains(c) && !logoutOnExit.contains(c) &&
-             !c->syncJob());
+    Q_ASSERT(!logoutOnExit.contains(c) && !c->syncJob());
     c->deleteLater();
-}
-
-bool MainWindow::isInConnections(const QString& userId)
-{
-    return std::any_of(connections.cbegin(), connections.cend(),
-                       [&userId](Connection* c) {
-                           return c->userId() == userId;
-                       });
 }
 
 void MainWindow::showFirstSyncIndicator()
@@ -883,8 +877,8 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
         Quotient::SettingsGroup("Accounts").childGroups();
     QStringList loggedOffAccounts;
     for (const auto& a: allKnownAccounts)
-        // Skip accounts mentioned in active connections
-        if (!isInConnections(AccountSettings(a).userId()))
+        // Skip already logged in accounts
+        if (!accountRegistry.isLoggedIn(AccountSettings(a).userId()))
             loggedOffAccounts.push_back(a);
 
     doOpenLoginDialog(new LoginDialog(statusMessage, this, loggedOffAccounts));
@@ -933,7 +927,7 @@ void MainWindow::doOpenLoginDialog(LoginDialog* dialog)
         firstSyncing.push_back(connection);
         showFirstSyncIndicator();
 
-        if (isInConnections(connection->userId())) {
+        if (accountRegistry.isLoggedIn(connection->userId())) {
             if (QMessageBox::warning(
                     this, tr("Logging in into a logged in account"),
                     tr("You're trying to log in into an account that's "
@@ -1205,7 +1199,7 @@ bool MainWindow::visitNonMatrix(const QUrl& url)
 MainWindow::Connection* MainWindow::getDefaultConnection() const
 {
     return currentRoom ? currentRoom->connection() :
-            connections.size() == 1 ? connections.front() : nullptr;
+            accountRegistry.size() == 1 ? accountRegistry.front() : nullptr;
 }
 
 void MainWindow::openResource(const QString& idOrUri, const QString& action)
@@ -1296,13 +1290,13 @@ void MainWindow::selectRoom(Quotient::Room* r)
 MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
                                                      const QString& prompt)
 {
-    Q_ASSERT(!connections.isEmpty());
-    if (connections.size() == 1)
-        return connections.front();
+    Q_ASSERT(!accountRegistry.isEmpty());
+    if (accountRegistry.size() == 1)
+        return accountRegistry.front();
 
-    QStringList names; names.reserve(connections.size());
+    QStringList names; names.reserve(accountRegistry.size());
     int defaultIdx = -1;
-    for (auto c: std::as_const(connections))
+    for (auto c: accountRegistry)
     {
         names.push_back(c->userId());
         if (c == connection)
@@ -1314,7 +1308,7 @@ MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
     if (!ok || choice.isEmpty())
         return nullptr;
 
-    for (auto c: std::as_const(connections))
+    for (auto c: accountRegistry)
         if (c->userId() == choice)
         {
             connection = c;
@@ -1326,7 +1320,7 @@ MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
 
 void MainWindow::openUserInput(bool forJoining)
 {
-    if (connections.isEmpty()) {
+    if (accountRegistry.isEmpty()) {
         showLoginWindow(tr("Please connect to a server"));
         return;
     }
@@ -1348,14 +1342,14 @@ void MainWindow::openUserInput(bool forJoining)
 
     Dialog dlg(entry.dlgTitle, this, Dialog::NoStatusLine, entry.actionText,
                Dialog::NoExtraButtons);
-    auto* accountChooser = new AccountComboBox(connections, &dlg);
+    auto* accountChooser = new AccountSelector(&accountRegistry);
     auto* identifier = new QLineEdit(&dlg);
     auto* defaultConn = getDefaultConnection();
     accountChooser->setAccount(defaultConn);
 
     // Lay out controls
     auto* layout = dlg.addLayout<QFormLayout>();
-    if (connections.size() > 1)
+    if (accountRegistry.size() > 1)
     {
         layout->addRow(tr("Account"), accountChooser);
         accountChooser->setFocus();
@@ -1388,7 +1382,7 @@ void MainWindow::openUserInput(bool forJoining)
         };
 
         setCompleter(accountChooser->currentAccount());
-        connect(accountChooser, &AccountComboBox::currentAccountChanged,
+        connect(accountChooser, &AccountSelector::currentAccountChanged,
                 identifier, setCompleter);
     }
 
