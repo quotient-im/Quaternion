@@ -1,37 +1,37 @@
-<!DOCTYPE TS><TS version="2.1" language="pl">
+<!DOCTYPE TS><TS version="2.1" language="es">
 <context>
     <name>ChatRoomWidget</name>
     <message>
         <source>Choose a room to send messages or enter a command...</source>
-        <translation>Wybierz pokój do wysyłania wiadomości lub wprowadź polecenie…</translation>
+        <translation>Elija una sala para enviar mensajes o ingrese un comando...</translation>
     </message>
     <message>
         <source>Sending encrypted messages is not supported yet</source>
-        <translation>Wysyłanie zaszyfrowanych wiadomości nie jest jeszcze obsługiwane</translation>
+        <translation>El envío de mensajes cifrados aún no es compatible</translation>
     </message>
     <message>
         <source>Send a message (unencrypted) or enter a command...</source>
-        <translation>Wyślij wiadomość (niezaszyfrowaną) lub wprowadź polecenie…</translation>
+        <translation>Envíe un mensaje (sin cifrar) o escriba un comando...</translation>
     </message>
     <message>
         <source>There&apos;s nothing to send</source>
-        <translation>Nie ma niczego do przesłania</translation>
+        <translation>No hay nada que enviar</translation>
     </message>
     <message>
         <source>/join argument doesn&apos;t look like a room ID or alias</source>
-        <translation>/join nie wygląda jak identyfikator pokoju lub alias</translation>
+        <translation>/join argumento no parece un ID de habitación o alias</translation>
     </message>
     <message>
         <source>Sending a farewell message is not supported yet. If you intended to leave another room, switch to it and type /leave there.</source>
-        <translation>Wysyłanie wiadomości pożegnalnej nie jest jeszcze obsługiwane. Jeśli chcesz opuścić inny pokój, przełącz się do niego i wpisz tam /leave.</translation>
+        <translation>El envío de un mensaje de despedida aún no es compatible. Si tenía la intención de salir de otra sala, cambie a ella y escriba /leave allí.</translation>
     </message>
     <message>
         <source>/forget must be followed by the room id/alias, even for the current room</source>
-        <translation>/forget musi poprzedzać identyfikator pokoju/alias, nawet dla bieżącego pomieszczenia</translation>
+        <translation>/forget debe ser seguido por el id/alias de la sala, incluso para la sala actual</translation>
     </message>
     <message>
         <source>%1 doesn&apos;t look like a room id or alias</source>
-        <translation>%1 nie wygląda jak identyfikator pokoju lub alias</translation>
+        <translation>%1 no parece un identificador de sala o alias</translation>
     </message>
     <message>
         <source>/invite &lt;memberId&gt;</source>
@@ -43,7 +43,7 @@
     </message>
     <message>
         <source>%1 is not a member of this room</source>
-        <translation>%1 nie jest członkiem tego pokoju</translation>
+        <translation>%1 no es miembro de esta sala</translation>
     </message>
     <message>
         <source>/unban &lt;userId&gt;</source>
@@ -51,7 +51,7 @@
     </message>
     <message>
         <source>/unban argument doesn&apos;t look like a user ID</source>
-        <translation>/unban nie wygląda jak identyfikator użytkownika</translation>
+        <translation>/unban argumento no parece un ID de usuario</translation>
     </message>
     <message>
         <source>/ignore &lt;userId&gt;</source>
@@ -59,19 +59,19 @@
     </message>
     <message>
         <source>/ignore argument doesn&apos;t look like a user ID</source>
-        <translation>/ignore nie wygląda jak identyfikator użytkownika</translation>
+        <translation>/ignore argumento no parece un ID de usuario</translation>
     </message>
     <message>
         <source>Couldn&apos;t find user %1 on the server</source>
-        <translation>Nie można znaleźć użytkownika %1 na serwerze</translation>
+        <translation>No se pudo encontrar el usuario %1 en el servidor</translation>
     </message>
     <message>
         <source>/me needs an argument</source>
-        <translation>/me potrzebuje argumentu</translation>
+        <translation>/me necesita un argumento</translation>
     </message>
     <message>
         <source>/notice needs an argument</source>
-        <translation>/notice potrzebuje argumentu</translation>
+        <translation>/notice necesita un argumento</translation>
     </message>
     <message>
         <source>/%1 &lt;memberId&gt; &lt;message&gt;</source>
@@ -79,11 +79,11 @@
     </message>
     <message>
         <source>%1 doesn&apos;t seem to have joined room %2</source>
-        <translation>%1 najwyraźniej nie dołączył do pokoju %2</translation>
+        <translation>Parece que %1 no se ha unido a la sala %2</translation>
     </message>
     <message>
         <source>%1 doesn&apos;t look like a user id or room alias</source>
-        <translation>%1 nie wygląda jak identyfikator użytkownika lub alias pokoju</translation>
+        <translation>%1 no parece un ID de usuario o alias de sala</translation>
     </message>
     <message>
         <source>/%1 &lt;memberId&gt;</source>
@@ -91,82 +91,86 @@
     </message>
     <message>
         <source>Unknown /command. Use // to send this line literally</source>
-        <translation>Nieznane polecenie. Użyj //, aby dosłownie wysłać tę linię</translation>
+        <translation>/command desconocido. Utilice // para enviar esta línea literalmente</translation>
     </message>
     <message>
         <source>Save file as</source>
-        <translation>Zapisz plik jako</translation>
+        <translation>Guardar archivo como</translation>
     </message>
     <message>
         <source>Next completion: %1</source>
-        <translation>Następne dokończenie: %1</translation>
+        <translation>Próxima finalización: %1</translation>
     </message>
     <message>
         <source>Currently typing: %1</source>
-        <translation>Obecnie pisze: %1</translation>
+        <translation>Actualmente escribiendo: %1</translation>
     </message>
     <message>
         <source>Attach</source>
-        <translation>Załącz</translation>
+        <translation>Adjuntar</translation>
     </message>
     <message>
         <source>Attach file</source>
-        <translation>Załącz plik</translation>
+        <translation>Adjuntar archivo</translation>
     </message>
     <message>
         <source>Add a message to the file or just push Enter</source>
-        <translation>Dodaj wiadomość do pliku lub po prostu naciśnij Enter</translation>
+        <translation>Agregue un mensaje al archivo o simplemente presione Entrar</translation>
     </message>
     <message>
         <source>Attaching %1</source>
-        <translation>Załączanie %1</translation>
+        <translation>Adjuntando %1</translation>
     </message>
     <message>
         <source>Attaching cancelled</source>
-        <translation>Załączanie anulowano</translation>
+        <translation>Adjunto cancelado</translation>
     </message>
     <message>
         <source>There&apos;s no such /command outside of room.</source>
-        <translation>Nie ma takiego /polecenia poza pokojem.</translation>
+        <translation>No hay tal /comando fuera de la sala.</translation>
     </message>
     <message>
         <source>%1 doesn&apos;t look like a user id</source>
-        <translation>%1 nie wygląda jak identyfikator użytkownika</translation>
+        <translation>%1 no parece un ID de usuario</translation>
     </message>
     <message>
         <source>%1 doesn&apos;t look like a user ID</source>
-        <translation>%1 nie wygląda jak identyfikator użytkownika</translation>
+        <translation>%1 no parece una ID de usuario</translation>
     </message>
     <message>
         <source>You should select a room to send messages.</source>
-        <translation>Powinieneś/Powinnaś wybrać pokój do wysyłania wiadomości.</translation>
+        <translation>Debe seleccionar una sala para enviar mensajes.</translation>
     </message>
     <message>
         <source>Send a message (over %1) or enter a command...</source>
-        <translation>Wyślij wiadomość (poprzez %1) lub wprowadź polecenie…</translation>
+        <translation>Envía un mensaje (más de %1) o introduce un comando...</translation>
     </message>
     <message>
         <source>Redact</source>
-        <translation>Przeredaguj</translation>
+        <translation>Redactar</translation>
     </message>
     <message>
         <source>Copy link to clipboard</source>
-        <translation>Skopiuj link do schowka</translation>
+        <translation>Copiar el enlace al portapapeles</translation>
+    </message>
+    <message>
+        <source>Quote</source>
+        <translation>Comillas</translation>
     </message>
     <message>
         <source>Open externally</source>
-        <translation>Otwórz zewnętrznie</translation>
+        <translation>Abrir externamente</translation>
     </message>
 </context>
 <context>
     <name>Timeline</name>
     <message>
         <source>(no topic)</source>
-        <translation>(brak tematu)</translation>
+        <translation>(sin tema)</translation>
     </message>
     <message>
         <source>%1 bytes</source>
-        <translation>%1 bajtów</translation>
+        <translation>%1 bytes</translation>
     </message>
     <message>
         <source>%1 KB</source>
@@ -182,1071 +186,1119 @@
     </message>
     <message>
         <source>Unknown</source>
-        <translation>Nieznany</translation>
+        <translation>Desconocido</translation>
     </message>
     <message numerus="yes">
         <source>%Ln events back from now (%L1 cached%2)</source>
         <translation>
-            <numerusform>%Ln wydarzenie od teraz (%L1 cached%2)</numerusform>
-            <numerusform>%Ln wydarzenia od teraz (%L1 cached%2)</numerusform>
-            <numerusform>%Ln wydarzeń od teraz (%L1 cached%2)</numerusform>
-            <numerusform>%Ln wydarzeń od teraz (%L1 cached%2)</numerusform>
+            <numerusform>%Ln evento desde ahora (%L1 en caché%2)</numerusform>
+            <numerusform>%Ln eventos desde ahora (%L1 en caché%2)</numerusform>
         </translation>
     </message>
     <message>
+        <source>and loading</source>
+        <translation>y cargando</translation>
+    </message>
+    <message>
         <source>Unstable room version!</source>
-        <translation>Niestabilna wersja pokoju!</translation>
+        <translation>¡Versión de sala inestable!</translation>
     </message>
     <message>
         <source>(no name)</source>
-        <translation>(bez nazwy)</translation>
+        <translation>(sin nombre)</translation>
     </message>
     <message>
         <source>This room has been upgraded</source>
-        <translation>Ten pokój został zaktualizowany</translation>
+        <translation>Esta sala ha sido mejorada</translation>
     </message>
     <message>
         <source>
 Go to Room Settings to upgrade the room</source>
-        <translation>Przejdź do ustawień pokoju, aby zaktualizować pokój</translation>
+        <translation>Vaya a Configuración de la Sala para actualizar la sala</translation>
     </message>
     <message>
         <source>Go to Room Settings to upgrade the room</source>
-        <translation>Przejdź do ustawień pokoju, aby zaktualizować pokój</translation>
+        <translation>Vaya a Configuración de la Sala para actualizar la sala</translation>
     </message>
 </context>
 <context>
     <name>CreateRoomDialog</name>
     <message>
         <source>Create room</source>
-        <translation>Utwórz pokój</translation>
+        <translation>Crear sala</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation>Dodaj</translation>
+        <translation>Añadir</translation>
     </message>
     <message>
         <source>Invite user(s)</source>
-        <translation>Zaproś użytkownika(-ów)</translation>
+        <translation>Invitar a usuario(s)</translation>
     </message>
     <message>
         <source>Creating the room, please wait</source>
-        <translation>Tworzę pokój, proszę czekać</translation>
+        <translation>Creando la sala, por favor espere</translation>
     </message>
     <message>
         <source>Please fill the fields as desired. None are mandatory</source>
-        <translation>Proszę wypełnić pola zgodnie z życzeniem. Żaden z nich nie jest obowiązkowy</translation>
+        <translation>Por favor llene los campos como desee. Ninguno es obligatorio</translation>
     </message>
 </context>
 <context>
     <name>Dialog</name>
     <message>
         <source>Applying changes, please wait</source>
-        <translation>Wprowadzanie zmian, proszę czekać</translation>
+        <translation>Aplicando cambios, por favor espere</translation>
     </message>
 </context>
 <context>
     <name>LoginDialog</name>
     <message>
         <source>Login</source>
-        <translation>Zaloguj się</translation>
+        <translation>Iniciar sesión</translation>
     </message>
     <message>
         <source>Stay logged in</source>
-        <translation>Pozostań zalogowany</translation>
+        <translation>Permanecer conectado</translation>
     </message>
     <message>
         <source>Matrix ID</source>
-        <translation>Identyfikator Matrix</translation>
+        <translation>ID de Matriz</translation>
     </message>
     <message>
         <source>Password</source>
-        <translation>Hasło</translation>
+        <translation>Contraseña</translation>
     </message>
     <message>
         <source>Device name</source>
-        <translation>Nazwa urządzenia</translation>
+        <translation>Nombre del dispositivo</translation>
     </message>
     <message>
         <source>Connect to server</source>
-        <translation>Połącz z serwerem</translation>
+        <translation>Conectar al servidor</translation>
     </message>
     <message>
         <source>Connecting and logging in, please wait</source>
-        <translation>Łączenie się i logowanie, proszę czekać</translation>
+        <translation>Conectando e iniciando sesión, por favor espere</translation>
     </message>
     <message>
         <source>Re-login</source>
-        <translation>Zaloguj ponownie</translation>
+        <translation>Reiniciar sesión</translation>
     </message>
     <message>
         <source>Restoring access, please wait</source>
-        <translation>Przywracanie dostępu, proszę czekać</translation>
+        <translation>Restaurando el acceso, por favor espere</translation>
     </message>
 </context>
 <context>
     <name>MainWindow</name>
     <message>
         <source>Loading...</source>
-        <translation>Ładowanie…</translation>
+        <translation>Cargando...</translation>
     </message>
     <message>
         <source>&amp;Accounts</source>
-        <translation>&amp;Konta</translation>
+        <translation>&amp;Cuentas</translation>
     </message>
     <message>
         <source>&amp;Login...</source>
-        <translation>Zaloguj &amp;się…</translation>
+        <translation>&amp;Iniciar sesión...</translation>
     </message>
     <message>
         <source>&amp;Quit</source>
-        <translation>&amp;Zakończ</translation>
+        <translation>&amp;Salir</translation>
     </message>
     <message>
         <source>&amp;View</source>
-        <translation>&amp;Widok</translation>
+        <translation>&amp;Ver</translation>
     </message>
     <message>
         <source>Dock &amp;panels</source>
-        <translation>Łącz &amp;panele</translation>
+        <translation>Dock &amp;paneles</translation>
     </message>
     <message>
         <source>&amp;Display in timeline</source>
-        <translation>&amp;Pokaż na osi czasu</translation>
+        <translation>&amp;Mostrar en la línea de tiempo</translation>
     </message>
     <message>
         <source>Normal &amp;join/leave events</source>
-        <translation>&amp;Zwykłe zdarzenia dołączania/opuszczania</translation>
+        <translation>Eventos normales de unión/salida</translation>
     </message>
     <message>
         <source>&amp;Redacted events</source>
-        <translation>&amp;Zredagowane zdarzenia</translation>
+        <translation>&amp;Eventos redactados</translation>
     </message>
     <message>
         <source>Show redacted events in the timeline as &apos;Redacted&apos; instead of hiding them entirely</source>
-        <translation>Pokaż zredagowane wydarzenia na osi czasu jako „Zredagowane”, zamiast całkowicie je ukrywać</translation>
+        <translation>Mostrar eventos redactados en la línea de tiempo como &apos;Redactado&apos; en lugar de ocultarlos por completo</translation>
+    </message>
+    <message>
+        <source>&amp;No-effect activity</source>
+        <translation>&amp;Actividad sin efectos</translation>
     </message>
     <message>
         <source>Edit tags order</source>
-        <translation>Edytuj kolejność tagów</translation>
+        <translation>Editar orden de etiquetas</translation>
     </message>
     <message>
         <source>Tags can be wildcarded by * next to dot(s)
 Clear the box to reset to defaults
 org.qmatrixclient. tags: invite, left, direct, none</source>
-        <translation>Tagi mogą być wieloznaczne przez * obok kropek
-Wyczyść pole, aby przywrócić domyślne ustawienia
-org.qmatrixclient. tagi: zaproszone, opuszczone, bezpośrednie, brak</translation>
+        <translation>Las etiquetas pueden ser comodín por * al lado de puntos (s)
+Desactive la casilla para restablecer los valores predeterminados
+org.qmatrixclient. tags: invite, left, direct, none</translation>
     </message>
     <message>
         <source>&amp;Room</source>
-        <translation>&amp;Pokój</translation>
+        <translation>&amp;Sala</translation>
     </message>
     <message>
         <source>Change room &amp;settings...</source>
-        <translation>Zmień &amp;ustawienia pokoju…</translation>
+        <translation>Cambiar configuración de sala...</translation>
     </message>
     <message>
         <source>Create &amp;new room...</source>
-        <translation>Utwórz &amp;nowy pokój…</translation>
+        <translation>Crear &amp;nueva sala ...</translation>
     </message>
     <message>
         <source>&amp;Direct chat...</source>
-        <translation>&amp;Bezpośrednia rozmowa…</translation>
+        <translation>&amp;Chat directo...</translation>
     </message>
     <message>
         <source>&amp;Join room...</source>
-        <translation>&amp;Dołącz do pokoju…</translation>
+        <translation>&amp;Unirse a la sala...</translation>
     </message>
     <message>
         <source>&amp;Close current room</source>
-        <translation>&amp;Zamknij bieżący pokój</translation>
+        <translation>&amp;Cerrar la sala actual</translation>
     </message>
     <message>
         <source>&amp;Settings</source>
-        <translation>&amp;Ustawienia</translation>
+        <translation>&amp;Configuraciones</translation>
     </message>
     <message>
         <source>&amp;Help</source>
-        <translation>&amp;Pomoc</translation>
+        <translation>&amp;Ayuda</translation>
     </message>
     <message>
         <source>&amp;About</source>
-        <translation>&amp;Informacje o Quaternion</translation>
+        <translation>&amp;Acerca de</translation>
     </message>
     <message>
         <source>&amp;Highlight only</source>
-        <translation>&amp;Tylko wyróżnij</translation>
+        <translation>&amp;Resaltar solamente</translation>
     </message>
     <message>
         <source>Notifications are entirely suppressed</source>
-        <translation>Powiadomienia są całkowicie tłumione</translation>
+        <translation>Las notificaciones se suprimen por completo.</translation>
     </message>
     <message>
         <source>&amp;Non-intrusive</source>
-        <translation>&amp;Nieinwazyjne</translation>
+        <translation>&amp;No intrusivo</translation>
     </message>
     <message>
         <source>Show notifications but do not activate the window</source>
-        <translation>Pokaż powiadomienia, ale nie aktywuj okna</translation>
+        <translation>Mostrar notificaciones pero no activar la ventana</translation>
     </message>
     <message>
         <source>&amp;Full</source>
-        <translation>&amp;Pełne</translation>
+        <translation>&amp;Completo</translation>
     </message>
     <message>
         <source>Show notifications and activate the window</source>
-        <translation>Pokaż powiadomienia i aktywuj okno</translation>
+        <translation>Mostrar notificaciones y activar la ventana</translation>
     </message>
     <message>
         <source>Notifications</source>
-        <translation>Powiadomienia</translation>
+        <translation>Notificaciones</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation>Domyślny</translation>
+        <translation>Predeterminado</translation>
+    </message>
+    <message>
+        <source>The layout with author labels above blocks of messages</source>
+        <translation>El diseño con etiquetas de autor sobre bloques de mensajes</translation>
     </message>
     <message>
         <source>XChat</source>
         <translation>XChat</translation>
     </message>
     <message>
+        <source>The layout with author labels to the left from each message</source>
+        <translation>El diseño con etiquetas de autor a la izquierda de cada mensaje</translation>
+    </message>
+    <message>
         <source>Timeline layout</source>
-        <translation>Układ osi czasu</translation>
+        <translation>Diseño de la línea de tiempo</translation>
     </message>
     <message>
         <source>Load full-size images at once</source>
-        <translation>Ładuj od razu pełnowymiarowe obrazy</translation>
+        <translation>Cargue imágenes de tamaño completo de una vez</translation>
     </message>
     <message>
         <source>Automatically download a full-size image instead of a thumbnail</source>
-        <translation>Automatycznie pobierz obraz w pełnym rozmiarze zamiast miniatury</translation>
+        <translation>Descargue automáticamente una imagen a tamaño completo en lugar de una miniatura</translation>
     </message>
     <message>
         <source>Configure &amp;network proxy...</source>
-        <translation>&amp;Konfiguruj proxy sieciowe…</translation>
+        <translation>Configurar el proxy de la &amp;red...</translation>
     </message>
     <message>
         <source>Couldn&apos;t open a file to save access token</source>
-        <translation>Nie można otworzyć pliku, aby zapisać token dostępu</translation>
+        <translation>No se pudo abrir un archivo para guardar el token de acceso</translation>
     </message>
     <message>
         <source>Quaternion couldn&apos;t open a file to write the access token to. You&apos;re logged in but will have to provide your password again when you restart the application.</source>
-        <translation>Quaternion nie mógł otworzyć pliku, aby zapisać token dostępu. Jesteś zalogowany, ale będziesz musiał podać hasło ponownie po ponownym uruchomieniu aplikacji.</translation>
+        <translation>Quaternion no pudo abrir un archivo para escribir el token de acceso. Ha iniciado sesión pero tendrá que proporcionar su contraseña nuevamente cuando reinicie la aplicación.</translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t set access token file permissions</source>
+        <translation>No se pudieron establecer los permisos del archivo de token de acceso</translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t restrict permissions on the access token file. Do you still want to save the access token to it?</source>
+        <translation>Quaternion no pudo restringir los permisos en el archivo de token de acceso. ¿Todavía quieres guardar el token de acceso?</translation>
     </message>
     <message>
         <source>Logged out as %1</source>
-        <translation>Wylogowano jako %1</translation>
+        <translation>Se ha cerrado la sesión como %1</translation>
     </message>
     <message>
         <source>Sync failed</source>
-        <translation>Synchronizacja nie powiodła się</translation>
+        <translation>La sincronización falló</translation>
     </message>
     <message>
         <source>The last sync of account %1 has failed with error: %2</source>
-        <translation>Ostatnia synchronizacja konta %1 nie powiodła się z powodu błędu: %2</translation>
+        <translation>La última sincronización de la cuenta %1 ha fallado con el error: %2</translation>
     </message>
     <message>
         <source>The last sync has failed with error: %1</source>
-        <translation>Ostatnia synchronizacja nie powiodła się z powodu błędu: %1</translation>
+        <translation>La última sincronización ha fallado con el error: %1</translation>
     </message>
     <message>
         <source>Clicking &apos;Retry&apos; will attempt to resume synchronisation;
 Clicking &apos;Cancel&apos; will stop further synchronisation of this account until logout or Quaternion restart.</source>
-        <translation>Kliknięcie „Ponów próbę” spowoduje wznowienie synchronizacji;
-Kliknięcie „Anuluj” zatrzyma dalszą synchronizację tego konta do momentu wylogowania się lub ponownego uruchomienia Quaterniona.</translation>
+        <translation>Al hacer clic en &apos;Reintentar&apos; se intentará reanudar la sincronización;
+Al hacer clic en &quot;Cancelar&quot; se detendrá la sincronización de esta cuenta hasta que se cierre la sesión o se reinicie Quaternion.</translation>
     </message>
     <message>
         <source>Before this server can process your information, you have to agree with its terms and conditions; please click the button below to open the web page where you can do that</source>
-        <translation>Zanim serwer ten będzie mógł przetwarzać Twoje informacje, musisz wyrazić zgodę na jego warunki; proszę kliknąć przycisk poniżej, aby otworzyć stronę internetową, na której możesz to zrobić</translation>
+        <translation>Antes de que este servidor pueda procesar su información, usted tiene que estar de acuerdo con sus términos y condiciones; por favor haga clic en el botón de abajo para abrir la página web donde puede hacer eso</translation>
     </message>
     <message>
         <source>Open web page</source>
-        <translation>Otwórz stronę internetową</translation>
+        <translation>Abrir página web</translation>
     </message>
     <message>
         <source>Show &amp;access token</source>
-        <translation>&amp;Pokaż token dostępu</translation>
+        <translation>Mostrar &amp;token de acceso</translation>
     </message>
     <message>
         <source>Access token for %1</source>
-        <translation>Token dostępu dla %1</translation>
+        <translation>Token de acceso para %1</translation>
     </message>
     <message>
         <source>Your access token is %1...%2; click &quot;Show details...&quot; for the full token</source>
-        <translation>Twój token dostępu to %1...%2; kliknij „Pokaż szczegóły…” dla pełnego tokena</translation>
+        <translation>El token de acceso es %1...%2; haga clic en &quot;Mostrar detalles...&quot; para el token completo</translation>
     </message>
     <message>
         <source>&amp;Logout</source>
-        <translation>&amp;Wyloguj</translation>
+        <translation>&amp;Cerrar sesión</translation>
     </message>
     <message>
         <source>About Quaternion</source>
-        <translation>Informacje o Quaternion</translation>
+        <translation>Acerca de Quaternion</translation>
     </message>
     <message>
         <source>Welcome to Quaternion</source>
-        <translation>Witamy w Quaternion</translation>
+        <translation>Bienvenido a Quaternion</translation>
     </message>
     <message>
         <source>Choose the account to join the room</source>
-        <translation>Wybierz konto, aby dołączyć do pokoju</translation>
+        <translation>Elija la cuenta para unirse a la sala</translation>
     </message>
     <message>
         <source>No connections</source>
-        <translation>Brak połączeń</translation>
+        <translation>Sin conexiones</translation>
     </message>
     <message>
         <source>Please connect to a server before joining a room</source>
-        <translation>Proszę połącz się z serwerem przed dołączeniem do pokoju</translation>
+        <translation>Por favor, conéctese a un servidor antes de entrar a una sala</translation>
     </message>
     <message>
         <source>Joining %1 as %2</source>
-        <translation>Dołączenie do %1 jako %2</translation>
+        <translation>Unirse a %1 como %2</translation>
     </message>
     <message>
         <source>Join room %1 under account %2?</source>
-        <translation>Dołączyć do pokoju %1 na koncie %2?</translation>
+        <translation>Unirse a la sala %1 bajo la cuenta %2?</translation>
     </message>
     <message>
         <source>Join</source>
-        <translation>Dołącz</translation>
+        <translation>Unirse</translation>
     </message>
     <message>
         <source>Choose account...</source>
-        <translation>Wybierz konto…</translation>
+        <translation>Elija la cuenta...</translation>
     </message>
     <message>
         <source>Enter room id or alias to join</source>
-        <translation>Wprowadź identyfikator pokoju lub alias, aby dołączyć</translation>
+        <translation>Introduzca el id de la sala o el alias para unirte</translation>
     </message>
     <message>
         <source>Enter an id or alias of the room. You will join as %1</source>
-        <translation>Wprowadź identyfikator lub alias pokoju. Dołączysz jako %1</translation>
+        <translation>Introduzca un id o alias de la sala. Te unirás como %1</translation>
     </message>
     <message>
         <source>No room id or alias specified</source>
-        <translation>Nie podano identyfikatora pokoju lub aliasu</translation>
+        <translation>No se especificó ninguna id de sala o alias</translation>
     </message>
     <message>
         <source>Please specify non-empty id or alias</source>
-        <translation>Proszę podać niepusty identyfikator lub alias</translation>
+        <translation>Por favor, especifique un ID o alias no vacío</translation>
     </message>
     <message>
         <source>Joined %1 as %2</source>
-        <translation>Dołączono %1 jako %2</translation>
+        <translation>Se unió a %1 como %2</translation>
     </message>
     <message>
         <source>Starting direct chat with %1 as %2</source>
-        <translation>Rozpoczynanie bezpośredniej rozmowy z %1 jako %2</translation>
+        <translation>Iniciar chat directo con %1 como %2</translation>
     </message>
     <message>
         <source>Start direct chat with %1 under account %2?</source>
-        <translation>Rozpocząć bezpośrednią rozmowę z %1 na koncie %2?</translation>
+        <translation>¿Iniciar chat directo con %1 en la cuenta %2?</translation>
     </message>
     <message>
         <source>Enter user id to start direct chat.</source>
-        <translation>Wprowadź identyfikator użytkownika, aby rozpocząć bezpośrednią rozmowę.</translation>
+        <translation>Introduzca el ID de usuario para iniciar el chat directo.</translation>
     </message>
     <message>
         <source>Enter the user id of who you would like to chat with. You will join as %1</source>
-        <translation>Wprowadź identyfikator użytkownika, z którym chcesz rozmawiać. Dołączysz jako %1</translation>
+        <translation>Introduzca el ID de usuario con quien desea chatear. Te unirás como %1</translation>
     </message>
     <message>
         <source>No user id specified</source>
-        <translation>Nie określono identyfikatora użytkownika</translation>
+        <translation>No se ha especificado ningún ID de usuario</translation>
     </message>
     <message>
         <source>Please specify non-empty user id</source>
-        <translation>Proszę podać niepusty identyfikator użytkownika</translation>
+        <translation>Especifique el ID de usuario no vacío</translation>
     </message>
     <message>
         <source>Starting chat with %1 as %2</source>
-        <translation>Rozpoczynanie rozmowy z %1 jako %2</translation>
+        <translation>Inicio del chat con %1 como %2</translation>
     </message>
     <message>
         <source>Sync completed - have a good chat</source>
-        <translation>Synchronizacja zakończona — miłej rozmowy</translation>
+        <translation>Sincronización completada - que tengas una buena charla</translation>
     </message>
     <message>
         <source>Couldn&apos;t connect to the server as %1; will retry within %2 seconds</source>
-        <translation>Nie można było połączyć się z serwerem jako %1; spróbuje ponownie w ciągu %2 sekund</translation>
+        <translation>No se pudo conectar al servidor como %1; volverá a intentarlo en %2 segundos</translation>
     </message>
     <message>
         <source>Reconnecting...</source>
-        <translation>Ponowne łączenie…</translation>
+        <translation>Reconectando...</translation>
     </message>
     <message>
         <source>No SSL support</source>
-        <translation>Brak obsługi SSL</translation>
+        <translation>Sin soporte SSL</translation>
     </message>
     <message>
         <source>Your SSL configuration does not allow Quaternion to establish secure connections.</source>
-        <translation>Twoja konfiguracja SSL nie zezwala Quaternionowi na ustanowienie bezpiecznych połączeń.</translation>
+        <translation>Su configuración SSL no permite que Quaternion establezca conexiones seguras.</translation>
     </message>
     <message>
         <source>SSL error</source>
-        <translation>Błąd SSL</translation>
+        <translation>Error SSL</translation>
     </message>
     <message>
         <source>Proxy needs authentication</source>
-        <translation>Proxy wymaga uwierzytelnienia</translation>
+        <translation>El proxy necesita autenticación</translation>
     </message>
     <message>
         <source>Authenticate</source>
-        <translation>Uwierzytelnij</translation>
+        <translation>Autenticar</translation>
     </message>
     <message>
         <source>User name</source>
-        <translation>Nazwa użytkownika</translation>
+        <translation>Nombre de usuario</translation>
     </message>
     <message>
         <source>Password</source>
-        <translation>Hasło</translation>
+        <translation>Contraseña</translation>
     </message>
     <message>
         <source>Copyright (C) 2018 QMatrixClient project.</source>
-        <translation>Copyright (C) 2018 QMatrixClient project.</translation>
+        <translation>Copyright (C) 2018 proyecto QMatrixClient.</translation>
     </message>
     <message>
         <source>&amp;Thanks</source>
-        <translation>&amp;Podziękowania</translation>
+        <translation>&amp;Gracias</translation>
     </message>
     <message>
         <source>Original project author: %1</source>
-        <translation>Pierwotny autor projektu: %1</translation>
+        <translation>Autor del proyecto original: %1</translation>
     </message>
     <message>
         <source>Web page</source>
-        <translation>Strona internetowa</translation>
+        <translation>Página web</translation>
     </message>
     <message>
         <source>Project leader: %1</source>
-        <translation>Kierownik projektu: %1</translation>
+        <translation>Líder del proyecto: %1</translation>
     </message>
     <message>
         <source>Contributors:</source>
-        <translation>Współautorzy:</translation>
+        <translation>Colaboradores:</translation>
     </message>
     <message>
         <source>Quaternion contributors @ GitHub</source>
-        <translation>Współautorzy Quaterniona na GitHubie</translation>
+        <translation>Colaboradores de Quaternion @ GitHub</translation>
     </message>
     <message>
         <source>libQMatrixClient contributors @ GitHub</source>
-        <translation>Współautorzy libQMatrixClient na GitHubie</translation>
+        <translation>Colaboradores de libQMatrixClient @ GitHub</translation>
     </message>
     <message>
         <source>Quaternion translators @ Lokalise.co</source>
-        <translation>Tłumacze Quaterniona w Lokalise.co</translation>
+        <translation>Traductores de Quaternion Lokalise.co</translation>
     </message>
     <message>
         <source>Made with:</source>
-        <translation>Wykonana z:</translation>
+        <translation>Hecho con:</translation>
     </message>
     <message>
         <source>Show join and leave events</source>
-        <translation>Pokaż zdarzenia dołączenia i wyjścia</translation>
+        <translation>Mostrar eventos de unirse y dejar</translation>
+    </message>
+    <message>
+        <source>Use shuttle scrollbar (requires restart)</source>
+        <translation>Use la barra de desplazamiento de la lanzaderar (requiere reinicio)</translation>
+    </message>
+    <message>
+        <source>Control scroll velocity instead of position with the timeline scrollbar</source>
+        <translation>Controle la velocidad de desplazamiento en lugar de la posición con la barra de desplazamiento de la línea de tiempo</translation>
     </message>
     <message>
         <source>Request URL: %1
 Response:
 %2</source>
-        <translation>Żądany adres URL: %1 
-Odpowiedź: 
-%2</translation>
+        <translation>URL de solicitud: %1 
+ Respuesta: 
+ %2</translation>
     </message>
     <message>
         <source>Tags can be wildcarded by * next to dot(s)
 Clear the box to reset to defaults
 Special tags starting with &quot;org.qmatrixclient.&quot; are: %1
 User-defined tags should start with &quot;u.&quot;</source>
-        <translation>Tagi mogą być wieloznaczne przez * obok kropek
-Wyczyść pole, aby przywrócić domyślne ustawienia
-Specjalne tagi zaczynające się od „org.qmatrixclient” to: %1
-Tagi zdefiniowane przez użytkownika powinny zaczynać się od „u”</translation>
+        <translation>Las etiquetas pueden ser marcadas con un * (comodín) al lado de un punto[s].
+Desactive la casilla para restablecer los valores predeterminados.
+Etiquetas especiales que comienzan con &quot;org.qmatrixclient&quot;. son: %1
+Las etiquetas definidas por el usuario deben comenzar con &quot;u&quot;.</translation>
     </message>
     <message>
         <source>Close to tray</source>
-        <translation>Zamykaj do zasobnika</translation>
+        <translation>Cerrar a la bandeja</translation>
+    </message>
+    <message>
+        <source>Make close button [X] minimize to tray instead of closing main window</source>
+        <translation>Hacer que el botón de cierre [X] minimice a la bandeja en lugar de cerrar la ventana principal</translation>
     </message>
     <message>
         <source>Show/hide meaningless activity (join-leave pairs and redacted events between)</source>
-        <translation>Pokaż/ukryj bezsensowną aktywność (pary dołączenia, opuszczenia i zredagowanych wydarzeń pomiędzy)</translation>
+        <translation>Mostrar/ocultar actividades sin sentido (unir-dejar pares y eventos redactados entre ellos)</translation>
     </message>
     <message>
         <source>Built from Git, commit SHA:</source>
-        <translation>Zbudowano z Git, commit SHA:</translation>
+        <translation>Construido desde Git, confirme SHA:</translation>
     </message>
     <message>
         <source>Library commit SHA:</source>
-        <translation>Commit SHA biblioteki:</translation>
+        <translation>SHA de confirmación de biblioteca:</translation>
     </message>
     <message>
         <source>Open room...</source>
-        <translation>Otwórz pokój…</translation>
+        <translation>Sala abierta...</translation>
     </message>
     <message>
         <source>Open room</source>
-        <translation>Otwórz pokój</translation>
+        <translation>Sala abierta</translation>
     </message>
     <message>
         <source>Switch to room</source>
-        <translation>Przełącz do pokoju</translation>
+        <translation>Cambiar a la sala</translation>
     </message>
     <message>
         <source>Open a room from the room list</source>
-        <translation>Otwórz pokój z listy pokoi</translation>
+        <translation>Abrir una sala de la lista de salas</translation>
+    </message>
+    <message>
+        <source>Show/hide Rooms dock panel</source>
+        <translation>Mostrar / ocultar panel de acoplamiento de salas</translation>
+    </message>
+    <message>
+        <source>Show/hide Users dock panel</source>
+        <translation>Mostrar/ocultar el panel de acoplamiento Usuarios</translation>
     </message>
     <message>
         <source>Access token file found</source>
-        <translation>Znaleziono plik tokena dostępu</translation>
+        <translation>Se encontró el archivo de token de acceso</translation>
     </message>
     <message>
         <source>Do you want to migrate the access token for %1 from the file to keychain?</source>
-        <translation>Czy chcesz migrować token dostępu dla %1 z pliku do pęku kluczy?</translation>
+        <translation>¿Desea migrar el token de acceso para %1 del archivo al llavero?</translation>
     </message>
     <message>
         <source>Couldn&apos;t migrate access token</source>
-        <translation>Nie można migrować tokena dostępu</translation>
+        <translation>No se pudo migrar el token de acceso</translation>
     </message>
     <message>
         <source>Quaternion couldn&apos;t migrate access token %1 from the file to keychain.</source>
-        <translation>Quaternion nie mógł migrować tokena dostępu %1 z pliku do pęku kluczy.</translation>
+        <translation>Quaternion no pudo migrar el token de acceso %1 del archivo al llavero.</translation>
     </message>
     <message>
         <source>Couldn&apos;t save access token</source>
-        <translation>Nie można zapisać tokena dostępu</translation>
+        <translation>No se pudo guardar el token de acceso</translation>
     </message>
     <message>
         <source>Quaternion couldn&apos;t save the access token to keychain. Do you want to save the access token to file %1?</source>
-        <translation>Quaternion nie mógł zapisać tokena dostępu do pęku kluczy. Czy chcesz zapisać token dostępu do pliku %1?</translation>
+        <translation>Quaternion no pudo guardar el token de acceso en el llavero. ¿Desea guardar el token de acceso en un archivo %1?</translation>
     </message>
     <message>
         <source>Logging in into a logged in account</source>
-        <translation>Logowanie do zalogowanego konta</translation>
+        <translation>Iniciar sesión en una cuenta iniciada</translation>
     </message>
     <message>
         <source>You&apos;re trying to log in into an account that&apos;s already logged in. Do you want to continue?</source>
-        <translation>Próbujesz się zalogować na konto, które jest już zalogowane. Chcesz kontynuować?</translation>
+        <translation>Está intentando iniciar sesión en una cuenta que ya ha iniciado sesión. ¿Desea continuar?</translation>
     </message>
     <message>
         <source>Couldn&apos;t delete access token</source>
-        <translation>Nie można usunąć tokena dostępu</translation>
+        <translation>No se pudo eliminar el token de acceso</translation>
     </message>
     <message>
         <source>Quaternion couldn&apos;t delete the access token from keychain.</source>
-        <translation>Quaternion nie mógł usunąć tokena dostępu z pęku kluczy.</translation>
+        <translation>Quaternion no pudo eliminar el token de acceso del llavero.</translation>
     </message>
     <message>
         <source>Open direct chat?</source>
-        <translation>Otworzyć bezpośrednią rozmowę?</translation>
+        <translation>¿Abrir chat directo?</translation>
     </message>
     <message>
         <source>Open direct chat with user %1?</source>
-        <translation>Otworzyć bezpośrednią rozmowę z użytkownikiem %1?</translation>
+        <translation>¿Abrir chat directo con el usuario %1?</translation>
     </message>
     <message>
         <source>Malformed user id</source>
-        <translation>Niepoprawny identyfikator użytkownika</translation>
+        <translation>ID de usuario con formato incorrecto</translation>
     </message>
     <message>
         <source>%1 is not a correct user id</source>
-        <translation>%1 nie jest prawidłowym identyfikatorem użytkownika</translation>
+        <translation>%1 no es un id de usuario correcto</translation>
     </message>
     <message>
         <source>Room not found</source>
-        <translation>Nie znaleziono pokoju</translation>
+        <translation>Sala no encontrada</translation>
     </message>
     <message>
         <source>There&apos;s no room %1 in the room list. Check the spelling and the account.</source>
-        <translation>Nie ma pokoju %1 na liście pokoi. Sprawdź pisownię i konto.</translation>
+        <translation>No hay %1 en la lista de salas. Compruebe la ortografía y la cuenta.</translation>
+    </message>
+    <message>
+        <source>Confirm your account to chat with %1</source>
+        <translation>Confirme su cuenta para chatear con %1</translation>
     </message>
     <message>
         <source>Confirm your account to open %1</source>
-        <translation>Potwierdź twoje konto, aby otworzyć %1</translation>
+        <translation>Confirme su cuenta para abrir %1</translation>
     </message>
     <message>
         <source>Please connect to a server first</source>
-        <translation>Proszę najpierw połączyć się z serwerem</translation>
+        <translation>Por favor, conéctese a un servidor primero</translation>
     </message>
     <message>
         <source>Confirm account</source>
-        <translation>Potwierdź konto</translation>
+        <translation>Confirmar la cuenta</translation>
     </message>
     <message>
         <source>Account</source>
-        <translation>Konto</translation>
+        <translation>Cuenta</translation>
     </message>
     <message>
         <source>Enter room id or alias</source>
-        <translation>Wprowadź identyfikator pokoju lub alias</translation>
+        <translation>Ingrese el id de la sala o alias</translation>
     </message>
     <message>
         <source>Room ID (starting with !)
 or alias (starting with #)</source>
-        <translation>Identyfikator pokoju (zaczynający się od !) 
-lub alias (zaczynający się od #)</translation>
+        <translation>ID de la sala (comenzando con !)
+o alias (comenzando con #)</translation>
     </message>
     <message>
         <source>Confirm account to join %1</source>
-        <translation>Potwierdź konto, aby dołączyć do %1</translation>
+        <translation>Confirme la cuenta para unirse a %1</translation>
     </message>
     <message>
         <source>User ID (starting with @)</source>
-        <translation>Identyfikator użytkownika (zaczynający się od @)</translation>
+        <translation>ID de usuario (comenzando con @)</translation>
     </message>
     <message>
         <source>Start chat</source>
-        <translation>Rozpocznij rozmowę</translation>
+        <translation>Comenzar chat</translation>
     </message>
     <message>
         <source>Room/user ID, room alias,
 or matrix.to link</source>
-        <translation>ID pokoju/użytkownika, alias pokoju, 
-lub link matrix.to</translation>
+        <translation>ID de sala / usuario, alias de sala, 
+ o enlace matriz.to</translation>
     </message>
     <message>
         <source>Edit quote style</source>
-        <translation>Edytuj styl cytowania</translation>
+        <translation>Editar el estilo de la comilla</translation>
     </message>
     <message>
         <source>Markdown (prepend each line with &gt;)</source>
-        <translation>Markdown (poprzedzaj każdą linię &gt;)</translation>
+        <translation>Markdown (anteponer cada línea con &gt;)</translation>
     </message>
     <message>
         <source>Custom (apply regex from the config file)</source>
-        <translation>Niestandardowy (zastosuj wyrażenie regularne z pliku konfiguracyjnego)</translation>
+        <translation>Personalizado (aplique expresiones regulares desde el archivo de configuración)</translation>
     </message>
     <message>
         <source>Locale&apos;s default (%1)</source>
-        <translation>Domyślne ustawienia regionalne (%1)</translation>
+        <translation>Configuración regional predeterminada (%1)</translation>
     </message>
     <message>
         <source>Example quote</source>
-        <translation>Przykładowy cytat</translation>
+        <translation>Ejemplo de comillas</translation>
     </message>
     <message>
         <source>Choose the default style of quotes</source>
-        <translation>Wybierz domyślny styl cytatów</translation>
+        <translation>Elija el estilo predeterminado de comillas</translation>
     </message>
     <message>
         <source>Special thanks to %1 for all the testing effort</source>
-        <translation>Specjalne podziękowania dla %1 za cały wysiłek włożony w testowanie.</translation>
+        <translation>Un agradecimiento especial a %1 por todo el esfuerzo de prueba</translation>
     </message>
     <message>
         <source>libQuotient contributors @ GitHub</source>
-        <translation>Współautorzy libQuotient na GitHubie</translation>
+        <translation>Colaboradores de libQuotient en @ GitHub</translation>
     </message>
     <message>
         <source>Join room</source>
-        <translation>Dołącz do pokoju</translation>
+        <translation>Unirse a la sala</translation>
     </message>
 </context>
 <context>
     <name>MessageEventModel</name>
     <message>
         <source>Today</source>
-        <translation>Dzisiaj</translation>
+        <translation>Hoy</translation>
     </message>
     <message>
         <source>Yesterday</source>
-        <translation>Wczoraj</translation>
+        <translation>Ayer</translation>
     </message>
     <message>
         <source>The day before yesterday</source>
-        <translation>Przedwczoraj</translation>
+        <translation>Anteayer</translation>
     </message>
     <message>
         <source>Redacted</source>
-        <translation>Zredagowano</translation>
+        <translation>Redactado</translation>
     </message>
     <message>
         <source>Redacted: %1</source>
-        <translation>zredagował(a): %1</translation>
+        <translation>Redactado: %1</translation>
     </message>
     <message>
         <source>a file</source>
-        <translation>plik</translation>
+        <translation>un archivo</translation>
     </message>
     <message>
         <source>reinvited %1 to the room</source>
-        <translation>ponownie zaprosił(a) %1 do pokoju</translation>
+        <translation>reinvitado %1 a la sala</translation>
     </message>
     <message>
         <source>joined the room (repeated)</source>
-        <translation>dołączył(a) do pokoju (powtórzono)</translation>
+        <translation>se unió a la sala (repetido)</translation>
     </message>
     <message>
         <source>invited %1 to the room</source>
-        <translation>zaprosił(a) %1 do pokoju</translation>
+        <translation>invitado %1 a la sala</translation>
     </message>
     <message>
         <source>joined the room</source>
-        <translation>dołączył(a) do pokoju</translation>
+        <translation>se unió a la sala</translation>
     </message>
     <message>
         <source>cleared the display name</source>
-        <translation>wyczyścił(a) swoją wyświetlaną nazwę</translation>
+        <translation>limpiado el nombre de visualización</translation>
     </message>
     <message>
         <source>changed the display name to %1</source>
-        <translation>zmienił(a) swoją wyświetlaną nazwę na %1</translation>
+        <translation>cambiado el nombre para mostrar a %1</translation>
     </message>
     <message>
         <source>cleared the avatar</source>
-        <translation>wyczyścił(a) awatar</translation>
+        <translation>limpiado el avatar</translation>
     </message>
     <message>
         <source>updated the avatar</source>
-        <translation>zaktualizował(a) awatar</translation>
+        <translation>actualizado el avatar</translation>
     </message>
     <message>
         <source>unbanned %1</source>
-        <translation>odbanował(a) %1</translation>
+        <translation>sin suspender %1</translation>
+    </message>
+    <message>
+        <source>self-unbanned</source>
+        <translation>sin prohibiciones</translation>
     </message>
     <message>
         <source>has put %1 out of the room</source>
-        <translation>wyrzucił(a) %1 z pokoju</translation>
+        <translation>ha sacado a %1 de la sala</translation>
     </message>
     <message>
         <source>left the room</source>
-        <translation>opuścił(a) pokój</translation>
+        <translation>salió de la sala</translation>
     </message>
     <message>
         <source>banned %1 from the room</source>
-        <translation>zbanował(a) %1 z pokoju</translation>
+        <translation>suspendido %1 de la sala</translation>
+    </message>
+    <message>
+        <source>self-banned from the room</source>
+        <translation>auto-suspendido de la sala</translation>
     </message>
     <message>
         <source>knocked</source>
-        <translation>zapukał</translation>
+        <translation>Golpeó</translation>
     </message>
     <message>
         <source>made something unknown</source>
-        <translation>zrobił(a) coś nieznanego</translation>
+        <translation>hizo algo desconocido</translation>
     </message>
     <message>
         <source>set aliases to: %1</source>
-        <translation>ustawił(a) alias na: %1</translation>
+        <translation>establecer alias en: %1</translation>
     </message>
     <message>
         <source>cleared the room main alias</source>
-        <translation>wyczyścił(a) główny alias pokoju</translation>
+        <translation>limpiado el alias principal de la sala</translation>
     </message>
     <message>
         <source>set the room main alias to: %1</source>
-        <translation>ustawił(a) główny alias pokoju na: %1</translation>
+        <translation>establecer el alias principal de la sala en: %1</translation>
     </message>
     <message>
         <source>cleared the room name</source>
-        <translation>wyczyścił(a) nazwę pokoju</translation>
+        <translation>limpiado el nombre de la sala</translation>
     </message>
     <message>
         <source>set the room name to: %1</source>
-        <translation>ustawił(a) nazwę pokoju na %1</translation>
+        <translation>establecer el nombre de la sala en: %1</translation>
     </message>
     <message>
         <source>cleared the topic</source>
-        <translation>wyczyścił(a) temat</translation>
+        <translation>limpiado el tema</translation>
     </message>
     <message>
         <source>set the topic to: %1</source>
-        <translation>ustawił(a) temat na %1</translation>
+        <translation>establecer el tema en: %1</translation>
     </message>
     <message>
         <source>changed the room avatar</source>
-        <translation>zmienił(a) awatar pokoju</translation>
+        <translation>cambió el avatar de la sala</translation>
     </message>
     <message>
         <source>activated End-to-End Encryption</source>
-        <translation>aktywował(a) szyfrowanie End-to-End</translation>
+        <translation>activado Cifrado de Extremo a Extremo</translation>
     </message>
     <message>
         <source>withdrew %1&apos;s invitation</source>
-        <translation>wycofał(a) zaproszenie %1</translation>
+        <translation>retiró la invitación de %1</translation>
     </message>
     <message>
         <source>rejected the invitation</source>
-        <translation>odrzucił(a) zaproszenie</translation>
+        <translation>rechazó la invitación</translation>
     </message>
     <message>
         <source>updated the database</source>
-        <translation>zaktualizował bazę danych</translation>
+        <translation>actualizada la base de datos</translation>
     </message>
     <message>
         <source>updated %1 state</source>
-        <translation>zaktualizował(a) stan %1</translation>
+        <translation>Estado actualizado de %1</translation>
     </message>
     <message>
         <source>updated %1 state for %2</source>
-        <translation>zaktualizował(a) stan %1 dla %2</translation>
+        <translation>estado actualizado de %1 para %2</translation>
     </message>
     <message>
         <source>Unknown event</source>
-        <translation>Nieznane zdarzenie</translation>
+        <translation>Evento desconocido</translation>
     </message>
     <message>
         <source>upgraded the room to version %1</source>
-        <translation>zaktualizował(a) pokój do wersji %1</translation>
+        <translation>actualizada la sala a la versión %1</translation>
     </message>
     <message>
         <source>created the room, version %1</source>
-        <translation>stworzył(a) pokój, wersja %1</translation>
+        <translation>creada la sala, versión %1</translation>
     </message>
     <message>
         <source>has set room aliases on server %1 to: %2</source>
-        <translation>ustawił(a) alias pokoju na serwerze %1 na: %2</translation>
+        <translation>ha establecido alias de sala en el servidor %1 a: %2</translation>
     </message>
     <message>
         <source>has put %1 out of the room: %2</source>
-        <translation>wyrzucił(a) %1 z pokoju: %2</translation>
+        <translation>ha sacado a %1 de la sala: %2</translation>
     </message>
     <message>
         <source>banned %1 from the room: %2</source>
-        <translation>zbanował(a) %1 z pokoju: %2</translation>
+        <translation>suspendido %1 de la sala: %2</translation>
     </message>
 </context>
 <context>
     <name>NetworkConfigDialog</name>
     <message>
         <source>Network proxy settings</source>
-        <translation>Ustawienia proxy sieciowego</translation>
+        <translation>Configuración de proxy de red</translation>
     </message>
     <message>
         <source>&amp;Override system defaults</source>
-        <translation>&amp;Nadpisz domyślne ustawienia systemowe</translation>
+        <translation>&amp;Reemplazar los valores predeterminados del sistema</translation>
     </message>
     <message>
         <source>&amp;No proxy</source>
-        <translation>&amp;Bez proxy</translation>
+        <translation>&amp;Sin proxy</translation>
     </message>
     <message>
         <source>&amp;HTTP(S) proxy</source>
-        <translation>&amp;HTTP(S) proxy</translation>
+        <translation>&amp;Proxy HTTP(S)</translation>
     </message>
     <message>
         <source>&amp;SOCKS5 proxy</source>
-        <translation>&amp;SOCKS5 proxy</translation>
+        <translation>Proxy &amp;SOCKS5</translation>
     </message>
     <message>
         <source>Host</source>
-        <translation>Host</translation>
+        <translation>Anfitrión</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation>Port</translation>
+        <translation>Puerto</translation>
     </message>
     <message>
         <source>User name</source>
-        <translation>Nazwa użytkownika</translation>
+        <translation>Nombre de usuario</translation>
     </message>
 </context>
 <context>
     <name>RoomDialogBase</name>
     <message>
         <source>Publish room in room directory</source>
-        <translation>Opublikuj pokój w katalogu pokoju</translation>
+        <translation>Publicar sala en el directorio de salas</translation>
     </message>
     <message>
         <source>Allow guest accounts to join the room</source>
-        <translation>Zezwalaj kontom gości na dołączenie do pokoju</translation>
+        <translation>Permitir que las cuentas de invitados se unan a la sala</translation>
     </message>
     <message>
         <source>Account</source>
-        <translation>Konto</translation>
+        <translation>Cuenta</translation>
     </message>
     <message>
         <source>Room name</source>
-        <translation>Nazwa pokoju</translation>
+        <translation>Nombre de la sala</translation>
     </message>
     <message>
         <source>Primary alias</source>
-        <translation>Główny alias</translation>
+        <translation>Alias principal</translation>
     </message>
     <message>
         <source>Topic</source>
-        <translation>Temat</translation>
+        <translation>Tema</translation>
     </message>
     <message>
         <source>About room versions</source>
-        <translation>O wersjach pokoi</translation>
+        <translation>Acerca de las versiones de sala</translation>
     </message>
     <message>
         <source>(loading)</source>
-        <translation>(ładowanie)</translation>
+        <translation>(cargando)</translation>
     </message>
     <message>
         <source>default</source>
-        <translation>domyślna</translation>
+        <translation>Predeterminado</translation>
     </message>
     <message>
         <source>stable</source>
-        <translation>stabilna</translation>
+        <translation>estable</translation>
     </message>
     <message>
         <source>Room version</source>
-        <translation>Wersja pokoju</translation>
+        <translation>Versión de la sala</translation>
     </message>
     <message>
         <source>Continue with unstable version?</source>
-        <translation>Kontynuować z niestabilną wersją?</translation>
+        <translation>¿Continuar con la versión inestable?</translation>
     </message>
     <message>
         <source>You are using an UNSTABLE room version (%1). The server may stop supporting it at any moment. Do you still want to use this version?</source>
-        <translation>Używasz NIESTABILNEJ wersji pokoju (%1). Serwer może przestać go obsługiwać w każdej chwili. Czy nadal chcesz używać tej wersji?</translation>
+        <translation>Está utilizando una versión de sala INESTABLE (%1). El servidor puede dejar de soportarlo en cualquier momento. ¿Aún desea utilizar esta versión?</translation>
     </message>
 </context>
 <context>
     <name>RoomListDock</name>
     <message>
         <source>Mark room as read</source>
-        <translation>Oznacz pokój jako przeczytany</translation>
+        <translation>Marcar sala como leída</translation>
     </message>
     <message>
         <source>Add tags...</source>
-        <translation>Dodaj tagi…</translation>
+        <translation>Agregar etiquetas...</translation>
     </message>
     <message>
         <source>Join room</source>
-        <translation>Dołącz do pokoju</translation>
+        <translation>Unirse a la sala</translation>
     </message>
     <message>
         <source>Forget room</source>
-        <translation>Zapomnij pokój</translation>
+        <translation>Olvidar sala</translation>
     </message>
     <message>
         <source>Remove tag</source>
-        <translation>Usuń tag</translation>
+        <translation>Remover etiqueta</translation>
     </message>
     <message>
         <source>Reject invitation</source>
-        <translation>Odrzuć zaproszenie</translation>
+        <translation>Rechazar invitación</translation>
     </message>
     <message>
         <source>Leave room</source>
-        <translation>Opuść pokój</translation>
+        <translation>Dejar la sala</translation>
     </message>
     <message>
         <source>Enter new tags for the room</source>
-        <translation>Wprowadź nowe tagi dla pokoju</translation>
+        <translation>Ingrese nuevas etiquetas para la sala</translation>
     </message>
     <message>
         <source>Enter tags to add to this room, one tag per line</source>
-        <translation>Wprowadź nowe tagi dla pokoju, jeden tag na linię</translation>
+        <translation>Ingrese etiquetas para agregar a esta sala, una etiqueta por línea</translation>
     </message>
     <message>
         <source>Favourites</source>
-        <translation>Ulubione</translation>
+        <translation>Favoritos</translation>
     </message>
     <message>
         <source>Low priority</source>
-        <translation>Niski priorytet</translation>
+        <translation>Baja prioridad</translation>
     </message>
     <message>
         <source>Rooms (%1)</source>
-        <translation>Pokoje (%1)</translation>
+        <translation>Salas (%1)</translation>
     </message>
     <message>
         <source>Re-sort rooms (TODO)</source>
-        <translation>Ponownie posortuj pokoje (TODO)</translation>
+        <translation>Reordenar sala (TODO)</translation>
     </message>
     <message>
         <source>Change room &amp;settings...</source>
-        <translation>Zmień &amp;ustawienia pokoju…</translation>
+        <translation>Cambiar sala y configuraciones ...</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation>Dodaj</translation>
+        <translation>Añadir</translation>
     </message>
 </context>
 <context>
     <name>RoomListModel</name>
     <message>
         <source>Invited</source>
-        <translation>Zaproszone</translation>
+        <translation>Invitado</translation>
     </message>
     <message>
         <source>Low priority</source>
-        <translation>Niski priorytet</translation>
+        <translation>Baja prioridad</translation>
     </message>
     <message>
         <source>People</source>
-        <translation>Ludzie</translation>
+        <translation>Personas</translation>
     </message>
     <message>
         <source>Ungrouped rooms</source>
-        <translation>Niezgrupowane pokoje</translation>
+        <translation>Salas desagrupadas</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation>Opuszczone</translation>
+        <translation>Izquierda</translation>
     </message>
     <message numerus="yes">
         <source>%1 (%Ln room(s))</source>
         <translation>
-            <numerusform>%1 (%Ln pokój)</numerusform>
-            <numerusform>%1 (%Ln pokoje)</numerusform>
-            <numerusform>%1 (%Ln pokojów)</numerusform>
-            <numerusform>%1 (%Ln pokojów)</numerusform>
+            <numerusform>%1 (%Ln sala)</numerusform>
+            <numerusform>%1 (%Ln salas)</numerusform>
         </translation>
     </message>
     <message>
         <source>%1 (as %2)</source>
-        <translation>%1 (jako %2)</translation>
+        <translation>%1 (como %2)</translation>
     </message>
     <message>
         <source>You joined this room</source>
-        <translation>Dołączyłeś(-aś) do pokoju</translation>
+        <translation>Te uniste a esta sala</translation>
     </message>
     <message>
         <source>You left this room</source>
-        <translation>Opuściłeś(-aś) pokój</translation>
+        <translation>Saliste de esta sala.</translation>
     </message>
     <message>
         <source>You were invited into this room</source>
-        <translation>Zostałeś(-aś) zaproszony(-a) do tego pokoju</translation>
+        <translation>Fuiste invitado a esta sala</translation>
     </message>
     <message>
         <source>Main alias: %1</source>
-        <translation>Główny alias: %1</translation>
+        <translation>Alias principal: %1</translation>
     </message>
     <message numerus="yes">
         <source>Joined: %Ln</source>
         <translation>
-            <numerusform>Dołączeni: %Ln</numerusform>
-            <numerusform>Dołączeni: %Ln</numerusform>
-            <numerusform>Dołączeni: %Ln</numerusform>
-            <numerusform>Dołączeni: %Ln</numerusform>
+            <numerusform>Unido: %Ln</numerusform>
+            <numerusform>Unidos: %Ln</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Invited: %Ln</source>
         <translation>
-            <numerusform>Zaproszeni: %Ln</numerusform>
-            <numerusform>Zaproszeni: %Ln</numerusform>
-            <numerusform>Zaproszeni: %Ln</numerusform>
-            <numerusform>Zaproszeni: %Ln</numerusform>
+            <numerusform>Invitado: %Ln</numerusform>
+            <numerusform>Invitados: %Ln</numerusform>
         </translation>
     </message>
     <message>
         <source>Direct chat with %1</source>
-        <translation>Bezpośrednia rozmowa z %1</translation>
+        <translation>Charla directa con %1</translation>
     </message>
     <message>
         <source>The room enforces encryption</source>
-        <translation>Ten pokój wymusza szyfrowanie</translation>
+        <translation>La sala impone el cifrado</translation>
     </message>
     <message>
         <source>Unread messages: %1+</source>
-        <translation>Nieprzeczytane wiadomości: %1+</translation>
+        <translation>Mensajes no leídos: %1+</translation>
     </message>
     <message>
         <source>Unread messages: %1</source>
-        <translation>Nieprzeczytane wiadomości: %1</translation>
+        <translation>Mensajes no leídos: %1</translation>
     </message>
     <message>
         <source>Unread highlights: %1</source>
-        <translation>Nieprzeczytane wyróżnienia: %1</translation>
+        <translation>Puntos destacados no leídos: %1</translation>
     </message>
     <message>
         <source>ID: %1</source>
@@ -1254,230 +1306,236 @@ lub link matrix.to</translation>
     </message>
     <message>
         <source>Favourites</source>
-        <translation>Ulubione</translation>
+        <translation>Favoritos</translation>
     </message>
     <message>
         <source>as %1</source>
-        <translation>jako %1</translation>
+        <translation>como %1</translation>
     </message>
     <message>
         <source>This room&apos;s version is unstable!</source>
-        <translation>Wersja tego pokoju jest niestabilna!</translation>
+        <translation>¡La versión de esta sala es inestable!</translation>
+    </message>
+    <message>
+        <source>Consider upgrading to a stable version (use room settings for that)</source>
+        <translation>Considere actualizar a una versión estable (use la configuración de sala para ello)</translation>
     </message>
 </context>
 <context>
     <name>RoomSettingsDialog</name>
     <message>
         <source>Room settings: %1</source>
-        <translation>Ustawienia pokoju: %1</translation>
+        <translation>Configuración de sala: %1</translation>
     </message>
     <message>
         <source>Update room</source>
-        <translation>Zaktualizuj pokój</translation>
+        <translation>Actualización de la sala</translation>
     </message>
     <message>
         <source>Tags</source>
-        <translation>Tagi</translation>
+        <translation>Etiquetas</translation>
     </message>
     <message>
         <source>Favourites</source>
-        <translation>Ulubione</translation>
+        <translation>Favoritos</translation>
     </message>
     <message>
         <source>Low priority</source>
-        <translation>Niski priorytet</translation>
+        <translation>Baja prioridad</translation>
     </message>
     <message>
         <source>This version is unstable! Consider upgrading.</source>
-        <translation>Ta wersja jest niestabilna! Rozważ aktualizację.</translation>
+        <translation>Esta versión es inestable! Considere la posibilidad de actualizar.</translation>
     </message>
     <message>
         <source>Upgrade</source>
-        <translation>Zaktualizuj</translation>
+        <translation>Actualización</translation>
     </message>
     <message>
         <source>Choose new room version</source>
-        <translation>Wybierz nową wersję pokoju</translation>
+        <translation>Elija la nueva versión de sala</translation>
     </message>
     <message>
         <source>You are about to upgrade %1.
 This operation cannot be reverted.</source>
-        <translation>Zamierzasz zaktualizować %1. 
-Ta operacja nie może zostać cofnięta.</translation>
+        <translation>Está a punto de actualizar %1. 
+Esta operación no se puede revertir.</translation>
     </message>
     <message>
         <source>Creating the new room version, please wait</source>
-        <translation>Tworzenie nowej wersji pokoju, proszę czekać</translation>
+        <translation>Creando la nueva versión de la sala, por favor espere</translation>
     </message>
     <message>
         <source>Room identifier</source>
-        <translation>Identyfikator pokoju</translation>
+        <translation>Identificador de sala</translation>
     </message>
 </context>
 <context>
     <name>UserListDock</name>
     <message>
         <source>Users</source>
-        <translation>Użytkownicy</translation>
+        <translation>Usuarios</translation>
     </message>
     <message>
         <source>Open direct chat</source>
-        <translation>Otwórz bezpośredni czat</translation>
+        <translation>Abrir chat directo</translation>
     </message>
     <message>
         <source>Mention user</source>
-        <translation>Wspomnij użytkownika</translation>
+        <translation>Mencionar usuario</translation>
     </message>
     <message>
         <source>Search</source>
-        <translation>Szukaj</translation>
+        <translation>Búsqueda</translation>
     </message>
     <message>
         <source>Ignore user</source>
-        <translation>Ignoruj użytkownika</translation>
+        <translation>Ignorar usuario</translation>
     </message>
     <message>
         <source>Kick user</source>
-        <translation>Wyrzuć użytkownika</translation>
+        <translation>Remover usuario</translation>
     </message>
     <message>
         <source>Ban user</source>
-        <translation>Banuj użytkownika</translation>
+        <translation>Prohibir usuario</translation>
     </message>
     <message>
         <source>Kick %1</source>
-        <translation>Wyrzuć %1</translation>
+        <translation>Remover %1</translation>
     </message>
     <message>
         <source>Reason</source>
-        <translation>Powód</translation>
+        <translation>Razón</translation>
     </message>
     <message>
         <source>Ban %1</source>
-        <translation>Banuj %1</translation>
+        <translation>Prohibir %1</translation>
     </message>
     <message>
         <source>(%L1 out of %L2)</source>
-        <translation>(%L1 z %L2)</translation>
+        <translation>(%L1 de %L2)</translation>
     </message>
 </context>
 <context>
     <name>main</name>
     <message>
         <source>Display debug information</source>
-        <translation>Wyświetl informacje debugowe</translation>
+        <translation>Mostrar información de depuración</translation>
     </message>
     <message>
         <source>Quaternion - an IM client for the Matrix protocol</source>
-        <translation>Quaternion - komunikator internetowy dla protokołu Matrix</translation>
+        <translation>Quaternion: un cliente de mensajería instantánea para el protocolo Matrix</translation>
     </message>
     <message>
         <source>Override locale</source>
-        <translation>Nadpisz ustawienia regionalne</translation>
+        <translation>Reemplazar la configuración regional</translation>
     </message>
     <message>
         <source>locale</source>
-        <translation>locale</translation>
+        <translation>configuración regional</translation>
     </message>
     <message>
         <source>Hide main window on startup</source>
-        <translation>Ukryj główne okno podczas uruchamiania</translation>
+        <translation>Ocultar la ventana principal al iniciar</translation>
     </message>
 </context>
 <context>
     <name>FileContent</name>
     <message>
         <source>Size: %1, declared type: %2</source>
-        <translation>Rozmiar: %1, zadeklarowany typ: %2</translation>
+        <translation>Tamaño: %1, tipo declarado: %2</translation>
     </message>
     <message>
         <source>Open after downloading</source>
-        <translation>Otwórz po pobraniu</translation>
+        <translation>Abrir después de la descarga</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Anuluj</translation>
+        <translation>Cancelar</translation>
     </message>
     <message>
         <source>Save as...</source>
-        <translation>Zapisz jako…</translation>
+        <translation>Guardar como...</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation>Otwórz</translation>
+        <translation>Abrir</translation>
     </message>
     <message>
         <source>Open folder</source>
-        <translation>Otwórz folder</translation>
+        <translation>Abrir carpeta</translation>
     </message>
     <message>
         <source>uploaded from %1</source>
-        <translation>przesłany z %1</translation>
+        <translation>subido desde %1</translation>
+    </message>
+    <message>
+        <source>being uploaded from %1</source>
+        <translation>siendo subido desde %1</translation>
     </message>
     <message>
         <source>downloaded to %1</source>
-        <translation>pobrano do %1</translation>
+        <translation>descargado a %1</translation>
     </message>
 </context>
 <context>
     <name>ImageContent</name>
     <message>
         <source>Cancel downloading</source>
-        <translation>Anuluj pobieranie</translation>
+        <translation>Cancelar la descarga</translation>
     </message>
     <message>
         <source>Open externally</source>
-        <translation>Otwórz zewnętrznie</translation>
+        <translation>Abrir externamente</translation>
     </message>
     <message>
         <source>Download full size</source>
-        <translation>Pobierz pełny rozmiar</translation>
+        <translation>Descargar a tamaño completo</translation>
     </message>
     <message>
         <source>Save as...</source>
-        <translation>Zapisz jako…</translation>
+        <translation>Guardar como...</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Anuluj</translation>
+        <translation>Cancelar</translation>
     </message>
 </context>
 <context>
     <name>TimelineItem</name>
     <message>
         <source>Resend</source>
-        <translation>Wyślij ponownie</translation>
+        <translation>Reenviar</translation>
     </message>
     <message>
         <source>Discard</source>
-        <translation>Odrzuć</translation>
+        <translation>Descartar</translation>
     </message>
     <message>
         <source>Redact</source>
-        <translation>Przeredaguj</translation>
+        <translation>Redactar</translation>
     </message>
     <message>
         <source>Copy link to clipboard</source>
-        <translation>Skopiuj link do schowka</translation>
+        <translation>Copiar el enlace al portapapeles</translation>
     </message>
     <message>
         <source>Quote</source>
-        <translation>Cytuj</translation>
+        <translation>Comillas</translation>
     </message>
 </context>
 <context>
     <name>SystemTrayIcon</name>
     <message>
         <source>Highlight in %1</source>
-        <translation>Podświetlenie w %1</translation>
+        <translation>Resaltar en %1</translation>
     </message>
     <message numerus="yes">
         <source>%n highlight(s)</source>
         <translation>
-            <numerusform>%n podświetlenie</numerusform>
-            <numerusform>%n podświetlenia</numerusform>
-            <numerusform>%n podświetleń</numerusform>
-            <numerusform>%n podświetleń</numerusform>
+            <numerusform>%n destacado</numerusform>
+            <numerusform>%n destacados</numerusform>
         </translation>
     </message>
 </context>
@@ -1485,29 +1543,33 @@ Ta operacja nie może zostać cofnięta.</translation>
     <name>UserListModel</name>
     <message>
         <source>Bridged from: %1</source>
-        <translation>Mostkowany(-a) z: %1</translation>
+        <translation>Puenteado desde: %1</translation>
     </message>
 </context>
 <context>
     <name>ThumbnailResponse</name>
     <message>
         <source>Image request hasn&apos;t started</source>
-        <translation>Żądanie obrazu nie zostało rozpoczęte</translation>
+        <translation>La solicitud de imagen no ha comenzado</translation>
     </message>
     <message>
         <source>Image request has been cancelled</source>
-        <translation>Żądanie obrazu zostało anulowane</translation>
+        <translation>La solicitud de imagen ha sido cancelada</translation>
+    </message>
+    <message>
+        <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
+        <translation>El id de medios &apos;%1&apos; no sigue el patrón server/mediaId</translation>
     </message>
     <message>
         <source>No connection to perform image request</source>
-        <translation>Brak połączeń do wykonania żądania obrazu</translation>
+        <translation>No hay conexión para realizar una solicitud de imagen</translation>
     </message>
 </context>
 <context>
     <name>ProfileDialog</name>
     <message>
         <source>Account</source>
-        <translation>Konto</translation>
+        <translation>Cuenta</translation>
     </message>
 </context>
 </TS>

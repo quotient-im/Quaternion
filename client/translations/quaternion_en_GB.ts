@@ -10,6 +10,10 @@
         <translation>Sending encrypted messages is not supported yet</translation>
     </message>
     <message>
+        <source>Send a message (unencrypted) or enter a command...</source>
+        <translation>Send a message (unencrypted) or enter a command...</translation>
+    </message>
+    <message>
         <source>There&apos;s nothing to send</source>
         <translation>There&apos;s nothing to send</translation>
     </message>
@@ -141,6 +145,22 @@
         <source>Send a message (over %1) or enter a command...</source>
         <translation>Send a message (over %1) or enter a command...</translation>
     </message>
+    <message>
+        <source>Redact</source>
+        <translation>Redact</translation>
+    </message>
+    <message>
+        <source>Copy link to clipboard</source>
+        <translation>Copy link to clipboard</translation>
+    </message>
+    <message>
+        <source>Quote</source>
+        <translation>Quote</translation>
+    </message>
+    <message>
+        <source>Open externally</source>
+        <translation>Open externally</translation>
+    </message>
 </context>
 <context>
     <name>Timeline</name>
@@ -199,6 +219,13 @@ Go to Room Settings to upgrade the room</source>
     <message>
         <source>Go to Room Settings to upgrade the room</source>
         <translation>Go to Room Settings to upgrade the room</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln cached</source>
+        <translation>
+            <numerusform>%Ln cached</numerusform>
+            <numerusform>%Ln cached</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -319,6 +346,14 @@ Go to Room Settings to upgrade the room</source>
     <message>
         <source>Edit tags order</source>
         <translation>Edit tags order</translation>
+    </message>
+    <message>
+        <source>Tags can be wildcarded by * next to dot(s)
+Clear the box to reset to defaults
+org.qmatrixclient. tags: invite, left, direct, none</source>
+        <translation>Tags can be wildcarded by * next to dot(s)
+Clear the box to reset to defaults
+org.qmatrixclient. tags: invite, left, direct, none</translation>
     </message>
     <message>
         <source>&amp;Room</source>
@@ -487,20 +522,80 @@ Clicking &apos;Cancel&apos; will stop further synchronization of this account un
         <translation>Welcome to Quaternion</translation>
     </message>
     <message>
+        <source>Choose the account to join the room</source>
+        <translation>Choose the account to join the room</translation>
+    </message>
+    <message>
         <source>No connections</source>
         <translation>No connections</translation>
+    </message>
+    <message>
+        <source>Please connect to a server before joining a room</source>
+        <translation>Please connect to a server before joining a room</translation>
+    </message>
+    <message>
+        <source>Joining %1 as %2</source>
+        <translation>Joining %1 as %2</translation>
+    </message>
+    <message>
+        <source>Join room %1 under account %2?</source>
+        <translation>Join room %1 under account %2?</translation>
     </message>
     <message>
         <source>Join</source>
         <translation>Join</translation>
     </message>
     <message>
+        <source>Choose account...</source>
+        <translation>Choose account...</translation>
+    </message>
+    <message>
+        <source>Enter room id or alias to join</source>
+        <translation>Enter room id or alias to join</translation>
+    </message>
+    <message>
+        <source>Enter an id or alias of the room. You will join as %1</source>
+        <translation>Enter an id or alias of the room. You will join as %1</translation>
+    </message>
+    <message>
+        <source>No room id or alias specified</source>
+        <translation>No room id or alias specified</translation>
+    </message>
+    <message>
+        <source>Please specify non-empty id or alias</source>
+        <translation>Please specify non-empty id or alias</translation>
+    </message>
+    <message>
         <source>Joined %1 as %2</source>
         <translation>Joined %1 as %2</translation>
     </message>
     <message>
+        <source>Starting direct chat with %1 as %2</source>
+        <translation>Starting direct chat with %1 as %2</translation>
+    </message>
+    <message>
+        <source>Start direct chat with %1 under account %2?</source>
+        <translation>Start direct chat with %1 under account %2?</translation>
+    </message>
+    <message>
         <source>Enter user id to start direct chat.</source>
         <translation>Enter user id to start direct chat.</translation>
+    </message>
+    <message>
+        <source>Enter the user id of who you would like to chat with. You will join as %1</source>
+        <translation>Enter the user id of who you would like to chat with. You will join as %1</translation>
+    </message>
+    <message>
+        <source>No user id specified</source>
+        <translation>No user id specified</translation>
+    </message>
+    <message>
+        <source>Please specify non-empty user id</source>
+        <translation>Please specify non-empty user id</translation>
+    </message>
+    <message>
+        <source>Starting chat with %1 as %2</source>
+        <translation>Starting chat with %1 as %2</translation>
     </message>
     <message>
         <source>Sync completed - have a good chat</source>
@@ -721,6 +816,10 @@ User-defined tags should start with &quot;u.&quot;</translation>
         <translation>There&apos;s no room %1 in the room list. Check the spelling and the account.</translation>
     </message>
     <message>
+        <source>Confirm your account to chat with %1</source>
+        <translation>Confirm your account to chat with %1</translation>
+    </message>
+    <message>
         <source>Confirm your account to open %1</source>
         <translation>Confirm your account to open %1</translation>
     </message>
@@ -791,6 +890,14 @@ or matrix.to link</translation>
     <message>
         <source>Special thanks to %1 for all the testing effort</source>
         <translation>Special thanks to %1 for all the testing effort</translation>
+    </message>
+    <message>
+        <source>libQuotient contributors @ GitHub</source>
+        <translation>libQuotient contributors @ GitHub</translation>
+    </message>
+    <message>
+        <source>Join room</source>
+        <translation>Join room</translation>
     </message>
 </context>
 <context>
@@ -882,6 +989,10 @@ or matrix.to link</translation>
     <message>
         <source>made something unknown</source>
         <translation>made something unknown</translation>
+    </message>
+    <message>
+        <source>set aliases to: %1</source>
+        <translation>set aliases to: %1</translation>
     </message>
     <message>
         <source>cleared the room main alias</source>
@@ -1420,6 +1531,20 @@ This operation cannot be reverted.</translation>
         <source>Quote</source>
         <translation>Quote</translation>
     </message>
+    <message numerus="yes">
+        <source>%1 reacted with &apos;%2&apos;</source>
+        <translation>
+            <numerusform>%1 reacted with &apos;%2&apos;</numerusform>
+            <numerusform>%1 reacted with &apos;%2&apos;</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n author(s)</source>
+        <translation>
+            <numerusform>1 author</numerusform>
+            <numerusform>%n authors</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>SystemTrayIcon</name>
@@ -1459,6 +1584,13 @@ This operation cannot be reverted.</translation>
     <message>
         <source>No connection to perform image request</source>
         <translation>No connection to perform image request</translation>
+    </message>
+</context>
+<context>
+    <name>ProfileDialog</name>
+    <message>
+        <source>Account</source>
+        <translation>Account</translation>
     </message>
 </context>
 </TS>
