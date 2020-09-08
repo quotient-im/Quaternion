@@ -25,15 +25,16 @@
 #include <settings.h>
 #include <csapi/definitions/client_device.h>
 
+#include <QtCore/QPointer>
+
 class AccountSelector;
 class MainWindow;
 
 class QComboBox;
 class QLineEdit;
-class QTableWidget;
 
 namespace Quotient {
-    class Connection;
+    class GetDevicesJob;
 }
 
 class ProfileDialog : public Dialog
@@ -51,17 +52,20 @@ public:
 private slots:
     void load() override;
     void apply() override;
+    void uploadAvatar();
 
 private:
     Quotient::SettingsGroup m_settings;
 
-    QTableWidget* m_deviceTable;
+    class DeviceTable;
+    DeviceTable* m_deviceTable;
     QPushButton* m_avatar;
     AccountSelector* m_accountSelector;
     QLineEdit* m_displayName;
     QLabel* m_accessTokenLabel;
-    QVector<Quotient::Device> m_devices;
 
     Account* m_currentAccount;
     QString m_newAvatarPath;
+    QPointer<Quotient::GetDevicesJob> m_devicesJob;
+    QVector<Quotient::Device> m_devices;
 };

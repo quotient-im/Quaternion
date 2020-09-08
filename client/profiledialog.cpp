@@ -31,15 +31,115 @@
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
-#include <QtWidgets/QComboBox>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QTableWidgetItem>
 #include <QtGui/QClipboard>
 #include <QtGui/QGuiApplication>
+
 #include <QtCore/QStandardPaths>
 
 using Quotient::BaseJob, Quotient::User, Quotient::Room;
+
+class TimestampTableItem : public QTableWidgetItem {
+public:
+    explicit TimestampTableItem(const QDateTime& timestamp)
+        : QTableWidgetItem(QLocale().toString(timestamp, QLocale::ShortFormat),
+                           UserType)
+    {
+        setData(Qt::UserRole, timestamp);
+    }
+    explicit TimestampTableItem(const TimestampTableItem& other) = default;
+    ~TimestampTableItem() override = default;
+    void operator=(const TimestampTableItem& other) = delete;
+    TimestampTableItem* clone() const override
+    {
+        return new TimestampTableItem(*this);
+    }
+
+    bool operator<(const QTableWidgetItem& other) const override
+    {
+        return other.type() != UserType
+                   ? QTableWidgetItem::operator<(other)
+                   : data(Qt::UserRole).value<QDateTime>()
+                         < other.data(Qt::UserRole).value<QDateTime>();
+    }
+};
+
+/*! Device table class
+ *
+ * Encapsulates the columns model and formatting
+ */
+class ProfileDialog::DeviceTable : public QTableWidget {
+public:
+    enum Columns : int {
+        DeviceName,
+        DeviceId,
+        LastTimeSeen,
+        LastIpAddr
+    };
+    DeviceTable();
+    ~DeviceTable() override = default;
+
+    template <Columns ColumnN>
+    using ItemType = std::conditional_t<ColumnN == LastTimeSeen,
+                                        TimestampTableItem, QTableWidgetItem>;
+
+    static constexpr auto DefaultItemFlags =
+        Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
+
+    template <Columns ColumnN>
+    static inline constexpr auto itemFlags = DefaultItemFlags;
+
+    template <>
+    static inline constexpr auto itemFlags<DeviceName> =
+        DefaultItemFlags | Qt::ItemIsEditable;
+
+    using QTableWidget::setItem;
+    template <Columns ColumnN, typename DataT>
+    inline auto setItem(int row, const DataT& data)
+        -> std::enable_if_t<std::is_constructible_v<ItemType<ColumnN>, DataT>>
+    {
+        auto* item = new ItemType<ColumnN>(data);
+        item->setFlags(itemFlags<ColumnN>);
+        setItem(row, ColumnN, item);
+    }
+
+    void markupRow(int row, void (QFont::*fontFn)(bool),
+                   const QString& rowToolTip, bool flagValue = true);
+
+    void markCurrentRow(int row) {
+        markupRow(row, &QFont::setBold, tr("This is the current device"));
+    }
+
+    void fillPendingData(const QString& currentDeviceId);
+    void refresh(const QVector<Quotient::Device>& devices, const QString &currentDeviceId);
+};
+
+ProfileDialog::DeviceTable::DeviceTable()
+{
+    static const QStringList Headers {
+        // Must be synchronised with DeviceTable::Columns
+        tr("Device display name"), tr("Device ID"),
+        tr("Last time seen"), tr("Last IP address")
+    };
+
+    setColumnCount(Headers.size());
+    setHorizontalHeaderLabels(Headers);
+    auto* headerCtl = horizontalHeader();
+    headerCtl->setSectionResizeMode(QHeaderView::Interactive);
+    headerCtl->setSectionsMovable(true);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+    headerCtl->setFirstSectionMovable(false);
+#endif
+    headerCtl->setSortIndicatorShown(true);
+    verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    verticalHeader()->hide();
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    setSelectionBehavior(QAbstractItemView::SelectRows);
+    setTabKeyNavigation(false);
+    setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+}
 
 void updateAvatarButton(Quotient::User* user, QPushButton* btn)
 {
@@ -79,32 +179,14 @@ ProfileDialog::ProfileDialog(AccountRegistry* accounts, MainWindow* parent)
     m_avatar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     cardLayout->addWidget(m_avatar, Qt::AlignLeft|Qt::AlignTop);
 
-    connect(m_avatar, &QPushButton::clicked, this, [this] {
-        const auto& dirs =
-            QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
-        auto* fDlg = new QFileDialog(this, tr("Set avatar"),
-                                     dirs.isEmpty() ? QString() : dirs.back());
-        fDlg->setFileMode(QFileDialog::ExistingFile);
-        fDlg->setMimeTypeFilters({ "image/*", "application/octet-stream" });
-        fDlg->open();
-        connect(fDlg, &QFileDialog::fileSelected, this,
-                [this](const QString& fileName) {
-                    m_newAvatarPath = fileName;
-                    if (!m_newAvatarPath.isEmpty()) {
-                        auto img = QImage(m_newAvatarPath)
-                                       .scaled(m_avatar->iconSize(),
-                                               Qt::KeepAspectRatio);
-                        m_avatar->setIcon(QPixmap(m_newAvatarPath));
-                    }
-                });
-    });
+    connect(m_avatar, &QPushButton::clicked, this, &ProfileDialog::uploadAvatar);
 
     {
-	    auto essentialsLayout = new QFormLayout();
-	    essentialsLayout->addRow(tr("Display Name"), m_displayName);
-	    auto accessTokenLayout = new QHBoxLayout();
+        auto essentialsLayout = new QFormLayout();
+        essentialsLayout->addRow(tr("Display Name"), m_displayName);
+        auto accessTokenLayout = new QHBoxLayout();
         accessTokenLayout->addWidget(m_accessTokenLabel);
-	    auto copyAccessToken = new QPushButton(tr("Copy to clipboard"));
+        auto copyAccessToken = new QPushButton(tr("Copy to clipboard"));
         accessTokenLayout->addWidget(copyAccessToken);
         essentialsLayout->addRow(tr("Access token"), accessTokenLayout);
         cardLayout->addLayout(essentialsLayout);
@@ -112,26 +194,9 @@ ProfileDialog::ProfileDialog(AccountRegistry* accounts, MainWindow* parent)
         connect(copyAccessToken, &QPushButton::clicked, this, [this] {
             QGuiApplication::clipboard()->setText(account()->accessToken());
         });
-	}
+    }
 
-    static const QStringList deviceTableHeaders { tr("Device display name"),
-                                                  tr("Device ID"),
-                                                  tr("Last time seen"),
-                                                  tr("Last IP address") };
-    m_deviceTable = new QTableWidget(0, deviceTableHeaders.size());
-    m_deviceTable->setHorizontalHeaderLabels(deviceTableHeaders);
-    auto* headerCtl = m_deviceTable->horizontalHeader();
-    headerCtl->setSectionResizeMode(QHeaderView::Interactive);
-    headerCtl->setSectionsMovable(true);
-    headerCtl->setSortIndicatorShown(true);
-    m_deviceTable->verticalHeader()->setSectionResizeMode(
-        QHeaderView::ResizeToContents);
-    m_deviceTable->verticalHeader()->hide();
-    m_deviceTable->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    m_deviceTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    m_deviceTable->setTabKeyNavigation(false);
-    m_deviceTable->setSortingEnabled(true);
-    m_deviceTable->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+    m_deviceTable = new DeviceTable();
     addWidget(m_deviceTable);
 
     button(QDialogButtonBox::Ok)->setText(tr("Apply and close"));
@@ -158,18 +223,60 @@ ProfileDialog::Account* ProfileDialog::account() const
     return m_currentAccount;
 }
 
-inline auto* makeTableItem(const QString& text,
-                           Qt::ItemFlags addFlags = Qt::NoItemFlags)
+void ProfileDialog::DeviceTable::markupRow(int row, void (QFont::*fontFn)(bool),
+                                           const QString& rowToolTip,
+                                           bool flagValue)
 {
-    auto* item = new QTableWidgetItem(text);
-    item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | addFlags);
-    return item;
+    Q_ASSERT(row < rowCount());
+    for (int c = DeviceName; c < columnCount(); ++c)
+        if (auto* it = item(row, c)) {
+            it->setToolTip(rowToolTip);
+            auto font = it->font();
+            (font.*fontFn)(flagValue);
+            it->setFont(font);
+        }
+}
+
+void ProfileDialog::DeviceTable::fillPendingData(const QString& currentDeviceId)
+{
+    setRowCount(2);
+    setItem<DeviceId>(0, currentDeviceId);
+    setItem<LastTimeSeen>(0, QDateTime::currentDateTime());
+    markCurrentRow(0);
+    {
+        auto* loadingMsg = new QTableWidgetItem(tr("Loading other devices..."));
+        loadingMsg->setFlags(Qt::NoItemFlags);
+        setItem(1, DeviceName, loadingMsg);
+    }
+}
+
+void ProfileDialog::DeviceTable::refresh(const QVector<Quotient::Device>& devices,
+                                         const QString& currentDeviceId)
+{
+    clearContents();
+    setRowCount(devices.size());
+
+    for (int i = 0; i < devices.size(); ++i) {
+        auto device = devices[i];
+        setItem<DeviceName>(i, device.displayName);
+        setItem<DeviceId>(i, device.deviceId);
+        if (device.lastSeenTs)
+            setItem<LastTimeSeen>(i, QDateTime::fromMSecsSinceEpoch(
+                                         *device.lastSeenTs));
+        setItem<LastIpAddr>(i, device.lastSeenIp);
+        if (device.deviceId == currentDeviceId)
+            markCurrentRow(i);
+    }
+
+    setSortingEnabled(true);
 }
 
 void ProfileDialog::load()
 {
     if (m_currentAccount)
         disconnect(m_currentAccount->user(), nullptr, this, nullptr);
+    if (m_devicesJob)
+        m_devicesJob->abandon();
     m_deviceTable->clearContents();
     m_avatar->setText(tr("No avatar"));
     m_avatar->setIcon({});
@@ -200,38 +307,21 @@ void ProfileDialog::load()
         accessToken.replace(5, accessToken.size() - 10, "...");
     m_accessTokenLabel->setText(accessToken);
 
-    m_deviceTable->setRowCount(1);
-    m_deviceTable->setItem(0, 0, new QTableWidgetItem(tr("Loading...")));
-    auto devicesJob = m_currentAccount->callApi<Quotient::GetDevicesJob>();
-    // TODO: Give some feedback while the thing is loading
-    connect(devicesJob, &BaseJob::success, this, [this, devicesJob] {
-        m_devices = devicesJob->devices();
-        m_deviceTable->setRowCount(m_devices.size());
+    m_deviceTable->setSortingEnabled(false);
+    m_deviceTable->fillPendingData(m_currentAccount->deviceId());
+    if (!m_settings.contains("device_table_state"))
+        m_deviceTable->resizeColumnsToContents();
 
-        for (int i = 0; i < m_devices.size(); ++i) {
-            auto device = m_devices[i];
-
-            m_deviceTable->setItem(
-                i, 0, makeTableItem(device.displayName, Qt::ItemIsEditable));
-            m_deviceTable->setItem(i, 1, makeTableItem(device.deviceId));
-            if (device.lastSeenTs) {
-                const auto& lastSeen =
-                    QDateTime::fromMSecsSinceEpoch(*device.lastSeenTs);
-                m_deviceTable->setItem(i, 2,
-                                       makeTableItem(QLocale().toString(
-                                           lastSeen, QLocale::ShortFormat)));
-            }
-            m_deviceTable->setItem(i, 3, makeTableItem(device.lastSeenIp));
-        }
-
+    m_devicesJob = m_currentAccount->callApi<Quotient::GetDevicesJob>();
+    connect(m_devicesJob, &BaseJob::success, m_deviceTable, [this] {
+        m_devices = m_devicesJob->devices();
+        m_deviceTable->refresh(m_devices, m_currentAccount->deviceId());
         if (m_settings.contains("device_table_state"))
             m_deviceTable->horizontalHeader()->restoreState(
                 m_settings.value("device_table_state").toByteArray());
-        else {
-            // Initialise the state
-            m_deviceTable->sortByColumn(2, Qt::DescendingOrder);
-            m_deviceTable->resizeColumnsToContents();
-        }
+        else
+            m_deviceTable->sortByColumn(DeviceTable::LastTimeSeen,
+                                        Qt::DescendingOrder);
     });
 }
 
@@ -258,4 +348,25 @@ void ProfileDialog::apply()
                                                                  newName);
     }
     accept();
+}
+
+void ProfileDialog::uploadAvatar()
+{
+    const auto& dirs =
+        QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
+    auto* fDlg = new QFileDialog(this, tr("Set avatar"),
+                                 dirs.isEmpty() ? QString() : dirs.back());
+    fDlg->setFileMode(QFileDialog::ExistingFile);
+    fDlg->setMimeTypeFilters({ "image/*", "application/octet-stream" });
+    fDlg->open();
+    connect(fDlg, &QFileDialog::fileSelected, this,
+            [this](const QString& fileName) {
+                m_newAvatarPath = fileName;
+                if (!m_newAvatarPath.isEmpty()) {
+                    auto img =
+                        QImage(m_newAvatarPath)
+                            .scaled(m_avatar->iconSize(), Qt::KeepAspectRatio);
+                    m_avatar->setIcon(QPixmap(m_newAvatarPath));
+                }
+            });
 }
