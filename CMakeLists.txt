@@ -183,7 +183,7 @@ add_custom_target(trbase SOURCES ${quaternion_en_TS} VERBATIM)
 
 set(quaternion_TS
     client/translations/quaternion_en_GB.ts
-    client/translations/quaternion_de_DE.ts
+    client/translations/quaternion_de.ts
     client/translations/quaternion_pl.ts
     client/translations/quaternion_ru.ts
     )
