@@ -22,10 +22,13 @@
 #include "roomlistdock.h"
 #include "userlistdock.h"
 #include "chatroomwidget.h"
+#include "profiledialog.h"
 #include "logindialog.h"
 #include "networkconfigdialog.h"
 #include "roomdialogs.h"
+#include "accountselector.h"
 #include "systemtrayicon.h"
+#include "linuxutils.h"
 
 #include <csapi/joining.h>
 #include <connection.h>
@@ -56,6 +59,7 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QDialogButtonBox>
 #include <QtWidgets/QComboBox>
+#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QCompleter>
 #include <QtGui/QMovie>
@@ -63,8 +67,12 @@
 #include <QtGui/QCloseEvent>
 #include <QtGui/QDesktopServices>
 
+#include <set>
+
 using Quotient::NetworkAccessManager;
+using Quotient::Settings;
 using Quotient::AccountSettings;
+using Quotient::Uri;
 
 MainWindow::MainWindow()
 {
@@ -78,7 +86,7 @@ MainWindow::MainWindow()
     connect(nam, &QNetworkAccessManager::sslErrors,
             this, &MainWindow::sslErrors);
 
-    setWindowIcon(QIcon(":/icon.png"));
+    setWindowIcon(QIcon::fromTheme(appIconName(), QIcon(":/icon.png")));
 
     roomListDock = new RoomListDock(this);
     addDockWidget(Qt::LeftDockWidgetArea, roomListDock);
@@ -88,10 +96,8 @@ MainWindow::MainWindow()
     setCentralWidget(chatRoomWidget);
     connect( chatRoomWidget, &ChatRoomWidget::resourceRequested,
              this, &MainWindow::openResource);
-    connect( chatRoomWidget, &ChatRoomWidget::joinRequested,
-             this, &MainWindow::joinRoom);
-    connect( chatRoomWidget, &ChatRoomWidget::roomSettingsRequested,
-             this, &MainWindow::openRoomSettings);
+    connect(chatRoomWidget, &ChatRoomWidget::roomSettingsRequested,
+            this, [this] { openRoomSettings(); });
     connect( roomListDock, &RoomListDock::roomSelected,
              this, &MainWindow::selectRoom);
     connect( chatRoomWidget, &ChatRoomWidget::showStatusMessage,
@@ -100,6 +106,7 @@ MainWindow::MainWindow()
              chatRoomWidget, &ChatRoomWidget::insertMention);
 
     createMenu();
+    createWinId();
     systemTrayIcon = new SystemTrayIcon(this);
     systemTrayIcon->show();
 
@@ -118,13 +125,13 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
-    for (auto c: qAsConst(connections))
+    for (auto* acc: accountRegistry)
     {
-        c->saveState();
-        c->stopSync(); // Instead of deleting the connection, merely stop it
+        acc->saveState();
+        acc->stopSync(); // Instead of deleting the connection, merely stop it
     }
-    for (auto c: qAsConst(logoutOnExit))
-        logout(c);
+    for (auto* acc: qAsConst(logoutOnExit))
+        logout(acc);
     saveSettings();
 }
 
@@ -168,8 +175,6 @@ QAction* MainWindow::addTimelineOptionCheckbox(QMenu* parent,
 
 void MainWindow::createMenu()
 {
-    using Quotient::Settings;
-
     // Connection menu
     connectionMenu = menuBar()->addMenu(tr("&Accounts"));
 
@@ -177,8 +182,16 @@ void MainWindow::createMenu()
         this, [=]{ showLoginWindow(); } );
 
     connectionMenu->addSeparator();
-    // Account submenus will be added in this place - see addConnection()
-    accountListGrowthPoint = connectionMenu->addSeparator();
+    connectionMenu->addAction(
+        QIcon::fromTheme("user-properties"), tr("User &profiles..."), this,
+        [this, dlg = QPointer<ProfileDialog> {}]() mutable {
+            summon(dlg, &accountRegistry, this);
+            if (currentRoom)
+                dlg->setAccount(currentRoom->connection());
+        });
+    connectionMenu->addSeparator();
+    logoutMenu = connectionMenu->addMenu(QIcon::fromTheme("system-log-out"),
+                                         tr("Log&out"));
 
     // Augment poor Windows users with a handy Ctrl-Q shortcut.
     static const auto quitShortcut = QSysInfo::productType() == "windows"
@@ -322,24 +335,25 @@ void MainWindow::createMenu()
         tr("Create &new room..."), [this]
         {
             static QPointer<CreateRoomDialog> dlg;
-            summon(dlg, connections, this);
+            summon(dlg, &accountRegistry, this);
         });
     createRoomAction->setShortcut(QKeySequence::New);
     createRoomAction->setDisabled(true);
-    joinAction = roomMenu->addAction(QIcon::fromTheme("list-add"),
-                    tr("&Join room..."), [this] { joinRoom(); } );
+    joinAction =
+        roomMenu->addAction(QIcon::fromTheme("list-add"), tr("&Join room..."),
+                            [this] { openUserInput(ForJoining); });
     joinAction->setShortcut(Qt::CTRL + Qt::Key_J);
     joinAction->setDisabled(true);
     roomMenu->addSeparator();
     roomSettingsAction =
         roomMenu->addAction(QIcon::fromTheme("user-group-properties"),
-            tr("Change room &settings..."), this, &MainWindow::openRoomSettings);
+                            tr("Change room &settings..."), this,
+                            [this] { openRoomSettings(); });
     roomSettingsAction->setDisabled(true);
     roomMenu->addSeparator();
-    openRoomAction = roomMenu->addAction(
-        QIcon::fromTheme("document-open"), tr("Open room..."), [this] {
-            openResource({}, "interactive");
-        });
+    openRoomAction = roomMenu->addAction(QIcon::fromTheme("document-open"),
+                                         tr("Open room..."),
+                                         [this] { openUserInput(); });
     openRoomAction->setStatusTip(tr("Open a room from the room list"));
     openRoomAction->setShortcut(QKeySequence::Open);
     openRoomAction->setDisabled(true);
@@ -431,6 +445,14 @@ void MainWindow::createMenu()
         else
             defaultLayout->setChecked(true);
     }
+#if defined Q_OS_UNIX && !defined Q_OS_MAC
+    addTimelineOptionCheckbox(
+        settingsMenu,
+        tr("Use Breeze style (requires restart)"),
+        tr("Force use Breeze style and icon theme"),
+        QStringLiteral("use_breeze_style"), inFlatpak()
+    );
+#endif
     addTimelineOptionCheckbox(
         settingsMenu,
         tr("Use shuttle scrollbar (requires restart)"),
@@ -490,7 +512,7 @@ inline QString accessTokenFileName(const AccountSettings& account)
 QByteArray MainWindow::loadAccessToken(const AccountSettings& account)
 {
 #ifdef USE_KEYCHAIN
-    if (Quotient::Settings().value("UI/use_keychain", true).toBool())
+    if (Settings().value("UI/use_keychain", true).toBool())
     {
         return loadAccessTokenFromKeyChain(account);
     }
@@ -530,50 +552,45 @@ QByteArray MainWindow::loadAccessTokenFromKeyChain(const AccountSettings& accoun
     job.setAutoDelete(false);
     job.setKey(account.userId());
     QEventLoop loop;
-    QKeychain::ReadPasswordJob::connect(&job, &QKeychain::Job::finished, &loop, &QEventLoop::quit);
+    QObject::connect(&job, &QKeychain::Job::finished, &loop, &QEventLoop::quit);
     job.start();
     loop.exec();
 
     if (job.error() == QKeychain::Error::NoError)
-    {
         return job.binaryData();
-    }
 
-    qWarning() << "Could not read the access token from the keychain: " << qPrintable(job.errorString());
-    // no access token from the keychain, try token file
-    auto accessToken = loadAccessTokenFromFile(account);
-    if (job.error() == QKeychain::Error::EntryNotFound)
-    {
-        if(!accessToken.isEmpty())
-        {
-          if(QMessageBox::warning(this,
-                                  tr("Access token file found"),
-                                  tr("Do you want to migrate the access token for %1 "
-                                     "from the file to the keychain?").arg(account.userId()),
-                                  QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
-          {
-              qDebug() << "Migrating the access token from file to the keychain for " << account.userId();
-              bool removed = false;
-              bool saved = saveAccessTokenToKeyChain(account, accessToken, false);
-              if(saved)
-              {
-                  QFile accountTokenFile{accessTokenFileName(account)};
-                  removed = accountTokenFile.remove();
-              }
-              if(!(saved && removed))
-              {
-                  qDebug() << "Migrating the access token from the file to the keychain failed";
-                  QMessageBox::warning(this,
-                                       tr("Couldn't migrate access token"),
-                                       tr("Quaternion couldn't migrate access token %1 "
-                                          "from the file to the keychain.").arg(account.userId()),
-                                       QMessageBox::Close);
-              }
-          }
+    qWarning() << "Could not read the access token from the keychain: "
+               << job.errorString();
+
+    // Try token file
+    const auto& accessToken = loadAccessTokenFromFile(account);
+    // Only offer migration if QtKeychain is usable but doesn't have the entry
+    if (job.error() == QKeychain::Error::EntryNotFound && !accessToken.isEmpty()
+        && QMessageBox::warning(
+               this, tr("Access token file found"),
+               tr("Do you want to migrate the access token for %1 "
+                  "from the file to the keychain?")
+                   .arg(account.userId()),
+               QMessageBox::Yes | QMessageBox::No)
+               == QMessageBox::Yes) {
+        qInfo() << "Migrating the access token for " << account.userId()
+                << " from the file to the keychain";
+        bool removed = false;
+        bool saved = saveAccessTokenToKeyChain(account, accessToken, false);
+        if (saved) {
+            QFile accountTokenFile { accessTokenFileName(account) };
+            removed = accountTokenFile.remove();
+        }
+        if (!(saved && removed)) {
+            qWarning() << "Migration of the access token failed";
+            QMessageBox::warning(this, tr("Couldn't migrate access token"),
+                tr("Quaternion couldn't migrate access token for %1 "
+                   "from the file to the keychain.")
+                    .arg(account.userId()),
+                QMessageBox::Close);
         }
     }
-
-  return accessToken;
+    return accessToken;
 }
 #endif
 
@@ -581,18 +598,12 @@ bool MainWindow::saveAccessToken(const AccountSettings& account,
                                  const QByteArray& accessToken)
 {
 #ifdef USE_KEYCHAIN
-    if (Quotient::Settings().value("UI/use_keychain", true).toBool())
-    {
+    if (Settings().value("UI/use_keychain", true).toBool())
         return saveAccessTokenToKeyChain(account, accessToken);
-    }
-    else
-    {
-        qDebug() << "Explicit opt-out from keychain by user setting";
-        return saveAccessTokenToFile(account, accessToken);
-    }
-#else
+
+    qDebug() << "Explicit opt-out from keychain by user setting";
+#endif // fall through to non QtKeychain-specific code
     return saveAccessTokenToFile(account, accessToken);
-#endif
 }
 
 bool MainWindow::saveAccessTokenToFile(const AccountSettings& account,
@@ -641,7 +652,8 @@ bool MainWindow::saveAccessTokenToFile(const AccountSettings& account,
 
 #ifdef USE_KEYCHAIN
 bool MainWindow::saveAccessTokenToKeyChain(const AccountSettings& account,
-                                           const QByteArray& accessToken, bool writeToFile)
+                                           const QByteArray& accessToken,
+                                           bool writeToFile)
 {
     qDebug() << "Save the access token to the keychain for " << account.userId();
     QKeychain::WritePasswordJob job(qAppName());
@@ -649,39 +661,32 @@ bool MainWindow::saveAccessTokenToKeyChain(const AccountSettings& account,
     job.setKey(account.userId());
     job.setBinaryData(accessToken);
     QEventLoop loop;
-    QKeychain::WritePasswordJob::connect(&job, &QKeychain::Job::finished, &loop, &QEventLoop::quit);
+    QObject::connect(&job, &QKeychain::Job::finished, &loop, &QEventLoop::quit);
     job.start();
     loop.exec();
 
-    if (job.error())
-    {
-        qWarning() << "Could not save access token to the keychain: " << qPrintable(job.errorString());
-        if (job.error() != QKeychain::Error::NoBackendAvailable &&
-            job.error() != QKeychain::Error::NotImplemented &&
-            job.error() != QKeychain::Error::OtherError)
-        {
-            if(writeToFile)
-            {
-                const auto button = QMessageBox::warning(this,
-                                                         tr("Couldn't save access token"),
-                                                         tr("Quaternion couldn't save the access token to the keychain."
-                                                            " Do you want to save the access token to file %1?").arg(accessTokenFileName(account)),
-                                                         QMessageBox::Yes|QMessageBox::No);
-                if (button == QMessageBox::Yes) {
-                  return saveAccessTokenToFile(account, accessToken);
-                } else {
-                  return false;
-                }
-            }
-            return false;
-        }
-        else
-        {
-            return saveAccessTokenToFile(account, accessToken);
-        }
-    }
+    if (!job.error())
+        return true;
 
-    return true;
+    qWarning() << "Could not save access token to the keychain: "
+               << job.errorString();
+    if (job.error() != QKeychain::Error::NoBackendAvailable
+        && job.error() != QKeychain::Error::NotImplemented
+        && job.error() != QKeychain::Error::OtherError) {
+        if (writeToFile)
+        {
+            const auto button = QMessageBox::warning(
+                this, tr("Couldn't save access token"),
+                tr("Quaternion couldn't save the access token to the keychain."
+                   " Do you want to save the access token to file %1?")
+                    .arg(accessTokenFileName(account)),
+                QMessageBox::Yes | QMessageBox::No);
+            if (button == QMessageBox::Yes)
+                return saveAccessTokenToFile(account, accessToken);
+        }
+        return false;
+    }
+    return saveAccessTokenToFile(account, accessToken);
 }
 #endif
 
@@ -697,32 +702,36 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     using Room = Quotient::Room;
 
     c->setLazyLoading(true);
-    connections.push_back(c);
+    accountRegistry.add(c);
 
     roomListDock->addConnection(c);
 
-    connect( c, &Connection::syncDone, this, [=]
-    {
-        gotEvents(c);
+    c->syncLoop();
+    connect(c, &Connection::syncDone, this, [this, c, counter = 0]() mutable {
+        if (counter == 0) {
+            firstSyncOver(c);
+            statusBar()->showMessage(
+                tr("First sync completed for %1", "%1 is user id")
+                    .arg(c->userId()),
+                3000);
+        }
 
         // Borrowed the logic from Quiark's code in Tensor to cache not too
-        // aggressively and not on the first sync. The static variable instance
-        // is created per-closure, meaning per-connection (which is why this
-        // code is not in gotEvents() ).
-        static int counter = 0;
+        // aggressively and not on the first sync.
         if (++counter % 17 == 2)
             c->saveState();
     } );
     connect( c, &Connection::loggedOut, this, [=]
     {
         statusBar()->showMessage(tr("Logged out as %1").arg(c->userId()), 3000);
+        accountRegistry.drop(c);
         dropConnection(c);
     });
     connect( c, &Connection::networkError, this, [=]{ networkError(c); } );
     connect( c, &Connection::syncError, this,
         [this,c] (const QString& message, const QString& details) {
             QMessageBox msgBox(QMessageBox::Warning, tr("Sync failed"),
-                connections.size() > 1
+                accountRegistry.size() > 1
                     ? tr("The last sync of account %1 has failed with error: %2")
                         .arg(c->userId(), message)
                     : tr("The last sync has failed with error: %1").arg(message),
@@ -735,7 +744,7 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
                 "account until logout or Quaternion restart."));
             msgBox.setDetailedText(details);
             if (msgBox.exec() == QMessageBox::Retry)
-                getNewEvents(c);
+                c->syncLoop();
         });
     using namespace Quotient;
     connect( c, &Connection::requestFailed, this,
@@ -788,43 +797,20 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
                     selectRoom(nullptr);
              });
 
+    // Update the menu
+
     QString accountCaption = c->userId();
     if (!deviceName.isEmpty())
         accountCaption += '/' % deviceName;
     QString menuCaption = accountCaption;
-    if (connections.size() < 10)
-        menuCaption.prepend('&' % QString::number(connections.size()) % ' ');
-    auto accountMenu = new QMenu(menuCaption, connectionMenu);
-    accountMenu->addAction(QIcon::fromTheme("view-certificate"),
-        tr("Show &access token"), this, [=]
-    {
-        const QString aToken = c->accessToken();
-        auto accountTokenBox = new QMessageBox(QMessageBox::Information,
-            tr("Access token for %1").arg(accountCaption),
-            tr("Your access token is %1...%2;"
-               " click \"Show details...\" for the full token")
-               .arg(aToken.left(5), aToken.right(5)),
-            QMessageBox::Close, this, Qt::Dialog);
-        accountTokenBox->setModal(false);
-        accountTokenBox->setTextInteractionFlags(
-                    Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
-        accountTokenBox->setDetailedText(aToken);
-        accountTokenBox->setAttribute(Qt::WA_DeleteOnClose);
-        accountTokenBox->show();
-    });
-    accountMenu->addAction(QIcon::fromTheme("system-log-out"), tr("&Logout"),
-                           this, [=] { logout(c); });
-    auto menuAction =
-            connectionMenu->insertMenu(accountListGrowthPoint, accountMenu);
-    connect( c, &Connection::destroyed, connectionMenu, [this, menuAction]
-    {
-        connectionMenu->removeAction(menuAction);
-    });
+    if (accountRegistry.size() < 10)
+        menuCaption.prepend('&' % QString::number(accountRegistry.size()) % ' ');
+    auto logoutAction = logoutMenu->addAction(menuCaption);
+    connect(c, &Connection::destroyed, logoutMenu,
+            std::bind(&QMenu::removeAction, logoutMenu, logoutAction));
     openRoomAction->setEnabled(true);
     createRoomAction->setEnabled(true);
     joinAction->setEnabled(true);
-
-    getNewEvents(c);
 }
 
 void MainWindow::dropConnection(Connection* c)
@@ -833,23 +819,16 @@ void MainWindow::dropConnection(Connection* c)
 
     if (currentRoom && currentRoom->connection() == c)
         selectRoom(nullptr);
-    connections.removeOne(c);
+    accountRegistry.drop(c);
+
     logoutOnExit.removeOne(c);
-    openRoomAction->setDisabled(connections.isEmpty());
-    createRoomAction->setDisabled(connections.isEmpty());
-    joinAction->setDisabled(connections.isEmpty());
+    const auto noMoreAccounts = accountRegistry.isEmpty();
+    openRoomAction->setDisabled(noMoreAccounts);
+    createRoomAction->setDisabled(noMoreAccounts);
+    joinAction->setDisabled(noMoreAccounts);
 
-    Q_ASSERT(!connections.contains(c) && !logoutOnExit.contains(c) &&
-             !c->syncJob());
+    Q_ASSERT(!logoutOnExit.contains(c) && !c->syncJob());
     c->deleteLater();
-}
-
-bool MainWindow::isInConnections(const QString& userId)
-{
-    return std::any_of(connections.cbegin(), connections.cend(),
-                       [&userId](Connection* c) {
-                           return c->userId() == userId;
-                       });
 }
 
 void MainWindow::showFirstSyncIndicator()
@@ -859,14 +838,25 @@ void MainWindow::showFirstSyncIndicator()
     statusBar()->showMessage("Syncing, please wait");
 }
 
+void MainWindow::firstSyncOver(Connection *c)
+{
+    Q_ASSERT(c != nullptr);
+    firstSyncing.removeOne(c);
+    if (firstSyncing.empty()) {
+        busyLabel->hide();
+        busyIndicator->stop();
+    }
+    qDebug() << "Connections still in first sync: " << firstSyncing.size();
+}
+
 void MainWindow::showLoginWindow(const QString& statusMessage)
 {
     const auto& allKnownAccounts =
         Quotient::SettingsGroup("Accounts").childGroups();
     QStringList loggedOffAccounts;
     for (const auto& a: allKnownAccounts)
-        // Skip accounts mentioned in active connections
-        if (!isInConnections(AccountSettings(a).userId()))
+        // Skip already logged in accounts
+        if (!accountRegistry.isLoggedIn(AccountSettings(a).userId()))
             loggedOffAccounts.push_back(a);
 
     doOpenLoginDialog(new LoginDialog(statusMessage, this, loggedOffAccounts));
@@ -912,9 +902,10 @@ void MainWindow::doOpenLoginDialog(LoginDialog* dialog)
         auto deviceName = dialog->deviceName();
         dialog->deleteLater();
 
+        firstSyncing.push_back(connection);
         showFirstSyncIndicator();
 
-        if (isInConnections(connection->userId())) {
+        if (accountRegistry.isLoggedIn(connection->userId())) {
             if (QMessageBox::warning(
                     this, tr("Logging in into a logged in account"),
                     tr("You're trying to log in into an account that's "
@@ -1037,14 +1028,19 @@ void MainWindow::invokeLogin()
 
             autoLoggedIn = true;
             auto c = new Connection(account.homeserver());
+            firstSyncing.push_back(c);
             auto deviceName = account.deviceName();
             connect(c, &Connection::connected, this,
                 [=] {
                     c->loadState();
                     addConnection(c, deviceName);
                 });
-            c->connectWithToken(account.userId(), accessToken,
-                                account.deviceId());
+            connect(c, &Connection::resolveError, this, [this, c] {
+                firstSyncOver(c);
+                statusBar()->showMessage(
+                    tr("Failed to resolve server %1").arg(c->domain()), 4000);
+            });
+            c->assumeIdentity(account.userId(), accessToken, account.deviceId());
         }
     }
     if (autoLoggedIn)
@@ -1070,7 +1066,7 @@ void MainWindow::logout(Connection* c)
     QFile(accessTokenFileName(AccountSettings(c->userId()))).remove();
 
 #ifdef USE_KEYCHAIN
-    if (Quotient::Settings().value("UI/use_keychain", true).toBool())
+    if (Settings().value("UI/use_keychain", true).toBool())
     {
         QKeychain::DeletePasswordJob job(qAppName());
         job.setAutoDelete(false);
@@ -1102,115 +1098,143 @@ void MainWindow::logout(Connection* c)
     c->logout();
 }
 
-QString MainWindow::resolveToId(const QString &uri) {
-    auto id = uri;
-    id.remove(QRegularExpression("^https://matrix.to/#/"));
-    id.remove(QRegularExpression("^matrix:"));
-    id.replace(QRegularExpression("^user/"), "@");
-    id.replace(QRegularExpression("^roomid/"), "!");
-    id.replace(QRegularExpression("^room/"), "#");
-    return id;
+Quotient::UriResolveResult MainWindow::visitUser(Quotient::User* user,
+                                                 const QString& action)
+{
+    if (action == "mention" || action.isEmpty())
+        chatRoomWidget->insertMention(user);
+    // action=_interactive is checked in openResource() and
+    // converted to "chat" in openUserInput()
+    else if (action == "_interactive"
+             || (action == "chat"
+                 && QMessageBox::question(this, tr("Open direct chat?"),
+                                          tr("Open direct chat with user %1?")
+                                              .arg(user->fullName()))
+                        == QMessageBox::Yes))
+        user->requestDirectChat();
+    else
+        return Quotient::IncorrectAction;
+
+    return Quotient::UriResolved;
 }
 
-Locator::ResolveResult MainWindow::openLocator(const Locator& l, const QString& action)
+void MainWindow::visitRoom(Quotient::Room* room, const QString& eventId)
 {
-    if (!l.account)
-        return Locator::NoAccount;
-
-    auto idOrAlias = resolveToId(l.identifier);
-    if (idOrAlias.startsWith('@'))
-    {
-        if (auto* user = l.account->user(idOrAlias))
-        {
-            if (action == "mention")
-                chatRoomWidget->insertMention(user);
-            else if (QMessageBox::question(this, tr("Open direct chat?"),
-                        tr("Open direct chat with user %1?")
-                        .arg(user->fullName())) == QMessageBox::Yes)
-                l.account->requestDirectChat(user);
-            return Locator::Success;
-        }
-        return Locator::MalformedId;
-    }
-    if (auto* room = idOrAlias.startsWith('!')
-                     ? l.account->room(idOrAlias)
-                     : l.account->roomByAlias(idOrAlias))
-    {
-        selectRoom(room);
-        return Locator::Success;
-    }
-    return Locator::NotFound;
+    selectRoom(room);
+    if (!eventId.isEmpty())
+        chatRoomWidget->spotlightEvent(eventId);
 }
 
-// FIXME: This should be decommissioned and inlined once we stop supporting
-// legacy compilers that have BROKEN_INITIALIZER_LISTS
-inline Locator makeLocator(Quotient::Connection* c, QString id)
+void MainWindow::joinRoom(Quotient::Connection* account,
+                          const QString& roomAliasOrId,
+                          const QStringList& viaServers)
 {
-#ifdef BROKEN_INITIALIZER_LISTS
-    Locator l;
-    l.account = c;
-    l.identifier = std::move(id);
-    return l;
-#else
-    return { c, std::move(id) };
-#endif
+    auto* job = account->joinRoom(roomAliasOrId, viaServers);
+    // Connection::joinRoom() already connected to success() the code that
+    // initialises the room in the library, which in turn causes RoomListModel
+    // to update the room list. So the below connection to success() will be
+    // triggered after all the initialisation have happened.
+    connect(job, &Quotient::BaseJob::success, this,
+            [this, account, roomAliasOrId] {
+                statusBar()->showMessage(
+                    tr("Joined %1 as %2").arg(roomAliasOrId, account->userId()));
+            });
+}
 
+bool MainWindow::visitNonMatrix(const QUrl& url)
+{
+    // Return true if the user cancels, treating it as an alternative normal
+    // flow (rather than an abnormal flow when the navigation itself fails).
+    auto doVisit = [this, url] {
+        if (!QDesktopServices::openUrl(url))
+            QMessageBox::warning(this, tr("No application for the link"),
+                                 tr("Your operating system could not find an "
+                                    "application for the link."));
+    };
+    static const auto SettingPath = QStringLiteral("UI/confirm_external_links");
+    if (Settings().get(SettingPath, true)) {
+        auto* confirmation = new QMessageBox(
+            QMessageBox::Warning, tr("External link confirmation"),
+            tr("An external application will be opened to visit a "
+               "non-Matrix link:\n\n%1\n\nIs that right?")
+                .arg(url.toDisplayString()),
+            QMessageBox::Ok | QMessageBox::Cancel, this, Qt::Dialog);
+        confirmation->setDefaultButton(nullptr);
+        confirmation->setCheckBox(new QCheckBox(tr("Do not ask again")));
+        confirmation->setWindowModality(Qt::WindowModal);
+        confirmation->show();
+        Settings().setValue(SettingPath, confirmation->checkBox()->checkState()
+                                             == Qt::Unchecked);
+        connect(confirmation, &QDialog::finished, this, [doVisit](int result) {
+            if (result == QMessageBox::Ok)
+                doVisit();
+        });
+    } else
+        doVisit();
+    return true;
 }
 
 MainWindow::Connection* MainWindow::getDefaultConnection() const
 {
     return currentRoom ? currentRoom->connection() :
-            connections.size() == 1 ? connections.front() : nullptr;
+            accountRegistry.size() == 1 ? accountRegistry.front() : nullptr;
 }
 
 void MainWindow::openResource(const QString& idOrUri, const QString& action)
 {
-    const auto& id = resolveToId(idOrUri);
-    auto l =
-        action == "interactive"
-        ? id.isEmpty()
-          ? obtainIdentifier(getDefaultConnection(),
-                             QFlag(Room | User), tr("Open room"),
-                             tr("Room or user ID, room alias,\n"
-                                "Matrix URI or matrix.to link"),
-                             tr("Switch to room"))
-          : makeLocator(nullptr, id) // Force choosing the connection
-        : makeLocator(getDefaultConnection(), id);
-    if (l.identifier.isEmpty())
+    Uri uri { idOrUri };
+    if (!uri.isValid()) {
+        QMessageBox::warning(
+            this, tr("Malformed or empty Matrix id"),
+            tr("%1 is not a correct Matrix identifier").arg(idOrUri),
+            QMessageBox::Close, QMessageBox::Close);
         return;
-
-    if (QStringLiteral("!@#$+").indexOf(l.identifier[0]) != -1)
-    {
-        if (action != "mention" && !l.account)
-            l.account = chooseConnection(getDefaultConnection(),
-                l.identifier.startsWith('@')
-                ? tr("Confirm your account to open a direct chat with %1")
-                  .arg(l.identifier)
-                : tr("Confirm your account to open %1").arg(idOrUri));
-
-        switch (openLocator(l, action)) {
-        case Locator::MalformedId:
-            break; // To the end of the function
-        case Locator::NotFound:
-            QMessageBox::warning(this, tr("Room not found"),
-                                 tr("There's no room %1 in the room list."
-                                    " Check the spelling and the account.")
-                                 .arg(idOrUri));
-            Q_FALLTHROUGH();
-        default:
-            return; // If success or no account, do nothing
-        }
     }
-    QMessageBox::warning(this, tr("Malformed user id"),
-                         tr("%1 is not a correct Matrix identifier")
-                         .arg(idOrUri),
-                         QMessageBox::Close, QMessageBox::Close);
+    auto* account = getDefaultConnection();
+    if (uri.type() != Uri::NonMatrix) {
+        if (!account) {
+            showLoginWindow(tr("Please connect to a server"));
+            return;
+        }
+        if (!action.isEmpty())
+            uri.setAction(action);
+
+        if (uri.action() == "join"
+            && currentRoom
+            // NB: We can't reliably check aliases for being in the upgrade chain
+            && currentRoom->successorId() != uri.primaryId()
+            && currentRoom->predecessorId() != uri.primaryId())
+            account = chooseConnection(
+                account, tr("Confirm account to join %1").arg(uri.primaryId()));
+        else if (uri.action() == "_interactive")
+            account = chooseConnection(
+                account,
+                uri.type() == Uri::UserId
+                    ? tr("Confirm your account to open a direct chat with %1")
+                          .arg(uri.primaryId())
+                    : tr("Confirm your account to open %1").arg(idOrUri));
+        if (!account)
+            return; // The user cancelled the confirmation dialog
+    }
+    const auto result = visitResource(account, uri);
+    if (result == Quotient::CouldNotResolve)
+        QMessageBox::warning(this, tr("Room not found"),
+                             tr("There's no room %1 in the room list."
+                                " Check the spelling and the account.")
+                                 .arg(idOrUri));
+    else // Invalid cases should have been eliminated earlier
+        Q_ASSERT(result == Quotient::UriResolved);
 }
 
-void MainWindow::openRoomSettings()
+void MainWindow::openRoomSettings(QuaternionRoom* r)
 {
-    static QHash<QuaternionRoom*, QPointer<RoomSettingsDialog>> dlgs;
-    summon(dlgs[currentRoom], currentRoom, this);
+    if (!r)
+        r = currentRoom;
+    static std::unordered_map<QuaternionRoom*, QPointer<RoomSettingsDialog>> dlgs;
+    const auto [it, inserted] = dlgs.try_emplace(r);
+    summon(it->second, r, this);
+    if (inserted)
+        connect(it->second, &QObject::destroyed, [r] { dlgs.erase(r); });
 }
 
 void MainWindow::selectRoom(Quotient::Room* r)
@@ -1244,22 +1268,13 @@ void MainWindow::selectRoom(Quotient::Room* r)
 MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
                                                      const QString& prompt)
 {
-    if (connections.isEmpty())
-    {
-        if (connection)
-            return connection;
+    Q_ASSERT(!accountRegistry.isEmpty());
+    if (accountRegistry.size() == 1)
+        return accountRegistry.front();
 
-        QMessageBox::warning(this, tr("No connections"),
-            tr("Please connect to a server first"),
-            QMessageBox::Close, QMessageBox::Close);
-        return nullptr;
-    }
-    if (connections.size() == 1)
-        return connections.front();
-
-    QStringList names; names.reserve(connections.size());
+    QStringList names; names.reserve(accountRegistry.size());
     int defaultIdx = -1;
-    for (auto c: qAsConst(connections))
+    for (auto c: accountRegistry)
     {
         names.push_back(c->userId());
         if (c == connection)
@@ -1271,7 +1286,7 @@ MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
     if (!ok || choice.isEmpty())
         return nullptr;
 
-    for (auto c: qAsConst(connections))
+    for (auto c: accountRegistry)
         if (c->userId() == choice)
         {
             connection = c;
@@ -1281,136 +1296,133 @@ MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
     return connection;
 }
 
-Locator MainWindow::obtainIdentifier(Connection* initialConn,
-        QFlags<CompletionType> completionType, const QString& prompt,
-        const QString& label, const QString& actionName)
+void MainWindow::openUserInput(bool forJoining)
 {
-    if (connections.isEmpty())
-    {
-        QMessageBox::warning(this, tr("No connections"),
-            tr("Please connect to a server first"),
-            QMessageBox::Close, QMessageBox::Close);
-        return {};
+    if (accountRegistry.isEmpty()) {
+        showLoginWindow(tr("Please connect to a server"));
+        return;
     }
-    Dialog dlg(prompt, this, Dialog::NoStatusLine, actionName,
+
+    struct D {
+        QString dlgTitle;
+        QString dlgText;
+        QString actionText;
+    };
+    static const D map[] = {
+        { tr("Open room"),
+          tr("Room or user ID, room alias,\nMatrix URI or matrix.to link"),
+          tr("Go to room") },
+        { tr("Join room"),
+          tr("Room ID (starting with !)\nor alias (starting with #)"),
+          tr("Join room") }
+    };
+    const auto& entry = map[forJoining];
+
+    Dialog dlg(entry.dlgTitle, this, Dialog::NoStatusLine, entry.actionText,
                Dialog::NoExtraButtons);
-    auto* account = new QComboBox(&dlg);
+    auto* accountChooser = new AccountSelector(&accountRegistry);
     auto* identifier = new QLineEdit(&dlg);
-    for (auto* c: connections)
-    {
-        account->addItem(c->userId(), QVariant::fromValue(c));
-        if (c == initialConn)
-            account->setCurrentIndex(account->count() - 1);
-    }
+    auto* defaultConn = getDefaultConnection();
+    accountChooser->setAccount(defaultConn);
 
     // Lay out controls
     auto* layout = dlg.addLayout<QFormLayout>();
-    if (connections.size() > 1)
+    if (accountRegistry.size() > 1)
     {
-        layout->addRow(tr("Account"), account);
-        account->setFocus();
+        layout->addRow(tr("Account"), accountChooser);
+        accountChooser->setFocus();
     } else {
-        account->setCurrentIndex(0); // The only available
-        account->hide(); // #523
+        accountChooser->setCurrentIndex(0); // The only available
+        accountChooser->hide(); // #523
         identifier->setFocus();
     }
-    layout->addRow(label, identifier);
-    setCompleter(identifier, connections[account->currentIndex()], completionType);
+    layout->addRow(entry.dlgText, identifier);
+
+    if (!forJoining) {
+        const auto setCompleter = [identifier](Connection* connection) {
+            QStringList completions;
+            for (auto* room: connection->allRooms()) {
+                completions << room->id();
+                if (!room->canonicalAlias().isEmpty())
+                    completions << room->canonicalAlias();
+            }
+
+            for (auto* user: connection->users())
+                completions << user->id();
+
+            completions.sort();
+            completions.erase(std::unique(completions.begin(), completions.end()),
+                              completions.end());
+
+            auto* completer = new QCompleter(completions);
+            completer->setFilterMode(Qt::MatchContains);
+            identifier->setCompleter(completer);
+        };
+
+        setCompleter(accountChooser->currentAccount());
+        connect(accountChooser, &AccountSelector::currentAccountChanged,
+                identifier, setCompleter);
+    }
 
     auto* okButton = dlg.button(QDialogButtonBox::Ok);
-    okButton->setDisabled(identifier->text().isEmpty());
-    connect(account, QOverload<int>::of(&QComboBox::currentIndexChanged),
-        [&] (int index) {
-            setCompleter(identifier, connections[index], completionType);
-        });
+    okButton->setDisabled(true);
     connect(identifier, &QLineEdit::textChanged, &dlg,
-        [identifier,okButton] {
-            okButton->setDisabled(identifier->text().isEmpty());
-        });
+            [identifier, okButton, buttonText = entry.actionText] {
+                Uri uri { identifier->text() };
+                switch (uri.type()) {
+                case Uri::RoomId:
+                case Uri::RoomAlias:
+                    okButton->setEnabled(true);
+                    okButton->setText(buttonText);
+                    break;
+                case Uri::UserId:
+                    okButton->setEnabled(true);
+                    okButton->setText(tr("Chat with user",
+                                         "On a button in 'Open room' dialog"
+                                         " when a user identifier is entered"));
+                    break;
+                default:
+                    okButton->setDisabled(true);
+                    okButton->setText(
+                        tr("Can't open",
+                           "On a disabled button in 'Open room' dialog when"
+                           " an invalid/unsupported URI is entered"));
+                }
+            });
 
-    if (dlg.exec() == QDialog::Accepted)
-    {
-        return makeLocator(account->currentData().value<Connection*>(),
-                           identifier->text());
-    }
-    return {};
-}
-
-void MainWindow::setCompleter(QLineEdit* edit, Connection* connection,
-                              QFlags<CompletionType> type)
-{
-    QStringList list;
-    if (type & Room)
-    {
-        for (auto* room : connection->allRooms()) {
-            list << room->id();
-            if (!room->canonicalAlias().isEmpty())
-                list << room->canonicalAlias();
-        }
-    }
-    if (type & User)
-    {
-        for (auto* user: connection->users())
-            list << user->id();
-    }
-    list.sort();
-    auto* completer = new QCompleter(list);
-    completer->setFilterMode(Qt::MatchContains);
-    edit->setCompleter(completer);
-}
-
-void MainWindow::joinRoom(const QString& roomIdOrAlias)
-{
-    auto* const defaultConnection = getDefaultConnection();
-    if (defaultConnection
-            && openLocator(makeLocator(defaultConnection, roomIdOrAlias))
-               == Locator::Success)
-        return; // Already joined room
-
-    auto roomLocator = roomIdOrAlias.isEmpty()
-            ? obtainIdentifier(defaultConnection, None,
-                tr("Enter room id or alias"),
-                tr("Room ID (starting with !)\nor alias (starting with #)"),
-                tr("Join"))
-            : makeLocator(chooseConnection(defaultConnection,
-                          tr("Confirm account to join %1").arg(roomIdOrAlias))
-                      , roomIdOrAlias);
-
-    // Check whether the user cancelled room/connection dialog or no connections
-    // or the room is already joined from the newly chosen account.
-    if (!roomLocator.account || openLocator(roomLocator) == Locator::Success)
+    if (dlg.exec() != QDialog::Accepted)
         return;
 
-    using Quotient::BaseJob;
-    auto* job = roomLocator.account->joinRoom(roomLocator.identifier);
-    // Connection::joinRoom() already connected to success() the code that
-    // initialises the room in the library, which in turn causes RoomListModel
-    // to update the room list. So the below connection to success() will be
-    // triggered after all the initialisation have happened.
-    connect(job, &BaseJob::success, this, [this,roomLocator]
-    {
-        statusBar()->showMessage(
-            tr("Joined %1 as %2").arg(roomLocator.identifier,
-                                      roomLocator.account->userId()));
-    });
-}
+    Uri uri { identifier->text() };
+    if (forJoining)
+        uri.setAction("join");
+    else if (uri.type() == Uri::UserId
+             && (uri.action().isEmpty() || uri.action() == "_interactive"))
+        uri.setAction("chat"); // The default action for users is "mention"
 
-void MainWindow::getNewEvents(Connection* c)
-{
-    Q_ASSERT_X(c, __FUNCTION__, "Attempt to sync on null connection");
-    c->sync(30*1000);
-}
-
-void MainWindow::gotEvents(Connection* c)
-{
-    Q_ASSERT_X(c, __FUNCTION__, "Null connection");
-    if( busyLabel->isVisible() )
+    switch (visitResource(accountChooser->currentAccount(), uri))
     {
-        busyLabel->hide();
-        busyIndicator->stop();
-        statusBar()->showMessage(tr("Sync completed - have a good chat"), 3000);
+    case Quotient::UriResolved:
+        break;
+    case Quotient::CouldNotResolve:
+        QMessageBox::warning(
+            this, tr("Could not resolve id"),
+            (uri.type() == Uri::NonMatrix
+                 ? tr("Could not find an external application to open the URI:")
+                 : tr("Could not resolve Matrix identifier"))
+                + "\n\n" + uri.toDisplayString());
+        break;
+    case Quotient::IncorrectAction:
+        QMessageBox::warning(
+            this, tr("Incorrect action on a Matrix resource"),
+            tr("The URI contains an action '%1' that cannot be applied"
+               " to Matrix resource %2")
+                .arg(uri.action())
+                .arg(uri.toDisplayString(QUrl::RemoveQuery)));
+        break;
+    default:
+        Q_ASSERT(false); // No other values should occur
     }
-    getNewEvents(c);
 }
 
 void MainWindow::showMillisToRecon(Connection* c)

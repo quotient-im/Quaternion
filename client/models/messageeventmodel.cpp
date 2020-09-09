@@ -64,9 +64,13 @@ MessageEventModel::MessageEventModel(QObject* parent)
     : QAbstractListModel(parent)
 {
     using namespace Quotient;
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+    qmlRegisterAnonymousType<FileTransferInfo>("Quotient", 1);
+#else
     qmlRegisterType<FileTransferInfo>(); qRegisterMetaType<FileTransferInfo>();
+#endif
     qmlRegisterUncreatableType<EventStatus>("Quotient", 1, 0, "EventStatus",
-        "EventStatus is not an creatable type");
+        "EventStatus is not a creatable type");
 }
 
 void MessageEventModel::changeRoom(QuaternionRoom* room)
@@ -206,8 +210,7 @@ void MessageEventModel::refreshEventRoles(int row, const QVector<int>& roles)
     emit dataChanged(idx, idx, roles);
 }
 
-int MessageEventModel::refreshEventRoles(const QString& id,
-                                         const QVector<int>& roles)
+int MessageEventModel::findRow(const QString& id)
 {
     // On 64-bit platforms, difference_type for std containers is long long
     // but Qt uses int throughout its interfaces; hence casting to int below.
@@ -218,15 +221,21 @@ int MessageEventModel::refreshEventRoles(const QString& id,
         row = int(pendingIt - m_currentRoom->pendingEvents().begin());
     else {
         const auto timelineIt = m_currentRoom->findInTimeline(id);
-        if (timelineIt == m_currentRoom->timelineEdge())
-        {
-            qWarning() << "Trying to refresh inexistent event:" << id;
-            return -1;
-        }
-        row = int(timelineIt - m_currentRoom->messageEvents().rbegin())
-                + timelineBaseIndex();
+        if (timelineIt != m_currentRoom->timelineEdge())
+            row = int(timelineIt - m_currentRoom->messageEvents().rbegin())
+                    + timelineBaseIndex();
     }
-    refreshEventRoles(row, roles);
+    return row;
+}
+
+int MessageEventModel::refreshEventRoles(const QString& id,
+                                         const QVector<int>& roles)
+{
+    int row = findRow(id);
+    if (row >= 0)
+        refreshEventRoles(row, roles);
+    else
+        qWarning() << "Trying to refresh inexistent event:" << id;
     return row;
 }
 
@@ -279,7 +288,7 @@ QString MessageEventModel::renderDate(const QDateTime& timestamp) const
             return s;
         }
     }
-    return date.toString(Qt::DefaultLocaleShortDate);
+    return QLocale().toString(date, QLocale::ShortFormat);
 }
 
 bool MessageEventModel::isUserActivityNotable(
@@ -653,7 +662,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
     if( role == HighlightRole )
         return m_currentRoom->isEventHighlighted(&evt);
 
-    if( role == ReadMarkerRole )
+    if (role == ReadMarkerRole)
         return evt.id() == lastReadEventId;
 
     if( role == SpecialMarksRole )

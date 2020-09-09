@@ -1,18 +1,19 @@
 build
+build_dir
+
 .kdev4
 .directory
+CMakeLists.txt.user*
+.idea
 
 flatpak/app
 flatpak/.flatpak-builder
 flatpak/repo
 
-CMakeLists.txt.user*
 CMakeCache.txt
 cmake_install.cmake
 Makefile
-
 quaternion_autogen/
-
-build_dir
+.cmake/
 
 .DS_Store

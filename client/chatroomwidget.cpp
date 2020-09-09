@@ -39,8 +39,11 @@
 #include <QtCore/QRegularExpression>
 #include <QtCore/QStringBuilder>
 #include <QtCore/QLocale>
+#include <QtCore/QTemporaryFile>
+#include <QtCore/QMimeData>
 
 #include <events/roommessageevent.h>
+#include <events/roompowerlevelsevent.h>
 #include <events/reactionevent.h>
 #include <csapi/message_pagination.h>
 #include <user.h>
@@ -66,8 +69,12 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
             "Room objects can only be created by libQuotient");
         qmlRegisterUncreatableType<User>("Quotient", 1, 0, "User",
             "User objects can only be created by libQuotient");
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+        qmlRegisterAnonymousType<GetRoomEventsJob>("Quotient", 1);
+#else
         qmlRegisterType<GetRoomEventsJob>();
         qRegisterMetaType<GetRoomEventsJob*>("GetRoomEventsJob*");
+#endif
         qRegisterMetaType<User*>("User*");
         qmlRegisterType<Settings>("Quotient", 1, 0, "Settings");
         qmlRegisterUncreatableType<RoomMessageEvent>("Quotient", 1, 0,
@@ -110,10 +117,14 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     m_attachAction->setDisabled(true);
     connect(m_attachAction, &QAction::triggered, this, [this] (bool checked) {
         if (checked)
+        {
             attachedFileName =
                     QFileDialog::getOpenFileName(this, tr("Attach file"));
-        else
+        } else {
+            if (m_fileToAttach->isOpen())
+                m_fileToAttach->remove();
             attachedFileName.clear();
+        }
 
         if (!attachedFileName.isEmpty())
         {
@@ -128,6 +139,8 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     });
     attachButton->setDefaultAction(m_attachAction);
 
+    m_fileToAttach = new QTemporaryFile(this);
+
     m_chatEdit = new ChatEdit(this);
     m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
     m_chatEdit->setAcceptRichText(false);
@@ -139,6 +152,20 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
             m_chatEdit->textCursor().hasSelection()
                 ? m_chatEdit->textCursor().selectedText()
                 : selectedText);
+    });
+    connect(m_chatEdit, &ChatEdit::insertFromMimeDataRequested,
+            this, [=] (const QMimeData* source) {
+        if (m_fileToAttach->isOpen() || m_currentRoom == nullptr)
+            return;
+        m_fileToAttach->open();
+
+        qvariant_cast<QImage>(source->imageData()).save(m_fileToAttach, "PNG");
+
+        attachedFileName = m_fileToAttach->fileName();
+        m_attachAction->setChecked(true);
+        m_chatEdit->setPlaceholderText(
+            tr("Add a message to the file or just push Enter"));
+        emit showStatusMessage(tr("Attaching an image from clipboard"));
     });
     connect(m_chatEdit, &ChatEdit::proposedCompletion, this,
             [=](const QStringList& matches, int pos) {
@@ -198,6 +225,8 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
     indicesOnScreen.clear();
     attachedFileName.clear();
     m_attachAction->setChecked(false);
+    if (m_fileToAttach->isOpen())
+        m_fileToAttach->remove();
 
     m_currentRoom = room;
     m_attachAction->setEnabled(m_currentRoom != nullptr);
@@ -237,6 +266,16 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
     m_messageModel->changeRoom( m_currentRoom );
 }
 
+void ChatRoomWidget::spotlightEvent(QString eventId)
+{
+    auto index = m_messageModel->findRow(eventId);
+    if (index >= 0) {
+        emit scrollViewTo(index);
+        emit animateMessage(index);
+    } else
+        setHudCaption( tr("Referenced message not found") );
+}
+
 void ChatRoomWidget::typingChanged()
 {
     if (!m_currentRoom || m_currentRoom->usersTyping().isEmpty())
@@ -274,6 +313,7 @@ void ChatRoomWidget::setHudCaption(QString newCaption)
 void ChatRoomWidget::insertMention(Quotient::User* user)
 {
     m_chatEdit->insertMention(user->id());
+    m_chatEdit->setFocus();
 }
 
 void ChatRoomWidget::focusInput()
@@ -316,6 +356,8 @@ QString ChatRoomWidget::doSendInput()
                             QUrl(attachedFileName).fileName() : text,
                         QUrl::fromLocalFile(attachedFileName));
 
+        if (m_fileToAttach->isOpen())
+            m_fileToAttach->remove();
         attachedFileName.clear();
         m_attachAction->setChecked(false);
         m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
@@ -343,7 +385,7 @@ QString ChatRoomWidget::doSendInput()
     {
         if (!argString.contains(RoomIdRE))
             return tr("/join argument doesn't look like a room ID or alias");
-        emit joinRequested(argString);
+        emit resourceRequested(argString, "join");
         return {};
     }
     if (command == "quit")
@@ -704,9 +746,18 @@ void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
     const auto eventId = modelIndex.data(MessageEventModel::EventIdRole).toString();
 
     QMenu menu;
-    menu.addAction(QIcon::fromTheme("edit-delete"), tr("Redact"), [=] {
-        m_currentRoom->redactEvent(eventId);
-    });
+
+    const auto* plEvt =
+        m_currentRoom->getCurrentState<Quotient::RoomPowerLevelsEvent>();
+    const auto localUserId = m_currentRoom->localUser()->id();
+    const int userPl = plEvt->powerLevelForUser(localUserId);
+    const auto* modelUser =
+        modelIndex.data(MessageEventModel::AuthorRole).value<Quotient::User*>();
+    if (!plEvt || userPl >= plEvt->redact() || localUserId == modelUser->id()) {
+        menu.addAction(QIcon::fromTheme("edit-delete"), tr("Redact"), [=] {
+            m_currentRoom->redactEvent(eventId);
+        });
+    }
     if (!hoveredLink.isEmpty())
     {
         menu.addAction(tr("Copy link to clipboard"), [=] {

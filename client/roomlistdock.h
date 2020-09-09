@@ -66,6 +66,7 @@ class RoomListDock : public QDockWidget
         QAction* forgetAction = nullptr;
         QAction* deleteTagAction = nullptr;
         QAction* roomSettingsAction = nullptr;
+        QAction* roomPermalinkAction = nullptr;
         QVariant selectedGroupCache = {};
         QuaternionRoom* selectedRoomCache = nullptr;
 

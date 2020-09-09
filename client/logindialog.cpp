@@ -47,12 +47,21 @@ LoginDialog::LoginDialog(const QString& statusMessage, QWidget* parent,
     setup(statusMessage);
     setPendingApplyMessage(tr("Connecting and logging in, please wait"));
 
-    connect(userEdit, &QLineEdit::editingFinished, m_connection.data(),
-            [=] {
-                auto userId = userEdit->text();
-                if (userId.startsWith('@') && userId.indexOf(':') != -1)
-                    m_connection->resolveServer(userId);
-            });
+    connect(userEdit, &QLineEdit::editingFinished, m_connection.data(), [=] {
+        auto userId = userEdit->text();
+        if (userId.startsWith('@') && userId.indexOf(':') != -1) {
+            setStatusMessage(tr("Resolving the homeserver..."));
+            serverEdit->clear();
+            m_connection->resolveServer(userId);
+        }
+    });
+
+    connect(serverEdit, &QLineEdit::editingFinished, m_connection.data(), [this] {
+        if (QUrl hsUrl { serverEdit->text() }; hsUrl.isValid())
+            m_connection->setHomeserver(serverEdit->text());
+        else
+            setStatusMessage(tr("The server URL doesn't look valid"));
+    });
 
     // This button is only shown when BOTH password auth and SSO are available
     // If only one flow is there, the "Login" button text is changed instead
@@ -85,7 +94,6 @@ LoginDialog::LoginDialog(const QString& statusMessage, QWidget* parent,
             auto homeserver = account.homeserver();
             if (!homeserver.isEmpty())
                 m_connection->setHomeserver(homeserver);
-//                serverEdit->setText(homeserver.toString());
 
             initialDeviceName->setText(account.deviceName());
             saveTokenCheck->setChecked(account.keepLoggedIn());
@@ -122,8 +130,20 @@ void LoginDialog::setup(const QString& statusMessage)
     passwordEdit->setEchoMode( QLineEdit::Password );
 
     connect(m_connection.data(), &Connection::homeserverChanged, serverEdit,
-            [=] (const QUrl& newUrl) { serverEdit->setText(newUrl.toString()); });
-
+            [this](const QUrl& hsUrl) { serverEdit->setText(hsUrl.toString()); });
+    // This is triggered whenever the server URL has been changed
+    connect(m_connection.data(), &Connection::loginFlowsChanged, this, [this] {
+        setStatusMessage(m_connection->isUsable()
+                             ? tr("The homeserver is available")
+                             : tr("Could not connect to the homeserver"));
+    });
+    // This overrides the above in case of an unsuccessful attempt to resovle
+    // the server URL from a changed MXID
+    connect(m_connection.data(), &Connection::resolveError, this,
+            [this](const QString& message) {
+                serverEdit->clear();
+                setStatusMessage(message);
+            });
     auto* formLayout = addLayout<QFormLayout>();
     formLayout->addRow(tr("Matrix ID"), userEdit);
     formLayout->addRow(tr("Password"), passwordEdit);
@@ -188,7 +208,7 @@ void LoginDialog::loginWithBestFlow()
 
 void LoginDialog::loginWithPassword()
 {
-    m_connection->connectToServer(userEdit->text(), passwordEdit->text(),
+    m_connection->loginWithPassword(userEdit->text(), passwordEdit->text(),
                                   initialDeviceName->text());
 }
 

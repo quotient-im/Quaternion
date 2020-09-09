@@ -1,6 +1,5 @@
 import QtQuick 2.6
-import QtQuick.Controls 1.4
-import QtQuick.Controls 2.0 as QQC2
+import QtQuick.Controls 2.2
 //import QtGraphicalEffects 1.0 // For fancy highlighting
 import Quotient 1.0
 
@@ -85,11 +84,8 @@ Item {
             shownChanged(true);
     }
 
-    Behavior on textColor {
-        enabled: settings.enable_animations
-        ColorAnimation {
-            duration: settings.animations_duration_ms
-        }
+    AnimationBehavior on textColor {
+        ColorAnimation { duration: settings.animations_duration_ms }
     }
 
     property bool showingDetails
@@ -106,6 +102,10 @@ Item {
                     detailsAnimation.start()
             }
         }
+        onAnimateMessage: {
+            if (currentIndex === index)
+                blinkAnimation.start()
+        }
     }
 
     SequentialAnimation {
@@ -114,15 +114,35 @@ Item {
             target: detailsAreaLoader; property: "visible"
             value: true
         }
-        NumberAnimation {
+        FastNumberAnimation {
             target: detailsAreaLoader; property: "opacity"
             to: showingDetails
-            duration: settings.fast_animations_duration_ms
             easing.type: Easing.OutQuad
         }
         PropertyAction {
             target: detailsAreaLoader; property: "visible"
             value: showingDetails
+        }
+    }
+    SequentialAnimation {
+        id: blinkAnimation
+        loops: 3
+        PropertyAction {
+            target: messageFlasher; property: "visible"
+            value: true
+        }
+        PauseAnimation {
+            // `settings.animations_duration_ms` intentionally is not in use here
+            // because this is not just an eye candy animation - the user will lose
+            // functionality if this animation stops working.
+            duration: 200
+        }
+        PropertyAction {
+            target: messageFlasher; property: "visible"
+            value: false
+        }
+        PauseAnimation {
+            duration: 200
         }
     }
 
@@ -180,11 +200,11 @@ Item {
             Image {
                 function desiredHeight() {
                     return xchatStyle ? authorLabel.height :
-                           visible ? authorLabel.height * 2 - timelabel.height : 0
+                           visible ? authorLabel.height * 2 - timelabel.height
+                                   : undefined
                 }
                 function desiredWidth() {
-                    return !xchatStyle ? timelabel.width :
-                           !visible ? 0 : undefined
+                    return !xchatStyle ? timelabel.width : undefined
                 }
 
                 id: authorAvatar
@@ -198,8 +218,7 @@ Item {
 
                 source: author.avatarMediaId ?
                             "image://mtx/" + author.avatarMediaId : ""
-                sourceSize.height: desiredHeight()
-                sourceSize.width: desiredWidth()
+                sourceSize: Qt.size(desiredWidth() * 2, desiredHeight() * 2)
             }
             Label {
                 id: authorLabel
@@ -231,14 +250,10 @@ Item {
                 hoverEnabled: true
                 onEntered: controller.showStatusMessage(author.id)
                 onExited: controller.showStatusMessage("")
-                onClicked: {
-                    if (mouse.button === Qt.LeftButton)
-                    {
-                        controller.insertMention(author)
-                        controller.focusInput()
-                    } else
-                        controller.resourceRequested(author.id)
-                }
+                onClicked:
+                    controller.resourceRequested(author.id,
+                                                 mouse.button === Qt.LeftButton
+                                                 ? "mention" : "_interactive")
             }
 
             Label {
@@ -252,7 +267,7 @@ Item {
                 font.pointSize: settings.font.pointSize
                 font.italic: pending
 
-                text: "<" + time.toLocaleTimeString(Qt.locale(), "hh:mm") + ">"
+                text: "<" + time.toLocaleTimeString(Qt.locale(), Locale.ShortFormat) + ">"
             }
 
             Item {
@@ -275,6 +290,17 @@ Item {
                 Rectangle {
                     anchors.fill: parent
                     opacity: 0.2
+                    color: settings.highlight_color
+                    radius: 2
+                }
+            }
+            Item {
+                id: messageFlasher
+                anchors.fill: textField
+                visible: false
+                Rectangle {
+                    anchors.fill: parent
+                    opacity: 0.5
                     color: settings.highlight_color
                     radius: 2
                 }
@@ -336,20 +362,7 @@ Item {
                     onHoveredLinkChanged:
                         controller.showStatusMessage(hoveredLink)
 
-                    onLinkActivated: {
-                        if (link.startsWith("@")
-                            || link.startsWith("https://matrix.to/#/@")
-                            || link.startsWith("matrix:user/"))
-                        {
-                            controller.resourceRequested(link, "mention")
-                            controller.focusInput()
-                        }
-                        else if (link.startsWith("https://matrix.to/")
-                                 || link.startsWith("matrix:"))
-                            controller.resourceRequested(link)
-                        else
-                            Qt.openUrlExternally(link)
-                    }
+                    onLinkActivated: controller.resourceRequested(link)
 
                     TimelineTextEditSelector {}
                 }
@@ -364,7 +377,7 @@ Item {
                         if (mouse.button === Qt.MiddleButton) {
                             if (textFieldImpl.hoveredLink)
                                 controller.resourceRequested(
-                                    textFieldImpl.hoveredLink, "interactive")
+                                    textFieldImpl.hoveredLink, "_interactive")
                         } else if (mouse.button === Qt.RightButton) {
                             controller.showMenu(index,
                                 textFieldImpl.hoveredLink, showingDetails)
@@ -388,7 +401,7 @@ Item {
                             wheel.accepted = false
                     }
                 }
-                QQC2.ScrollBar {
+                ScrollBar {
                     id: textScrollBar
                     hoverEnabled: true
                     visible: textFieldImpl.contentWidth > textFieldImpl.width
@@ -441,17 +454,58 @@ Item {
                 sourceComponent: FileContent { }
             }
             Flow {
-                anchors.top: imageLoader.active ? imageLoader.bottom : fileLoader.bottom
+                anchors.top: imageLoader.active ? imageLoader.bottom
+                                                : fileLoader.bottom
                 anchors.left: textField.left
                 anchors.right: parent.right
 
                 Repeater {
                     model: reactions
-                    Button {
-                        text: modelData.key + ": " + modelData.count
-                        onClicked: controller.reactionButtonClicked(eventId, modelData.key)
-                        tooltip: qsTr("%1 reacted with %2", "", modelData.authors.length)
-                            .arg(modelData.authors.join(", ")).arg(modelData.key)
+                    ToolButton {
+                        id: reactionButton
+                        readonly property bool includesLocalUser:
+                            modelData.authors.indexOf(
+                                room.safeMemberName(room.localUser.id)) !== -1
+
+                        topPadding: 2
+                        bottomPadding: 2
+
+                        contentItem: Text {
+                            text: modelData.key + " \u00d7" /* Math "multiply" */
+                                  + modelData.authors.length
+                            font.family: settings.font.family
+                            font.pointSize: settings.font.pointSize - 1
+                            color: reactionButton.includesLocalUser
+                                       ? defaultPalette.highlight
+                                       : defaultPalette.buttonText
+                        }
+
+                        background: Rectangle {
+                            radius: 4
+                            color: reactionButton.down ? defaultPalette.button
+                                                       : "transparent"
+                            border.color: reactionButton.includesLocalUser
+                                              ? defaultPalette.highlight
+                                              : disabledPalette.buttonText
+                            border.width: 1
+                        }
+
+                        hoverEnabled: true
+                        MyToolTip {
+                            visible: hovered
+                            text: qsTr("%1 reacted with '%2'",
+                                       "%1 is a list of users, %2 is " +
+                                       "the reaction (usually an emoji)",
+                                       modelData.authors.length)
+                                  .arg(modelData.authors.length <= 10
+                                       ? modelData.authors.join(", ")
+                                       : qsTr("%n author(s)", "",
+                                              model.data.authors.length))
+                                  .arg(modelData.key)
+                        }
+
+                        onClicked: controller.reactionButtonClicked(eventId,
+                                                                    modelData.key)
                     }
                 }
             }
@@ -477,12 +531,8 @@ Item {
         height: 3
         anchors.horizontalCenter: fullMessage.horizontalCenter
         anchors.bottom: fullMessage.bottom
-        Behavior on width {
-            enabled: settings.enable_animations
-            NumberAnimation {
-                duration: settings.animations_duration_ms
-                easing.type: Easing.OutQuad
-            }
+        AnimationBehavior on width {
+            NormalNumberAnimation { easing.type: Easing.OutQuad }
         }
 
         gradient: Gradient {
@@ -521,7 +571,7 @@ Item {
                 text: qsTr("Go to\nolder room")
 
                 // TODO: Treat unjoined invite-only rooms specially
-                onClicked: controller.joinRequested(refId)
+                onClicked: controller.resourceRequested(refId, "join")
             }
             TimelineItemToolButton {
                 id: goToSuccessorButton
@@ -530,7 +580,7 @@ Item {
                 text: qsTr("Go to\nnew room")
 
                 // TODO: Treat unjoined invite-only rooms specially
-                onClicked: controller.joinRequested(refId)
+                onClicked: controller.resourceRequested(refId, "join")
             }
         }
     }
@@ -564,13 +614,14 @@ Item {
                     readOnly: true
                     selectByKeyboard: true; selectByMouse: true
 
+                    anchors.top: eventTitle.bottom
                     anchors.left: parent.left
                     anchors.leftMargin: 3
                     z: 1
                 }
                 TextEdit {
-                    text: "<a href=\"" + evtLink + "\">"+ eventId
-                          + "</a> (" + eventResolvedType + ")"
+                    id: eventTitle
+                    text: "<a href=\"" + evtLink + "\">"+ eventId + "</a>"
                     textFormat: Text.RichText
                     font.bold: true
                     font.family: settings.font.family
@@ -593,6 +644,19 @@ Item {
                     }
                 }
                 TextEdit {
+                    text: eventResolvedType
+                    textFormat: Text.PlainText
+                    font.bold: true
+                    font.family: settings.font.family
+                    font.pointSize: settings.font.pointSize
+                    renderType: settings.render_type
+
+                    anchors.top: eventTitle.bottom
+                    anchors.right: parent.right
+                    anchors.rightMargin: 3
+                }
+
+                TextEdit {
                     id: permalink
                     text: evtLink
                     font: settings.font
@@ -601,20 +665,23 @@ Item {
                 }
             }
 
-            TextArea {
-                text: sourceText
-                textFormat: Text.PlainText
-                readOnly: true;
-                font.family: "Monospace"
-                font.pointSize: settings.font.pointSize
-                // FIXME: make settings.render_type an integer (but store as string to stay human-friendly)
-//                style: TextAreaStyle {
-//                    renderType: settings.render_type
-//                }
-                selectByKeyboard: true; selectByMouse: true
-
-                width: parent.width
+            ScrollView {
                 anchors.top: detailsHeader.bottom
+                width: parent.width
+                height: Math.min(implicitContentHeight, chatView.height / 2)
+                clip: true
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOn
+                ScrollBar.vertical.policy: ScrollBar.AlwaysOn
+
+                TextEdit {
+                    text: sourceText
+                    textFormat: Text.PlainText
+                    readOnly: true;
+                    font.family: "Monospace"
+                    font.pointSize: settings.font.pointSize
+                    renderType: settings.render_type
+                    selectByKeyboard: true; selectByMouse: true
+                }
             }
         }
     }

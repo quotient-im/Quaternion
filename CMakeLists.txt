@@ -145,6 +145,7 @@ message( STATUS )
 
 # Set up source files
 set(quaternion_SRCS
+    client/accountregistry.cpp
     client/quaternionroom.cpp
     client/imageprovider.cpp
     client/activitydetector.cpp
@@ -155,10 +156,12 @@ set(quaternion_SRCS
     client/mainwindow.cpp
     client/roomlistdock.cpp
     client/userlistdock.cpp
+    client/accountselector.cpp
     client/kchatedit.cpp
     client/chatedit.cpp
     client/chatroomwidget.cpp
     client/systemtrayicon.cpp
+    client/profiledialog.cpp
     client/models/messageeventmodel.cpp
     client/models/userlistmodel.cpp
     client/models/roomlistmodel.cpp
@@ -180,7 +183,7 @@ add_custom_target(trbase SOURCES ${quaternion_en_TS} VERBATIM)
 
 set(quaternion_TS
     client/translations/quaternion_en_GB.ts
-    client/translations/quaternion_de_DE.ts
+    client/translations/quaternion_de.ts
     client/translations/quaternion_pl.ts
     client/translations/quaternion_ru.ts
     )
@@ -221,6 +224,11 @@ target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     GIT_SHA1="${GIT_SHA1}" LIB_GIT_SHA1="${LIB_GIT_SHA1}")
+target_compile_definitions(${PROJECT_NAME} PRIVATE QT_NO_JAVA_STYLE_ITERATORS)
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.16.0"
+        AND NOT CMAKE_CXX_COMPILER_ID STREQUAL GNU) # https://bugzilla.redhat.com/show_bug.cgi?id=1721553
+    target_precompile_headers(${PROJECT_NAME} PRIVATE <lib/room.h>)
+endif ()
 target_link_libraries(${PROJECT_NAME}
     Quotient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
 

@@ -1,6 +1,6 @@
 /**************************************************************************
  *                                                                        *
- * Copyright (C) 2017 Kitsune Ral <kitsune-ral@users.sf.net>
+ * Copyright (C) 2019 Karol Kosek <krkkx@protonmail.com>                  *
  *                                                                        *
  * This program is free software; you can redistribute it and/or          *
  * modify it under the terms of the GNU General Public License            *
@@ -19,48 +19,53 @@
 
 #pragma once
 
-#include "kchatedit.h"
+#include "dialog.h"
+#include "accountregistry.h"
 
-#include <QtGui/QTextCursor>
+#include <settings.h>
+#include <csapi/definitions/client_device.h>
 
-class ChatRoomWidget;
+#include <QtCore/QPointer>
 
-class ChatEdit : public KChatEdit
+class AccountSelector;
+class MainWindow;
+
+class QComboBox;
+class QLineEdit;
+
+namespace Quotient {
+    class GetDevicesJob;
+}
+
+class ProfileDialog : public Dialog
 {
-        Q_OBJECT
-    public:
-        ChatEdit(ChatRoomWidget* c);
+    Q_OBJECT
+public:
+    using Account = AccountRegistry::Account;
 
-        void triggerCompletion();
-        void cancelCompletion();
+    explicit ProfileDialog(AccountRegistry* accounts, MainWindow* parent);
+    ~ProfileDialog() override;
 
-        void insertMention(QString author);
+    void setAccount(Account* newAccount);
+    Account* account() const;
 
-    public slots:
-        void switchContext(QObject* contextKey) override;
+private slots:
+    void load() override;
+    void apply() override;
+    void uploadAvatar();
 
-    signals:
-        void proposedCompletion(const QStringList& allCompletions, int curIndex);
-        void cancelledCompletion();
-        void insertFromMimeDataRequested(const QMimeData* source);
+private:
+    Quotient::SettingsGroup m_settings;
 
-    protected:
-        QString sanitizeMention(QString mentionText);
-        bool canInsertFromMimeData(const QMimeData* source) const override;
-        void insertFromMimeData(const QMimeData* source) override;
+    class DeviceTable;
+    DeviceTable* m_deviceTable;
+    QPushButton* m_avatar;
+    AccountSelector* m_accountSelector;
+    QLineEdit* m_displayName;
+    QLabel* m_accessTokenLabel;
 
-    private:
-        ChatRoomWidget* chatRoomWidget;
-
-        QTextCursor completionCursor;
-        QStringList completionMatches;
-        int matchesListPosition;
-
-        bool pickingMentions = false;
-
-        void startNewCompletion();
-        void appendTextAtCursor(const QString& text, bool select = false);
-        void keyPressEvent(QKeyEvent* event) override;
+    Account* m_currentAccount;
+    QString m_newAvatarPath;
+    QPointer<Quotient::GetDevicesJob> m_devicesJob;
+    QVector<Quotient::Device> m_devices;
 };
-
-

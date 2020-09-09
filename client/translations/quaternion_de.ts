@@ -1,172 +1,160 @@
-<!DOCTYPE TS><TS version="2.1" language="pl">
+<!DOCTYPE TS><TS version="2.1" language="de">
 <context>
     <name>ChatRoomWidget</name>
     <message>
         <source>Choose a room to send messages or enter a command...</source>
-        <translation>Wybierz pokój do wysyłania wiadomości lub wprowadź polecenie…</translation>
+        <translation>Wähle einen Raum, um Nachrichten zu senden oder Kommandos einzugebe….</translation>
     </message>
     <message>
         <source>Sending encrypted messages is not supported yet</source>
-        <translation>Wysyłanie zaszyfrowanych wiadomości nie jest jeszcze obsługiwane</translation>
+        <translation>Das Senden von verschlüsselten Nachrichten wird noch nicht unterstützt</translation>
     </message>
     <message>
         <source>Send a message (unencrypted) or enter a command...</source>
-        <translation>Wyślij wiadomość (niezaszyfrowaną) lub wprowadź polecenie…</translation>
+        <translation>Sende eine (nicht verschlüsselte) Nachricht oder gebe einen Befehl ein...</translation>
     </message>
     <message>
         <source>There&apos;s nothing to send</source>
-        <translation>Nie ma niczego do przesłania</translation>
+        <translation>Da ist nichts zum Senden</translation>
     </message>
     <message>
         <source>/join argument doesn&apos;t look like a room ID or alias</source>
-        <translation>/join nie wygląda jak identyfikator pokoju lub alias</translation>
+        <translation>/join Argument sieht nicht nach einer Raum-ID oder Alias aus</translation>
     </message>
     <message>
         <source>Sending a farewell message is not supported yet. If you intended to leave another room, switch to it and type /leave there.</source>
-        <translation>Wysyłanie wiadomości pożegnalnej nie jest jeszcze obsługiwane. Jeśli chcesz opuścić inny pokój, przełącz się do niego i wpisz tam /leave.</translation>
+        <translation>Eine Abschieds-Nachricht zu senden, wird aktuell nicht unterstützt. Wenn du einen anderen Raum verlassen willst, wechsele in diesen und tippe /leave dort ein.</translation>
     </message>
     <message>
         <source>/forget must be followed by the room id/alias, even for the current room</source>
-        <translation>/forget musi poprzedzać identyfikator pokoju/alias, nawet dla bieżącego pomieszczenia</translation>
+        <translation>/forget benötigt als Argument eine(n) Raum-ID/Alias - auch für den aktuellen Raum</translation>
     </message>
     <message>
         <source>%1 doesn&apos;t look like a room id or alias</source>
-        <translation>%1 nie wygląda jak identyfikator pokoju lub alias</translation>
+        <translation>%1 sieht nicht nach einer Raum-ID oder einem Raum-Alias aus</translation>
     </message>
     <message>
         <source>/invite &lt;memberId&gt;</source>
-        <translation>/invite &lt;memberId&gt;</translation>
+        <translation>/invite &lt;Nutzer-ID&gt;</translation>
     </message>
     <message>
         <source>/%1 &lt;userId&gt; &lt;reason&gt;</source>
-        <translation>/%1 &lt;userId&gt; &lt;reason&gt;</translation>
+        <translation>/%1 &lt;NutzerId&gt; &lt;Grund&gt;</translation>
     </message>
     <message>
         <source>%1 is not a member of this room</source>
-        <translation>%1 nie jest członkiem tego pokoju</translation>
+        <translation>%1 ist kein Mitglied dieses Raumes</translation>
     </message>
     <message>
         <source>/unban &lt;userId&gt;</source>
-        <translation>/unban &lt;userId&gt;</translation>
+        <translation>/unban &lt;NutzerId&gt;</translation>
     </message>
     <message>
         <source>/unban argument doesn&apos;t look like a user ID</source>
-        <translation>/unban nie wygląda jak identyfikator użytkownika</translation>
+        <translation>/unban-Argument sieht nicht nach einer Nutzer-ID aus</translation>
     </message>
     <message>
         <source>/ignore &lt;userId&gt;</source>
-        <translation>/ignore &lt;userId&gt;</translation>
+        <translation>/ignore &lt;NutzerID&gt;</translation>
     </message>
     <message>
         <source>/ignore argument doesn&apos;t look like a user ID</source>
-        <translation>/ignore nie wygląda jak identyfikator użytkownika</translation>
+        <translation>/ignore-Argument sieht nicht nach einer Nutzer-ID aus</translation>
     </message>
     <message>
         <source>Couldn&apos;t find user %1 on the server</source>
-        <translation>Nie można znaleźć użytkownika %1 na serwerze</translation>
+        <translation>Konnte den Benutzer %1 nicht auf dem Server finden</translation>
     </message>
     <message>
         <source>/me needs an argument</source>
-        <translation>/me potrzebuje argumentu</translation>
+        <translation>/me braucht ein Argument</translation>
     </message>
     <message>
         <source>/notice needs an argument</source>
-        <translation>/notice potrzebuje argumentu</translation>
+        <translation>/notice braucht ein Argument</translation>
     </message>
     <message>
         <source>/%1 &lt;memberId&gt; &lt;message&gt;</source>
-        <translation>/%1 &lt;memberId&gt; &lt;message&gt;</translation>
+        <translation>/%1 &lt;NutzerId&gt; &lt;Nachricht&gt;</translation>
     </message>
     <message>
         <source>%1 doesn&apos;t seem to have joined room %2</source>
-        <translation>%1 najwyraźniej nie dołączył do pokoju %2</translation>
+        <translation>%1 ist dem Raum %2 anscheinend nicht beigetreten</translation>
     </message>
     <message>
         <source>%1 doesn&apos;t look like a user id or room alias</source>
-        <translation>%1 nie wygląda jak identyfikator użytkownika lub alias pokoju</translation>
+        <translation>%1 sieht nicht nach einer Nutzer- oder Raum-ID aus</translation>
     </message>
     <message>
         <source>/%1 &lt;memberId&gt;</source>
-        <translation>/%1 &lt;memberId&gt;</translation>
+        <translation>/%1 &lt;Nutzer-ID&gt;</translation>
     </message>
     <message>
         <source>Unknown /command. Use // to send this line literally</source>
-        <translation>Nieznane polecenie. Użyj //, aby dosłownie wysłać tę linię</translation>
+        <translation>Unbekannter /befehl. Starte mit // um diese Zeile normal zu senden</translation>
     </message>
     <message>
         <source>Save file as</source>
-        <translation>Zapisz plik jako</translation>
+        <translation>Speichere Datei als</translation>
     </message>
     <message>
         <source>Next completion: %1</source>
-        <translation>Następne dokończenie: %1</translation>
+        <translation>Nächste Vervollständigung: %1</translation>
     </message>
     <message>
         <source>Currently typing: %1</source>
-        <translation>Obecnie pisze: %1</translation>
+        <translation>Aktuell tippen: %1</translation>
     </message>
     <message>
         <source>Attach</source>
-        <translation>Załącz</translation>
+        <translation>Anhängen</translation>
     </message>
     <message>
         <source>Attach file</source>
-        <translation>Załącz plik</translation>
+        <translation>Datei anhängen</translation>
     </message>
     <message>
         <source>Add a message to the file or just push Enter</source>
-        <translation>Dodaj wiadomość do pliku lub po prostu naciśnij Enter</translation>
+        <translation>Füge der Datei eine Nachricht bei oder drücke einfach die Eingabetaste.</translation>
     </message>
     <message>
         <source>Attaching %1</source>
-        <translation>Załączanie %1</translation>
+        <translation>Hänge %1 an</translation>
     </message>
     <message>
         <source>Attaching cancelled</source>
-        <translation>Załączanie anulowano</translation>
+        <translation>Anhängen abgebrochen</translation>
     </message>
     <message>
         <source>There&apos;s no such /command outside of room.</source>
-        <translation>Nie ma takiego /polecenia poza pokojem.</translation>
+        <translation>Es gibt keinen /Befehl außerhalb von Räumen.</translation>
     </message>
     <message>
         <source>%1 doesn&apos;t look like a user id</source>
-        <translation>%1 nie wygląda jak identyfikator użytkownika</translation>
+        <translation>%1 sieht nicht nach einer Nutzer-ID aus</translation>
     </message>
     <message>
         <source>%1 doesn&apos;t look like a user ID</source>
-        <translation>%1 nie wygląda jak identyfikator użytkownika</translation>
+        <translation>%1 sieht nicht wie eine Benutzer-ID aus.</translation>
     </message>
     <message>
         <source>You should select a room to send messages.</source>
-        <translation>Powinieneś/Powinnaś wybrać pokój do wysyłania wiadomości.</translation>
+        <translation>Wähle einen Raum, um Nachrichten zu senden.</translation>
     </message>
     <message>
         <source>Send a message (over %1) or enter a command...</source>
-        <translation>Wyślij wiadomość (poprzez %1) lub wprowadź polecenie…</translation>
-    </message>
-    <message>
-        <source>Redact</source>
-        <translation>Przeredaguj</translation>
-    </message>
-    <message>
-        <source>Copy link to clipboard</source>
-        <translation>Skopiuj link do schowka</translation>
-    </message>
-    <message>
-        <source>Open externally</source>
-        <translation>Otwórz zewnętrznie</translation>
+        <translation>Sende eine Nachricht (über %1) oder gebe einen Befehl ein...</translation>
     </message>
 </context>
 <context>
     <name>Timeline</name>
     <message>
         <source>(no topic)</source>
-        <translation>(brak tematu)</translation>
+        <translation>(kein Thema)</translation>
     </message>
     <message>
         <source>%1 bytes</source>
-        <translation>%1 bajtów</translation>
+        <translation>%1 Bytes</translation>
     </message>
     <message>
         <source>%1 KB</source>
@@ -182,478 +170,508 @@
     </message>
     <message>
         <source>Unknown</source>
-        <translation>Nieznany</translation>
+        <translation>Unbekannt</translation>
     </message>
     <message numerus="yes">
         <source>%Ln events back from now (%L1 cached%2)</source>
         <translation>
-            <numerusform>%Ln wydarzenie od teraz (%L1 cached%2)</numerusform>
-            <numerusform>%Ln wydarzenia od teraz (%L1 cached%2)</numerusform>
-            <numerusform>%Ln wydarzeń od teraz (%L1 cached%2)</numerusform>
-            <numerusform>%Ln wydarzeń od teraz (%L1 cached%2)</numerusform>
+            <numerusform>%Ln Ereignis zurückgescrollt (%L1 zwischengespeichert%2)</numerusform>
+            <numerusform>%Ln Ereignisse zurückgescrollt (%L1 zwischengespeichert%2)</numerusform>
         </translation>
     </message>
     <message>
+        <source>and loading</source>
+        <translation>und lädt</translation>
+    </message>
+    <message>
         <source>Unstable room version!</source>
-        <translation>Niestabilna wersja pokoju!</translation>
+        <translation>Instabile Zimmerversion!</translation>
     </message>
     <message>
         <source>(no name)</source>
-        <translation>(bez nazwy)</translation>
+        <translation>(kein Name)</translation>
     </message>
     <message>
         <source>This room has been upgraded</source>
-        <translation>Ten pokój został zaktualizowany</translation>
+        <translation>Dieses Zimmer wurde aktualisiert</translation>
     </message>
     <message>
         <source>
 Go to Room Settings to upgrade the room</source>
-        <translation>Przejdź do ustawień pokoju, aby zaktualizować pokój</translation>
+        <translation>Gehen Sie zu Raumeinstellungen, um den Raum zu aktualisieren</translation>
     </message>
     <message>
         <source>Go to Room Settings to upgrade the room</source>
-        <translation>Przejdź do ustawień pokoju, aby zaktualizować pokój</translation>
+        <translation>Gehen Sie zu Raumeinstellungen, um den Raum zu aktualisieren</translation>
     </message>
 </context>
 <context>
     <name>CreateRoomDialog</name>
     <message>
         <source>Create room</source>
-        <translation>Utwórz pokój</translation>
+        <translation>Erstelle Raum</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation>Dodaj</translation>
+        <translation>Hinzufügen</translation>
     </message>
     <message>
         <source>Invite user(s)</source>
-        <translation>Zaproś użytkownika(-ów)</translation>
+        <translation>Nutzer einladen</translation>
     </message>
     <message>
         <source>Creating the room, please wait</source>
-        <translation>Tworzę pokój, proszę czekać</translation>
+        <translation>Erstelle den Raum. Bitte warten</translation>
     </message>
     <message>
         <source>Please fill the fields as desired. None are mandatory</source>
-        <translation>Proszę wypełnić pola zgodnie z życzeniem. Żaden z nich nie jest obowiązkowy</translation>
+        <translation>Bitte fülle die Felder wie gewünscht. Alle sind optional</translation>
     </message>
 </context>
 <context>
     <name>Dialog</name>
     <message>
         <source>Applying changes, please wait</source>
-        <translation>Wprowadzanie zmian, proszę czekać</translation>
+        <translation>Änderungen werden übernommen. Bitte warten</translation>
     </message>
 </context>
 <context>
     <name>LoginDialog</name>
     <message>
         <source>Login</source>
-        <translation>Zaloguj się</translation>
+        <translation>Anmelden</translation>
     </message>
     <message>
         <source>Stay logged in</source>
-        <translation>Pozostań zalogowany</translation>
+        <translation>Angemeldet bleiben</translation>
     </message>
     <message>
         <source>Matrix ID</source>
-        <translation>Identyfikator Matrix</translation>
+        <translation>Matrix-ID</translation>
     </message>
     <message>
         <source>Password</source>
-        <translation>Hasło</translation>
+        <translation>Passwort</translation>
     </message>
     <message>
         <source>Device name</source>
-        <translation>Nazwa urządzenia</translation>
+        <translation>Gerätename</translation>
     </message>
     <message>
         <source>Connect to server</source>
-        <translation>Połącz z serwerem</translation>
+        <translation>Mit Server verbinden</translation>
     </message>
     <message>
         <source>Connecting and logging in, please wait</source>
-        <translation>Łączenie się i logowanie, proszę czekać</translation>
+        <translation>Am Verbinden und anmelden. Bitte warten</translation>
     </message>
     <message>
         <source>Re-login</source>
-        <translation>Zaloguj ponownie</translation>
+        <translation>Neu anmelden</translation>
     </message>
     <message>
         <source>Restoring access, please wait</source>
-        <translation>Przywracanie dostępu, proszę czekać</translation>
+        <translation>Der Zugriff wird wiederhergestellt, warten Sie bitte</translation>
     </message>
 </context>
 <context>
     <name>MainWindow</name>
     <message>
         <source>Loading...</source>
-        <translation>Ładowanie…</translation>
+        <translation>Lädt…</translation>
     </message>
     <message>
         <source>&amp;Accounts</source>
-        <translation>&amp;Konta</translation>
+        <translation>&amp;Konten</translation>
     </message>
     <message>
         <source>&amp;Login...</source>
-        <translation>Zaloguj &amp;się…</translation>
+        <translation>&amp;Anmelden…</translation>
     </message>
     <message>
         <source>&amp;Quit</source>
-        <translation>&amp;Zakończ</translation>
+        <translation>&amp;Beenden</translation>
     </message>
     <message>
         <source>&amp;View</source>
-        <translation>&amp;Widok</translation>
+        <translation>&amp;Oberfläche</translation>
     </message>
     <message>
         <source>Dock &amp;panels</source>
-        <translation>Łącz &amp;panele</translation>
+        <translation>&amp;Panel anheften</translation>
     </message>
     <message>
         <source>&amp;Display in timeline</source>
-        <translation>&amp;Pokaż na osi czasu</translation>
+        <translation>In &amp;Historie anzeigen</translation>
     </message>
     <message>
         <source>Normal &amp;join/leave events</source>
-        <translation>&amp;Zwykłe zdarzenia dołączania/opuszczania</translation>
+        <translation>Normale &amp;Zutritts-/Verlassens-Ereignisse</translation>
     </message>
     <message>
         <source>&amp;Redacted events</source>
-        <translation>&amp;Zredagowane zdarzenia</translation>
+        <translation>&amp;Gelöschte Ereignisse</translation>
     </message>
     <message>
         <source>Show redacted events in the timeline as &apos;Redacted&apos; instead of hiding them entirely</source>
-        <translation>Pokaż zredagowane wydarzenia na osi czasu jako „Zredagowane”, zamiast całkowicie je ukrywać</translation>
+        <translation>Zeige entfernte Ereignisse in der Historie als &apos;Entfernt&apos; anstatt sie komplett zu verbergen</translation>
+    </message>
+    <message>
+        <source>&amp;No-effect activity</source>
+        <translation>&amp;Effektlose Aktivität</translation>
     </message>
     <message>
         <source>Edit tags order</source>
-        <translation>Edytuj kolejność tagów</translation>
+        <translation>Ändere Tag-Reihenfolge</translation>
     </message>
     <message>
         <source>Tags can be wildcarded by * next to dot(s)
 Clear the box to reset to defaults
 org.qmatrixclient. tags: invite, left, direct, none</source>
-        <translation>Tagi mogą być wieloznaczne przez * obok kropek
-Wyczyść pole, aby przywrócić domyślne ustawienia
-org.qmatrixclient. tagi: zaproszone, opuszczone, bezpośrednie, brak</translation>
+        <translation>Tags können mit * als Platzhalter neben Punkten geordnet werden
+Lösche das Feld um zum Standard zurückzukehren
+&quot;org.qmatrixclient.&quot;-Tags: invite, left, direct, none</translation>
     </message>
     <message>
         <source>&amp;Room</source>
-        <translation>&amp;Pokój</translation>
+        <translation>&amp;Raum</translation>
     </message>
     <message>
         <source>Change room &amp;settings...</source>
-        <translation>Zmień &amp;ustawienia pokoju…</translation>
+        <translation>Ändere Raum-&amp;Einstellungen…</translation>
     </message>
     <message>
         <source>Create &amp;new room...</source>
-        <translation>Utwórz &amp;nowy pokój…</translation>
+        <translation>Erstelle &amp;neuen Raum…</translation>
     </message>
     <message>
         <source>&amp;Direct chat...</source>
-        <translation>&amp;Bezpośrednia rozmowa…</translation>
+        <translation>&amp;Direkter Chat…</translation>
     </message>
     <message>
         <source>&amp;Join room...</source>
-        <translation>&amp;Dołącz do pokoju…</translation>
+        <translation>Raum &amp;betreten…</translation>
     </message>
     <message>
         <source>&amp;Close current room</source>
-        <translation>&amp;Zamknij bieżący pokój</translation>
+        <translation>Aktuellen Raum &amp;Schließen</translation>
     </message>
     <message>
         <source>&amp;Settings</source>
-        <translation>&amp;Ustawienia</translation>
+        <translation>&amp;Einstellungen</translation>
     </message>
     <message>
         <source>&amp;Help</source>
-        <translation>&amp;Pomoc</translation>
+        <translation>&amp;Hilfe</translation>
     </message>
     <message>
         <source>&amp;About</source>
-        <translation>&amp;Informacje o Quaternion</translation>
+        <translation>&amp;Über</translation>
     </message>
     <message>
         <source>&amp;Highlight only</source>
-        <translation>&amp;Tylko wyróżnij</translation>
+        <translation>Nur &amp;Hervorhebungen</translation>
     </message>
     <message>
         <source>Notifications are entirely suppressed</source>
-        <translation>Powiadomienia są całkowicie tłumione</translation>
+        <translation>Benachrichtigungen werden komplett unterdrückt</translation>
     </message>
     <message>
         <source>&amp;Non-intrusive</source>
-        <translation>&amp;Nieinwazyjne</translation>
+        <translation>&amp;Nicht-Aufdringlich</translation>
     </message>
     <message>
         <source>Show notifications but do not activate the window</source>
-        <translation>Pokaż powiadomienia, ale nie aktywuj okna</translation>
+        <translation>Zeige Benachrichtigungen, aber Fenster nicht aktivieren</translation>
     </message>
     <message>
         <source>&amp;Full</source>
-        <translation>&amp;Pełne</translation>
+        <translation>&amp;Voll</translation>
     </message>
     <message>
         <source>Show notifications and activate the window</source>
-        <translation>Pokaż powiadomienia i aktywuj okno</translation>
+        <translation>Zeige Benachrichtigungen und aktiviere das Fenster</translation>
     </message>
     <message>
         <source>Notifications</source>
-        <translation>Powiadomienia</translation>
+        <translation>Benachrichtigungen</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation>Domyślny</translation>
+        <translation>Standard</translation>
+    </message>
+    <message>
+        <source>The layout with author labels above blocks of messages</source>
+        <translation>Autor-Kennung über Blöcken von Nachrichten</translation>
     </message>
     <message>
         <source>XChat</source>
         <translation>XChat</translation>
     </message>
     <message>
+        <source>The layout with author labels to the left from each message</source>
+        <translation>Autor-Kenung links von jeder Nachricht</translation>
+    </message>
+    <message>
         <source>Timeline layout</source>
-        <translation>Układ osi czasu</translation>
+        <translation>Layout der Historie</translation>
     </message>
     <message>
         <source>Load full-size images at once</source>
-        <translation>Ładuj od razu pełnowymiarowe obrazy</translation>
+        <translation>Lade Bilder in voller Größe auf einmal</translation>
     </message>
     <message>
         <source>Automatically download a full-size image instead of a thumbnail</source>
-        <translation>Automatycznie pobierz obraz w pełnym rozmiarze zamiast miniatury</translation>
+        <translation>Automatisch komplettes Bild anstelle eines Vorschaubildes laden</translation>
     </message>
     <message>
         <source>Configure &amp;network proxy...</source>
-        <translation>&amp;Konfiguruj proxy sieciowe…</translation>
+        <translation>Konfiguriere &amp;Netzwerk-Proxy…</translation>
     </message>
     <message>
         <source>Couldn&apos;t open a file to save access token</source>
-        <translation>Nie można otworzyć pliku, aby zapisać token dostępu</translation>
+        <translation>Konnte keine Datei öffnen, um den Zugangs-Token zu speichern</translation>
     </message>
     <message>
         <source>Quaternion couldn&apos;t open a file to write the access token to. You&apos;re logged in but will have to provide your password again when you restart the application.</source>
-        <translation>Quaternion nie mógł otworzyć pliku, aby zapisać token dostępu. Jesteś zalogowany, ale będziesz musiał podać hasło ponownie po ponownym uruchomieniu aplikacji.</translation>
+        <translation>Quaternion konnte keine Datei öffnen, um den Zugangs-Token darin zu speichern. Du wurdest angemeldet, wirst aber erneut ein Passwort eingeben müssen, wenn du die Anwendung neustartest.</translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t set access token file permissions</source>
+        <translation>Konnte Berechtigungen der Zugangs-Token-Datei nicht setzen</translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t restrict permissions on the access token file. Do you still want to save the access token to it?</source>
+        <translation>Quaternion konnte die Berechtigungen zur Zugangstoken-Datei nicht einschränken. Möchtest du den Zugangstoken trotzdem darin speichern?</translation>
     </message>
     <message>
         <source>Logged out as %1</source>
-        <translation>Wylogowano jako %1</translation>
+        <translation>Als %1 abmelden</translation>
     </message>
     <message>
         <source>Sync failed</source>
-        <translation>Synchronizacja nie powiodła się</translation>
+        <translation>Synchronisieren fehlgeschlagen</translation>
     </message>
     <message>
         <source>The last sync of account %1 has failed with error: %2</source>
-        <translation>Ostatnia synchronizacja konta %1 nie powiodła się z powodu błędu: %2</translation>
+        <translation>Die letzte Synchronisierung von Account %1 schlug fehl mit dem Fehler: %2</translation>
     </message>
     <message>
         <source>The last sync has failed with error: %1</source>
-        <translation>Ostatnia synchronizacja nie powiodła się z powodu błędu: %1</translation>
+        <translation>Die letzte Synchronisierung schlug fehl mit dem Fehler: %1</translation>
     </message>
     <message>
         <source>Clicking &apos;Retry&apos; will attempt to resume synchronisation;
 Clicking &apos;Cancel&apos; will stop further synchronisation of this account until logout or Quaternion restart.</source>
-        <translation>Kliknięcie „Ponów próbę” spowoduje wznowienie synchronizacji;
-Kliknięcie „Anuluj” zatrzyma dalszą synchronizację tego konta do momentu wylogowania się lub ponownego uruchomienia Quaterniona.</translation>
+        <translation>&apos;Erneut probieren&apos; wird versuchen weiter zu Synchronisieren;
+&apos;Abbrechen&apos; wird weitere Synchronisierungsversuche dieses Kontos abbrechen bis zur Abmeldung oder Quaternion-Neustart.</translation>
     </message>
     <message>
         <source>Before this server can process your information, you have to agree with its terms and conditions; please click the button below to open the web page where you can do that</source>
-        <translation>Zanim serwer ten będzie mógł przetwarzać Twoje informacje, musisz wyrazić zgodę na jego warunki; proszę kliknąć przycisk poniżej, aby otworzyć stronę internetową, na której możesz to zrobić</translation>
+        <translation>Bevor dieser Server deine Informationen verarbeiten kann, musst du den Betriebsbedingungen zustimmen. Bitte klicke auf den Button unten um eine Webseite zu öffnen, wo du dies tun kannst</translation>
     </message>
     <message>
         <source>Open web page</source>
-        <translation>Otwórz stronę internetową</translation>
+        <translation>Webseite öffnen</translation>
     </message>
     <message>
         <source>Show &amp;access token</source>
-        <translation>&amp;Pokaż token dostępu</translation>
+        <translation>Zeige &amp;Zugangs-Token</translation>
     </message>
     <message>
         <source>Access token for %1</source>
-        <translation>Token dostępu dla %1</translation>
+        <translation>Zugangs-Token für %1</translation>
     </message>
     <message>
         <source>Your access token is %1...%2; click &quot;Show details...&quot; for the full token</source>
-        <translation>Twój token dostępu to %1...%2; kliknij „Pokaż szczegóły…” dla pełnego tokena</translation>
+        <translation>Dein Zugangs-Token ist %1…%2; Klicke &quot;Zeige Details...&quot; für den kompletten Token</translation>
     </message>
     <message>
         <source>&amp;Logout</source>
-        <translation>&amp;Wyloguj</translation>
+        <translation>&amp;Abmelden</translation>
     </message>
     <message>
         <source>About Quaternion</source>
-        <translation>Informacje o Quaternion</translation>
+        <translation>Über Quaternion</translation>
     </message>
     <message>
         <source>Welcome to Quaternion</source>
-        <translation>Witamy w Quaternion</translation>
+        <translation>Willkommen bei Quaternion</translation>
     </message>
     <message>
         <source>Choose the account to join the room</source>
-        <translation>Wybierz konto, aby dołączyć do pokoju</translation>
+        <translation>Wähle Konto, um den Raum zu betreten</translation>
     </message>
     <message>
         <source>No connections</source>
-        <translation>Brak połączeń</translation>
+        <translation>Keine Verbindung</translation>
     </message>
     <message>
         <source>Please connect to a server before joining a room</source>
-        <translation>Proszę połącz się z serwerem przed dołączeniem do pokoju</translation>
+        <translation>Bitte mit einem Server verbinden, bevor du einem Raum beitrittst</translation>
     </message>
     <message>
         <source>Joining %1 as %2</source>
-        <translation>Dołączenie do %1 jako %2</translation>
+        <translation>Als %2 den Raum %1 beitreten</translation>
     </message>
     <message>
         <source>Join room %1 under account %2?</source>
-        <translation>Dołączyć do pokoju %1 na koncie %2?</translation>
+        <translation>Raum %1 mit Konto %2 betreten?</translation>
     </message>
     <message>
         <source>Join</source>
-        <translation>Dołącz</translation>
+        <translation>Betreten</translation>
     </message>
     <message>
         <source>Choose account...</source>
-        <translation>Wybierz konto…</translation>
+        <translation>Wähle Konto…</translation>
     </message>
     <message>
         <source>Enter room id or alias to join</source>
-        <translation>Wprowadź identyfikator pokoju lub alias, aby dołączyć</translation>
+        <translation>Gebe Raum-ID oder -Alias ein um beizutreten</translation>
     </message>
     <message>
         <source>Enter an id or alias of the room. You will join as %1</source>
-        <translation>Wprowadź identyfikator lub alias pokoju. Dołączysz jako %1</translation>
+        <translation>Gebe eine ID oder einen Alias des Raumes ein. Du wirst als %1 beitreten</translation>
     </message>
     <message>
         <source>No room id or alias specified</source>
-        <translation>Nie podano identyfikatora pokoju lub aliasu</translation>
+        <translation>Keinen Raum-ID oder -Alias angegeben</translation>
     </message>
     <message>
         <source>Please specify non-empty id or alias</source>
-        <translation>Proszę podać niepusty identyfikator lub alias</translation>
+        <translation>Bitte gebe einen nicht-leere Raum-ID oder -Alias an</translation>
     </message>
     <message>
         <source>Joined %1 as %2</source>
-        <translation>Dołączono %1 jako %2</translation>
+        <translation>%1 als %2 beigetreten</translation>
     </message>
     <message>
         <source>Starting direct chat with %1 as %2</source>
-        <translation>Rozpoczynanie bezpośredniej rozmowy z %1 jako %2</translation>
+        <translation>Direkter Chat mit %1 als %2 wird gestartet</translation>
     </message>
     <message>
         <source>Start direct chat with %1 under account %2?</source>
-        <translation>Rozpocząć bezpośrednią rozmowę z %1 na koncie %2?</translation>
+        <translation>Direkten Chat mit %1 über Konto %2 starten?</translation>
     </message>
     <message>
         <source>Enter user id to start direct chat.</source>
-        <translation>Wprowadź identyfikator użytkownika, aby rozpocząć bezpośrednią rozmowę.</translation>
+        <translation>Gebe Nutzer-ID ein, um direkten Chat zu starten.</translation>
     </message>
     <message>
         <source>Enter the user id of who you would like to chat with. You will join as %1</source>
-        <translation>Wprowadź identyfikator użytkownika, z którym chcesz rozmawiać. Dołączysz jako %1</translation>
+        <translation>Gebe die Nutzer-ID deines Kommunikations-Partners ein. Du wirst als %1 beitreten</translation>
     </message>
     <message>
         <source>No user id specified</source>
-        <translation>Nie określono identyfikatora użytkownika</translation>
+        <translation>Keine Nutzer-ID angegeben</translation>
     </message>
     <message>
         <source>Please specify non-empty user id</source>
-        <translation>Proszę podać niepusty identyfikator użytkownika</translation>
+        <translation>Bitte gebe eine nicht-leere Nutzer-ID an</translation>
     </message>
     <message>
         <source>Starting chat with %1 as %2</source>
-        <translation>Rozpoczynanie rozmowy z %1 jako %2</translation>
+        <translation>Starte Chat mit %1 als %2</translation>
     </message>
     <message>
         <source>Sync completed - have a good chat</source>
-        <translation>Synchronizacja zakończona — miłej rozmowy</translation>
+        <translation>Synchronisierung vollständig – viel Spaß beim Unterhalten</translation>
     </message>
     <message>
         <source>Couldn&apos;t connect to the server as %1; will retry within %2 seconds</source>
-        <translation>Nie można było połączyć się z serwerem jako %1; spróbuje ponownie w ciągu %2 sekund</translation>
+        <translation>Konnte nicht mit dem Server als %1 verbinden; Versuche es in %2 Sekunden erneut</translation>
     </message>
     <message>
         <source>Reconnecting...</source>
-        <translation>Ponowne łączenie…</translation>
+        <translation>Wiederverbinden…</translation>
     </message>
     <message>
         <source>No SSL support</source>
-        <translation>Brak obsługi SSL</translation>
+        <translation>Keine SSL-Unterstützung</translation>
     </message>
     <message>
         <source>Your SSL configuration does not allow Quaternion to establish secure connections.</source>
-        <translation>Twoja konfiguracja SSL nie zezwala Quaternionowi na ustanowienie bezpiecznych połączeń.</translation>
+        <translation>Deine SSL-Konfiguration erlaubt Quaternion nicht eine sichere Verbindung herzustellen.</translation>
     </message>
     <message>
         <source>SSL error</source>
-        <translation>Błąd SSL</translation>
+        <translation>SSL-Fehler</translation>
     </message>
     <message>
         <source>Proxy needs authentication</source>
-        <translation>Proxy wymaga uwierzytelnienia</translation>
+        <translation>Proxy braucht Authentifizierung</translation>
     </message>
     <message>
         <source>Authenticate</source>
-        <translation>Uwierzytelnij</translation>
+        <translation>Authentifizieren</translation>
     </message>
     <message>
         <source>User name</source>
-        <translation>Nazwa użytkownika</translation>
+        <translation>Nutzername</translation>
     </message>
     <message>
         <source>Password</source>
-        <translation>Hasło</translation>
+        <translation>Passwort</translation>
     </message>
     <message>
         <source>Copyright (C) 2018 QMatrixClient project.</source>
-        <translation>Copyright (C) 2018 QMatrixClient project.</translation>
+        <translation>Copyright (C) 2018 QMatrixClient-Projekt.</translation>
     </message>
     <message>
         <source>&amp;Thanks</source>
-        <translation>&amp;Podziękowania</translation>
+        <translation>&amp;Danke</translation>
     </message>
     <message>
         <source>Original project author: %1</source>
-        <translation>Pierwotny autor projektu: %1</translation>
+        <translation>Ursprünglicher Projektautor: %1</translation>
     </message>
     <message>
         <source>Web page</source>
-        <translation>Strona internetowa</translation>
+        <translation>Webseite</translation>
     </message>
     <message>
         <source>Project leader: %1</source>
-        <translation>Kierownik projektu: %1</translation>
+        <translation>Projektleiter: %1</translation>
     </message>
     <message>
         <source>Contributors:</source>
-        <translation>Współautorzy:</translation>
+        <translation>Mitwirkende:</translation>
     </message>
     <message>
         <source>Quaternion contributors @ GitHub</source>
-        <translation>Współautorzy Quaterniona na GitHubie</translation>
+        <translation>Quaternion Mitwirkende @ GitHub</translation>
     </message>
     <message>
         <source>libQMatrixClient contributors @ GitHub</source>
-        <translation>Współautorzy libQMatrixClient na GitHubie</translation>
+        <translation>libQMatrixClient Mitwirkende @ GitHub</translation>
     </message>
     <message>
         <source>Quaternion translators @ Lokalise.co</source>
-        <translation>Tłumacze Quaterniona w Lokalise.co</translation>
+        <translation>Quaternion Übersetzer @ Lokalise.co</translation>
     </message>
     <message>
         <source>Made with:</source>
-        <translation>Wykonana z:</translation>
+        <translation>Gemacht mit:</translation>
     </message>
     <message>
         <source>Show join and leave events</source>
-        <translation>Pokaż zdarzenia dołączenia i wyjścia</translation>
+        <translation>Zeige Betreten- und Verlassen-Ereignisse</translation>
+    </message>
+    <message>
+        <source>Use shuttle scrollbar (requires restart)</source>
+        <translation>Pendellaufleiste benutzen (erfordert Neustart)</translation>
+    </message>
+    <message>
+        <source>Control scroll velocity instead of position with the timeline scrollbar</source>
+        <translation>Der Laufleisten-Schieberegler fürs Gesprächsprotokoll ändert die Laufgeschwindigkeit anstatt der Position.</translation>
     </message>
     <message>
         <source>Request URL: %1
 Response:
 %2</source>
-        <translation>Żądany adres URL: %1 
-Odpowiedź: 
+        <translation>Anfrage-URL: %1
+Antwort:
 %2</translation>
     </message>
     <message>
@@ -661,118 +679,134 @@ Odpowiedź:
 Clear the box to reset to defaults
 Special tags starting with &quot;org.qmatrixclient.&quot; are: %1
 User-defined tags should start with &quot;u.&quot;</source>
-        <translation>Tagi mogą być wieloznaczne przez * obok kropek
-Wyczyść pole, aby przywrócić domyślne ustawienia
-Specjalne tagi zaczynające się od „org.qmatrixclient” to: %1
-Tagi zdefiniowane przez użytkownika powinny zaczynać się od „u”</translation>
+        <translation>In Etiketten kann ein * neben Punkt(en) als Platzhalter eingesetzt werden.
+Entferne das Häkchen, um auf die Standardeinstellungen zurückzusetzen.
+Spezielle Etiketten, die mit „org.qmatrixclient.“ beginnen, sind: %1
+Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     </message>
     <message>
         <source>Close to tray</source>
-        <translation>Zamykaj do zasobnika</translation>
+        <translation>Schließe in das Benachrichtigungsfeld.</translation>
+    </message>
+    <message>
+        <source>Make close button [X] minimize to tray instead of closing main window</source>
+        <translation>Schließen-Schaltfläche [X] minimiert in das Benachrichtigungsfeld, anstatt das Hauptfenster zu schließen.</translation>
     </message>
     <message>
         <source>Show/hide meaningless activity (join-leave pairs and redacted events between)</source>
-        <translation>Pokaż/ukryj bezsensowną aktywność (pary dołączenia, opuszczenia i zredagowanych wydarzeń pomiędzy)</translation>
+        <translation>Zeige/verberge bedeutungslose Aktivität („betreten“–„verlassen“-Paare mit retouchierten Ereignissen dazwischen)</translation>
     </message>
     <message>
         <source>Built from Git, commit SHA:</source>
-        <translation>Zbudowano z Git, commit SHA:</translation>
+        <translation>Aus Git heraus gebaut. Commit-SHA:</translation>
     </message>
     <message>
         <source>Library commit SHA:</source>
-        <translation>Commit SHA biblioteki:</translation>
+        <translation>Commit-SHA der Bibliothek:</translation>
     </message>
     <message>
         <source>Open room...</source>
-        <translation>Otwórz pokój…</translation>
+        <translation>Einen Raum öffnen…</translation>
     </message>
     <message>
         <source>Open room</source>
-        <translation>Otwórz pokój</translation>
+        <translation>Einen Raum öffnen</translation>
     </message>
     <message>
         <source>Switch to room</source>
-        <translation>Przełącz do pokoju</translation>
+        <translation>In den Raum wechseln</translation>
     </message>
     <message>
         <source>Open a room from the room list</source>
-        <translation>Otwórz pokój z listy pokoi</translation>
+        <translation>Einen Raum aus der Raumliste öffnen</translation>
+    </message>
+    <message>
+        <source>Show/hide Rooms dock panel</source>
+        <translation>Dock-Panel der Räume ein-/ausblenden</translation>
+    </message>
+    <message>
+        <source>Show/hide Users dock panel</source>
+        <translation>Benutzer-Dock-Panel ein-/ausblenden</translation>
     </message>
     <message>
         <source>Access token file found</source>
-        <translation>Znaleziono plik tokena dostępu</translation>
+        <translation>Zugriffstokendatei gefunden</translation>
     </message>
     <message>
         <source>Do you want to migrate the access token for %1 from the file to keychain?</source>
-        <translation>Czy chcesz migrować token dostępu dla %1 z pliku do pęku kluczy?</translation>
+        <translation>Möchten Sie das Zugriffstoken für %1 aus der Datei in den Schlüsselbund migrieren?</translation>
     </message>
     <message>
         <source>Couldn&apos;t migrate access token</source>
-        <translation>Nie można migrować tokena dostępu</translation>
+        <translation>Zugriffstoken konnte nicht migriert werden</translation>
     </message>
     <message>
         <source>Quaternion couldn&apos;t migrate access token %1 from the file to keychain.</source>
-        <translation>Quaternion nie mógł migrować tokena dostępu %1 z pliku do pęku kluczy.</translation>
+        <translation>Quaternion konnte das Zugriffstoken %1 aus der Datei nicht in den Schlüsselbund migrieren.</translation>
     </message>
     <message>
         <source>Couldn&apos;t save access token</source>
-        <translation>Nie można zapisać tokena dostępu</translation>
+        <translation>Zugriffstoken konnte nicht gespeichert werden.</translation>
     </message>
     <message>
         <source>Quaternion couldn&apos;t save the access token to keychain. Do you want to save the access token to file %1?</source>
-        <translation>Quaternion nie mógł zapisać tokena dostępu do pęku kluczy. Czy chcesz zapisać token dostępu do pliku %1?</translation>
+        <translation>Quaternion konnte das Zugriffstoken nicht im Schlüsselbund speichern. Möchten Sie das Zugriffstoken in der Datei %1 speichern?</translation>
     </message>
     <message>
         <source>Logging in into a logged in account</source>
-        <translation>Logowanie do zalogowanego konta</translation>
+        <translation>Einloggen in ein angemeldetes Konto</translation>
     </message>
     <message>
         <source>You&apos;re trying to log in into an account that&apos;s already logged in. Do you want to continue?</source>
-        <translation>Próbujesz się zalogować na konto, które jest już zalogowane. Chcesz kontynuować?</translation>
+        <translation>Sie versuchen, sich bei einem bereits angemeldeten Konto anzumelden. Möchten Sie fortfahren?</translation>
     </message>
     <message>
         <source>Couldn&apos;t delete access token</source>
-        <translation>Nie można usunąć tokena dostępu</translation>
+        <translation>Zugriffstoken konnte nicht gelöscht werden.</translation>
     </message>
     <message>
         <source>Quaternion couldn&apos;t delete the access token from keychain.</source>
-        <translation>Quaternion nie mógł usunąć tokena dostępu z pęku kluczy.</translation>
+        <translation>Quaternion konnte das Zugriffstoken nicht aus dem Schlüsselbund löschen.</translation>
     </message>
     <message>
         <source>Open direct chat?</source>
-        <translation>Otworzyć bezpośrednią rozmowę?</translation>
+        <translation>Direkt-Chat öffnen?</translation>
     </message>
     <message>
         <source>Open direct chat with user %1?</source>
-        <translation>Otworzyć bezpośrednią rozmowę z użytkownikiem %1?</translation>
+        <translation>Öffnen Sie einen direkten Chat mit Benutzer %1?</translation>
     </message>
     <message>
         <source>Malformed user id</source>
-        <translation>Niepoprawny identyfikator użytkownika</translation>
+        <translation>Falsche Benutzer-ID</translation>
     </message>
     <message>
         <source>%1 is not a correct user id</source>
-        <translation>%1 nie jest prawidłowym identyfikatorem użytkownika</translation>
+        <translation>% 1 ist keine korrekte Benutzer-ID</translation>
     </message>
     <message>
         <source>Room not found</source>
-        <translation>Nie znaleziono pokoju</translation>
+        <translation>Zimmer nicht gefunden</translation>
     </message>
     <message>
         <source>There&apos;s no room %1 in the room list. Check the spelling and the account.</source>
-        <translation>Nie ma pokoju %1 na liście pokoi. Sprawdź pisownię i konto.</translation>
+        <translation>Es gibt keinen Raum %1 in der Raumliste. Überprüfen Sie die Rechtschreibung und das Konto.</translation>
+    </message>
+    <message>
+        <source>Confirm your account to chat with %1</source>
+        <translation>Bestätige dein Konto, um mit %1 zu chatten.</translation>
     </message>
     <message>
         <source>Confirm your account to open %1</source>
-        <translation>Potwierdź twoje konto, aby otworzyć %1</translation>
+        <translation>Bestätigen Sie Ihr Konto, um %1 zu öffnen</translation>
     </message>
     <message>
         <source>Please connect to a server first</source>
-        <translation>Proszę najpierw połączyć się z serwerem</translation>
+        <translation>Bitte verbinden Sie sich zuerst mit einem Server</translation>
     </message>
     <message>
         <source>Confirm account</source>
-        <translation>Potwierdź konto</translation>
+        <translation>Konto bestätigen</translation>
     </message>
     <message>
         <source>Account</source>
@@ -780,253 +814,257 @@ Tagi zdefiniowane przez użytkownika powinny zaczynać się od „u”</translat
     </message>
     <message>
         <source>Enter room id or alias</source>
-        <translation>Wprowadź identyfikator pokoju lub alias</translation>
+        <translation>Gebe Raum-ID oder Alias</translation>
     </message>
     <message>
         <source>Room ID (starting with !)
 or alias (starting with #)</source>
-        <translation>Identyfikator pokoju (zaczynający się od !) 
-lub alias (zaczynający się od #)</translation>
+        <translation>Raum ID (beginnend mit !) 
+ oder Alias (beginnend mit #)</translation>
     </message>
     <message>
         <source>Confirm account to join %1</source>
-        <translation>Potwierdź konto, aby dołączyć do %1</translation>
+        <translation>Bestätigen Sie das Konto, um %1 beizutreten</translation>
     </message>
     <message>
         <source>User ID (starting with @)</source>
-        <translation>Identyfikator użytkownika (zaczynający się od @)</translation>
+        <translation>Benutzer-ID (beginnend mit @)</translation>
     </message>
     <message>
         <source>Start chat</source>
-        <translation>Rozpocznij rozmowę</translation>
+        <translation>Starte Chat</translation>
     </message>
     <message>
         <source>Room/user ID, room alias,
 or matrix.to link</source>
-        <translation>ID pokoju/użytkownika, alias pokoju, 
-lub link matrix.to</translation>
+        <translation>Raum- / Benutzer-ID, Raumalias, 
+ oder matrix.to Verknüpfung</translation>
     </message>
     <message>
         <source>Edit quote style</source>
-        <translation>Edytuj styl cytowania</translation>
+        <translation>Zitat-Stil bearbeiten</translation>
     </message>
     <message>
         <source>Markdown (prepend each line with &gt;)</source>
-        <translation>Markdown (poprzedzaj każdą linię &gt;)</translation>
+        <translation>Markdown (vor jeder Zeile mit &gt; )</translation>
     </message>
     <message>
         <source>Custom (apply regex from the config file)</source>
-        <translation>Niestandardowy (zastosuj wyrażenie regularne z pliku konfiguracyjnego)</translation>
+        <translation>Benutzerdefiniert (anwenden regex aus der Konfigurationsdatei)</translation>
     </message>
     <message>
         <source>Locale&apos;s default (%1)</source>
-        <translation>Domyślne ustawienia regionalne (%1)</translation>
+        <translation>Standard der Ländereinstellung (%1)</translation>
     </message>
     <message>
         <source>Example quote</source>
-        <translation>Przykładowy cytat</translation>
+        <translation>Beispielzitat</translation>
     </message>
     <message>
         <source>Choose the default style of quotes</source>
-        <translation>Wybierz domyślny styl cytatów</translation>
+        <translation>Wählen Sie den Standardstil für Zitate</translation>
     </message>
     <message>
         <source>Special thanks to %1 for all the testing effort</source>
-        <translation>Specjalne podziękowania dla %1 za cały wysiłek włożony w testowanie.</translation>
+        <translation>Besonderer Dank geht an %1 für all die Anstrengungen zum Testen</translation>
     </message>
     <message>
         <source>libQuotient contributors @ GitHub</source>
-        <translation>Współautorzy libQuotient na GitHubie</translation>
-    </message>
-    <message>
-        <source>Join room</source>
-        <translation>Dołącz do pokoju</translation>
+        <translation>libQuotient Mitwirkende @ GitHub</translation>
     </message>
 </context>
 <context>
     <name>MessageEventModel</name>
     <message>
         <source>Today</source>
-        <translation>Dzisiaj</translation>
+        <translation>Heute</translation>
     </message>
     <message>
         <source>Yesterday</source>
-        <translation>Wczoraj</translation>
+        <translation>Gestern</translation>
     </message>
     <message>
         <source>The day before yesterday</source>
-        <translation>Przedwczoraj</translation>
+        <translation>Vorgestern</translation>
     </message>
     <message>
         <source>Redacted</source>
-        <translation>Zredagowano</translation>
+        <translation>Entfernt</translation>
     </message>
     <message>
         <source>Redacted: %1</source>
-        <translation>zredagował(a): %1</translation>
+        <translation>Entfernt: %1</translation>
     </message>
     <message>
         <source>a file</source>
-        <translation>plik</translation>
+        <translation>eine Datei</translation>
     </message>
     <message>
         <source>reinvited %1 to the room</source>
-        <translation>ponownie zaprosił(a) %1 do pokoju</translation>
+        <translation>lud %1 erneut in den Raum ein</translation>
     </message>
     <message>
         <source>joined the room (repeated)</source>
-        <translation>dołączył(a) do pokoju (powtórzono)</translation>
+        <translation>trat dem Raum wiederholt bei</translation>
     </message>
     <message>
         <source>invited %1 to the room</source>
-        <translation>zaprosił(a) %1 do pokoju</translation>
+        <translation>lud %1 in den Raum ein</translation>
     </message>
     <message>
         <source>joined the room</source>
-        <translation>dołączył(a) do pokoju</translation>
+        <translation>trat dem Raum bei</translation>
     </message>
     <message>
         <source>cleared the display name</source>
-        <translation>wyczyścił(a) swoją wyświetlaną nazwę</translation>
+        <translation>löschte den Anzeigenamen</translation>
     </message>
     <message>
         <source>changed the display name to %1</source>
-        <translation>zmienił(a) swoją wyświetlaną nazwę na %1</translation>
+        <translation>änderte den Anzeigenamen zu %1</translation>
     </message>
     <message>
         <source>cleared the avatar</source>
-        <translation>wyczyścił(a) awatar</translation>
+        <translation>entfernte das Pofilbild</translation>
     </message>
     <message>
         <source>updated the avatar</source>
-        <translation>zaktualizował(a) awatar</translation>
+        <translation>änderte das Profilbild</translation>
     </message>
     <message>
         <source>unbanned %1</source>
-        <translation>odbanował(a) %1</translation>
+        <translation>hob Verbannung von %1 auf</translation>
+    </message>
+    <message>
+        <source>self-unbanned</source>
+        <translation>hob Verbannung von sich selbst auf</translation>
     </message>
     <message>
         <source>has put %1 out of the room</source>
-        <translation>wyrzucił(a) %1 z pokoju</translation>
+        <translation>hat %1 aus dem Raum entfernt</translation>
     </message>
     <message>
         <source>left the room</source>
-        <translation>opuścił(a) pokój</translation>
+        <translation>verließ den Raum</translation>
     </message>
     <message>
         <source>banned %1 from the room</source>
-        <translation>zbanował(a) %1 z pokoju</translation>
+        <translation>verbannte %1 aus dem Raum</translation>
+    </message>
+    <message>
+        <source>self-banned from the room</source>
+        <translation>verbannte sich selbst aus dem Raum</translation>
     </message>
     <message>
         <source>knocked</source>
-        <translation>zapukał</translation>
+        <translation>klopfte an</translation>
     </message>
     <message>
         <source>made something unknown</source>
-        <translation>zrobił(a) coś nieznanego</translation>
+        <translation>tat etwas Unbekanntes</translation>
     </message>
     <message>
         <source>set aliases to: %1</source>
-        <translation>ustawił(a) alias na: %1</translation>
+        <translation>Setzte Alias auf: %1</translation>
     </message>
     <message>
         <source>cleared the room main alias</source>
-        <translation>wyczyścił(a) główny alias pokoju</translation>
+        <translation>entfernte den Haupt-Alias des Raumes</translation>
     </message>
     <message>
         <source>set the room main alias to: %1</source>
-        <translation>ustawił(a) główny alias pokoju na: %1</translation>
+        <translation>setzte den Haupt-Alias des Raumes auf: %1</translation>
     </message>
     <message>
         <source>cleared the room name</source>
-        <translation>wyczyścił(a) nazwę pokoju</translation>
+        <translation>entfernte den Raum-Namen</translation>
     </message>
     <message>
         <source>set the room name to: %1</source>
-        <translation>ustawił(a) nazwę pokoju na %1</translation>
+        <translation>setzte den Raum-Namen auf: %1</translation>
     </message>
     <message>
         <source>cleared the topic</source>
-        <translation>wyczyścił(a) temat</translation>
+        <translation>entfernte das Thema</translation>
     </message>
     <message>
         <source>set the topic to: %1</source>
-        <translation>ustawił(a) temat na %1</translation>
+        <translation>setzte das Thema auf: %1</translation>
     </message>
     <message>
         <source>changed the room avatar</source>
-        <translation>zmienił(a) awatar pokoju</translation>
+        <translation>änderte das Raumbild</translation>
     </message>
     <message>
         <source>activated End-to-End Encryption</source>
-        <translation>aktywował(a) szyfrowanie End-to-End</translation>
+        <translation>aktivierte Ende-zu-Ende-Verschlüsselung</translation>
     </message>
     <message>
         <source>withdrew %1&apos;s invitation</source>
-        <translation>wycofał(a) zaproszenie %1</translation>
+        <translation>hat %1s Einladung zurückgezogen.</translation>
     </message>
     <message>
         <source>rejected the invitation</source>
-        <translation>odrzucił(a) zaproszenie</translation>
+        <translation>hat die Einladung abgelehnt.</translation>
     </message>
     <message>
         <source>updated the database</source>
-        <translation>zaktualizował bazę danych</translation>
+        <translation>aktualisierte die Datenbank.</translation>
     </message>
     <message>
         <source>updated %1 state</source>
-        <translation>zaktualizował(a) stan %1</translation>
+        <translation>aktualisierte Status von %1.</translation>
     </message>
     <message>
         <source>updated %1 state for %2</source>
-        <translation>zaktualizował(a) stan %1 dla %2</translation>
+        <translation>aktualisierte %1-Status für %2.</translation>
     </message>
     <message>
         <source>Unknown event</source>
-        <translation>Nieznane zdarzenie</translation>
+        <translation>Unbekanntes Ereignis</translation>
     </message>
     <message>
         <source>upgraded the room to version %1</source>
-        <translation>zaktualizował(a) pokój do wersji %1</translation>
+        <translation>Das Zimmer wurde auf Version %1 aktualisiert</translation>
     </message>
     <message>
         <source>created the room, version %1</source>
-        <translation>stworzył(a) pokój, wersja %1</translation>
+        <translation>Das Zimmer wurde erstellt, Version %1</translation>
     </message>
     <message>
         <source>has set room aliases on server %1 to: %2</source>
-        <translation>ustawił(a) alias pokoju na serwerze %1 na: %2</translation>
+        <translation>hat Raum-Aliase auf dem Server %1 auf %2 gesetzt</translation>
     </message>
     <message>
         <source>has put %1 out of the room: %2</source>
-        <translation>wyrzucił(a) %1 z pokoju: %2</translation>
+        <translation>hat %1 aus dem Raum entfernt: %2</translation>
     </message>
     <message>
         <source>banned %1 from the room: %2</source>
-        <translation>zbanował(a) %1 z pokoju: %2</translation>
+        <translation>Verbannung von %1 aus dem Raum: %2</translation>
     </message>
 </context>
 <context>
     <name>NetworkConfigDialog</name>
     <message>
         <source>Network proxy settings</source>
-        <translation>Ustawienia proxy sieciowego</translation>
+        <translation>Netzwerk Proxy-Einstellungen</translation>
     </message>
     <message>
         <source>&amp;Override system defaults</source>
-        <translation>&amp;Nadpisz domyślne ustawienia systemowe</translation>
+        <translation>&amp;System-Einstellungen überschreiben</translation>
     </message>
     <message>
         <source>&amp;No proxy</source>
-        <translation>&amp;Bez proxy</translation>
+        <translation>&amp;Kein Proxy</translation>
     </message>
     <message>
         <source>&amp;HTTP(S) proxy</source>
-        <translation>&amp;HTTP(S) proxy</translation>
+        <translation>&amp;HTTP(S) Proxy</translation>
     </message>
     <message>
         <source>&amp;SOCKS5 proxy</source>
-        <translation>&amp;SOCKS5 proxy</translation>
+        <translation>&amp;SOCKS5 Proxy</translation>
     </message>
     <message>
         <source>Host</source>
@@ -1038,18 +1076,18 @@ lub link matrix.to</translation>
     </message>
     <message>
         <source>User name</source>
-        <translation>Nazwa użytkownika</translation>
+        <translation>Nutzername</translation>
     </message>
 </context>
 <context>
     <name>RoomDialogBase</name>
     <message>
         <source>Publish room in room directory</source>
-        <translation>Opublikuj pokój w katalogu pokoju</translation>
+        <translation>Raum im Raumverzeichnis veröffentlichen</translation>
     </message>
     <message>
         <source>Allow guest accounts to join the room</source>
-        <translation>Zezwalaj kontom gości na dołączenie do pokoju</translation>
+        <translation>Erlaube Gastkonten diesen Raum zu betreten</translation>
     </message>
     <message>
         <source>Account</source>
@@ -1057,196 +1095,190 @@ lub link matrix.to</translation>
     </message>
     <message>
         <source>Room name</source>
-        <translation>Nazwa pokoju</translation>
+        <translation>Raumname</translation>
     </message>
     <message>
         <source>Primary alias</source>
-        <translation>Główny alias</translation>
+        <translation>Primärer Alias</translation>
     </message>
     <message>
         <source>Topic</source>
-        <translation>Temat</translation>
+        <translation>Thema</translation>
     </message>
     <message>
         <source>About room versions</source>
-        <translation>O wersjach pokoi</translation>
+        <translation>Über Zimmerversionen</translation>
     </message>
     <message>
         <source>(loading)</source>
-        <translation>(ładowanie)</translation>
+        <translation>(Laden)</translation>
     </message>
     <message>
         <source>default</source>
-        <translation>domyślna</translation>
+        <translation>Standard</translation>
     </message>
     <message>
         <source>stable</source>
-        <translation>stabilna</translation>
+        <translation>stabil</translation>
     </message>
     <message>
         <source>Room version</source>
-        <translation>Wersja pokoju</translation>
+        <translation>Zimmerversion</translation>
     </message>
     <message>
         <source>Continue with unstable version?</source>
-        <translation>Kontynuować z niestabilną wersją?</translation>
+        <translation>Mit instabiler Version fortfahren?</translation>
     </message>
     <message>
         <source>You are using an UNSTABLE room version (%1). The server may stop supporting it at any moment. Do you still want to use this version?</source>
-        <translation>Używasz NIESTABILNEJ wersji pokoju (%1). Serwer może przestać go obsługiwać w każdej chwili. Czy nadal chcesz używać tej wersji?</translation>
+        <translation>Sie verwenden eine INSTABILE Zimmerversion (%1). Der Server kann die Unterstützung jederzeit einstellen. Möchten Sie diese Version noch verwenden?</translation>
     </message>
 </context>
 <context>
     <name>RoomListDock</name>
     <message>
         <source>Mark room as read</source>
-        <translation>Oznacz pokój jako przeczytany</translation>
+        <translation>Markiere Raum als gelesen</translation>
     </message>
     <message>
         <source>Add tags...</source>
-        <translation>Dodaj tagi…</translation>
+        <translation>Tags hinzufügen…</translation>
     </message>
     <message>
         <source>Join room</source>
-        <translation>Dołącz do pokoju</translation>
+        <translation>Raum betreten</translation>
     </message>
     <message>
         <source>Forget room</source>
-        <translation>Zapomnij pokój</translation>
+        <translation>Raum vergessen</translation>
     </message>
     <message>
         <source>Remove tag</source>
-        <translation>Usuń tag</translation>
+        <translation>Tag entfernen</translation>
     </message>
     <message>
         <source>Reject invitation</source>
-        <translation>Odrzuć zaproszenie</translation>
+        <translation>Einladung abweisen</translation>
     </message>
     <message>
         <source>Leave room</source>
-        <translation>Opuść pokój</translation>
+        <translation>Raum verlassen</translation>
     </message>
     <message>
         <source>Enter new tags for the room</source>
-        <translation>Wprowadź nowe tagi dla pokoju</translation>
+        <translation>Neue Tags für den Raum eingeben</translation>
     </message>
     <message>
         <source>Enter tags to add to this room, one tag per line</source>
-        <translation>Wprowadź nowe tagi dla pokoju, jeden tag na linię</translation>
+        <translation>Gebe Tags für den Raum ein - ein Tag pro Zeile</translation>
     </message>
     <message>
         <source>Favourites</source>
-        <translation>Ulubione</translation>
+        <translation>Favoriten</translation>
     </message>
     <message>
         <source>Low priority</source>
-        <translation>Niski priorytet</translation>
+        <translation>Niedrige Priorität</translation>
     </message>
     <message>
         <source>Rooms (%1)</source>
-        <translation>Pokoje (%1)</translation>
+        <translation>Räume (%1)</translation>
     </message>
     <message>
         <source>Re-sort rooms (TODO)</source>
-        <translation>Ponownie posortuj pokoje (TODO)</translation>
+        <translation>Räume neu sortieren (TODO)</translation>
     </message>
     <message>
         <source>Change room &amp;settings...</source>
-        <translation>Zmień &amp;ustawienia pokoju…</translation>
+        <translation>Ändere Raum-&amp;Einstellungen...</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation>Dodaj</translation>
+        <translation>Hinzufügen</translation>
     </message>
 </context>
 <context>
     <name>RoomListModel</name>
     <message>
         <source>Invited</source>
-        <translation>Zaproszone</translation>
+        <translation>Eingeladen</translation>
     </message>
     <message>
         <source>Low priority</source>
-        <translation>Niski priorytet</translation>
+        <translation>Niedrige Priorität</translation>
     </message>
     <message>
         <source>People</source>
-        <translation>Ludzie</translation>
+        <translation>Personen</translation>
     </message>
     <message>
         <source>Ungrouped rooms</source>
-        <translation>Niezgrupowane pokoje</translation>
+        <translation>Nicht-gruppierte Räume</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation>Opuszczone</translation>
+        <translation>Verlassen</translation>
     </message>
     <message numerus="yes">
         <source>%1 (%Ln room(s))</source>
         <translation>
-            <numerusform>%1 (%Ln pokój)</numerusform>
-            <numerusform>%1 (%Ln pokoje)</numerusform>
-            <numerusform>%1 (%Ln pokojów)</numerusform>
-            <numerusform>%1 (%Ln pokojów)</numerusform>
+            <numerusform>%1 (%Ln Raum)</numerusform>
+            <numerusform>%1 (%Ln Räume)</numerusform>
         </translation>
     </message>
     <message>
         <source>%1 (as %2)</source>
-        <translation>%1 (jako %2)</translation>
+        <translation>%1 (als %2)</translation>
     </message>
     <message>
         <source>You joined this room</source>
-        <translation>Dołączyłeś(-aś) do pokoju</translation>
+        <translation>Du bist diesem Raum beigetreten</translation>
     </message>
     <message>
         <source>You left this room</source>
-        <translation>Opuściłeś(-aś) pokój</translation>
+        <translation>Du hast diesen Raum verlassen</translation>
     </message>
     <message>
         <source>You were invited into this room</source>
-        <translation>Zostałeś(-aś) zaproszony(-a) do tego pokoju</translation>
+        <translation>Du wurdest in diesen Raum eingeladen</translation>
     </message>
     <message>
         <source>Main alias: %1</source>
-        <translation>Główny alias: %1</translation>
+        <translation>Hauptalias: %1</translation>
     </message>
     <message numerus="yes">
         <source>Joined: %Ln</source>
         <translation>
-            <numerusform>Dołączeni: %Ln</numerusform>
-            <numerusform>Dołączeni: %Ln</numerusform>
-            <numerusform>Dołączeni: %Ln</numerusform>
-            <numerusform>Dołączeni: %Ln</numerusform>
+            <numerusform>Beigetreten: %L</numerusform>
+            <numerusform>Beigetreten: %L</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Invited: %Ln</source>
         <translation>
-            <numerusform>Zaproszeni: %Ln</numerusform>
-            <numerusform>Zaproszeni: %Ln</numerusform>
-            <numerusform>Zaproszeni: %Ln</numerusform>
-            <numerusform>Zaproszeni: %Ln</numerusform>
+            <numerusform>Eingeladen: %L</numerusform>
+            <numerusform>Eingeladen: %L</numerusform>
         </translation>
     </message>
     <message>
         <source>Direct chat with %1</source>
-        <translation>Bezpośrednia rozmowa z %1</translation>
+        <translation>Direkter Chat mit %1</translation>
     </message>
     <message>
         <source>The room enforces encryption</source>
-        <translation>Ten pokój wymusza szyfrowanie</translation>
+        <translation>Der Raum erzwingt Verschlüsselung</translation>
     </message>
     <message>
         <source>Unread messages: %1+</source>
-        <translation>Nieprzeczytane wiadomości: %1+</translation>
+        <translation>Ungelesene Nachrichten: %1+</translation>
     </message>
     <message>
         <source>Unread messages: %1</source>
-        <translation>Nieprzeczytane wiadomości: %1</translation>
+        <translation>Ungelesene Nachrichten: %1</translation>
     </message>
     <message>
         <source>Unread highlights: %1</source>
-        <translation>Nieprzeczytane wyróżnienia: %1</translation>
+        <translation>Ungelesene Hervorhebungen: %1</translation>
     </message>
     <message>
         <source>ID: %1</source>
@@ -1254,230 +1286,236 @@ lub link matrix.to</translation>
     </message>
     <message>
         <source>Favourites</source>
-        <translation>Ulubione</translation>
+        <translation>Favoriten</translation>
     </message>
     <message>
         <source>as %1</source>
-        <translation>jako %1</translation>
+        <translation>als %1</translation>
     </message>
     <message>
         <source>This room&apos;s version is unstable!</source>
-        <translation>Wersja tego pokoju jest niestabilna!</translation>
+        <translation>Die Version dieses Raumes ist instabil!</translation>
+    </message>
+    <message>
+        <source>Consider upgrading to a stable version (use room settings for that)</source>
+        <translation>Erwägen Sie ein Upgrade auf eine stabile Version (verwenden Sie dafür die Raumeinstellungen).</translation>
     </message>
 </context>
 <context>
     <name>RoomSettingsDialog</name>
     <message>
         <source>Room settings: %1</source>
-        <translation>Ustawienia pokoju: %1</translation>
+        <translation>Raum-Einstellungen: %1</translation>
     </message>
     <message>
         <source>Update room</source>
-        <translation>Zaktualizuj pokój</translation>
+        <translation>Raum aktualisieren</translation>
     </message>
     <message>
         <source>Tags</source>
-        <translation>Tagi</translation>
+        <translation>Tags</translation>
     </message>
     <message>
         <source>Favourites</source>
-        <translation>Ulubione</translation>
+        <translation>Favoriten</translation>
     </message>
     <message>
         <source>Low priority</source>
-        <translation>Niski priorytet</translation>
+        <translation>Niedrige Priorität</translation>
     </message>
     <message>
         <source>This version is unstable! Consider upgrading.</source>
-        <translation>Ta wersja jest niestabilna! Rozważ aktualizację.</translation>
+        <translation>Diese Version ist instabil! Erwägen Sie ein Upgrade.</translation>
     </message>
     <message>
         <source>Upgrade</source>
-        <translation>Zaktualizuj</translation>
+        <translation>Aktualisierung</translation>
     </message>
     <message>
         <source>Choose new room version</source>
-        <translation>Wybierz nową wersję pokoju</translation>
+        <translation>Neue Raumversion auswählen</translation>
     </message>
     <message>
         <source>You are about to upgrade %1.
 This operation cannot be reverted.</source>
-        <translation>Zamierzasz zaktualizować %1. 
-Ta operacja nie może zostać cofnięta.</translation>
+        <translation>Sie sind dabei, %1 zu aktualisieren. 
+Dieser Vorgang kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>Creating the new room version, please wait</source>
-        <translation>Tworzenie nowej wersji pokoju, proszę czekać</translation>
+        <translation>Die neue Raumversion wird erstellt, bitte warten</translation>
     </message>
     <message>
         <source>Room identifier</source>
-        <translation>Identyfikator pokoju</translation>
+        <translation>Raum-ID</translation>
     </message>
 </context>
 <context>
     <name>UserListDock</name>
     <message>
         <source>Users</source>
-        <translation>Użytkownicy</translation>
+        <translation>Benutzer</translation>
     </message>
     <message>
         <source>Open direct chat</source>
-        <translation>Otwórz bezpośredni czat</translation>
+        <translation>Öffne direkten Chat</translation>
     </message>
     <message>
         <source>Mention user</source>
-        <translation>Wspomnij użytkownika</translation>
+        <translation>Nutzer erwähnen</translation>
     </message>
     <message>
         <source>Search</source>
-        <translation>Szukaj</translation>
+        <translation>Suchen</translation>
     </message>
     <message>
         <source>Ignore user</source>
-        <translation>Ignoruj użytkownika</translation>
+        <translation>Benutzer ignorieren</translation>
     </message>
     <message>
         <source>Kick user</source>
-        <translation>Wyrzuć użytkownika</translation>
+        <translation>Benutzer herauswerfen</translation>
     </message>
     <message>
         <source>Ban user</source>
-        <translation>Banuj użytkownika</translation>
+        <translation>Benutzer ausschließen</translation>
     </message>
     <message>
         <source>Kick %1</source>
-        <translation>Wyrzuć %1</translation>
+        <translation>%1 rauswerfen</translation>
     </message>
     <message>
         <source>Reason</source>
-        <translation>Powód</translation>
+        <translation>Grund</translation>
     </message>
     <message>
         <source>Ban %1</source>
-        <translation>Banuj %1</translation>
+        <translation>%1 ausschließen</translation>
     </message>
     <message>
         <source>(%L1 out of %L2)</source>
-        <translation>(%L1 z %L2)</translation>
+        <translation>(%L1 von %L2)</translation>
     </message>
 </context>
 <context>
     <name>main</name>
     <message>
         <source>Display debug information</source>
-        <translation>Wyświetl informacje debugowe</translation>
+        <translation>Zeige Debug-Informationen</translation>
     </message>
     <message>
         <source>Quaternion - an IM client for the Matrix protocol</source>
-        <translation>Quaternion - komunikator internetowy dla protokołu Matrix</translation>
+        <translation>Quaternion – ein Chat-Client für das Matrix-Protokoll</translation>
     </message>
     <message>
         <source>Override locale</source>
-        <translation>Nadpisz ustawienia regionalne</translation>
+        <translation>Sprache überschreiben</translation>
     </message>
     <message>
         <source>locale</source>
-        <translation>locale</translation>
+        <translation>Sprache</translation>
     </message>
     <message>
         <source>Hide main window on startup</source>
-        <translation>Ukryj główne okno podczas uruchamiania</translation>
+        <translation>Starte mit verstecktem Hauptfenster.</translation>
     </message>
 </context>
 <context>
     <name>FileContent</name>
     <message>
         <source>Size: %1, declared type: %2</source>
-        <translation>Rozmiar: %1, zadeklarowany typ: %2</translation>
+        <translation>Größe: %1, angegebener Typ: %2</translation>
     </message>
     <message>
         <source>Open after downloading</source>
-        <translation>Otwórz po pobraniu</translation>
+        <translation>Nach dem Herunterladen öffnen</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Anuluj</translation>
+        <translation>Abbrechen</translation>
     </message>
     <message>
         <source>Save as...</source>
-        <translation>Zapisz jako…</translation>
+        <translation>Speichern als…</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation>Otwórz</translation>
+        <translation>Öffnen</translation>
     </message>
     <message>
         <source>Open folder</source>
-        <translation>Otwórz folder</translation>
+        <translation>Ordner öffnen</translation>
     </message>
     <message>
         <source>uploaded from %1</source>
-        <translation>przesłany z %1</translation>
+        <translation>hochgeladen von %1</translation>
+    </message>
+    <message>
+        <source>being uploaded from %1</source>
+        <translation>lädt hoch von %1</translation>
     </message>
     <message>
         <source>downloaded to %1</source>
-        <translation>pobrano do %1</translation>
+        <translation>nach %1 heruntergeladen</translation>
     </message>
 </context>
 <context>
     <name>ImageContent</name>
     <message>
         <source>Cancel downloading</source>
-        <translation>Anuluj pobieranie</translation>
+        <translation>Herunterladen abbrechen</translation>
     </message>
     <message>
         <source>Open externally</source>
-        <translation>Otwórz zewnętrznie</translation>
+        <translation>Extern öffnen</translation>
     </message>
     <message>
         <source>Download full size</source>
-        <translation>Pobierz pełny rozmiar</translation>
+        <translation>In voller Größe herunterladen</translation>
     </message>
     <message>
         <source>Save as...</source>
-        <translation>Zapisz jako…</translation>
+        <translation>Speichern als...</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Anuluj</translation>
+        <translation>Abbrechen</translation>
     </message>
 </context>
 <context>
     <name>TimelineItem</name>
     <message>
         <source>Resend</source>
-        <translation>Wyślij ponownie</translation>
+        <translation>Erneut senden</translation>
     </message>
     <message>
         <source>Discard</source>
-        <translation>Odrzuć</translation>
+        <translation>Verwerfen</translation>
     </message>
     <message>
         <source>Redact</source>
-        <translation>Przeredaguj</translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Copy link to clipboard</source>
-        <translation>Skopiuj link do schowka</translation>
+        <translation>In Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Quote</source>
-        <translation>Cytuj</translation>
+        <translation>Zitieren</translation>
     </message>
 </context>
 <context>
     <name>SystemTrayIcon</name>
     <message>
         <source>Highlight in %1</source>
-        <translation>Podświetlenie w %1</translation>
+        <translation>Hervorhebung in %1</translation>
     </message>
     <message numerus="yes">
         <source>%n highlight(s)</source>
         <translation>
-            <numerusform>%n podświetlenie</numerusform>
-            <numerusform>%n podświetlenia</numerusform>
-            <numerusform>%n podświetleń</numerusform>
-            <numerusform>%n podświetleń</numerusform>
+            <numerusform>%n Hervorhebung</numerusform>
+            <numerusform>%n Hervorhebungen</numerusform>
         </translation>
     </message>
 </context>
@@ -1485,22 +1523,26 @@ Ta operacja nie może zostać cofnięta.</translation>
     <name>UserListModel</name>
     <message>
         <source>Bridged from: %1</source>
-        <translation>Mostkowany(-a) z: %1</translation>
+        <translation>Überbrückt von: %1</translation>
     </message>
 </context>
 <context>
     <name>ThumbnailResponse</name>
     <message>
         <source>Image request hasn&apos;t started</source>
-        <translation>Żądanie obrazu nie zostało rozpoczęte</translation>
+        <translation>Bildanfrage wurde noch nicht gestartet.</translation>
     </message>
     <message>
         <source>Image request has been cancelled</source>
-        <translation>Żądanie obrazu zostało anulowane</translation>
+        <translation>Bildanfrage wurde abgebrochen.</translation>
+    </message>
+    <message>
+        <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
+        <translation>Die Medien-ID &apos;% 1&apos; folgt nicht dem Server / mediaId-Muster</translation>
     </message>
     <message>
         <source>No connection to perform image request</source>
-        <translation>Brak połączeń do wykonania żądania obrazu</translation>
+        <translation>Keine Verbindung zum Durchführen einer Image-Anfrage</translation>
     </message>
 </context>
 <context>
