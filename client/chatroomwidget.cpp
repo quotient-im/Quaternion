@@ -312,7 +312,7 @@ void ChatRoomWidget::setHudCaption(QString newCaption)
 
 void ChatRoomWidget::insertMention(Quotient::User* user)
 {
-    m_chatEdit->insertMention(user->displayname(m_currentRoom));
+    m_chatEdit->insertMention(user->id());
     m_chatEdit->setFocus();
 }
 
@@ -404,7 +404,32 @@ QString ChatRoomWidget::doSendInput()
 
     if (!text.startsWith('/'))
     {
-        m_currentRoom->postPlainText(text);
+        const QMatrixClient::SettingsGroup sg { QStringLiteral("UI") };
+        const QRegularExpression MxIdRegExp {
+            QStringLiteral("(^|[^<>/])(@[-0-9a-zA-Z._=/]+:[-.a-z0-9]+)")};
+
+        if (!text.contains(MxIdRegExp) || !sg.get<bool>("hyperlink_users", true))
+        {
+            m_currentRoom->postPlainText(text);
+            return {};
+        }
+
+        QString htmlText = text.toHtmlEscaped();
+        auto it = MxIdRegExp.globalMatch(text);
+        while (it.hasNext())
+        {
+            QRegularExpressionMatch match = it.next();
+
+            const QString pre = match.captured(1);
+            const QString id = match.captured(2);
+            const QString membername = m_currentRoom->roomMembername(id);
+            text.replace(pre + id, pre + membername);
+            htmlText.replace(pre + id, pre +
+                QStringLiteral(R"(<a href="https://matrix.to/#/%1">%2</a>)")
+                .arg(id, membername));
+        }
+
+        m_currentRoom->postHtmlText(text, htmlText);
         return {};
     }
     if (text[1] == '/')
@@ -596,20 +621,14 @@ QStringList ChatRoomWidget::findCompletionMatches(const QString& pattern) const
     QStringList matches;
     if (m_currentRoom)
     {
-        for(auto name: m_currentRoom->memberNames() )
+        for(auto user: m_currentRoom->users() )
         {
-            if ( name.startsWith(pattern, Qt::CaseInsensitive) )
-            {
-                int ircSuffixPos = name.indexOf(" (IRC)");
-                if ( ircSuffixPos != -1 )
-                    name.truncate(ircSuffixPos);
-                matches.append(name);
-            }
+            if ( user->id().startsWith(pattern, Qt::CaseInsensitive) )
+                matches.append(user->id());
         }
         std::sort(matches.begin(), matches.end(),
             [] (const QString& s1, const QString& s2)
                 { return s1.localeAwareCompare(s2) < 0; });
-        matches.removeDuplicates();
     }
     return matches;
 }

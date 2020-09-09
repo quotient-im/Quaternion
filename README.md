@@ -222,6 +222,8 @@ Settings not exposed in UI:
 - `UI/use_keychain` - set this to false (or 0) if you explicitly do NOT want to
   use keychain but prefer to store access token in dedicated file instead (see
   next paragraph); the default is true.
+- `UI/hyperlink_users` - set this to false (or 0) if you do NOT want to
+  hyperlink matrix user IDs in messages. By default it's true.
 
 Since version 0.0.9.4, AppImage binaries for Linux and .dmg files for macOS
 are compiled with Qt Keychain support. It means that Quaternion will try
