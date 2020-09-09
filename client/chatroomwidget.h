@@ -19,10 +19,12 @@
 
 #pragma once
 
+#include "quaternionroom.h"
+
+#include <settings.h>
+
 #include <QtWidgets/QWidget>
 #include <QtCore/QBasicTimer>
-
-#include "quaternionroom.h"
 
 #ifndef USE_QQUICKWIDGET
 #define DISABLE_QQUICKWIDGET
@@ -100,12 +102,15 @@ class ChatRoomWidget: public QWidget
         ImageProvider* m_imageProvider;
         QTemporaryFile* m_fileToAttach;
 
+        // Settings
+        Quotient::SettingsGroup m_uiSettings;
+
+        // Controls
 #ifdef DISABLE_QQUICKWIDGET
         using timelineWidget_t = QQuickView;
 #else
         using timelineWidget_t = QQuickWidget;
 #endif
-        // Controls
         timelineWidget_t* m_timelineWidget;
         QLabel* m_hudCaption; //< For typing and completion notifications
         QAction* m_attachAction;

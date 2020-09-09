@@ -60,6 +60,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     : QWidget(parent)
     , m_messageModel(new MessageEventModel(this))
     , m_currentRoom(nullptr)
+    , m_uiSettings("UI")
     , indexToMaybeRead(-1)
     , readMarkerOnScreen(false)
 {
@@ -177,12 +178,13 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
             this, &ChatRoomWidget::typingChanged);
 
     {
-        Quotient::Settings s;
         QString styleSheet;
-        const auto fontFamily = s.value("UI/Fonts/timeline_family").toString();
+        const auto& fontFamily =
+            m_uiSettings.get<QString>("Fonts/timeline_family");
         if (!fontFamily.isEmpty())
             styleSheet += "font-family: " + fontFamily + ";";
-        const auto fontPointSize = s.value("UI/Fonts/timeline_pointSize");
+        const auto& fontPointSize =
+            m_uiSettings.value("Fonts/timeline_pointSize");
         if (fontPointSize.toReal() > 0.0)
             styleSheet += "font-size: " + fontPointSize.toString() + "pt;";
         if (!styleSheet.isEmpty())
@@ -705,12 +707,11 @@ void ChatRoomWidget::onMessageShownChanged(const QString& eventId, bool shown)
 
 void ChatRoomWidget::quote(const QString& htmlText)
 {
-    Quotient::SettingsGroup sg { QStringLiteral("UI") };
-    const auto type = sg.get<int>("quote_type");
+    const auto type = m_uiSettings.get<int>("quote_type");
     const auto defaultStyle = QStringLiteral("> \\1\n");
     const auto defaultRegex = QStringLiteral("(.+)(?:\n|$)");
-    auto style = sg.get<QString>("quote_style");
-    auto regex = sg.get<QString>("quote_regex");
+    auto style = m_uiSettings.get<QString>("quote_style");
+    auto regex = m_uiSettings.get<QString>("quote_regex");
 
     if (style.isEmpty())
         style = defaultStyle;
@@ -840,7 +841,7 @@ void ChatRoomWidget::reStartShownTimer()
             indexToMaybeRead >= indicesOnScreen.back())
         return;
 
-    maybeReadTimer.start(Quotient::Settings().get<int>("UI/maybe_read_timer", 1000), this);
+    maybeReadTimer.start(m_uiSettings.get<int>("maybe_read_timer", 1000), this);
     qDebug() << "Scheduled maybe-read message update:"
              << indexToMaybeRead << "->" << indicesOnScreen.back();
 }
