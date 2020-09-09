@@ -85,15 +85,10 @@ public:
     using ItemType = std::conditional_t<ColumnN == LastTimeSeen,
                                         TimestampTableItem, QTableWidgetItem>;
 
-    static constexpr auto DefaultItemFlags =
-        Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
-
     template <Columns ColumnN>
-    static inline constexpr auto itemFlags = DefaultItemFlags;
-
-    template <>
-    static inline constexpr auto itemFlags<DeviceName> =
-        DefaultItemFlags | Qt::ItemIsEditable;
+    static inline constexpr auto itemFlags =
+        Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled
+        | Qt::ItemFlag((ColumnN == DeviceName) & Qt::ItemIsEditable);
 
     using QTableWidget::setItem;
     template <Columns ColumnN, typename DataT>
