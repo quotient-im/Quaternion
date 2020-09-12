@@ -19,10 +19,11 @@
 
 #include "chatedit.h"
 
-#include <QtCore/QMimeData>
-#include <QtGui/QKeyEvent>
-
 #include "chatroomwidget.h"
+
+#include <QtGui/QKeyEvent>
+#include <QtCore/QMimeData>
+#include <QtCore/QStringBuilder>
 
 ChatEdit::ChatEdit(ChatRoomWidget* c)
     : KChatEdit(c), chatRoomWidget(c), matchesListPosition(0)
@@ -77,12 +78,12 @@ void ChatEdit::startNewCompletion()
 {
     completionCursor = textCursor();
     completionCursor.clearSelection();
-    while ( completionCursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor) )
-    {
-        QChar firstChar = completionCursor.selectedText().at(0);
-        if (!firstChar.isLetterOrNumber() && firstChar != '@')
-        {
-            completionCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+    while (completionCursor.movePosition(QTextCursor::PreviousCharacter,
+                                         QTextCursor::KeepAnchor)) {
+        const auto& firstChar = completionCursor.selectedText().at(0);
+        if (!firstChar.isLetterOrNumber() && firstChar != '@') {
+            completionCursor.movePosition(QTextCursor::NextCharacter,
+                                          QTextCursor::KeepAnchor);
             break;
         }
     }

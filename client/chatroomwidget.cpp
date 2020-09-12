@@ -74,8 +74,8 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
         qmlRegisterAnonymousType<GetRoomEventsJob>("Quotient", 1);
 #else
         qmlRegisterType<GetRoomEventsJob>();
-        qRegisterMetaType<GetRoomEventsJob*>("GetRoomEventsJob*");
 #endif
+        qRegisterMetaType<GetRoomEventsJob*>("GetRoomEventsJob*");
         qRegisterMetaType<User*>("User*");
         qmlRegisterType<Settings>("Quotient", 1, 0, "Settings");
         qmlRegisterUncreatableType<RoomMessageEvent>("Quotient", 1, 0,

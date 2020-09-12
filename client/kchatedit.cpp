@@ -28,13 +28,13 @@ public:
     void updateAndMoveInHistory(int increment);
     void saveInput();
 
-    inline QTextDocument* makeDocument()
+    QTextDocument* makeDocument()
     {
         Q_ASSERT(contextKey);
         return new QTextDocument(contextKey);
     }
 
-    inline void setContext(QObject* newContextKey)
+    void setContext(QObject* newContextKey)
     {
         contextKey = newContextKey;
         auto& context = contexts[contextKey]; // Create if needed
@@ -45,17 +45,18 @@ public:
         if (history.isEmpty() || !history.last()->isEmpty())
             history.push_back(makeDocument());
 
-        while (history.size() > maxHistorySize) {
+        while (history.size() > maxHistorySize)
             delete history.takeFirst();
-        }
         index = history.size() - 1;
 
         // QTextDocuments are parented to the context object, so are destroyed
         // automatically along with it; but the hashmap should be cleaned up
         if (newContextKey != q)
-            q->connect(newContextKey, &QObject::destroyed, q,
-                       [this, newContextKey] { contexts.remove(newContextKey); });
-        Q_ASSERT(contexts.contains(newContextKey) && history.size() > 0);
+            QObject::connect(newContextKey, &QObject::destroyed, q,
+                             [this, newContextKey] {
+                                 contexts.remove(newContextKey);
+                             });
+        Q_ASSERT(contexts.contains(newContextKey) && !history.empty());
     }
 
     KChatEdit* q = nullptr;
