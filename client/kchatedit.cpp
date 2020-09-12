@@ -165,9 +165,12 @@ int KChatEdit::maxHistorySize() const
     return d->maxHistorySize;
 }
 
-void KChatEdit::setMaxHistorySize(int maxHistorySize)
+void KChatEdit::setMaxHistorySize(int newMaxSize)
 {
-    d->maxHistorySize = maxHistorySize;
+    if (d->maxHistorySize != newMaxSize) {
+        d->maxHistorySize = newMaxSize;
+        emit maxHistorySizeChanged();
+    }
 }
 
 void KChatEdit::switchContext(QObject* contextKey)

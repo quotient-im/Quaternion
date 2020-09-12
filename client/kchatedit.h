@@ -48,7 +48,7 @@ class KChatEdit : public QTextEdit
 {
     Q_OBJECT
     Q_PROPERTY(QTextDocument* savedInput READ savedInput NOTIFY savedInputChanged)
-    Q_PROPERTY(int maxHistorySize READ maxHistorySize WRITE setMaxHistorySize)
+    Q_PROPERTY(int maxHistorySize READ maxHistorySize WRITE setMaxHistorySize NOTIFY maxHistorySizeChanged)
 
 public:
     explicit KChatEdit(QWidget *parent = nullptr);
@@ -87,7 +87,7 @@ public:
      * Set the maximum number of input items that the history can store.
      * @see maxHistorySize()
      */
-    void setMaxHistorySize(int maxHistorySize);
+    void setMaxHistorySize(int newMaxSize);
 
     QSize minimumSizeHint() const Q_DECL_OVERRIDE;
     QSize sizeHint() const Q_DECL_OVERRIDE;
@@ -123,6 +123,8 @@ Q_SIGNALS:
 
     /** A new context has been selected */
     void contextSwitched();
+
+    void maxHistorySizeChanged();
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
