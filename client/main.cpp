@@ -61,55 +61,52 @@ void loadTranslations(
 
 int main( int argc, char* argv[] )
 {
+    QApplication::setOrganizationName(QStringLiteral("Quotient"));
+    QApplication::setApplicationName(QStringLiteral("quaternion"));
+    QApplication::setApplicationDisplayName(QStringLiteral("Quaternion"));
+    QApplication::setApplicationVersion(QStringLiteral("0.0.9.4+git"));
+    QApplication::setDesktopFileName(
+        QStringLiteral("com.github.quaternion.desktop"));
+
+    using Quotient::Settings;
+    Settings::setLegacyNames(QStringLiteral("QMatrixClient"),
+                             QStringLiteral("quaternion"));
+    Settings settings;
+
+#if defined Q_OS_UNIX && !defined Q_OS_MAC
+    // When in Flatpak and unless overridden by configuration, set the style
+    // to Breeze as it looks much fresher than Fusions that Qt applications
+    // default to in Flatpak outside KDE
+    if (const auto useBreezeStyle =
+            settings.get("UI/use_breeze_style", inFlatpak())) {
+        // Set icon theme as well to have uniform design
+        QApplication::setStyle("Breeze");
+        QIcon::setThemeName("breeze");
+#    if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        QIcon::setFallbackThemeName("breeze");
+#    endif
+    }
+#endif
+
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
     QApplication::setAttribute(Qt::AA_DisableWindowContextHelpButton);
 #endif
 
     QApplication app(argc, argv);
-    QApplication::setOrganizationName(QStringLiteral("Quotient"));
-    QApplication::setApplicationName(QStringLiteral("quaternion"));
-    QApplication::setApplicationDisplayName(QStringLiteral("Quaternion"));
-    QApplication::setApplicationVersion(QStringLiteral("0.0.9.4+git"));
-    QApplication::setDesktopFileName(QStringLiteral("com.github.quaternion.desktop"));
-
-    using Quotient::Settings;
-    Settings::setLegacyNames(QStringLiteral("QMatrixClient"),
-                             QStringLiteral("quaternion"));
-
     {
-        Settings s;
         auto font = QApplication::font();
-        if (const auto fontFamily = s.value("UI/Fonts/family");
-            !fontFamily.toString().isEmpty())
-        {
-            font.setFamily(fontFamily.toString());
-        }
+        if (const auto fontFamily = settings.get<QString>("UI/Fonts/family");
+            !fontFamily.isEmpty())
+            font.setFamily(fontFamily);
 
-        if (const auto fontPointSize = s.value("UI/Fonts/pointSize");
-            fontPointSize.toReal() > 0)
-        {
-            font.setPointSizeF(fontPointSize.toReal());
-        }
+        if (const auto fontPointSize =
+                settings.value("UI/Fonts/pointSize").toReal();
+            fontPointSize > 0)
+            font.setPointSizeF(fontPointSize);
 
         qDebug() << "Using application font:" << font.toString();
         QApplication::setFont(font);
     }
-
-#if defined Q_OS_UNIX && !defined Q_OS_MAC
-    const auto useBreezeStyle = Quotient::Settings().get("UI/use_breeze_style", inFlatpak());
-
-    // Set style to Breeze since Qt applications defaults to
-    // a very ugly Fusion style in Flatpak outside KDE
-    if (useBreezeStyle)
-    {
-        // Set icon theme as well to have uniform design
-        QApplication::setStyle("Breeze");
-        QIcon::setThemeName("breeze");
-#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
-        QIcon::setFallbackThemeName("breeze");
-#endif
-    }
-#endif
 
     // We should not need to do the following, as quitOnLastWindowClosed is
     // set to "true" by default; might be a bug, see
