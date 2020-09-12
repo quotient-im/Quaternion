@@ -33,6 +33,7 @@ class ChatEdit : public KChatEdit
 
         void triggerCompletion();
         void cancelCompletion();
+        bool isCompletionActive();
 
         void insertMention(QString author);
 
@@ -58,7 +59,11 @@ class ChatEdit : public KChatEdit
 
         bool pickingMentions = false;
 
-        void startNewCompletion();
+        /// \brief Initialise a new completion
+        ///
+        /// \return true if completion matches exist for the current entry;
+        ///         false otherwise
+        bool initCompletion();
         void appendTextAtCursor(const QString& text, bool select = false);
         void keyPressEvent(QKeyEvent* event) override;
 };

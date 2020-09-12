@@ -74,7 +74,7 @@ void ChatEdit::appendTextAtCursor(const QString& text, bool select)
         select ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor, text.size());
 }
 
-void ChatEdit::startNewCompletion()
+bool ChatEdit::initCompletion()
 {
     completionCursor = textCursor();
     completionCursor.clearSelection();
@@ -114,28 +114,32 @@ void ChatEdit::startNewCompletion()
 
 void ChatEdit::triggerCompletion()
 {
-    if (completionMatches.isEmpty())
-        startNewCompletion();
+    if (!isCompletionActive() && !initCompletion())
+        return;
 
-    if (!completionMatches.isEmpty())
-    {
-        appendTextAtCursor(
-            sanitizeMention(completionMatches.at(matchesListPosition)), true);
-        ensureCursorVisible(); // The real one, not completionCursor
-        auto completionHL = completionCursor.charFormat();
-        completionHL.setUnderlineStyle(QTextCharFormat::DashUnderline);
-        setExtraSelections({ { completionCursor, completionHL } });
-        emit proposedCompletion(completionMatches, matchesListPosition);
-        matchesListPosition = (matchesListPosition + 1) % completionMatches.length();
-    }
+    Q_ASSERT(!completionMatches.empty()
+             && matchesListPosition < completionMatches.size());
+    appendTextAtCursor(
+        sanitizeMention(completionMatches.at(matchesListPosition)), true);
+    Q_ASSERT(!completionCursor.selectedText().isEmpty());
+    ensureCursorVisible(); // The real one, not completionCursor
+    auto completionHL = completionCursor.charFormat();
+    completionHL.setUnderlineStyle(QTextCharFormat::DashUnderline);
+    setExtraSelections({ { completionCursor, completionHL } });
+    emit proposedCompletion(completionMatches, matchesListPosition);
+    matchesListPosition = (matchesListPosition + 1) % completionMatches.length();
 }
 
 void ChatEdit::cancelCompletion()
 {
     completionMatches.clear();
     setExtraSelections({});
+    Q_ASSERT(!isCompletionActive());
+
     emit cancelledCompletion();
 }
+
+bool ChatEdit::isCompletionActive() { return !completionMatches.isEmpty(); }
 
 void ChatEdit::insertMention(QString author)
 {
