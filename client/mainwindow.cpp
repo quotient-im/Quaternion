@@ -805,7 +805,7 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     QString menuCaption = accountCaption;
     if (accountRegistry.size() < 10)
         menuCaption.prepend('&' % QString::number(accountRegistry.size()) % ' ');
-    auto logoutAction = logoutMenu->addAction(menuCaption);
+    auto logoutAction = logoutMenu->addAction(menuCaption, [=] { logout(c); });
     connect(c, &Connection::destroyed, logoutMenu,
             std::bind(&QMenu::removeAction, logoutMenu, logoutAction));
     openRoomAction->setEnabled(true);
