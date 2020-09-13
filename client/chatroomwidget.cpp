@@ -709,6 +709,24 @@ QString ChatRoomWidget::sendCommand(QStringRef command, QString argString)
             QTextDocumentFragment::fromHtml(cleanHtml).toPlainText(), cleanHtml);
         return {};
     }
+    if (command == "md") {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+        // https://bugreports.qt.io/browse/QTBUG-86603
+        static constexpr auto MdFeatures = QTextDocument::MarkdownFeatures(
+            QTextDocument::MarkdownNoHTML
+            | QTextDocument::MarkdownDialectCommonMark);
+        m_chatEdit->setMarkdown(argString);
+        // TODO: doesn't work yet since sanitizeHtml doesn't support conversion
+        // of <span>s to which MD marks are exported, to Matrix-accepted HTML
+        // tags; instead, font-weight etc. are simply stripped from spans,
+        // dropping MD formatting.
+        m_currentRoom->postHtmlText(m_chatEdit->toMarkdown(MdFeatures).trimmed(),
+                                    sanitizeHtml(m_chatEdit->toHtml()));
+        return {};
+#else
+        return tr("Your build of Quaternion doesn't support Markdown");
+#endif
+    }
     if (command == "query" || command == "dc")
     {
         if (argString.isEmpty())
