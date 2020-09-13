@@ -48,6 +48,7 @@
 #include <csapi/message_pagination.h>
 #include <user.h>
 #include <connection.h>
+#include <uri.h>
 #include <settings.h>
 #include "models/messageeventmodel.h"
 #include "imageprovider.h"
@@ -144,7 +145,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
 
     m_chatEdit = new ChatEdit(this);
     m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
-    m_chatEdit->setAcceptRichText(false);
+    m_chatEdit->setAcceptRichText(true); // m_uiSettings.get("rich_text_editor", false);
     m_chatEdit->setMaximumHeight(maximumChatEditHeight());
     connect(m_chatEdit, &KChatEdit::returnPressed, this,
             &ChatRoomWidget::sendInput);
@@ -314,7 +315,10 @@ void ChatRoomWidget::setHudCaption(QString newCaption)
 
 void ChatRoomWidget::insertMention(Quotient::User* user)
 {
-    m_chatEdit->insertMention(user->id());
+    Q_ASSERT(m_currentRoom != nullptr);
+    m_chatEdit->insertMention(
+        user->displayname(m_currentRoom),
+        Quotient::Uri(user->id()).toUrl(Quotient::Uri::MatrixToUri));
     m_chatEdit->setFocus();
 }
 
@@ -618,19 +622,24 @@ void ChatRoomWidget::sendInput()
         emit showStatusMessage(result, 5000);
 }
 
-QStringList ChatRoomWidget::findCompletionMatches(const QString& pattern) const
+QVector<QPair<QString, QUrl>>
+ChatRoomWidget::findCompletionMatches(const QString& pattern) const
 {
-    QStringList matches;
+    QVector<QPair<QString, QUrl>> matches;
     if (m_currentRoom)
     {
         for(auto user: m_currentRoom->users() )
         {
-            if ( user->id().startsWith(pattern, Qt::CaseInsensitive) )
-                matches.append(user->id());
+            using Quotient::Uri;
+            if (user->displayname(m_currentRoom)
+                    .startsWith(pattern, Qt::CaseInsensitive)
+                || user->id().startsWith(pattern, Qt::CaseInsensitive))
+                matches.push_back({ user->displayname(m_currentRoom),
+                                    Uri(user->id()).toUrl(Uri::MatrixToUri) });
         }
         std::sort(matches.begin(), matches.end(),
-            [] (const QString& s1, const QString& s2)
-                { return s1.localeAwareCompare(s2) < 0; });
+            [] (const auto& p1, const auto& p2)
+                { return p1.first.localeAwareCompare(p2.first) < 0; });
     }
     return matches;
 }
