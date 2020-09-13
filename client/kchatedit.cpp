@@ -114,7 +114,8 @@ void KChatEdit::KChatEditPrivate::saveInput()
         emit q->savedInputChanged();
     } else if (input != getDocumentText(q->savedInput())) {
         // Insert a copy of the edited text just before the placeholder
-        history.insert(history.end() - 1, q->document()->clone(contextKey));
+        history.insert(history.end() - 1, q->document());
+        q->setDocument(makeDocument());
 
         if (history.size() >= maxHistorySize) {
             delete history.takeFirst();
