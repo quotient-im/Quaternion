@@ -27,6 +27,8 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QMenu>
 #include <QtGui/QClipboard>
+#include <QtGui/QTextCursor> // for last-minute message fixups before sending
+#include <QtGui/QTextDocumentFragment> // to produce plain text from /html
 #include <QtGui/QDesktopServices>
 
 #include <QtQml/QQmlContext>
@@ -41,6 +43,8 @@
 #include <QtCore/QLocale>
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QMimeData>
+#include <QtCore/QXmlStreamReader> // for sanitizeHtml()
+#include <QtCore/QXmlStreamWriter> // for sanitizeHtml()
 
 #include <events/roommessageevent.h>
 #include <events/roompowerlevelsevent.h>
@@ -53,6 +57,8 @@
 #include "models/messageeventmodel.h"
 #include "imageprovider.h"
 #include "chatedit.h"
+
+#include <stack> // for sanitizeHtml()
 
 static const auto DefaultPlaceholderText =
         ChatRoomWidget::tr("Choose a room to send messages or enter a command...");
@@ -352,39 +358,185 @@ QVector<QString> lazySplitRef(const QString& s, QChar sep, int maxParts)
     return parts;
 }
 
-QString ChatRoomWidget::doSendInput()
+std::pair<bool, QXmlStreamAttributes>
+sanitizeTag(const QStringRef& tag, const QXmlStreamAttributes& attributes = {})
 {
-    auto text = m_chatEdit->toPlainText();
-    if (!attachedFileName.isEmpty())
-    {
-        Q_ASSERT(m_currentRoom != nullptr);
-        auto txnId = m_currentRoom->postFile(text.isEmpty() ?
-                            QUrl(attachedFileName).fileName() : text,
-                        QUrl::fromLocalFile(attachedFileName));
+    using namespace std;
+    static const char* const permittedTags[] = {
+        "font",       "del", "h1",    "h2",     "h3",    "h4",     "h5",   "h6",
+        "blockquote", "p",   "a",     "ul",     "ol",    "sup",    "sub",  "li",
+        "b",          "i",   "u",     "strong", "em",    "strike", "code", "hr",
+        "br",         "div", "table", "thead",  "tbody", "tr",     "th",   "td",
+        "caption",    "pre", "span",  "img"
+    };
+    struct PassList {
+        const char* tag;
+        vector<const char*> allowedAttrs;
+    };
+    const PassList passLists[] {
+        { "font", { { "data-mx-color", "data-mx-bg-color" } } },
+        { "span", { { "data-mx-color", "data-mx-bg-color" } } },
+        { "a", { { "name", "target", "href" /* see below */ } } },
+        { "img",
+          { { "width", "height", "alt", "title", "src" /* see below */ } } },
+        { "ol", { 1, "start" } } /*, "code" - also see below */
+    };
 
-        if (m_fileToAttach->isOpen())
-            m_fileToAttach->remove();
-        attachedFileName.clear();
-        m_attachAction->setChecked(false);
-        m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
-        return {};
+    if (find(begin(permittedTags), end(permittedTags), tag) == end(permittedTags))
+        return { false, {} };
+    if (attributes.empty())
+        return { true, {} };
+
+    QXmlStreamAttributes attrsToReturn;
+    if (tag == "code") { // Special case
+        copy_if(attributes.begin(), attributes.end(),
+                back_inserter(attrsToReturn), [](const auto& a) {
+                    return a.qualifiedName() == "class"
+                           && a.value().startsWith("language-");
+                });
+        return { true, attrsToReturn };
+    }
+    const auto it =
+        find_if(begin(passLists), end(passLists),
+                [tag](const auto& passCard) { return passCard.tag == tag; });
+    if (it == end(passLists)) {
+        return { true, {} }; // Drop all attributes but allow the tag
     }
 
-    if ( text.isEmpty() )
-        return tr("There's nothing to send");
+    const auto& passList = it->allowedAttrs;
+    for (const auto& a: attributes) {
+        if (a.qualifiedName() == "href" && tag == "a") {
+            const char* const permittedSchemes[] {
+                "http:", "https:", "ftp:", "mailto:", "magnet:", "matrix:"
+            };
+            if (none_of(begin(permittedSchemes), end(permittedSchemes),
+                        [&a](const char* s) { return a.value().startsWith(s); }))
+                continue;
+        }
+        if (a.qualifiedName() == "src" && tag == "img"
+            && !a.value().startsWith("mxc:"))
+            continue;
 
-    static const auto ReFlags = QRegularExpression::DotMatchesEverythingOption;
+        if (find(passList.begin(), passList.end(), a.qualifiedName())
+            != passList.end())
+            attrsToReturn.push_back(a);
+    }
+    if (attrsToReturn.empty() && (tag == "font" || tag == "span"))
+        return { false, {} }; // No sense in these tags with attributes
 
+    return { true, attrsToReturn };
+}
+
+/*! \brief Make the passed HTML compliant with Matrix requirements
+ *
+ * This function removes HTML tags disallowed in Matrix; on top of that,
+ * it cleans away extra parts (DTD, <head>, top-level <p>, extra <span> inside
+ * hyperlinks etc.) added by Qt when exporting QTextDocument to HTML.
+ *
+ * \sa https://matrix.org/docs/spec/client_server/latest#m-room-message-msgtypes
+ */
+QString sanitizeHtml(const QString& rawHtml)
+{
+    QXmlStreamReader reader { rawHtml };
+    QString cleanHtml;
+    QXmlStreamWriter writer { &cleanHtml };
+    std::stack<std::pair<QStringRef, bool>> tagsStack;
+    writer.setAutoFormatting(false);
+    while (!reader.atEnd()) {
+        switch (reader.readNext()) {
+        case QXmlStreamReader::NoToken:
+            Q_ASSERT(false);
+            continue;
+        case QXmlStreamReader::StartDocument:
+        case QXmlStreamReader::Comment:
+        case QXmlStreamReader::DTD:
+        case QXmlStreamReader::ProcessingInstruction:
+        case QXmlStreamReader::Invalid:
+            continue;
+        case QXmlStreamReader::EndDocument:
+            Q_ASSERT(tagsStack.empty());
+            continue;
+        case QXmlStreamReader::StartElement: {
+            const auto& tagName = reader.qualifiedName();
+            if (tagName == "head" || tagName == "script") {
+                reader.skipCurrentElement();
+                continue;
+            }
+            if (tagName == "p" && !tagsStack.empty()
+                && tagsStack.top().first == "body") {
+                tagsStack.emplace(tagName, false); // Skip top-level <p>
+                continue;
+            }
+            const auto& st = sanitizeTag(tagName, reader.attributes());
+            tagsStack.emplace(tagName, st.first);
+            Q_ASSERT(tagsStack.size() <= 100); // Per The Spec
+            if (st.first) {
+                writer.writeStartElement(tagName.toString());
+                writer.writeAttributes(st.second);
+            }
+            continue;
+        }
+        case QXmlStreamReader::Characters:
+        case QXmlStreamReader::EntityReference:
+            writer.writeCurrentToken(reader);
+            continue;
+        case QXmlStreamReader::EndElement:
+            Q_ASSERT(tagsStack.top().first == reader.qualifiedName());
+            if (tagsStack.top().second)
+                writer.writeCurrentToken(reader);
+            tagsStack.pop();
+            continue;
+        }
+    }
+    if (cleanHtml.startsWith('\n')) // added after <body> as of Qt 5.15 at least
+        cleanHtml.remove(0, 1);
+
+    return cleanHtml;
+}
+
+static const auto ReFlags = QRegularExpression::DotMatchesEverythingOption
+                            | QRegularExpression::DontCaptureOption;
+
+// FIXME: copy-paste from lib/util.cpp
+static const auto ServerPartPattern =
+    QStringLiteral("(\\[[^]]+\\]|[-[:alnum:].]+)" // Either IPv6 address or
+                                                  // hostname/IPv4 address
+                   "(:\\d{1,5})?" // Optional port
+    );
+static const auto UserIdPattern =
+    QString("@[-[:alnum:]._=/]+:" % ServerPartPattern);
+
+void ChatRoomWidget::sendFile()
+{
+    Q_ASSERT(m_currentRoom != nullptr);
+    const auto& description = m_chatEdit->toPlainText();
+    auto txnId = m_currentRoom->postFile(description.isEmpty()
+                                             ? QUrl(attachedFileName).fileName()
+                                             : description,
+                                         QUrl::fromLocalFile(attachedFileName));
+
+    if (m_fileToAttach->isOpen())
+        m_fileToAttach->remove();
+    attachedFileName.clear();
+    m_attachAction->setChecked(false);
+    m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
+}
+
+void ChatRoomWidget::sendMessage()
+{
+    if (m_chatEdit->toPlainText().startsWith("//"))
+        QTextCursor(m_chatEdit->document()).deleteChar();
+
+    m_currentRoom->postHtmlText(m_chatEdit->toPlainText(),
+                                sanitizeHtml(m_chatEdit->toHtml()));
+}
+
+QString ChatRoomWidget::sendCommand(QStringRef command, QString argString)
+{
     static const QRegularExpression
-            CommandRe { QStringLiteral("^/([^ ]+)( +(.*))?\\s*$"), ReFlags },
-            RoomIdRE { QStringLiteral("^(#[-0-9a-z._=]+)|(!\\S+):\\S+$"), ReFlags },
-            UserIdRE { QStringLiteral("^@[-0-9a-zA-Z._=/]+:\\S+$"), ReFlags },
-            HtmlTagRE { QStringLiteral("<[^>]+>"), ReFlags };
-
-    // Process a command
-    const auto matches = CommandRe.match(text);
-    const auto command = matches.capturedRef(1);
-    const auto argString = matches.captured(3);
+        RoomIdRE { "^([#!][^:[:blank:]]]+):" % ServerPartPattern % '$', ReFlags },
+        UserIdRE { '^' % UserIdPattern % '$', ReFlags };
+    Q_ASSERT(RoomIdRE.isValid() && UserIdRE.isValid());
 
     // Commands available without a current room
     if (command == "join")
@@ -402,47 +554,7 @@ QString ChatRoomWidget::doSendInput()
     // --- Add more roomless commands here
     if (!m_currentRoom)
     {
-        if (text.startsWith('/'))
-            return tr("There's no such /command outside of room.");
-
-        return tr("You should select a room to send messages.");
-    }
-
-    if (!text.startsWith('/'))
-    {
-        const QMatrixClient::SettingsGroup sg { QStringLiteral("UI") };
-        const QRegularExpression MxIdRegExp {
-            QStringLiteral("(^|[^<>/])(@[-0-9a-zA-Z._=/]+:[-.a-z0-9]+)")};
-
-        if (!text.contains(MxIdRegExp) || !sg.get<bool>("hyperlink_users", true))
-        {
-            m_currentRoom->postPlainText(text);
-            return {};
-        }
-
-        QString htmlText = text.toHtmlEscaped();
-        auto it = MxIdRegExp.globalMatch(text);
-        while (it.hasNext())
-        {
-            QRegularExpressionMatch match = it.next();
-
-            const QString pre = match.captured(1);
-            const QString id = match.captured(2);
-            const QString membername = m_currentRoom->roomMembername(id);
-            text.replace(pre + id, pre + membername);
-            htmlText.replace(pre + id, pre +
-                QStringLiteral(R"(<a href="https://matrix.to/#/%1">%2</a>)")
-                .arg(id, membername));
-        }
-
-        m_currentRoom->postHtmlText(text, htmlText);
-        return {};
-    }
-    if (text[1] == '/')
-    {
-        text.remove(0, 1);
-        m_currentRoom->postPlainText(text);
-        return {};
+        return tr("There's no such /command outside of room.");
     }
 
     // Commands available only in the room context
@@ -592,10 +704,9 @@ QString ChatRoomWidget::doSendInput()
     }
     if (command == "html")
     {
-        // Very crude HTML-to-plaintext conversion - just strip all the tags
-        auto plainText = argString;
-        plainText.replace(HtmlTagRE, QString());
-        m_currentRoom->postHtmlText(plainText, argString);
+        const auto& cleanHtml = sanitizeHtml(argString);
+        m_currentRoom->postHtmlText(
+            QTextDocumentFragment::fromHtml(cleanHtml).toPlainText(), cleanHtml);
         return {};
     }
     if (command == "query" || command == "dc")
@@ -615,11 +726,33 @@ QString ChatRoomWidget::doSendInput()
 
 void ChatRoomWidget::sendInput()
 {
-    auto result = doSendInput();
-    if (result.isEmpty())
-        m_chatEdit->saveInput();
-    else
-        emit showStatusMessage(result, 5000);
+    if (!attachedFileName.isEmpty())
+        sendFile();
+    else {
+        const auto& text = m_chatEdit->toPlainText();
+        QString error;
+        if (text.isEmpty())
+            error = tr("There's nothing to send");
+        else {
+            static const QRegularExpression CommandRE {
+                "^/(?<cmd>[^ /]*)( +(?<args>.*))?\\s*$", ReFlags
+            };
+            const auto matches = CommandRE.match(text);
+            if (matches.hasMatch())
+                error = sendCommand(matches.capturedRef("cmd"),
+                                    matches.captured("args"));
+            else if (!m_currentRoom)
+                error = tr("You should select a room to send messages.");
+            else
+                sendMessage();
+        }
+        if (!error.isEmpty()) {
+            emit showStatusMessage(error, 5000);
+            return;
+        }
+    }
+
+    m_chatEdit->saveInput();
 }
 
 QVector<QPair<QString, QUrl>>

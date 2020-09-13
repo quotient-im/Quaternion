@@ -126,7 +126,9 @@ class ChatRoomWidget: public QWidget
         QString selectedText;
 
         void reStartShownTimer();
-        QString doSendInput();
+        void sendFile();
+        void sendMessage();
+        [[nodiscard]] QString sendCommand(QStringRef command, QString argString);
 
         void timerEvent(QTimerEvent* qte) override;
         void resizeEvent(QResizeEvent*) override;
