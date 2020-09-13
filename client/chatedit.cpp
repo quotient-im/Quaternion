@@ -161,8 +161,8 @@ void ChatEdit::insertMention(QString author)
     QString postfix;
     if (cursor.atStart())
         postfix = QStringLiteral(":");
-    if (pickingMentions && document()->characterAt(cursor.position()) == ':')
-    {
+    if ((pickingMentions || isCompletionActive())
+        && document()->characterAt(cursor.position()) == ':') {
         cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
         cursor.insertText(QStringLiteral(","));
         postfix = QStringLiteral(":");
@@ -174,4 +174,5 @@ void ChatEdit::insertMention(QString author)
     if (!postfix.isEmpty())
         insertPlainText(postfix);
     pickingMentions = true;
+    cancelCompletion();
 }
