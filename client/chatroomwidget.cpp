@@ -534,7 +534,7 @@ void ChatRoomWidget::sendMessage()
 QString ChatRoomWidget::sendCommand(QStringRef command, QString argString)
 {
     static const QRegularExpression
-        RoomIdRE { "^([#!][^:[:blank:]]]+):" % ServerPartPattern % '$', ReFlags },
+        RoomIdRE { "^([#!][^:[:blank:]]+):" % ServerPartPattern % '$', ReFlags },
         UserIdRE { '^' % UserIdPattern % '$', ReFlags };
     Q_ASSERT(RoomIdRE.isValid() && UserIdRE.isValid());
 
