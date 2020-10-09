@@ -265,7 +265,7 @@ QDateTime MessageEventModel::makeMessageTimestamp(
     return {};
 }
 
-QString MessageEventModel::renderDate(const QDateTime& timestamp) const
+QString MessageEventModel::renderDate(const QDateTime& timestamp)
 {
     auto date = timestamp.toLocalTime().date();
     static Quotient::SettingsGroup sg { "UI" };
