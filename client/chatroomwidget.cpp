@@ -43,8 +43,6 @@
 #include <QtCore/QLocale>
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QMimeData>
-#include <QtCore/QXmlStreamReader> // for sanitizeHtml()
-#include <QtCore/QXmlStreamWriter> // for sanitizeHtml()
 
 #include <events/roommessageevent.h>
 #include <events/roompowerlevelsevent.h>
@@ -57,8 +55,7 @@
 #include "models/messageeventmodel.h"
 #include "imageprovider.h"
 #include "chatedit.h"
-
-#include <stack> // for sanitizeHtml()
+#include "htmlfilter.h"
 
 static const auto DefaultPlaceholderText =
         ChatRoomWidget::tr("Choose a room to send messages or enter a command...");
@@ -358,142 +355,6 @@ QVector<QString> lazySplitRef(const QString& s, QChar sep, int maxParts)
     return parts;
 }
 
-std::pair<bool, QXmlStreamAttributes>
-sanitizeTag(const QStringRef& tag, const QXmlStreamAttributes& attributes = {})
-{
-    using namespace std;
-    static const char* const permittedTags[] = {
-        "font",       "del", "h1",    "h2",     "h3",    "h4",     "h5",   "h6",
-        "blockquote", "p",   "a",     "ul",     "ol",    "sup",    "sub",  "li",
-        "b",          "i",   "u",     "strong", "em",    "strike", "code", "hr",
-        "br",         "div", "table", "thead",  "tbody", "tr",     "th",   "td",
-        "caption",    "pre", "span",  "img"
-    };
-    struct PassList {
-        const char* tag;
-        vector<const char*> allowedAttrs;
-    };
-    const PassList passLists[] {
-        { "font", { { "data-mx-color", "data-mx-bg-color" } } },
-        { "span", { { "data-mx-color", "data-mx-bg-color" } } },
-        { "a", { { "name", "target", "href" /* see below */ } } },
-        { "img",
-          { { "width", "height", "alt", "title", "src" /* see below */ } } },
-        { "ol", { 1, "start" } } /*, "code" - also see below */
-    };
-
-    if (find(begin(permittedTags), end(permittedTags), tag) == end(permittedTags))
-        return { false, {} };
-    if (attributes.empty())
-        return { true, {} };
-
-    QXmlStreamAttributes attrsToReturn;
-    if (tag == "code") { // Special case
-        copy_if(attributes.begin(), attributes.end(),
-                back_inserter(attrsToReturn), [](const auto& a) {
-                    return a.qualifiedName() == "class"
-                           && a.value().startsWith("language-");
-                });
-        return { true, attrsToReturn };
-    }
-    const auto it =
-        find_if(begin(passLists), end(passLists),
-                [tag](const auto& passCard) { return passCard.tag == tag; });
-    if (it == end(passLists)) {
-        return { true, {} }; // Drop all attributes but allow the tag
-    }
-
-    const auto& passList = it->allowedAttrs;
-    for (const auto& a: attributes) {
-        if (a.qualifiedName() == "href" && tag == "a") {
-            const char* const permittedSchemes[] {
-                "http:", "https:", "ftp:", "mailto:", "magnet:", "matrix:"
-            };
-            if (none_of(begin(permittedSchemes), end(permittedSchemes),
-                        [&a](const char* s) { return a.value().startsWith(s); }))
-                continue;
-        }
-        if (a.qualifiedName() == "src" && tag == "img"
-            && !a.value().startsWith("mxc:"))
-            continue;
-
-        if (find(passList.begin(), passList.end(), a.qualifiedName())
-            != passList.end())
-            attrsToReturn.push_back(a);
-    }
-    if (attrsToReturn.empty() && (tag == "font" || tag == "span"))
-        return { false, {} }; // No sense in these tags with attributes
-
-    return { true, attrsToReturn };
-}
-
-/*! \brief Make the passed HTML compliant with Matrix requirements
- *
- * This function removes HTML tags disallowed in Matrix; on top of that,
- * it cleans away extra parts (DTD, <head>, top-level <p>, extra <span> inside
- * hyperlinks etc.) added by Qt when exporting QTextDocument to HTML.
- *
- * \sa https://matrix.org/docs/spec/client_server/latest#m-room-message-msgtypes
- */
-QString sanitizeHtml(const QString& rawHtml)
-{
-    QXmlStreamReader reader { rawHtml };
-    QString cleanHtml;
-    QXmlStreamWriter writer { &cleanHtml };
-    std::stack<std::pair<QStringRef, bool>> tagsStack;
-    writer.setAutoFormatting(false);
-    while (!reader.atEnd()) {
-        switch (reader.readNext()) {
-        case QXmlStreamReader::NoToken:
-            Q_ASSERT(false);
-            continue;
-        case QXmlStreamReader::StartDocument:
-        case QXmlStreamReader::Comment:
-        case QXmlStreamReader::DTD:
-        case QXmlStreamReader::ProcessingInstruction:
-        case QXmlStreamReader::Invalid:
-            continue;
-        case QXmlStreamReader::EndDocument:
-            Q_ASSERT(tagsStack.empty());
-            continue;
-        case QXmlStreamReader::StartElement: {
-            const auto& tagName = reader.qualifiedName();
-            if (tagName == "head" || tagName == "script") {
-                reader.skipCurrentElement();
-                continue;
-            }
-            if (tagName == "p" && !tagsStack.empty()
-                && tagsStack.top().first == "body") {
-                tagsStack.emplace(tagName, false); // Skip top-level <p>
-                continue;
-            }
-            const auto& st = sanitizeTag(tagName, reader.attributes());
-            tagsStack.emplace(tagName, st.first);
-            Q_ASSERT(tagsStack.size() <= 100); // Per The Spec
-            if (st.first) {
-                writer.writeStartElement(tagName.toString());
-                writer.writeAttributes(st.second);
-            }
-            continue;
-        }
-        case QXmlStreamReader::Characters:
-        case QXmlStreamReader::EntityReference:
-            writer.writeCurrentToken(reader);
-            continue;
-        case QXmlStreamReader::EndElement:
-            Q_ASSERT(tagsStack.top().first == reader.qualifiedName());
-            if (tagsStack.top().second)
-                writer.writeCurrentToken(reader);
-            tagsStack.pop();
-            continue;
-        }
-    }
-    if (cleanHtml.startsWith('\n')) // added after <body> as of Qt 5.15 at least
-        cleanHtml.remove(0, 1);
-
-    return cleanHtml;
-}
-
 static const auto ReFlags = QRegularExpression::DotMatchesEverythingOption
                             | QRegularExpression::DontCaptureOption;
 
@@ -527,8 +388,11 @@ void ChatRoomWidget::sendMessage()
     if (m_chatEdit->toPlainText().startsWith("//"))
         QTextCursor(m_chatEdit->document()).deleteChar();
 
-    m_currentRoom->postHtmlText(m_chatEdit->toPlainText(),
-                                sanitizeHtml(m_chatEdit->toHtml()));
+    const auto& plainText = m_chatEdit->toPlainText();
+    const auto& htmlText =
+        filterQtHtmlToMatrix(m_chatEdit->toHtml(), m_currentRoom);
+    Q_ASSERT(!plainText.isEmpty() && !htmlText.isEmpty());
+    m_currentRoom->postHtmlText(plainText, htmlText);
 }
 
 QString ChatRoomWidget::sendCommand(const QStringRef& command,
@@ -705,9 +569,16 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
     }
     if (command == "html")
     {
-        const auto& cleanHtml = sanitizeHtml(argString);
-        m_currentRoom->postHtmlText(
-            QTextDocumentFragment::fromHtml(cleanHtml).toPlainText(), cleanHtml);
+        // Assuming Matrix HTML, convert it to Qt and load to a fragment in
+        // order to produce a plain text version (maybe introduce
+        // filterMatrixHtmlToPlainText() one day instead...); then convert
+        // back to Matrix HTML to produce the (clean) rich text version
+        // of the message
+        const auto& cleanQtHtml = filterMatrixHtmlToQt(argString, m_currentRoom);
+        const auto& fragment = QTextDocumentFragment::fromHtml(cleanQtHtml);
+        m_currentRoom->postHtmlText(fragment.toPlainText(),
+                                    filterQtHtmlToMatrix(fragment.toHtml(),
+                                                         m_currentRoom));
         return {};
     }
     if (command == "md") {
@@ -717,12 +588,9 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
             QTextDocument::MarkdownNoHTML
             | QTextDocument::MarkdownDialectCommonMark);
         m_chatEdit->setMarkdown(argString);
-        // TODO: doesn't work yet since sanitizeHtml doesn't support conversion
-        // of <span>s to which MD marks are exported, to Matrix-accepted HTML
-        // tags; instead, font-weight etc. are simply stripped from spans,
-        // dropping MD formatting.
         m_currentRoom->postHtmlText(m_chatEdit->toMarkdown(MdFeatures).trimmed(),
-                                    sanitizeHtml(m_chatEdit->toHtml()));
+                                    filterQtHtmlToMatrix(m_chatEdit->toHtml(),
+                                                         m_currentRoom));
         return {};
 #else
         return tr("Your build of Quaternion doesn't support Markdown");

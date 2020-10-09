@@ -147,6 +147,7 @@ message( STATUS )
 set(quaternion_SRCS
     client/accountregistry.cpp
     client/quaternionroom.cpp
+    client/htmlfilter.cpp
     client/imageprovider.cpp
     client/activitydetector.cpp
     client/dialog.cpp
@@ -186,6 +187,7 @@ set(quaternion_TS
     client/translations/quaternion_de.ts
     client/translations/quaternion_pl.ts
     client/translations/quaternion_ru.ts
+    client/translations/quaternion_es.ts
     )
 QT5_ADD_TRANSLATION(quaternion_QM ${quaternion_TS})
 
