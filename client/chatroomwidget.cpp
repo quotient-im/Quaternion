@@ -531,7 +531,8 @@ void ChatRoomWidget::sendMessage()
                                 sanitizeHtml(m_chatEdit->toHtml()));
 }
 
-QString ChatRoomWidget::sendCommand(QStringRef command, QString argString)
+QString ChatRoomWidget::sendCommand(const QStringRef& command,
+                                    const QString& argString)
 {
     static const QRegularExpression
         RoomIdRE { "^([#!][^:[:blank:]]+):" % ServerPartPattern % '$', ReFlags },
@@ -751,19 +752,15 @@ void ChatRoomWidget::sendInput()
         QString error;
         if (text.isEmpty())
             error = tr("There's nothing to send");
-        else {
-            static const QRegularExpression CommandRE {
-                "^/(?<cmd>[^ /]*)( +(?<args>.*))?\\s*$", ReFlags
-            };
-            const auto matches = CommandRE.match(text);
-            if (matches.hasMatch())
-                error = sendCommand(matches.capturedRef("cmd"),
-                                    matches.captured("args"));
-            else if (!m_currentRoom)
-                error = tr("You should select a room to send messages.");
-            else
-                sendMessage();
-        }
+        else if (text.startsWith('/') && !text.midRef(1).startsWith('/')) {
+            QRegularExpression cmdSplit("([[:blank:]])+", ReFlags);
+            const auto& blanksMatch = cmdSplit.match(text, 1);
+            error = sendCommand(text.midRef(1, blanksMatch.capturedStart() - 1),
+                                text.mid(blanksMatch.capturedEnd()));
+        } else if (!m_currentRoom)
+            error = tr("You should select a room to send messages.");
+        else
+            sendMessage();
         if (!error.isEmpty()) {
             emit showStatusMessage(error, 5000);
             return;
