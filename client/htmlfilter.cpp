@@ -1,9 +1,10 @@
 #include "htmlfilter.h"
 
+#include <lib/util.h>
+
 #include <QtCore/QRegularExpression>
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QXmlStreamWriter>
-#include <QtCore/QDebug>
 
 #include <stack>
 
@@ -175,6 +176,25 @@ rewrite_t filterTag(const QStringRef& tag, QXmlStreamAttributes attributes,
     return rewrite;
 }
 
+void linkifyLastCharacters(QString& textBuffer, QXmlStreamWriter& writer,
+                           QString& target)
+{
+    if (textBuffer.isEmpty())
+        return;
+
+    // We want to reuse Quotient::linkifyUrls() but it works on the whole
+    // string rather than produces a stream of tokens that QXmlStreamWriter
+    // could use. So we make sure that the writer enters the "characters" state
+    // by writing a zero-length string (that may or may not work on other Qt
+    // versions...) before bootlegging a mix of characteres and `a` elements
+    // behind QXmlStreamWriter's back.
+    writer.writeCharacters({});
+    textBuffer = textBuffer.toHtmlEscaped(); // The reader unescaped it
+    Quotient::linkifyUrls(textBuffer);
+    target += textBuffer;
+    textBuffer.clear();
+}
+
 template <Direction Dir>
 QString process(QString html, [[maybe_unused]] QuaternionRoom* context)
 {
@@ -203,8 +223,15 @@ QString process(QString html, [[maybe_unused]] QuaternionRoom* context)
     QXmlStreamWriter writer(&resultHtml);
     writer.setAutoFormatting(false);
 
-    stack<int> tagsStack;
-    for (bool firstElement = true; !reader.atEnd();) {
+    /// The entry in the (outer) stack corresponds to each level in the source
+    /// document; the (inner) stack in each entry records open elements in the
+    /// target document.
+    using open_tags_t = stack<QString, vector<QString>>;
+    stack<open_tags_t, vector<open_tags_t>> tagsStack;
+    /// Accumulates characters and resolved entry references until the next
+    /// tag (opening or closing); used to linkify text parts
+    QString textBuffer;
+    for (bool firstElement = true, inAnchor = false; !reader.atEnd();) {
         switch (reader.readNext()) {
         case QXmlStreamReader::NoToken:
             Q_ASSERT(reader.tokenType() != QXmlStreamReader::NoToken /*false*/);
@@ -227,6 +254,8 @@ QString process(QString html, [[maybe_unused]] QuaternionRoom* context)
                 qDebug() << "filterHtml(): Not all HTML tags closed";
             continue;
         case QXmlStreamReader::StartElement: {
+            linkifyLastCharacters(textBuffer, writer, resultHtml);
+
             const auto& tagName = reader.qualifiedName();
             if (tagName == "head") { // Qt pushes styles in it, not interesting
                 reader.skipCurrentElement();
@@ -234,6 +263,10 @@ QString process(QString html, [[maybe_unused]] QuaternionRoom* context)
             }
             if (tagName == "html" || tagName == "body")
                 continue; // Just ignore those, get to the content
+
+            tagsStack.emplace();
+            if (tagsStack.size() > 100)
+                qCritical() << "CS API spec limits HTML tags depth at 100";
 
             // Skip the first top-level <p> and replace further top-level
             // `<p>...</p>` with `<br/>...` - kinda controversial but
@@ -244,23 +277,18 @@ QString process(QString html, [[maybe_unused]] QuaternionRoom* context)
             // e.g.). This is also a very special case where a converted tag
             // is immediately closed, unlike the one in the source text;
             // which is why it's checked here rather than in filterTag().
-            if (tagName == "p" && tagsStack.empty()) {
-                tagsStack.emplace(0);
+            if (tagName == "p" && tagsStack.size() == 1 /* just added */) {
                 if (!firstElement)
                     writer.writeEmptyElement("br");
             } else {
                 const auto& rewrite =
                     filterTag<Dir>(tagName, reader.attributes(), firstElement);
-
-                // It's only enough to remember the number of elements,
-                // as QXmlStreamWriter remembers the tag names anyway.
-                tagsStack.emplace(rewrite.size());
-                if (tagsStack.size() > 100)
-                    qCritical() << "CS API spec limits HTML tags depth at 100";
-
                 for (const auto& [tag, attrs]: rewrite) {
+                    tagsStack.top().push(tag);
                     writer.writeStartElement(tag);
                     writer.writeAttributes(attrs);
+                    if (tag == "a")
+                        inAnchor = true;
                 }
             }
             firstElement = false;
@@ -268,9 +296,19 @@ QString process(QString html, [[maybe_unused]] QuaternionRoom* context)
         }
         case QXmlStreamReader::Characters:
         case QXmlStreamReader::EntityReference:
-            writer.writeCurrentToken(reader);
+        {
+            // Outside of links, defer writing until the nearest tag (opening
+            // or closing) in order to linkify the whole text piece with all
+            // entity references resolved.
+            if (!inAnchor)
+                textBuffer += reader.text();
+            else
+                writer.writeCurrentToken(reader);
             continue;
+        }
         case QXmlStreamReader::EndElement:
+            linkifyLastCharacters(textBuffer, writer, resultHtml);
+
             if (tagsStack.empty()) {
                 const auto& tagName = reader.qualifiedName();
                 if (tagName != "body" && tagName != "html")
@@ -279,8 +317,11 @@ QString process(QString html, [[maybe_unused]] QuaternionRoom* context)
                 continue;
             }
             // Close as many elements as were opened in case StartElement
-            for (auto& i = tagsStack.top(); i > 0; --i)
+            for (auto& t = tagsStack.top(); !t.empty(); t.pop()) {
                 writer.writeEndElement();
+                if (t.top() == "a")
+                    inAnchor = false;
+            }
             tagsStack.pop();
             continue;
         }
