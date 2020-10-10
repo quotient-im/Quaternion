@@ -193,14 +193,14 @@ QString process(QString html, [[maybe_unused]] QuaternionRoom* context)
             ReOpt),
         "&amp;");
 
-    if constexpr (Dir == MatrixToQt) {
-        // Wrap in a no-op tag to make the text look like valid XML
+    // Wrap in a no-op tag to make the text look like valid XML; Qt's rich
+    // text engine produces valid XHTML so QtToMatrix doesn't need this.
+    if constexpr (Dir == MatrixToQt)
         html = "<body>" + html + "</body>";
-    }
 
     QXmlStreamReader reader(html);
-    QString cleanHtml;
-    QXmlStreamWriter writer(&cleanHtml);
+    QString resultHtml;
+    QXmlStreamWriter writer(&resultHtml);
     writer.setAutoFormatting(false);
 
     stack<int> tagsStack;
@@ -285,10 +285,10 @@ QString process(QString html, [[maybe_unused]] QuaternionRoom* context)
             continue;
         }
     }
-    if (cleanHtml.startsWith('\n')) // added after <body> as of Qt 5.15 at least
-        cleanHtml.remove(0, 1);
+    if (resultHtml.startsWith('\n')) // added after <body> as of Qt 5.15 at least
+        resultHtml.remove(0, 1);
 
-    return cleanHtml;
+    return resultHtml;
 }
 } // namespace HtmlFilter
 
