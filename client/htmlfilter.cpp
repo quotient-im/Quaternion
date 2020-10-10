@@ -185,8 +185,14 @@ QString process(QString html, [[maybe_unused]] QuaternionRoom* context)
     html.replace(QRegularExpression("<br[^/<>]*>", ReOpt), "<br />");
     html.replace(QRegularExpression("<hr[^/<>]*>", ReOpt), "<hr />");
     html.replace(QRegularExpression("<img([^/<>])*>", ReOpt), "<img\\1 />");
-    html.replace(QRegularExpression("&([[:alpha:]]*($|[^[:alpha:];]))", ReOpt),
-                 "&amp;\\1");
+    // Escape ampersands outside of character entities
+    // (HTML tolerates it, XML doesn't)
+    html.replace(
+        QRegularExpression(
+            "&(?!(#[0-9]+|#x[0-9a-fA-F]+|[[:alpha:]_][-[:alnum:]_:.]*);)",
+            ReOpt),
+        "&amp;");
+
     if constexpr (Dir == MatrixToQt) {
         // Wrap in a no-op tag to make the text look like valid XML
         html = "<body>" + html + "</body>";
