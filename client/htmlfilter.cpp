@@ -16,7 +16,7 @@ namespace HtmlFilter {
 
 enum Direction : unsigned char { QtToMatrix, MatrixToQt };
 
-constexpr const char* permittedTags[] = {
+static const QString permittedTags[] = {
     "font",       "del", "h1",    "h2",     "h3",      "h4",     "h5",   "h6",
     "blockquote", "p",   "a",     "ul",     "ol",      "sup",    "sub",  "li",
     "b",          "i",   "u",     "strong", "em",      "strike", "code", "hr",
@@ -30,13 +30,13 @@ struct PassList {
 };
 
 // See filterTag() on special processing of commented out tags/attributes
-const PassList passLists[] = {
-    { "a", { "name", "target", "href" /* only allowed schemes */ } },
-    { "img", { "width", "height", "alt", "title", "src" /* only 'mxc:' */ } },
-    { "ol", { "start" } },
-    { "font", { "color" /*, "data-mx-(bg-)?color" */ } },
-    { "span", { "color" /* "data-mx-(bg-)?color" */ } },
-    { "code", { /* "class" */ } },
+static const PassList passLists[] =
+    { { "a", { "name", "target", /* "href" - only from permittedSchemes */ } }
+    , { "img", { "width", "height", "alt", "title", /* "src" - only 'mxc:' */ } }
+    , { "ol", { "start" } }
+    , { "font", { "color", "data-mx-color", "data-mx-bg-color" } }
+    , { "span", { "color", "data-mx-color", "data-mx-bg-color" } }
+    //, { "code", { "class" /* must start with 'language-' */ } } // Special case
 };
 
 static const char* const permittedSchemes[] { "http:",   "https:",  "ftp:",
@@ -114,11 +114,14 @@ rewrite_t filterTag(const QStringRef& tag, QXmlStreamAttributes attributes,
         // Attribute conversions between Matrix and Qt subsets
 
         if constexpr (Dir == MatrixToQt) {
-            if (a.qualifiedName() == mxColorAttr)
+            if (a.qualifiedName() == mxColorAttr) {
                 addColorAttr(htmlColorAttr, a.value());
-            else if (a.qualifiedName() == mxBgColorAttr)
+                continue;
+            } else if (a.qualifiedName() == mxBgColorAttr) {
                 rewrite.front().second.append(htmlStyleAttr,
                                               "background-color:" + a.value());
+                continue;
+            }
         } else {
             if (a.qualifiedName() == htmlStyleAttr) {
                 // 'style' attribute is not allowed in Matrix; convert
@@ -155,33 +158,28 @@ rewrite_t filterTag(const QStringRef& tag, QXmlStreamAttributes attributes,
                         }
                     }
                 }
+                continue;
             } else if (a.qualifiedName() == htmlColorAttr)
-                addColorAttr(mxColorAttr, a.value());
+                addColorAttr(mxColorAttr, a.value()); // Add to 'color'
         }
 
         // Generic filtering for attributes
 
-        if (tag == "a" && a.qualifiedName() == "href") {
-            if (none_of(begin(permittedSchemes), end(permittedSchemes),
-                        [&a](const char* s) { return a.value().startsWith(s); }))
-                continue;
-        }
-        if (tag == "img" && a.qualifiedName() == "src"
-            && !a.value().startsWith("mxc:"))
-            continue;
-
-        if (find(passList.begin(), passList.end(), a.qualifiedName())
-            != passList.end())
+        if ((tag == "a" && a.qualifiedName() == "href"
+             && any_of(begin(permittedSchemes), end(permittedSchemes),
+                       [&a](const char* s) { return a.value().startsWith(s); }))
+            || (tag == "img" && a.qualifiedName() == "src"
+                && a.value().startsWith("mxc:"))
+            || find(passList.begin(), passList.end(), a.qualifiedName())
+                   != passList.end())
             rewrite.front().second.push_back(move(a));
-    }
-    rewrite.erase(remove_if(rewrite.begin(), rewrite.end(),
-                            [](const rewrite_t::value_type& i) {
-                                // No sense in these tags without attributes
-                                return i.second.empty()
-                                       && (i.first == "font"
-                                           || i.first == "span");
-                            }),
-                  rewrite.end());
+    } // for (a: attributes)
+    // Remove the original <font> or <span> if they end up without attributes
+    // since without attributes they are no-op
+    if (!rewrite.empty()
+        && (rewrite.front().first == "font" || rewrite.front().first == "span")
+        && rewrite.front().second.empty())
+        rewrite.erase(rewrite.begin());
 
     return rewrite;
 }
@@ -206,7 +204,8 @@ void linkifyLastCharacters(QString& textBuffer, QXmlStreamWriter& writer,
 }
 
 template <Direction Dir>
-QString process(QString html, [[maybe_unused]] QuaternionRoom* context)
+Result process(QString html, [[maybe_unused]] QuaternionRoom* context,
+               ParsingMode parsingMode = Tolerant)
 {
     // Since Qt doesn't have an HTML parser (outside of QTextDocument) process()
     // uses QXmlStreamReader instead, and it's quite picky about properly closed
@@ -225,16 +224,73 @@ QString process(QString html, [[maybe_unused]] QuaternionRoom* context)
             ReOpt),
         "&amp;");
 
-    // Wrap in a no-op tag to make the text look like valid XML; Qt's rich
-    // text engine produces valid XHTML so QtToMatrix doesn't need this.
-    if constexpr (Dir == MatrixToQt)
-        html = "<body>" + html + "</body>";
+    Result result;
+    if constexpr (Dir != QtToMatrix) {
+        // Catch early non-compliant tags and non-tags, before they upset
+        // the XML parser.
+        for (auto pos = html.indexOf('<'); pos != -1;
+             pos = html.indexOf('<', pos)) {
+
+            const auto& escapeLt = [&html, &pos] {
+                html.replace(pos, 1, "&lt;");
+                pos += 4; // Put pos right after &lt;
+            };
+
+            if (pos > html.size() - 3) { // No space for a complete tag
+                escapeLt();
+                continue;
+            }
+            const auto tagNamePos = pos + 1 + (html[pos + 1] == '/');
+            auto uncheckedHtml = html.midRef(tagNamePos);
+            const QLatin1String commentOpen("!--");
+            const QLatin1String commentClose("-->");
+            if (uncheckedHtml.startsWith(commentOpen)) { // Skip comments
+                pos = html.indexOf(commentClose, tagNamePos + commentOpen.size())
+                      + commentClose.size();
+                continue;
+            }
+            // Look ahead to detect stray < and escape it
+            auto gtPos = html.indexOf('>', tagNamePos);
+            if (auto nextLtPos = html.indexOf('<', tagNamePos);
+                gtPos == -1 || (nextLtPos != -1 && nextLtPos < gtPos)) {
+                escapeLt();
+                continue;
+            }
+            // Check if it's a valid (opening or closing) tag allowed in Matrix
+            auto it = find_if(begin(permittedTags), end(permittedTags),
+                              [&uncheckedHtml](const QString& tag) {
+                                  if (!(uncheckedHtml.size() > tag.size()
+                                        && uncheckedHtml.startsWith(tag)))
+                                      return false;
+                                  const auto& charAfter =
+                                      uncheckedHtml[tag.size()];
+                                  return charAfter.isSpace() || charAfter == '/'
+                                         || charAfter == '>';
+                              });
+            if (it != end(permittedTags)) { // Got a valid tag, skip to >
+                pos = gtPos + 1;
+                continue;
+            }
+            // Invalid tag or non-tag - either remove the abusing piece or stop
+            // and report
+            if (parsingMode == Validating) {
+                result.errorPos = pos;
+                result.errorString =
+                    QStringLiteral("Non-tag or disallowed tag: %1")
+                        .arg(uncheckedHtml.left(gtPos - tagNamePos));
+                return result;
+            }
+            html.remove(pos, html.indexOf('>', tagNamePos) - pos + 1);
+        }
+        // Wrap in a no-op tag to make the text look like valid XML; Qt's rich
+        // text engine produces valid XHTML so QtToMatrix doesn't need this.
+        html = "<body>" % html % "</body>";
+    }
 
     // Now for the actual parsing
 
     QXmlStreamReader reader(html);
-    QString resultHtml;
-    QXmlStreamWriter writer(&resultHtml);
+    QXmlStreamWriter writer(&result.filteredHtml);
     writer.setAutoFormatting(false);
 
     /// The entry in the (outer) stack corresponds to each level in the source
@@ -245,8 +301,13 @@ QString process(QString html, [[maybe_unused]] QuaternionRoom* context)
     /// Accumulates characters and resolved entry references until the next
     /// tag (opening or closing); used to linkify text parts
     QString textBuffer;
+    int bodyOffset = 0;
     for (bool firstElement = true, inAnchor = false; !reader.atEnd();) {
-        switch (reader.readNext()) {
+        const auto tokenType = reader.readNext();
+        if (bodyOffset == -1) // See below in 'case StartElement:'
+            bodyOffset = reader.characterOffset();
+
+        switch (tokenType) {
         case QXmlStreamReader::NoToken:
             Q_ASSERT(reader.tokenType() != QXmlStreamReader::NoToken /*false*/);
             continue;
@@ -256,9 +317,11 @@ QString process(QString html, [[maybe_unused]] QuaternionRoom* context)
         case QXmlStreamReader::ProcessingInstruction:
             continue;
         case QXmlStreamReader::Invalid:
+            result.errorPos = reader.characterOffset() - bodyOffset;
+            result.errorString = reader.errorString();
             qCritical().noquote() << "Invalid XHTML:" << html;
-            qCritical().nospace() << "Error at char " << reader.characterOffset()
-                                  << ": " << reader.errorString();
+            qCritical().nospace() << "Error at char " << result.errorPos << ": "
+                                  << result.errorString;
             qCritical().noquote()
                 << "Buffer at error:" << html.mid(reader.characterOffset());
             writer.writeEndDocument();
@@ -268,15 +331,20 @@ QString process(QString html, [[maybe_unused]] QuaternionRoom* context)
                 qDebug() << "filterHtml(): Not all HTML tags closed";
             continue;
         case QXmlStreamReader::StartElement: {
-            linkifyLastCharacters(textBuffer, writer, resultHtml);
+            linkifyLastCharacters(textBuffer, writer, result.filteredHtml);
 
             const auto& tagName = reader.qualifiedName();
             if (tagName == "head") { // Qt pushes styles in it, not interesting
                 reader.skipCurrentElement();
                 continue;
             }
-            if (tagName == "html" || tagName == "body")
-                continue; // Just ignore those, get to the content
+            if (tagName == "html")
+                continue; // Just ignore, get to the content
+
+            if (tagName == "body") { // Skip but note the encounter
+                bodyOffset = -1; // Reuse the variable until the next loop
+                continue;
+            }
 
             tagsStack.emplace();
             if (tagsStack.size() > 100)
@@ -321,7 +389,7 @@ QString process(QString html, [[maybe_unused]] QuaternionRoom* context)
             continue;
         }
         case QXmlStreamReader::EndElement:
-            linkifyLastCharacters(textBuffer, writer, resultHtml);
+            linkifyLastCharacters(textBuffer, writer, result.filteredHtml);
 
             if (tagsStack.empty()) {
                 const auto& tagName = reader.qualifiedName();
@@ -340,19 +408,24 @@ QString process(QString html, [[maybe_unused]] QuaternionRoom* context)
             continue;
         }
     }
-    if (resultHtml.startsWith('\n')) // added after <body> as of Qt 5.15 at least
-        resultHtml.remove(0, 1);
+    // Qt 5.15 (and most likely others) add a line break after <body>
+    if (result.filteredHtml.startsWith('\n'))
+        result.filteredHtml.remove(0, 1);
 
-    return resultHtml;
+    return result;
 }
+
+QString qtToMatrix(const QString& html, QuaternionRoom* context)
+{
+    const auto& result = process<QtToMatrix>(html, context);
+    Q_ASSERT(result.errorPos == -1);
+    return result.filteredHtml;
+}
+
+Result matrixToQt(const QString& html, QuaternionRoom* context,
+                  ParsingMode parsingMode)
+{
+    return process<MatrixToQt>(html, context, parsingMode);
+}
+
 } // namespace HtmlFilter
-
-QString filterQtHtmlToMatrix(const QString &html, QuaternionRoom *context)
-{
-    return HtmlFilter::process<HtmlFilter::QtToMatrix>(html, context);
-}
-
-QString filterMatrixHtmlToQt(const QString &html, QuaternionRoom *context)
-{
-    return HtmlFilter::process<HtmlFilter::MatrixToQt>(html, context);
-}

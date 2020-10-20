@@ -390,7 +390,7 @@ void ChatRoomWidget::sendMessage()
 
     const auto& plainText = m_chatEdit->toPlainText();
     const auto& htmlText =
-        filterQtHtmlToMatrix(m_chatEdit->toHtml(), m_currentRoom);
+        HtmlFilter::qtToMatrix(m_chatEdit->toHtml(), m_currentRoom);
     Q_ASSERT(!plainText.isEmpty() && !htmlText.isEmpty());
     m_currentRoom->postHtmlText(plainText, htmlText);
 }
@@ -574,11 +574,16 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         // filterMatrixHtmlToPlainText() one day instead...); then convert
         // back to Matrix HTML to produce the (clean) rich text version
         // of the message
-        const auto& cleanQtHtml = filterMatrixHtmlToQt(argString, m_currentRoom);
+        const auto& [cleanQtHtml, errorPos, errorString] =
+            HtmlFilter::matrixToQt(argString, m_currentRoom,
+                                   HtmlFilter::Validating);
+        if (errorPos != -1)
+            return tr("At pos %1: ").arg(errorPos) % errorString;
+
         const auto& fragment = QTextDocumentFragment::fromHtml(cleanQtHtml);
         m_currentRoom->postHtmlText(fragment.toPlainText(),
-                                    filterQtHtmlToMatrix(fragment.toHtml(),
-                                                         m_currentRoom));
+                                    HtmlFilter::qtToMatrix(fragment.toHtml(),
+                                                           m_currentRoom));
         return {};
     }
     if (command == "md") {
@@ -589,8 +594,8 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
             | QTextDocument::MarkdownDialectCommonMark);
         m_chatEdit->setMarkdown(argString);
         m_currentRoom->postHtmlText(m_chatEdit->toMarkdown(MdFeatures).trimmed(),
-                                    filterQtHtmlToMatrix(m_chatEdit->toHtml(),
-                                                         m_currentRoom));
+                                    HtmlFilter::qtToMatrix(m_chatEdit->toHtml(),
+                                                           m_currentRoom));
         return {};
 #else
         return tr("Your build of Quaternion doesn't support Markdown");
