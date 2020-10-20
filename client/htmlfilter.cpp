@@ -5,6 +5,8 @@
 #include <QtCore/QRegularExpression>
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QXmlStreamWriter>
+#include <QtCore/QStringBuilder>
+#include <QtCore/QDebug>
 
 #include <stack>
 
@@ -37,10 +39,13 @@ const PassList passLists[] = {
     { "code", { /* "class" */ } },
 };
 
-const auto& htmlColorAttr = QStringLiteral("color");
-const auto& htmlStyleAttr = QStringLiteral("style");
-const auto& mxColorAttr = QStringLiteral("data-mx-color");
-const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
+static const char* const permittedSchemes[] { "http:",   "https:",  "ftp:",
+                                              "mailto:", "magnet:", "matrix:" };
+
+static const auto& htmlColorAttr = QStringLiteral("color");
+static const auto& htmlStyleAttr = QStringLiteral("style");
+static const auto& mxColorAttr = QStringLiteral("data-mx-color");
+static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
 
 template <size_t Len>
 inline QStringRef cssValue(const QStringRef& css,
@@ -57,7 +62,7 @@ template <Direction Dir>
 rewrite_t filterTag(const QStringRef& tag, QXmlStreamAttributes attributes,
                     bool firstElement)
 {
-    if (tag == "mx-reply") {
+    if (tag == "mx-reply") { // Very special case
         // As per the spec, `<mx-reply>` can only come at the very
         // beginning, with no attributes allowed; and should be
         // treated as `<div>`; so deal with it as a special case
@@ -66,11 +71,8 @@ rewrite_t filterTag(const QStringRef& tag, QXmlStreamAttributes attributes,
 
         if constexpr (Dir == MatrixToQt)
             return { { "div", {} } };
-        // For QtToMatrix, just pass `<mx-reply>` to the wire in a usual way
+        // Otherwise, just pass `<mx-reply>` to the wire in a usual way
     }
-
-    if (find(begin(permittedTags), end(permittedTags), tag) == end(permittedTags))
-        return {}; // The tag is not allowed
 
     rewrite_t rewrite { { tag.toString(), {} } };
     if (tag == "code") { // Special case
@@ -81,6 +83,9 @@ rewrite_t filterTag(const QStringRef& tag, QXmlStreamAttributes attributes,
                 });
         return rewrite;
     }
+
+    if (find(begin(permittedTags), end(permittedTags), tag) == end(permittedTags))
+        return {}; // The tag is not allowed
 
     const auto it =
         find_if(begin(passLists), end(passLists),
@@ -105,6 +110,9 @@ rewrite_t filterTag(const QStringRef& tag, QXmlStreamAttributes attributes,
                 it = rewrite.insert(rewrite.end(), { "font", {} });
             it->second.append(attrName, attrValue.toString());
         };
+
+        // Attribute conversions between Matrix and Qt subsets
+
         if constexpr (Dir == MatrixToQt) {
             if (a.qualifiedName() == mxColorAttr)
                 addColorAttr(htmlColorAttr, a.value());
@@ -113,6 +121,8 @@ rewrite_t filterTag(const QStringRef& tag, QXmlStreamAttributes attributes,
                                               "background-color:" + a.value());
         } else {
             if (a.qualifiedName() == htmlStyleAttr) {
+                // 'style' attribute is not allowed in Matrix; convert
+                // everything possible to tags and other attributes
                 const auto& cssProperties = a.value().split(';');
                 for (auto p: cssProperties) {
                     p = p.trimmed();
@@ -148,10 +158,10 @@ rewrite_t filterTag(const QStringRef& tag, QXmlStreamAttributes attributes,
             } else if (a.qualifiedName() == htmlColorAttr)
                 addColorAttr(mxColorAttr, a.value());
         }
+
+        // Generic filtering for attributes
+
         if (tag == "a" && a.qualifiedName() == "href") {
-            const char* const permittedSchemes[] {
-                "http:", "https:", "ftp:", "mailto:", "magnet:", "matrix:"
-            };
             if (none_of(begin(permittedSchemes), end(permittedSchemes),
                         [&a](const char* s) { return a.value().startsWith(s); }))
                 continue;
@@ -198,12 +208,14 @@ void linkifyLastCharacters(QString& textBuffer, QXmlStreamWriter& writer,
 template <Direction Dir>
 QString process(QString html, [[maybe_unused]] QuaternionRoom* context)
 {
-    // Massage html to make it more like XHTML, since Qt doesn't have an
-    // HTML parser (outside of QTextDocument) and the XML parser is quite
-    // picky about properly closed tags and escaped ampersands.
+    // Since Qt doesn't have an HTML parser (outside of QTextDocument) process()
+    // uses QXmlStreamReader instead, and it's quite picky about properly closed
+    // tags and escaped ampersands. This helper tries to convert the passed HTML
+    // to something more XHTML-like, so that the XML reader doesn't choke on
+    // trivial things like unclosed `br` or `img` tags and unescaped ampersands
+    // in `href` attributes.
     constexpr auto ReOpt = QRegularExpression::CaseInsensitiveOption;
-    html.replace(QRegularExpression("<br[^/<>]*>", ReOpt), "<br />");
-    html.replace(QRegularExpression("<hr[^/<>]*>", ReOpt), "<hr />");
+    html.replace(QRegularExpression("<([bh]r)[^/<>]*>", ReOpt), "<\\1 />");
     html.replace(QRegularExpression("<img([^/<>])*>", ReOpt), "<img\\1 />");
     // Escape ampersands outside of character entities
     // (HTML tolerates it, XML doesn't)
@@ -217,6 +229,8 @@ QString process(QString html, [[maybe_unused]] QuaternionRoom* context)
     // text engine produces valid XHTML so QtToMatrix doesn't need this.
     if constexpr (Dir == MatrixToQt)
         html = "<body>" + html + "</body>";
+
+    // Now for the actual parsing
 
     QXmlStreamReader reader(html);
     QString resultHtml;
