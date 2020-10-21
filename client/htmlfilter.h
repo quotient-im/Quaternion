@@ -1,6 +1,7 @@
 #pragma once
 
-#include <QString>
+#include <QtCore/QMetaType> // For Q_NAMESPACE and Q_DECLARE_METATYPE
+#include <QtCore/QString>
 
 class QuaternionRoom;
 
