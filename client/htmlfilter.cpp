@@ -275,9 +275,8 @@ Result process(QString html, [[maybe_unused]] QuaternionRoom* context,
             // and report
             if (parsingMode == Validating) {
                 result.errorPos = pos;
-                result.errorString =
-                    QStringLiteral("Non-tag or disallowed tag: %1")
-                        .arg(uncheckedHtml.left(gtPos - tagNamePos));
+                result.errorString = "Non-tag or disallowed tag: "
+                                     % uncheckedHtml.left(gtPos - tagNamePos);
                 return result;
             }
             html.remove(pos, html.indexOf('>', tagNamePos) - pos + 1);
