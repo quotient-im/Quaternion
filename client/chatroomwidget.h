@@ -55,7 +55,7 @@ class ChatRoomWidget: public QWidget
         void enableDebug();
         bool pendingMarkRead() const;
 
-        QStringList findCompletionMatches(const QString& pattern) const;
+        QVector<QPair<QString, QUrl> > findCompletionMatches(const QString& pattern) const;
         Q_INVOKABLE Qt::KeyboardModifiers getModifierKeys() const;
 
     signals:
@@ -126,7 +126,9 @@ class ChatRoomWidget: public QWidget
         QString selectedText;
 
         void reStartShownTimer();
-        QString doSendInput();
+        void sendFile();
+        void sendMessage();
+        [[nodiscard]] QString sendCommand(const QStringRef &command, const QString &argString);
 
         void timerEvent(QTimerEvent* qte) override;
         void resizeEvent(QResizeEvent*) override;

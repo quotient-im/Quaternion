@@ -69,7 +69,7 @@ class MessageEventModel: public QAbstractListModel
 
         int timelineBaseIndex() const;
         QDateTime makeMessageTimestamp(const QuaternionRoom::rev_iter_t& baseIt) const;
-        QString renderDate(const QDateTime& timestamp) const;
+        static QString renderDate(const QDateTime& timestamp);
         bool isUserActivityNotable(const QuaternionRoom::rev_iter_t& baseIt) const;
 
         void refreshLastUserEvents(int baseTimelineRow);

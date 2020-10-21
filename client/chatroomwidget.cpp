@@ -27,6 +27,8 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QMenu>
 #include <QtGui/QClipboard>
+#include <QtGui/QTextCursor> // for last-minute message fixups before sending
+#include <QtGui/QTextDocumentFragment> // to produce plain text from /html
 #include <QtGui/QDesktopServices>
 
 #include <QtQml/QQmlContext>
@@ -48,10 +50,12 @@
 #include <csapi/message_pagination.h>
 #include <user.h>
 #include <connection.h>
+#include <uri.h>
 #include <settings.h>
 #include "models/messageeventmodel.h"
 #include "imageprovider.h"
 #include "chatedit.h"
+#include "htmlfilter.h"
 
 static const auto DefaultPlaceholderText =
         ChatRoomWidget::tr("Choose a room to send messages or enter a command...");
@@ -74,8 +78,8 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
         qmlRegisterAnonymousType<GetRoomEventsJob>("Quotient", 1);
 #else
         qmlRegisterType<GetRoomEventsJob>();
-        qRegisterMetaType<GetRoomEventsJob*>("GetRoomEventsJob*");
 #endif
+        qRegisterMetaType<GetRoomEventsJob*>("GetRoomEventsJob*");
         qRegisterMetaType<User*>("User*");
         qmlRegisterType<Settings>("Quotient", 1, 0, "Settings");
         qmlRegisterUncreatableType<RoomMessageEvent>("Quotient", 1, 0,
@@ -144,7 +148,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
 
     m_chatEdit = new ChatEdit(this);
     m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
-    m_chatEdit->setAcceptRichText(false);
+    m_chatEdit->setAcceptRichText(true); // m_uiSettings.get("rich_text_editor", false);
     m_chatEdit->setMaximumHeight(maximumChatEditHeight());
     connect(m_chatEdit, &KChatEdit::returnPressed, this,
             &ChatRoomWidget::sendInput);
@@ -314,7 +318,10 @@ void ChatRoomWidget::setHudCaption(QString newCaption)
 
 void ChatRoomWidget::insertMention(Quotient::User* user)
 {
-    m_chatEdit->insertMention(user->id());
+    Q_ASSERT(m_currentRoom != nullptr);
+    m_chatEdit->insertMention(
+        user->displayname(m_currentRoom),
+        Quotient::Uri(user->id()).toUrl(Quotient::Uri::MatrixToUri));
     m_chatEdit->setFocus();
 }
 
@@ -348,39 +355,53 @@ QVector<QString> lazySplitRef(const QString& s, QChar sep, int maxParts)
     return parts;
 }
 
-QString ChatRoomWidget::doSendInput()
+static const auto ReFlags = QRegularExpression::DotMatchesEverythingOption
+                            | QRegularExpression::DontCaptureOption;
+
+// FIXME: copy-paste from lib/util.cpp
+static const auto ServerPartPattern =
+    QStringLiteral("(\\[[^]]+\\]|[-[:alnum:].]+)" // Either IPv6 address or
+                                                  // hostname/IPv4 address
+                   "(:\\d{1,5})?" // Optional port
+    );
+static const auto UserIdPattern =
+    QString("@[-[:alnum:]._=/]+:" % ServerPartPattern);
+
+void ChatRoomWidget::sendFile()
 {
-    auto text = m_chatEdit->toPlainText();
-    if (!attachedFileName.isEmpty())
-    {
-        Q_ASSERT(m_currentRoom != nullptr);
-        auto txnId = m_currentRoom->postFile(text.isEmpty() ?
-                            QUrl(attachedFileName).fileName() : text,
-                        QUrl::fromLocalFile(attachedFileName));
+    Q_ASSERT(m_currentRoom != nullptr);
+    const auto& description = m_chatEdit->toPlainText();
+    auto txnId = m_currentRoom->postFile(description.isEmpty()
+                                             ? QUrl(attachedFileName).fileName()
+                                             : description,
+                                         QUrl::fromLocalFile(attachedFileName));
 
-        if (m_fileToAttach->isOpen())
-            m_fileToAttach->remove();
-        attachedFileName.clear();
-        m_attachAction->setChecked(false);
-        m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
-        return {};
-    }
+    if (m_fileToAttach->isOpen())
+        m_fileToAttach->remove();
+    attachedFileName.clear();
+    m_attachAction->setChecked(false);
+    m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
+}
 
-    if ( text.isEmpty() )
-        return tr("There's nothing to send");
+void ChatRoomWidget::sendMessage()
+{
+    if (m_chatEdit->toPlainText().startsWith("//"))
+        QTextCursor(m_chatEdit->document()).deleteChar();
 
-    static const auto ReFlags = QRegularExpression::DotMatchesEverythingOption;
+    const auto& plainText = m_chatEdit->toPlainText();
+    const auto& htmlText =
+        HtmlFilter::qtToMatrix(m_chatEdit->toHtml(), m_currentRoom);
+    Q_ASSERT(!plainText.isEmpty() && !htmlText.isEmpty());
+    m_currentRoom->postHtmlText(plainText, htmlText);
+}
 
+QString ChatRoomWidget::sendCommand(const QStringRef& command,
+                                    const QString& argString)
+{
     static const QRegularExpression
-            CommandRe { QStringLiteral("^/([^ ]+)( +(.*))?\\s*$"), ReFlags },
-            RoomIdRE { QStringLiteral("^(#[-0-9a-z._=]+)|(!\\S+):\\S+$"), ReFlags },
-            UserIdRE { QStringLiteral("^@[-0-9a-zA-Z._=/]+:\\S+$"), ReFlags },
-            HtmlTagRE { QStringLiteral("<[^>]+>"), ReFlags };
-
-    // Process a command
-    const auto matches = CommandRe.match(text);
-    const auto command = matches.capturedRef(1);
-    const auto argString = matches.captured(3);
+        RoomIdRE { "^([#!][^:[:blank:]]+):" % ServerPartPattern % '$', ReFlags },
+        UserIdRE { '^' % UserIdPattern % '$', ReFlags };
+    Q_ASSERT(RoomIdRE.isValid() && UserIdRE.isValid());
 
     // Commands available without a current room
     if (command == "join")
@@ -398,47 +419,7 @@ QString ChatRoomWidget::doSendInput()
     // --- Add more roomless commands here
     if (!m_currentRoom)
     {
-        if (text.startsWith('/'))
-            return tr("There's no such /command outside of room.");
-
-        return tr("You should select a room to send messages.");
-    }
-
-    if (!text.startsWith('/'))
-    {
-        const QMatrixClient::SettingsGroup sg { QStringLiteral("UI") };
-        const QRegularExpression MxIdRegExp {
-            QStringLiteral("(^|[^<>/])(@[-0-9a-zA-Z._=/]+:[-.a-z0-9]+)")};
-
-        if (!text.contains(MxIdRegExp) || !sg.get<bool>("hyperlink_users", true))
-        {
-            m_currentRoom->postPlainText(text);
-            return {};
-        }
-
-        QString htmlText = text.toHtmlEscaped();
-        auto it = MxIdRegExp.globalMatch(text);
-        while (it.hasNext())
-        {
-            QRegularExpressionMatch match = it.next();
-
-            const QString pre = match.captured(1);
-            const QString id = match.captured(2);
-            const QString membername = m_currentRoom->roomMembername(id);
-            text.replace(pre + id, pre + membername);
-            htmlText.replace(pre + id, pre +
-                QStringLiteral(R"(<a href="https://matrix.to/#/%1">%2</a>)")
-                .arg(id, membername));
-        }
-
-        m_currentRoom->postHtmlText(text, htmlText);
-        return {};
-    }
-    if (text[1] == '/')
-    {
-        text.remove(0, 1);
-        m_currentRoom->postPlainText(text);
-        return {};
+        return tr("There's no such /command outside of room.");
     }
 
     // Commands available only in the room context
@@ -588,11 +569,37 @@ QString ChatRoomWidget::doSendInput()
     }
     if (command == "html")
     {
-        // Very crude HTML-to-plaintext conversion - just strip all the tags
-        auto plainText = argString;
-        plainText.replace(HtmlTagRE, QString());
-        m_currentRoom->postHtmlText(plainText, argString);
+        // Assuming Matrix HTML, convert it to Qt and load to a fragment in
+        // order to produce a plain text version (maybe introduce
+        // filterMatrixHtmlToPlainText() one day instead...); then convert
+        // back to Matrix HTML to produce the (clean) rich text version
+        // of the message
+        const auto& [cleanQtHtml, errorPos, errorString] =
+            HtmlFilter::matrixToQt(argString, m_currentRoom,
+                                   HtmlFilter::Validating);
+        if (errorPos != -1)
+            return tr("At pos %1: ").arg(errorPos) % errorString;
+
+        const auto& fragment = QTextDocumentFragment::fromHtml(cleanQtHtml);
+        m_currentRoom->postHtmlText(fragment.toPlainText(),
+                                    HtmlFilter::qtToMatrix(fragment.toHtml(),
+                                                           m_currentRoom));
         return {};
+    }
+    if (command == "md") {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+        // https://bugreports.qt.io/browse/QTBUG-86603
+        static constexpr auto MdFeatures = QTextDocument::MarkdownFeatures(
+            QTextDocument::MarkdownNoHTML
+            | QTextDocument::MarkdownDialectCommonMark);
+        m_chatEdit->setMarkdown(argString);
+        m_currentRoom->postHtmlText(m_chatEdit->toMarkdown(MdFeatures).trimmed(),
+                                    HtmlFilter::qtToMatrix(m_chatEdit->toHtml(),
+                                                           m_currentRoom));
+        return {};
+#else
+        return tr("Your build of Quaternion doesn't support Markdown");
+#endif
     }
     if (command == "query" || command == "dc")
     {
@@ -611,26 +618,49 @@ QString ChatRoomWidget::doSendInput()
 
 void ChatRoomWidget::sendInput()
 {
-    auto result = doSendInput();
-    if (result.isEmpty())
-        m_chatEdit->saveInput();
-    else
-        emit showStatusMessage(result, 5000);
+    if (!attachedFileName.isEmpty())
+        sendFile();
+    else {
+        const auto& text = m_chatEdit->toPlainText();
+        QString error;
+        if (text.isEmpty())
+            error = tr("There's nothing to send");
+        else if (text.startsWith('/') && !text.midRef(1).startsWith('/')) {
+            QRegularExpression cmdSplit("([[:blank:]])+", ReFlags);
+            const auto& blanksMatch = cmdSplit.match(text, 1);
+            error = sendCommand(text.midRef(1, blanksMatch.capturedStart() - 1),
+                                text.mid(blanksMatch.capturedEnd()));
+        } else if (!m_currentRoom)
+            error = tr("You should select a room to send messages.");
+        else
+            sendMessage();
+        if (!error.isEmpty()) {
+            emit showStatusMessage(error, 5000);
+            return;
+        }
+    }
+
+    m_chatEdit->saveInput();
 }
 
-QStringList ChatRoomWidget::findCompletionMatches(const QString& pattern) const
+QVector<QPair<QString, QUrl>>
+ChatRoomWidget::findCompletionMatches(const QString& pattern) const
 {
-    QStringList matches;
+    QVector<QPair<QString, QUrl>> matches;
     if (m_currentRoom)
     {
         for(auto user: m_currentRoom->users() )
         {
-            if ( user->id().startsWith(pattern, Qt::CaseInsensitive) )
-                matches.append(user->id());
+            using Quotient::Uri;
+            if (user->displayname(m_currentRoom)
+                    .startsWith(pattern, Qt::CaseInsensitive)
+                || user->id().startsWith(pattern, Qt::CaseInsensitive))
+                matches.push_back({ user->displayname(m_currentRoom),
+                                    Uri(user->id()).toUrl(Uri::MatrixToUri) });
         }
         std::sort(matches.begin(), matches.end(),
-            [] (const QString& s1, const QString& s2)
-                { return s1.localeAwareCompare(s2) < 0; });
+            [] (const auto& p1, const auto& p2)
+                { return p1.first.localeAwareCompare(p2.first) < 0; });
     }
     return matches;
 }

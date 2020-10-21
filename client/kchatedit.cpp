@@ -28,13 +28,13 @@ public:
     void updateAndMoveInHistory(int increment);
     void saveInput();
 
-    inline QTextDocument* makeDocument()
+    QTextDocument* makeDocument()
     {
         Q_ASSERT(contextKey);
         return new QTextDocument(contextKey);
     }
 
-    inline void setContext(QObject* newContextKey)
+    void setContext(QObject* newContextKey)
     {
         contextKey = newContextKey;
         auto& context = contexts[contextKey]; // Create if needed
@@ -45,17 +45,18 @@ public:
         if (history.isEmpty() || !history.last()->isEmpty())
             history.push_back(makeDocument());
 
-        while (history.size() > maxHistorySize) {
+        while (history.size() > maxHistorySize)
             delete history.takeFirst();
-        }
         index = history.size() - 1;
 
         // QTextDocuments are parented to the context object, so are destroyed
         // automatically along with it; but the hashmap should be cleaned up
         if (newContextKey != q)
-            q->connect(newContextKey, &QObject::destroyed, q,
-                       [this, newContextKey] { contexts.remove(newContextKey); });
-        Q_ASSERT(contexts.contains(newContextKey) && history.size() > 0);
+            QObject::connect(newContextKey, &QObject::destroyed, q,
+                             [this, newContextKey] {
+                                 contexts.remove(newContextKey);
+                             });
+        Q_ASSERT(contexts.contains(newContextKey) && !history.empty());
     }
 
     KChatEdit* q = nullptr;
@@ -113,7 +114,8 @@ void KChatEdit::KChatEditPrivate::saveInput()
         emit q->savedInputChanged();
     } else if (input != getDocumentText(q->savedInput())) {
         // Insert a copy of the edited text just before the placeholder
-        history.insert(history.end() - 1, q->document()->clone(contextKey));
+        history.insert(history.end() - 1, q->document());
+        q->setDocument(makeDocument());
 
         if (history.size() >= maxHistorySize) {
             delete history.takeFirst();
@@ -165,9 +167,12 @@ int KChatEdit::maxHistorySize() const
     return d->maxHistorySize;
 }
 
-void KChatEdit::setMaxHistorySize(int maxHistorySize)
+void KChatEdit::setMaxHistorySize(int newMaxSize)
 {
-    d->maxHistorySize = maxHistorySize;
+    if (d->maxHistorySize != newMaxSize) {
+        d->maxHistorySize = newMaxSize;
+        emit maxHistorySizeChanged();
+    }
 }
 
 void KChatEdit::switchContext(QObject* contextKey)

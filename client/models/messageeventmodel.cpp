@@ -23,6 +23,7 @@
 #include <QtQml> // for qmlRegisterType()
 
 #include "../quaternionroom.h"
+#include "../htmlfilter.h"
 #include <connection.h>
 #include <user.h>
 #include <settings.h>
@@ -265,7 +266,7 @@ QDateTime MessageEventModel::makeMessageTimestamp(
     return {};
 }
 
-QString MessageEventModel::renderDate(const QDateTime& timestamp) const
+QString MessageEventModel::renderDate(const QDateTime& timestamp)
 {
     auto date = timestamp.toLocalTime().date();
     static Quotient::SettingsGroup sg { "UI" };
@@ -432,12 +433,29 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         // clang-format off
         return visit(evt
             , [this] (const RoomMessageEvent& e) {
+                // clang-format on
                 using namespace MessageEventContent;
 
-                if (e.hasTextContent() && e.mimeType().name() != "text/plain")
-                    return static_cast<const TextContent*>(e.content())->body;
-                if (e.hasFileContent())
-                {
+                if (e.hasTextContent() && e.mimeType().name() != "text/plain") {
+                    // Naïvely assume that it's HTML
+                    auto htmlBody =
+                        static_cast<const TextContent*>(e.content())->body;
+                    const auto& result =
+                        HtmlFilter::matrixToQt(htmlBody, m_currentRoom);
+                    if (result.errorPos == -1) // The HTML is good enough
+                        return result.filteredHtml;
+                    // If HTML is bad (or it's not HTML at all), fall through
+                    // to returning the prettified plain text - leaving
+                    // a loophole to visualise HTML errors
+                    if (Settings().get("Debug/html", false))
+                        return QString(
+                            m_currentRoom->prettyPrint(e.plainBody())
+                            % QStringLiteral("<br /><font color=\"red\">At pos "
+                                             "%1: %2</font>")
+                                  .arg(QString::number(result.errorPos),
+                                       result.errorString));
+                }
+                if (e.hasFileContent()) {
                     auto fileCaption =
                         e.content()->fileInfo()->originalName.toHtmlEscaped();
                     if (fileCaption.isEmpty())
@@ -445,6 +463,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                     return !fileCaption.isEmpty() ? fileCaption : tr("a file");
                 }
                 return m_currentRoom->prettyPrint(e.plainBody());
+                // clang-format off
             }
             , [this] (const RoomMemberEvent& e) {
                 // clang-format on

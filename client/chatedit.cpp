@@ -19,10 +19,11 @@
 
 #include "chatedit.h"
 
-#include <QtCore/QMimeData>
-#include <QtGui/QKeyEvent>
-
 #include "chatroomwidget.h"
+
+#include <QtGui/QKeyEvent>
+#include <QtCore/QMimeData>
+#include <QtCore/QStringBuilder>
 
 ChatEdit::ChatEdit(ChatRoomWidget* c)
     : KChatEdit(c), chatRoomWidget(c), matchesListPosition(0)
@@ -46,13 +47,6 @@ void ChatEdit::switchContext(QObject* contextKey)
     KChatEdit::switchContext(contextKey);
 }
 
-QString ChatEdit::sanitizeMention(QString mentionText)
-{
-    if (mentionText.startsWith('/'))
-        mentionText.push_front('/');
-    return mentionText;
-}
-
 bool ChatEdit::canInsertFromMimeData(const QMimeData *source) const
 {
     return source->hasImage() || QTextEdit::canInsertFromMimeData(source);
@@ -66,85 +60,120 @@ void ChatEdit::insertFromMimeData(const QMimeData *source)
         QTextEdit::insertFromMimeData(source);
 }
 
-void ChatEdit::appendTextAtCursor(const QString& text, bool select)
+void ChatEdit::appendMentionAt(QTextCursor& cursor, QString mention,
+                               QUrl mentionUrl, bool select)
 {
-    completionCursor.insertText(text);
-    completionCursor.movePosition(QTextCursor::PreviousCharacter,
-        select ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor, text.size());
+    Q_ASSERT(!mention.isEmpty() && mentionUrl.isValid());
+    if (cursor.atStart() && mention.startsWith('/'))
+        mention.push_front('/');
+    const auto posBeforeMention = cursor.position();
+    // The most concise way to add a link is by QTextCursor::insertHtml()
+    // as QTextDocument API is unwieldy (get to the block, make a fragment... -
+    // just merging a char format with setAnchor()/setAnchorHref() doesn't work)
+    if (Quotient::Settings().get("UI/hyperlink_users", true))
+        cursor.insertHtml("<a href=\"" % mentionUrl.toEncoded() % "\">"
+                          % mention % "</a>");
+    else
+        cursor.insertText(mention);
+    cursor.setPosition(posBeforeMention, select ? QTextCursor::KeepAnchor
+                                                : QTextCursor::MoveAnchor);
+    ensureCursorVisible(); // The real one, not completionCursor
 }
 
-void ChatEdit::startNewCompletion()
+bool ChatEdit::initCompletion()
 {
     completionCursor = textCursor();
     completionCursor.clearSelection();
-    while ( completionCursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor) )
-    {
-        QChar firstChar = completionCursor.selectedText().at(0);
-        if (!firstChar.isLetterOrNumber() && firstChar != '@')
-        {
-            completionCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+    while (completionCursor.movePosition(QTextCursor::PreviousCharacter,
+                                         QTextCursor::KeepAnchor)) {
+        const auto& firstChar = completionCursor.selectedText().at(0);
+        if (!firstChar.isLetterOrNumber() && firstChar != '@') {
+            completionCursor.movePosition(QTextCursor::NextCharacter,
+                                          QTextCursor::KeepAnchor);
             break;
         }
     }
     completionMatches =
         chatRoomWidget->findCompletionMatches(completionCursor.selectedText());
-    if ( !completionMatches.isEmpty() )
-    {
-        matchesListPosition = 0;
-        auto lookBehindCursor = completionCursor;
-        if ( lookBehindCursor.atStart() )
-        {
-            appendTextAtCursor(QStringLiteral(": "), false);
-            return;
-        }
-        for (auto stringBefore: {QLatin1String(":"), QLatin1String(": ")})
-        {
-            lookBehindCursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
-            if ( lookBehindCursor.selectedText().startsWith(stringBefore) )
-            {
+    if (completionMatches.isEmpty())
+        return false;
+
+    matchesListPosition = 0;
+    // Add (constant) punctuation right away, in preparation for the cycle
+    // of rotating completion matches (that are placed before this punctuation).
+    auto punct = QStringLiteral(" ");
+    static const auto ColonSpace = QStringLiteral(": ");
+    auto lookBehindCursor = completionCursor;
+    if (lookBehindCursor.atStart())
+        punct = QStringLiteral(": "); // Salutation
+    else {
+        for (auto i = 1; i <= ColonSpace.size(); ++i) {
+            lookBehindCursor.movePosition(QTextCursor::PreviousCharacter,
+                                          QTextCursor::KeepAnchor);
+            if (lookBehindCursor.selectedText().startsWith(
+                    ColonSpace.leftRef(i))) {
+                // Replace the colon (with an optional space) before the place
+                // of completion with a comma (with a huge assumption that
+                // this colon ends a salutation; TODO: using the fact that
+                // mentions are linkified now, we can reliably detect
+                // salutations even to several users).
                 lookBehindCursor.insertText(QStringLiteral(", "));
-                appendTextAtCursor(QStringLiteral(": "), false);
-                return;
+                punct = QStringLiteral(": ");
+                break;
             }
         }
-        appendTextAtCursor(QStringLiteral(" "), false);
     }
+    const auto beforePunct = completionCursor.position();
+    completionCursor.insertText(punct);
+    completionCursor.setPosition(beforePunct);
+    return true;
 }
 
 void ChatEdit::triggerCompletion()
 {
-    if (completionMatches.isEmpty())
-        startNewCompletion();
+    if (!isCompletionActive() && !initCompletion())
+        return;
 
-    if (!completionMatches.isEmpty())
-    {
-        appendTextAtCursor(
-            sanitizeMention(completionMatches.at(matchesListPosition)), true);
-        ensureCursorVisible(); // The real one, not completionCursor
-        auto completionHL = completionCursor.charFormat();
-        completionHL.setUnderlineStyle(QTextCharFormat::DashUnderline);
-        setExtraSelections({ { completionCursor, completionHL } });
-        emit proposedCompletion(completionMatches, matchesListPosition);
-        matchesListPosition = (matchesListPosition + 1) % completionMatches.length();
-    }
+    Q_ASSERT(!completionMatches.empty()
+             && matchesListPosition < completionMatches.size());
+    const auto& completionMatch = completionMatches.at(matchesListPosition);
+    appendMentionAt(completionCursor, completionMatch.first,
+                    completionMatch.second, true);
+    Q_ASSERT(!completionCursor.selectedText().isEmpty());
+    auto completionHL = completionCursor.charFormat();
+    completionHL.setUnderlineStyle(QTextCharFormat::DashUnderline);
+    setExtraSelections({ { completionCursor, completionHL } });
+    QStringList matchesForSignal;
+    for (const auto& p: completionMatches)
+        matchesForSignal.push_back(p.first);
+    emit proposedCompletion(matchesForSignal, matchesListPosition);
+    matchesListPosition = (matchesListPosition + 1) % completionMatches.length();
 }
 
 void ChatEdit::cancelCompletion()
 {
     completionMatches.clear();
     setExtraSelections({});
+    Q_ASSERT(!isCompletionActive());
+
     emit cancelledCompletion();
 }
 
-void ChatEdit::insertMention(QString author)
+bool ChatEdit::isCompletionActive() { return !completionMatches.isEmpty(); }
+
+void ChatEdit::insertMention(QString author, QUrl url)
 {
     // The order of inserting text below is such to be convenient for the user
     // to undo in case the primitive intelligence below fails.
     auto cursor = textCursor();
-    author = sanitizeMention(author);
-    insertPlainText(author);
-    cursor.movePosition(QTextCursor::PreviousCharacter,
-                        QTextCursor::MoveAnchor, author.size());
+    // The mention may be hyperlinked, possibly changing the default
+    // character format as a result if the mention happens to be at the end
+    // of the block (which is almost always the case). So remember the format
+    // at the point, and apply it later when printing the postfix.
+    // triggerCompletion() doesn't have that problem because it inserts
+    // the postfix before inserting the mention.
+    auto textFormat = cursor.charFormat();
+    appendMentionAt(cursor, author, url, false);
 
     // Add spaces and a colon around the inserted string if necessary.
     if (cursor.position() > 0 &&
@@ -156,17 +185,19 @@ void ChatEdit::insertMention(QString author)
     QString postfix;
     if (cursor.atStart())
         postfix = QStringLiteral(":");
-    if (pickingMentions && document()->characterAt(cursor.position()) == ':')
-    {
+    if ((pickingMentions || isCompletionActive())
+        && document()->characterAt(cursor.position()) == ':') {
         cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
         cursor.insertText(QStringLiteral(","));
         postfix = QStringLiteral(":");
     }
-    auto currentChar = document()->characterAt(textCursor().position());
-    if (textCursor().atBlockEnd() ||
-            currentChar.isLetterOrNumber() || currentChar == '.')
+    auto editCursor = textCursor();
+    auto currentChar = document()->characterAt(editCursor.position());
+    if (editCursor.atBlockEnd() || currentChar.isLetterOrNumber()
+        || currentChar == '.')
         postfix.push_back(' ');
     if (!postfix.isEmpty())
-        insertPlainText(postfix);
+        editCursor.insertText(postfix, textFormat);
     pickingMentions = true;
+    cancelCompletion();
 }
