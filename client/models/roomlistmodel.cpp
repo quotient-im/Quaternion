@@ -415,7 +415,8 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         case Qt::ToolTipRole:
         {
             QString result =
-                QStringLiteral("<b>%1</b>").arg(room->displayName()) % "<br>" %
+                QStringLiteral("<b>%1</b>")
+                    .arg(room->displayName().toHtmlEscaped()) % "<br>" %
                 tr("Main alias: %1").arg(room->canonicalAlias()) % "<br>" %
                 tr("Joined: %L1",
                    "The number of joined members", room->joinedCount())
@@ -431,7 +432,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
             {
                 QStringList userNames;
                 for (auto* user: directChatUsers)
-                    userNames.push_back(user->displayname(room));
+                    userNames.push_back(user->displayname(room).toHtmlEscaped());
                 result += "<br>" % tr("Direct chat with %1")
                                    .arg(userNames.join(','));
             }
