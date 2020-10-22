@@ -142,6 +142,9 @@ rewrite_t filterTag(const QStringRef& tag, QXmlStreamAttributes attributes,
                     else if (const auto& v = cssValue(p, "font-style:");
                              v == "italic" || v.startsWith("oblique"))
                         rewrite.emplace_back().first = "i";
+                    else if (const auto& v = cssValue(p, "text-decoration:");
+                             v.contains("line-through"))
+                        rewrite.emplace_back().first = "del";
                     else {
                         const auto& fontFamilies =
                             cssValue(p, "font-family:").split(',');
