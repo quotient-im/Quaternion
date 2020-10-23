@@ -142,6 +142,9 @@ rewrite_t filterTag(const QStringRef& tag, QXmlStreamAttributes attributes,
                     else if (const auto& v = cssValue(p, "font-style:");
                              v == "italic" || v.startsWith("oblique"))
                         rewrite.emplace_back().first = "i";
+                    else if (const auto& v = cssValue(p, "text-decoration:");
+                             v.contains("line-through"))
+                        rewrite.emplace_back().first = "del";
                     else {
                         const auto& fontFamilies =
                             cssValue(p, "font-family:").split(',');
@@ -151,7 +154,7 @@ rewrite_t filterTag(const QStringRef& tag, QXmlStreamAttributes attributes,
                                 continue;
                             if (ff[0] == '\'' || ff[0] == '"')
                                 ff = ff.mid(1);
-                            if (ff.startsWith("monospace")) {
+                            if (ff.startsWith("monospace", Qt::CaseInsensitive)) {
                                 rewrite.emplace_back().first = "code";
                                 break;
                             }
