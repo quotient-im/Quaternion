@@ -355,6 +355,18 @@ Result process(QString html, [[maybe_unused]] QuaternionRoom* context,
             if (tagsStack.size() > 100)
                 qCritical() << "CS API spec limits HTML tags depth at 100";
 
+            const auto& attrs = reader.attributes();
+            if constexpr (Dir == QtToMatrix) {
+                // Qt hardcodes the link style in a `<span>` under `<a>`.
+                // This breaks the looks on the receiving side if the sender
+                // uses a different style of links from that of the receiver.
+                // Since Qt decorates links when importing HTML anyway, we
+                // don't lose anything if we just strip away this span tag.
+                if (inAnchor && textBuffer.isEmpty() && tagName == "span"
+                    && attrs.size() == 1
+                    && attrs.front().qualifiedName() == "style")
+                    continue; // inAnchor == true ==> firstElement == false
+            }
             // Skip the first top-level <p> and replace further top-level
             // `<p>...</p>` with `<br/>...` - kinda controversial but
             // there's no cleaner way to get rid of the single top-level <p>
@@ -370,7 +382,7 @@ Result process(QString html, [[maybe_unused]] QuaternionRoom* context,
                     writer.writeEmptyElement("br");
             } else {
                 const auto& rewrite =
-                    filterTag<Dir>(tagName, reader.attributes(), firstElement);
+                    filterTag<Dir>(tagName, attrs, firstElement);
                 for (const auto& [tag, attrs]: rewrite) {
                     tagsStack.top().push(tag);
                     writer.writeStartElement(tag);
