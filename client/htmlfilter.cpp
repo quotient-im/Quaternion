@@ -336,16 +336,19 @@ Result process(QString html, [[maybe_unused]] QuaternionRoom* context,
             linkifyLastCharacters(textBuffer, writer, result.filteredHtml);
 
             const auto& tagName = reader.qualifiedName();
-            if (tagName == "head") { // Qt pushes styles in it, not interesting
-                reader.skipCurrentElement();
-                continue;
-            }
-            if (tagName == "html")
-                continue; // Just ignore, get to the content
-
-            if (tagName == "body") { // Skip but note the encounter
-                bodyOffset = -1; // Reuse the variable until the next loop
-                continue;
+            if (tagsStack.empty()) {
+                // These tags are invalid anywhere deeper, and we don't even
+                // care to put them to tagsStack
+                if (tagName == "html")
+                    continue; // Just ignore, get to the content inside
+                if (tagName == "head") { // Entirely uninteresting
+                    reader.skipCurrentElement();
+                    continue;
+                }
+                if (tagName == "body") { // Skip but note the encounter
+                    bodyOffset = -1; // Reuse the variable until the next loop
+                    continue;
+                }
             }
 
             tagsStack.emplace();
@@ -361,7 +364,8 @@ Result process(QString html, [[maybe_unused]] QuaternionRoom* context,
             // e.g.). This is also a very special case where a converted tag
             // is immediately closed, unlike the one in the source text;
             // which is why it's checked here rather than in filterTag().
-            if (tagName == "p" && tagsStack.size() == 1 /* just added */) {
+            if (tagName == "p"
+                && tagsStack.size() == 1 /* top-level, just emplaced */) {
                 if (!firstElement)
                     writer.writeEmptyElement("br");
             } else {
