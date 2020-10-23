@@ -111,8 +111,14 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
 
     m_timelineWidget->setSource(QUrl("qrc:///qml/Timeline.qml"));
 
-    m_hudCaption = new QLabel();
-    m_hudCaption->setWordWrap(true);
+    {
+        m_hudCaption = new QLabel();
+        m_hudCaption->setWordWrap(true);
+        auto f = m_hudCaption->font();
+        f.setItalic(true);
+        m_hudCaption->setFont(f);
+        m_hudCaption->setTextFormat(Qt::PlainText);
+    }
 
     auto attachButton = new QToolButton();
     attachButton->setAutoRaise(true);
@@ -313,7 +319,7 @@ void ChatRoomWidget::encryptionChanged()
 
 void ChatRoomWidget::setHudCaption(QString newCaption)
 {
-    m_hudCaption->setText("<i>" + newCaption + "</i>");
+    m_hudCaption->setText(newCaption);
 }
 
 void ChatRoomWidget::insertMention(Quotient::User* user)

@@ -21,6 +21,8 @@
 
 #include "chatroomwidget.h"
 
+#include <util.h>
+
 #include <QtGui/QKeyEvent>
 #include <QtCore/QMimeData>
 #include <QtCore/QStringBuilder>
@@ -67,14 +69,15 @@ void ChatEdit::appendMentionAt(QTextCursor& cursor, QString mention,
     if (cursor.atStart() && mention.startsWith('/'))
         mention.push_front('/');
     const auto posBeforeMention = cursor.position();
+    const auto& safeMention = Quotient::sanitized(mention.toHtmlEscaped());
     // The most concise way to add a link is by QTextCursor::insertHtml()
     // as QTextDocument API is unwieldy (get to the block, make a fragment... -
     // just merging a char format with setAnchor()/setAnchorHref() doesn't work)
     if (Quotient::Settings().get("UI/hyperlink_users", true))
         cursor.insertHtml("<a href=\"" % mentionUrl.toEncoded() % "\">"
-                          % mention % "</a>");
+                          % safeMention % "</a>");
     else
-        cursor.insertText(mention);
+        cursor.insertText(safeMention);
     cursor.setPosition(posBeforeMention, select ? QTextCursor::KeepAnchor
                                                 : QTextCursor::MoveAnchor);
     ensureCursorVisible(); // The real one, not completionCursor
