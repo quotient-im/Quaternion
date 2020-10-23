@@ -10,10 +10,6 @@
         <translation>Отправка шифрованных сообщений пока не поддерживается</translation>
     </message>
     <message>
-        <source>Send a message (unencrypted) or enter a command...</source>
-        <translation>Отправить сообщение (незашифрованное) или ввести команду...</translation>
-    </message>
-    <message>
         <source>There&apos;s nothing to send</source>
         <translation>Нечего отправлять</translation>
     </message>
@@ -147,7 +143,7 @@
     </message>
     <message>
         <source>Redact</source>
-        <translation>красноломкий</translation>
+        <translation>Скрыть</translation>
     </message>
     <message>
         <source>Copy link to clipboard</source>
@@ -346,15 +342,6 @@ Go to Room Settings to upgrade the room</source>
         <translation>Изменить порядок тегов</translation>
     </message>
     <message>
-        <source>Tags can be wildcarded by * next to dot(s)
-Clear the box to reset to defaults
-org.qmatrixclient. tags: invite, left, direct, none</source>
-        <translation>Группы тегов можно объединять, указывая * после точки
-Очистите поле ввода, чтобы вернуться к настройкам по умолчанию
-Особые теги, начинающиеся на org.qmatrixclient: invite, left, direct, none
-Пользовательские теги рекомендуется начинать с &quot;u.&quot;</translation>
-    </message>
-    <message>
         <source>&amp;Room</source>
         <translation>&amp;Комната</translation>
     </message>
@@ -485,8 +472,8 @@ org.qmatrixclient. tags: invite, left, direct, none</source>
     <message>
         <source>Clicking &apos;Retry&apos; will attempt to resume synchronisation;
 Clicking &apos;Cancel&apos; will stop further synchronisation of this account until logout or Quaternion restart.</source>
-        <translation>Нажмите кнопку «Повторить попытку» чтобы попытаться возобновить синхронизацию; 
-нажмите «Отмена» чтобы остановить дальнейшую синхронизацию этой учетной записи до выхода из системы или перезапуска Quaternion.</translation>
+        <translation>Нажмите кнопку «Повторить попытку», чтобы попытаться возобновить синхронизацию; 
+нажмите «Отмена», чтобы остановить дальнейшую синхронизацию этой учетной записи до выхода из системы или перезапуска Quaternion.</translation>
     </message>
     <message>
         <source>Before this server can process your information, you have to agree with its terms and conditions; please click the button below to open the web page where you can do that</source>
@@ -521,84 +508,24 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
         <translation>Добро пожаловать в Quaternion</translation>
     </message>
     <message>
-        <source>Choose the account to join the room</source>
-        <translation>Выберите учетную запись для входа в комнату</translation>
-    </message>
-    <message>
         <source>No connections</source>
         <translation>Нет соединений</translation>
-    </message>
-    <message>
-        <source>Please connect to a server before joining a room</source>
-        <translation>Пожалуйста, подключитесь к серверу перед входом в комнату</translation>
-    </message>
-    <message>
-        <source>Joining %1 as %2</source>
-        <translation>Присоединяемся к %1 как %2</translation>
-    </message>
-    <message>
-        <source>Join room %1 under account %2?</source>
-        <translation>Войти в комнату %1 под учётной записью %2?</translation>
     </message>
     <message>
         <source>Join</source>
         <translation>Присоединиться</translation>
     </message>
     <message>
-        <source>Choose account...</source>
-        <translation>Выберите учетную запись...</translation>
-    </message>
-    <message>
-        <source>Enter room id or alias to join</source>
-        <translation>Введите идентификатор или псевдоним комнаты для входа</translation>
-    </message>
-    <message>
-        <source>Enter an id or alias of the room. You will join as %1</source>
-        <translation>Введите идентификатор или псевдоним комнаты. Вы присоединитесь как %1</translation>
-    </message>
-    <message>
-        <source>No room id or alias specified</source>
-        <translation>Не указан идентификатор комнаты или псевдоним комнаты</translation>
-    </message>
-    <message>
-        <source>Please specify non-empty id or alias</source>
-        <translation>Пожалуйста, укажите не пустой идентификатор или псевдоним</translation>
-    </message>
-    <message>
         <source>Joined %1 as %2</source>
         <translation>Присоединился к %1 как %2</translation>
-    </message>
-    <message>
-        <source>Starting direct chat with %1 as %2</source>
-        <translation>Начать прямой чат с %1 как %2</translation>
-    </message>
-    <message>
-        <source>Start direct chat with %1 under account %2?</source>
-        <translation>Начать прямой чат с %1 под учетной записью %2?</translation>
     </message>
     <message>
         <source>Enter user id to start direct chat.</source>
         <translation>Введите идентификатор пользователя, чтобы начать прямой чат.</translation>
     </message>
     <message>
-        <source>Enter the user id of who you would like to chat with. You will join as %1</source>
-        <translation>Введите идентификатор пользователя, с которым вы хотите начать чат. Вы присоединитесь как %1</translation>
-    </message>
-    <message>
-        <source>No user id specified</source>
-        <translation>Не указан идентификатор пользователя</translation>
-    </message>
-    <message>
-        <source>Please specify non-empty user id</source>
-        <translation>Пожалуйста, укажите непустой идентификатор пользователя</translation>
-    </message>
-    <message>
-        <source>Starting chat with %1 as %2</source>
-        <translation>Начать чат с %1 как %2</translation>
-    </message>
-    <message>
         <source>Sync completed - have a good chat</source>
-        <translation>Синхронизация завершена - приятного общения</translation>
+        <translation>Синхронизация завершена — приятного общения</translation>
     </message>
     <message>
         <source>Couldn&apos;t connect to the server as %1; will retry within %2 seconds</source>
@@ -638,7 +565,7 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Copyright (C) 2018 QMatrixClient project.</source>
-        <translation>Copyright (C) 2018 Проект QMatrixClient.</translation>
+        <translation>Copyright © 2018 Проект QMatrixClient.</translation>
     </message>
     <message>
         <source>&amp;Thanks</source>
@@ -776,7 +703,7 @@ User-defined tags should start with &quot;u.&quot;</source>
     </message>
     <message>
         <source>Logging in into a logged in account</source>
-        <translation>Вход в залогиненный аккаунт</translation>
+        <translation>Вход в уже подключённый аккаунт</translation>
     </message>
     <message>
         <source>You&apos;re trying to log in into an account that&apos;s already logged in. Do you want to continue?</source>
@@ -813,10 +740,6 @@ User-defined tags should start with &quot;u.&quot;</source>
     <message>
         <source>There&apos;s no room %1 in the room list. Check the spelling and the account.</source>
         <translation>В списке комнат нет комнаты %1. Проверьте орфографию и учётную запись.</translation>
-    </message>
-    <message>
-        <source>Confirm your account to chat with %1</source>
-        <translation>Подтвердите свою учётную запись, чтобы начать чат с %1</translation>
     </message>
     <message>
         <source>Confirm your account to open %1</source>
@@ -990,10 +913,6 @@ or matrix.to link</source>
         <translation>сделал что-то неизвестное</translation>
     </message>
     <message>
-        <source>set aliases to: %1</source>
-        <translation>установил псевдоним комнаты: %1</translation>
-    </message>
-    <message>
         <source>cleared the room main alias</source>
         <translation>очистил основной псевдоним комнаты</translation>
     </message>
@@ -1141,7 +1060,7 @@ or matrix.to link</source>
     </message>
     <message>
         <source>default</source>
-        <translation>по-умолчанию</translation>
+        <translation>по умолчанию</translation>
     </message>
     <message>
         <source>stable</source>

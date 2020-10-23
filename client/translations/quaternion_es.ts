@@ -10,10 +10,6 @@
         <translation>El envío de mensajes cifrados aún no es compatible</translation>
     </message>
     <message>
-        <source>Send a message (unencrypted) or enter a command...</source>
-        <translation>Envíe un mensaje (sin cifrar) o escriba un comando...</translation>
-    </message>
-    <message>
         <source>There&apos;s nothing to send</source>
         <translation>No hay nada que enviar</translation>
     </message>
@@ -341,14 +337,6 @@ Go to Room Settings to upgrade the room</source>
         <translation>Editar orden de etiquetas</translation>
     </message>
     <message>
-        <source>Tags can be wildcarded by * next to dot(s)
-Clear the box to reset to defaults
-org.qmatrixclient. tags: invite, left, direct, none</source>
-        <translation>Las etiquetas pueden ser comodín por * al lado de puntos (s)
-Desactive la casilla para restablecer los valores predeterminados
-org.qmatrixclient. tags: invite, left, direct, none</translation>
-    </message>
-    <message>
         <source>&amp;Room</source>
         <translation>&amp;Sala</translation>
     </message>
@@ -515,80 +503,20 @@ Al hacer clic en &quot;Cancelar&quot; se detendrá la sincronización de esta cu
         <translation>Bienvenido a Quaternion</translation>
     </message>
     <message>
-        <source>Choose the account to join the room</source>
-        <translation>Elija la cuenta para unirse a la sala</translation>
-    </message>
-    <message>
         <source>No connections</source>
         <translation>Sin conexiones</translation>
-    </message>
-    <message>
-        <source>Please connect to a server before joining a room</source>
-        <translation>Por favor, conéctese a un servidor antes de entrar a una sala</translation>
-    </message>
-    <message>
-        <source>Joining %1 as %2</source>
-        <translation>Unirse a %1 como %2</translation>
-    </message>
-    <message>
-        <source>Join room %1 under account %2?</source>
-        <translation>Unirse a la sala %1 bajo la cuenta %2?</translation>
     </message>
     <message>
         <source>Join</source>
         <translation>Unirse</translation>
     </message>
     <message>
-        <source>Choose account...</source>
-        <translation>Elija la cuenta...</translation>
-    </message>
-    <message>
-        <source>Enter room id or alias to join</source>
-        <translation>Introduzca el id de la sala o el alias para unirte</translation>
-    </message>
-    <message>
-        <source>Enter an id or alias of the room. You will join as %1</source>
-        <translation>Introduzca un id o alias de la sala. Te unirás como %1</translation>
-    </message>
-    <message>
-        <source>No room id or alias specified</source>
-        <translation>No se especificó ninguna id de sala o alias</translation>
-    </message>
-    <message>
-        <source>Please specify non-empty id or alias</source>
-        <translation>Por favor, especifique un ID o alias no vacío</translation>
-    </message>
-    <message>
         <source>Joined %1 as %2</source>
         <translation>Se unió a %1 como %2</translation>
     </message>
     <message>
-        <source>Starting direct chat with %1 as %2</source>
-        <translation>Iniciar chat directo con %1 como %2</translation>
-    </message>
-    <message>
-        <source>Start direct chat with %1 under account %2?</source>
-        <translation>¿Iniciar chat directo con %1 en la cuenta %2?</translation>
-    </message>
-    <message>
         <source>Enter user id to start direct chat.</source>
         <translation>Introduzca el ID de usuario para iniciar el chat directo.</translation>
-    </message>
-    <message>
-        <source>Enter the user id of who you would like to chat with. You will join as %1</source>
-        <translation>Introduzca el ID de usuario con quien desea chatear. Te unirás como %1</translation>
-    </message>
-    <message>
-        <source>No user id specified</source>
-        <translation>No se ha especificado ningún ID de usuario</translation>
-    </message>
-    <message>
-        <source>Please specify non-empty user id</source>
-        <translation>Especifique el ID de usuario no vacío</translation>
-    </message>
-    <message>
-        <source>Starting chat with %1 as %2</source>
-        <translation>Inicio del chat con %1 como %2</translation>
     </message>
     <message>
         <source>Sync completed - have a good chat</source>
@@ -809,10 +737,6 @@ Las etiquetas definidas por el usuario deben comenzar con &quot;u&quot;.</transl
         <translation>No hay %1 en la lista de salas. Compruebe la ortografía y la cuenta.</translation>
     </message>
     <message>
-        <source>Confirm your account to chat with %1</source>
-        <translation>Confirme su cuenta para chatear con %1</translation>
-    </message>
-    <message>
         <source>Confirm your account to open %1</source>
         <translation>Confirme su cuenta para abrir %1</translation>
     </message>
@@ -982,10 +906,6 @@ or matrix.to link</source>
     <message>
         <source>made something unknown</source>
         <translation>hizo algo desconocido</translation>
-    </message>
-    <message>
-        <source>set aliases to: %1</source>
-        <translation>establecer alias en: %1</translation>
     </message>
     <message>
         <source>cleared the room main alias</source>

@@ -10,10 +10,6 @@
         <translation>Sending encrypted messages is not supported yet</translation>
     </message>
     <message>
-        <source>Send a message (unencrypted) or enter a command...</source>
-        <translation>Send a message (unencrypted) or enter a command...</translation>
-    </message>
-    <message>
         <source>There&apos;s nothing to send</source>
         <translation>There&apos;s nothing to send</translation>
     </message>
@@ -146,6 +142,18 @@
         <translation>Send a message (over %1) or enter a command...</translation>
     </message>
     <message>
+        <source>Attaching an image from clipboard</source>
+        <translation>Attaching an image from clipboard</translation>
+    </message>
+    <message>
+        <source>Referenced message not found</source>
+        <translation>Referenced message not found</translation>
+    </message>
+    <message>
+        <source>Send a message (no end-to-end encryption support yet)...</source>
+        <translation>Send a message (no end-to-end encryption support yet)...</translation>
+    </message>
+    <message>
         <source>Redact</source>
         <translation>Redact</translation>
     </message>
@@ -154,12 +162,32 @@
         <translation>Copy link to clipboard</translation>
     </message>
     <message>
+        <source>Copy permalink to clipboard</source>
+        <translation>Copy permalink to clipboard</translation>
+    </message>
+    <message>
         <source>Quote</source>
         <translation>Quote</translation>
     </message>
     <message>
+        <source>Show details</source>
+        <translation>Show details</translation>
+    </message>
+    <message>
         <source>Open externally</source>
         <translation>Open externally</translation>
+    </message>
+    <message>
+        <source>Open Folder</source>
+        <translation>Open Folder</translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <translation>Download</translation>
+    </message>
+    <message>
+        <source>Save file as...</source>
+        <translation>Save file as...</translation>
     </message>
 </context>
 <context>
@@ -219,6 +247,52 @@ Go to Room Settings to upgrade the room</source>
     <message>
         <source>Go to Room Settings to upgrade the room</source>
         <translation>Go to Room Settings to upgrade the room</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln byte(s)</source>
+        <translation>
+            <numerusform>%Ln byte(s)</numerusform>
+            <numerusform>%Ln byte(s)</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>%L1 KB</source>
+        <translation>%L1 KB</translation>
+    </message>
+    <message>
+        <source>%L1 MB</source>
+        <translation>%L1 MB</translation>
+    </message>
+    <message>
+        <source>%L1 GB</source>
+        <translation>%L1 GB</translation>
+    </message>
+    <message>
+        <source>This room has been upgraded.</source>
+        <translation>This room has been upgraded.</translation>
+    </message>
+    <message>
+        <source>Go to
+new room</source>
+        <translation>Go to
+new room</translation>
+    </message>
+    <message>
+        <source>Room
+settings</source>
+        <translation>Room
+settings</translation>
+    </message>
+    <message>
+        <source>Latest events</source>
+        <translation>Latest events</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln events back from now</source>
+        <translation>
+            <numerusform>%Ln events back from now</numerusform>
+            <numerusform>%Ln events back from now</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <source>%Ln cached</source>
@@ -296,6 +370,42 @@ Go to Room Settings to upgrade the room</source>
         <source>Restoring access, please wait</source>
         <translation>Restoring access, please wait</translation>
     </message>
+    <message>
+        <source>Resolving the homeserver...</source>
+        <translation>Resolving the homeserver...</translation>
+    </message>
+    <message>
+        <source>The server URL doesn&apos;t look valid</source>
+        <translation>The server URL doesn&apos;t look valid</translation>
+    </message>
+    <message>
+        <source>Login with SSO</source>
+        <translation>Login with SSO</translation>
+    </message>
+    <message>
+        <source>The homeserver is available</source>
+        <translation>The homeserver is available</translation>
+    </message>
+    <message>
+        <source>Could not connect to the homeserver</source>
+        <translation>Could not connect to the homeserver</translation>
+    </message>
+    <message>
+        <source>No supported login flows</source>
+        <translation>No supported login flows</translation>
+    </message>
+    <message>
+        <source>Single sign-on</source>
+        <translation>Single sign-on</translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t automatically open the single sign-on URL. Please copy and paste it to the right application (usually a web browser):</source>
+        <translation>Quaternion couldn&apos;t automatically open the single sign-on URL. Please copy and paste it to the right application (usually a web browser):</translation>
+    </message>
+    <message>
+        <source>After authentication, the browser will follow the temporary local address setup by Quaternion to conclude the login sequence.</source>
+        <translation>After authentication, the browser will follow the temporary local address setup by Quaternion to conclude the login sequence.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -346,14 +456,6 @@ Go to Room Settings to upgrade the room</source>
     <message>
         <source>Edit tags order</source>
         <translation>Edit tags order</translation>
-    </message>
-    <message>
-        <source>Tags can be wildcarded by * next to dot(s)
-Clear the box to reset to defaults
-org.qmatrixclient. tags: invite, left, direct, none</source>
-        <translation>Tags can be wildcarded by * next to dot(s)
-Clear the box to reset to defaults
-org.qmatrixclient. tags: invite, left, direct, none</translation>
     </message>
     <message>
         <source>&amp;Room</source>
@@ -522,80 +624,20 @@ Clicking &apos;Cancel&apos; will stop further synchronization of this account un
         <translation>Welcome to Quaternion</translation>
     </message>
     <message>
-        <source>Choose the account to join the room</source>
-        <translation>Choose the account to join the room</translation>
-    </message>
-    <message>
         <source>No connections</source>
         <translation>No connections</translation>
-    </message>
-    <message>
-        <source>Please connect to a server before joining a room</source>
-        <translation>Please connect to a server before joining a room</translation>
-    </message>
-    <message>
-        <source>Joining %1 as %2</source>
-        <translation>Joining %1 as %2</translation>
-    </message>
-    <message>
-        <source>Join room %1 under account %2?</source>
-        <translation>Join room %1 under account %2?</translation>
     </message>
     <message>
         <source>Join</source>
         <translation>Join</translation>
     </message>
     <message>
-        <source>Choose account...</source>
-        <translation>Choose account...</translation>
-    </message>
-    <message>
-        <source>Enter room id or alias to join</source>
-        <translation>Enter room id or alias to join</translation>
-    </message>
-    <message>
-        <source>Enter an id or alias of the room. You will join as %1</source>
-        <translation>Enter an id or alias of the room. You will join as %1</translation>
-    </message>
-    <message>
-        <source>No room id or alias specified</source>
-        <translation>No room id or alias specified</translation>
-    </message>
-    <message>
-        <source>Please specify non-empty id or alias</source>
-        <translation>Please specify non-empty id or alias</translation>
-    </message>
-    <message>
         <source>Joined %1 as %2</source>
         <translation>Joined %1 as %2</translation>
     </message>
     <message>
-        <source>Starting direct chat with %1 as %2</source>
-        <translation>Starting direct chat with %1 as %2</translation>
-    </message>
-    <message>
-        <source>Start direct chat with %1 under account %2?</source>
-        <translation>Start direct chat with %1 under account %2?</translation>
-    </message>
-    <message>
         <source>Enter user id to start direct chat.</source>
         <translation>Enter user id to start direct chat.</translation>
-    </message>
-    <message>
-        <source>Enter the user id of who you would like to chat with. You will join as %1</source>
-        <translation>Enter the user id of who you would like to chat with. You will join as %1</translation>
-    </message>
-    <message>
-        <source>No user id specified</source>
-        <translation>No user id specified</translation>
-    </message>
-    <message>
-        <source>Please specify non-empty user id</source>
-        <translation>Please specify non-empty user id</translation>
-    </message>
-    <message>
-        <source>Starting chat with %1 as %2</source>
-        <translation>Starting chat with %1 as %2</translation>
     </message>
     <message>
         <source>Sync completed - have a good chat</source>
@@ -816,10 +858,6 @@ User-defined tags should start with &quot;u.&quot;</translation>
         <translation>There&apos;s no room %1 in the room list. Check the spelling and the account.</translation>
     </message>
     <message>
-        <source>Confirm your account to chat with %1</source>
-        <translation>Confirm your account to chat with %1</translation>
-    </message>
-    <message>
         <source>Confirm your account to open %1</source>
         <translation>Confirm your account to open %1</translation>
     </message>
@@ -894,6 +932,198 @@ or matrix.to link</translation>
     <message>
         <source>libQuotient contributors @ GitHub</source>
         <translation>libQuotient contributors @ GitHub</translation>
+    </message>
+    <message>
+        <source>Do you want to migrate the access token for %1 from the file to the keychain?</source>
+        <translation>Do you want to migrate the access token for %1 from the file to the keychain?</translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t migrate access token for %1 from the file to the keychain.</source>
+        <translation>Quaternion couldn&apos;t migrate access token for %1 from the file to the keychain.</translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t save the access token to the keychain. Do you want to save the access token to file %1?</source>
+        <translation>Quaternion couldn&apos;t save the access token to the keychain. Do you want to save the access token to file %1?</translation>
+    </message>
+    <message>
+        <source>First sync completed for %1</source>
+        <translation>First sync completed for %1</translation>
+    </message>
+    <message>
+        <source>Copyright (C) 2019 The Quotient project.</source>
+        <translation>Copyright (C) 2019 The Quotient project.</translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t delete the access token from the keychain.</source>
+        <translation>Quaternion couldn&apos;t delete the access token from the keychain.</translation>
+    </message>
+    <message>
+        <source>No application for the link</source>
+        <translation>No application for the link</translation>
+    </message>
+    <message>
+        <source>Your operating system could not find an application for the link.</source>
+        <translation>Your operating system could not find an application for the link.</translation>
+    </message>
+    <message>
+        <source>External link confirmation</source>
+        <translation>External link confirmation</translation>
+    </message>
+    <message>
+        <source>An external application will be opened to visit a non-Matrix link:
+
+%1
+
+Is that right?</source>
+        <translation>An external application will be opened to visit a non-Matrix link:
+
+%1
+
+Is that right?</translation>
+    </message>
+    <message>
+        <source>Do not ask again</source>
+        <translation>Do not ask again</translation>
+    </message>
+    <message>
+        <source>Malformed or empty Matrix id</source>
+        <translation>Malformed or empty Matrix id</translation>
+    </message>
+    <message>
+        <source>%1 is not a correct Matrix identifier</source>
+        <translation>%1 is not a correct Matrix identifier</translation>
+    </message>
+    <message>
+        <source>Please connect to a server</source>
+        <translation>Please connect to a server</translation>
+    </message>
+    <message>
+        <source>Confirm your account to open a direct chat with %1</source>
+        <translation>Confirm your account to open a direct chat with %1</translation>
+    </message>
+    <message>
+        <source>User &amp;profiles...</source>
+        <translation>User &amp;profiles...</translation>
+    </message>
+    <message>
+        <source>Log&amp;out</source>
+        <translation>Log&amp;out</translation>
+    </message>
+    <message>
+        <source>Invite events</source>
+        <translation>Invite events</translation>
+    </message>
+    <message>
+        <source>Show invite and withdrawn invitation events</source>
+        <translation>Show invite and withdrawn invitation events</translation>
+    </message>
+    <message>
+        <source>Ban events</source>
+        <translation>Ban events</translation>
+    </message>
+    <message>
+        <source>Show ban and unban events</source>
+        <translation>Show ban and unban events</translation>
+    </message>
+    <message>
+        <source>Changes in display na&amp;me</source>
+        <translation>Changes in display na&amp;me</translation>
+    </message>
+    <message>
+        <source>Show display name change</source>
+        <translation>Show display name change</translation>
+    </message>
+    <message>
+        <source>Avatar &amp;changes</source>
+        <translation>Avatar &amp;changes</translation>
+    </message>
+    <message>
+        <source>Show avatar update events</source>
+        <translation>Show avatar update events</translation>
+    </message>
+    <message>
+        <source>Room alias &amp;updates</source>
+        <translation>Room alias &amp;updates</translation>
+    </message>
+    <message>
+        <source>Show room alias updates events</source>
+        <translation>Show room alias updates events</translation>
+    </message>
+    <message>
+        <source>Un&amp;known event types</source>
+        <translation>Un&amp;known event types</translation>
+    </message>
+    <message>
+        <source>Show/hide unknown event types</source>
+        <translation>Show/hide unknown event types</translation>
+    </message>
+    <message>
+        <source>Tags can be wildcarded by * next to dot(s)
+Clear the box to reset to defaults
+Special tags starting with &quot;im.quotient.&quot; are: %1
+User-defined tags should start with &quot;u.&quot;</source>
+        <translation>Tags can be wildcarded by * next to dot(s)
+Clear the box to reset to defaults
+Special tags starting with &quot;im.quotient.&quot; are: %1
+User-defined tags should start with &quot;u.&quot;</translation>
+    </message>
+    <message>
+        <source>&amp;About Quaternion</source>
+        <translation>&amp;About Quaternion</translation>
+    </message>
+    <message>
+        <source>About &amp;Qt</source>
+        <translation>About &amp;Qt</translation>
+    </message>
+    <message>
+        <source>Use Breeze style (requires restart)</source>
+        <translation>Use Breeze style (requires restart)</translation>
+    </message>
+    <message>
+        <source>Force use Breeze style and icon theme</source>
+        <translation>Force use Breeze style and icon theme</translation>
+    </message>
+    <message>
+        <source>Chat with user</source>
+        <translation>Chat with user</translation>
+    </message>
+    <message>
+        <source>Can&apos;t open</source>
+        <translation>Can&apos;t open</translation>
+    </message>
+    <message>
+        <source>Could not resolve id</source>
+        <translation>Could not resolve id</translation>
+    </message>
+    <message>
+        <source>Could not find an external application to open the URI:</source>
+        <translation>Could not find an external application to open the URI:</translation>
+    </message>
+    <message>
+        <source>Could not resolve Matrix identifier</source>
+        <translation>Could not resolve Matrix identifier</translation>
+    </message>
+    <message>
+        <source>Incorrect action on a Matrix resource</source>
+        <translation>Incorrect action on a Matrix resource</translation>
+    </message>
+    <message>
+        <source>The URI contains an action &apos;%1&apos; that cannot be applied to Matrix resource %2</source>
+        <translation>The URI contains an action &apos;%1&apos; that cannot be applied to Matrix resource %2</translation>
+    </message>
+    <message>
+        <source>Failed to resolve server %1</source>
+        <translation>Failed to resolve server %1</translation>
+    </message>
+    <message>
+        <source>Room or user ID, room alias,
+Matrix URI or matrix.to link</source>
+        <translation>Room or user ID, room alias,
+Matrix URI or matrix.to link</translation>
+    </message>
+    <message>
+        <source>Go to room</source>
+        <translation>Go to room</translation>
     </message>
     <message>
         <source>Join room</source>
@@ -991,10 +1221,6 @@ or matrix.to link</translation>
         <translation>made something unknown</translation>
     </message>
     <message>
-        <source>set aliases to: %1</source>
-        <translation>set aliases to: %1</translation>
-    </message>
-    <message>
         <source>cleared the room main alias</source>
         <translation>cleared the room main alias</translation>
     </message>
@@ -1069,6 +1295,14 @@ or matrix.to link</translation>
     <message>
         <source>banned %1 from the room: %2</source>
         <translation>banned %1 from the room: %2</translation>
+    </message>
+    <message>
+        <source>kicked %1 from the room: %2</source>
+        <translation>kicked %1 from the room: %2</translation>
+    </message>
+    <message>
+        <source>upgraded the room: %1</source>
+        <translation>upgraded the room: %1</translation>
     </message>
 </context>
 <context>
@@ -1223,6 +1457,10 @@ or matrix.to link</translation>
         <source>Add</source>
         <translation>Add</translation>
     </message>
+    <message>
+        <source>Copy room link to clipboard</source>
+        <translation>Copy room link to clipboard</translation>
+    </message>
 </context>
 <context>
     <name>RoomListModel</name>
@@ -1326,6 +1564,46 @@ or matrix.to link</translation>
     <message>
         <source>Consider upgrading to a stable version (use room settings for that)</source>
         <translation>Consider upgrading to a stable version (use room settings for that)</translation>
+    </message>
+    <message>
+        <source>Server notices</source>
+        <translation>Server notices</translation>
+    </message>
+    <message numerus="yes">
+        <source>Joined: %L1</source>
+        <translation>
+            <numerusform>Joined: %L1</numerusform>
+            <numerusform>Joined: %L1</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Invited: %L1</source>
+        <translation>
+            <numerusform>Invited: %L1</numerusform>
+            <numerusform>Invited: %L1</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Unread messages: %L1+</source>
+        <translation>
+            <numerusform>Unread messages: %L1+</numerusform>
+            <numerusform>Unread messages: %L1+</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Unread messages: %L1</source>
+        <translation>
+            <numerusform>Unread messages: %L1</numerusform>
+            <numerusform>Unread messages: %L1</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Unread highlights: %L1</source>
+        <translation>Unread highlights: %L1</translation>
+    </message>
+    <message>
+        <source>Unread notifications: %L1</source>
+        <translation>Unread notifications: %L1</translation>
     </message>
 </context>
 <context>
@@ -1531,6 +1809,10 @@ This operation cannot be reverted.</translation>
         <source>Quote</source>
         <translation>Quote</translation>
     </message>
+    <message>
+        <source>edited</source>
+        <translation>edited</translation>
+    </message>
     <message numerus="yes">
         <source>%1 reacted with &apos;%2&apos;</source>
         <translation>
@@ -1545,6 +1827,18 @@ This operation cannot be reverted.</translation>
             <numerusform>%n authors</numerusform>
         </translation>
     </message>
+    <message>
+        <source>Go to
+older room</source>
+        <translation>Go to
+older room</translation>
+    </message>
+    <message>
+        <source>Go to
+new room</source>
+        <translation>Go to
+new room</translation>
+    </message>
 </context>
 <context>
     <name>SystemTrayIcon</name>
@@ -1558,6 +1852,18 @@ This operation cannot be reverted.</translation>
             <numerusform>%n highlight</numerusform>
             <numerusform>%n highlights</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>Hide</source>
+        <translation>Hide</translation>
+    </message>
+    <message>
+        <source>Quit</source>
+        <translation>Quit</translation>
+    </message>
+    <message>
+        <source>Show</source>
+        <translation>Show</translation>
     </message>
 </context>
 <context>
@@ -1585,12 +1891,72 @@ This operation cannot be reverted.</translation>
         <source>No connection to perform image request</source>
         <translation>No connection to perform image request</translation>
     </message>
+    <message>
+        <source>Image request is pending</source>
+        <translation>Image request is pending</translation>
+    </message>
 </context>
 <context>
     <name>ProfileDialog</name>
     <message>
+        <source>This is the current device</source>
+        <translation>This is the current device</translation>
+    </message>
+    <message>
+        <source>Device display name</source>
+        <translation>Device display name</translation>
+    </message>
+    <message>
+        <source>Device ID</source>
+        <translation>Device ID</translation>
+    </message>
+    <message>
+        <source>Last time seen</source>
+        <translation>Last time seen</translation>
+    </message>
+    <message>
+        <source>Last IP address</source>
+        <translation>Last IP address</translation>
+    </message>
+    <message>
+        <source>No Avatar</source>
+        <translation>No Avatar</translation>
+    </message>
+    <message>
+        <source>User profiles</source>
+        <translation>User profiles</translation>
+    </message>
+    <message>
         <source>Account</source>
         <translation>Account</translation>
+    </message>
+    <message>
+        <source>Display Name</source>
+        <translation>Display Name</translation>
+    </message>
+    <message>
+        <source>Copy to clipboard</source>
+        <translation>Copy to clipboard</translation>
+    </message>
+    <message>
+        <source>Access token</source>
+        <translation>Access token</translation>
+    </message>
+    <message>
+        <source>Apply and close</source>
+        <translation>Apply and close</translation>
+    </message>
+    <message>
+        <source>Loading other devices...</source>
+        <translation>Loading other devices...</translation>
+    </message>
+    <message>
+        <source>No avatar</source>
+        <translation>No avatar</translation>
+    </message>
+    <message>
+        <source>Set avatar</source>
+        <translation>Set avatar</translation>
     </message>
 </context>
 </TS>
