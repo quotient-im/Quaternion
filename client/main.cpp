@@ -61,6 +61,10 @@ void loadTranslations(
 
 int main( int argc, char* argv[] )
 {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+    QApplication::setAttribute(Qt::AA_DisableWindowContextHelpButton);
+#endif
+
     QApplication::setOrganizationName(QStringLiteral("Quotient"));
     QApplication::setApplicationName(QStringLiteral("quaternion"));
     QApplication::setApplicationDisplayName(QStringLiteral("Quaternion"));
@@ -75,12 +79,21 @@ int main( int argc, char* argv[] )
 
 #if defined Q_OS_UNIX && !defined Q_OS_MAC
     // When in Flatpak and unless overridden by configuration, set the style
-    // to Breeze as it looks much fresher than Fusions that Qt applications
-    // default to in Flatpak outside KDE
-    if (const auto useBreezeStyle =
-            settings.get("UI/use_breeze_style", inFlatpak())) {
-        // Set icon theme as well to have uniform design
+    // to Breeze as it looks much fresher than Fusion that Qt applications
+    // default to in Flatpak outside KDE. This is a bit complicated: Qt docs
+    // recommend to call setStyle() before constructing a QApplication object
+    // (to make sure the style's palette is applied, it seems) while setting
+    // the matching icon theme requires an already created QApplication object.
+    // See also: #681, #700.
+    const auto useBreezeStyle = settings.get("UI/use_breeze_style", inFlatpak());
+    if (useBreezeStyle) // Part 1
         QApplication::setStyle("Breeze");
+#endif
+
+    QApplication app(argc, argv);
+
+#if defined Q_OS_UNIX && !defined Q_OS_MAC
+    if (useBreezeStyle) { // Part 2
         QIcon::setThemeName("breeze");
 #    if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
         QIcon::setFallbackThemeName("breeze");
@@ -88,11 +101,6 @@ int main( int argc, char* argv[] )
     }
 #endif
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
-    QApplication::setAttribute(Qt::AA_DisableWindowContextHelpButton);
-#endif
-
-    QApplication app(argc, argv);
     {
         auto font = QApplication::font();
         if (const auto fontFamily = settings.get<QString>("UI/Fonts/family");
