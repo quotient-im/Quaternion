@@ -1,6 +1,6 @@
 #include "htmlfilter.h"
 
-#include <lib/util.h>
+#include <util.h>
 
 #include <QtCore/QRegularExpression>
 #include <QtCore/QXmlStreamReader>
