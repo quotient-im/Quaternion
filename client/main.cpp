@@ -77,23 +77,18 @@ int main( int argc, char* argv[] )
                              QStringLiteral("quaternion"));
     Settings settings;
 
-#if defined Q_OS_UNIX && !defined Q_OS_MAC
-    // When in Flatpak and unless overridden by configuration, set the style
-    // to Breeze as it looks much fresher than Fusion that Qt applications
-    // default to in Flatpak outside KDE. This is a bit complicated: Qt docs
-    // recommend to call setStyle() before constructing a QApplication object
-    // (to make sure the style's palette is applied, it seems) while setting
-    // the matching icon theme requires an already created QApplication object.
-    // See also: #681, #700.
-    const auto useBreezeStyle = settings.get("UI/use_breeze_style", inFlatpak());
-    if (useBreezeStyle) // Part 1
-        QApplication::setStyle("Breeze");
-#endif
-
     QApplication app(argc, argv);
-
 #if defined Q_OS_UNIX && !defined Q_OS_MAC
-    if (useBreezeStyle) { // Part 2
+    // #681: When in Flatpak and unless overridden by configuration, set
+    // the style to Breeze as it looks much fresher than Fusion that Qt
+    // applications default to in Flatpak outside KDE. Although Qt docs
+    // recommend to call setStyle() before constructing a QApplication object
+    // (to make sure the style's palette is applied?) that doesn't work with
+    // Breeze because it seems to make use of platform theme hints, which
+    // in turn need a created QApplication object (see #700).
+    const auto useBreezeStyle = settings.get("UI/use_breeze_style", inFlatpak());
+    if (useBreezeStyle) {
+        QApplication::setStyle("Breeze");
         QIcon::setThemeName("breeze");
 #    if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
         QIcon::setFallbackThemeName("breeze");
