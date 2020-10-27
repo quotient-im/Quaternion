@@ -19,7 +19,7 @@
     <category>Network</category>
   </categories>
 
-  <launchable type="desktop-id">quaternion.desktop</launchable>
+  <launchable type="desktop-id">com.github.quaternion.desktop</launchable>
 
   <screenshots>
     <screenshot type="default">
