@@ -102,26 +102,32 @@ bool ChatEdit::initCompletion()
         return false;
 
     matchesListPosition = 0;
-    // Add (constant) punctuation right away, in preparation for the cycle
+    // Add punctuation (either a colon and whitespace for salutations, or
+    // just a whitespace for mentions) right away, in preparation for the cycle
     // of rotating completion matches (that are placed before this punctuation).
     auto punct = QStringLiteral(" ");
     static const auto ColonSpace = QStringLiteral(": ");
     auto lookBehindCursor = completionCursor;
     if (lookBehindCursor.atStart())
-        punct = QStringLiteral(": "); // Salutation
+        punct = ColonSpace; // Salutation
     else {
         for (auto i = 1; i <= ColonSpace.size(); ++i) {
             lookBehindCursor.movePosition(QTextCursor::PreviousCharacter,
                                           QTextCursor::KeepAnchor);
             if (lookBehindCursor.selectedText().startsWith(
                     ColonSpace.leftRef(i))) {
-                // Replace the colon (with an optional space) before the place
-                // of completion with a comma (with a huge assumption that
-                // this colon ends a salutation; TODO: using the fact that
-                // mentions are linkified now, we can reliably detect
-                // salutations even to several users).
-                lookBehindCursor.insertText(QStringLiteral(", "));
-                punct = QStringLiteral(": ");
+                // Replace the colon (with a following space if any found)
+                // before the place of completion with a comma (with a huge
+                // assumption that this colon ends a salutation).
+                // The format is taken from the point of completion, to make
+                // sure the inserted comma doesn't continue the format before
+                // the colon.
+                // TODO: use the fact that mentions are linkified now
+                // to reliably detect salutations even to several users - but
+                // take UI/hyperlink_users into account
+                lookBehindCursor.insertText(QStringLiteral(", "),
+                                            completionCursor.charFormat());
+                punct = ColonSpace;
                 break;
             }
         }
