@@ -824,7 +824,7 @@ void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
     const auto eventType = modelIndex.data(MessageEventModel::EventTypeRole).toString();
     if (eventType == "image" || eventType == "file")
     {
-        const auto progressInfo = modelIndex.data(MessageEventModel::SpecialMarksRole)
+        const auto progressInfo = modelIndex.data(MessageEventModel::LongOperationRole)
             .value<Quotient::FileTransferInfo>();
         const bool downloaded = !progressInfo.isUpload && progressInfo.completed();
 
