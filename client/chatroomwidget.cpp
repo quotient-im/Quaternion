@@ -838,6 +838,12 @@ void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
 
             QDesktopServices::openUrl(progressInfo.localDir);
         });
+        if (downloaded && eventType == "image")
+        {
+            menu.addAction(tr("Copy image to clipboard"), [=] {
+                QApplication::clipboard()->setImage(QImage(progressInfo.localPath.path()));
+            });
+        }
         if (!downloaded)
         {
             menu.addAction(QIcon::fromTheme("edit-download"), tr("Download"), [=] {
