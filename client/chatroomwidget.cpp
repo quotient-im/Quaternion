@@ -832,19 +832,18 @@ void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
         menu.addAction(QIcon::fromTheme("document-open"), tr("Open externally"), [=] {
             emit openExternally(index);
         });
-        menu.addAction(QIcon::fromTheme("folder-open"), tr("Open Folder"), [=] {
-            if (!downloaded)
-                m_currentRoom->downloadFile(eventId);
-
-            QDesktopServices::openUrl(progressInfo.localDir);
-        });
-        if (downloaded && eventType == "image")
-        {
-            menu.addAction(tr("Copy image to clipboard"), [=] {
-                QApplication::clipboard()->setImage(QImage(progressInfo.localPath.path()));
+        if (downloaded) {
+            menu.addAction(QIcon::fromTheme("folder-open"), tr("Open Folder"), [=] {
+                QDesktopServices::openUrl(progressInfo.localDir);
             });
+            if (eventType == "image")
+            {
+                menu.addAction(tr("Copy image to clipboard"), [=] {
+                    QApplication::clipboard()->setImage(QImage(progressInfo.localPath.path()));
+                });
+            }
         }
-        if (!downloaded)
+        else
         {
             menu.addAction(QIcon::fromTheme("edit-download"), tr("Download"), [=] {
                 m_currentRoom->downloadFile(eventId);
