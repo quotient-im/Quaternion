@@ -777,7 +777,7 @@ void ChatRoomWidget::quote(const QString& htmlText)
 }
 
 void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
-                              bool showingDetails)
+                              const QString& selectedText, bool showingDetails)
 {
     const auto modelIndex = m_messageModel->index(index, 0);
     const auto eventId = modelIndex.data(MessageEventModel::EventIdRole).toString();
@@ -793,6 +793,12 @@ void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
     if (!plEvt || userPl >= plEvt->redact() || localUserId == modelUser->id()) {
         menu.addAction(QIcon::fromTheme("edit-delete"), tr("Redact"), [=] {
             m_currentRoom->redactEvent(eventId);
+        });
+    }
+    if (!selectedText.isEmpty())
+    {
+        menu.addAction(tr("Copy selected text to clipboard"), [=] {
+            QApplication::clipboard()->setText(selectedText);
         });
     }
     if (!hoveredLink.isEmpty())
