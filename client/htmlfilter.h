@@ -8,9 +8,6 @@ class QuaternionRoom;
 namespace HtmlFilter {
 Q_NAMESPACE
 
-enum ParsingMode { Tolerant = 0, Validating = 1 };
-Q_ENUM_NS(ParsingMode)
-
 /*! \brief Result structure for Matrix HTML parsing
  *
  * This is the return type of matrixToQt(), which, unlike qtToMatrix(),
@@ -52,8 +49,11 @@ public:
  * \sa
  * https://matrix.org/docs/spec/client_server/latest#m-room-message-msgtypes
  */
-
 QString qtToMatrix(const QString& html, QuaternionRoom* context = nullptr);
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+QString mixedToMatrix(const QString& html, QuaternionRoom* context = nullptr);
+#endif
 
 /*! \brief Make the received HTML with Matrix attributes compatible with Qt
  *
@@ -66,12 +66,15 @@ QString qtToMatrix(const QString& html, QuaternionRoom* context = nullptr);
  * will contain the error details (position and brief description), along with
  * whatever HTML the function managed to produce before the failure.
  *
+ * \param matrixHtml text in Matrix HTML that should be converted to Qt HTML
+ * \param context optional room context to enrich the text
+ * \param validate whether the algorithm should stop at disallowed HTML tags
+ *                 rather than ignore them
  * \sa Result
  * \sa
  * https://matrix.org/docs/spec/client_server/latest#m-room-message-msgtypes
  */
-Result matrixToQt(const QString& html, QuaternionRoom* context = nullptr,
-                  ParsingMode parsingMode = Tolerant);
-
+Result matrixToQt(const QString& matrixHtml, QuaternionRoom* context = nullptr,
+                  bool validate = false);
 }
 Q_DECLARE_METATYPE(HtmlFilter::Result)

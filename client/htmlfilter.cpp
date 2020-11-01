@@ -2,6 +2,8 @@
 
 #include <util.h>
 
+#include <QtGui/QTextDocument>
+
 #include <QtCore/QRegularExpression>
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QXmlStreamWriter>
@@ -14,7 +16,49 @@ using namespace std;
 
 namespace HtmlFilter {
 
-enum Direction : unsigned char { QtToMatrix, MatrixToQt };
+enum Options : unsigned char {
+    QtToMatrix = 0x1,
+    MatrixToQt = 0x2,
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+    ConvertMarkdown = 0x5, // QtToMatrix | 0x4
+#endif
+    InnerHtml = 0x8
+};
+Q_DECLARE_FLAGS(Mode, Options)
+
+class Processor {
+public:
+    [[nodiscard]] static Result process(QString html, Mode mode,
+                                        QuaternionRoom* context)
+    {
+        QString resultHtml;
+        QXmlStreamWriter writer(&resultHtml);
+        writer.setAutoFormatting(false);
+        Processor p { mode, context, writer };
+        p.runOn(html);
+        return { resultHtml, p.errorPos, p.errorString };
+    }
+
+private:
+    Mode mode;
+    QuaternionRoom* context;
+    QXmlStreamWriter& writer;
+    int errorPos = -1;
+    QString errorString {};
+
+    Processor(Mode mode, QuaternionRoom* context, QXmlStreamWriter& writer)
+        : mode(mode), context(context), writer(writer)
+    {
+        Q_ASSERT((mode & QtToMatrix) ^ (mode & MatrixToQt));
+    }
+    void runOn(QString html);
+
+    using rewrite_t = vector<pair<QString, QXmlStreamAttributes>>;
+
+    [[nodiscard]] rewrite_t filterTag(const QStringRef& tag,
+                                      QXmlStreamAttributes attributes);
+    void filterText(QString& textBuffer);
+};
 
 static const QString permittedTags[] = {
     "font",       "del", "h1",    "h2",     "h3",      "h4",     "h5",   "h6",
@@ -30,12 +74,12 @@ struct PassList {
 };
 
 // See filterTag() on special processing of commented out tags/attributes
-static const PassList passLists[] =
-    { { "a", { "name", "target", /* "href" - only from permittedSchemes */ } }
-    , { "img", { "width", "height", "alt", "title", /* "src" - only 'mxc:' */ } }
-    , { "ol", { "start" } }
-    , { "font", { "color", "data-mx-color", "data-mx-bg-color" } }
-    , { "span", { "color", "data-mx-color", "data-mx-bg-color" } }
+static const PassList passLists[] = {
+    { "a", { "name", "target", /* "href" - only from permittedSchemes */ } },
+    { "img", { "width", "height", "alt", "title", /* "src" - only 'mxc:' */ } },
+    { "ol", { "start" } },
+    { "font", { "color", "data-mx-color", "data-mx-bg-color" } },
+    { "span", { "color", "data-mx-color", "data-mx-bg-color" } }
     //, { "code", { "class" /* must start with 'language-' */ } } // Special case
 };
 
@@ -47,6 +91,261 @@ static const auto& htmlStyleAttr = QStringLiteral("style");
 static const auto& mxColorAttr = QStringLiteral("data-mx-color");
 static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
 
+/*! \brief Massage the passed HTML to look more like XHTML
+ *
+ * Since Qt doesn't have an HTML parser (outside of QTextDocument) process()
+ * uses QXmlStreamReader instead, and it's quite picky about properly closed
+ * tags and escaped ampersands. This helper tries to convert the passed HTML
+ * to something more XHTML-like, so that the XML reader doesn't choke on
+ * trivial things like unclosed `br` or `img` tags and unescaped ampersands
+ * in `href` attributes.
+ */
+[[nodiscard]] QString preprocess(QString html)
+{
+    constexpr auto ReOpt = QRegularExpression::CaseInsensitiveOption;
+    html.replace(QRegularExpression("<([bh]r)[^/<>]*>", ReOpt), "<\\1 />");
+    html.replace(QRegularExpression("<img([^/<>])*>", ReOpt), "<img\\1 />");
+    // Escape ampersands outside of character entities
+    // (HTML tolerates it, XML doesn't)
+    html.replace(QRegularExpression("&(?!(#[0-9]+|#x[0-9a-fA-F]+|[[:alpha:]_][-"
+                                    "[:alnum:]_:.]*);)",
+                                    ReOpt),
+                 "&amp;");
+    return html;
+}
+
+inline QString xToMatrix(const QString& qtMarkup, QuaternionRoom* context,
+                         Mode mode = QtToMatrix)
+{
+    Q_ASSERT(mode & QtToMatrix);
+
+    const auto& result = Processor::process(preprocess(qtMarkup), mode, context);
+    Q_ASSERT(result.errorPos == -1);
+    return result.filteredHtml;
+}
+
+QString qtToMatrix(const QString& html, QuaternionRoom* context)
+{
+    return xToMatrix(html, context);
+}
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+QString mixedToMatrix(const QString& html, QuaternionRoom* context)
+{
+    return xToMatrix(html, context, ConvertMarkdown);
+}
+#endif
+
+Result matrixToQt(const QString& matrixHtml, QuaternionRoom* context,
+                  bool validate)
+{
+    auto html = preprocess(matrixHtml);
+
+    // Catch early non-compliant tags and non-tags, before they upset
+    // the XML parser.
+    for (auto pos = html.indexOf('<'); pos != -1; pos = html.indexOf('<', pos)) {
+        const auto& escapeLt = [&html, &pos] {
+            html.replace(pos, 1, "&lt;");
+            pos += 4; // Put pos right after &lt;
+        };
+
+        if (pos > html.size() - 3) { // No space for a complete tag
+            escapeLt();
+            continue;
+        }
+        const auto tagNamePos = pos + 1 + (html[pos + 1] == '/');
+        auto uncheckedHtml = html.midRef(tagNamePos);
+        const QLatin1String commentOpen("!--");
+        const QLatin1String commentClose("-->");
+        if (uncheckedHtml.startsWith(commentOpen)) { // Skip comments
+            pos = html.indexOf(commentClose, tagNamePos + commentOpen.size())
+                  + commentClose.size();
+            continue;
+        }
+        // Look ahead to detect stray < and escape it
+        auto gtPos = html.indexOf('>', tagNamePos);
+        if (auto nextLtPos = html.indexOf('<', tagNamePos);
+            gtPos == -1 || (nextLtPos != -1 && nextLtPos < gtPos)) {
+            escapeLt();
+            continue;
+        }
+        // Check if it's a valid (opening or closing) tag allowed in Matrix
+        auto it = find_if(begin(permittedTags), end(permittedTags),
+                          [&uncheckedHtml](const QString& tag) {
+                              if (!(uncheckedHtml.size() > tag.size()
+                                    && uncheckedHtml.startsWith(tag)))
+                                  return false;
+                              const auto& charAfter = uncheckedHtml[tag.size()];
+                              return charAfter.isSpace() || charAfter == '/'
+                                     || charAfter == '>';
+                          });
+        if (it != end(permittedTags)) { // Got a valid tag, skip to >
+            pos = gtPos + 1;
+            continue;
+        }
+        // Invalid tag or non-tag - either remove the abusing piece or stop
+        // and report
+        if (validate)
+            return { {},
+                     pos,
+                     "Non-tag or disallowed tag: "
+                         % uncheckedHtml.left(gtPos - tagNamePos) };
+
+        html.remove(pos, html.indexOf('>', tagNamePos) - pos + 1);
+    }
+    // Wrap in a no-op tag to make the text look like valid XML; Qt's rich
+    // text engine produces valid XHTML so QtToMatrix doesn't need this.
+    html = "<body>" % html % "</body>";
+
+    return Processor::process(html, MatrixToQt, context);
+}
+
+void Processor::runOn(QString html)
+{
+    QXmlStreamReader reader { html };
+
+    /// The entry in the (outer) stack corresponds to each level in the source
+    /// document; the (inner) stack in each entry records open elements in the
+    /// target document.
+    using open_tags_t = stack<QString, vector<QString>>;
+    stack<open_tags_t, vector<open_tags_t>> tagsStack;
+
+    /// Accumulates characters and resolved entry references until the next
+    /// tag (opening or closing); used to linkify (or process Markdown in)
+    /// text parts.
+    QString textBuffer;
+    int bodyOffset = 0;
+    bool firstElement = true, inAnchor = false;
+    while (!reader.atEnd()) {
+        const auto tokenType = reader.readNext();
+        if (bodyOffset == -1) // See below in 'case StartElement:'
+            bodyOffset = reader.characterOffset();
+
+        if (!textBuffer.isEmpty() && !reader.isCharacters()
+            && !reader.isEntityReference())
+            filterText(textBuffer);
+
+        switch (tokenType) {
+        case QXmlStreamReader::StartElement: {
+            const auto& tagName = reader.qualifiedName();
+            if (tagsStack.empty()) {
+                // These tags are invalid anywhere deeper, and we don't even
+                // care to put them to tagsStack
+                if (tagName == "html")
+                    break; // Just ignore, get to the content inside
+                if (tagName == "head") { // Entirely uninteresting
+                    reader.skipCurrentElement();
+                    break;
+                }
+                if (tagName == "body") { // Skip but note the encounter
+                    bodyOffset = -1; // Reuse the variable until the next loop
+                    break;
+                }
+            }
+
+            tagsStack.emplace();
+            if (tagsStack.size() > 100)
+                qCritical() << "CS API spec limits HTML tags depth at 100";
+
+            const auto& attrs = reader.attributes();
+            if (mode.testFlag(QtToMatrix)) {
+                // Qt hardcodes the link style in a `<span>` under `<a>`.
+                // This breaks the looks on the receiving side if the sender
+                // uses a different style of links from that of the receiver.
+                // Since Qt decorates links when importing HTML anyway, we
+                // don't lose anything if we just strip away this span tag.
+                if (inAnchor && textBuffer.isEmpty() && tagName == "span"
+                    && attrs.size() == 1
+                    && attrs.front().qualifiedName() == "style")
+                    break; // inAnchor == true ==> firstElement == false
+            }
+            // Skip the first top-level <p> and replace further top-level
+            // `<p>...</p>` with `<br/>...` - kinda controversial but
+            // there's no cleaner way to get rid of the single top-level <p>
+            // generated by Qt without assuming that it's the only <p>
+            // spanning the whole body (copy-pasting rich text from other
+            // editors can bring several legitimate paragraphs of text,
+            // e.g.). This is also a very special case where a converted tag
+            // is immediately closed, unlike the one in the source text;
+            // which is why it's checked here rather than in filterTag().
+            if (tagName == "p"
+                && tagsStack.size() == 1 /* top-level, just emplaced */) {
+                if (firstElement)
+                    continue; // Skip unsetting firstElement at the loop end
+                writer.writeEmptyElement("br");
+            } else if (tagName != "mx-reply"
+                       || (firstElement && !mode.testFlag(InnerHtml))) {
+                // ^ The spec only allows `<mx-reply>` at the very beginning
+                const auto& rewrite = filterTag(tagName, attrs);
+                for (const auto& [tag, attrs]: rewrite) {
+                    tagsStack.top().push(tag);
+                    writer.writeStartElement(tag);
+                    writer.writeAttributes(attrs);
+                    if (tag == "a")
+                        inAnchor = true;
+                }
+            }
+            break;
+        }
+        case QXmlStreamReader::Characters:
+        case QXmlStreamReader::EntityReference: {
+            if (firstElement && mode.testFlag(ConvertMarkdown)) {
+                // Remove the line break Qt inserts after <body> because it
+                // confuses Markdown parser converting it to HTML line break.
+                if (reader.text().startsWith('\n')) {
+                    textBuffer += reader.text().mid(1);
+                    continue; // Maintain firstElement
+                }
+            }
+            // Outside of links, defer writing until the nearest tag (opening
+            // or closing) in order to linkify the whole text piece with all
+            // entity references resolved.
+            if (!inAnchor && !mode.testFlag(InnerHtml))
+                textBuffer += reader.text();
+            else
+                writer.writeCurrentToken(reader);
+            break;
+        }
+        case QXmlStreamReader::EndElement:
+            if (tagsStack.empty()) {
+                const auto& tagName = reader.qualifiedName();
+                if (tagName != "body" && tagName != "html")
+                    qWarning() << "filterHtml(): empty tags stack, skipping"
+                               << ('/' + tagName);
+                break;
+            }
+            // Close as many elements as were opened in case StartElement
+            for (auto& t = tagsStack.top(); !t.empty(); t.pop()) {
+                writer.writeEndElement();
+                if (t.top() == "a")
+                    inAnchor = false;
+            }
+            tagsStack.pop();
+            break;
+        case QXmlStreamReader::EndDocument:
+            if (!tagsStack.empty())
+                qWarning().noquote().nospace()
+                    << __FUNCTION__ << ": Not all HTML tags closed";
+            break;
+        case QXmlStreamReader::NoToken:
+            Q_ASSERT(reader.tokenType() != QXmlStreamReader::NoToken /*false*/);
+            break;
+        case QXmlStreamReader::Invalid:
+            errorPos = reader.characterOffset() - bodyOffset;
+            errorString = reader.errorString();
+            qCritical().noquote() << "Invalid XHTML:" << html;
+            qCritical().nospace()
+                << "Error at char " << errorPos << ": " << errorString;
+            qCritical().noquote()
+                << "Buffer at error:" << html.mid(reader.characterOffset());
+            break;
+        default:;
+        }
+        // Unset first element once encountered non-whitespace under `<body>`
+        firstElement &= (bodyOffset <= 0 || reader.isWhitespace());
+    }
+}
+
 template <size_t Len>
 inline QStringRef cssValue(const QStringRef& css,
                            const char (&propertyNameWithColon)[Len])
@@ -56,23 +355,12 @@ inline QStringRef cssValue(const QStringRef& css,
                : QStringRef();
 }
 
-using rewrite_t = vector<pair<QString, QXmlStreamAttributes>>;
-
-template <Direction Dir>
-rewrite_t filterTag(const QStringRef& tag, QXmlStreamAttributes attributes,
-                    bool firstElement)
+Processor::rewrite_t Processor::filterTag(const QStringRef& tag,
+                                          QXmlStreamAttributes attributes)
 {
-    if (tag == "mx-reply") { // Very special case
-        // As per the spec, `<mx-reply>` can only come at the very
-        // beginning, with no attributes allowed; and should be
-        // treated as `<div>`; so deal with it as a special case
-        if (!firstElement)
-            return {};
-
-        if constexpr (Dir == MatrixToQt)
-            return { { "div", {} } };
-        // Otherwise, just pass `<mx-reply>` to the wire in a usual way
-    }
+    if (tag == "mx-reply" && mode.testFlag(MatrixToQt))
+        return { { "div", {} } }; // The spec says that mx-reply is HTML div
+    // If `mx-reply` is encountered on the way to the wire, just pass it
 
     rewrite_t rewrite { { tag.toString(), {} } };
     if (tag == "code") { // Special case
@@ -93,27 +381,26 @@ rewrite_t filterTag(const QStringRef& tag, QXmlStreamAttributes attributes,
     if (it == end(passLists))
         return rewrite; // Drop all attributes, pass the tag
 
+    /// Find the first element in the rewrite that would accept color
+    /// attributes (`font` and, only in Matrix HTML, `span`),
+    /// and add the passed attribute to it
+    const auto& addColorAttr = [&rewrite, this](const QString& attrName,
+                                                const QStringRef& attrValue) {
+        auto it = find_if(rewrite.begin(), rewrite.end(),
+                          [this](const rewrite_t::value_type& element) {
+                              return element.first == "font"
+                                     || (mode.testFlag(QtToMatrix)
+                                         && element.first == "span");
+                          });
+        if (it == rewrite.end())
+            it = rewrite.insert(rewrite.end(), { "font", {} });
+        it->second.append(attrName, attrValue.toString());
+    };
+
     const auto& passList = it->allowedAttrs;
     for (auto&& a: attributes) {
-        /// Find the first element in the rewrite that would accept color
-        /// attributes (`font` and, only in Matrix HTML, `span`),
-        /// and add the passed attribute to it
-        const auto& addColorAttr = [&rewrite](const QString& attrName,
-                                              const QStringRef& attrValue) {
-            auto it = find_if(rewrite.begin(), rewrite.end(),
-                              [](const rewrite_t::value_type& element) {
-                                  return element.first == "font"
-                                         || (Dir == QtToMatrix
-                                             && element.first == "span");
-                              });
-            if (it == rewrite.end())
-                it = rewrite.insert(rewrite.end(), { "font", {} });
-            it->second.append(attrName, attrValue.toString());
-        };
-
         // Attribute conversions between Matrix and Qt subsets
-
-        if constexpr (Dir == MatrixToQt) {
+        if (mode.testFlag(MatrixToQt)) {
             if (a.qualifiedName() == mxColorAttr) {
                 addColorAttr(htmlColorAttr, a.value());
                 continue;
@@ -167,7 +454,6 @@ rewrite_t filterTag(const QStringRef& tag, QXmlStreamAttributes attributes,
         }
 
         // Generic filtering for attributes
-
         if ((tag == "a" && a.qualifiedName() == "href"
              && any_of(begin(permittedSchemes), end(permittedSchemes),
                        [&a](const char* s) { return a.value().startsWith(s); }))
@@ -177,6 +463,7 @@ rewrite_t filterTag(const QStringRef& tag, QXmlStreamAttributes attributes,
                    != passList.end())
             rewrite.front().second.push_back(move(a));
     } // for (a: attributes)
+
     // Remove the original <font> or <span> if they end up without attributes
     // since without attributes they are no-op
     if (!rewrite.empty()
@@ -187,263 +474,29 @@ rewrite_t filterTag(const QStringRef& tag, QXmlStreamAttributes attributes,
     return rewrite;
 }
 
-void linkifyLastCharacters(QString& textBuffer, QXmlStreamWriter& writer,
-                           QString& target)
+void Processor::filterText(QString& textBuffer)
 {
     if (textBuffer.isEmpty())
         return;
 
-    // We want to reuse Quotient::linkifyUrls() but it works on the whole
-    // string rather than produces a stream of tokens that QXmlStreamWriter
-    // could use. So we make sure that the writer enters the "characters" state
-    // by writing a zero-length string (that may or may not work on other Qt
-    // versions...) before bootlegging a mix of characteres and `a` elements
-    // behind QXmlStreamWriter's back.
-    writer.writeCharacters({});
     textBuffer = textBuffer.toHtmlEscaped(); // The reader unescaped it
-    Quotient::linkifyUrls(textBuffer);
-    target += textBuffer;
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+    if (mode.testFlag(ConvertMarkdown)) {
+        QTextDocument doc;
+        doc.setMarkdown(textBuffer);
+        textBuffer = doc.toHtml();
+    } else
+#endif
+    {
+        Q_ASSERT(!mode.testFlag(ConvertMarkdown)); // Double-check for older Qt
+        Quotient::linkifyUrls(textBuffer);
+        textBuffer = "<body>" % textBuffer % "</body>";
+    }
+    // Re-process this piece of text as HTML but dump text snippets as they are
+    Processor(mode|InnerHtml, context, writer).runOn(textBuffer);
+
     textBuffer.clear();
-}
-
-template <Direction Dir>
-Result process(QString html, [[maybe_unused]] QuaternionRoom* context,
-               ParsingMode parsingMode = Tolerant)
-{
-    // Since Qt doesn't have an HTML parser (outside of QTextDocument) process()
-    // uses QXmlStreamReader instead, and it's quite picky about properly closed
-    // tags and escaped ampersands. This helper tries to convert the passed HTML
-    // to something more XHTML-like, so that the XML reader doesn't choke on
-    // trivial things like unclosed `br` or `img` tags and unescaped ampersands
-    // in `href` attributes.
-    constexpr auto ReOpt = QRegularExpression::CaseInsensitiveOption;
-    html.replace(QRegularExpression("<([bh]r)[^/<>]*>", ReOpt), "<\\1 />");
-    html.replace(QRegularExpression("<img([^/<>])*>", ReOpt), "<img\\1 />");
-    // Escape ampersands outside of character entities
-    // (HTML tolerates it, XML doesn't)
-    html.replace(
-        QRegularExpression(
-            "&(?!(#[0-9]+|#x[0-9a-fA-F]+|[[:alpha:]_][-[:alnum:]_:.]*);)",
-            ReOpt),
-        "&amp;");
-
-    Result result;
-    if constexpr (Dir != QtToMatrix) {
-        // Catch early non-compliant tags and non-tags, before they upset
-        // the XML parser.
-        for (auto pos = html.indexOf('<'); pos != -1;
-             pos = html.indexOf('<', pos)) {
-
-            const auto& escapeLt = [&html, &pos] {
-                html.replace(pos, 1, "&lt;");
-                pos += 4; // Put pos right after &lt;
-            };
-
-            if (pos > html.size() - 3) { // No space for a complete tag
-                escapeLt();
-                continue;
-            }
-            const auto tagNamePos = pos + 1 + (html[pos + 1] == '/');
-            auto uncheckedHtml = html.midRef(tagNamePos);
-            const QLatin1String commentOpen("!--");
-            const QLatin1String commentClose("-->");
-            if (uncheckedHtml.startsWith(commentOpen)) { // Skip comments
-                pos = html.indexOf(commentClose, tagNamePos + commentOpen.size())
-                      + commentClose.size();
-                continue;
-            }
-            // Look ahead to detect stray < and escape it
-            auto gtPos = html.indexOf('>', tagNamePos);
-            if (auto nextLtPos = html.indexOf('<', tagNamePos);
-                gtPos == -1 || (nextLtPos != -1 && nextLtPos < gtPos)) {
-                escapeLt();
-                continue;
-            }
-            // Check if it's a valid (opening or closing) tag allowed in Matrix
-            auto it = find_if(begin(permittedTags), end(permittedTags),
-                              [&uncheckedHtml](const QString& tag) {
-                                  if (!(uncheckedHtml.size() > tag.size()
-                                        && uncheckedHtml.startsWith(tag)))
-                                      return false;
-                                  const auto& charAfter =
-                                      uncheckedHtml[tag.size()];
-                                  return charAfter.isSpace() || charAfter == '/'
-                                         || charAfter == '>';
-                              });
-            if (it != end(permittedTags)) { // Got a valid tag, skip to >
-                pos = gtPos + 1;
-                continue;
-            }
-            // Invalid tag or non-tag - either remove the abusing piece or stop
-            // and report
-            if (parsingMode == Validating) {
-                result.errorPos = pos;
-                result.errorString = "Non-tag or disallowed tag: "
-                                     % uncheckedHtml.left(gtPos - tagNamePos);
-                return result;
-            }
-            html.remove(pos, html.indexOf('>', tagNamePos) - pos + 1);
-        }
-        // Wrap in a no-op tag to make the text look like valid XML; Qt's rich
-        // text engine produces valid XHTML so QtToMatrix doesn't need this.
-        html = "<body>" % html % "</body>";
-    }
-
-    // Now for the actual parsing
-
-    QXmlStreamReader reader(html);
-    QXmlStreamWriter writer(&result.filteredHtml);
-    writer.setAutoFormatting(false);
-
-    /// The entry in the (outer) stack corresponds to each level in the source
-    /// document; the (inner) stack in each entry records open elements in the
-    /// target document.
-    using open_tags_t = stack<QString, vector<QString>>;
-    stack<open_tags_t, vector<open_tags_t>> tagsStack;
-    /// Accumulates characters and resolved entry references until the next
-    /// tag (opening or closing); used to linkify text parts
-    QString textBuffer;
-    int bodyOffset = 0;
-    for (bool firstElement = true, inAnchor = false; !reader.atEnd();) {
-        const auto tokenType = reader.readNext();
-        if (bodyOffset == -1) // See below in 'case StartElement:'
-            bodyOffset = reader.characterOffset();
-
-        switch (tokenType) {
-        case QXmlStreamReader::NoToken:
-            Q_ASSERT(reader.tokenType() != QXmlStreamReader::NoToken /*false*/);
-            continue;
-        case QXmlStreamReader::StartDocument:
-        case QXmlStreamReader::Comment:
-        case QXmlStreamReader::DTD:
-        case QXmlStreamReader::ProcessingInstruction:
-            continue;
-        case QXmlStreamReader::Invalid:
-            result.errorPos = reader.characterOffset() - bodyOffset;
-            result.errorString = reader.errorString();
-            qCritical().noquote() << "Invalid XHTML:" << html;
-            qCritical().nospace() << "Error at char " << result.errorPos << ": "
-                                  << result.errorString;
-            qCritical().noquote()
-                << "Buffer at error:" << html.mid(reader.characterOffset());
-            writer.writeEndDocument();
-            continue;
-        case QXmlStreamReader::EndDocument:
-            if (!tagsStack.empty())
-                qDebug() << "filterHtml(): Not all HTML tags closed";
-            continue;
-        case QXmlStreamReader::StartElement: {
-            linkifyLastCharacters(textBuffer, writer, result.filteredHtml);
-
-            const auto& tagName = reader.qualifiedName();
-            if (tagsStack.empty()) {
-                // These tags are invalid anywhere deeper, and we don't even
-                // care to put them to tagsStack
-                if (tagName == "html")
-                    continue; // Just ignore, get to the content inside
-                if (tagName == "head") { // Entirely uninteresting
-                    reader.skipCurrentElement();
-                    continue;
-                }
-                if (tagName == "body") { // Skip but note the encounter
-                    bodyOffset = -1; // Reuse the variable until the next loop
-                    continue;
-                }
-            }
-
-            tagsStack.emplace();
-            if (tagsStack.size() > 100)
-                qCritical() << "CS API spec limits HTML tags depth at 100";
-
-            const auto& attrs = reader.attributes();
-            if constexpr (Dir == QtToMatrix) {
-                // Qt hardcodes the link style in a `<span>` under `<a>`.
-                // This breaks the looks on the receiving side if the sender
-                // uses a different style of links from that of the receiver.
-                // Since Qt decorates links when importing HTML anyway, we
-                // don't lose anything if we just strip away this span tag.
-                if (inAnchor && textBuffer.isEmpty() && tagName == "span"
-                    && attrs.size() == 1
-                    && attrs.front().qualifiedName() == "style")
-                    continue; // inAnchor == true ==> firstElement == false
-            }
-            // Skip the first top-level <p> and replace further top-level
-            // `<p>...</p>` with `<br/>...` - kinda controversial but
-            // there's no cleaner way to get rid of the single top-level <p>
-            // generated by Qt without assuming that it's the only <p>
-            // spanning the whole body (copy-pasting rich text from other
-            // editors can bring several legitimate paragraphs of text,
-            // e.g.). This is also a very special case where a converted tag
-            // is immediately closed, unlike the one in the source text;
-            // which is why it's checked here rather than in filterTag().
-            if (tagName == "p"
-                && tagsStack.size() == 1 /* top-level, just emplaced */) {
-                if (!firstElement)
-                    writer.writeEmptyElement("br");
-            } else {
-                const auto& rewrite =
-                    filterTag<Dir>(tagName, attrs, firstElement);
-                for (const auto& [tag, attrs]: rewrite) {
-                    tagsStack.top().push(tag);
-                    writer.writeStartElement(tag);
-                    writer.writeAttributes(attrs);
-                    if (tag == "a")
-                        inAnchor = true;
-                }
-            }
-            firstElement = false;
-            continue;
-        }
-        case QXmlStreamReader::Characters:
-        case QXmlStreamReader::EntityReference:
-        {
-            // Outside of links, defer writing until the nearest tag (opening
-            // or closing) in order to linkify the whole text piece with all
-            // entity references resolved.
-            if (!inAnchor)
-                textBuffer += reader.text();
-            else
-                writer.writeCurrentToken(reader);
-            continue;
-        }
-        case QXmlStreamReader::EndElement:
-            linkifyLastCharacters(textBuffer, writer, result.filteredHtml);
-
-            if (tagsStack.empty()) {
-                const auto& tagName = reader.qualifiedName();
-                if (tagName != "body" && tagName != "html")
-                    qWarning() << "filterHtml(): empty tags stack, skipping"
-                               << ('/' + tagName);
-                continue;
-            }
-            // Close as many elements as were opened in case StartElement
-            for (auto& t = tagsStack.top(); !t.empty(); t.pop()) {
-                writer.writeEndElement();
-                if (t.top() == "a")
-                    inAnchor = false;
-            }
-            tagsStack.pop();
-            continue;
-        }
-    }
-    // Qt 5.15 (and most likely others) add a line break after <body>
-    if (result.filteredHtml.startsWith('\n'))
-        result.filteredHtml.remove(0, 1);
-
-    return result;
-}
-
-QString qtToMatrix(const QString& html, QuaternionRoom* context)
-{
-    const auto& result = process<QtToMatrix>(html, context);
-    Q_ASSERT(result.errorPos == -1);
-    return result.filteredHtml;
-}
-
-Result matrixToQt(const QString& html, QuaternionRoom* context,
-                  ParsingMode parsingMode)
-{
-    return process<MatrixToQt>(html, context, parsingMode);
 }
 
 } // namespace HtmlFilter

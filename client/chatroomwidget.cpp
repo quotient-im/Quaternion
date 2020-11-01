@@ -389,17 +389,39 @@ void ChatRoomWidget::sendFile()
     m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+void sendMarkdown(QuaternionRoom* room, const QTextDocument* text)
+{
+    // https://bugreports.qt.io/browse/QTBUG-86603
+    static constexpr auto MdFeatures = QTextDocument::MarkdownFeatures(
+        QTextDocument::MarkdownNoHTML | QTextDocument::MarkdownDialectCommonMark);
+
+    const auto& html = HtmlFilter::mixedToMatrix(text->toHtml(), room);
+    room->postHtmlText(QTextDocument(html).toMarkdown(MdFeatures),
+                       html);
+}
+#endif
+
 void ChatRoomWidget::sendMessage()
 {
     if (m_chatEdit->toPlainText().startsWith("//"))
         QTextCursor(m_chatEdit->document()).deleteChar();
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+    if (m_uiSettings.get("auto_markdown", false)) {
+        sendMarkdown(m_currentRoom, m_chatEdit->document());
+        return;
+    }
+#endif
     const auto& plainText = m_chatEdit->toPlainText();
     const auto& htmlText =
         HtmlFilter::qtToMatrix(m_chatEdit->toHtml(), m_currentRoom);
     Q_ASSERT(!plainText.isEmpty() && !htmlText.isEmpty());
     m_currentRoom->postHtmlText(plainText, htmlText);
 }
+
+static const auto NothingToSendMsg =
+    ChatRoomWidget::tr("There's nothing to send");
 
 QString ChatRoomWidget::sendCommand(const QStringRef& command,
                                     const QString& argString)
@@ -573,6 +595,12 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         return tr("%1 doesn't look like a user id or room alias")
                 .arg(args.front());
     }
+    if (command == "plain") {
+        if (argString.isEmpty())
+            return NothingToSendMsg;
+        m_currentRoom->postPlainText(argString);
+        return {};
+    }
     if (command == "html")
     {
         // Assuming Matrix HTML, convert it to Qt and load to a fragment in
@@ -581,8 +609,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         // back to Matrix HTML to produce the (clean) rich text version
         // of the message
         const auto& [cleanQtHtml, errorPos, errorString] =
-            HtmlFilter::matrixToQt(argString, m_currentRoom,
-                                   HtmlFilter::Validating);
+            HtmlFilter::matrixToQt(argString, m_currentRoom, true);
         if (errorPos != -1)
             return tr("At pos %1: ").arg(errorPos) % errorString;
 
@@ -594,14 +621,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
     }
     if (command == "md") {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-        // https://bugreports.qt.io/browse/QTBUG-86603
-        static constexpr auto MdFeatures = QTextDocument::MarkdownFeatures(
-            QTextDocument::MarkdownNoHTML
-            | QTextDocument::MarkdownDialectCommonMark);
-        m_chatEdit->setMarkdown(argString);
-        m_currentRoom->postHtmlText(m_chatEdit->toMarkdown(MdFeatures).trimmed(),
-                                    HtmlFilter::qtToMatrix(m_chatEdit->toHtml(),
-                                                           m_currentRoom));
+        sendMarkdown(m_currentRoom, m_chatEdit->document());
         return {};
 #else
         return tr("Your build of Quaternion doesn't support Markdown");
@@ -630,7 +650,7 @@ void ChatRoomWidget::sendInput()
         const auto& text = m_chatEdit->toPlainText();
         QString error;
         if (text.isEmpty())
-            error = tr("There's nothing to send");
+            error = NothingToSendMsg;
         else if (text.startsWith('/') && !text.midRef(1).startsWith('/')) {
             QRegularExpression cmdSplit("([[:blank:]])+", ReFlags);
             const auto& blanksMatch = cmdSplit.match(text, 1);
