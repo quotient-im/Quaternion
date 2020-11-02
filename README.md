@@ -125,9 +125,12 @@ Quaternion stores its configuration in a way standard for Qt applications. It wi
   - system-wide: `HKEY_LOCAL_MACHINE\Software\Quotient\quaternion`
   - user-specific: `HKEY_CURRENT_USER\Software\Quotient\quaternion`
 
-Some settings exposed in UI (Settings and View menus):
+ALL settings listed below reside in `UI` section of the configuration file
+or (for Windows) registry.
 
-- `UI/notifications` - a general setting whether Quaternion should distract
+Some settings exposed in the user interface (Settings and View menus):
+
+- `notifications` - a general setting whether Quaternion should distract
   the user with notifications and how.
   - `none` suppresses notifications entirely (rooms and messages are still
     hightlighted but the tray icon is muted);
@@ -135,12 +138,12 @@ Some settings exposed in UI (Settings and View menus):
   - `intrusive` (default) adds to that activation of Quaternion window
     (i.e. the application blinking in the task bar, or getting raised,
     or otherwise demands attention in an environment-specific way).
-- `UI/timeline_layout` - this allows to choose the timeline layout. If this is
+- `timeline_layout` - this allows to choose the timeline layout. If this is
   set to "xchat", Quaternion will show the author to the left of each message,
   in a xchat/hexchat style (this was also the only available layout on
   Quaternion before 0.0.9.2). Any other value will select the "default" layout,
   with author labels above blocks of messages.
-- `UI/use_shuttle_dial` - Quaternion will use a shuttle dial instead of
+- `use_shuttle_dial` - Quaternion will use a shuttle dial instead of
   a classic scrollbar for the timeline's vertical scrolling control. Shuttle
   dials usually control change velocity instead of value; in this case,
   moving the dial away from the neutral position increases the speed of
@@ -148,13 +151,13 @@ Some settings exposed in UI (Settings and View menus):
   knowing position relative to the edges, as is the case of a Matrix timeline;
   however, the control is unusual and not all people like it. Shuttle scrollbar
   is enabled by default; set this to false (or 0) to use the classic scrollbar.
-- `UI/autoload_images` - whether full-size images should be loaded immediately
+- `autoload_images` - whether full-size images should be loaded immediately
   once the message is shown on the screen. The default is to automatically load
   full-size images; set this to false (or 0) to disable that and only load
   a thumbnail initially.
-- `UI/show_noop_events` - set this to 1 to show state events that do not alter
+- `show_noop_events` - set this to 1 to show state events that do not alter
   the state (you'll see "(repeated)" next to most of those).
-- `UI/RoomsDock/tags_order` - allows to alter the order of tags in the room
+- `RoomsDock/tags_order` - allows to alter the order of tags in the room
   list. This is a comma-separated list of tags/namespaces;
   a few characters have special meaning as described below.If a tag is
   not mentioned and does not fit any namespace, it will be put at the end of
@@ -179,59 +182,59 @@ Some settings exposed in UI (Settings and View menus):
 
 Settings not exposed in UI:
 
-- `UI/condense_chat` - set this to 1 to make the timeline rendered tighter,
+- `condense_chat` - set this to 1 to make the timeline rendered tighter,
   eliminating vertical gaps between messages as much as possible.
-- `UI/show_author_avatars` - set this to 1 (or true) to show author avatars in
+- `show_author_avatars` - set this to 1 (or true) to show author avatars in
   the timeline (default if the timeline layout is set to default); setting this
   to 0 (or false) will suppress avatars (default for the XChat timeline layout).
-- `UI/suppress_local_echo` - set this to 1 (or true) to suppress showing local
+- `suppress_local_echo` - set this to 1 (or true) to suppress showing local
   echo (events sent from the current application but not yet confirmed by
   the server). By default local echo is shown.
-- `UI/animations_duration_ms` - defines the base duration (in milliseconds) of
+- `animations_duration_ms` - defines the base duration (in milliseconds) of
   animation effects in the timline. The default is 400; set it to 0 to disable
   animation.
-- `UI/outgoing_color` - set this to the color name you prefer for text you sent;
+- `outgoing_color` - set this to the color name you prefer for text you sent;
   HTML color names and SVG `#codes` are supported; by default it's `#204A87`
   (navy blue).
-- `UI/highlight_color` - set this to the color name you prefer for highlighted
+- `highlight_color` - set this to the color name you prefer for highlighted
   rooms/messages; HTML color names and SVG `#codes` are supported;
   by default it's `orange`.
-- `UI/highlight_mode` - set this to `text` if you prefer to use the highlight
+- `highlight_mode` - set this to `text` if you prefer to use the highlight
   color as the text color (the only option available until 0.0.9.3); the new
   default is to use the background for highlighting.
-- `UI/use_human_friendly_dates` - set this to false (or 0) if you do NOT want
+- `use_human_friendly_dates` - set this to false (or 0) if you do NOT want
   usage of human-friendly dates ("Today", "Monday" instead of the standard
   day-month-year triad) in the UI; the default is true.
-- `UI/quote_style` - the quote template. The `\\1` means the quoted string.
+- `quote_style` - the quote template. The `\\1` means the quoted string.
   By default it's `> \\1\n`.
-- `UI/quote_regex` - set to `^([\\s\\S]*)` to add `UI/quote_style` only at
+- `quote_regex` - set to `^([\\s\\S]*)` to add `UI/quote_style` only at
   the beginning and end of the quote. By default it's `(.+)(?:\n|$)`.
-- `UI/Fonts/render_type` - select how to render fonts in Quaternion timeline;
+- `Fonts/render_type` - select how to render fonts in Quaternion timeline;
   possible values are "NativeRendering" (default) and "QtRendering".
-- `UI/Fonts/family` - override the font family for the whole application.
+- `Fonts/family` - override the font family for the whole application.
   If not specified, the default font for your environment is used.
-- `UI/Fonts/pointSize` - override the font size (in points) for the whole
+- `Fonts/pointSize` - override the font size (in points) for the whole
   application. If not specified, the default size for your environment is used.
-- `UI/Fonts/timeline_family` - font family (for example `Monospace`) to
+- `Fonts/timeline_family` - font family (for example `Monospace`) to
   display messages in the timeline. If not specified, the application-wide font
   family is used.
-- `UI/Fonts/timeline_pointSize` - font size (in points) to display messages
+- `Fonts/timeline_pointSize` - font size (in points) to display messages
   in the timeline. If not specified, the application-wide point size is used.
-- `UI/maybe_read_timer` - threshold time interval in milliseconds for a displayed
+- `maybe_read_timer` - threshold time interval in milliseconds for a displayed
   message to be considered as read.
-- `UI/use_keychain` - set this to false (or 0) if you explicitly do NOT want to
+- `use_keychain` - set this to false (or 0) if you explicitly do NOT want to
   use keychain but prefer to store access token in dedicated file instead (see
   next paragraph); the default is true.
-- `UI/hyperlink_users` - set this to false (or 0) if you do NOT want to
+- `hyperlink_users` - set this to false (or 0) if you do NOT want to
   hyperlink matrix user IDs in messages. By default it's true.
 
-Since version 0.0.9.4, AppImage binaries for Linux and .dmg files for macOS
-are compiled with Qt Keychain support. It means that Quaternion will try
-to store your access token(s) in the secure storage configured for your
-platform. If the storage or Qt Keychain are not available, Quaternion will try
-to store your access token(s) in a dedicated file with restricted access rights
-so that only the owner can access them (this doesn't really work on Windows -
-see below) and with the name matching your user id in the following directory:
+Since version 0.0.9.5, all Quaternion binaries at GitHub are compiled with
+Qt Keychain support. It means that Quaternion will try to store your access
+token(s) in the secure storage configured for your platform. If the storage or
+Qt Keychain are not available, Quaternion will try to store your access token(s)
+in a dedicated file with restricted access rights so that only the owner can
+access them (this doesn't really work on Windows - see below) and with the name
+matching your user id in the following directory:
 
 - Linux: `$HOME/.local/share/Quotient/quaternion`
 - macOS: `$HOME/Library/Application Support/Quotient/quaternion`
