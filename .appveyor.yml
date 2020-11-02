@@ -1,21 +1,19 @@
-image: Visual Studio 2017
+image: Visual Studio 2019
 
 environment:
   CMAKE_ARGS: '-G "NMake Makefiles JOM" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=RelWithDebInfo'
   matrix:
-  - QTDIR: C:\Qt\5.13\msvc2017_64
-    VCVARS: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
+  - QTDIR: C:\Qt\5.14\msvc2017_64
     PLATFORM:
-    VER_SUFFIX: win64
-  - QTDIR: C:\Qt\5.13\msvc2017
-    VCVARS: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars32.bat"
+    PLAT_SUFFIX: '64'
+  - QTDIR: C:\Qt\5.14\msvc2017
     PLATFORM: x86
-    VER_SUFFIX: win32
+    PLAT_SUFFIX: '32'
 
 init:
 - call "%QTDIR%\bin\qtenv2.bat"
 - set PATH=C:\Qt\Tools\QtCreator\bin;%PATH%
-- call "%VCVARS%" %PLATFORM%
+- call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars%PLAT_SUFFIX%.bat" %PLATFORM%
 - cd /D "%APPVEYOR_BUILD_FOLDER%"
 
 before_build:
@@ -37,7 +35,7 @@ after_build:
 - cd "%DEPLOY_DIR%"
 - rmdir /S /Q bearer qmltooling
 - cd ..
-- 7z a quaternion-%VERSION%-%VER_SUFFIX%.zip "%DEPLOY_DIR%"
+- 7z a quaternion-%VERSION%-win%PLAT_SUFFIX%.zip "%DEPLOY_DIR%"
 
 # Uncomment this to connect to the AppVeyor build worker
 #on_finish:
