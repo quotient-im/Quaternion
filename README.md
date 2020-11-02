@@ -227,6 +227,13 @@ Settings not exposed in UI:
   next paragraph); the default is true.
 - `hyperlink_users` - set this to false (or 0) if you do NOT want to
   hyperlink matrix user IDs in messages. By default it's true.
+- `auto_markdown` - since version 0.0.9.5, and only if built with Qt 5.14
+  or newer (builds for Windows at GitHub, as well as Flatpaks, use Qt 5.14),
+  setting this to `true` makes Quaternion parse all messages that you send
+  as Markdown, without having to prepend them with `/md` command. By default,
+  this is `false` now since it cannot be enabled in builds with older Qt and
+  since the whole functionality is experimental. If you have it enabled, feel
+  free to submit bug reports at the usual place.
 
 Since version 0.0.9.5, all Quaternion binaries at GitHub are compiled with
 Qt Keychain support. It means that Quaternion will try to store your access
