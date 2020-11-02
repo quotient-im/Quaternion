@@ -777,7 +777,7 @@ void ChatRoomWidget::quote(const QString& htmlText)
 }
 
 void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
-                              bool showingDetails)
+                              const QString& selectedText, bool showingDetails)
 {
     const auto modelIndex = m_messageModel->index(index, 0);
     const auto eventId = modelIndex.data(MessageEventModel::EventIdRole).toString();
@@ -793,6 +793,12 @@ void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
     if (!plEvt || userPl >= plEvt->redact() || localUserId == modelUser->id()) {
         menu.addAction(QIcon::fromTheme("edit-delete"), tr("Redact"), [=] {
             m_currentRoom->redactEvent(eventId);
+        });
+    }
+    if (!selectedText.isEmpty())
+    {
+        menu.addAction(tr("Copy selected text to clipboard"), [=] {
+            QApplication::clipboard()->setText(selectedText);
         });
     }
     if (!hoveredLink.isEmpty())
@@ -818,7 +824,7 @@ void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
     const auto eventType = modelIndex.data(MessageEventModel::EventTypeRole).toString();
     if (eventType == "image" || eventType == "file")
     {
-        const auto progressInfo = modelIndex.data(MessageEventModel::SpecialMarksRole)
+        const auto progressInfo = modelIndex.data(MessageEventModel::LongOperationRole)
             .value<Quotient::FileTransferInfo>();
         const bool downloaded = !progressInfo.isUpload && progressInfo.completed();
 
@@ -826,13 +832,18 @@ void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
         menu.addAction(QIcon::fromTheme("document-open"), tr("Open externally"), [=] {
             emit openExternally(index);
         });
-        menu.addAction(QIcon::fromTheme("folder-open"), tr("Open Folder"), [=] {
-            if (!downloaded)
-                m_currentRoom->downloadFile(eventId);
-
-            QDesktopServices::openUrl(progressInfo.localDir);
-        });
-        if (!downloaded)
+        if (downloaded) {
+            menu.addAction(QIcon::fromTheme("folder-open"), tr("Open Folder"), [=] {
+                QDesktopServices::openUrl(progressInfo.localDir);
+            });
+            if (eventType == "image")
+            {
+                menu.addAction(tr("Copy image to clipboard"), [=] {
+                    QApplication::clipboard()->setImage(QImage(progressInfo.localPath.path()));
+                });
+            }
+        }
+        else
         {
             menu.addAction(QIcon::fromTheme("edit-download"), tr("Download"), [=] {
                 m_currentRoom->downloadFile(eventId);

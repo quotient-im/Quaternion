@@ -379,8 +379,8 @@ Item {
                                 controller.resourceRequested(
                                     textFieldImpl.hoveredLink, "_interactive")
                         } else if (mouse.button === Qt.RightButton) {
-                            controller.showMenu(index,
-                                textFieldImpl.hoveredLink, showingDetails)
+                            controller.showMenu(index, textFieldImpl.hoveredLink,
+                                textFieldImpl.selectedText, showingDetails)
                         }
                     }
 
