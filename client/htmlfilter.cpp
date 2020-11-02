@@ -289,6 +289,7 @@ void Processor::runOn(QString html)
         }
         case QXmlStreamReader::Characters:
         case QXmlStreamReader::EntityReference: {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
             if (firstElement && mode.testFlag(ConvertMarkdown)) {
                 // Remove the line break Qt inserts after <body> because it
                 // confuses Markdown parser converting it to HTML line break.
@@ -297,6 +298,7 @@ void Processor::runOn(QString html)
                     continue; // Maintain firstElement
                 }
             }
+#endif
             // Outside of links, defer writing until the nearest tag (opening
             // or closing) in order to linkify the whole text piece with all
             // entity references resolved.
@@ -489,7 +491,6 @@ void Processor::filterText(QString& textBuffer)
     } else
 #endif
     {
-        Q_ASSERT(!mode.testFlag(ConvertMarkdown)); // Double-check for older Qt
         Quotient::linkifyUrls(textBuffer);
         textBuffer = "<body>" % textBuffer % "</body>";
     }
