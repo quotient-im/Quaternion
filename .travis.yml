@@ -18,40 +18,24 @@ matrix:
     compiler: gcc
     addons:
       apt:
+        sources:
+        - sourceline: 'ppa:beineri/opt-qt-5.14.2-bionic'
         packages:
         - ninja-build
-        - qtdeclarative5-dev
-        - qml-module-qtquick-controls
-        - qml-module-qtquick-controls2
-        - qtmultimedia5-dev
-        - qttools5-dev
+        - libgl1-mesa-dev # Forgotten Qt dep
+        - qt514base
+        - qt514imageformats
+        - qt514svg
+        - qt514multimedia
+        - qt514quickcontrols
+        - qt514quickcontrols2
+        - qt514tools
+        - qt514translations
         - qt5keychain-dev
-  - os: linux
-    dist: xenial
-    compiler: gcc
+        - appstream-util
     env:
     - BUILD_APPIMAGE=1
     - CMAKE_ARGS="$CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF"
-    - CC=gcc-7
-    - CXX=g++-7
-    addons:
-      apt:
-        sources:
-        - ubuntu-toolchain-r-test
-        - sourceline: 'ppa:beineri/opt-qt-5.12.3-xenial'
-        packages:
-        - g++-7
-        - libgl1-mesa-dev # Forgotten Qt dep
-        - qt512base
-        - qt512imageformats
-        - qt512svg
-        - qt512multimedia
-        - qt512quickcontrols
-        - qt512quickcontrols2
-        - qt512tools
-        - qt512translations
-        - qt5keychain-dev
-        - appstream-util
     after_success:
     # TODO: maybe move AppImage generation to CMakeLists.txt
     # (pre-wgetting AppImageKit to avoid CMakeList.txt dependency on Internet?)
@@ -78,21 +62,14 @@ matrix:
     compiler: clang
     addons:
       apt:
-        sources:
-        - sourceline: 'ppa:beineri/opt-qt-5.12.3-bionic'
         packages:
         - ninja-build
-        - libgl1-mesa-dev # Forgotten Qt dep
-        - qt512base
-        - qt512imageformats
-        - qt512svg
-        - qt512multimedia
-        - qt512quickcontrols
-        - qt512quickcontrols2
-        - qt512tools
-        - qt512translations
+        - qtdeclarative5-dev
+        - qml-module-qtquick-controls
+        - qml-module-qtquick-controls2
+        - qtmultimedia5-dev
+        - qttools5-dev
         - qt5keychain-dev
-        - appstream-util
   - os: osx
     osx_image: xcode10.1
     env: [ 'PATH=/usr/local/opt/qt/bin:$PATH' ]
@@ -112,7 +89,7 @@ matrix:
     - mv -v build/quaternion.dmg "quaternion-$VERSION.dmg"
 
 before_install:
-- if [ -f /opt/qt512/bin/qt512-env.sh ]; then . /opt/qt512/bin/qt512-env.sh; fi
+- if [ -f /opt/qt514/bin/qt514-env.sh ]; then . /opt/qt514/bin/qt514-env.sh; fi
 # VERSION is also used by linuxdeployqt
 - if [ -n "$TRAVIS_TAG" ]; then export VERSION="$TRAVIS_TAG"; else export VERSION="git$(git rev-list --count HEAD)"; fi
 - if [ -f "$(which ninja)" ]; then export CMAKE_ARGS="$CMAKE_ARGS -GNinja"; fi
