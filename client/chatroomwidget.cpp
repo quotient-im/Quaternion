@@ -390,15 +390,10 @@ void ChatRoomWidget::sendFile()
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-void sendMarkdown(QuaternionRoom* room, const QTextDocument* text)
+void sendMarkdown(QuaternionRoom* room, const QTextDocumentFragment& text)
 {
-    // https://bugreports.qt.io/browse/QTBUG-86603
-    static constexpr auto MdFeatures = QTextDocument::MarkdownFeatures(
-        QTextDocument::MarkdownNoHTML | QTextDocument::MarkdownDialectCommonMark);
-
-    const auto& html = HtmlFilter::mixedToMatrix(text->toHtml(), room);
-    room->postHtmlText(QTextDocument(html).toMarkdown(MdFeatures),
-                       html);
+    room->postHtmlText(text.toPlainText(),
+                       HtmlFilter::mixedToMatrix(text.toHtml(), room));
 }
 #endif
 
@@ -409,7 +404,8 @@ void ChatRoomWidget::sendMessage()
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     if (m_uiSettings.get("auto_markdown", false)) {
-        sendMarkdown(m_currentRoom, m_chatEdit->document());
+        sendMarkdown(m_currentRoom,
+                     QTextDocumentFragment(m_chatEdit->document()));
         return;
     }
 #endif
@@ -427,7 +423,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
                                     const QString& argString)
 {
     static const QRegularExpression
-        RoomIdRE { "^([#!][^:[:blank:]]+):" % ServerPartPattern % '$', ReFlags },
+        RoomIdRE { "^([#!][^:[:space:]]+):" % ServerPartPattern % '$', ReFlags },
         UserIdRE { '^' % UserIdPattern % '$', ReFlags };
     Q_ASSERT(RoomIdRE.isValid() && UserIdRE.isValid());
 
@@ -621,7 +617,12 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
     }
     if (command == "md") {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-        sendMarkdown(m_currentRoom, m_chatEdit->document());
+        // Select everything after /md and one whitespace character after it
+        // (leading whitespaces have meaning in Markdown)
+        QTextCursor c(m_chatEdit->document());
+        c.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, 4);
+        c.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+        sendMarkdown(m_currentRoom, c.selection());
         return {};
 #else
         return tr("Your build of Quaternion doesn't support Markdown");
@@ -652,7 +653,7 @@ void ChatRoomWidget::sendInput()
         if (text.isEmpty())
             error = NothingToSendMsg;
         else if (text.startsWith('/') && !text.midRef(1).startsWith('/')) {
-            QRegularExpression cmdSplit("([[:blank:]])+", ReFlags);
+            QRegularExpression cmdSplit("\\s+", ReFlags);
             const auto& blanksMatch = cmdSplit.match(text, 1);
             error = sendCommand(text.midRef(1, blanksMatch.capturedStart() - 1),
                                 text.mid(blanksMatch.capturedEnd()));
