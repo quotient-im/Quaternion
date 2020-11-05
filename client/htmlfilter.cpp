@@ -236,7 +236,7 @@ void Processor::runOn(QString html)
                 if (inAnchor && textBuffer.isEmpty() && tagName == "span"
                     && attrs.size() == 1
                     && attrs.front().qualifiedName() == "style")
-                    break; // inAnchor == true ==> firstElement == false
+                    continue; // inAnchor == true ==> firstElement == false
             }
             // Skip the first top-level <p> and replace further top-level
             // `<p>...</p>` with `<br/>...` - kinda controversial but
@@ -268,19 +268,18 @@ void Processor::runOn(QString html)
         }
         case QXmlStreamReader::Characters:
         case QXmlStreamReader::EntityReference: {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-            if (firstElement && mode.testFlag(ConvertMarkdown)) {
+            if (firstElement && direction == QtToMatrix) {
                 // Remove the line break Qt inserts after <body> because it
-                // confuses Markdown parser converting it to HTML line break.
+                // adds an unnecessary whitespace in the HTML context and
+                // an unnecessary line break in the Markdown context.
                 if (reader.text().startsWith('\n')) {
                     textBuffer += reader.text().mid(1);
                     continue; // Maintain firstElement
                 }
             }
-#endif
-            // Outside of links, defer writing until the nearest tag (opening
-            // or closing) in order to linkify the whole text piece with all
-            // entity references resolved.
+            // Outside of links, defer writing until the next non-character,
+            // non-entity reference token in order to pass the whole text
+            // piece to filterText() with all entity references resolved.
             if (!inAnchor && !mode.testFlag(InnerHtml))
                 textBuffer += reader.text();
             else
@@ -320,6 +319,8 @@ void Processor::runOn(QString html)
             qCritical().noquote()
                 << "Buffer at error:" << html.mid(reader.characterOffset());
             break;
+        case QXmlStreamReader::Comment:
+            continue; // Comments should not affect firstElement state
         default:;
         }
         // Unset first element once encountered non-whitespace under `<body>`
