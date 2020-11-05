@@ -393,7 +393,8 @@ void ChatRoomWidget::sendFile()
 void sendMarkdown(QuaternionRoom* room, const QTextDocumentFragment& text)
 {
     room->postHtmlText(text.toPlainText(),
-                       HtmlFilter::mixedToMatrix(text.toHtml(), room));
+                       HtmlFilter::qtToMatrix(text.toHtml(), room,
+                                              HtmlFilter::ConvertMarkdown));
 }
 #endif
 

@@ -8,6 +8,16 @@ class QuaternionRoom;
 namespace HtmlFilter {
 Q_NAMESPACE
 
+enum Options : unsigned char {
+    Default = 0x0,
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+    ConvertMarkdown = 0x5,
+#endif
+    InnerHtml = 0x8
+};
+Q_ENUM_NS(Options)
+Q_DECLARE_FLAGS(Mode, Options)
+
 /*! \brief Result structure for Matrix HTML parsing
  *
  * This is the return type of matrixToQt(), which, unlike qtToMatrix(),
@@ -49,11 +59,8 @@ public:
  * \sa
  * https://matrix.org/docs/spec/client_server/latest#m-room-message-msgtypes
  */
-QString qtToMatrix(const QString& html, QuaternionRoom* context = nullptr);
-
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-QString mixedToMatrix(const QString& html, QuaternionRoom* context = nullptr);
-#endif
+QString qtToMatrix(const QString& html, QuaternionRoom* context = nullptr,
+                   Mode mode = Default);
 
 /*! \brief Make the received HTML with Matrix attributes compatible with Qt
  *

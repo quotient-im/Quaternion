@@ -16,41 +16,34 @@ using namespace std;
 
 namespace HtmlFilter {
 
-enum Options : unsigned char {
-    QtToMatrix = 0x1,
-    MatrixToQt = 0x2,
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-    ConvertMarkdown = 0x5, // QtToMatrix | 0x4
-#endif
-    InnerHtml = 0x8
-};
-Q_DECLARE_FLAGS(Mode, Options)
+enum Dir : unsigned char { QtToMatrix, MatrixToQt };
 
 class Processor {
 public:
-    [[nodiscard]] static Result process(QString html, Mode mode,
-                                        QuaternionRoom* context)
+    [[nodiscard]] static Result process(QString html, Dir direction,
+                                        QuaternionRoom* context,
+                                        Mode mode = Default)
     {
         QString resultHtml;
         QXmlStreamWriter writer(&resultHtml);
         writer.setAutoFormatting(false);
-        Processor p { mode, context, writer };
+        Processor p { direction, mode, context, writer };
         p.runOn(html);
         return { resultHtml, p.errorPos, p.errorString };
     }
 
 private:
+    Dir direction;
     Mode mode;
     QuaternionRoom* context;
     QXmlStreamWriter& writer;
     int errorPos = -1;
     QString errorString {};
 
-    Processor(Mode mode, QuaternionRoom* context, QXmlStreamWriter& writer)
-        : mode(mode), context(context), writer(writer)
-    {
-        Q_ASSERT((mode & QtToMatrix) ^ (mode & MatrixToQt));
-    }
+    Processor(Dir direction, Mode mode, QuaternionRoom* context,
+              QXmlStreamWriter& writer)
+        : direction(direction), mode(mode), context(context), writer(writer)
+    {}
     void runOn(QString html);
 
     using rewrite_t = vector<pair<QString, QXmlStreamAttributes>>;
@@ -114,27 +107,13 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
     return html;
 }
 
-inline QString xToMatrix(const QString& qtMarkup, QuaternionRoom* context,
-                         Mode mode = QtToMatrix)
+QString qtToMatrix(const QString& qtMarkup, QuaternionRoom* context, Mode mode)
 {
-    Q_ASSERT(mode & QtToMatrix);
-
-    const auto& result = Processor::process(preprocess(qtMarkup), mode, context);
+    const auto& result =
+        Processor::process(preprocess(qtMarkup), QtToMatrix, context, mode);
     Q_ASSERT(result.errorPos == -1);
     return result.filteredHtml;
 }
-
-QString qtToMatrix(const QString& html, QuaternionRoom* context)
-{
-    return xToMatrix(html, context);
-}
-
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-QString mixedToMatrix(const QString& html, QuaternionRoom* context)
-{
-    return xToMatrix(html, context, ConvertMarkdown);
-}
-#endif
 
 Result matrixToQt(const QString& matrixHtml, QuaternionRoom* context,
                   bool validate)
@@ -248,7 +227,7 @@ void Processor::runOn(QString html)
                 qCritical() << "CS API spec limits HTML tags depth at 100";
 
             const auto& attrs = reader.attributes();
-            if (mode.testFlag(QtToMatrix)) {
+            if (direction == QtToMatrix) {
                 // Qt hardcodes the link style in a `<span>` under `<a>`.
                 // This breaks the looks on the receiving side if the sender
                 // uses a different style of links from that of the receiver.
@@ -360,7 +339,7 @@ inline QStringRef cssValue(const QStringRef& css,
 Processor::rewrite_t Processor::filterTag(const QStringRef& tag,
                                           QXmlStreamAttributes attributes)
 {
-    if (tag == "mx-reply" && mode.testFlag(MatrixToQt))
+    if (tag == "mx-reply" && direction == MatrixToQt)
         return { { "div", {} } }; // The spec says that mx-reply is HTML div
     // If `mx-reply` is encountered on the way to the wire, just pass it
 
@@ -391,7 +370,7 @@ Processor::rewrite_t Processor::filterTag(const QStringRef& tag,
         auto it = find_if(rewrite.begin(), rewrite.end(),
                           [this](const rewrite_t::value_type& element) {
                               return element.first == "font"
-                                     || (mode.testFlag(QtToMatrix)
+                                     || (direction == QtToMatrix
                                          && element.first == "span");
                           });
         if (it == rewrite.end())
@@ -402,7 +381,7 @@ Processor::rewrite_t Processor::filterTag(const QStringRef& tag,
     const auto& passList = it->allowedAttrs;
     for (auto&& a: attributes) {
         // Attribute conversions between Matrix and Qt subsets
-        if (mode.testFlag(MatrixToQt)) {
+        if (direction == MatrixToQt) {
             if (a.qualifiedName() == mxColorAttr) {
                 addColorAttr(htmlColorAttr, a.value());
                 continue;
@@ -495,7 +474,7 @@ void Processor::filterText(QString& textBuffer)
         textBuffer = "<body>" % textBuffer % "</body>";
     }
     // Re-process this piece of text as HTML but dump text snippets as they are
-    Processor(mode|InnerHtml, context, writer).runOn(textBuffer);
+    Processor(direction, InnerHtml, context, writer).runOn(textBuffer);
 
     textBuffer.clear();
 }
