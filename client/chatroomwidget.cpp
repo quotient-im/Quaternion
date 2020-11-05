@@ -593,9 +593,11 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
                 .arg(args.front());
     }
     if (command == "plain") {
-        if (argString.isEmpty())
+        static const auto CmdLen = QStringLiteral("/plain ").size();
+        const auto& plainMsg = m_chatEdit->toPlainText().mid(CmdLen);
+        if (plainMsg.isEmpty())
             return NothingToSendMsg;
-        m_currentRoom->postPlainText(argString);
+        m_currentRoom->postPlainText(plainMsg);
         return {};
     }
     if (command == "html")
