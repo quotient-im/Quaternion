@@ -440,20 +440,20 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                     // Naïvely assume that it's HTML
                     auto htmlBody =
                         static_cast<const TextContent*>(e.content())->body;
-                    const auto& result =
+                    auto [cleanHtml, errorPos, errorString] =
                         HtmlFilter::matrixToQt(htmlBody, m_currentRoom);
-                    if (result.errorPos == -1) // The HTML is good enough
-                        return result.filteredHtml;
-                    // If HTML is bad (or it's not HTML at all), fall through
-                    // to returning the prettified plain text - leaving
-                    // a loophole to visualise HTML errors
-                    if (Settings().get("Debug/html", false))
-                        return QString(
-                            m_currentRoom->prettyPrint(e.plainBody())
-                            % QStringLiteral("<br /><font color=\"red\">At pos "
-                                             "%1: %2</font>")
-                                  .arg(QString::number(result.errorPos),
-                                       result.errorString));
+                    // If HTML is bad (or it's not HTML at all), fall back
+                    // to returning the prettified plain text
+                    if (errorPos != -1) {
+                        cleanHtml = m_currentRoom->prettyPrint(e.plainBody());
+                        // A manhole to visualise HTML errors
+                        if (Settings().get("Debug/html", false))
+                            cleanHtml +=
+                                QStringLiteral("<br /><font color=\"red\">"
+                                               "At pos %1: %2</font>")
+                                    .arg(QString::number(errorPos), errorString);
+                    }
+                    return cleanHtml;
                 }
                 if (e.hasFileContent()) {
                     auto fileCaption =

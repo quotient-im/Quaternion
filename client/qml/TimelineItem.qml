@@ -342,9 +342,8 @@ Item {
                           ) + display +
                           (replaced
                            ? "<small style='color:\"" + disabledPalette.text
-                             + "\"'>" + "(" + qsTr("edited") + ")</small>"
-                           : "") +
-                          (annotation ? "<br><em>" + annotation + "</em>" : "")
+                             + "\"'>" + " (" + qsTr("edited") + ")</small>"
+                           : "")
                     horizontalAlignment: Text.AlignLeft
                     wrapMode: Text.Wrap
                     color: textColor
@@ -453,9 +452,26 @@ Item {
 
                 sourceComponent: FileContent { }
             }
-            Flow {
+
+            Label {
+                id: annotationLabel
                 anchors.top: imageLoader.active ? imageLoader.bottom
                                                 : fileLoader.bottom
+                anchors.left: textField.left
+                anchors.right: parent.right
+                height: annotation ? implicitHeight : 0
+                visible: annotation
+
+                font.family: settings.font.family
+                font.pointSize: settings.font.pointSize
+                font.italic: true
+                leftPadding: 2
+                rightPadding: 2
+
+                text: annotation
+            }
+            Flow {
+                anchors.top: annotationLabel.bottom
                 anchors.left: textField.left
                 anchors.right: parent.right
 
