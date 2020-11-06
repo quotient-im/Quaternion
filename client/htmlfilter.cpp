@@ -86,12 +86,12 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
 
 /*! \brief Massage the passed HTML to look more like XHTML
  *
- * Since Qt doesn't have an HTML parser (outside of QTextDocument) process()
- * uses QXmlStreamReader instead, and it's quite picky about properly closed
- * tags and escaped ampersands. This helper tries to convert the passed HTML
- * to something more XHTML-like, so that the XML reader doesn't choke on
- * trivial things like unclosed `br` or `img` tags and unescaped ampersands
- * in `href` attributes.
+ * Since Qt doesn't have an HTML parser (outside of QTextDocument)
+ * Processor::runOn() uses QXmlStreamReader instead, and it's quite picky
+ * about properly closed tags and escaped ampersands. This helper tries
+ * to convert the passed HTML to something more XHTML-like, so that
+ * the XML reader doesn't choke on trivial things like unclosed `br` or `img`
+ * tags and unescaped ampersands in `href` attributes.
  */
 [[nodiscard]] QString preprocess(QString html)
 {
@@ -176,7 +176,13 @@ Result matrixToQt(const QString& matrixHtml, QuaternionRoom* context,
     // text engine produces valid XHTML so QtToMatrix doesn't need this.
     html = "<body>" % html % "</body>";
 
-    return Processor::process(html, MatrixToQt, context);
+    auto result = Processor::process(html, MatrixToQt, context);
+    if (result.errorPos == -1) {
+        // Make sure to preserve whitespace sequences
+        result.filteredHtml = "<span style=\"whitespace: pre-wrap\">"
+                              % result.filteredHtml % "</span>";
+    }
+    return result;
 }
 
 void Processor::runOn(QString html)
