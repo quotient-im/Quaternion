@@ -116,6 +116,7 @@ SortUsingDeclarations: false
 #SpaceBeforeInheritanceColon: true
 #SpaceBeforeParens: ControlStatements
 SpaceBeforeRangeBasedForLoopColon: false
+SpaceInEmptyBlock: false
 #SpaceInEmptyParentheses: false
 #SpacesBeforeTrailingComments: 1
 #SpacesInAngles:  false
