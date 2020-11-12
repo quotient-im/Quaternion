@@ -94,7 +94,7 @@ Rectangle {
                 readonly property bool hasName: room && room.displayName !== ""
                 text: hasName ? room.displayName : qsTr("(no name)")
                 color: (hasName ? defaultPalette : disabledPalette).windowText
-                ToolTipArea { text: hasName ? room.htmlSafeName : "" }
+                ToolTipArea { text: parent.hasName ? room.htmlSafeName : "" }
 
                 font.bold: true
                 font.family: settings.font.family
