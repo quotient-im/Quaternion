@@ -97,6 +97,8 @@ void RoomListModel::deleteTag(QModelIndex index)
     for (const auto& c: m_connections)
         for (auto* r: c->roomsWithTag(tag))
             r->removeTag(tag);
+
+    Quotient::SettingsGroup("UI/RoomsDock").remove(tag);
 }
 
 void RoomListModel::visitRoom(const Room& room,
