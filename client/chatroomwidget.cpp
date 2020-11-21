@@ -298,7 +298,7 @@ void ChatRoomWidget::typingChanged()
     QStringList typingNames;
     for(auto user: m_currentRoom->usersTyping())
     {
-        typingNames << m_currentRoom->roomMembername(user);
+        typingNames << m_currentRoom->safeMemberName(user->id());
     }
     setHudCaption( tr("Currently typing: %1")
                    .arg(typingNames.join(QStringLiteral(", "))) );
