@@ -346,9 +346,16 @@ inline QStringRef cssValue(const QStringRef& css,
 Processor::rewrite_t Processor::filterTag(const QStringRef& tag,
                                           QXmlStreamAttributes attributes)
 {
-    if (tag == "mx-reply" && direction == MatrixToQt)
-        return { { "div", {} } }; // The spec says that mx-reply is HTML div
-    // If `mx-reply` is encountered on the way to the wire, just pass it
+    if (direction == MatrixToQt) {
+        if (tag == "del" || tag == "strike") { // Qt doesn't support these...
+            QXmlStreamAttributes attrs;
+            attrs.append("style", "text-decoration:line-through");
+            return { { "font", std::move(attrs) } };
+        }
+        if (tag == "mx-reply")
+            return { { "div", {} } }; // The spec says that mx-reply is HTML div
+        // If `mx-reply` is encountered on the way to the wire, just pass it
+    }
 
     rewrite_t rewrite { { tag.toString(), {} } };
     if (tag == "code") { // Special case
