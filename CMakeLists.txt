@@ -229,7 +229,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 target_compile_definitions(${PROJECT_NAME} PRIVATE QT_NO_JAVA_STYLE_ITERATORS)
 if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.16.0"
         AND NOT CMAKE_CXX_COMPILER_ID STREQUAL GNU) # https://bugzilla.redhat.com/show_bug.cgi?id=1721553
-    target_precompile_headers(${PROJECT_NAME} PRIVATE <lib/room.h>)
+    target_precompile_headers(${PROJECT_NAME} PRIVATE <room.h>)
 endif ()
 target_link_libraries(${PROJECT_NAME}
     Quotient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
