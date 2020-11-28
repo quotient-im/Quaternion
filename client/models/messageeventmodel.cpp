@@ -39,25 +39,28 @@
 
 QHash<int, QByteArray> MessageEventModel::roleNames() const
 {
-    QHash<int, QByteArray> roles = QAbstractItemModel::roleNames();
-    roles[EventTypeRole] = "eventType";
-    roles[EventIdRole] = "eventId";
-    roles[TimeRole] = "time";
-    roles[SectionRole] = "section";
-    roles[AboveSectionRole] = "aboveSection";
-    roles[AuthorRole] = "author";
-    roles[AboveAuthorRole] = "aboveAuthor";
-    roles[ContentRole] = "content";
-    roles[ContentTypeRole] = "contentType";
-    roles[HighlightRole] = "highlight";
-    roles[ReadMarkerRole] = "readMarker";
-    roles[SpecialMarksRole] = "marks";
-    roles[LongOperationRole] = "progressInfo";
-    roles[AnnotationRole] = "annotation";
-    roles[UserHueRole] = "userHue";
-    roles[EventResolvedTypeRole] = "eventResolvedType";
-    roles[RefRole] = "refId";
-    roles[ReactionsRole] = "reactions";
+    static const auto roles = [this] {
+        auto roles = QAbstractItemModel::roleNames();
+        roles.insert(EventTypeRole, "eventType");
+        roles.insert(EventIdRole, "eventId");
+        roles.insert(TimeRole, "time");
+        roles.insert(SectionRole, "section");
+        roles.insert(AboveSectionRole, "aboveSection");
+        roles.insert(AuthorRole, "author");
+        roles.insert(AboveAuthorRole, "aboveAuthor");
+        roles.insert(ContentRole, "content");
+        roles.insert(ContentTypeRole, "contentType");
+        roles.insert(HighlightRole, "highlight");
+        roles.insert(ReadMarkerRole, "readMarker");
+        roles.insert(SpecialMarksRole, "marks");
+        roles.insert(LongOperationRole, "progressInfo");
+        roles.insert(AnnotationRole, "annotation");
+        roles.insert(UserHueRole, "userHue");
+        roles.insert(EventResolvedTypeRole, "eventResolvedType");
+        roles.insert(RefRole, "refId");
+        roles.insert(ReactionsRole, "reactions");
+        return roles;
+    }();
     return roles;
 }
 
@@ -83,7 +86,7 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
     if( m_currentRoom )
     {
         m_currentRoom->disconnect( this );
-        qDebug() << "Disconnected from" << m_currentRoom->id();
+        qDebug() << "Disconnected from" << m_currentRoom->objectName();
     }
 
     m_currentRoom = room;
@@ -183,7 +186,7 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                 this, &MessageEventModel::refreshEvent);
         connect(m_currentRoom, &Room::fileTransferCancelled,
                 this, &MessageEventModel::refreshEvent);
-        qDebug() << "Connected to room" << room->id()
+        qDebug() << "Connected to room" << room->objectName()
                  << "as" << room->localUser()->id();
     } else
         lastReadEventId.clear();
@@ -211,7 +214,7 @@ void MessageEventModel::refreshEventRoles(int row, const QVector<int>& roles)
     emit dataChanged(idx, idx, roles);
 }
 
-int MessageEventModel::findRow(const QString& id)
+int MessageEventModel::findRow(const QString& id) const
 {
     // On 64-bit platforms, difference_type for std containers is long long
     // but Qt uses int throughout its interfaces; hence casting to int below.

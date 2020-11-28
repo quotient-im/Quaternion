@@ -55,7 +55,7 @@ class MessageEventModel: public QAbstractListModel
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
         QVariant data(const QModelIndex& idx, int role = Qt::DisplayRole) const override;
         QHash<int, QByteArray> roleNames() const override;
-        int findRow(const QString& id);
+        int findRow(const QString& id) const;
 
     private slots:
         int refreshEvent(const QString& eventId);

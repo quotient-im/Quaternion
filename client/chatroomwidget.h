@@ -128,7 +128,8 @@ class ChatRoomWidget: public QWidget
         void reStartShownTimer();
         void sendFile();
         void sendMessage();
-        [[nodiscard]] QString sendCommand(const QStringRef &command, const QString &argString);
+        [[nodiscard]] QString sendCommand(const QStringRef& command,
+                                          const QString& argString);
 
         void timerEvent(QTimerEvent* qte) override;
         void resizeEvent(QResizeEvent*) override;
