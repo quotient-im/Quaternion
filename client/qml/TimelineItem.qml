@@ -66,9 +66,8 @@ Item {
 
     // A message is considered shown if its bottom is within the
     // viewing area of the timeline.
-    readonly property bool shown:
-        y + message.height - 1 > view.contentY &&
-        y + message.height - 1 < view.contentY + view.height
+    readonly property bool shown: y + height - 1 > view.contentY &&
+                                  y + height - 1 < view.contentY + view.height
 
     onShownChanged: {
         if (!pending)
@@ -81,7 +80,7 @@ Item {
 
     Component.onCompleted: {
         if (shown)
-            shownChanged(true);
+            shownChanged(true)
     }
 
     AnimationBehavior on textColor {

@@ -237,7 +237,7 @@ Rectangle {
             flickableDirection: Flickable.VerticalFlick
             flickDeceleration: 8000
             boundsBehavior: Flickable.StopAtBounds
-    //        pixelAligned: true
+//            pixelAligned: true // Causes false-negatives in atYEnd
             cacheBuffer: 200
 
             section.property: "section"
