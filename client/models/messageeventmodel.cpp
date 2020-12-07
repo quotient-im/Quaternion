@@ -402,16 +402,14 @@ int MessageEventModel::rowCount(const QModelIndex& parent) const
 {
     if( !m_currentRoom || parent.isValid() )
         return 0;
-    return m_currentRoom->timelineSize();
+    return m_currentRoom->timelineSize() + m_currentRoom->pendingEvents().size();
 }
 
 QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
 {
     const auto row = idx.row();
 
-    if( !m_currentRoom || row < 0 ||
-            row >= int(m_currentRoom->pendingEvents().size()) +
-                       m_currentRoom->timelineSize())
+    if (!idx.isValid() || row >= rowCount())
         return {};
 
     bool isPending = row < timelineBaseIndex();
