@@ -31,6 +31,10 @@ AccountSelector::AccountSelector(const AccountRegistry *registry, QWidget *paren
 
 void AccountSelector::setAccount(Account *newAccount)
 {
+    if (!newAccount) {
+        setCurrentIndex(-1);
+        return;
+    }
     if (auto i = indexOfAccount(newAccount); i != -1) {
         setCurrentIndex(i);
         return;
