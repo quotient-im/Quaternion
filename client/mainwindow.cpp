@@ -1129,7 +1129,8 @@ void MainWindow::joinRoom(Quotient::Connection* account,
                           const QString& roomAliasOrId,
                           const QStringList& viaServers)
 {
-    auto* job = account->joinRoom(roomAliasOrId, viaServers);
+    auto* job =
+        account->joinRoom(QUrl::toPercentEncoding(roomAliasOrId), viaServers);
     // Connection::joinRoom() already connected to success() the code that
     // initialises the room in the library, which in turn causes RoomListModel
     // to update the room list. So the below connection to success() will be
