@@ -1341,6 +1341,10 @@ void MainWindow::openUserInput(bool forJoining)
 
     if (!forJoining) {
         const auto setCompleter = [identifier](Connection* connection) {
+            if (!connection) {
+                identifier->setCompleter(nullptr);
+                return;
+            }
             QStringList completions;
             for (auto* room: connection->allRooms()) {
                 completions << room->id();
