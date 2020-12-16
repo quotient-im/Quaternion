@@ -20,7 +20,7 @@ enum Dir : unsigned char { QtToMatrix, MatrixToQt };
 
 class Processor {
 public:
-    [[nodiscard]] static Result process(QString html, Dir direction,
+    [[nodiscard]] static Result process(const QString& html, Dir direction,
                                         QuaternionRoom* context,
                                         Mode mode = Default)
     {
@@ -44,7 +44,7 @@ private:
               QXmlStreamWriter& writer)
         : direction(direction), mode(mode), context(context), writer(writer)
     {}
-    void runOn(QString html);
+    void runOn(const QString& html);
 
     using rewrite_t = vector<pair<QString, QXmlStreamAttributes>>;
 
@@ -185,7 +185,7 @@ Result matrixToQt(const QString& matrixHtml, QuaternionRoom* context,
     return result;
 }
 
-void Processor::runOn(QString html)
+void Processor::runOn(const QString &html)
 {
     QXmlStreamReader reader { html };
 
@@ -326,8 +326,10 @@ void Processor::runOn(QString html)
                 << "Buffer at error:" << html.mid(reader.characterOffset());
             break;
         case QXmlStreamReader::Comment:
-            continue; // Comments should not affect firstElement state
-        default:;
+        case QXmlStreamReader::StartDocument:
+        case QXmlStreamReader::DTD:
+        case QXmlStreamReader::ProcessingInstruction:
+            continue; // All these should not affect firstElement state
         }
         // Unset first element once encountered non-whitespace under `<body>`
         firstElement &= (bodyOffset <= 0 || reader.isWhitespace());
@@ -399,7 +401,8 @@ Processor::rewrite_t Processor::filterTag(const QStringRef& tag,
             if (a.qualifiedName() == mxColorAttr) {
                 addColorAttr(htmlColorAttr, a.value());
                 continue;
-            } else if (a.qualifiedName() == mxBgColorAttr) {
+            }
+            if (a.qualifiedName() == mxBgColorAttr) {
                 rewrite.front().second.append(htmlStyleAttr,
                                               "background-color:" + a.value());
                 continue;
@@ -444,7 +447,8 @@ Processor::rewrite_t Processor::filterTag(const QStringRef& tag,
                     }
                 }
                 continue;
-            } else if (a.qualifiedName() == htmlColorAttr)
+            }
+            if (a.qualifiedName() == htmlColorAttr)
                 addColorAttr(mxColorAttr, a.value()); // Add to 'color'
         }
 

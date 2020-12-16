@@ -332,7 +332,7 @@ void ProfileDialog::apply()
     if (!m_newAvatarPath.isEmpty())
         user->setAvatar(m_newAvatarPath);
 
-    for (const auto& device: m_devices) {
+    for (const auto& device: std::as_const(m_devices)) {
         const auto& list =
             m_deviceTable->findItems(device.deviceId, Qt::MatchExactly);
         if (list.empty())
