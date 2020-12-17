@@ -123,15 +123,6 @@ Result matrixToQt(const QString& matrixHtml, QuaternionRoom* context,
     // Catch early non-compliant tags and non-tags, before they upset
     // the XML parser.
     for (auto pos = html.indexOf('<'); pos != -1; pos = html.indexOf('<', pos)) {
-        const auto& escapeLt = [&html, &pos] {
-            html.replace(pos, 1, "&lt;");
-            pos += 4; // Put pos right after &lt;
-        };
-
-        if (pos > html.size() - 3) { // No space for a complete tag
-            escapeLt();
-            continue;
-        }
         const auto tagNamePos = pos + 1 + (html[pos + 1] == '/');
         const auto uncheckedHtml = html.midRef(tagNamePos);
         const QLatin1String commentOpen("!--");
@@ -143,9 +134,13 @@ Result matrixToQt(const QString& matrixHtml, QuaternionRoom* context,
         }
         // Look ahead to detect stray < and escape it
         auto gtPos = html.indexOf('>', tagNamePos);
-        if (auto nextLtPos = html.indexOf('<', tagNamePos);
-            gtPos == -1 || (nextLtPos != -1 && nextLtPos < gtPos)) {
-            escapeLt();
+        decltype(pos) nextLtPos;
+        if (gtPos == tagNamePos /* <> or </> */ || gtPos == -1 /* no more > */
+            || ((nextLtPos = html.indexOf('<', tagNamePos)) != -1
+                && nextLtPos < gtPos) /* there's another < before > */) {
+            static const auto to = QStringLiteral("&lt;");
+            html.replace(pos, 1, to);
+            pos += to.size(); // Put pos after the escaped sequence
             continue;
         }
         // Check if it's a valid (opening or closing) tag allowed in Matrix
