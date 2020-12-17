@@ -352,7 +352,8 @@ void ProfileDialog::uploadAvatar()
     auto* fDlg = new QFileDialog(this, tr("Set avatar"),
                                  dirs.isEmpty() ? QString() : dirs.back());
     fDlg->setFileMode(QFileDialog::ExistingFile);
-    fDlg->setMimeTypeFilters({ "image/*", "application/octet-stream" });
+    fDlg->setMimeTypeFilters({ "image/jpeg", "image/png",
+                               "application/octet-stream" });
     fDlg->open();
     connect(fDlg, &QFileDialog::fileSelected, this,
             [this](const QString& fileName) {
