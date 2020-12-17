@@ -981,16 +981,16 @@ void MainWindow::showAboutWindow()
                 tr("Quaternion contributors @ GitHub") + "</a><br/>" +
             "<a href='https://github.com/quotient-im/libQuotient/graphs/contributors'>" +
                 tr("libQuotient contributors @ GitHub") + "</a><br/>" +
-            "<a href='https://lokalise.co/contributors/730769035bbc328c31e863.62506391/'>" +
+            "<a href='https://lokalise.com/contributors/730769035bbc328c31e863.62506391/'>" +
                 tr("Quaternion translators @ Lokalise.co") + "</a><br/>" +
             tr("Special thanks to %1 for all the testing effort")
-            .arg("<a href='https://matrix.to/#/@nep:pink.packageloss.eu'>nepugia</a>") +
+            .arg("<a href='mailto:nep-quaternion@packageloss.eu'>nephele</a>") +
             "<br/><br/>" +
             tr("Made with:") + "<br/>" +
             "<a href='https://www.qt.io/'>Qt 5</a><br/>"
-            "<a href='https://www.qt.io/qt-features-libraries-apis-tools-and-ide/#ide'>Qt Creator</a><br/>"
+            "<a href='https://www.qt.io/product/development-tools'>Qt Creator</a><br/>"
             "<a href='https://www.jetbrains.com/clion/'>CLion</a><br/>"
-            "<a href='https://lokalise.co'>Lokalise.co</a>"
+            "<a href='https://lokalise.com'>Lokalise</a>"
         );
         thanksLabel->setTextInteractionFlags(Qt::TextSelectableByKeyboard|
                                              Qt::TextBrowserInteraction);
