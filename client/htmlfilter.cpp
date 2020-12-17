@@ -120,8 +120,8 @@ Result matrixToQt(const QString& matrixHtml, QuaternionRoom* context,
 {
     auto html = preprocess(matrixHtml);
 
-    // Catch early non-compliant tags and non-tags, before they upset
-    // the XML parser.
+    // Catch early non-compliant tags, non-tags and minimised attributes
+    // before they upset the XML parser.
     for (auto pos = html.indexOf('<'); pos != -1; pos = html.indexOf('<', pos)) {
         const auto tagNamePos = pos + 1 + (html[pos + 1] == '/');
         const auto uncheckedHtml = html.midRef(tagNamePos);
@@ -145,27 +145,49 @@ Result matrixToQt(const QString& matrixHtml, QuaternionRoom* context,
         }
         // Check if it's a valid (opening or closing) tag allowed in Matrix
         const auto it = find_if(begin(permittedTags), end(permittedTags),
-                          [&uncheckedHtml](const QString& tag) {
-                              if (!(uncheckedHtml.size() > tag.size()
-                                    && uncheckedHtml.startsWith(tag)))
-                                  return false;
-                              const auto& charAfter = uncheckedHtml[tag.size()];
-                              return charAfter.isSpace() || charAfter == '/'
-                                     || charAfter == '>';
-                          });
-        if (it != end(permittedTags)) { // Got a valid tag, skip to >
-            pos = gtPos + 1;
+                                [&uncheckedHtml](const QString& tag) {
+            if (uncheckedHtml.size() <= tag.size()
+                || !uncheckedHtml.startsWith(tag))
+                return false;
+            const auto& charAfter = uncheckedHtml[tag.size()];
+            return charAfter.isSpace() || charAfter == '/' || charAfter == '>';
+        });
+        if (it == end(permittedTags)) {
+            // Invalid tag or non-tag - either remove the abusing piece or stop
+            // and report
+            if (validate)
+                return { {},
+                         pos,
+                         "Non-tag or disallowed tag: "
+                             % uncheckedHtml.left(gtPos - tagNamePos) };
+
+            html.remove(pos, gtPos - pos + 1);
             continue;
         }
-        // Invalid tag or non-tag - either remove the abusing piece or stop
-        // and report
-        if (validate)
-            return { {},
-                     pos,
-                     "Non-tag or disallowed tag: "
-                         % uncheckedHtml.left(gtPos - tagNamePos) };
+        // Got a valid tag - treat minimised attributes
+        // (https://www.w3.org/TR/xhtml1/diffs.html#h-4.5) and move on
 
-        html.remove(pos, html.indexOf('>', tagNamePos) - pos + 1);
+        // There's no simple way to replace all occurences within
+        // a string segment so just go through the segment and insert
+        // `=''` after minimized attributes.
+        // This is not the place to _filter_ allowed/disallowed attributes -
+        // filtering is left for filterTag()
+        static const QRegularExpression MinAttrRE {
+            R"(([^[:space:]>/"'=]+)\s*(=\s*([^[:space:]>/"']|"[^"]*"|'[^']')+)?)"
+        };
+        pos = tagNamePos + it->size();
+        QRegularExpressionMatch m;
+        while ((m = MinAttrRE.match(html, pos)).hasMatch()
+               && m.capturedEnd(1) < gtPos) {
+            pos = m.capturedEnd();
+            if (m.captured(2).isEmpty()) {
+                static const auto attrValue = QString("=''");
+                html.insert(m.capturedEnd(1), attrValue);
+                gtPos += attrValue.size() - 1;
+                pos += attrValue.size() - 1;
+            }
+        }
+        Q_ASSERT(pos > 0);
     }
     // Wrap in a no-op tag to make the text look like valid XML; Qt's rich
     // text engine produces valid XHTML so QtToMatrix doesn't need this.
