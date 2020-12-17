@@ -97,7 +97,7 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
 {
     constexpr auto ReOpt = QRegularExpression::CaseInsensitiveOption;
     html.replace(QRegularExpression("<([bh]r)[^/<>]*>", ReOpt), "<\\1 />");
-    html.replace(QRegularExpression("<img([^/<>])*>", ReOpt), "<img\\1 />");
+    html.replace(QRegularExpression("<img([^/<>]*)>", ReOpt), "<img\\1 />");
     // Escape ampersands outside of character entities
     // (HTML tolerates it, XML doesn't)
     html.replace(QRegularExpression("&(?!(#[0-9]+|#x[0-9a-fA-F]+|[[:alpha:]_][-"
@@ -133,7 +133,7 @@ Result matrixToQt(const QString& matrixHtml, QuaternionRoom* context,
             continue;
         }
         const auto tagNamePos = pos + 1 + (html[pos + 1] == '/');
-        auto uncheckedHtml = html.midRef(tagNamePos);
+        const auto uncheckedHtml = html.midRef(tagNamePos);
         const QLatin1String commentOpen("!--");
         const QLatin1String commentClose("-->");
         if (uncheckedHtml.startsWith(commentOpen)) { // Skip comments
@@ -149,7 +149,7 @@ Result matrixToQt(const QString& matrixHtml, QuaternionRoom* context,
             continue;
         }
         // Check if it's a valid (opening or closing) tag allowed in Matrix
-        auto it = find_if(begin(permittedTags), end(permittedTags),
+        const auto it = find_if(begin(permittedTags), end(permittedTags),
                           [&uncheckedHtml](const QString& tag) {
                               if (!(uncheckedHtml.size() > tag.size()
                                     && uncheckedHtml.startsWith(tag)))
