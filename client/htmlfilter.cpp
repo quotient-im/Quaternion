@@ -144,15 +144,15 @@ Result matrixToQt(const QString& matrixHtml, QuaternionRoom* context,
             continue;
         }
         // Check if it's a valid (opening or closing) tag allowed in Matrix
-        const auto it = find_if(begin(permittedTags), end(permittedTags),
+        const auto tagIt = find_if(begin(permittedTags), end(permittedTags),
                                 [&uncheckedHtml](const QString& tag) {
             if (uncheckedHtml.size() <= tag.size()
-                || !uncheckedHtml.startsWith(tag))
+                || !uncheckedHtml.startsWith(tag, Qt::CaseInsensitive))
                 return false;
             const auto& charAfter = uncheckedHtml[tag.size()];
             return charAfter.isSpace() || charAfter == '/' || charAfter == '>';
         });
-        if (it == end(permittedTags)) {
+        if (tagIt == end(permittedTags)) {
             // Invalid tag or non-tag - either remove the abusing piece or stop
             // and report
             if (validate)
@@ -175,7 +175,7 @@ Result matrixToQt(const QString& matrixHtml, QuaternionRoom* context,
         static const QRegularExpression MinAttrRE {
             R"(([^[:space:]>/"'=]+)\s*(=\s*([^[:space:]>/"']|"[^"]*"|'[^']')+)?)"
         };
-        pos = tagNamePos + it->size();
+        pos = tagNamePos + tagIt->size();
         QRegularExpressionMatch m;
         while ((m = MinAttrRE.match(html, pos)).hasMatch()
                && m.capturedEnd(1) < gtPos) {

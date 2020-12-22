@@ -254,8 +254,8 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
             const auto rm = m_currentRoom->readMarker();
             readMarkerOnScreen =
                 rm != m_currentRoom->timelineEdge() &&
-                std::lower_bound( indicesOnScreen.begin(), indicesOnScreen.end(),
-                                 rm->index() ) != indicesOnScreen.end();
+                std::lower_bound( indicesOnScreen.cbegin(), indicesOnScreen.cend(),
+                                 rm->index() ) != indicesOnScreen.cend();
             reStartShownTimer();
             emit readMarkerMoved();
         });
@@ -926,8 +926,8 @@ void ChatRoomWidget::timerEvent(QTimerEvent* qte)
     }
     maybeReadTimer.stop();
     // Only update the maybe-read message if we're tracking it
-    if (readMarkerOnScreen && !indicesOnScreen.empty() &&
-            indexToMaybeRead < indicesOnScreen.back())
+    if (readMarkerOnScreen && !indicesOnScreen.empty()
+            && indexToMaybeRead < indicesOnScreen.back())
     {
         qDebug() << "Maybe-read message update:" << indexToMaybeRead
                  << "->" << indicesOnScreen.back();

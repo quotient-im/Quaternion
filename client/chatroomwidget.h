@@ -118,7 +118,7 @@ class ChatRoomWidget: public QWidget
 
         // Supplementary/cache data members
         using timeline_index_t = Quotient::TimelineItem::index_t;
-        QVector<timeline_index_t> indicesOnScreen;
+        std::vector<timeline_index_t> indicesOnScreen;
         timeline_index_t indexToMaybeRead;
         QBasicTimer maybeReadTimer;
         bool readMarkerOnScreen;

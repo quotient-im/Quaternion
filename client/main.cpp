@@ -32,7 +32,7 @@
 #include <settings.h>
 
 void loadTranslations(
-    const std::initializer_list<std::pair<QStringList, QString>>& translationConfigs)
+        std::initializer_list<std::pair<QStringList, QString>> translationConfigs)
 {
     for (const auto& [configNames, configPath]: translationConfigs)
         for (const auto& configName: configNames) {
