@@ -96,14 +96,11 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
  */
 [[nodiscard]] QString preprocess(QString html)
 {
-    constexpr auto ReOpt = QRegularExpression::CaseInsensitiveOption;
-    html.replace(QRegularExpression("<([bh]r)[^/<>]*>", ReOpt), "<\\1 />");
-    html.replace(QRegularExpression("<img([^/<>]*)>", ReOpt), "<img\\1 />");
     // Escape ampersands outside of character entities
     // (HTML tolerates it, XML doesn't)
     html.replace(QRegularExpression("&(?!(#[0-9]+|#x[0-9a-fA-F]+|[[:alpha:]_][-"
                                     "[:alnum:]_:.]*);)",
-                                    ReOpt),
+                                    QRegularExpression::CaseInsensitiveOption),
                  "&amp;");
     return html;
 }
@@ -165,8 +162,9 @@ Result matrixToQt(const QString& matrixHtml, QuaternionRoom* context,
             html.remove(pos, gtPos - pos + 1);
             continue;
         }
-        // Got a valid tag - treat minimised attributes
-        // (https://www.w3.org/TR/xhtml1/diffs.html#h-4.5) and move on
+        // Got a valid tag
+
+        // Treat minimised attributes (https://www.w3.org/TR/xhtml1/diffs.html#h-4.5)
 
         // There's no simple way to replace all occurences within
         // a string segment so just go through the segment and insert
@@ -188,6 +186,15 @@ Result matrixToQt(const QString& matrixHtml, QuaternionRoom* context,
                 pos += attrValue.size() - 1;
             }
         }
+        // Make sure empty elements are properly closed
+        static const QRegularExpression EmptyElementRE {
+            "^img|[hb]r$", QRegularExpression::CaseInsensitiveOption
+        };
+        if (html[gtPos - 1] != '/' && EmptyElementRE.match(*tagIt).hasMatch()) {
+            html.insert(gtPos, '/');
+            ++gtPos;
+        }
+        pos = gtPos + 1;
         Q_ASSERT(pos > 0);
     }
     // Wrap in a no-op tag to make the text look like valid XML; Qt's rich
