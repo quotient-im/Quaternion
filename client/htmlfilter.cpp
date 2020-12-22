@@ -69,7 +69,8 @@ struct PassList {
 // See filterTag() on special processing of commented out tags/attributes
 static const PassList passLists[] = {
     { "a", { "name", "target", /* "href" - only from permittedSchemes */ } },
-    { "img", { "width", "height", "alt", "title", /* "src" - only 'mxc:' */ } },
+    { "img", { "width", "height", "alt", "title", "data-mx-emoticon"
+               /* "src" - only 'mxc:' */ } },
     { "ol", { "start" } },
     { "font", { "color", "data-mx-color", "data-mx-bg-color" } },
     { "span", { "color", "data-mx-color", "data-mx-bg-color" } }
