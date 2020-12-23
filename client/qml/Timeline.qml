@@ -17,6 +17,7 @@ Rectangle {
     SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
 
     color: defaultPalette.base
+    radius: 2
 
     function humanSize(bytes)
     {
@@ -49,6 +50,7 @@ Rectangle {
 
         color: defaultPalette.window
         border.color: disabledPalette.windowText
+        radius: 2
         visible: room
 
         Image {
@@ -376,8 +378,9 @@ Rectangle {
                         }
                     }
             }}
-            // itemAt is a function, not a property so is not bound to new items
-            // showing up underneath; contentHeight is used for that instead.
+
+            // itemAt is a function rather than a property, so it doesn't
+            // produce a QML binding; the piece with contentHeight compensates.
             readonly property var underlayingItem: contentHeight >= height &&
                 itemAt(contentX, contentY + sectionBanner.height - 2)
             readonly property bool sectionBannerVisible: underlayingItem &&
@@ -392,12 +395,12 @@ Rectangle {
                 height: childrenRect.height + 2
                 visible: chatView.sectionBannerVisible
                 color: defaultPalette.window
-                opacity: 0.9
+                opacity: 0.8
                 Label {
                     font.bold: true
                     font.family: settings.font.family
                     font.pointSize: settings.font.pointSize
-                    color: disabledPalette.text
+                    opacity: 0.8
                     renderType: settings.render_type
                     text: chatView.underlayingItem ?
                               chatView.underlayingItem.ListView.section : ""
@@ -514,17 +517,17 @@ Rectangle {
         anchors.top: chatScrollView.top
         width: childrenRect.width + 3
         height: childrenRect.height + 3
-        color: defaultPalette.window
+        color: defaultPalette.alternateBase
         opacity: chatView.largestVisibleIndex >= 0
             && (scrollerArea.containsMouse || scrollAnimation.running)
-            ? 0.9 : 0
+            ? 0.8 : 0
         AnimationBehavior on opacity { FastNumberAnimation { } }
 
         Label {
             font.bold: true
             font.family: settings.font.family
             font.pointSize: settings.font.pointSize
-            color: disabledPalette.text
+            opacity: 0.8
             renderType: settings.render_type
             text: (chatView.largestVisibleIndex === 0
                    ? qsTr("Latest events") : qsTr("%Ln events back from now","",

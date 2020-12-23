@@ -260,7 +260,7 @@ Item {
                 anchors.top: xchatStyle ? authorAvatar.top : authorAvatar.bottom
                 anchors.left: parent.left
 
-                color: disabledPalette.text
+                opacity: 0.8
                 renderType: settings.render_type
                 font.family: settings.font.family
                 font.pointSize: settings.font.pointSize
@@ -337,12 +337,13 @@ Item {
                     text: (actionEvent && !xchatStyle ?
                            ("<a href='" + author.id + "' style='text-decoration:none;color:\"" +
                                     authorColor + "\"'><b>" +
-                                    toHtmlEscaped(authorName) + "</b></a> ") : ""
-                          ) + display +
-                          (replaced
-                           ? "<small style='color:\"" + disabledPalette.text
-                             + "\"'>" + " (" + qsTr("edited") + ")</small>"
-                           : "")
+                                    toHtmlEscaped(authorName) + "</b></a> ") : "")
+                          + display
+                          + (replaced
+                             ? "<small style='color:\""
+                               + mixColors(disabledPalette.text, defaultPalette.text, 0.3)
+                               + "\"'>" + " (" + qsTr("edited") + ")</small>"
+                             : "")
                     horizontalAlignment: Text.AlignLeft
                     wrapMode: Text.Wrap
                     color: textColor
