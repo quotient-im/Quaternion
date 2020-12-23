@@ -73,10 +73,8 @@ Item {
         if (!pending)
             controller.onMessageShownChanged(eventId, shown)
     }
-    onPendingChanged: {
-        if (!pending)
-            controller.onMessageShownChanged(eventId, shown)
-    }
+
+    onPendingChanged: shownChanged()
 
     Component.onCompleted: {
         if (shown)
@@ -335,9 +333,9 @@ Item {
                     textFormat: TextEdit.RichText
                     // FIXME: The text is clumsy and slows down creation
                     text: (actionEvent && !xchatStyle ?
-                           ("<a href='" + author.id + "' style='text-decoration:none;color:\"" +
-                                    authorColor + "\"'><b>" +
-                                    toHtmlEscaped(authorName) + "</b></a> ") : "")
+                           ("<a href='" + author.id + "' style='text-decoration:none;color:\""
+                                    + authorColor + "\";font-weight:bold'>"
+                                    + toHtmlEscaped(authorName) + "</a> ") : "")
                           + display
                           + (replaced
                              ? "<small style='color:\""

@@ -245,7 +245,7 @@ Rectangle {
             section.property: "section"
 
             readonly property bool atBeginning: contentY + height == 0
-            readonly property int largestVisibleIndex: count > 0 ?
+            readonly property int bottommostVisibleIndex: count > 0 ?
                 atBeginning ? 0 : indexAt(contentX, contentY + height - 1) : -1
             readonly property bool noNeedMoreContent:
                 !room || room.eventsHistoryJob || room.allHistoryLoaded
@@ -277,7 +277,7 @@ Rectangle {
 
             function saveViewport() {
                 room.saveViewport(indexAt(contentX, contentY),
-                                  largestVisibleIndex)
+                                  bottommostVisibleIndex)
             }
 
             function onModelReset() {
@@ -454,11 +454,11 @@ Rectangle {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.left: parent.left
                     anchors.leftMargin:
-                        averageEvtHeight * chatView.largestVisibleIndex
+                        averageEvtHeight * chatView.bottommostVisibleIndex
                     implicitHeight: 2
-                    width: chatView.largestVisibleIndex < 0 ? 0 :
+                    width: chatView.bottommostVisibleIndex < 0 ? 0 :
                         averageEvtHeight
-                        * (chatView.count - chatView.largestVisibleIndex)
+                        * (chatView.count - chatView.bottommostVisibleIndex)
 
                     color: defaultPalette.highlight
 
@@ -518,7 +518,7 @@ Rectangle {
         width: childrenRect.width + 3
         height: childrenRect.height + 3
         color: defaultPalette.alternateBase
-        opacity: chatView.largestVisibleIndex >= 0
+        opacity: chatView.bottommostVisibleIndex >= 0
             && (scrollerArea.containsMouse || scrollAnimation.running)
             ? 0.8 : 0
         AnimationBehavior on opacity { FastNumberAnimation { } }
@@ -529,9 +529,9 @@ Rectangle {
             font.pointSize: settings.font.pointSize
             opacity: 0.8
             renderType: settings.render_type
-            text: (chatView.largestVisibleIndex === 0
+            text: (chatView.bottommostVisibleIndex === 0
                    ? qsTr("Latest events") : qsTr("%Ln events back from now","",
-                                                  chatView.largestVisibleIndex))
+                                                  chatView.bottommostVisibleIndex))
                   + '\n' + qsTr("%Ln cached", "", chatView.count)
             horizontalAlignment: Label.AlignRight
         }
