@@ -26,6 +26,7 @@
 class MessageEventModel: public QAbstractListModel
 {
         Q_OBJECT
+        Q_PROPERTY(int readMarkerVisualIndex READ readMarkerVisualIndex NOTIFY readMarkerUpdated)
     public:
         enum EventRoles {
             EventTypeRole = Qt::UserRole + 1,
@@ -38,7 +39,6 @@ class MessageEventModel: public QAbstractListModel
             ContentRole,
             ContentTypeRole,
             HighlightRole,
-            ReadMarkerRole,
             SpecialMarksRole,
             LongOperationRole,
             AnnotationRole,
@@ -57,13 +57,18 @@ class MessageEventModel: public QAbstractListModel
         QHash<int, QByteArray> roleNames() const override;
         int findRow(const QString& id) const;
 
+    signals:
+        /// This is different from Room::readMarkerMoved() in that it is also
+        /// emitted when the room or the last read event is first shown
+        void readMarkerUpdated();
+
     private slots:
         int refreshEvent(const QString& eventId);
         void refreshRow(int row);
 
     private:
         QuaternionRoom* m_currentRoom = nullptr;
-        QString lastReadEventId;
+        int readMarkerVisualIndex() const;
         int rowBelowInserted = -1;
         bool movingEvent = false;
 
@@ -74,5 +79,4 @@ class MessageEventModel: public QAbstractListModel
 
         void refreshLastUserEvents(int baseTimelineRow);
         void refreshEventRoles(int row, const QVector<int>& roles = {});
-        int refreshEventRoles(const QString& id, const QVector<int>& roles = {});
 };
