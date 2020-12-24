@@ -172,7 +172,7 @@ Result matrixToQt(const QString& matrixHtml, QuaternionRoom* context,
         // This is not the place to _filter_ allowed/disallowed attributes -
         // filtering is left for filterTag()
         static const QRegularExpression MinAttrRE {
-            R"(([^[:space:]>/"'=]+)\s*(=\s*([^[:space:]>/"']|"[^"]*"|'[^']')+)?)"
+            R"(([^[:space:]>/"'=]+)\s*(=\s*([^[:space:]>/"']|"[^"]*"|'[^']*')+)?)"
         };
         pos = tagNamePos + tagIt->size();
         QRegularExpressionMatch m;
