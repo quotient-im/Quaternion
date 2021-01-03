@@ -30,13 +30,18 @@ jobs:
 
     env:
       BUILD_SHARED_LIBS: ${{ matrix.dynamic }}
-    
+
     steps:
     - uses: actions/checkout@v2
       with:
         submodules: ${{ matrix.all-in-one != '' }}
 
+    - name: Install dependencies (Linux)
+      if: contains(matrix.os, 'ubuntu')
+      run: sudo apt-get install qtdeclarative5-dev qml-module-qtquick-controls qml-module-qtquick-controls2 qtmultimedia5-dev qttools5-dev qt5keychain-dev
+
     - name: Cache Qt
+      if: contains(matrix.os, 'macos')
       id: cache-qt
       uses: actions/cache@v2
       with:
@@ -44,16 +49,13 @@ jobs:
         key: ${{ runner.os }}-QtCache
 
     - name: Install Qt
+      if: contains(matrix.os, 'macos')
       uses: jurplel/install-qt-action@v2.11.1
       with:
         version: '5.9.9'
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
 
-    - name: Install QtKeychain
-      if: contains(matrix.os, 'ubuntu')
-      run: sudo apt-get install qt5keychain-dev
-
-    - name: Install QtKeychain
+    - name: Install QtKeychain (macOS)
       if: contains(matrix.os, 'macos')
       run: brew install qtkeychain
 
