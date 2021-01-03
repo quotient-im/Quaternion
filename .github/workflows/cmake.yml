@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+    types: [opened, reopened]
+  create:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  CI:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-18.04, macos-10.15]
+        compiler: [ GCC, Clang ]
+        linkage: [ static, dynamic ]
+        all-in-one: [ '', 'all-in-one' ]
+        exclude:
+        - os: macos-10.15
+          compiler: GCC
+        - os: macos-10.15
+          linkage: dynamic
+        - linkage: static
+          all-in-one: ''
+
+    env:
+      BUILD_SHARED_LIBS: ${{ matrix.dynamic }}
+    
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: ${{ matrix.all-in-one != '' }}
+
+    - name: Cache Qt
+      id: cache-qt
+      uses: actions/cache@v2
+      with:
+        path: ${{ runner.workspace }}/Qt
+        key: ${{ runner.os }}-QtCache
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2.11.1
+      with:
+        version: '5.9.9'
+        cached: ${{ steps.cache-qt.outputs.cache-hit }}
+
+    - name: Install QtKeychain
+      if: contains(matrix.os, 'ubuntu')
+      run: sudo apt-get install qt5keychain-dev
+
+    - name: Install QtKeychain
+      if: contains(matrix.os, 'macos')
+      run: brew install qtkeychain
+
+    - name: Setup build environment
+      run: |
+        if [ "${{ matrix.compiler }}" == "GCC" ]; then
+          echo "CC=gcc" >>$GITHUB_ENV
+          echo "CXX=g++" >>$GITHUB_ENV
+        else
+          echo "CC=clang" >>$GITHUB_ENV
+          echo "CXX=clang++" >>$GITHUB_ENV
+        fi
+        echo "DESTDIR=${{ runner.workspace }}" >>$GITHUB_ENV
+        echo "CMAKE_ARGS=-DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_PREFIX_PATH=${{ runner.workspace }}/usr" >>$GITHUB_ENV
+        cmake -E make_directory ${{ runner.workspace }}/build
+
+    - name: Get, build and install libQuotient
+      if: '!matrix.all-in-one'
+      run: |
+        git clone -b 0.6.x https://github.com/quotient-im/libQuotient
+        cd libQuotient
+        cmake -S . -B build $CMAKE_ARGS
+        cmake --build build --target install
+
+    - name: Configure Quaternion
+      run: |
+        cmake -S $GITHUB_WORKSPACE -B build $CMAKE_ARGS
+
+    - name: Build and install Quaternion
+      run: cmake --build build --target install
+
+    - name: Make image
+      if: contains (matrix.os, 'macos')
+      run: cmake --build build --target image
