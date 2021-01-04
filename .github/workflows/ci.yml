@@ -25,11 +25,12 @@ jobs:
           compiler: GCC
         - os: macos-10.15
           linkage: dynamic
-        - linkage: static
-          all-in-one: ''
+        - linkage: dynamic # Only build all-in-one in static configuration
+          all-in-one: 'all-in-one'
 
     env:
       BUILD_SHARED_LIBS: ${{ matrix.dynamic }}
+      DEPLOY_VERBOSITY: 1
 
     steps:
     - uses: actions/checkout@v2
@@ -51,9 +52,13 @@ jobs:
         version: '5.9.9'
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
 
+    - name: Install other dependencies (Linux)
+      if: ${{ contains(matrix.os, 'ubuntu') }}
+      run: sudo apt-get install ninja-build appstream-util
+
     - name: Install Qt and QtKeychain (macOS)
       if: contains(matrix.os, 'macos')
-      run: brew install qt5 qtkeychain
+      run: brew install ninja qt5 qtkeychain
 
     - name: Setup build environment
       run: |
@@ -68,7 +73,7 @@ jobs:
           echo "PATH=/usr/local/opt/qt/bin:$PATH" >>$GITHUB_ENV
         fi
         echo "DESTDIR=${{ runner.workspace }}" >>$GITHUB_ENV
-        echo "CMAKE_ARGS=-DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_PREFIX_PATH=${{ runner.workspace }}/usr" >>$GITHUB_ENV
+        echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_PREFIX_PATH=${{ runner.workspace }}/usr" >>$GITHUB_ENV
         cmake -E make_directory ${{ runner.workspace }}/build
 
     - name: Get, build and install QtKeychain (Linux)
@@ -88,15 +93,17 @@ jobs:
         cmake --build build --target install
 
     - name: Configure Quaternion
-      run: cmake -S $GITHUB_WORKSPACE -B build $CMAKE_ARGS
+      run: cmake -S $GITHUB_WORKSPACE -B build $CMAKE_ARGS -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY
 
     - name: Build Quaternion
       run: cmake --build build --target quaternion
 
-    - name: Install Quaternion
-      if: ${{ !contains(matrix.os, 'macos') }}
-      run: cmake --build build --target install
+    - name: Install and validate Quaternion (Linux)
+      if: ${{ contains(matrix.os, 'ubuntu') }}
+      run: |
+        cmake --build build --target install
+        appstream-util validate $DESTDIR/usr/share/metainfo/*.appdata.xml
 
     - name: Make image (macOS)
-      if: contains (matrix.os, 'macos')
+      if: contains(matrix.os, 'macos')
       run: cmake --build build --target image
