@@ -18,40 +18,36 @@ jobs:
       matrix:
         os: [ ubuntu-18.04 ]
         compiler: [ GCC, Clang ]
-        linkage: [ static, dynamic ]
-        all-in-one: [ '' ] # Build everything together
-        qt-version: [ '5.9.9' ]
         distribute: [ '' ] # Generate a package for distribution (e.g., dmg)
+        qt-version: [ '5.9.9' ]
+        composition: [ static, dynamic ]
         exclude:
-        - linkage: dynamic # Only build all-in-one in static configuration
-          all-in-one: 'all-in-one'
+        - compiler: Clang
+          composition: static # Replace with all-in-one (see below)
         include:
         - os: ubuntu-18.04
           compiler: Clang
-          linkage: static
-          all-in-one: all-in-one
-          qt-version: '5.9.9'
+          qt-version: '5.14.2'
+          composition: all-in-one
         - os: ubuntu-18.04
           compiler: Clang
-          linkage: static
-          all-in-one: all-in-one
-          qt-version: '5.14.2'
           distribute: appimage
+          qt-version: '5.9.9'
+          composition: all-in-one
         - os: macos-10.15
           compiler: Clang
-          linkage: static
-          all-in-one: all-in-one
-          qt-version: '5.14.2'
           distribute: dmg
+          qt-version: '5.14.2'
+          composition: all-in-one
 
     env:
-      BUILD_SHARED_LIBS: ${{ matrix.dynamic }}
+      BUILD_SHARED_LIBS: ${{ matrix.composition == 'dynamic' }}
       DEPLOY_VERBOSITY: 1
 
     steps:
     - uses: actions/checkout@v2
       with:
-        submodules: ${{ matrix.all-in-one != '' }}
+        submodules: ${{ matrix.composition == 'all-in-one' }}
 
     - name: Cache Qt
       id: cache-qt
@@ -98,7 +94,7 @@ jobs:
         cmake --build build --target install
 
     - name: Get, build and install libQuotient
-      if: '!matrix.all-in-one'
+      if: matrix.composition != 'all-in-one'
       run: |
         git clone --depth=1 -b 0.6.x https://github.com/quotient-im/libQuotient
         cd libQuotient
@@ -106,7 +102,7 @@ jobs:
         cmake --build build --target install
 
     - name: Configure Quaternion
-      run: cmake -S $GITHUB_WORKSPACE -B build $CMAKE_ARGS -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY
+      run: cmake -LA -S $GITHUB_WORKSPACE -B build $CMAKE_ARGS -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY
 
     - name: Build Quaternion
       run: cmake --build build --target quaternion
@@ -121,7 +117,7 @@ jobs:
       if: contains(matrix.os, 'macos') && matrix.distribute
       run: cmake --build build --target image
 
-    - name: Make AppImage (Linux/Clang, all-in-one)
+    - name: Make AppImage (Linux)
       if: contains(matrix.os, 'ubuntu') && matrix.distribute
       env:
         QML_SOURCES_PATHS: ${{ github.workspace }}/client/qml
