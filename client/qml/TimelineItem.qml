@@ -185,10 +185,10 @@ Item {
             // al - author label, ts - timestamp, c - content
             // default (when "timeline_style" is not "xchat"):
             //   av al
-            //   ts c
+            //      c ts
             // state-emote (default for state and emote events):
-            //   av (al+c in a single control
-            //   ts  spanning both rows)
+            //   av (al+c in a single control) ts
+            //      (spanning both rows      )
             // xchat (when "timeline_style" is "xchat"):
             //   ts av al c
             // xchat state-emote
@@ -196,12 +196,8 @@ Item {
 
             Image {
                 function desiredHeight() {
-                    return xchatStyle ? authorLabel.height :
-                           visible ? authorLabel.height * 2 - timelabel.height
-                                   : undefined
-                }
-                function desiredWidth() {
-                    return !xchatStyle ? timelabel.width : undefined
+                    // Desired height for XChat style is one line height, for "default" 2 lines
+                    return authorLabel.height * (2 - xchatStyle)
                 }
 
                 id: authorAvatar
@@ -210,12 +206,12 @@ Item {
                 anchors.left: xchatStyle ? timelabel.right : parent.left
                 anchors.leftMargin: xchatStyle * 3
                 height: desiredHeight()
-                width: desiredWidth()
+                width: height
                 fillMode: Image.PreserveAspectFit
 
-                source: author.avatarMediaId ?
-                            "image://mtx/" + author.avatarMediaId : ""
-                sourceSize: Qt.size(desiredWidth() * 2, desiredHeight() * 2)
+                source: author.avatarMediaId
+                        ? "image://mtx/" + author.avatarMediaId : ""
+                sourceSize: Qt.size(desiredHeight() * 2, desiredHeight() * 2)
             }
             Label {
                 id: authorLabel
@@ -252,10 +248,10 @@ Item {
                                                  mouse.button === Qt.LeftButton
                                                  ? "mention" : "_interactive")
             }
-
             Label {
                 id: timelabel
-                anchors.top: xchatStyle ? authorAvatar.top : authorAvatar.bottom
+                visible: xchatStyle
+                anchors.top: authorAvatar.top
                 anchors.left: parent.left
 
                 opacity: 0.8
@@ -306,7 +302,7 @@ Item {
                 id: textField
                 anchors.top: !xchatStyle && authorLabel.visible
                              ? authorLabel.bottom : authorAvatar.top
-                anchors.left: xchatStyle ? authorLabel.right : timelabel.right
+                anchors.left: xchatStyle ? authorLabel.right : authorAvatar.right
                 anchors.leftMargin: 1
                 anchors.right: parent.right
                 anchors.rightMargin: 1
@@ -332,10 +328,20 @@ Item {
                     readOnly: true
                     textFormat: TextEdit.RichText
                     // FIXME: The text is clumsy and slows down creation
-                    text: (actionEvent && !xchatStyle ?
-                           ("<a href='" + author.id + "' style='text-decoration:none;color:\""
+                    text: (!xchatStyle
+                           ? ("<table style='float: right; font-size: small;color:\""
+                              + mixColors(disabledPalette.text, defaultPalette.text, 0.3)
+                              + "\"'><tr><td>"
+                              + toHtmlEscaped(time.toLocaleTimeString(Qt.locale(),
+                                                                      Locale.ShortFormat))
+                              + "</td></tr></table>"
+                              + (actionEvent
+                                 ? ("<a href='" + author.id
+                                    + "' style='text-decoration:none;color:\""
                                     + authorColor + "\";font-weight:bold'>"
-                                    + toHtmlEscaped(authorName) + "</a> ") : "")
+                                    + toHtmlEscaped(authorName) + "</a> ")
+                                 : ""))
+                           : "")
                           + display
                           + (replaced
                              ? "<small style='color:\""
