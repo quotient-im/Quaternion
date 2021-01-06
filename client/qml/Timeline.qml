@@ -284,6 +284,7 @@ Rectangle {
                 console.log("Model timeline reset")
                 if (room)
                 {
+                    forceLayout()
                     var lastScrollPosition = room.savedTopVisibleIndex()
                     if (lastScrollPosition === 0)
                         positionViewAtBeginning()
