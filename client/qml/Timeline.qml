@@ -107,7 +107,7 @@ Rectangle {
                 selectByKeyboard: true
                 selectByMouse: true
             }
-            Label {
+            QQC2.Label {
                 id: versionNotice
                 visible: room && (room.isUnstable || room.successorId !== "")
                 width: parent.width
@@ -123,15 +123,14 @@ Rectangle {
                 ToolTipArea { text: parent.text }
             }
 
-            ScrollView {
+            QQC2.ScrollView {
                 id: topicField
                 width: parent.width
                 height: Math.min(topicText.contentHeight,
                                  room ? root.height / 5 : 0)
 
-                horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
-                verticalScrollBarPolicy: Qt.ScrollBarAsNeeded
-                style: ScrollViewStyle { transientScrollBars: true }
+                QQC2.ScrollBar.horizontal.policy: QQC2.ScrollBar.AlwaysOff
+                QQC2.ScrollBar.vertical.policy: QQC2.ScrollBar.AsNeeded
 
                 AnimationBehavior on height {
                     NormalNumberAnimation { easing.type: Easing.OutQuad }
@@ -403,7 +402,7 @@ Rectangle {
                 visible: chatView.sectionBannerVisible
                 color: defaultPalette.window
                 opacity: 0.8
-                Label {
+                QQC2.Label {
                     font.bold: true
                     font.family: settings.font.family
                     font.pointSize: settings.font.pointSize
@@ -530,7 +529,7 @@ Rectangle {
             ? 0.8 : 0
         AnimationBehavior on opacity { FastNumberAnimation { } }
 
-        Label {
+        QQC2.Label {
             font.bold: true
             font.family: settings.font.family
             font.pointSize: settings.font.pointSize
@@ -540,7 +539,7 @@ Rectangle {
                    ? qsTr("Latest events") : qsTr("%Ln events back from now","",
                                                   chatView.bottommostVisibleIndex))
                   + '\n' + qsTr("%Ln cached", "", chatView.count)
-            horizontalAlignment: Label.AlignRight
+            horizontalAlignment: QQC2.Label.AlignRight
         }
     }
 
