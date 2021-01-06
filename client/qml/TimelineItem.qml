@@ -195,23 +195,24 @@ Item {
             //   ts av *(asterisk) al c
 
             Image {
-                function desiredHeight() {
-                    // Desired height for XChat style is one line height, for "default" 2 lines
+                function desiredWidth() {
+                    // Desired width by default 2 text line heights;
+                    // for XChat style one line height
                     return authorLabel.height * (2 - xchatStyle)
                 }
 
                 id: authorAvatar
-                visible: settings.show_author_avatars && source &&
-                         (authorSectionVisible || xchatStyle)
+                visible: settings.show_author_avatars && author.avatarMediaId
+                         && (authorSectionVisible || xchatStyle)
                 anchors.left: xchatStyle ? timelabel.right : parent.left
                 anchors.leftMargin: xchatStyle * 3
-                height: desiredHeight()
-                width: height
+                height: visible ? width : authorLabel.height
+                width: desiredWidth()
                 fillMode: Image.PreserveAspectFit
 
                 source: author.avatarMediaId
                         ? "image://mtx/" + author.avatarMediaId : ""
-                sourceSize: Qt.size(desiredHeight() * 2, desiredHeight() * 2)
+                sourceSize: Qt.size(desiredWidth() * 2, desiredWidth() * 2)
             }
             Label {
                 id: authorLabel
@@ -301,7 +302,11 @@ Item {
             Item {
                 id: textField
                 anchors.top: !xchatStyle && authorLabel.visible
-                             ? authorLabel.bottom : authorAvatar.top
+                             ? authorLabel.bottom
+                             : actionEvent ? undefined : authorAvatar.top
+                anchors.verticalCenter:
+                    actionEvent && (xchatStyle || !authorLabel.visible)
+                    ? authorAvatar.verticalCenter : undefined
                 anchors.left: xchatStyle ? authorLabel.right : authorAvatar.right
                 anchors.leftMargin: 1
                 anchors.right: parent.right
