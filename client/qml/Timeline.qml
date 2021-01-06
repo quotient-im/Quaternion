@@ -1,6 +1,7 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.4
 import QtQuick.Controls.Styles 1.0
+import QtQuick.Controls 2.2 as QQC2
 import QtQuick.Layouts 1.1
 import Quotient 1.0
 
@@ -543,34 +544,34 @@ Rectangle {
         }
     }
 
-    Rectangle {
+    QQC2.RoundButton {
         id: scrollToBottomButton
-        opacity: chatView.atYEnd ? 0 : 0.4
-        color: defaultPalette.text
-        height: 30
-        radius: height/2
-        width: height
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        anchors.rightMargin: width
+        anchors.rightMargin: width * 1.5
         anchors.bottomMargin: chatView.atYEnd ? -height : height/2
+        height: settings.defaultText.height * 2
+        width: height
+        hoverEnabled: true
+        opacity: (!chatView.atYEnd) * (0.7 + hovered * 0.2)
+
+        display: QQC2.Button.IconOnly
+        icon {
+            name: "go-bottom"
+            source: "qrc:///scrolldown.svg"
+            color: defaultPalette.buttonText
+        }
+
+        onClicked: {
+            chatView.positionViewAtBeginning()
+            chatView.saveViewport()
+        }
+
         AnimationBehavior on opacity {
             NormalNumberAnimation { easing.type: Easing.OutQuad }
         }
         AnimationBehavior on anchors.bottomMargin {
             NormalNumberAnimation { easing.type: Easing.OutQuad }
-        }
-        Image {
-            anchors.fill: parent
-            source: "qrc:///scrolldown.svg"
-        }
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                chatView.positionViewAtBeginning()
-                chatView.saveViewport()
-            }
-            cursorShape: Qt.PointingHandCursor
         }
     }
 }
