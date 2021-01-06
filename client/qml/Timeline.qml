@@ -539,15 +539,15 @@ Rectangle {
     }
 
     Rectangle {
-        id: scrollindicator
-        opacity: chatView.atYEnd ? 0 : 0.5
+        id: scrollToBottomButton
+        opacity: chatView.atYEnd ? 0 : 0.4
         color: defaultPalette.text
         height: 30
         radius: height/2
         width: height
-        anchors.left: parent.left
+        anchors.right: parent.right
         anchors.bottom: parent.bottom
-        anchors.leftMargin: width/2
+        anchors.rightMargin: width
         anchors.bottomMargin: chatView.atYEnd ? -height : height/2
         AnimationBehavior on opacity {
             NormalNumberAnimation { easing.type: Easing.OutQuad }
