@@ -300,11 +300,13 @@ Rectangle {
             }
 
             function scrollUp(dy) {
-                contentY = Math.max(originY, contentY - dy)
+                if (contentHeight > height)
+                    contentY = Math.max(originY, contentY - dy)
             }
             function scrollDown(dy) {
-                contentY = Math.min(originY + contentHeight - height,
-                                    contentY + dy)
+                if (contentHeight > height)
+                    contentY = Math.min(originY + contentHeight - height,
+                                        contentY + dy)
             }
 
             function onWheel(wheel) {
