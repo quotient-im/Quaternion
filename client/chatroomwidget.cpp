@@ -989,9 +989,14 @@ void ChatRoomWidget::fileDrop(const QString& url)
     emit showStatusMessage(tr("Attaching %1").arg(attachedFileName));
 }
 
+void ChatRoomWidget::htmlDrop(const QString &html)
+{
+    m_chatEdit->insertHtml(html);
+}
+
 void ChatRoomWidget::textDrop(const QString& text)
 {
-    m_chatEdit->setText(text);
+    m_chatEdit->insertPlainText(text);
 }
 
 Qt::KeyboardModifiers ChatRoomWidget::getModifierKeys() const

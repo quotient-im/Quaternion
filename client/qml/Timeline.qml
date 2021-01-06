@@ -207,10 +207,13 @@ Rectangle {
 
         DropArea {
             anchors.fill: parent
-            onEntered: if (!room) { drag.accepted = false }
+            onEntered: if (!room) drag.accepted = false
             onDropped: {
                 if (drop.hasUrls) {
                     controller.fileDrop(drop.urls)
+                    drop.acceptProposedAction()
+                } else if (drop.hasHtml) {
+                    controller.htmlDrop(drop.html)
                     drop.acceptProposedAction()
                 } else if (drop.hasText) {
                     controller.textDrop(drop.text)
