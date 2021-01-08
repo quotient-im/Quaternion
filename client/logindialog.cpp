@@ -52,14 +52,16 @@ LoginDialog::LoginDialog(const QString& statusMessage, QWidget* parent,
         if (userId.startsWith('@') && userId.indexOf(':') != -1) {
             setStatusMessage(tr("Resolving the homeserver..."));
             serverEdit->clear();
+            button(QDialogButtonBox::Ok)->setEnabled(false);
             m_connection->resolveServer(userId);
         }
     });
 
     connect(serverEdit, &QLineEdit::editingFinished, m_connection.data(), [this] {
-        if (QUrl hsUrl { serverEdit->text() }; hsUrl.isValid())
+        if (QUrl hsUrl { serverEdit->text() }; hsUrl.isValid()) {
             m_connection->setHomeserver(serverEdit->text());
-        else
+            button(QDialogButtonBox::Ok)->setEnabled(true);
+        } else
             setStatusMessage(tr("The server URL doesn't look valid"));
     });
 
@@ -130,14 +132,19 @@ void LoginDialog::setup(const QString& statusMessage)
     passwordEdit->setEchoMode( QLineEdit::Password );
 
     connect(m_connection.data(), &Connection::homeserverChanged, serverEdit,
-            [this](const QUrl& hsUrl) { serverEdit->setText(hsUrl.toString()); });
+            [this](const QUrl& hsUrl) {
+        serverEdit->setText(hsUrl.toString());
+        if (hsUrl.isValid())
+            setStatusMessage(tr("Getting supported login flows..."));
+    });
     // This is triggered whenever the server URL has been changed
     connect(m_connection.data(), &Connection::loginFlowsChanged, this, [this] {
         setStatusMessage(m_connection->isUsable()
                              ? tr("The homeserver is available")
                              : tr("Could not connect to the homeserver"));
+        button(QDialogButtonBox::Ok)->setEnabled(true);
     });
-    // This overrides the above in case of an unsuccessful attempt to resovle
+    // This overrides the above in case of an unsuccessful attempt to resolve
     // the server URL from a changed MXID
     connect(m_connection.data(), &Connection::resolveError, this,
             [this](const QString& message) {
