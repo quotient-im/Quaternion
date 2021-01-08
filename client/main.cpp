@@ -24,6 +24,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QStandardPaths>
 #include <QtWidgets/QStyleFactory>
+#include <QtQuickControls2/QQuickStyle>
 
 #include "networksettings.h"
 #include "mainwindow.h"
@@ -93,8 +94,13 @@ int main( int argc, char* argv[] )
 #    if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
         QIcon::setFallbackThemeName("breeze");
 #    endif
-    }
+    } else
 #endif
+    {
+        const auto qqc2styles = QQuickStyle::availableStyles();
+        if (qqc2styles.contains("Fusion"))
+            QQuickStyle::setFallbackStyle("Fusion"); // Looks better on desktops
+    }
 
     {
         auto font = QApplication::font();

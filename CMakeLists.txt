@@ -48,7 +48,8 @@ else()
 endif()
 
 # Find the libraries
-find_package(Qt5 5.9 REQUIRED Widgets Network Quick Gui LinguistTools Multimedia DBus)
+find_package(Qt5 5.9 REQUIRED Widgets Network Quick Gui LinguistTools
+                              Multimedia DBus QuickControls2)
 # Qt5_Prefix is only used to show Qt path in message()
 # Qt5_BinDir is where all the binary tools for Qt are
 if (QT_QMAKE_EXECUTABLE)
@@ -231,8 +232,8 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.16.0"
         AND NOT CMAKE_CXX_COMPILER_ID STREQUAL GNU) # https://bugzilla.redhat.com/show_bug.cgi?id=1721553
     target_precompile_headers(${PROJECT_NAME} PRIVATE <room.h>)
 endif ()
-target_link_libraries(${PROJECT_NAME}
-    Quotient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
+target_link_libraries(${PROJECT_NAME} Quotient
+    Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network Qt5::QuickControls2)
 
 if (USE_QQUICKWIDGET)
     target_compile_definitions(${PROJECT_NAME} PRIVATE USE_QQUICKWIDGET)
