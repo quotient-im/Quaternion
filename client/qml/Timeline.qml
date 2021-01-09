@@ -1,4 +1,4 @@
-import QtQuick 2.2
+import QtQuick 2.4
 import QtQuick.Controls 1.4
 import QtQuick.Controls.Styles 1.0
 import QtQuick.Controls 2.2 as QQC2
@@ -95,9 +95,14 @@ Rectangle {
                 width: parent.width
 
                 readonly property bool hasName: room && room.displayName !== ""
-                text: hasName ? room.displayName : qsTr("(no name)")
+                TextElider {
+                    id: roomNameElider
+                    textControl: roomName
+                    text: roomName.hasName ? room.displayName : qsTr("(no name)")
+                }
+
+                text: roomNameElider.elidedText
                 color: (hasName ? defaultPalette : disabledPalette).windowText
-                ToolTipArea { text: parent.hasName ? room.htmlSafeDisplayName : "" }
 
                 font.bold: true
                 font.family: settings.font.family
@@ -106,7 +111,13 @@ Rectangle {
                 readOnly: true
                 selectByKeyboard: true
                 selectByMouse: true
+
+                ToolTipArea {
+                    enabled: roomNameElider.text != roomNameElider.elidedText
+                    text: if (room) room.htmlSafeDisplayName
+                }
             }
+
             QQC2.Label {
                 id: versionNotice
                 visible: room && (room.isUnstable || room.successorId !== "")
@@ -116,13 +127,16 @@ Rectangle {
                     room.successorId !== ""
                               ? qsTr("This room has been upgraded.") :
                     room.isUnstable ? qsTr("Unstable room version!") : ""
+                elide: Text.ElideRight
                 font.italic: true
                 font.family: settings.font.family
                 font.pointSize: settings.font.pointSize
                 renderType: settings.render_type
-                ToolTipArea { text: parent.text }
+                ToolTipArea {
+                    enabled: parent.truncated
+                    text: parent.text
+                }
             }
-
             QQC2.ScrollView {
                 id: topicField
                 width: parent.width

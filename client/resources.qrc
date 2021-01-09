@@ -22,5 +22,6 @@
         <file>qml/FastNumberAnimation.qml</file>
         <file>qml/AnimationBehavior.qml</file>
         <file>qml/AnimatedTransition.qml</file>
+        <file>qml/TextElider.qml</file>
     </qresource>
 </RCC>
