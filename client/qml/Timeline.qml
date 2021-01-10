@@ -521,6 +521,8 @@ Rectangle {
         Component.onCompleted: {
             // Continue scrolling while the shuttle is held out of 0
             chatView.flickEnded.connect(shuttleDial.valueChanged)
+            // #375: Resume scrolling after more events arrived
+            messageModel.rowsInserted.connect(shuttleDial.valueChanged)
         }
     }
 
