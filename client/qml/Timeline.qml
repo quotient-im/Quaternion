@@ -112,7 +112,7 @@ Rectangle {
 
                 ToolTipArea {
                     enabled: roomNameElider.text != roomNameElider.elidedText
-                    text: if (room) room.htmlSafeDisplayName
+                    text: room ? room.htmlSafeDisplayName : ""
                 }
             }
 
