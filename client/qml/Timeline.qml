@@ -531,8 +531,6 @@ Rectangle {
         anchors.right: parent.right
         width: Math.max(chatScrollView.ScrollBar.vertical.width, 8)
         acceptedButtons: Qt.NoButton
-        // FIXME: propagate wheel event to chatView
-        onWheel: { wheel.accepted = settings.use_shuttle_dial }
 
         hoverEnabled: true
     }
