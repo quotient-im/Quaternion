@@ -186,28 +186,29 @@ Item {
             // default (when "timeline_style" is not "xchat"):
             //   av al
             //      c ts
-            // state-emote (default for state and emote events):
+            // action events (for state and emote events):
             //   av (al+c in a single control) ts
             //      (spanning both rows      )
             // xchat (when "timeline_style" is "xchat"):
             //   ts av al c
-            // xchat state-emote
+            // xchat action events
             //   ts av *(asterisk) al c
 
             Image {
                 function desiredWidth() {
                     // Desired width by default 2 text line heights;
-                    // for XChat style one line height
-                    return authorLabel.height * (2 - xchatStyle)
+                    // for XChat style and action events one line height
+                    return authorLabel.height * (2 - xchatStyle * actionEvent)
                 }
 
                 id: authorAvatar
                 visible: settings.show_author_avatars && author.avatarMediaId
                          && (authorSectionVisible || xchatStyle)
                 anchors.left: xchatStyle ? timelabel.right : parent.left
-                anchors.leftMargin: xchatStyle * 3
-                height: visible ? width : authorLabel.height
-                width: desiredWidth()
+                anchors.leftMargin: xchatStyle ? 3 :
+                                    actionEvent ? authorLabel.height : 0
+                height: visible && !actionEvent ? width : authorLabel.height
+                width: actionEvent ? height : desiredWidth()
                 fillMode: Image.PreserveAspectFit
 
                 source: author.avatarMediaId
