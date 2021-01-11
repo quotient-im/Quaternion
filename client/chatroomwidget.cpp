@@ -361,18 +361,6 @@ QVector<QString> lazySplitRef(const QString& s, QChar sep, int maxParts)
     return parts;
 }
 
-static const auto ReFlags = QRegularExpression::DotMatchesEverythingOption
-                            | QRegularExpression::DontCaptureOption;
-
-// FIXME: copy-paste from lib/util.cpp
-static const auto ServerPartPattern =
-    QStringLiteral("(\\[[^]]+\\]|[-[:alnum:].]+)" // Either IPv6 address or
-                                                  // hostname/IPv4 address
-                   "(:\\d{1,5})?" // Optional port
-    );
-static const auto UserIdPattern =
-    QString("@[-[:alnum:]._=/]+:" % ServerPartPattern);
-
 void ChatRoomWidget::sendFile()
 {
     Q_ASSERT(m_currentRoom != nullptr);
@@ -423,6 +411,18 @@ static const auto NothingToSendMsg =
 QString ChatRoomWidget::sendCommand(const QStringRef& command,
                                     const QString& argString)
 {
+    static const auto ReFlags = QRegularExpression::DotMatchesEverythingOption
+                                | QRegularExpression::DontCaptureOption;
+
+    // FIXME: copy-paste from lib/util.cpp
+    static const auto ServerPartPattern =
+        QStringLiteral("(\\[[^]]+\\]|[-[:alnum:].]+)" // Either IPv6 address or
+                                                      // hostname/IPv4 address
+                       "(:\\d{1,5})?" // Optional port
+        );
+    static const auto UserIdPattern =
+        QString("@[-[:alnum:]._=/]+:" % ServerPartPattern);
+
     static const QRegularExpression
         RoomIdRE { "^([#!][^:[:space:]]+):" % ServerPartPattern % '$', ReFlags },
         UserIdRE { '^' % UserIdPattern % '$', ReFlags };
@@ -656,10 +656,10 @@ void ChatRoomWidget::sendInput()
         if (text.isEmpty())
             error = NothingToSendMsg;
         else if (text.startsWith('/') && !text.midRef(1).startsWith('/')) {
-            QRegularExpression cmdSplit("\\s+", ReFlags);
+            QRegularExpression cmdSplit("(\\w+)(?:\\s+(.*))?");
             const auto& blanksMatch = cmdSplit.match(text, 1);
-            error = sendCommand(text.midRef(1, blanksMatch.capturedStart() - 1),
-                                text.mid(blanksMatch.capturedEnd()));
+            error = sendCommand(blanksMatch.capturedRef(1),
+                                blanksMatch.captured(2));
         } else if (!m_currentRoom)
             error = tr("You should select a room to send messages.");
         else
