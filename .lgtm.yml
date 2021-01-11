@@ -1,3 +1,8 @@
+path_classifiers:
+  library:
+  - lib/*
+  generated:
+  - quaternion_autogen/*
 extraction:
   cpp:
     prepare:
