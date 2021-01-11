@@ -185,37 +185,35 @@ Item {
             // al - author label, ts - timestamp, c - content
             // default (when "timeline_style" is not "xchat"):
             //   av al
-            //   ts c
-            // state-emote (default for state and emote events):
-            //   av (al+c in a single control
-            //   ts  spanning both rows)
+            //      c ts
+            // action events (for state and emote events):
+            //   av (al+c in a single control) ts
+            //      (spanning both rows      )
             // xchat (when "timeline_style" is "xchat"):
             //   ts av al c
-            // xchat state-emote
+            // xchat action events
             //   ts av *(asterisk) al c
 
             Image {
-                function desiredHeight() {
-                    return xchatStyle ? authorLabel.height :
-                           visible ? authorLabel.height * 2 - timelabel.height
-                                   : undefined
-                }
                 function desiredWidth() {
-                    return !xchatStyle ? timelabel.width : undefined
+                    // Desired width by default 2 text line heights;
+                    // for XChat style and action events one line height
+                    return authorLabel.height * (2 - xchatStyle * actionEvent)
                 }
 
                 id: authorAvatar
-                visible: settings.show_author_avatars && source &&
-                         (authorSectionVisible || xchatStyle)
+                visible: settings.show_author_avatars && author.avatarMediaId
+                         && (authorSectionVisible || xchatStyle)
                 anchors.left: xchatStyle ? timelabel.right : parent.left
-                anchors.leftMargin: xchatStyle * 3
-                height: desiredHeight()
-                width: desiredWidth()
+                anchors.leftMargin: xchatStyle ? 3 :
+                                    actionEvent ? authorLabel.height : 0
+                height: visible && !actionEvent ? width : authorLabel.height
+                width: actionEvent ? height : desiredWidth()
                 fillMode: Image.PreserveAspectFit
 
-                source: author.avatarMediaId ?
-                            "image://mtx/" + author.avatarMediaId : ""
-                sourceSize: Qt.size(desiredWidth() * 2, desiredHeight() * 2)
+                source: author.avatarMediaId
+                        ? "image://mtx/" + author.avatarMediaId : ""
+                sourceSize: Qt.size(desiredWidth() * 2, desiredWidth() * 2)
             }
             Label {
                 id: authorLabel
@@ -252,10 +250,10 @@ Item {
                                                  mouse.button === Qt.LeftButton
                                                  ? "mention" : "_interactive")
             }
-
             Label {
                 id: timelabel
-                anchors.top: xchatStyle ? authorAvatar.top : authorAvatar.bottom
+                visible: xchatStyle
+                anchors.top: authorAvatar.top
                 anchors.left: parent.left
 
                 opacity: 0.8
@@ -305,8 +303,12 @@ Item {
             Item {
                 id: textField
                 anchors.top: !xchatStyle && authorLabel.visible
-                             ? authorLabel.bottom : authorAvatar.top
-                anchors.left: xchatStyle ? authorLabel.right : timelabel.right
+                             ? authorLabel.bottom
+                             : actionEvent ? undefined : authorAvatar.top
+                anchors.verticalCenter:
+                    actionEvent && (xchatStyle || !authorLabel.visible)
+                    ? authorAvatar.verticalCenter : undefined
+                anchors.left: xchatStyle ? authorLabel.right : authorAvatar.right
                 anchors.leftMargin: 1
                 anchors.right: parent.right
                 anchors.rightMargin: 1
@@ -332,10 +334,20 @@ Item {
                     readOnly: true
                     textFormat: TextEdit.RichText
                     // FIXME: The text is clumsy and slows down creation
-                    text: (actionEvent && !xchatStyle ?
-                           ("<a href='" + author.id + "' style='text-decoration:none;color:\""
+                    text: (!xchatStyle
+                           ? ("<table style='float: right; font-size: small;color:\""
+                              + mixColors(disabledPalette.text, defaultPalette.text, 0.3)
+                              + "\"'><tr><td>"
+                              + toHtmlEscaped(time.toLocaleTimeString(Qt.locale(),
+                                                                      Locale.ShortFormat))
+                              + "</td></tr></table>"
+                              + (actionEvent
+                                 ? ("<a href='" + author.id
+                                    + "' style='text-decoration:none;color:\""
                                     + authorColor + "\";font-weight:bold'>"
-                                    + toHtmlEscaped(authorName) + "</a> ") : "")
+                                    + toHtmlEscaped(authorName) + "</a> ")
+                                 : ""))
+                           : "")
                           + display
                           + (replaced
                              ? "<small style='color:\""

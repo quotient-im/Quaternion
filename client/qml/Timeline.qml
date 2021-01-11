@@ -1,6 +1,5 @@
-import QtQuick 2.2
-import QtQuick.Controls 1.4
-import QtQuick.Controls.Styles 1.0
+import QtQuick 2.4
+import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.1
 import Quotient 1.0
 
@@ -94,9 +93,14 @@ Rectangle {
                 width: parent.width
 
                 readonly property bool hasName: room && room.displayName !== ""
-                text: hasName ? room.displayName : qsTr("(no name)")
+                TextElider {
+                    id: roomNameElider
+                    textControl: roomName
+                    text: roomName.hasName ? room.displayName : qsTr("(no name)")
+                }
+
+                text: roomNameElider.elidedText
                 color: (hasName ? defaultPalette : disabledPalette).windowText
-                ToolTipArea { text: parent.hasName ? room.htmlSafeName : "" }
 
                 font.bold: true
                 font.family: settings.font.family
@@ -105,7 +109,13 @@ Rectangle {
                 readOnly: true
                 selectByKeyboard: true
                 selectByMouse: true
+
+                ToolTipArea {
+                    enabled: roomNameElider.text != roomNameElider.elidedText
+                    text: room ? room.htmlSafeDisplayName : ""
+                }
             }
+
             Label {
                 id: versionNotice
                 visible: room && (room.isUnstable || room.successorId !== "")
@@ -115,22 +125,24 @@ Rectangle {
                     room.successorId !== ""
                               ? qsTr("This room has been upgraded.") :
                     room.isUnstable ? qsTr("Unstable room version!") : ""
+                elide: Text.ElideRight
                 font.italic: true
                 font.family: settings.font.family
                 font.pointSize: settings.font.pointSize
                 renderType: settings.render_type
-                ToolTipArea { text: parent.text }
+                ToolTipArea {
+                    enabled: parent.truncated
+                    text: parent.text
+                }
             }
-
             ScrollView {
                 id: topicField
                 width: parent.width
                 height: Math.min(topicText.contentHeight,
                                  room ? root.height / 5 : 0)
 
-                horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
-                verticalScrollBarPolicy: Qt.ScrollBarAsNeeded
-                style: ScrollViewStyle { transientScrollBars: true }
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
                 AnimationBehavior on height {
                     NormalNumberAnimation { easing.type: Easing.OutQuad }
@@ -175,11 +187,11 @@ Rectangle {
                                                  "_interactive")
             }
         }
-        ToolButton {
+        Button {
             id: versionActionButton
             visible: room && ((room.isUnstable && room.canSwitchVersions())
                               || room.successorId !== "")
-            anchors.verticalCenter: parent.verticalCenter
+            anchors.verticalCenter: headerText.verticalCenter
             anchors.right: parent.right
             width: visible * implicitWidth
             text: !room ? "" : room.successorId !== ""
@@ -193,45 +205,42 @@ Rectangle {
         }
     }
 
+    DropArea {
+        anchors.fill: parent
+        onEntered: if (!room) drag.accepted = false
+        onDropped: {
+            if (drop.hasUrls) {
+                controller.fileDrop(drop.urls)
+                drop.acceptProposedAction()
+            } else if (drop.hasHtml) {
+                controller.htmlDrop(drop.html)
+                drop.acceptProposedAction()
+            } else if (drop.hasText) {
+                controller.textDrop(drop.text)
+                drop.acceptProposedAction()
+            }
+        }
+    }
     ScrollView {
         id: chatScrollView
         anchors.top: roomHeader.bottom
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        anchors.rightMargin: if (settings.use_shuttle_dial) { shuttleDial.width }
-        horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
-        verticalScrollBarPolicy: settings.use_shuttle_dial
-                                 ? Qt.ScrollBarAlwaysOff : Qt.ScrollBarAlwaysOn
-        style: ScrollViewStyle { transientScrollBars: true }
-
-        DropArea {
-            anchors.fill: parent
-            onEntered: if (!room) { drag.accepted = false }
-            onDropped: {
-                if (drop.hasUrls) {
-                    controller.fileDrop(drop.urls)
-                    drop.acceptProposedAction()
-                } else if (drop.hasText) {
-                    controller.textDrop(drop.text)
-                    drop.acceptProposedAction()
-                }
-            }
-        }
-
-        // This covers the area above a short chatView.
-        MouseArea {
-            anchors.fill: parent
-            acceptedButtons: Qt.AllButtons
-            onReleased: controller.focusInput()
-        }
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy:
+            settings.use_shuttle_dial ? ScrollBar.AlwaysOff
+                                      : ScrollBar.AlwaysOn
+        ScrollBar.vertical.interactive: true
+        ScrollBar.vertical.active: true
 
         ListView {
             id: chatView
 
             model: messageModel
             delegate: TimelineItem {
-                width: chatView.width
+                width: chatView.width - scrollerArea.width
                 view: chatView
                 moving: chatView.moving || shuttleDial.value
             }
@@ -263,7 +272,8 @@ Rectangle {
                     return
 
                 // Take the current speed, or assume we can scroll 8 screens/s
-                var velocity = moving ? -verticalVelocity : height * 8
+                var velocity = moving ? -verticalVelocity
+                                      : chatScrollView.height * 8
                 // Check if we're about to bump into the ceiling in
                 // 2 seconds and if yes, request the amount of messages
                 // enough to scroll at this rate for 3 more seconds
@@ -284,6 +294,9 @@ Rectangle {
                 console.log("Model timeline reset")
                 if (room)
                 {
+                    forceLayout()
+                    // Load events if there are not enough of them
+                    ensurePreviousContent()
                     var lastScrollPosition = room.savedTopVisibleIndex()
                     if (lastScrollPosition === 0)
                         positionViewAtBeginning()
@@ -296,11 +309,13 @@ Rectangle {
             }
 
             function scrollUp(dy) {
-                contentY = Math.max(originY, contentY - dy)
+                if (contentHeight > height)
+                    contentY = Math.max(originY, contentY - dy)
             }
             function scrollDown(dy) {
-                contentY = Math.min(originY + contentHeight - height,
-                                    contentY + dy)
+                if (contentHeight > height)
+                    contentY = Math.min(originY + contentHeight - height,
+                                        contentY + dy)
             }
 
             function onWheel(wheel) {
@@ -379,6 +394,15 @@ Rectangle {
                     }
             }}
 
+            // This covers the area above the items if there are not enough
+            // of them to fill the viewport
+            MouseArea {
+                z: -1
+                anchors.fill: parent
+                acceptedButtons: Qt.AllButtons
+                onReleased: controller.focusInput()
+            }
+
             // itemAt is a function rather than a property, so it doesn't
             // produce a QML binding; the piece with contentHeight compensates.
             readonly property var underlayingItem: contentHeight >= height &&
@@ -408,84 +432,86 @@ Rectangle {
             }
         }
     }
+
+    // === Timeline map ===
+    // Only used with the shuttle scroller for now
+
+    Rectangle {
+        id: cachedEventsBar
+
+        property int requestedHistoryEventsCount:
+            room && room.eventsHistoryJob
+            ? chatView.lastRequestedEvents : 0
+
+        AnimationBehavior on requestedHistoryEventsCount {
+            NormalNumberAnimation { }
+        }
+
+        property real averageEvtHeight:
+            chatView.count + requestedHistoryEventsCount > 0
+            ? chatView.height
+              / (chatView.count + requestedHistoryEventsCount)
+            : 0
+
+        AnimationBehavior on averageEvtHeight {
+            FastNumberAnimation { }
+        }
+
+        anchors.right: chatScrollView.right
+        anchors.bottom: chatScrollView.bottom
+        anchors.bottomMargin:
+            averageEvtHeight * chatView.bottommostVisibleIndex
+        width: scrollerArea.width / 2
+        height: chatView.bottommostVisibleIndex < 0 ? 0 :
+            averageEvtHeight
+            * (chatView.count - chatView.bottommostVisibleIndex)
+        visible: shuttleDial.visible
+
+        color: defaultPalette.highlight
+    }
+    Rectangle {
+        // Loading history events bar, stacked above
+        // the cached events bar when more history has been requested
+        anchors.right: cachedEventsBar.right
+        anchors.top: chatScrollView.top
+        anchors.bottom: cachedEventsBar.top
+        width: cachedEventsBar.width
+        visible: shuttleDial.visible
+
+        opacity: 0.4
+        color: defaultPalette.highlight
+    }
+
+    // === Scrolling extensions ===
+
     Slider {
         id: shuttleDial
         orientation: Qt.Vertical
         height: chatScrollView.height
-        anchors.right: parent.right
+        width: scrollerArea.width / 2
+        anchors.right: cachedEventsBar.left
+        // Shift to the left to fit the handle in the visible area
+        anchors.rightMargin:
+            Math.max(handle.implicitWidth - width - cachedEventsBar.width, 0)
+            / 2 + 1
         anchors.verticalCenter: chatScrollView.verticalCenter
         enabled: settings.use_shuttle_dial
-        visible: enabled
+        visible: enabled && chatView.count > 0
 
-        style: SliderStyle {
-            // Width and height are swapped below because SliderStyle assumes
-            // a horizontal slider
-            groove: Rectangle {
-                color: defaultPalette.window
-                border.color: defaultPalette.midlight
-                implicitHeight: 8
-                clip: true
+        hoverEnabled: true
+        background: Item { /* no background */ }
+        handle.opacity: hovered ? 1 : 0.6
 
-                readonly property int requestedHistoryEventsCount:
-                    room && room.eventsHistoryJob
-                    ? chatView.lastRequestedEvents : 0
-                readonly property real averageEvtHeight:
-                    chatView.count == 0 && requestedHistoryEventsCount == 0 ? 0
-                    : chatView.height
-                      / (chatView.count + requestedHistoryEventsCount)
+        from: -10.0
+        to: 10.0
 
-                Rectangle {
-                    id: loadingEventsBar
-                    // Loading history events bar, stacked above
-                    // the cached events bar when more history is being loaded
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: cachedEventsBar.right
-                    implicitHeight: 2
-                    width: averageEvtHeight * requestedHistoryEventsCount
-
-                    opacity: 0.4
-                    color: defaultPalette.highlight
-
-                    AnimationBehavior on width { NormalNumberAnimation { } }
-                }
-                Rectangle {
-                    id: cachedEventsBar
-
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: parent.left
-                    anchors.leftMargin:
-                        averageEvtHeight * chatView.bottommostVisibleIndex
-                    implicitHeight: 2
-                    width: chatView.bottommostVisibleIndex < 0 ? 0 :
-                        averageEvtHeight
-                        * (chatView.count - chatView.bottommostVisibleIndex)
-
-                    color: defaultPalette.highlight
-
-                    AnimationBehavior on width { FastNumberAnimation { } }
-                }
-            }
-            handle: Rectangle {
-                anchors.centerIn: parent
-                color: defaultPalette.button
-                border.color: defaultPalette.buttonText
-                border.width: 1
-                implicitWidth: 14
-                implicitHeight: 8
-                visible: chatView.count > 0
-            }
-        }
-
-        maximumValue: 10.0
-        minimumValue: -10.0
-
-        activeFocusOnPress: false
         activeFocusOnTab: false
-        // wheelEnabled: false // Only available in QQC 1.6, Qt 5.10
 
         onPressedChanged: {
-            if (!pressed)
+            if (!pressed) {
                 value = 0
+                controller.focusInput()
+            }
         }
 
         onValueChanged: {
@@ -495,6 +521,8 @@ Rectangle {
         Component.onCompleted: {
             // Continue scrolling while the shuttle is held out of 0
             chatView.flickEnded.connect(shuttleDial.valueChanged)
+            // #375: Resume scrolling after more events arrived
+            messageModel.rowsInserted.connect(shuttleDial.valueChanged)
         }
     }
 
@@ -503,11 +531,8 @@ Rectangle {
         anchors.top: chatScrollView.top
         anchors.bottom: chatScrollView.bottom
         anchors.right: parent.right
-        width: settings.use_shuttle_dial ? shuttleDial.width
-                                         : chatScrollView.width - chatView.width
+        width: Math.max(chatScrollView.ScrollBar.vertical.width, 8)
         acceptedButtons: Qt.NoButton
-        // FIXME: propagate wheel event to chatView
-        onWheel: { wheel.accepted = settings.use_shuttle_dial }
 
         hoverEnabled: true
     }
@@ -537,34 +562,34 @@ Rectangle {
         }
     }
 
-    Rectangle {
-        id: scrollindicator
-        opacity: chatView.atYEnd ? 0 : 0.5
-        color: defaultPalette.text
-        height: 30
-        radius: height/2
-        width: height
-        anchors.left: parent.left
+    RoundButton {
+        id: scrollToBottomButton
+        anchors.right: parent.right
         anchors.bottom: parent.bottom
-        anchors.leftMargin: width/2
+        anchors.rightMargin: width * 1.5
         anchors.bottomMargin: chatView.atYEnd ? -height : height/2
+        height: settings.defaultText.height * 2
+        width: height
+        hoverEnabled: true
+        opacity: (!chatView.atYEnd) * (0.7 + hovered * 0.2)
+
+        display: Button.IconOnly
+        icon {
+            name: "go-bottom"
+            source: "qrc:///scrolldown.svg"
+            color: defaultPalette.buttonText
+        }
+
+        onClicked: {
+            chatView.positionViewAtBeginning()
+            chatView.saveViewport()
+        }
+
         AnimationBehavior on opacity {
             NormalNumberAnimation { easing.type: Easing.OutQuad }
         }
         AnimationBehavior on anchors.bottomMargin {
             NormalNumberAnimation { easing.type: Easing.OutQuad }
-        }
-        Image {
-            anchors.fill: parent
-            source: "qrc:///scrolldown.svg"
-        }
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                chatView.positionViewAtBeginning()
-                chatView.saveViewport()
-            }
-            cursorShape: Qt.PointingHandCursor
         }
     }
 }

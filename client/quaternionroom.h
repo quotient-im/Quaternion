@@ -24,7 +24,7 @@
 class QuaternionRoom: public Quotient::Room
 {
         Q_OBJECT
-        Q_PROPERTY(QString htmlSafeName READ htmlSafeName NOTIFY htmlSafeNameChanged)
+        Q_PROPERTY(QString htmlSafeDisplayName READ htmlSafeDisplayName NOTIFY htmlSafeDisplayNameChanged)
     public:
         QuaternionRoom(Quotient::Connection* connection,
                        QString roomId, Quotient::JoinState joinState);
@@ -38,13 +38,13 @@ class QuaternionRoom: public Quotient::Room
         Q_INVOKABLE int savedBottomVisibleIndex() const;
         Q_INVOKABLE void saveViewport(int topIndex, int bottomIndex);
 
-        QString htmlSafeName() const;
+        QString htmlSafeDisplayName() const;
 
     signals:
         // Gotta wrap the Room::namesChanged signal because it has parameters
         // and moc cannot use signals with parameters defined in the parent
         // class as NOTIFY targets
-        void htmlSafeNameChanged();
+        void htmlSafeDisplayNameChanged();
 
     private slots:
         void countChanged();

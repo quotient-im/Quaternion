@@ -87,6 +87,7 @@ class ChatRoomWidget: public QWidget
         void showMenu(int index, const QString& hoveredLink, const QString& selectedText, bool showingDetails);
         void reactionButtonClicked(const QString& eventId, const QString& key);
         void fileDrop(const QString& url);
+        void htmlDrop(const QString& html);
         void textDrop(const QString& text);
         void setGlobalSelectionBuffer(QString text);
 

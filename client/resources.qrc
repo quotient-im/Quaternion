@@ -13,7 +13,6 @@
         <file>qml/ImageContent.qml</file>
         <file>qml/FileContent.qml</file>
         <file>qml/TimelineItem.qml</file>
-        <file>qml/ActiveLabel.qml</file>
         <file>qml/TimelineMouseArea.qml</file>
         <file>qml/TimelineTextEditSelector.qml</file>
         <file>qml/TimelineItemToolButton.qml</file>
@@ -22,5 +21,6 @@
         <file>qml/FastNumberAnimation.qml</file>
         <file>qml/AnimationBehavior.qml</file>
         <file>qml/AnimatedTransition.qml</file>
+        <file>qml/TextElider.qml</file>
     </qresource>
 </RCC>
