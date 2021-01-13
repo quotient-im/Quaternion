@@ -16,17 +16,32 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-18.04, macos-10.15]
+        os: [ ubuntu-18.04 ]
         compiler: [ GCC, Clang ]
         linkage: [ static, dynamic ]
-        all-in-one: [ '', 'all-in-one' ]
+        all-in-one: [ '' ] # Build everything together
+        qt-version: [ '5.9.9' ]
+        distribute: [ '' ] # Generate a package for distribution (e.g., dmg)
         exclude:
-        - os: macos-10.15
-          compiler: GCC
-        - os: macos-10.15
-          linkage: dynamic
         - linkage: dynamic # Only build all-in-one in static configuration
           all-in-one: 'all-in-one'
+        include:
+        - os: ubuntu-18.04
+          compiler: Clang
+          linkage: static
+          all-in-one: all-in-one
+          qt-version: '5.9.9'
+        - os: ubuntu-18.04
+          compiler: Clang
+          linkage: static
+          all-in-one: all-in-one
+          qt-version: '5.14.2'
+          distribute: appimage
+        - os: macos-10.15
+          compiler: Clang
+          linkage: static
+          all-in-one: all-in-one
+          distribute: dmg
 
     env:
       BUILD_SHARED_LIBS: ${{ matrix.dynamic }}
@@ -43,13 +58,13 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${{ runner.workspace }}/Qt
-        key: ${{ runner.os }}-QtCache
+        key: ${{ runner.os }}-Qt${{ matrix.qt-version }}-cache
 
     - name: Install Qt (Linux)
       if: ${{ !contains(matrix.os, 'macos') }}
       uses: jurplel/install-qt-action@v2.11.1
       with:
-        version: '5.9.9'
+        version: ${{ matrix.qt-version }}
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
 
     - name: Install other dependencies (Linux)
@@ -99,17 +114,17 @@ jobs:
       run: cmake --build build --target quaternion
 
     - name: Install and validate Quaternion (Linux)
-      if: ${{ contains(matrix.os, 'ubuntu') }}
+      if: contains(matrix.os, 'ubuntu')
       run: |
         cmake --build build --target install
         appstream-util validate $DESTDIR/usr/share/metainfo/*.appdata.xml
 
     - name: Make image (macOS)
-      if: contains(matrix.os, 'macos')
+      if: contains(matrix.os, 'macos') && matrix.distribute
       run: cmake --build build --target image
 
-    - name: Make AppImage (Linux, all-in-one)
-      if: contains(matrix.os, 'ubuntu') && matrix.all-in-one != ''
+    - name: Make AppImage (Linux/Clang, all-in-one)
+      if: contains(matrix.os, 'ubuntu') && matrix.distribute
       env:
         QML_SOURCES_PATHS: ${{ github.workspace }}/client/qml
       run: |
