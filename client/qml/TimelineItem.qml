@@ -64,10 +64,15 @@ Item {
     readonly property bool xchatStyle: settings.timeline_style === "xchat"
     readonly property bool actionEvent: eventType == "state" || eventType == "emote"
 
+    readonly property bool readMarkerHere: messageModel.readMarkerVisualIndex === index
+
     // A message is considered shown if its bottom is within the
     // viewing area of the timeline.
     readonly property bool shown: y + height - 1 > view.contentY &&
                                   y + height - 1 < view.contentY + view.height
+
+    readonly property bool partiallyShown: y + height - 1 > view.contentY
+                                           && y < view.contentY + view.height
 
     onShownChanged: {
         if (!pending)
@@ -76,9 +81,22 @@ Item {
 
     onPendingChanged: shownChanged()
 
+    onReadMarkerHereChanged: {
+        if (readMarkerHere) {
+            if (partiallyShown)
+                chatView.readMarkerContentPos =
+                    Qt.binding(function() { return y + height })
+            else
+                chatView.parkReadMarker(index)
+        }
+    }
+
+    onPartiallyShownChanged: readMarkerHereChanged()
+
     Component.onCompleted: {
         if (shown)
             shownChanged(true)
+        readMarkerHereChanged()
     }
 
     AnimationBehavior on textColor {
@@ -548,22 +566,6 @@ Item {
 
                 sourceComponent: buttonArea
             }
-        }
-    }
-    Rectangle {
-        id: readMarkerLine
-
-        width: readMarker && parent.width
-        height: 3
-        anchors.horizontalCenter: fullMessage.horizontalCenter
-        anchors.bottom: fullMessage.bottom
-        AnimationBehavior on width {
-            NormalNumberAnimation { easing.type: Easing.OutQuad }
-        }
-
-        gradient: Gradient {
-            GradientStop { position: 0; color: "transparent" }
-            GradientStop { position: 1; color: defaultPalette.highlight }
         }
     }
 

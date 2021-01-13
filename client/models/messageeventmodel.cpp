@@ -51,7 +51,6 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
         roles.insert(ContentRole, "content");
         roles.insert(ContentTypeRole, "contentType");
         roles.insert(HighlightRole, "highlight");
-        roles.insert(ReadMarkerRole, "readMarker");
         roles.insert(SpecialMarksRole, "marks");
         roles.insert(LongOperationRole, "progressInfo");
         roles.insert(AnnotationRole, "annotation");
@@ -92,8 +91,6 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
     m_currentRoom = room;
     if( room )
     {
-        lastReadEventId = room->readMarkerEventId();
-
         using namespace Quotient;
         connect(m_currentRoom, &Room::aboutToAddNewMessages, this,
                 [=](RoomEventsRange events)
@@ -150,9 +147,6 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                     }
                     refreshRow(timelineBaseIndex()); // Refresh the looks
                     refreshLastUserEvents(0);
-                    if (m_currentRoom->timelineSize() > 1) // Refresh above
-                        refreshEventRoles(timelineBaseIndex() + 1,
-                                          {ReadMarkerRole});
                     if (timelineBaseIndex() > 0) // Refresh below, see #312
                         refreshEventRoles(timelineBaseIndex() - 1,
                                           {AboveAuthorRole, AboveSectionRole});
@@ -164,13 +158,7 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
         connect(m_currentRoom, &Room::pendingEventDiscarded,
                 this, &MessageEventModel::endRemoveRows);
         connect(m_currentRoom, &Room::readMarkerMoved,
-            this, [this] {
-            refreshEventRoles(
-                std::exchange(lastReadEventId,
-                              m_currentRoom->readMarkerEventId()),
-                {ReadMarkerRole});
-            refreshEventRoles(lastReadEventId, {ReadMarkerRole});
-        });
+                this, &MessageEventModel::readMarkerUpdated);
         connect(m_currentRoom, &Room::replacedEvent, this,
                 [this] (const RoomEvent* newEvent) {
                     refreshLastUserEvents(
@@ -188,19 +176,41 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                 this, &MessageEventModel::refreshEvent);
         qDebug() << "Connected to room" << room->objectName()
                  << "as" << room->localUser()->id();
-    } else
-        lastReadEventId.clear();
+    }
     endResetModel();
+    emit readMarkerUpdated();
 }
 
 int MessageEventModel::refreshEvent(const QString& eventId)
 {
-    return refreshEventRoles(eventId);
+    int row = findRow(eventId, true);
+    if (row >= 0)
+        refreshEventRoles(row);
+    else
+        qWarning() << "Trying to refresh inexistent event:" << eventId;
+    return row;
 }
 
 void MessageEventModel::refreshRow(int row)
 {
     refreshEventRoles(row);
+}
+
+int MessageEventModel::readMarkerVisualIndex() const
+{
+    if (!m_currentRoom)
+        return -1; // Beyond the bottommost (sync) edge of the timeline
+    if (auto r = findRow(m_currentRoom->readMarkerEventId()); r != -1) {
+        // Ensure that the read marker on a visible event
+        // TODO: move this to libQuotient once it allows to customise
+        //       event status calculation
+        while (r < rowCount() - 1
+               && data(index(r, 0), SpecialMarksRole)
+                  == Quotient::EventStatus::Hidden)
+            ++r;
+        return r;
+    }
+    return rowCount(); // Beyond the topmost (history) edge of the timeline
 }
 
 int MessageEventModel::timelineBaseIndex() const
@@ -214,32 +224,24 @@ void MessageEventModel::refreshEventRoles(int row, const QVector<int>& roles)
     emit dataChanged(idx, idx, roles);
 }
 
-int MessageEventModel::findRow(const QString& id) const
+int MessageEventModel::findRow(const QString& id, bool includePending) const
 {
     // On 64-bit platforms, difference_type for std containers is long long
     // but Qt uses int throughout its interfaces; hence casting to int below.
     int row = -1;
-    // First try pendingEvents because it is almost always very short.
-    const auto pendingIt = m_currentRoom->findPendingEvent(id);
-    if (pendingIt != m_currentRoom->pendingEvents().end())
-        row = int(pendingIt - m_currentRoom->pendingEvents().begin());
-    else {
-        const auto timelineIt = m_currentRoom->findInTimeline(id);
-        if (timelineIt != m_currentRoom->timelineEdge())
-            row = int(timelineIt - m_currentRoom->messageEvents().rbegin())
-                    + timelineBaseIndex();
+    if (!id.isEmpty()) {
+        // First try pendingEvents because it is almost always very short.
+        if (includePending) {
+            const auto pendingIt = m_currentRoom->findPendingEvent(id);
+            if (pendingIt != m_currentRoom->pendingEvents().end())
+                row = int(pendingIt - m_currentRoom->pendingEvents().begin());
+        } else {
+            const auto timelineIt = m_currentRoom->findInTimeline(id);
+            if (timelineIt != m_currentRoom->timelineEdge())
+                row = int(timelineIt - m_currentRoom->messageEvents().rbegin())
+                        + timelineBaseIndex();
+        }
     }
-    return row;
-}
-
-int MessageEventModel::refreshEventRoles(const QString& id,
-                                         const QVector<int>& roles)
-{
-    int row = findRow(id);
-    if (row >= 0)
-        refreshEventRoles(row, roles);
-    else
-        qWarning() << "Trying to refresh inexistent event:" << id;
     return row;
 }
 
@@ -681,9 +683,6 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
 
     if( role == HighlightRole )
         return m_currentRoom->isEventHighlighted(&evt);
-
-    if (role == ReadMarkerRole)
-        return evt.id() == lastReadEventId;
 
     if( role == SpecialMarksRole )
     {
