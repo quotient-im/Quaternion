@@ -53,4 +53,4 @@ deploy:
   version: "%VERSION%"
   on:
     APPVEYOR_REPO_TAG: false
-    branch: master
+    branch: 0.0.9.4-rebuilds
