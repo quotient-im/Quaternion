@@ -228,21 +228,19 @@ int MessageEventModel::findRow(const QString& id, bool includePending) const
 {
     // On 64-bit platforms, difference_type for std containers is long long
     // but Qt uses int throughout its interfaces; hence casting to int below.
-    int row = -1;
     if (!id.isEmpty()) {
         // First try pendingEvents because it is almost always very short.
         if (includePending) {
             const auto pendingIt = m_currentRoom->findPendingEvent(id);
             if (pendingIt != m_currentRoom->pendingEvents().end())
-                row = int(pendingIt - m_currentRoom->pendingEvents().begin());
-        } else {
-            const auto timelineIt = m_currentRoom->findInTimeline(id);
-            if (timelineIt != m_currentRoom->timelineEdge())
-                row = int(timelineIt - m_currentRoom->messageEvents().rbegin())
-                        + timelineBaseIndex();
+                return int(pendingIt - m_currentRoom->pendingEvents().begin());
         }
+        const auto timelineIt = m_currentRoom->findInTimeline(id);
+        if (timelineIt != m_currentRoom->timelineEdge())
+            return int(timelineIt - m_currentRoom->messageEvents().rbegin())
+                    + timelineBaseIndex();
     }
-    return row;
+    return -1;
 }
 
 inline bool hasValidTimestamp(const Quotient::TimelineItem& ti)
