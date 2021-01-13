@@ -107,3 +107,16 @@ jobs:
     - name: Make image (macOS)
       if: contains(matrix.os, 'macos')
       run: cmake --build build --target image
+
+    - name: Make AppImage (Linux, all-in-one)
+      if: contains(matrix.os, 'ubuntu') && matrix.all-in-one != ''
+      env:
+        QML_SOURCES_PATHS: ${{ github.workspace }}/client/qml
+      run: |
+        mkdir linuxdeploy && cd linuxdeploy
+        for f in linuxdeploy linuxdeploy-plugin-qt; do
+          wget https://github.com/linuxdeploy/$f/releases/download/continuous/$f-x86_64.AppImage
+          chmod +x $f-x86_64.AppImage
+        done
+        LD_LIBRARY_PATH=$Qt5_DIR/lib QMAKE=$Qt5_DIR/bin/qmake \
+            ./linuxdeploy-x86_64.AppImage --appdir $DESTDIR --plugin qt --output appimage
