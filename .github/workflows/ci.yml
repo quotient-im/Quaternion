@@ -41,6 +41,7 @@ jobs:
           compiler: Clang
           linkage: static
           all-in-one: all-in-one
+          qt-version: '5.14.2'
           distribute: dmg
 
     env:
@@ -52,28 +53,26 @@ jobs:
       with:
         submodules: ${{ matrix.all-in-one != '' }}
 
-    - name: Cache Qt (Linux)
-      if: ${{ !contains(matrix.os, 'macos') }}
+    - name: Cache Qt
       id: cache-qt
       uses: actions/cache@v2
       with:
         path: ${{ runner.workspace }}/Qt
         key: ${{ runner.os }}-Qt${{ matrix.qt-version }}-cache
 
-    - name: Install Qt (Linux)
-      if: ${{ !contains(matrix.os, 'macos') }}
+    - name: Install Qt
       uses: jurplel/install-qt-action@v2.11.1
       with:
         version: ${{ matrix.qt-version }}
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
 
-    - name: Install other dependencies (Linux)
+    - name: Install Ninja and appstream-util (Linux)
       if: ${{ contains(matrix.os, 'ubuntu') }}
-      run: sudo apt-get -q install ninja-build appstream-util
+      run: sudo apt-get -qq install ninja-build appstream-util
 
-    - name: Install Qt and QtKeychain (macOS)
+    - name: Install Ninja (macOS)
       if: contains(matrix.os, 'macos')
-      run: brew install ninja qt5 qtkeychain
+      run: brew install ninja
 
     - name: Setup build environment
       run: |
@@ -91,8 +90,7 @@ jobs:
         echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_PREFIX_PATH=${{ runner.workspace }}/usr" >>$GITHUB_ENV
         cmake -E make_directory ${{ runner.workspace }}/build
 
-    - name: Get, build and install QtKeychain (Linux)
-      if: contains(matrix.os, 'ubuntu')
+    - name: Get, build and install QtKeychain
       run: |
         git clone --depth=1 -b v0.12.0 https://github.com/frankosterfeld/qtkeychain
         cd qtkeychain
