@@ -183,7 +183,7 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
 
 int MessageEventModel::refreshEvent(const QString& eventId)
 {
-    int row = findRow(eventId);
+    int row = findRow(eventId, true);
     if (row >= 0)
         refreshEventRoles(row);
     else
@@ -200,8 +200,16 @@ int MessageEventModel::readMarkerVisualIndex() const
 {
     if (!m_currentRoom)
         return -1; // Beyond the bottommost (sync) edge of the timeline
-    if (auto r = findRow(m_currentRoom->readMarkerEventId()); r != -1)
+    if (auto r = findRow(m_currentRoom->readMarkerEventId()); r != -1) {
+        // Ensure that the read marker on a visible event
+        // TODO: move this to libQuotient once it allows to customise
+        //       event status calculation
+        while (r < rowCount() - 1
+               && data(index(r, 0), SpecialMarksRole)
+                  == Quotient::EventStatus::Hidden)
+            ++r;
         return r;
+    }
     return rowCount(); // Beyond the topmost (history) edge of the timeline
 }
 
@@ -216,17 +224,18 @@ void MessageEventModel::refreshEventRoles(int row, const QVector<int>& roles)
     emit dataChanged(idx, idx, roles);
 }
 
-int MessageEventModel::findRow(const QString& id) const
+int MessageEventModel::findRow(const QString& id, bool includePending) const
 {
     // On 64-bit platforms, difference_type for std containers is long long
     // but Qt uses int throughout its interfaces; hence casting to int below.
     int row = -1;
     if (!id.isEmpty()) {
         // First try pendingEvents because it is almost always very short.
-        const auto pendingIt = m_currentRoom->findPendingEvent(id);
-        if (pendingIt != m_currentRoom->pendingEvents().end())
-            row = int(pendingIt - m_currentRoom->pendingEvents().begin());
-        else {
+        if (includePending) {
+            const auto pendingIt = m_currentRoom->findPendingEvent(id);
+            if (pendingIt != m_currentRoom->pendingEvents().end())
+                row = int(pendingIt - m_currentRoom->pendingEvents().begin());
+        } else {
             const auto timelineIt = m_currentRoom->findInTimeline(id);
             if (timelineIt != m_currentRoom->timelineEdge())
                 row = int(timelineIt - m_currentRoom->messageEvents().rbegin())
