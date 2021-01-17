@@ -1,6 +1,6 @@
 import QtQuick 2.6
 import QtQuick.Controls 2.2
-//import QtGraphicalEffects 1.0 // For fancy highlighting
+import QtGraphicalEffects 1.0 // For fancy highlighting
 import Quotient 1.0
 
 Item {
@@ -284,41 +284,6 @@ Item {
             }
 
             Item {
-                id: highlighter
-                anchors.fill: textField
-                visible: highlight && settings.highlight_mode != "text"
-                // Uncomment for fancy highlighting
-//                RectangularGlow {
-//                    anchors.fill: parent
-//                    glowRadius: 5
-//                    cornerRadius: 2
-//                    color: settings.highlight_color
-//                    cached: true
-//                }
-//                Rectangle {
-//                    anchors.fill: parent
-//                    border.color: settings.highlight_color
-//                    border.width: 1
-//                }
-                Rectangle {
-                    anchors.fill: parent
-                    opacity: 0.2
-                    color: settings.highlight_color
-                    radius: 2
-                }
-            }
-            Item {
-                id: messageFlasher
-                anchors.fill: textField
-                visible: false
-                Rectangle {
-                    anchors.fill: parent
-                    opacity: 0.5
-                    color: settings.highlight_color
-                    radius: 2
-                }
-            }
-            Item {
                 id: textField
                 anchors.top: !xchatStyle && authorLabel.visible
                              ? authorLabel.bottom
@@ -331,8 +296,28 @@ Item {
                 anchors.right: parent.right
                 anchors.rightMargin: 1
                 height: textFieldImpl.height
-                clip: true
 
+                // Uncomment for fancy highlighting
+                RectangularGlow {
+                    id: highlighter
+                    anchors.fill: parent
+                    anchors.margins: glowRadius / 2
+                    visible: highlight && settings.highlight_mode != "text"
+                    glowRadius: 5
+                    cornerRadius: glowRadius
+                    spread: 1 / glowRadius
+                    color: settings.highlight_color
+                    opacity: 0.3
+                    cached: true
+                }
+                Rectangle {
+                    id: messageFlasher
+                    visible: false
+                    anchors.fill: parent
+                    opacity: 0.5
+                    color: settings.highlight_color
+                    radius: 2
+                }
                 TextEdit {
                     id: textFieldImpl
                     anchors.top: textField.top
