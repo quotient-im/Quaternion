@@ -1,6 +1,7 @@
 import QtQuick 2.4
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.1
+import QtGraphicalEffects 1.0 // For fancy highlighting
 import Quotient 1.0
 
 Rectangle {
@@ -269,7 +270,7 @@ Rectangle {
             property real readMarkerContentPos: originY
             readonly property real readMarkerViewportPos:
                 readMarkerContentPos < contentY ? 0 :
-                readMarkerContentPos > contentY + height ? height + readMarkerLine.markerWidth() :
+                readMarkerContentPos > contentY + height ? height + readMarkerLine.height :
                 readMarkerContentPos - contentY
 
             function parkReadMarker(fromIndex) {
@@ -415,37 +416,6 @@ Rectangle {
                 NormalNumberAnimation { easing.type: Easing.OutQuad }
             }
 
-            Rectangle {
-                id: readMarkerLine
-
-                function markerWidth() { return 4 }
-
-                anchors.top: parent.top
-                anchors.topMargin: chatView.originY > chatView.contentY
-                                   ? chatView.originY - chatView.contentY : 0
-                anchors.left: parent.left
-                width: parent.width
-                z: -1
-                radius: markerWidth()
-
-                visible: chatView.count > 0
-                /// The bottom of the rectangle is the read marker. If the last
-                /// read item is on the screen, the read marker is at the item's
-                /// bottom; otherwise, it's just beyond the edge of chatView
-                /// in the direction of the read marker index (or the timeline,
-                /// if the timeline is short enough).
-                /// @sa readMarkerViewportPos
-                height: chatView.readMarkerViewportPos - anchors.topMargin
-
-                gradient: Gradient {
-                    GradientStop { position: 1; color: defaultPalette.highlight }
-                    GradientStop {
-                        position: 1 - readMarkerLine.markerWidth() / readMarkerLine.height;
-                        color: mixColors(disabledPalette.base, defaultPalette.highlight, 0.05)
-                    }
-                }
-            }
-
             // This covers the area above the items if there are not enough
             // of them to fill the viewport
             MouseArea {
@@ -454,6 +424,43 @@ Rectangle {
                 acceptedButtons: Qt.AllButtons
                 onReleased: controller.focusInput()
             }
+
+            Rectangle {
+                id: readShade
+
+                visible: chatView.count > 0
+                anchors.top: parent.top
+                anchors.topMargin: chatView.originY > chatView.contentY
+                                   ? chatView.originY - chatView.contentY : 0
+                /// At the bottom of the read shade is the read marker. If
+                /// the last read item is on the screen, the read marker is at
+                /// the item's bottom; otherwise, it's just beyond the edge of
+                /// chatView in the direction of the read marker index (or the
+                /// timeline, if the timeline is short enough).
+                /// @sa readMarkerViewportPos
+                height: chatView.readMarkerViewportPos - anchors.topMargin
+                anchors.left: parent.left
+                width: parent.width
+                z: -1
+
+                radius: readMarkerLine.height
+                color: mixColors(disabledPalette.base, defaultPalette.highlight, 0.05)
+            }
+            Rectangle {
+                id: readMarkerLine
+
+                visible: chatView.count > 0
+                width: parent.width
+                anchors.bottom: readShade.bottom
+                height: 4
+                z: 2.5 // On top of any ListView content, below the banner
+
+                gradient: Gradient {
+                    GradientStop { position: 0; color: "transparent" }
+                    GradientStop { position: 1; color: defaultPalette.highlight }
+                }
+            }
+
 
             // itemAt is a function rather than a property, so it doesn't
             // produce a QML binding; the piece with contentHeight compensates.
