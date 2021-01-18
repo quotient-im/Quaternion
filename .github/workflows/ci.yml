@@ -41,7 +41,6 @@ jobs:
           composition: all-in-one
 
     env:
-      BUILD_SHARED_LIBS: ${{ matrix.composition == 'dynamic' }}
       DEPLOY_VERBOSITY: 1
 
     steps:
@@ -83,7 +82,11 @@ jobs:
           echo "PATH=/usr/local/opt/qt/bin:$PATH" >>$GITHUB_ENV
         fi
         echo "DESTDIR=${{ runner.workspace }}" >>$GITHUB_ENV
-        echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_PREFIX_PATH=${{ runner.workspace }}/usr" >>$GITHUB_ENV
+        echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+              -DCMAKE_INSTALL_PREFIX=/usr \
+              -DCMAKE_PREFIX_PATH=${{ runner.workspace }}/usr \
+              -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }}" \
+            >>$GITHUB_ENV
         cmake -E make_directory ${{ runner.workspace }}/build
 
     - name: Get, build and install QtKeychain
