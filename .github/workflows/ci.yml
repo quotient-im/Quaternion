@@ -61,9 +61,13 @@ jobs:
         version: ${{ matrix.qt-version }}
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
 
-    - name: Install Ninja and appstream-util (Linux)
+    - name: Install Ninja and other deps (Linux)
       if: ${{ contains(matrix.os, 'ubuntu') }}
-      run: sudo apt-get -qq install ninja-build appstream-util
+      run: |
+        if [ "${{ matrix.distribute }}" == "appimage" ]; then
+          EXTRA_DEPS=libgstreamer-plugins-base1.0.0
+        fi
+        sudo apt-get -qq install ninja-build appstream-util $EXTRA_DEPS
 
     - name: Install Ninja (macOS)
       if: contains(matrix.os, 'macos')
