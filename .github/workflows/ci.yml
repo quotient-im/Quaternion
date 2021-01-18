@@ -93,7 +93,7 @@ jobs:
       run: |
         git clone --depth=1 -b v0.12.0 https://github.com/frankosterfeld/qtkeychain
         cd qtkeychain
-        cmake -S . -B build $CMAKE_ARGS
+        cmake -S . -B build $CMAKE_ARGS -DQTKEYCHAIN_STATIC=${{ matrix.composition != 'dynamic' }}
         cmake --build build --target install
 
     - name: Get, build and install libQuotient
