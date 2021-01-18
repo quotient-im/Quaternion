@@ -83,11 +83,12 @@ Item {
 
     onReadMarkerHereChanged: {
         if (readMarkerHere) {
-            if (partiallyShown)
+            if (partiallyShown) {
                 chatView.readMarkerContentPos =
                     Qt.binding(function() { return y + height })
-            else
-                chatView.parkReadMarker(index)
+                console.log("Read marker line bound at index", index)
+            } else
+                chatView.parkReadMarker()
         }
     }
 

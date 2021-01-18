@@ -273,13 +273,17 @@ Rectangle {
                 readMarkerContentPos > contentY + height ? height + readMarkerLine.height :
                 readMarkerContentPos - contentY
 
-            function parkReadMarker(fromIndex) {
+            function parkReadMarker() {
                 readMarkerContentPos = Qt.binding(function() {
                     return messageModel.readMarkerVisualIndex > indexAt(contentX, contentY)
                            ? originY : contentY + contentHeight
                 })
-                console.log("Read marker parked at index", fromIndex
-                            + ", content pos", chatView.readMarkerContentPos)
+                console.log("Read marker parked at index",
+                            messageModel.readMarkerVisualIndex
+                            + ", content pos", chatView.readMarkerContentPos,
+                            "(full range is", chatView.originY, "-",
+                            chatView.originY + chatView.contentHeight,
+                            "as of now)")
             }
 
             function ensurePreviousContent() {
@@ -360,9 +364,7 @@ Rectangle {
 
             Component.onCompleted: {
                 console.log("QML view loaded")
-                model.modelAboutToBeReset.connect(function() {
-                    readMarkerContentPos = Qt.binding(function() { return originY })
-                })
+                model.modelAboutToBeReset.connect(parkReadMarker)
                 // FIXME: This is not on the right place: ListView may or
                 // may not have updated his structures according to the new
                 // model by now
