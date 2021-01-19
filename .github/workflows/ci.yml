@@ -94,8 +94,10 @@ jobs:
     - name: Configure deployment environment
       if: matrix.artefact
       run: |
-        if grep -q '/refs/tags' <<<'${{ github.ref }}'; then
+        if grep -q 'refs/tags' <<<'${{ github.ref }}'; then
             echo "VERSION=$(git describe --tags)" >>$GITHUB_ENV
+        elif grep -q 'refs/heads' <<<'${{ github.ref }}'; then
+            echo "VERSION=ci${{ github.run_number }}-$(git describe --all --contains)" >>$GITHUB_ENV
         else
             echo "VERSION=ci${{ github.run_number }}-$(git rev-parse --short HEAD)" >>$GITHUB_ENV
         fi
@@ -150,7 +152,7 @@ jobs:
         mv linuxdeploy/Quaternion-*.AppImage package/quaternion-$VERSION.AppImage
             
     - name: Upload artefacts to Bintray
-      if: matrix.artefact != '' && github.ref == '' # Tags go straight to GitHub Releases instead
+      if: matrix.artefact != '' && !startsWith(github.ref, 'refs/tags') # Tags will go to GitHub Releases
       uses: reznikmm/upload-bintray-action@v2
       with:
         username: kitsune
