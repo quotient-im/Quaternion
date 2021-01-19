@@ -63,7 +63,7 @@ jobs:
       if: ${{ contains(matrix.os, 'ubuntu') }}
       run: |
         if [ "${{ matrix.artefact }}" == "appimage" ]; then
-          EXTRA_DEPS=libgstreamer-plugins-base1.0.0
+          EXTRA_DEPS="appstream libgstreamer-plugins-base1.0.0"
         fi
         sudo apt-get -qq install ninja-build appstream-util $EXTRA_DEPS
 
@@ -153,7 +153,7 @@ jobs:
             
     - name: Upload artefacts to Bintray
       if: matrix.artefact != '' && !startsWith(github.ref, 'refs/tags') # Tags will go to GitHub Releases
-      uses: reznikmm/upload-bintray-action@v2
+      uses: reznikmm/upload-bintray-action@v4
       with:
         username: kitsune
         subject: quotient
