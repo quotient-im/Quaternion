@@ -44,7 +44,9 @@
     <release version="0.0.5" date="2017-12-22" />
   </releases>
 
-  <translation type="qt"></translation>
+  <translation type="qt">qt</translation>
+  <translation type="qt">qtkeychain</translation>
+  <translation type="qt">quaternion</translation>
 
   <developer_name>The Quotient Project</developer_name>
   <content_rating type="oars-1.0">
