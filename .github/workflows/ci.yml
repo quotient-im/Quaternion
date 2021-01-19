@@ -160,7 +160,6 @@ jobs:
         repository: ci
         package: Quaternion
         version: ci${{ github.run_number }}
-        versionDesc: 'Build from CI #${{ github.run_number }} (${{ github.sha }})'
         sourcePath: 'package/quaternion-*'
         override: 1
         apiKey: ${{ secrets.BINTRAY_API_KEY }}
