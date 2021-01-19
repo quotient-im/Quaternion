@@ -18,7 +18,7 @@ jobs:
       matrix:
         os: [ ubuntu-18.04 ]
         compiler: [ GCC, Clang ]
-        distribute: [ '' ] # Generate a package for distribution (e.g., dmg)
+        artefact: [ '' ] # Generate a package for distribution (e.g., dmg)
         qt-version: [ '5.9.9' ]
         composition: [ static, dynamic ]
         exclude:
@@ -27,21 +27,19 @@ jobs:
         include:
         - os: ubuntu-18.04
           compiler: Clang
+          artefact: appimage
           qt-version: '5.14.2'
-          composition: all-in-one
-        - os: ubuntu-18.04
-          compiler: Clang
-          distribute: appimage
-          qt-version: '5.9.9'
           composition: all-in-one
         - os: macos-10.15
           compiler: Clang
-          distribute: dmg
+          artefact: dmg
           qt-version: '5.14.2'
           composition: all-in-one
 
     env:
       DEPLOY_VERBOSITY: 1
+      QTKEYCHAIN_REF: v0.12.0
+      QUOTIENT_REF: 0.6.x
 
     steps:
     - uses: actions/checkout@v2
@@ -64,7 +62,7 @@ jobs:
     - name: Install Ninja and other deps (Linux)
       if: ${{ contains(matrix.os, 'ubuntu') }}
       run: |
-        if [ "${{ matrix.distribute }}" == "appimage" ]; then
+        if [ "${{ matrix.artefact }}" == "appimage" ]; then
           EXTRA_DEPS=libgstreamer-plugins-base1.0.0
         fi
         sudo apt-get -qq install ninja-build appstream-util $EXTRA_DEPS
@@ -92,10 +90,20 @@ jobs:
               -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }}" \
             >>$GITHUB_ENV
         cmake -E make_directory ${{ runner.workspace }}/build
+        
+    - name: Configure deployment environment
+      if: matrix.artefact
+      run: |
+        if grep -q '/refs/tags' <<<'${{ github.ref }}'; then
+            echo "VERSION=$(git describe --tags)" >>$GITHUB_ENV
+        else
+            echo "VERSION=ci${{ github.run_number }}-$(git rev-parse --short HEAD)" >>$GITHUB_ENV
+        fi
+        mkdir package
 
     - name: Get, build and install QtKeychain
       run: |
-        git clone --depth=1 -b v0.12.0 https://github.com/frankosterfeld/qtkeychain
+        git clone --depth=1 -b $QTKEYCHAIN_REF https://github.com/frankosterfeld/qtkeychain
         cd qtkeychain
         cmake -S . -B build $CMAKE_ARGS -DQTKEYCHAIN_STATIC=${{ matrix.composition != 'dynamic' }}
         cmake --build build --target install
@@ -103,7 +111,7 @@ jobs:
     - name: Get, build and install libQuotient
       if: matrix.composition != 'all-in-one'
       run: |
-        git clone --depth=1 -b 0.6.x https://github.com/quotient-im/libQuotient
+        git clone --depth=1 -b $QUOTIENT_REF https://github.com/quotient-im/libQuotient
         cd libQuotient
         cmake -S . -B build $CMAKE_ARGS
         cmake --build build --target install
@@ -121,18 +129,36 @@ jobs:
         appstream-util validate $DESTDIR/usr/share/metainfo/*.appdata.xml
 
     - name: Make image (macOS)
-      if: contains(matrix.os, 'macos') && matrix.distribute
-      run: cmake --build build --target image
+      if: contains(matrix.os, 'macos') && matrix.artefact
+      run: |
+        cmake --build build --target image
+        mv build/quaternion.dmg package/quaternion-$VERSION.dmg
 
     - name: Make AppImage (Linux)
-      if: contains(matrix.os, 'ubuntu') && matrix.distribute
+      if: contains(matrix.os, 'ubuntu') && matrix.artefact
       env:
         QML_SOURCES_PATHS: ${{ github.workspace }}/client/qml
       run: |
-        mkdir linuxdeploy && cd linuxdeploy
+        mkdir linuxdeploy && pushd linuxdeploy
         for f in linuxdeploy linuxdeploy-plugin-qt; do
           wget -c -nv https://github.com/linuxdeploy/$f/releases/download/continuous/$f-x86_64.AppImage
           chmod +x $f-x86_64.AppImage
         done
         LD_LIBRARY_PATH=$Qt5_DIR/lib QMAKE=$Qt5_DIR/bin/qmake \
             ./linuxdeploy-x86_64.AppImage --appdir $DESTDIR --plugin qt --output appimage
+        popd
+        mv linuxdeploy/Quaternion-*.AppImage package/quaternion-$VERSION.AppImage
+            
+    - name: Upload artefacts to Bintray
+      if: matrix.artefact != '' && github.ref == '' # Tags go straight to GitHub Releases instead
+      uses: reznikmm/upload-bintray-action@v2
+      with:
+        username: kitsune
+        subject: quotient
+        repository: ci
+        package: Quaternion
+        version: ci${{ github.run_number }}
+        versionDesc: 'Build from CI #${{ github.run_number }} (${{ github.sha }})'
+        sourcePath: 'package/quaternion-*'
+        override: 1
+        apiKey: ${{ secrets.BINTRAY_API_KEY }}
