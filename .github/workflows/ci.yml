@@ -83,10 +83,10 @@ jobs:
         if [ "${{ runner.os }}" == "macOS" ]; then
           echo "PATH=/usr/local/opt/qt/bin:$PATH" >>$GITHUB_ENV
         fi
-        echo "DESTDIR=${{ runner.workspace }}" >>$GITHUB_ENV
+        DESTDIR=${{ runner.temp }}
+        echo "DESTDIR=$DESTDIR" >>$GITHUB_ENV
         echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-              -DCMAKE_INSTALL_PREFIX=/usr \
-              -DCMAKE_PREFIX_PATH=${{ runner.workspace }}/usr \
+              -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_PREFIX_PATH=$DESTDIR/usr \
               -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }}" \
             >>$GITHUB_ENV
         cmake -E make_directory ${{ runner.workspace }}/build
