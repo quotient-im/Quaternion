@@ -68,6 +68,7 @@ jobs:
       with:
         version: ${{ matrix.qt-version }}
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
+        mirror: http://mirrors.ocf.berkeley.edu/qt/
 
     - name: Install Ninja and other deps (Linux)
       if: ${{ startsWith(matrix.os, 'ubuntu') }}
@@ -81,21 +82,19 @@ jobs:
       if: ${{ !startsWith(matrix.os, 'ubuntu') }}
       uses: seanmiddleditch/gha-setup-ninja@v3
 
-    - name: Setup build environment
+    - name: Setup build environment (POSIX)
+      if: ${{ !startsWith(matrix.os, 'windows') }}
       run: |
         if [ "${{ matrix.compiler }}" == "GCC" ]; then
             echo "CC=gcc" >>$GITHUB_ENV
             echo "CXX=g++" >>$GITHUB_ENV
-        elif [ "${{ matrix.compiler }}" == "Clang" ]; then
+        else
             echo "CC=clang" >>$GITHUB_ENV
             echo "CXX=clang++" >>$GITHUB_ENV
-        else
-            
         fi
         if [ "${{ runner.os }}" == "macOS" ]; then
             echo "PATH=/usr/local/opt/qt/bin:$PATH" >>$GITHUB_ENV
         fi
-        cmake -E make_directory ${{ runner.workspace }}/build
         
     - name: Configure deployment environment
       if: matrix.artefact
