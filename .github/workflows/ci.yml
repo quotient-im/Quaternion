@@ -68,7 +68,7 @@ jobs:
       with:
         version: ${{ matrix.qt-version }}
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
-        mirror: http://mirrors.ocf.berkeley.edu/qt/
+        mirror: https://ftp.fau.de/qtproject/
 
     - name: Install Ninja and other deps (Linux)
       if: ${{ startsWith(matrix.os, 'ubuntu') }}
@@ -78,12 +78,11 @@ jobs:
         fi
         sudo apt-get -qq install ninja-build appstream-util $EXTRA_DEPS
 
-    - name: Install Ninja
+    - name: Install Ninja (macOS/Windows)
       if: ${{ !startsWith(matrix.os, 'ubuntu') }}
       uses: seanmiddleditch/gha-setup-ninja@v3
 
-    - name: Setup build environment (POSIX)
-      if: ${{ !startsWith(matrix.os, 'windows') }}
+    - name: Setup environment
       run: |
         if [ "${{ matrix.compiler }}" == "GCC" ]; then
             echo "CC=gcc" >>$GITHUB_ENV
@@ -95,10 +94,6 @@ jobs:
         if [ "${{ runner.os }}" == "macOS" ]; then
             echo "PATH=/usr/local/opt/qt/bin:$PATH" >>$GITHUB_ENV
         fi
-        
-    - name: Configure deployment environment
-      if: matrix.artefact
-      run: |
         if grep -q 'refs/tags' <<<'${{ github.ref }}'; then
             VERSION="$(git describe --tags)"
         elif grep -q 'refs/heads' <<<'${{ github.ref }}'; then
