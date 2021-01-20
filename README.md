@@ -73,7 +73,7 @@ You can download the latest release from [GitHub](https://github.com/quotient-im
 
 Alternatively, you can install Quaternion from [Homebrew Cask](https://brew.sh)
 ```
-brew cask install quaternion
+brew install quaternion
 ```
 
 #### Linux and others
