@@ -35,6 +35,16 @@ jobs:
           artefact: dmg
           qt-version: '5.14.2'
           composition: all-in-one
+        - os: windows-latest
+          compiler: MSVC
+          artefact: win32.zip
+          qt-version: '5.14.2'
+          composition: all-in-one
+        - os: windows-latest
+          compiler: MSVC
+          artefact: win64.zip
+          qt-version: '5.14.2'
+          composition: all-in-one
 
     env:
       DEPLOY_VERBOSITY: 1
@@ -60,48 +70,53 @@ jobs:
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
 
     - name: Install Ninja and other deps (Linux)
-      if: ${{ contains(matrix.os, 'ubuntu') }}
+      if: ${{ startsWith(matrix.os, 'ubuntu') }}
       run: |
         if [ "${{ matrix.artefact }}" == "appimage" ]; then
           EXTRA_DEPS="appstream libgstreamer-plugins-base1.0.0"
         fi
         sudo apt-get -qq install ninja-build appstream-util $EXTRA_DEPS
 
-    - name: Install Ninja (macOS)
-      if: contains(matrix.os, 'macos')
-      run: brew install ninja
+    - name: Install Ninja
+      if: ${{ !startsWith(matrix.os, 'ubuntu') }}
+      uses: seanmiddleditch/gha-setup-ninja@v3
 
     - name: Setup build environment
       run: |
         if [ "${{ matrix.compiler }}" == "GCC" ]; then
-          echo "CC=gcc" >>$GITHUB_ENV
-          echo "CXX=g++" >>$GITHUB_ENV
+            echo "CC=gcc" >>$GITHUB_ENV
+            echo "CXX=g++" >>$GITHUB_ENV
+        elif [ "${{ matrix.compiler }}" == "Clang" ]; then
+            echo "CC=clang" >>$GITHUB_ENV
+            echo "CXX=clang++" >>$GITHUB_ENV
         else
-          echo "CC=clang" >>$GITHUB_ENV
-          echo "CXX=clang++" >>$GITHUB_ENV
+            
         fi
         if [ "${{ runner.os }}" == "macOS" ]; then
-          echo "PATH=/usr/local/opt/qt/bin:$PATH" >>$GITHUB_ENV
+            echo "PATH=/usr/local/opt/qt/bin:$PATH" >>$GITHUB_ENV
         fi
-        DESTDIR=${{ runner.temp }}
-        echo "DESTDIR=$DESTDIR" >>$GITHUB_ENV
-        echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-              -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_PREFIX_PATH=$DESTDIR/usr \
-              -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }}" \
-            >>$GITHUB_ENV
         cmake -E make_directory ${{ runner.workspace }}/build
         
     - name: Configure deployment environment
       if: matrix.artefact
       run: |
         if grep -q 'refs/tags' <<<'${{ github.ref }}'; then
-            echo "VERSION=$(git describe --tags)" >>$GITHUB_ENV
+            VERSION="$(git describe --tags)"
         elif grep -q 'refs/heads' <<<'${{ github.ref }}'; then
-            echo "VERSION=ci${{ github.run_number }}-$(git describe --all --contains)" >>$GITHUB_ENV
+            VERSION="ci${{ github.run_number }}-$(git describe --all --contains)"
         else
-            echo "VERSION=ci${{ github.run_number }}-$(git rev-parse --short HEAD)" >>$GITHUB_ENV
+            VERSION="ci${{ github.run_number }}-$(git rev-parse --short HEAD)"
         fi
-        mkdir package
+        echo "VERSION=$VERSION" >>$GITHUB_ENV
+        DESTDIRNAME=Quaternion-$VERSION
+        echo "DESTDIRNAME=$DESTDIRNAME" >>$GITHUB_ENV
+        DESTDIR=${{ runner.temp }}/$DESTDIRNAME
+        echo "DESTDIR=$DESTDIR" >>$GITHUB_ENV
+        echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+              -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_PREFIX_PATH=$DESTDIR/usr \
+              -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }}" \
+            >>$GITHUB_ENV
+        mkdir package # If there's a package to pack
 
     - name: Get, build and install QtKeychain
       run: |
@@ -125,19 +140,19 @@ jobs:
       run: cmake --build build --target quaternion
 
     - name: Install and validate Quaternion (Linux)
-      if: contains(matrix.os, 'ubuntu')
+      if: startsWith(matrix.os, 'ubuntu')
       run: |
         cmake --build build --target install
         appstream-util validate $DESTDIR/usr/share/metainfo/*.appdata.xml
 
     - name: Make image (macOS)
-      if: contains(matrix.os, 'macos') && matrix.artefact
+      if: startsWith(matrix.os, 'macos') && matrix.artefact
       run: |
         cmake --build build --target image
         mv build/quaternion.dmg package/quaternion-$VERSION.dmg
 
     - name: Make AppImage (Linux)
-      if: contains(matrix.os, 'ubuntu') && matrix.artefact
+      if: startsWith(matrix.os, 'ubuntu') && matrix.artefact
       env:
         QML_SOURCES_PATHS: ${{ github.workspace }}/client/qml
       run: |
@@ -149,6 +164,14 @@ jobs:
         LD_LIBRARY_PATH=$Qt5_DIR/lib QMAKE=$Qt5_DIR/bin/qmake \
             OUTPUT=package/quaternion-$VERSION.AppImage \
             linuxdeploy/linuxdeploy-x86_64.AppImage --appdir $DESTDIR --plugin qt --output appimage
+            
+    - name: Archive the install tree (Windows)
+      if: startsWith(matrix.os, 'windows')
+      run: |
+        cd $DESTDIR
+        rm -rf bearer qmltooling
+        cd ..
+        7z a quaternion-$VERSION-${{ matrix.artefact }} $DESTDIRNAME
             
     - name: Upload artefacts to Bintray
       if: matrix.artefact != '' && !startsWith(github.ref, 'refs/tags') # Tags will go to GitHub Releases
