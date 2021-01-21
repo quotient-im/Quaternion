@@ -6,10 +6,6 @@ on:
     types: [opened, reopened]
   create:
 
-defaults:
-  run:
-    shell: bash
-
 jobs:
   CI:
     runs-on: ${{ matrix.os }}
@@ -85,6 +81,7 @@ jobs:
       uses: seanmiddleditch/gha-setup-ninja@v3
 
     - name: Setup environment
+      shell: bash
       run: |
         if [ "${{ matrix.compiler }}" == "GCC" ]; then
             echo "CC=gcc" >>$GITHUB_ENV
@@ -116,27 +113,26 @@ jobs:
 
     - name: Setup MSVC (Windows)
       if: matrix.compiler == 'MSVC'
-      shell: cmd
       run: |
-        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ matrix.platform }}
+        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.ps1" ${{ matrix.platform }}
 
     - name: Get, build and install QtKeychain
       run: |
-        git clone --depth=1 -b $QTKEYCHAIN_REF https://github.com/frankosterfeld/qtkeychain
+        git clone --depth=1 -b ${{ env.QTKEYCHAIN_REF }} https://github.com/frankosterfeld/qtkeychain
         cd qtkeychain
-        cmake -S . -B build $CMAKE_ARGS -DQTKEYCHAIN_STATIC=${{ matrix.composition != 'dynamic' }}
+        cmake -S . -B build ${{ env.CMAKE_ARGS }} -DQTKEYCHAIN_STATIC=${{ matrix.composition != 'dynamic' }}
         cmake --build build --target install
 
     - name: Get, build and install libQuotient
       if: matrix.composition != 'all-in-one'
       run: |
-        git clone --depth=1 -b $QUOTIENT_REF https://github.com/quotient-im/libQuotient
+        git clone --depth=1 -b ${{ env.QUOTIENT_REF }} https://github.com/quotient-im/libQuotient
         cd libQuotient
-        cmake -S . -B build $CMAKE_ARGS
+        cmake -S . -B build ${{ env.CMAKE_ARGS }}
         cmake --build build --target install
 
     - name: Configure Quaternion
-      run: cmake -LA -S $GITHUB_WORKSPACE -B build $CMAKE_ARGS -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY
+      run: "cmake -LA -S ${{ env.GITHUB_WORKSPACE }} -B build ${{ env.CMAKE_ARGS }} -DDEPLOY_VERBOSITY=${{ env.DEPLOY_VERBOSITY }}"
 
     - name: Build Quaternion
       run: cmake --build build --target quaternion
@@ -169,6 +165,7 @@ jobs:
             
     - name: Archive the install tree (Windows)
       if: startsWith(matrix.os, 'windows')
+      shell: bash
       run: |
         cd $DESTDIR
         rm -rf bearer qmltooling
