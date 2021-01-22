@@ -51,6 +51,9 @@ jobs:
       DEPLOY_VERBOSITY: 1
       QTKEYCHAIN_REF: v0.12.0
       QUOTIENT_REF: 0.6.x
+      # Use | below to skip on escaping all the backslashes
+      VCVARS_BAT: |
+          C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
 
     steps:
     - uses: actions/checkout@v2
@@ -112,38 +115,38 @@ jobs:
               -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_PREFIX_PATH=$DESTDIR/usr \
               -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }}" \
             >>$GITHUB_ENV
-        if [ "${{ matrix.compiler }}" == "MSVC" ]; then
-            # Huge thanks go to @kromain for the cmd.exe command line snippet; see https://github.com/kromain/wsl-utils
-            echo 'WRAP=cmd.exe /V /D /C call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ matrix.platform }} &&' >>$GITHUB_ENV
-        fi
         mkdir package # If there's a package to pack
+
+    - name: Setup MSVC environment
+      uses: ilammy/msvc-dev-cmd@v1
+      if: matrix.compiler == 'MSVC'
+      with:
+        arch: ${{ matrix.platform }}
 
     - name: Get, build and install QtKeychain
       run: |
         git clone --depth=1 -b $QTKEYCHAIN_REF https://github.com/frankosterfeld/qtkeychain
         cd qtkeychain
-        $WRAP cmake -S . -B build $CMAKE_ARGS -DQTKEYCHAIN_STATIC=${{ matrix.composition != 'dynamic' }}
-        $WRAP cmake --build build --target install
+        cmake -S . -B build $CMAKE_ARGS -DQTKEYCHAIN_STATIC=${{ matrix.composition != 'dynamic' }}
+        cmake --build build --target install
 
     - name: Get, build and install libQuotient
       if: matrix.composition != 'all-in-one'
       run: |
         git clone --depth=1 -b $QUOTIENT_REF https://github.com/quotient-im/libQuotient
         cd libQuotient
-        $WRAP cmake -S . -B build $CMAKE_ARGS
-        $WRAP cmake --build build --target install
+        cmake -S . -B build $CMAKE_ARGS
+        cmake --build build --target install
 
     - name: Configure Quaternion
-      run: "$WRAP cmake -LA -S $GITHUB_WORKSPACE -B build $CMAKE_ARGS -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY"
+      run: "cmake -LA -S $GITHUB_WORKSPACE -B build $CMAKE_ARGS -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY"
 
-    - name: Build Quaternion
-      run: "$WRAP cmake --build build --target quaternion"
+    - name: Build and install Quaternion
+      run: cmake --build build --target install
 
-    - name: Install and validate Quaternion (Linux)
+    - name: Validate AppStream data (Linux)
       if: startsWith(matrix.os, 'ubuntu')
-      run: |
-        cmake --build build --target install
-        appstream-util validate $DESTDIR/usr/share/metainfo/*.appdata.xml
+      run: "appstream-util validate $DESTDIR/usr/share/metainfo/*.appdata.xml"
 
     - name: Make image (macOS)
       if: startsWith(matrix.os, 'macos') && matrix.composition == 'all-in-one'
