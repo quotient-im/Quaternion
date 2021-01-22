@@ -102,14 +102,12 @@ jobs:
         if grep -q 'refs/tags' <<<'${{ github.ref }}'; then
             VERSION="$(git describe --tags)"
         elif grep -q 'refs/heads' <<<'${{ github.ref }}'; then
-            VERSION="ci${{ github.run_number }}-$(git describe --all --contains)"
+            VERSION="$(git describe --all --contains)-ci${{ github.run_number }}-$(git rev-parse --short HEAD)"
         else
             VERSION="ci${{ github.run_number }}-$(git rev-parse --short HEAD)"
         fi
         echo "VERSION=$VERSION" >>$GITHUB_ENV
-        DESTDIRNAME=Quaternion-$VERSION
-        echo "DESTDIRNAME=$DESTDIRNAME" >>$GITHUB_ENV
-        DESTDIR=${{ runner.temp }}/$DESTDIRNAME
+        DESTDIR=${{ runner.temp }}/Quaternion-$VERSION
         echo "DESTDIR=$DESTDIR" >>$GITHUB_ENV
         echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
               -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_PREFIX_PATH=$DESTDIR/usr \
@@ -167,15 +165,15 @@ jobs:
         LD_LIBRARY_PATH=$Qt5_DIR/lib QMAKE=$Qt5_DIR/bin/qmake \
             OUTPUT=package/quaternion-$VERSION.AppImage \
             linuxdeploy/linuxdeploy-x86_64.AppImage --appdir $DESTDIR --plugin qt --output appimage
-            
+
     - name: Archive the install tree (Windows)
       if: startsWith(matrix.os, 'windows')
       run: |
         cd $DESTDIR
         rm -rf bearer qmltooling
         cd ..
-        7z a quaternion-$VERSION-${{ matrix.artefact }} $DESTDIRNAME
-            
+        7z a $GITHUB_WORKSPACE/package/quaternion-$VERSION-${{ matrix.artefact }}.zip Quaternion-*
+
     - name: Upload artefacts to Bintray
       if: matrix.composition == 'all-in-one' && !startsWith(github.ref, 'refs/tags') # Tags will go to GitHub Releases
       uses: reznikmm/upload-bintray-action@v4
