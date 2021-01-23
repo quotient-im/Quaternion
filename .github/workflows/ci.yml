@@ -4,7 +4,6 @@ on:
   push:
   pull_request:
     types: [opened, reopened]
-  create:
 
 defaults:
   run:
@@ -174,7 +173,7 @@ jobs:
         cd ..
         7z a $GITHUB_WORKSPACE/package/quaternion-$VERSION-${{ matrix.artefact }}.zip Quaternion-*
 
-    - name: Upload artefacts to Bintray
+    - name: Upload artefacts to Bintray (interim builds)
       if: matrix.composition == 'all-in-one' && !startsWith(github.ref, 'refs/tags') # Tags will go to GitHub Releases
       uses: reznikmm/upload-bintray-action@v4
       with:
@@ -186,3 +185,13 @@ jobs:
         sourcePath: 'package/quaternion-*'
         override: 1
         apiKey: ${{ secrets.BINTRAY_API_KEY }}
+
+    - name: Upload artefacts to GitHub Releases (tag builds)
+      if: matrix.composition == 'all-in-one' && startsWith(github.ref, 'refs/tags')
+      uses: ncipollo/release-action@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: "package/*"
+        allowUpdates: true
+        omitNameDuringUpdate: true
+        omitBodyDuringUpdate: true
