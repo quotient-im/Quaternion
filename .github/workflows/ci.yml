@@ -19,31 +19,31 @@ jobs:
         compiler: [ GCC, Clang ]
         platform: [ '' ]
         qt-version: [ '5.9.9' ]
-        composition: [ static, dynamic ]
+        composition: [ own-quotient, static, dynamic ]
         qt-arch: [ '' ]
         exclude:
         - compiler: Clang
-          composition: static # Replace with all-in-one (see below)
+          composition: static # Replace with package (see below)
         include:
         - os: ubuntu-18.04
           compiler: Clang
           qt-version: '5.14.2'
-          composition: all-in-one
+          composition: package
         - os: macos-10.15
           compiler: Clang
           qt-version: '5.14.2'
-          composition: all-in-one
+          composition: package
         - os: windows-2019
           compiler: MSVC
           platform: x86
           qt-version: '5.14.2'
-          composition: all-in-one
+          composition: package
           qt-arch: win32_msvc2017
         - os: windows-2019
           compiler: MSVC
           platform: x64
           qt-version: '5.14.2'
-          composition: all-in-one
+          composition: package
           qt-arch: win64_msvc2017_64
 
     env:
@@ -57,7 +57,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        submodules: ${{ matrix.composition == 'all-in-one' }}
+        submodules: ${{ matrix.composition == 'own-quotient' }}
 
     - name: Cache Qt
       id: cache-qt
@@ -77,7 +77,7 @@ jobs:
     - name: Install Ninja and other deps (Linux)
       if: ${{ startsWith(matrix.os, 'ubuntu') }}
       run: |
-        if [ "${{ matrix.composition }}" == "all-in-one" ]; then
+        if [ "${{ matrix.composition }}" == "package" ]; then
           EXTRA_DEPS="appstream libgstreamer-plugins-base1.0.0"
         fi
         sudo apt-get -qq install ninja-build appstream-util $EXTRA_DEPS
@@ -106,13 +106,12 @@ jobs:
             VERSION="ci${{ github.run_number }}-$(git rev-parse --short HEAD)"
         fi
         echo "VERSION=$VERSION" >>$GITHUB_ENV
-        DESTDIR=${{ runner.temp }}/Quaternion-$VERSION
-        echo "DESTDIR=$DESTDIR" >>$GITHUB_ENV
         echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-              -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_PREFIX_PATH=$DESTDIR/usr \
               -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }}" \
             >>$GITHUB_ENV
-        mkdir package # If there's a package to pack
+        if [ "${{ matrix.composition }}" == 'package' ]; then
+            mkdir package
+        fi
 
     - name: Setup MSVC environment
       uses: ilammy/msvc-dev-cmd@v1
@@ -124,35 +123,64 @@ jobs:
       run: |
         git clone --depth=1 -b $QTKEYCHAIN_REF https://github.com/frankosterfeld/qtkeychain
         cd qtkeychain
-        cmake -S . -B build $CMAKE_ARGS -DQTKEYCHAIN_STATIC=${{ matrix.composition != 'dynamic' }}
+        cmake -S . -B build $CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=~/.local \
+              -DQTKEYCHAIN_STATIC=${{ matrix.composition != 'dynamic' }}
         cmake --build build --target install
+        if [ ${{ matrix.composition }} == 'dynamic' ]; then
+            QTKEYCHAIN_SO_PATH=$(dirname $(find ~/.local/lib* -name libqt5keychain.so))
+            test -n "$QTKEYCHAIN_SO_PATH"
+            echo "DEP_SO_PATH=$QTKEYCHAIN_SO_PATH" >>$GITHUB_ENV
+        fi
 
     - name: Get, build and install libQuotient
-      if: matrix.composition != 'all-in-one'
+      if: matrix.composition != 'own-quotient'
       run: |
         git clone --depth=1 -b $QUOTIENT_REF https://github.com/quotient-im/libQuotient
         cd libQuotient
-        cmake -S . -B build $CMAKE_ARGS
+        cmake -S . -B build $CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=~/.local
         cmake --build build --target install
+        if [ ${{ matrix.composition }} == 'dynamic' ]; then
+            QUOTIENT_SO_PATH=$(dirname $(find ~/.local/lib* -name libQuotient.so))
+            test -n "$QUOTIENT_SO_PATH"
+            echo "DEP_SO_PATH=$DEP_SO_PATH:$QUOTIENT_SO_PATH" >>$GITHUB_ENV
+        fi
 
     - name: Configure Quaternion
-      run: "cmake -LA -S $GITHUB_WORKSPACE -B build $CMAKE_ARGS -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY"
+      run: |
+        if [ "${{ runner.os }}" == "Windows" ]; then
+            # DESTDIR doesn't work (and is not necessary) on Windows, see
+            # https://cmake.org/cmake/help/latest/envvar/DESTDIR.html
+            # NB: Using ${{ runner.temp }} (or any absolute path?) for install
+            # root on Windows somehow confuses the shell code using it
+            # (because of the volume letter?) - therefore relative path here.
+            INSTALL_PATH=Quaternion-$VERSION
+        else
+            INSTALL_PATH=/usr
+            DESTDIR=$GITHUB_WORKSPACE/install
+            echo "DESTDIR=$DESTDIR" >>$GITHUB_ENV
+        fi
+        echo "INSTALL_PATH=$INSTALL_PATH" >>$GITHUB_ENV
+        cmake -LA -S $GITHUB_WORKSPACE -B build $CMAKE_ARGS -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY \
+              -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH -DCMAKE_PREFIX_PATH=~/.local
 
     - name: Build and install Quaternion
       run: cmake --build build --target install
 
-    - name: Validate AppStream data (Linux)
+    - name: Validate installation (Linux)
       if: startsWith(matrix.os, 'ubuntu')
-      run: "appstream-util validate $DESTDIR/usr/share/metainfo/*.appdata.xml"
+      run: |
+        xvfb-run env LD_LIBRARY_PATH=$DEP_SO_PATH:$Qt5_DIR/lib \
+            $DESTDIR$INSTALL_PATH/bin/quaternion --version
+        appstream-util validate $DESTDIR$INSTALL_PATH/share/metainfo/*.appdata.xml
 
     - name: Make image (macOS)
-      if: startsWith(matrix.os, 'macos') && matrix.composition == 'all-in-one'
+      if: startsWith(matrix.os, 'macos') && matrix.composition == 'package'
       run: |
         cmake --build build --target image
         mv build/quaternion.dmg package/quaternion-$VERSION.dmg
 
     - name: Make AppImage (Linux)
-      if: startsWith(matrix.os, 'ubuntu') && matrix.composition == 'all-in-one'
+      if: startsWith(matrix.os, 'ubuntu') && matrix.composition == 'package'
       env:
         QML_SOURCES_PATHS: ${{ github.workspace }}/client/qml
       run: |
@@ -168,13 +196,12 @@ jobs:
     - name: Archive the install tree (Windows)
       if: startsWith(matrix.os, 'windows')
       run: |
-        cd $DESTDIR
-        rm -rf bearer qmltooling
-        cd ..
-        7z a $GITHUB_WORKSPACE/package/quaternion-$VERSION-${{ matrix.artefact }}.zip Quaternion-*
+        rm -rf $INSTALL_PATH/{bearer,qmltooling}
+        ls -l $INSTALL_PATH/quaternion.exe # Fail if it's not there
+        7z a package/quaternion-$VERSION-$Platform.zip $INSTALL_PATH
 
     - name: Upload artefacts to Bintray (interim builds)
-      if: matrix.composition == 'all-in-one' && !startsWith(github.ref, 'refs/tags') # Tags will go to GitHub Releases
+      if: matrix.composition == 'package' && !startsWith(github.ref, 'refs/tags') # Tags will go to GitHub Releases
       uses: reznikmm/upload-bintray-action@v4
       with:
         username: kitsune
@@ -187,7 +214,7 @@ jobs:
         apiKey: ${{ secrets.BINTRAY_API_KEY }}
 
     - name: Upload artefacts to GitHub Releases (tag builds)
-      if: matrix.composition == 'all-in-one' && startsWith(github.ref, 'refs/tags')
+      if: matrix.composition == 'package' && startsWith(github.ref, 'refs/tags')
       uses: ncipollo/release-action@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
