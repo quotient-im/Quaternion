@@ -623,34 +623,47 @@ Rectangle {
         }
     }
 
-    RoundButton {
+    ScrollToButton {
         id: scrollToBottomButton
+
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.rightMargin: width * 1.5
-        anchors.bottomMargin: chatView.atYEnd ? -height : height/2
-        height: settings.defaultText.height * 2
-        width: height
-        hoverEnabled: true
-        opacity: (!chatView.atYEnd) * (0.7 + hovered * 0.2)
+        anchors.bottomMargin: visible ? 0.5 * height : -height
 
-        display: Button.IconOnly
+        visible: !chatView.atYEnd
+
         icon {
             name: "go-bottom"
             source: "qrc:///scrolldown.svg"
-            color: defaultPalette.buttonText
         }
 
         onClicked: {
             chatView.positionViewAtBeginning()
             chatView.saveViewport()
         }
+    }
 
-        AnimationBehavior on opacity {
-            NormalNumberAnimation { easing.type: Easing.OutQuad }
+    ScrollToButton {
+        id: scrollToReaderMarkerButton
+
+        anchors.right: parent.right
+        anchors.bottom: scrollToBottomButton.top
+        anchors.rightMargin: width * 1.5
+        anchors.bottomMargin: visible ? 0.5 * height : -3 * height
+
+        visible: chatView.count > 1 &&
+                 messageModel.readMarkerVisualIndex > 0 &&
+                 messageModel.readMarkerVisualIndex > chatView.indexAt(chatView.contentX, chatView.contentY)
+
+        icon {
+            name: "go-top"
+            source: "qrc:///scrollup.svg"
         }
-        AnimationBehavior on anchors.bottomMargin {
-            NormalNumberAnimation { easing.type: Easing.OutQuad }
+
+        onClicked: {
+            chatView.positionViewAtIndex(messageModel.readMarkerVisualIndex, ListView.Center)
+            chatView.saveViewport()
         }
     }
 }
