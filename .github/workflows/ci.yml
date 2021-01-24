@@ -1,0 +1,224 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+    types: [opened, reopened]
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  CI:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-18.04 ]
+        compiler: [ GCC, Clang ]
+        platform: [ '' ]
+        qt-version: [ '5.9.9' ]
+        composition: [ own-quotient, static, dynamic ]
+        qt-arch: [ '' ]
+        exclude:
+        - compiler: Clang
+          composition: static # Replace with package (see below)
+        include:
+        - os: ubuntu-18.04
+          compiler: Clang
+          qt-version: '5.14.2'
+          composition: package
+        - os: macos-10.15
+          compiler: Clang
+          qt-version: '5.14.2'
+          composition: package
+        - os: windows-2019
+          compiler: MSVC
+          platform: x86
+          qt-version: '5.14.2'
+          composition: package
+          qt-arch: win32_msvc2017
+        - os: windows-2019
+          compiler: MSVC
+          platform: x64
+          qt-version: '5.14.2'
+          composition: package
+          qt-arch: win64_msvc2017_64
+
+    env:
+      DEPLOY_VERBOSITY: 1
+      QTKEYCHAIN_REF: v0.12.0
+      QUOTIENT_REF: 0.6.x
+      # Use | below to skip on escaping all the backslashes
+      VCVARS_BAT: |
+          C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: ${{ matrix.composition == 'own-quotient' }}
+
+    - name: Cache Qt
+      id: cache-qt
+      uses: actions/cache@v2
+      with:
+        path: ${{ runner.workspace }}/Qt
+        key: ${{ runner.os }}${{ matrix.platform }}-Qt${{ matrix.qt-version }}-cache
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2.11.1
+      with:
+        version: ${{ matrix.qt-version }}
+        arch: ${{ matrix.qt-arch }}
+        cached: ${{ steps.cache-qt.outputs.cache-hit }}
+        mirror: https://ftp.fau.de/qtproject/
+
+    - name: Install Ninja and other deps (Linux)
+      if: ${{ startsWith(matrix.os, 'ubuntu') }}
+      run: |
+        if [ "${{ matrix.composition }}" == "package" ]; then
+          EXTRA_DEPS="appstream libgstreamer-plugins-base1.0.0"
+        fi
+        sudo apt-get -qq install ninja-build appstream-util $EXTRA_DEPS
+
+    - name: Install Ninja (macOS/Windows)
+      if: ${{ !startsWith(matrix.os, 'ubuntu') }}
+      uses: seanmiddleditch/gha-setup-ninja@v3
+
+    - name: Setup environment
+      run: |
+        if [ "${{ matrix.compiler }}" == "GCC" ]; then
+            echo "CC=gcc" >>$GITHUB_ENV
+            echo "CXX=g++" >>$GITHUB_ENV
+        elif [ "${{ matrix.compiler }}" == "Clang" ]; then
+            echo "CC=clang" >>$GITHUB_ENV
+            echo "CXX=clang++" >>$GITHUB_ENV
+        fi
+        if [ "${{ runner.os }}" == "macOS" ]; then
+            echo "/usr/local/opt/qt/bin" >>$GITHUB_PATH
+        fi
+        if grep -q 'refs/tags' <<<'${{ github.ref }}'; then
+            VERSION="$(git describe --tags)"
+        elif grep -q 'refs/heads' <<<'${{ github.ref }}'; then
+            VERSION="$(git describe --all --contains)-ci${{ github.run_number }}-$(git rev-parse --short HEAD)"
+        else
+            VERSION="ci${{ github.run_number }}-$(git rev-parse --short HEAD)"
+        fi
+        echo "VERSION=$VERSION" >>$GITHUB_ENV
+        echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+              -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }}" \
+            >>$GITHUB_ENV
+        if [ "${{ matrix.composition }}" == 'package' ]; then
+            mkdir package
+        fi
+
+    - name: Setup MSVC environment
+      uses: ilammy/msvc-dev-cmd@v1
+      if: matrix.compiler == 'MSVC'
+      with:
+        arch: ${{ matrix.platform }}
+
+    - name: Get, build and install QtKeychain
+      run: |
+        git clone --depth=1 -b $QTKEYCHAIN_REF https://github.com/frankosterfeld/qtkeychain
+        cd qtkeychain
+        cmake -S . -B build $CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=~/.local \
+              -DQTKEYCHAIN_STATIC=${{ matrix.composition != 'dynamic' }}
+        cmake --build build --target install
+        if [ ${{ matrix.composition }} == 'dynamic' ]; then
+            QTKEYCHAIN_SO_PATH=$(dirname $(find ~/.local/lib* -name libqt5keychain.so))
+            test -n "$QTKEYCHAIN_SO_PATH"
+            echo "DEP_SO_PATH=$QTKEYCHAIN_SO_PATH" >>$GITHUB_ENV
+        fi
+
+    - name: Get, build and install libQuotient
+      if: matrix.composition != 'own-quotient'
+      run: |
+        git clone --depth=1 -b $QUOTIENT_REF https://github.com/quotient-im/libQuotient
+        cd libQuotient
+        cmake -S . -B build $CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=~/.local
+        cmake --build build --target install
+        if [ ${{ matrix.composition }} == 'dynamic' ]; then
+            QUOTIENT_SO_PATH=$(dirname $(find ~/.local/lib* -name libQuotient.so))
+            test -n "$QUOTIENT_SO_PATH"
+            echo "DEP_SO_PATH=$DEP_SO_PATH:$QUOTIENT_SO_PATH" >>$GITHUB_ENV
+        fi
+
+    - name: Configure Quaternion
+      run: |
+        if [ "${{ runner.os }}" == "Windows" ]; then
+            # DESTDIR doesn't work (and is not necessary) on Windows, see
+            # https://cmake.org/cmake/help/latest/envvar/DESTDIR.html
+            # NB: Using ${{ runner.temp }} (or any absolute path?) for install
+            # root on Windows somehow confuses the shell code using it
+            # (because of the volume letter?) - therefore relative path here.
+            INSTALL_PATH=Quaternion-$VERSION
+        else
+            INSTALL_PATH=/usr
+            DESTDIR=$GITHUB_WORKSPACE/install
+            echo "DESTDIR=$DESTDIR" >>$GITHUB_ENV
+        fi
+        echo "INSTALL_PATH=$INSTALL_PATH" >>$GITHUB_ENV
+        cmake -LA -S $GITHUB_WORKSPACE -B build $CMAKE_ARGS -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY \
+              -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH -DCMAKE_PREFIX_PATH=~/.local
+
+    - name: Build and install Quaternion
+      run: cmake --build build --target install
+
+    - name: Validate installation (Linux)
+      if: startsWith(matrix.os, 'ubuntu')
+      run: |
+        xvfb-run env LD_LIBRARY_PATH=$DEP_SO_PATH:$Qt5_DIR/lib \
+            $DESTDIR$INSTALL_PATH/bin/quaternion --version
+        appstream-util validate $DESTDIR$INSTALL_PATH/share/metainfo/*.appdata.xml
+
+    - name: Make image (macOS)
+      if: startsWith(matrix.os, 'macos') && matrix.composition == 'package'
+      run: |
+        cmake --build build --target image
+        mv build/quaternion.dmg package/quaternion-$VERSION.dmg
+
+    - name: Make AppImage (Linux)
+      if: startsWith(matrix.os, 'ubuntu') && matrix.composition == 'package'
+      env:
+        QML_SOURCES_PATHS: ${{ github.workspace }}/client/qml
+      run: |
+        for f in linuxdeploy linuxdeploy-plugin-qt; do
+            wget -c -nv --directory-prefix=linuxdeploy \
+                https://github.com/linuxdeploy/$f/releases/download/continuous/$f-x86_64.AppImage
+            chmod +x linuxdeploy/$f-x86_64.AppImage
+        done
+        LD_LIBRARY_PATH=$Qt5_DIR/lib QMAKE=$Qt5_DIR/bin/qmake \
+            OUTPUT=package/quaternion-$VERSION.AppImage \
+            linuxdeploy/linuxdeploy-x86_64.AppImage --appdir $DESTDIR --plugin qt --output appimage
+
+    - name: Archive the install tree (Windows)
+      if: startsWith(matrix.os, 'windows')
+      run: |
+        rm -rf $INSTALL_PATH/{bearer,qmltooling}
+        ls -l $INSTALL_PATH/quaternion.exe # Fail if it's not there
+        7z a package/quaternion-$VERSION-$Platform.zip $INSTALL_PATH
+
+    - name: Upload artefacts to Bintray (interim builds)
+      if: matrix.composition == 'package' && !startsWith(github.ref, 'refs/tags') # Tags will go to GitHub Releases
+      uses: reznikmm/upload-bintray-action@v4
+      with:
+        username: kitsune
+        subject: quotient
+        repository: ci
+        package: Quaternion
+        version: ci${{ github.run_number }}
+        sourcePath: 'package/quaternion-*'
+        override: 1
+        apiKey: ${{ secrets.BINTRAY_API_KEY }}
+
+    - name: Upload artefacts to GitHub Releases (tag builds)
+      if: matrix.composition == 'package' && startsWith(github.ref, 'refs/tags')
+      uses: ncipollo/release-action@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: "package/*"
+        allowUpdates: true
+        omitNameDuringUpdate: true
+        omitBodyDuringUpdate: true
