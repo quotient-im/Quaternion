@@ -61,8 +61,10 @@ LoginDialog::LoginDialog(const QString& statusMessage, QWidget* parent,
         if (QUrl hsUrl { serverEdit->text() }; hsUrl.isValid()) {
             m_connection->setHomeserver(serverEdit->text());
             button(QDialogButtonBox::Ok)->setEnabled(true);
-        } else
+        } else {
             setStatusMessage(tr("The server URL doesn't look valid"));
+            button(QDialogButtonBox::Ok)->setEnabled(false);
+        }
     });
 
     // This button is only shown when BOTH password auth and SSO are available
@@ -131,23 +133,29 @@ void LoginDialog::setup(const QString& statusMessage)
     setStatusMessage(statusMessage);
     passwordEdit->setEchoMode( QLineEdit::Password );
 
+    // This is triggered whenever the server URL has been changed
     connect(m_connection.data(), &Connection::homeserverChanged, serverEdit,
             [this](const QUrl& hsUrl) {
         serverEdit->setText(hsUrl.toString());
         if (hsUrl.isValid())
             setStatusMessage(tr("Getting supported login flows..."));
+
+        // Allow to click login even before getting the flows and
+        // do LoginDialog::loginWithBestFlow() as soon as flows arrive
+        button(QDialogButtonBox::Ok)->setEnabled(hsUrl.isValid());
     });
-    // This is triggered whenever the server URL has been changed
     connect(m_connection.data(), &Connection::loginFlowsChanged, this, [this] {
+        serverEdit->setText(m_connection->homeserver().toString());
         setStatusMessage(m_connection->isUsable()
                              ? tr("The homeserver is available")
                              : tr("Could not connect to the homeserver"));
-        button(QDialogButtonBox::Ok)->setEnabled(true);
+        button(QDialogButtonBox::Ok)->setEnabled(m_connection->isUsable());
     });
     // This overrides the above in case of an unsuccessful attempt to resolve
     // the server URL from a changed MXID
     connect(m_connection.data(), &Connection::resolveError, this,
             [this](const QString& message) {
+                qDebug() << "Resolve error";
                 serverEdit->clear();
                 setStatusMessage(message);
             });
@@ -189,6 +197,8 @@ void LoginDialog::apply()
             this, &Dialog::applyFailed);
     if (m_connection->homeserver() == url && !m_connection->loginFlows().empty())
         loginWithBestFlow();
+    else if (!url.isValid())
+        applyFailed(tr("The homeserver address is malformed"));
     else {
         m_connection->setHomeserver(url);
 
@@ -210,7 +220,7 @@ void LoginDialog::loginWithBestFlow()
     else if (m_connection->supportsSso())
         loginWithSso();
     else
-        emit applyFailed(tr("No supported login flows"));
+        applyFailed(tr("No supported login flows"));
 }
 
 void LoginDialog::loginWithPassword()
