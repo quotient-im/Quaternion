@@ -33,6 +33,9 @@
 
 using Quotient::Connection;
 
+static const auto MalformedServerUrl =
+        LoginDialog::tr("The server URL doesn't look valid");
+
 LoginDialog::LoginDialog(const QString& statusMessage, QWidget* parent,
                          const QStringList& knownAccounts)
     : Dialog(tr("Login"), parent, Dialog::StatusLine, tr("Login"),
@@ -62,7 +65,7 @@ LoginDialog::LoginDialog(const QString& statusMessage, QWidget* parent,
             m_connection->setHomeserver(serverEdit->text());
             button(QDialogButtonBox::Ok)->setEnabled(true);
         } else {
-            setStatusMessage(tr("The server URL doesn't look valid"));
+            setStatusMessage(MalformedServerUrl);
             button(QDialogButtonBox::Ok)->setEnabled(false);
         }
     });
@@ -198,7 +201,7 @@ void LoginDialog::apply()
     if (m_connection->homeserver() == url && !m_connection->loginFlows().empty())
         loginWithBestFlow();
     else if (!url.isValid())
-        applyFailed(tr("The homeserver address is malformed"));
+        applyFailed(MalformedServerUrl);
     else {
         m_connection->setHomeserver(url);
 
