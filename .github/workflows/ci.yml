@@ -95,15 +95,12 @@ jobs:
             echo "CC=clang" >>$GITHUB_ENV
             echo "CXX=clang++" >>$GITHUB_ENV
         fi
-        if [ "${{ runner.os }}" == "macOS" ]; then
-            echo "/usr/local/opt/qt/bin" >>$GITHUB_PATH
-        fi
         if grep -q 'refs/tags' <<<'${{ github.ref }}'; then
             VERSION="$(git describe --tags)"
-        elif grep -q 'refs/heads' <<<'${{ github.ref }}'; then
-            VERSION="$(git describe --all --contains)-ci${{ github.run_number }}-$(git rev-parse --short HEAD)"
-        else
+        elif [ '${{ github.ref }}' == 'refs/heads/master' ]; then
             VERSION="ci${{ github.run_number }}-$(git rev-parse --short HEAD)"
+        else
+            VERSION="$(git describe --all --contains)-ci${{ github.run_number }}-$(git rev-parse --short HEAD)"
         fi
         echo "VERSION=$VERSION" >>$GITHUB_ENV
         echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
