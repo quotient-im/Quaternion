@@ -513,7 +513,8 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                             && Settings().value("UI/show_avatar_update", true).toBool())
                         {
                             if (!text.isEmpty())
-                                text += tr(" and ");
+                                text += tr(" and ",
+                                           "joiner for member profile updates");
                             if (e.avatarUrl().isEmpty())
                                 text += tr("cleared the avatar");
                             else
