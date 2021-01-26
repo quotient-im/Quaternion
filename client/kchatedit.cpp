@@ -125,6 +125,7 @@ void KChatEdit::KChatEditPrivate::saveInput()
 
     index = history.size() - 1;
     q->clear();
+    q->setCurrentCharFormat({});
 }
 
 KChatEdit::KChatEdit(QWidget *parent)
