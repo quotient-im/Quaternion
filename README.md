@@ -42,7 +42,7 @@ If you want to build Quaternion from sources, see [BUILDING.md](./BUILDING.md).
 Packagers are still scarce, so please step up and support your favourite system!
 
 ### Requirements
-Quaternion 0.0.9.5 packages on Linux need Qt version 5.9 or higher;
+Quaternion 0.0.95 packages on Linux need Qt version 5.9 or higher;
 Debian Buster, Ubuntu Bionic Beaver, Fedora 28 and OpenSUSE 15 are new enough.
 For Windows, macOS, AppImage, Flatpak all needed Qt libraries are included
 in the packages. On Windows, you need to separately install OpenSSL
@@ -227,7 +227,7 @@ Settings not exposed in UI:
   the next paragraph); the default is true.
 - `hyperlink_users` - set this to false (or 0) if you do NOT want to
   hyperlink matrix user IDs in messages. By default it's true.
-- `auto_markdown` - since version 0.0.9.5, and only if built with Qt 5.14
+- `auto_markdown` - since version 0.0.95 beta 3, and only if built with Qt 5.14
   or newer (builds for Windows at GitHub, as well as Flatpaks, use Qt 5.14),
   setting this to `true` makes Quaternion parse all messages that you send
   as Markdown, without having to prepend them with `/md` command. By default,
@@ -235,7 +235,7 @@ Settings not exposed in UI:
   since the whole functionality is experimental. If you have it enabled, feel
   free to submit bug reports at the usual place.
 
-Since version 0.0.9.5, all Quaternion binaries at GitHub are compiled with
+Since version 0.0.95, all Quaternion binaries at GitHub are compiled with
 Qt Keychain support. It means that Quaternion will try to store your access
 token(s) in the secure storage configured for your platform. If the storage or
 Qt Keychain are not available, Quaternion will try to store your access token(s)

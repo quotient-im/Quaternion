@@ -6,7 +6,7 @@ endif()
 set(IDENTIFIER "com.github.quaternion")
 set(COPYRIGHT "Copyright © 2016-2020 Quaternion project contributors")
 
-project(quaternion VERSION 0.0.9.5 LANGUAGES CXX)
+project(quaternion VERSION 0.0.94.93 LANGUAGES CXX)
 
 if(UNIX AND NOT APPLE)
     set(LINUX 1)
@@ -104,7 +104,7 @@ endif()
 
 message( STATUS )
 message( STATUS "=============================================================================" )
-message( STATUS "                          Quaternion Build Information" )
+message( STATUS "                     Quaternion ${quaternion_VERSION} Build Information" )
 message( STATUS "=============================================================================" )
 if (CMAKE_BUILD_TYPE)
     message( STATUS "Build type: ${CMAKE_BUILD_TYPE}")
