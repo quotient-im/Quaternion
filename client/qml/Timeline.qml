@@ -518,11 +518,11 @@ Rectangle {
             FastNumberAnimation { }
         }
 
-        anchors.right: chatScrollView.right
+        anchors.horizontalCenter: shuttleDial.horizontalCenter
         anchors.bottom: chatScrollView.bottom
         anchors.bottomMargin:
             averageEvtHeight * chatView.bottommostVisibleIndex
-        width: scrollerArea.width / 2
+        width: shuttleDial.width
         height: chatView.bottommostVisibleIndex < 0 ? 0 :
             averageEvtHeight
             * (chatView.count - chatView.bottommostVisibleIndex)
@@ -549,19 +549,16 @@ Rectangle {
         id: shuttleDial
         orientation: Qt.Vertical
         height: chatScrollView.height
-        width: scrollerArea.width / 2
-        anchors.right: cachedEventsBar.left
+        width: chatScrollView.ScrollBar.vertical.width / 2
+        anchors.right: parent.right
         // Shift to the left to fit the handle in the visible area
-        anchors.rightMargin:
-            Math.max(handle.implicitWidth - width - cachedEventsBar.width, 0)
-            / 2 + 1
+        anchors.rightMargin: Math.max(handle.width - width, 0) / 2
         anchors.verticalCenter: chatScrollView.verticalCenter
         enabled: settings.use_shuttle_dial
         visible: enabled && chatView.count > 0
 
-        hoverEnabled: true
         background: Item { /* no background */ }
-        handle.opacity: hovered ? 1 : 0.6
+        handle.opacity: scrollerArea.containsMouse ? 1 : 0.7
 
         from: -10.0
         to: 10.0
@@ -592,7 +589,9 @@ Rectangle {
         anchors.top: chatScrollView.top
         anchors.bottom: chatScrollView.bottom
         anchors.right: parent.right
-        width: Math.max(chatScrollView.ScrollBar.vertical.width, 8)
+        width: settings.use_shuttle_dial
+               ? (shuttleDial.handle.width + shuttleDial.width) / 2
+               : chatScrollView.ScrollBar.vertical.width
         acceptedButtons: Qt.NoButton
 
         hoverEnabled: true
