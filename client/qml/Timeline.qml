@@ -444,9 +444,10 @@ Rectangle {
                 anchors.left: parent.left
                 width: parent.width
                 z: -1
+                opacity: 0.1
 
                 radius: readMarkerLine.height
-                color: mixColors(disabledPalette.base, defaultPalette.highlight, 0.05)
+                color: mixColors(disabledPalette.base, defaultPalette.highlight, 0.5)
             }
             Rectangle {
                 id: readMarkerLine
