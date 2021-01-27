@@ -126,6 +126,14 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
         m_hudCaption->setTextFormat(Qt::RichText);
     }
 
+    m_referringInputIndicator = new QToolButton();
+    m_referringInputIndicator->setAutoRaise(true);
+    m_referringInputIndicator->setIconSize(QSize(16,16));
+    m_referringInputIndicator->hide();
+    connect(m_referringInputIndicator, &QToolButton::clicked, this, [this] {
+        clearReferringInputMode();
+    });
+
     auto attachButton = new QToolButton();
     attachButton->setAutoRaise(true);
     m_attachAction = new QAction(QIcon::fromTheme("mail-attachment"),
@@ -235,6 +243,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     layout->addWidget(m_hudCaption);
     {
         auto inputLayout = new QHBoxLayout;
+        inputLayout->addWidget(m_referringInputIndicator);
         inputLayout->addWidget(attachButton);
         inputLayout->addWidget(m_chatEdit);
         layout->addLayout(inputLayout);
@@ -303,6 +312,7 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
                     ->setContextProperty(QStringLiteral("room"), room);
     typingChanged();
     encryptionChanged();
+    clearReferringInputMode();
 
     m_messageModel->changeRoom( m_currentRoom );
 }
@@ -446,32 +456,60 @@ void ChatRoomWidget::sendFile()
     m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-void sendMarkdown(QuaternionRoom* room, const QTextDocumentFragment& text)
+void ChatRoomWidget::sendMessage(const QString text, int textType)
 {
-    room->postHtmlText(text.toPlainText(),
-                       HtmlFilter::qtToMatrix(text.toHtml(), room,
-                                              HtmlFilter::ConvertMarkdown));
-}
+    auto plainText = QTextDocumentFragment::fromHtml(text).toPlainText();
+    bool sendHtml;
+    QString htmlText;
+
+    if (textType == Plain) {
+        sendHtml = false;
+        if (inputMode == RichReply) {
+            htmlText = plainText;
+            sendHtml = true;
+        }
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+    } else if (textType == Markdown || (textType == Default && m_uiSettings.get("auto_markdown", false))) {
+        htmlText = HtmlFilter::qtToMatrix(text, m_currentRoom, HtmlFilter::ConvertMarkdown);
+        sendHtml = true;
 #endif
+    } else {
+        htmlText = HtmlFilter::qtToMatrix(text, m_currentRoom);
+        sendHtml = true;
+    }
 
-void ChatRoomWidget::sendMessage()
-{
-    if (m_chatEdit->toPlainText().startsWith("//"))
-        QTextCursor(m_chatEdit->document()).deleteChar();
+    Q_ASSERT(!plainText.isEmpty());
+    Q_ASSERT(!sendHtml || !htmlText.isEmpty());
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-    if (m_uiSettings.get("auto_markdown", false)) {
-        sendMarkdown(m_currentRoom,
-                     QTextDocumentFragment(m_chatEdit->document()));
+    if (inputMode == RichReply) {
+        using namespace Quotient;
+        // generate quote in html
+        auto referredEventId = inputReference.data(MessageEventModel::EventIdRole).toString();
+        QString evtLink = "https://matrix.to/#/" + m_currentRoom->id() + "/" + referredEventId;
+        auto authorUser = inputReference.data(MessageEventModel::AuthorRole).value<User*>();
+        QString authorName = authorUser->displayname(m_currentRoom);
+        QString authorLink = Uri(authorUser->id()).toUrl(Uri::MatrixToUri).toString();
+        QString citation = inputReference.data().toString().remove(QRegExp("<mx-reply>.*</mx-reply>"));
+        auto htmlQuote = QStringLiteral(
+            "<mx-reply><blockquote><a href=\"%1\">In reply to</a> <a href=\"%2\">%3</a><br />%4</blockquote></mx-reply>"
+        ).arg(evtLink, authorLink, authorName, citation);
+        // derive plain text fallback
+        auto plainTextQuote = QLocale().quoteString(QTextDocumentFragment::fromHtml(citation).toPlainText()) + "\n";
+
+        m_currentRoom->postEvent(
+            new RoomMessageEvent(plainTextQuote + plainText, MessageEventType::Text,
+                new EventContent::TextContent(
+                    htmlQuote + htmlText, QStringLiteral("text/html"), EventContent::replyTo(referredEventId)
+                )
+            )
+        );
         return;
     }
-#endif
-    const auto& plainText = m_chatEdit->toPlainText();
-    const auto& htmlText =
-        HtmlFilter::qtToMatrix(m_chatEdit->toHtml(), m_currentRoom);
-    Q_ASSERT(!plainText.isEmpty() && !htmlText.isEmpty());
-    m_currentRoom->postHtmlText(plainText, htmlText);
+
+    if (sendHtml)
+        m_currentRoom->postHtmlText(plainText, htmlText);
+    else
+        m_currentRoom->postPlainText(plainText);
 }
 
 static const auto NothingToSendMsg =
@@ -671,7 +709,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         const auto& plainMsg = m_chatEdit->toPlainText().mid(CmdLen);
         if (plainMsg.isEmpty())
             return NothingToSendMsg;
-        m_currentRoom->postPlainText(plainMsg);
+        sendMessage(plainMsg, Plain);
         return {};
     }
     if (command == "html")
@@ -686,10 +724,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         if (errorPos != -1)
             return tr("At pos %1: ").arg(errorPos) % errorString;
 
-        const auto& fragment = QTextDocumentFragment::fromHtml(cleanQtHtml);
-        m_currentRoom->postHtmlText(fragment.toPlainText(),
-                                    HtmlFilter::qtToMatrix(fragment.toHtml(),
-                                                           m_currentRoom));
+        sendMessage(cleanQtHtml, Html);
         return {};
     }
     if (command == "md") {
@@ -699,7 +734,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         QTextCursor c(m_chatEdit->document());
         c.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, 4);
         c.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-        sendMarkdown(m_currentRoom, c.selection());
+        sendMessage(c.selection().toHtml(), Markdown);
         return {};
 #else
         return tr("Your build of Quaternion doesn't support Markdown");
@@ -738,8 +773,11 @@ void ChatRoomWidget::sendInput()
                                 blanksMatch.captured(2));
         } else if (!m_currentRoom)
             error = tr("You should select a room to send messages.");
-        else
-            sendMessage();
+        else {
+            if (m_chatEdit->toPlainText().startsWith("//"))
+                QTextCursor(m_chatEdit->document()).deleteChar();
+            sendMessage(m_chatEdit->toHtml());
+        }
         if (!error.isEmpty()) {
             emit showStatusMessage(error, 5000);
             return;
@@ -747,6 +785,7 @@ void ChatRoomWidget::sendInput()
     }
 
     m_chatEdit->saveInput();
+    clearReferringInputMode();
 }
 
 ChatRoomWidget::completions_t
@@ -876,6 +915,32 @@ void ChatRoomWidget::quote(const QString& htmlText)
     m_chatEdit->insertPlainText(sendString);
 }
 
+void ChatRoomWidget::clearReferringInputMode()
+{
+    inputMode = Simple;
+    emit refer(-1);
+    inputReference = QModelIndex();
+
+    m_referringInputIndicator->hide();
+}
+
+void ChatRoomWidget::setReferringInputMode(const int newInputMode, const int referredIndex, const char *icon_name)
+{
+    Q_ASSERT( newInputMode == RichReply );
+    inputMode = newInputMode;
+    inputReference = m_messageModel->index(referredIndex, 0);
+    emit refer(referredIndex);
+
+    m_referringInputIndicator->setIcon(QIcon::fromTheme(icon_name));
+    m_referringInputIndicator->show();
+}
+
+void ChatRoomWidget::reply(int currentIndex)
+{
+    setReferringInputMode(RichReply, currentIndex, "mail-reply-sender");
+    emit showStatusMessage(tr("Reply message"));
+}
+
 void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
                               const QString& selectedText, bool showingDetails)
 {
@@ -890,6 +955,9 @@ void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
     const int userPl = plEvt->powerLevelForUser(localUserId);
     const auto* modelUser =
         modelIndex.data(MessageEventModel::AuthorRole).value<Quotient::User*>();
+    menu.addAction(QIcon::fromTheme("mail-reply-sender"), tr("Reply"), [=] {
+        emit reply(index);
+    });
     if (!plEvt || userPl >= plEvt->redact() || localUserId == modelUser->id()) {
         menu.addAction(QIcon::fromTheme("edit-delete"), tr("Redact"), [=] {
             m_currentRoom->redactEvent(eventId);
