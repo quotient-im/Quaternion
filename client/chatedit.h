@@ -41,6 +41,7 @@ class ChatEdit : public KChatEdit
 
     public slots:
         void switchContext(QObject* contextKey) override;
+        void alternatePaste();
 
     signals:
         void proposedCompletion(const QStringList& allCompletions, int curIndex);
@@ -61,6 +62,7 @@ class ChatEdit : public KChatEdit
         int matchesListPosition;
 
         bool pickingMentions = false;
+        bool m_pastePlaintext;
 
         /// \brief Initialise a new completion
         ///
@@ -71,6 +73,7 @@ class ChatEdit : public KChatEdit
                              QUrl mentionUrl, bool select);
         void keyPressEvent(QKeyEvent* event) override;
         void contextMenuEvent(QContextMenuEvent* event) override;
+        bool pastePlaintextByDefault();
 };
 
 

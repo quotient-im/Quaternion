@@ -265,6 +265,8 @@ Settings not exposed in UI:
   is `false` since the current support of Markdown by Qt is buggy, and the whole
   functionality in Quaternion is, again, experimental. If you have it enabled
   (or use `/md` command) feel free to submit bug reports at the usual place.
+- `paste_plaintext_by_default` - set this to false (or 0) if you want to paste
+  formatted text by default.
 
 Since version 0.0.95, all Quaternion binaries at GitHub Releases are compiled
 with Qt Keychain support. It means that Quaternion will try to store your access
