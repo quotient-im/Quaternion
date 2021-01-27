@@ -25,7 +25,9 @@
 #include <settings.h>
 
 #include <QtWidgets/QWidget>
+#include <QtWidgets/QToolButton>
 #include <QtCore/QBasicTimer>
+#include <QModelIndex>
 
 #ifndef USE_QQUICKWIDGET
 #define DISABLE_QQUICKWIDGET
@@ -48,6 +50,11 @@ class QTemporaryFile;
 
 class ChatRoomWidget: public QWidget
 {
+        enum InputModes {
+            Simple,
+            Reply,
+        };
+
         Q_OBJECT
     public:
         using completions_t = ChatEdit::completions_t;
@@ -73,6 +80,7 @@ class ChatRoomWidget: public QWidget
         void showDetails(int currentIndex);
         void scrollViewTo(int currentIndex);
         void animateMessage(int currentIndex);
+        void refer(int index);
 
     public slots:
         void setRoom(QuaternionRoom* room);
@@ -86,6 +94,7 @@ class ChatRoomWidget: public QWidget
         void markShownAsRead();
         void saveFileAs(QString eventId);
         void quote(const QString& htmlText);
+        void reply(int currentIndex);
         void showMenu(int index, const QString& hoveredLink, const QString& selectedText, bool showingDetails);
         void reactionButtonClicked(const QString& eventId, const QString& key);
         void fileDrop(const QString& url);
@@ -119,6 +128,7 @@ class ChatRoomWidget: public QWidget
 #endif
         timelineWidget_t* m_timelineWidget;
         QLabel* m_hudCaption; //< For typing and completion notifications
+        QToolButton* m_referringInputIndicator;
         QAction* m_attachAction;
         ChatEdit* m_chatEdit;
 
@@ -128,8 +138,13 @@ class ChatRoomWidget: public QWidget
         timeline_index_t indexToMaybeRead;
         QBasicTimer maybeReadTimer;
         bool readMarkerOnScreen;
+        int inputMode;
+        QModelIndex inputReference;
         QString attachedFileName;
         QString selectedText;
+
+        void clearReferringInputMode();
+        void setReferringInputMode(const int newInputMode, const int referredIndex, const char *icon_name);
 
         void reStartShownTimer();
         void sendFile();

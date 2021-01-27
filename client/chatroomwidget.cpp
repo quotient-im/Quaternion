@@ -126,6 +126,14 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
         m_hudCaption->setTextFormat(Qt::RichText);
     }
 
+    m_referringInputIndicator = new QToolButton();
+    m_referringInputIndicator->setAutoRaise(true);
+    m_referringInputIndicator->setIconSize(QSize(16,16));
+    m_referringInputIndicator->hide();
+    connect(m_referringInputIndicator, &QToolButton::clicked, this, [this] {
+        clearReferringInputMode();
+    });
+
     auto attachButton = new QToolButton();
     attachButton->setAutoRaise(true);
     m_attachAction = new QAction(QIcon::fromTheme("mail-attachment"),
@@ -235,6 +243,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     layout->addWidget(m_hudCaption);
     {
         auto inputLayout = new QHBoxLayout;
+        inputLayout->addWidget(m_referringInputIndicator);
         inputLayout->addWidget(attachButton);
         inputLayout->addWidget(m_chatEdit);
         layout->addLayout(inputLayout);
@@ -303,6 +312,7 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
                     ->setContextProperty(QStringLiteral("room"), room);
     typingChanged();
     encryptionChanged();
+    clearReferringInputMode();
 
     m_messageModel->changeRoom( m_currentRoom );
 }
@@ -738,7 +748,28 @@ void ChatRoomWidget::sendInput()
                                 blanksMatch.captured(2));
         } else if (!m_currentRoom)
             error = tr("You should select a room to send messages.");
-        else
+        else if (inputMode == Reply) {
+            using namespace Quotient;
+            // generate quote in html
+            auto referredEventId = inputReference.data(MessageEventModel::EventIdRole).toString();
+            QString evtLink = "https://matrix.to/#/" + m_currentRoom->id() + "/" + referredEventId;
+            auto authorUser = inputReference.data(MessageEventModel::AuthorRole).value<User*>();
+            QString authorName = authorUser->displayname(m_currentRoom);
+            QString authorLink = Uri(authorUser->id()).toUrl(Uri::MatrixToUri).toString();
+            QString citation = inputReference.data().toString().remove(QRegExp("<mx-reply>.*</mx-reply>"));
+            auto htmlQuote = QStringLiteral(
+                "<mx-reply><blockquote><a href=\"%1\">In reply to</a> <a href=\"%2\">%3</a><br />%4</blockquote></mx-reply>"
+            ).arg(evtLink, authorLink, authorName, citation);
+            // derive plain text fallback
+            QTextDocument document; document.setHtml(citation);
+            auto plainTextQuote = QLocale().quoteString(document.toPlainText()) + "\n";
+
+            auto textContent = new EventContent::TextContent(
+                    htmlQuote + HtmlFilter::qtToMatrix(m_chatEdit->toHtml(), m_currentRoom),
+                    QStringLiteral("text/html"), EventContent::replyTo(referredEventId));
+            auto roomMessageEvent = new RoomMessageEvent(plainTextQuote + text, MessageEventType::Text, textContent);
+            m_currentRoom->postEvent(roomMessageEvent);
+        } else
             sendMessage();
         if (!error.isEmpty()) {
             emit showStatusMessage(error, 5000);
@@ -747,6 +778,7 @@ void ChatRoomWidget::sendInput()
     }
 
     m_chatEdit->saveInput();
+    clearReferringInputMode();
 }
 
 ChatRoomWidget::completions_t
@@ -876,6 +908,32 @@ void ChatRoomWidget::quote(const QString& htmlText)
     m_chatEdit->insertPlainText(sendString);
 }
 
+void ChatRoomWidget::clearReferringInputMode()
+{
+    inputMode = Simple;
+    emit refer(-1);
+    inputReference = QModelIndex();
+
+    m_referringInputIndicator->hide();
+}
+
+void ChatRoomWidget::setReferringInputMode(const int newInputMode, const int referredIndex, const char *icon_name)
+{
+    Q_ASSERT( newInputMode == Reply );
+    inputMode = newInputMode;
+    inputReference = m_messageModel->index(referredIndex, 0);
+    emit refer(referredIndex);
+
+    m_referringInputIndicator->setIcon(QIcon::fromTheme(icon_name));
+    m_referringInputIndicator->show();
+}
+
+void ChatRoomWidget::reply(int currentIndex)
+{
+    setReferringInputMode(Reply, currentIndex, "mail-reply-sender");
+    emit showStatusMessage(tr("Reply message"));
+}
+
 void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
                               const QString& selectedText, bool showingDetails)
 {
@@ -890,6 +948,9 @@ void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
     const int userPl = plEvt->powerLevelForUser(localUserId);
     const auto* modelUser =
         modelIndex.data(MessageEventModel::AuthorRole).value<Quotient::User*>();
+    menu.addAction(QIcon::fromTheme("mail-reply-sender"), tr("Reply"), [=] {
+        emit reply(index);
+    });
     if (!plEvt || userPl >= plEvt->redact() || localUserId == modelUser->id()) {
         menu.addAction(QIcon::fromTheme("edit-delete"), tr("Redact"), [=] {
             m_currentRoom->redactEvent(eventId);
