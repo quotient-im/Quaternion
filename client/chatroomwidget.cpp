@@ -60,6 +60,10 @@
 static const auto DefaultPlaceholderText =
         ChatRoomWidget::tr("Choose a room to send messages or enter a command...");
 
+static constexpr auto MaxNamesToShow = 5;
+static constexpr auto SampleSizeForHud = 3;
+Q_STATIC_ASSERT(MaxNamesToShow > SampleSizeForHud);
+
 ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     : QWidget(parent)
     , m_messageModel(new MessageEventModel(this))
@@ -119,7 +123,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
         auto f = m_hudCaption->font();
         f.setItalic(true);
         m_hudCaption->setFont(f);
-        m_hudCaption->setTextFormat(Qt::PlainText);
+        m_hudCaption->setTextFormat(Qt::RichText);
     }
 
     auto attachButton = new QToolButton();
@@ -181,11 +185,34 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
         emit showStatusMessage(tr("Attaching an image from clipboard"));
     });
     connect(m_chatEdit, &ChatEdit::proposedCompletion, this,
-            [=](const QStringList& matches, int pos) {
-                setHudCaption(
-                    tr("Next completion: %1")
-                        .arg(QStringList(matches.mid(pos, 5)).join(", ")));
-            });
+        [this](QStringList matches, int pos) {
+            // If the completion list is MaxNamesToShow or shorter, show all
+            // of it; if it's longer, show SampleSizeForHud entries and
+            // append how many more matches are there.
+
+            if (matches.isEmpty()) {
+                setHudHtml(tr("No completions"));
+                return;
+            }
+
+            // Save the size before manipulations on matches
+            const int extraSize = matches.size() - SampleSizeForHud;
+            if (pos > 0 && pos >= matches.size() - SampleSizeForHud)
+                matches.back() +=
+                    tr("(end of list)",
+                       "Marks the last entry in the completion list");
+
+            // Replenish the tail of the list from the beginning, if needed
+            std::rotate(matches.begin(), matches.begin() + pos,
+                        matches.end());
+            if (matches.size() > MaxNamesToShow) {
+                const auto moreIt = matches.begin() + SampleSizeForHud;
+                *moreIt = tr("%Ln more completions", "", extraSize);
+                matches.erase(moreIt + 1, matches.end());
+            }
+            setHudHtml(tr("Next completion:"), matches);
+        });
+    // When completion is cancelled, show typing users, if any
     connect(m_chatEdit, &ChatEdit::cancelledCompletion,
             this, &ChatRoomWidget::typingChanged);
 
@@ -287,23 +314,33 @@ void ChatRoomWidget::spotlightEvent(QString eventId)
         emit scrollViewTo(index);
         emit animateMessage(index);
     } else
-        setHudCaption( tr("Referenced message not found") );
+        setHudHtml("<font color=red>" % tr("Referenced message not found")
+                   % "</font>");
 }
 
 void ChatRoomWidget::typingChanged()
 {
     if (!m_currentRoom || m_currentRoom->usersTyping().isEmpty())
     {
-        m_hudCaption->clear();
+        setHudHtml({});
         return;
     }
+    const auto& usersTyping = m_currentRoom->usersTyping();
     QStringList typingNames;
-    for(auto user: m_currentRoom->usersTyping())
-    {
-        typingNames << m_currentRoom->safeMemberName(user->id());
+    typingNames.reserve(MaxNamesToShow);
+    const auto endIt = usersTyping.size() > MaxNamesToShow
+                       ? usersTyping.cbegin() + SampleSizeForHud
+                       : usersTyping.cend();
+    for (auto it = usersTyping.cbegin(); it != endIt; ++it)
+        typingNames << m_currentRoom->safeMemberName((*it)->id());
+
+    if (usersTyping.size() > MaxNamesToShow) {
+        typingNames.push_back(
+            tr("%Ln more",
+               "The number of users in the typing or completion list",
+               usersTyping.size() - SampleSizeForHud));
     }
-    setHudCaption( tr("Currently typing: %1")
-                   .arg(typingNames.join(QStringLiteral(", "))) );
+    setHudHtml(tr("Currently typing:"), typingNames);
 }
 
 void ChatRoomWidget::encryptionChanged()
@@ -319,9 +356,39 @@ void ChatRoomWidget::encryptionChanged()
             : DefaultPlaceholderText);
 }
 
-void ChatRoomWidget::setHudCaption(QString newCaption)
+void ChatRoomWidget::setHudHtml(const QString& htmlCaption,
+                                const QStringList& plainTextNames)
 {
-    m_hudCaption->setText(newCaption);
+    if (htmlCaption.isEmpty()) { // Fast track
+        m_hudCaption->clear();
+        return;
+    }
+
+    auto hudText = htmlCaption;
+
+    if (!plainTextNames.empty()) {
+        QStringList namesToShow;
+        namesToShow.reserve(plainTextNames.size());
+
+        // Elide names that don't fit the HUD line width
+        // NB: averageCharWidth() accounts for a list separator appended by
+        // QLocale::createSeparatedList() appends. It would be ideal
+        // to subtract the specific separator width but there's no way to get
+        // the list separator from QLocale()
+        // (https://bugreports.qt.io/browse/QTBUG-48510)
+        const auto& fm = m_hudCaption->fontMetrics();
+        for (const auto& name: plainTextNames) {
+            auto elided =
+                fm.elidedText(name, Qt::ElideMiddle,
+                              m_hudCaption->width() - fm.averageCharWidth());
+            // Make sure an elided name takes a new line
+            namesToShow.push_back(
+                (elided != name ? "<br/>" : "") + elided.toHtmlEscaped());
+        }
+
+        hudText += ' ' + namesToShow.join(", ");
+    }
+    m_hudCaption->setText(hudText);
 }
 
 void ChatRoomWidget::insertMention(Quotient::User* user)

@@ -96,7 +96,10 @@ class ChatRoomWidget: public QWidget
     private slots:
         void sendInput();
         void encryptionChanged();
-        void setHudCaption(QString newCaption);
+        /// Set a line just above the message input, with optional list of
+        /// member displaynames
+        void setHudHtml(const QString& htmlCaption,
+                        const QStringList& plainTextNames = {});
 
     private:
         // Data
