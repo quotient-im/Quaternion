@@ -108,22 +108,33 @@ void QuaternionRoom::onAddHistoricalTimelineEvents(rev_iter_t from)
 
 void QuaternionRoom::checkForHighlights(const Quotient::TimelineItem& ti)
 {
-    auto localUserId = localUser()->id();
+    const auto localUserId = localUser()->id();
     if (ti->senderId() == localUserId)
         return;
     if (auto* e = ti.viewAs<RoomMessageEvent>()) {
         constexpr auto ReOpt = QRegularExpression::MultilineOption
                                | QRegularExpression::CaseInsensitiveOption;
         constexpr auto MatchOpt = QRegularExpression::PartialPreferFirstMatch;
-        const QRegularExpression localUserRe(
-            "(\\W|^)" + localUserId + "(\\W|$)", ReOpt);
-        // FIXME: unravels if the room member name contains characters special
-        //        to regexp($, e.g.)
-        const QRegularExpression roomMembernameRe(
-            "(\\W|^)" + roomMembername(localUserId) + "(\\W|$)", ReOpt);
+
+        // Building a QRegularExpression is quite expensive and this function is called a lot
+        // Given that the localUserId is usually the same we can reuse the QRegularExpression instead of building it every time
+        static QHash<QString, QRegularExpression> localUserExpressions;
+        static QHash<QString, QRegularExpression> roomMemberExpressions;
+
+        if (!localUserExpressions.contains(localUserId)) {
+            localUserExpressions[localUserId] = QRegularExpression("(\\W|^)" + localUserId + "(\\W|$)", ReOpt);
+        }
+
+        const auto memberName = roomMembername(localUserId);
+        if (!roomMemberExpressions.contains(memberName)) {
+            // FIXME: unravels if the room member name contains characters special
+            //        to regexp($, e.g.)
+            roomMemberExpressions[memberName] = QRegularExpression("(\\W|^)" + roomMembername(localUserId) + "(\\W|$)", ReOpt);
+        }
+
         const auto& text = e->plainBody();
-        const auto& localMatch = localUserRe.match(text, 0, MatchOpt);
-        const auto& roomMemberMatch = roomMembernameRe.match(text, 0, MatchOpt);
+        const auto& localMatch = localUserExpressions[localUserId].match(text, 0, MatchOpt);
+        const auto& roomMemberMatch = roomMemberExpressions[memberName].match(text, 0, MatchOpt);
         if (localMatch.hasMatch() || roomMemberMatch.hasMatch())
             highlights.insert(e);
     }
