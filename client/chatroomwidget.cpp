@@ -618,17 +618,22 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
                                      "¯\\_(ツ)_/¯");
         return {};
     }
+    if (command == "roomname")
+    {
+        m_currentRoom->setName(argString);
+        return {};
+    }
     if (command == "topic")
     {
         m_currentRoom->setTopic(argString);
         return {};
     }
-    if (command == "nick")
+    if (command == "nick" || command == "mynick")
     {
         m_currentRoom->localUser()->rename(argString);
         return {};
     }
-    if (command == "roomnick")
+    if (command == "roomnick" || command == "myroomnick")
     {
         m_currentRoom->localUser()->rename(argString, m_currentRoom);
         return {};
@@ -725,7 +730,9 @@ void ChatRoomWidget::sendInput()
         if (text.isEmpty())
             error = NothingToSendMsg;
         else if (text.startsWith('/') && !text.midRef(1).startsWith('/')) {
-            QRegularExpression cmdSplit("(\\w+)(?:\\s+(.*))?");
+            QRegularExpression cmdSplit(
+                    "(\\w+)(?:\\s+(.*))?",
+                    QRegularExpression::DotMatchesEverythingOption);
             const auto& blanksMatch = cmdSplit.match(text, 1);
             error = sendCommand(blanksMatch.capturedRef(1),
                                 blanksMatch.captured(2));
