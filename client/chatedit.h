@@ -29,6 +29,8 @@ class ChatEdit : public KChatEdit
 {
         Q_OBJECT
     public:
+        using completions_t = QVector<QPair<QString, QUrl>>;
+
         ChatEdit(ChatRoomWidget* c);
 
         void triggerCompletion();
@@ -54,7 +56,7 @@ class ChatEdit : public KChatEdit
 
         QTextCursor completionCursor;
         /// Text/href pairs for completion
-        QVector<QPair<QString, QUrl>> completionMatches;
+        completions_t completionMatches;
         int matchesListPosition;
 
         bool pickingMentions = false;

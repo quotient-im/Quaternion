@@ -273,7 +273,7 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
     } else
         m_imageProvider->setConnection(nullptr);
     m_timelineWidget->rootContext()
-            ->setContextProperty(QStringLiteral("room"), room);
+                    ->setContextProperty(QStringLiteral("room"), room);
     typingChanged();
     encryptionChanged();
 
@@ -675,10 +675,10 @@ void ChatRoomWidget::sendInput()
     m_chatEdit->saveInput();
 }
 
-QVector<QPair<QString, QUrl>>
+ChatRoomWidget::completions_t
 ChatRoomWidget::findCompletionMatches(const QString& pattern) const
 {
-    QVector<QPair<QString, QUrl>> matches;
+    completions_t matches;
     if (m_currentRoom)
     {
         for(auto user: m_currentRoom->users() )

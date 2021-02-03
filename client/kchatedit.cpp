@@ -231,7 +231,7 @@ QSize KChatEdit::sizeHint() const
     size.rheight() += margins.top() + margins.bottom();
 
     // Be consistent with minimumSizeHint().
-    if (document()->lineCount() == 1 && !toPlainText().contains(QLatin1Char('\n'))) {
+    if (document()->lineCount() == 1 && !toPlainText().contains('\n')) {
         size.setHeight(fontMetrics().lineSpacing() + margins.top() + margins.bottom());
     }
 

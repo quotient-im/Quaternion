@@ -20,6 +20,7 @@
 #pragma once
 
 #include "quaternionroom.h"
+#include "chatedit.h"
 
 #include <settings.h>
 
@@ -30,7 +31,6 @@
 #define DISABLE_QQUICKWIDGET
 #endif
 
-class ChatEdit;
 class MessageEventModel;
 class ImageProvider;
 
@@ -50,12 +50,14 @@ class ChatRoomWidget: public QWidget
 {
         Q_OBJECT
     public:
+        using completions_t = ChatEdit::completions_t;
+
         explicit ChatRoomWidget(QWidget* parent = nullptr);
 
         void enableDebug();
         bool pendingMarkRead() const;
 
-        QVector<QPair<QString, QUrl> > findCompletionMatches(const QString& pattern) const;
+        completions_t findCompletionMatches(const QString& pattern) const;
         Q_INVOKABLE Qt::KeyboardModifiers getModifierKeys() const;
 
     signals:
