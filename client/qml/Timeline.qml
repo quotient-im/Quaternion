@@ -91,7 +91,7 @@ Rectangle {
 
             TextEdit {
                 id: roomName
-                width: Math.min(roomNameMetrics.advanceWidth, parent.width)
+                width: roomNameMetrics.advanceWidth
                 height: settings.defaultText.height
                 clip: true
 
@@ -100,7 +100,7 @@ Rectangle {
                     id: roomNameMetrics
                     font: roomName.font
                     elide: Text.ElideRight
-                    elideWidth: roomName.width
+                    elideWidth: headerText.width
                     text: roomName.hasName ? room.displayName : qsTr("(no name)")
                 }
 
@@ -116,8 +116,9 @@ Rectangle {
                 selectByMouse: true
 
                 ToolTipArea {
-                    enabled: roomNameMetrics.text != roomNameMetrics.elidedText
-                             || roomName.lineCount > 1
+                    enabled: roomName.hasName &&
+                             (roomNameMetrics.text != roomNameMetrics.elidedText
+                             || roomName.lineCount > 1)
                     text: room ? room.htmlSafeDisplayName : ""
                 }
             }
