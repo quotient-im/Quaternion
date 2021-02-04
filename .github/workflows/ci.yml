@@ -95,10 +95,12 @@ jobs:
             echo "CC=clang" >>$GITHUB_ENV
             echo "CXX=clang++" >>$GITHUB_ENV
         fi
-        if grep -q 'refs/tags' <<<'${{ github.ref }}'; then
-            VERSION="$(git describe --tags)"
-        elif [ '${{ github.ref }}' == 'refs/heads/master' ]; then
+        if [ '${{ github.ref }}' == 'refs/heads/master' ]; then
             VERSION="ci${{ github.run_number }}-$(git rev-parse --short HEAD)"
+        elif [ '${{ github.ref }}' =~ "refs/tags/"(.+) ]; then
+            VERSION="${BASH_REMATCH[1]}"
+        elif [ '${{ github.ref }}' =~ "remotes/pull/"([0-9]+)"/merge" ]; then
+            VERSION="pr${BASH_REMATCH[1]}"
         else
             VERSION="$(git describe --all --contains)-ci${{ github.run_number }}-$(git rev-parse --short HEAD)"
         fi
