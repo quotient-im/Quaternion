@@ -9,6 +9,14 @@ defaults:
   run:
     shell: bash
 
+# A note on bash code style (specifically if's)
+# - No attempt to be POSIX-compliant, it's Bash (4.x+) here
+# - In if's, use [[ instead of [; BUT quote strings around and next to ${{ }}
+#   expansions because inside those expansions strings must always be quoted
+# - Quotes: use "" only where shell "$VARIABLES" should be expanded;
+#   ${{ }} is expanded before feeding the script to Bash, therefore single
+#   quotes or even absense of any are enough '${{ }}' (but see above re if's)
+
 jobs:
   CI:
     runs-on: ${{ matrix.os }}
@@ -77,7 +85,7 @@ jobs:
     - name: Install Ninja and other deps (Linux)
       if: ${{ startsWith(matrix.os, 'ubuntu') }}
       run: |
-        if [ "${{ matrix.composition }}" == "package" ]; then
+        if [[ '${{ matrix.composition }}' == 'package' ]]; then
           EXTRA_DEPS="appstream libgstreamer-plugins-base1.0.0"
         fi
         sudo apt-get -qq install ninja-build appstream-util $EXTRA_DEPS
@@ -88,17 +96,19 @@ jobs:
 
     - name: Setup environment
       run: |
-        if [ "${{ matrix.compiler }}" == "GCC" ]; then
+        if [[ '${{ matrix.compiler }}' == 'GCC' ]]; then
             echo "CC=gcc" >>$GITHUB_ENV
             echo "CXX=g++" >>$GITHUB_ENV
-        elif [ "${{ matrix.compiler }}" == "Clang" ]; then
+        elif [[ '${{ matrix.compiler }}' == 'Clang' ]]; then
             echo "CC=clang" >>$GITHUB_ENV
             echo "CXX=clang++" >>$GITHUB_ENV
         fi
-        if grep -q 'refs/tags' <<<'${{ github.ref }}'; then
-            VERSION="$(git describe --tags)"
-        elif [ '${{ github.ref }}' == 'refs/heads/master' ]; then
+        if [[ '${{ github.ref }}' == 'refs/heads/master' ]]; then
             VERSION="ci${{ github.run_number }}-$(git rev-parse --short HEAD)"
+        elif [[ '${{ github.ref }}' =~ 'refs/tags/'(.+) ]]; then
+            VERSION="${BASH_REMATCH[1]}"
+        elif [[ '${{ github.ref }}' =~ 'remotes/pull/'([0-9]+)'/merge' ]]; then
+            VERSION="pr${BASH_REMATCH[1]}"
         else
             VERSION="$(git describe --all --contains)-ci${{ github.run_number }}-$(git rev-parse --short HEAD)"
         fi
@@ -106,7 +116,7 @@ jobs:
         echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
               -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }}" \
             >>$GITHUB_ENV
-        if [ "${{ matrix.composition }}" == 'package' ]; then
+        if [[ '${{ matrix.composition }}' == 'package' ]]; then
             mkdir package
         fi
 
@@ -123,7 +133,7 @@ jobs:
         cmake -S . -B build $CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=~/.local \
               -DQTKEYCHAIN_STATIC=${{ matrix.composition != 'dynamic' }}
         cmake --build build --target install
-        if [ ${{ matrix.composition }} == 'dynamic' ]; then
+        if [[ '${{ matrix.composition }}' == 'dynamic' ]]; then
             QTKEYCHAIN_SO_PATH=$(dirname $(find ~/.local/lib* -name libqt5keychain.so))
             test -n "$QTKEYCHAIN_SO_PATH"
             echo "DEP_SO_PATH=$QTKEYCHAIN_SO_PATH" >>$GITHUB_ENV
@@ -136,7 +146,7 @@ jobs:
         cd libQuotient
         cmake -S . -B build $CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=~/.local
         cmake --build build --target install
-        if [ ${{ matrix.composition }} == 'dynamic' ]; then
+        if [[ '${{ matrix.composition }}' == 'dynamic' ]]; then
             QUOTIENT_SO_PATH=$(dirname $(find ~/.local/lib* -name libQuotient.so))
             test -n "$QUOTIENT_SO_PATH"
             echo "DEP_SO_PATH=$DEP_SO_PATH:$QUOTIENT_SO_PATH" >>$GITHUB_ENV
@@ -144,7 +154,7 @@ jobs:
 
     - name: Configure Quaternion
       run: |
-        if [ "${{ runner.os }}" == "Windows" ]; then
+        if [[ '${{ runner.os }}' == 'Windows' ]]; then
             # DESTDIR doesn't work (and is not necessary) on Windows, see
             # https://cmake.org/cmake/help/latest/envvar/DESTDIR.html
             # NB: Using ${{ runner.temp }} (or any absolute path?) for install
