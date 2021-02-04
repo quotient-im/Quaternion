@@ -456,7 +456,7 @@ void ChatRoomWidget::sendFile()
     m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
 }
 
-void ChatRoomWidget::sendMessage(const QString text, int textType)
+void ChatRoomWidget::sendMessage(const QString& text, int textType)
 {
     auto plainText = QTextDocumentFragment::fromHtml(text).toPlainText();
     bool sendHtml;
@@ -484,17 +484,17 @@ void ChatRoomWidget::sendMessage(const QString text, int textType)
     if (inputMode == RichReply) {
         using namespace Quotient;
         // generate quote in html
-        auto referredEventId = inputReference.data(MessageEventModel::EventIdRole).toString();
-        QString evtLink = "https://matrix.to/#/" + m_currentRoom->id() + "/" + referredEventId;
-        auto authorUser = inputReference.data(MessageEventModel::AuthorRole).value<User*>();
-        QString authorName = authorUser->displayname(m_currentRoom);
-        QString authorLink = Uri(authorUser->id()).toUrl(Uri::MatrixToUri).toString();
-        QString citation = inputReference.data().toString().remove(QRegExp("<mx-reply>.*</mx-reply>"));
-        auto htmlQuote = QStringLiteral(
+        const auto referredEventId = inputReference.data(MessageEventModel::EventIdRole).toString();
+        const QString evtLink = "https://matrix.to/#/" + m_currentRoom->id() + "/" + referredEventId;
+        const auto authorUser = inputReference.data(MessageEventModel::AuthorRole).value<User*>();
+        const QString authorName = authorUser->displayname(m_currentRoom);
+        const QString authorLink = Uri(authorUser->id()).toUrl(Uri::MatrixToUri).toString();
+        const QString citation = inputReference.data().toString().remove(QRegExp("<mx-reply>.*</mx-reply>"));
+        const auto htmlQuote = QStringLiteral(
             "<mx-reply><blockquote><a href=\"%1\">In reply to</a> <a href=\"%2\">%3</a><br />%4</blockquote></mx-reply>"
         ).arg(evtLink, authorLink, authorName, citation);
         // derive plain text fallback
-        auto plainTextQuote = QLocale().quoteString(QTextDocumentFragment::fromHtml(citation).toPlainText()) + "\n";
+        const auto plainTextQuote = QLocale().quoteString(QTextDocumentFragment::fromHtml(citation).toPlainText()) + "\n";
 
         m_currentRoom->postEvent(
             new RoomMessageEvent(plainTextQuote + plainText, MessageEventType::Text,
@@ -924,7 +924,7 @@ void ChatRoomWidget::clearReferringInputMode()
     m_referringInputIndicator->hide();
 }
 
-void ChatRoomWidget::setReferringInputMode(const int newInputMode, const int referredIndex, const char *icon_name)
+void ChatRoomWidget::setReferringInputMode(const int newInputMode, const int referredIndex, const QString& icon_name)
 {
     Q_ASSERT( newInputMode == RichReply );
     inputMode = newInputMode;

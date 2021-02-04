@@ -151,11 +151,11 @@ class ChatRoomWidget: public QWidget
         QString selectedText;
 
         void clearReferringInputMode();
-        void setReferringInputMode(const int newInputMode, const int referredIndex, const char *icon_name);
+        void setReferringInputMode(const int newInputMode, const int referredIndex, const QString& icon_name);
 
         void reStartShownTimer();
         void sendFile();
-        void sendMessage(const QString text, int textType = Default);
+        void sendMessage(const QString& text, int textType = Default);
         [[nodiscard]] QString sendCommand(const QStringRef& command,
                                           const QString& argString);
 
