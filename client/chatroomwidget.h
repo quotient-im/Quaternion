@@ -50,18 +50,6 @@ class QTemporaryFile;
 
 class ChatRoomWidget: public QWidget
 {
-        enum InputModes {
-            Simple,
-            RichReply,
-        };
-
-        enum TextTypes {
-            Default,
-            Plain,
-            Html,
-            Markdown,
-        };
-
         Q_OBJECT
     public:
         using completions_t = ChatEdit::completions_t;
@@ -118,6 +106,18 @@ class ChatRoomWidget: public QWidget
                         const QStringList& plainTextNames = {});
 
     private:
+        enum InputModes {
+            Simple,
+            RichReply,
+        };
+
+        enum TextTypes {
+            Default,
+            Plain,
+            Html,
+            Markdown,
+        };
+
         // Data
         MessageEventModel* m_messageModel;
         QuaternionRoom* m_currentRoom;
