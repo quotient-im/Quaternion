@@ -490,7 +490,7 @@ void ChatRoomWidget::sendMessage(const QString& text, int textType)
         const auto htmlQuote = QStringLiteral(
             "<mx-reply><blockquote><a href=\"%1\">In reply to</a> <a href=\"%2\">%3</a><br />%4</blockquote></mx-reply>"
         ).arg(
-            "https://matrix.to/#/" + m_currentRoom->id() + "/" + referredEventId,
+            Uri(m_currentRoom->id().toUtf8(), referredEventId.toUtf8()).toUrl(Uri::MatrixToUri).toString(),
             Uri(authorUser->id()).toUrl(Uri::MatrixToUri).toString(),
             authorUser->displayname(m_currentRoom),
             citation
