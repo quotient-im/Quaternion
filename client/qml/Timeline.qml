@@ -147,6 +147,7 @@ Rectangle {
                 width: parent.width
                 height: Math.min(topicText.contentHeight,
                                  room ? root.height / 5 : 0)
+                clip: true
 
                 ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
                 ScrollBar.vertical.policy: ScrollBar.AsNeeded
