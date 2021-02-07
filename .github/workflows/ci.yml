@@ -184,7 +184,9 @@ jobs:
       if: startsWith(matrix.os, 'macos') && matrix.composition == 'package'
       run: |
         cmake --build build --target image
-        mv build/quaternion.dmg package/quaternion-$VERSION.dmg
+        PACKAGE_PATH=package/quaternion-$VERSION.dmg
+        mv build/quaternion.dmg $PACKAGE_PATH
+        find $PACKAGE_PATH -size +10M && echo "PACKAGE_PATH=$PACKAGE_PATH" >>$GITHUB_ENV
 
     - name: Make AppImage (Linux)
       if: startsWith(matrix.os, 'ubuntu') && matrix.composition == 'package'
@@ -196,17 +198,20 @@ jobs:
                 https://github.com/linuxdeploy/$f/releases/download/continuous/$f-x86_64.AppImage
             chmod +x linuxdeploy/$f-x86_64.AppImage
         done
-        LD_LIBRARY_PATH=$Qt5_DIR/lib QMAKE=$Qt5_DIR/bin/qmake \
-            OUTPUT=package/quaternion-$VERSION.AppImage \
+        PACKAGE_PATH=package/quaternion-$VERSION.AppImage
+        LD_LIBRARY_PATH=$Qt5_DIR/lib QMAKE=$Qt5_DIR/bin/qmake OUTPUT=$PACKAGE_PATH \
             linuxdeploy/linuxdeploy-x86_64.AppImage --appdir $DESTDIR --plugin qt --output appimage
+        find $PACKAGE_PATH -size +10M && echo "PACKAGE_PATH=$PACKAGE_PATH" >>$GITHUB_ENV
 
     - name: Archive the install tree (Windows)
       if: startsWith(matrix.os, 'windows')
       run: |
         rm -rf $INSTALL_PATH/{bearer,qmltooling}
         ls -l $INSTALL_PATH/quaternion.exe # Fail if it's not there
-        7z a package/quaternion-$VERSION-$Platform.zip $INSTALL_PATH
-
+        PACKAGE_PATH=package/quaternion-$VERSION-$Platform.zip
+        7z a $PACKAGE_PATH $INSTALL_PATH
+        find $PACKAGE_PATH -size +10M && echo "PACKAGE_PATH=$PACKAGE_PATH" >>$GITHUB_ENV
+        
     - name: Upload artefacts to Bintray (interim builds)
       if: matrix.composition == 'package' && !startsWith(github.ref, 'refs/tags') # Tags will go to GitHub Releases
       uses: reznikmm/upload-bintray-action@v4
@@ -216,9 +221,27 @@ jobs:
         repository: ci
         package: Quaternion
         version: ci${{ github.run_number }}
-        sourcePath: 'package/quaternion-*'
+        sourcePath: '${{ env.PACKAGE_PATH }}'
         override: 1
-        apiKey: ${{ secrets.BINTRAY_API_KEY }}
+        apiKey: '${{ secrets.BINTRAY_API_KEY }}'
+
+    - name: Upload artefacts to Cloudsmith (interim builds)
+      if: matrix.composition == 'package' && !startsWith(github.ref, 'refs/tags') # Tags will go to GitHub Releases
+      uses: cloudsmith-io/action@v0.5.1
+      with:
+        api-key: '${{ secrets.CLOUDSMITH_API_KEY }}'
+        format: raw
+        owner: quotient
+        repo: quaternion
+        file: '${{ env.PACKAGE_PATH }}'
+        name: Quaternion (CI)
+        summary: CI builds of Quaternion
+        description: |
+          Quaternion is a Qt5-based Matrix client application (see https://github.com/quotient-im/Quaternion).
+          The builds uploaded here at Cloudsmith are produced by the continuous integration and
+          only intended for testing, not for production usage. No workability guarantees whatsoever.
+        version: '${{ env.VERSION }}'
+        republish: true
 
     - name: Upload artefacts to GitHub Releases (tag builds)
       if: matrix.composition == 'package' && startsWith(github.ref, 'refs/tags')
