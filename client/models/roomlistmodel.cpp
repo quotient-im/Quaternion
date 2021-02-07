@@ -371,6 +371,15 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         if (role == Qt::BackgroundRole)
             return QGuiApplication::palette()
                    .brush(QPalette::Active, QPalette::Button);
+
+        if (role == HighlightCountRole) {
+            int highlightCount = 0;
+            for (auto &r: m_roomGroups[index.row()].rooms)
+                highlightCount += r->highlightCount();
+
+            return highlightCount;
+        }
+
         return {};
     }
 
