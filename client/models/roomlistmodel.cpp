@@ -354,14 +354,32 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
 
     if (isValidGroupIndex(index))
     {
-        if (role == Qt::DisplayRole)
-            return m_roomOrder->groupLabel(m_roomGroups[index.row()]);
+        if (role == Qt::DisplayRole) {
+            int unreadRoomsCount = 0;
+            for (auto &r: m_roomGroups[index.row()].rooms)
+                unreadRoomsCount += r->unreadCount() != -1;
+
+            const auto postfix = unreadRoomsCount
+                ? QStringLiteral(" [%1]").arg(unreadRoomsCount) : QString();
+
+            return m_roomOrder->groupLabel(m_roomGroups[index.row()]).toString()
+                + postfix;
+        }
 
         // It would be more proper to do it in RoomListItemDelegate
         // (see roomlistdock.cpp) but I (@kitsune) couldn't find a working way.
         if (role == Qt::BackgroundRole)
             return QGuiApplication::palette()
                    .brush(QPalette::Active, QPalette::Button);
+
+        if (role == HighlightCountRole) {
+            int highlightCount = 0;
+            for (auto &r: m_roomGroups[index.row()].rooms)
+                highlightCount += r->highlightCount();
+
+            return highlightCount;
+        }
+
         return {};
     }
 
@@ -545,6 +563,8 @@ void RoomListModel::refresh(Room* room, const QVector<int>& roles)
     // The problem here is that the change might cause the room to change
     // its groups. Assume for now that such changes are processed elsewhere
     // where details about the change are available (e.g. in tagsChanged).
-    visitRoom(*room,
-        [this,&roles] (QModelIndex idx) { emit dataChanged(idx, idx, roles); });
+    visitRoom(*room, [this,&roles] (QModelIndex idx) {
+        emit dataChanged(idx, idx, roles);
+        emit dataChanged(idx.parent(), idx.parent(), roles);
+    });
 }
