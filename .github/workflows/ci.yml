@@ -94,15 +94,9 @@ jobs:
       if: ${{ !startsWith(matrix.os, 'ubuntu') }}
       uses: seanmiddleditch/gha-setup-ninja@v3
 
-    - name: Setup environment
+    - &SETUP_VERSION
+      name: Setup version string
       run: |
-        if [[ '${{ matrix.compiler }}' == 'GCC' ]]; then
-            echo "CC=gcc" >>$GITHUB_ENV
-            echo "CXX=g++" >>$GITHUB_ENV
-        elif [[ '${{ matrix.compiler }}' == 'Clang' ]]; then
-            echo "CC=clang" >>$GITHUB_ENV
-            echo "CXX=clang++" >>$GITHUB_ENV
-        fi
         if [[ '${{ github.ref }}' == 'refs/heads/master' ]]; then
             VERSION="ci${{ github.run_number }}-$(git rev-parse --short HEAD)"
         elif [[ '${{ github.ref }}' =~ 'refs/tags/'(.+) ]]; then
@@ -113,6 +107,16 @@ jobs:
             VERSION="$(git describe --all --contains)-ci${{ github.run_number }}-$(git rev-parse --short HEAD)"
         fi
         echo "VERSION=$VERSION" >>$GITHUB_ENV
+
+    - name: Setup environment
+      run: |
+        if [[ '${{ matrix.compiler }}' == 'GCC' ]]; then
+            echo "CC=gcc" >>$GITHUB_ENV
+            echo "CXX=g++" >>$GITHUB_ENV
+        elif [[ '${{ matrix.compiler }}' == 'Clang' ]]; then
+            echo "CC=clang" >>$GITHUB_ENV
+            echo "CXX=clang++" >>$GITHUB_ENV
+        fi
         echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
               -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }}" \
             >>$GITHUB_ENV
@@ -198,22 +202,50 @@ jobs:
                 https://github.com/linuxdeploy/$f/releases/download/continuous/$f-x86_64.AppImage
             chmod +x linuxdeploy/$f-x86_64.AppImage
         done
-        PACKAGE_PATH=package/quaternion-$VERSION.AppImage
-        LD_LIBRARY_PATH=$Qt5_DIR/lib QMAKE=$Qt5_DIR/bin/qmake OUTPUT=$PACKAGE_PATH \
+        PACKAGE_NAME=quaternion-$VERSION.AppImage
+        LD_LIBRARY_PATH=$Qt5_DIR/lib QMAKE=$Qt5_DIR/bin/qmake OUTPUT=package/$PACKAGE_NAME \
             linuxdeploy/linuxdeploy-x86_64.AppImage --appdir $DESTDIR --plugin qt --output appimage
-        find $PACKAGE_PATH -size +10M && echo "PACKAGE_PATH=$PACKAGE_PATH" >>$GITHUB_ENV
+        find package/$PACKAGE_NAME -size +10M && echo "PACKAGE_NAME=$PACKAGE_NAME" >>$GITHUB_ENV
 
     - name: Archive the install tree (Windows)
       if: startsWith(matrix.os, 'windows')
       run: |
         rm -rf $INSTALL_PATH/{bearer,qmltooling}
         ls -l $INSTALL_PATH/quaternion.exe # Fail if it's not there
-        PACKAGE_PATH=package/quaternion-$VERSION-$Platform.zip
-        7z a $PACKAGE_PATH $INSTALL_PATH
-        find $PACKAGE_PATH -size +10M && echo "PACKAGE_PATH=$PACKAGE_PATH" >>$GITHUB_ENV
-        
+        PACKAGE_NAME=quaternion-$VERSION-${{ matrix.qt-arch }}.zip
+        7z a package/$PACKAGE_NAME $INSTALL_PATH
+        find package/$PACKAGE_NAME -size +10M && echo "PACKAGE_NAME=$PACKAGE_NAME" >>$GITHUB_ENV
+
+    - name: Upload artefacts
+      if: matrix.composition == 'package'
+      uses: actions/upload-artifact@v2
+      with:
+        name: '${{ env.PACKAGE_NAME }}'
+        path: package/${{ env.PACKAGE_NAME }}
+        retention-days: 7
+
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: CI
+    strategy:
+      fail-fast: false
+      matrix:
+        artefact-type: [ .dmg, .AppImage, -win32_msvc2017.zip, -win64_msvc2017_64.zip ]
+
+    steps:
+    - *SETUP_VERSION
+
+    - run: |
+        echo "PACKAGE_NAME=quaternion-$VERSION${{ matrix.artefact-type }}" >>$GITHUB_ENV
+
+    - name: Download artefact
+      uses: actions/download-artifact@v2
+      with:
+        name: ${{ env.PACKAGE_NAME}}
+
     - name: Upload artefacts to Bintray (interim builds)
-      if: matrix.composition == 'package' && !startsWith(github.ref, 'refs/tags') # Tags will go to GitHub Releases
+      if: ${{ !startsWith(github.ref, 'refs/tags') }} # Tags will go to GitHub Releases
       uses: reznikmm/upload-bintray-action@v4
       with:
         username: kitsune
@@ -221,20 +253,20 @@ jobs:
         repository: ci
         package: Quaternion
         version: ci${{ github.run_number }}
-        sourcePath: '${{ env.PACKAGE_PATH }}'
+        sourcePath: ${{ env.PACKAGE_NAME }}
         override: 1
         apiKey: '${{ secrets.BINTRAY_API_KEY }}'
 
     - name: Upload artefacts to Cloudsmith (interim builds)
-      if: matrix.composition == 'package' && !startsWith(github.ref, 'refs/tags') # Tags will go to GitHub Releases
+      if: ${{ !startsWith(github.ref, 'refs/tags') }} # Tags will go to GitHub Releases
       uses: cloudsmith-io/action@v0.5.1
       with:
         api-key: '${{ secrets.CLOUDSMITH_API_KEY }}'
         format: raw
         owner: quotient
         repo: quaternion
-        file: '${{ env.PACKAGE_PATH }}'
-        name: Quaternion (CI)
+        file: ${{ env.PACKAGE_NAME }}
+        name: Quaternion
         summary: CI builds of Quaternion
         description: |
           Quaternion is a Qt5-based Matrix client application (see https://github.com/quotient-im/Quaternion).
@@ -243,12 +275,12 @@ jobs:
         version: '${{ env.VERSION }}'
         republish: true
 
-    - name: Upload artefacts to GitHub Releases (tag builds)
-      if: matrix.composition == 'package' && startsWith(github.ref, 'refs/tags')
+    - name: Upload artefact to GitHub Releases (tag builds)
+      if: startsWith(github.ref, 'refs/tags')
       uses: ncipollo/release-action@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        artifacts: "package/*"
+        artifacts: ${{ env.PACKAGE_NAME }}
         allowUpdates: true
         omitNameDuringUpdate: true
         omitBodyDuringUpdate: true
