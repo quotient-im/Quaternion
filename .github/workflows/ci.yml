@@ -22,18 +22,20 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.generate.outputs.version }}
+      reftype: ${{ steps.generate.outputs.reftype }}
     steps:
     - id: generate
       run: |
-        IFS=/ read -r ignored type name merge <<<'${{ github.ref }}' # refs/type/name/merge
+        IFS=/ read -r ign type name merge <<<'${{ github.ref }}' # leading refs is (ign)ored
         case $type in
             heads) VERSION="${name:+$name-}ci${{ github.run_number }}" ;;
             pull) VERSION="merge$name" ;;
             tags) VERSION="$name" ;;
             *) VERSION='ci{{ github.run_number }}'
         esac
-        echo "Version string: $VERSION"
+        echo "Version string: $VERSION, ref type $type"
         echo "::set-output name=version::$VERSION"
+        echo "::set-output name=reftype::$type"
 
 
   Build:
@@ -237,15 +239,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        artefact-type: [ .dmg, .AppImage, -win32_msvc2017.zip, -win64_msvc2017_64.zip ]
+        include:
+        - package-name: macOS
+          artefact-type: '.dmg'
+        - package-name: Linux
+          artefact-type: '.AppImage'
+        - package-name: Windows_32bit
+          artefact-type: '-win32_msvc2017.zip'
+        - package-name: Windows_64bit
+          artefact-type: '-win64_msvc2017_64.zip'
     env:
-      PACKAGE_NAME: quaternion-${{ needs.Prepare.outputs.version }}${{ matrix.artefact-type }}
+      FILE_NAME: quaternion-${{ needs.Prepare.outputs.version }}${{ matrix.artefact-type }}
 
     steps:
     - name: Retrieve artefacts
       uses: actions/download-artifact@v2
       with:
-        name: ${{ env.PACKAGE_NAME}}
+        name: ${{ env.FILE_NAME}}
 
     - name: Upload artefacts to Bintray (interim builds)
       if: ${{ !startsWith(github.ref, 'refs/tags') }} # Tags will go to GitHub Releases
@@ -261,29 +271,28 @@ jobs:
         apiKey: '${{ secrets.BINTRAY_API_KEY }}'
 
     - name: Upload artefacts to Cloudsmith (interim builds)
-      if: ${{ !startsWith(github.ref, 'refs/tags') }} # Tags will go to GitHub Releases
+      if: needs.Prepare.outputs.reftype != 'tags' # Tags will go to GitHub Releases
       uses: cloudsmith-io/action@v0.5.1
       with:
         api-key: '${{ secrets.CLOUDSMITH_API_KEY }}'
         format: raw
         owner: quotient
         repo: quaternion
-        file: ${{ env.PACKAGE_NAME }}
-        name: Quaternion
-        summary: CI builds of Quaternion
+        file: ${{ env.FILE_NAME }}
+        name: ${{ matrix.package-name }}
+        summary: CI builds of Quaternion, ${{ matrix.package-name }}
         description: |
-          Quaternion is a Qt5-based Matrix client application (see https://github.com/quotient-im/Quaternion).
-          The builds uploaded here at Cloudsmith are produced by the continuous integration and
-          only intended for testing, not for production usage. No workability guarantees whatsoever.
+          The builds produced by the continuous integration; only intended for testing,
+          not for production usage. No workability guarantees whatsoever.
         version: '${{ needs.Prepare.outputs.version }}'
         republish: true
 
     - name: Upload artefact to GitHub Releases (tag builds)
-      if: startsWith(github.ref, 'refs/tags')
+      if: needs.Prepare.outputs.reftype == 'tags'
       uses: ncipollo/release-action@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        artifacts: ${{ env.PACKAGE_NAME }}
+        artifacts: ${{ env.FILE_NAME }}
         allowUpdates: true
         omitNameDuringUpdate: true
         omitBodyDuringUpdate: true
