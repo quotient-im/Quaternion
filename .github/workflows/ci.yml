@@ -25,15 +25,13 @@ jobs:
     steps:
     - id: generate
       run: |
-        if [[ '${{ github.ref }}' == 'refs/heads/master' ]]; then
-            VERSION="ci${{ github.run_number }}-$(git rev-parse --short HEAD)"
-        elif [[ '${{ github.ref }}' =~ 'refs/tags/'(.+) ]]; then
-            VERSION="${BASH_REMATCH[1]}"
-        elif [[ '${{ github.ref }}' =~ 'refs/pull/'([0-9]+)'/merge' ]]; then
-            VERSION="pr${BASH_REMATCH[1]}"
-        else
-            VERSION="$(git describe --all --contains)-ci${{ github.run_number }}-$(git rev-parse --short HEAD)"
-        fi
+        IFS=/ read -r ignored type name merge <<<'${{ github.ref }}' # refs/type/name/merge
+        case $type in
+            heads) VERSION="${name:+$name-}ci${{ github.run_number }}" ;;
+            pull) VERSION="merge$name" ;;
+            tags) VERSION="$name" ;;
+            *) VERSION='ci{{ github.run_number }}'
+        esac
         echo "Version string: $VERSION"
         echo "::set-output name=version::$VERSION"
 
