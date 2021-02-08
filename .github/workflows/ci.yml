@@ -257,19 +257,6 @@ jobs:
       with:
         name: ${{ env.FILE_NAME}}
 
-    - name: Upload artefacts to Bintray (interim builds)
-      if: ${{ !startsWith(github.ref, 'refs/tags') }} # Tags will go to GitHub Releases
-      uses: reznikmm/upload-bintray-action@v4
-      with:
-        username: kitsune
-        subject: quotient
-        repository: ci
-        package: Quaternion
-        version: ci${{ github.run_number }}
-        sourcePath: ${{ env.PACKAGE_NAME }}
-        override: 1
-        apiKey: '${{ secrets.BINTRAY_API_KEY }}'
-
     - name: Upload artefacts to Cloudsmith (interim builds)
       if: needs.Prepare.outputs.reftype != 'tags' # Tags will go to GitHub Releases
       uses: cloudsmith-io/action@v0.5.1
