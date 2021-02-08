@@ -18,8 +18,29 @@ defaults:
 #   quotes or even absense of any are enough '${{ }}' (but see above re if's)
 
 jobs:
-  CI:
+  Prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.generate.outputs.version }}
+    steps:
+    - id: generate
+      run: |
+        if [[ '${{ github.ref }}' == 'refs/heads/master' ]]; then
+            VERSION="ci${{ github.run_number }}-$(git rev-parse --short HEAD)"
+        elif [[ '${{ github.ref }}' =~ 'refs/tags/'(.+) ]]; then
+            VERSION="${BASH_REMATCH[1]}"
+        elif [[ '${{ github.ref }}' =~ 'refs/pull/'([0-9]+)'/merge' ]]; then
+            VERSION="pr${BASH_REMATCH[1]}"
+        else
+            VERSION="$(git describe --all --contains)-ci${{ github.run_number }}-$(git rev-parse --short HEAD)"
+        fi
+        echo "Version string: $VERSION"
+        echo "::set-output name=version::$VERSION"
+
+
+  Build:
     runs-on: ${{ matrix.os }}
+    needs: Prepare
     strategy:
       fail-fast: false
       matrix:
@@ -61,6 +82,7 @@ jobs:
       # Use | below to skip on escaping all the backslashes
       VCVARS_BAT: |
           C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
+      VERSION: ${{ needs.Prepare.outputs.version }}
 
     steps:
     - uses: actions/checkout@v2
@@ -93,20 +115,6 @@ jobs:
     - name: Install Ninja (macOS/Windows)
       if: ${{ !startsWith(matrix.os, 'ubuntu') }}
       uses: seanmiddleditch/gha-setup-ninja@v3
-
-    - &SETUP_VERSION
-      name: Setup version string
-      run: |
-        if [[ '${{ github.ref }}' == 'refs/heads/master' ]]; then
-            VERSION="ci${{ github.run_number }}-$(git rev-parse --short HEAD)"
-        elif [[ '${{ github.ref }}' =~ 'refs/tags/'(.+) ]]; then
-            VERSION="${BASH_REMATCH[1]}"
-        elif [[ '${{ github.ref }}' =~ 'refs/pull/'([0-9]+)'/merge' ]]; then
-            VERSION="pr${BASH_REMATCH[1]}"
-        else
-            VERSION="$(git describe --all --contains)-ci${{ github.run_number }}-$(git rev-parse --short HEAD)"
-        fi
-        echo "VERSION=$VERSION" >>$GITHUB_ENV
 
     - name: Setup environment
       run: |
@@ -188,9 +196,9 @@ jobs:
       if: startsWith(matrix.os, 'macos') && matrix.composition == 'package'
       run: |
         cmake --build build --target image
-        PACKAGE_PATH=package/quaternion-$VERSION.dmg
-        mv build/quaternion.dmg $PACKAGE_PATH
-        find $PACKAGE_PATH -size +10M && echo "PACKAGE_PATH=$PACKAGE_PATH" >>$GITHUB_ENV
+        PACKAGE_NAME=quaternion-$VERSION.dmg
+        mv build/quaternion.dmg package/$PACKAGE_NAME
+        find package/$PACKAGE_NAME -size +10M && echo "PACKAGE_NAME=$PACKAGE_NAME" >>$GITHUB_ENV
 
     - name: Make AppImage (Linux)
       if: startsWith(matrix.os, 'ubuntu') && matrix.composition == 'package'
@@ -216,30 +224,27 @@ jobs:
         7z a package/$PACKAGE_NAME $INSTALL_PATH
         find package/$PACKAGE_NAME -size +10M && echo "PACKAGE_NAME=$PACKAGE_NAME" >>$GITHUB_ENV
 
-    - name: Upload artefacts
+    - name: Store artefacts
       if: matrix.composition == 'package'
       uses: actions/upload-artifact@v2
       with:
         name: '${{ env.PACKAGE_NAME }}'
-        path: package/${{ env.PACKAGE_NAME }}
+        path: package/*
         retention-days: 7
 
 
-  publish:
+  Publish:
     runs-on: ubuntu-latest
-    needs: CI
+    needs: [ Prepare, Build ]
     strategy:
       fail-fast: false
       matrix:
         artefact-type: [ .dmg, .AppImage, -win32_msvc2017.zip, -win64_msvc2017_64.zip ]
+    env:
+      PACKAGE_NAME: quaternion-${{ needs.Prepare.outputs.version }}${{ matrix.artefact-type }}
 
     steps:
-    - *SETUP_VERSION
-
-    - run: |
-        echo "PACKAGE_NAME=quaternion-$VERSION${{ matrix.artefact-type }}" >>$GITHUB_ENV
-
-    - name: Download artefact
+    - name: Retrieve artefacts
       uses: actions/download-artifact@v2
       with:
         name: ${{ env.PACKAGE_NAME}}
@@ -272,7 +277,7 @@ jobs:
           Quaternion is a Qt5-based Matrix client application (see https://github.com/quotient-im/Quaternion).
           The builds uploaded here at Cloudsmith are produced by the continuous integration and
           only intended for testing, not for production usage. No workability guarantees whatsoever.
-        version: '${{ env.VERSION }}'
+        version: '${{ needs.Prepare.outputs.version }}'
         republish: true
 
     - name: Upload artefact to GitHub Releases (tag builds)
