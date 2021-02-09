@@ -8,7 +8,8 @@
 [![](https://img.shields.io/matrix/quotient:matrix.org.svg)](https://matrix.to/#/#quotient:matrix.org)
 [![](https://img.shields.io/cii/percentage/1663.svg?label=CII%20best%20practices)](https://bestpractices.coreinfrastructure.org/projects/1663/badge)
 [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/quotient-im/Quaternion.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/quotient-im/Quaternion/context:cpp)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![CI builds hosted by: Cloudsmith](https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&style=flat-square)](https://cloudsmith.com)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 Quaternion is a cross-platform desktop IM client for the [Matrix](https://matrix.org) protocol. This file contains general information about application usage and settings. See [BUILDING.md](./BUILDING.md) for building instructions.
 
@@ -17,29 +18,62 @@ Most of talking around Quaternion happens in the room of its parent project,
 Quotient: [#quotient:matrix.org](https://matrix.to/#/#quotient:matrix.org).
 `#quaternion:matrix.org` currently points to the old version of the Quotient
 room - if you ended up there, just go to the upgraded room instead
-(using Quaternion 0.0.9.4 or later, or Riot).
+(using Quaternion 0.0.9.4 or later, or Element clients).
 
 You can file issues at
 [the project's issue tracker](https://github.com/quotient-im/Quaternion/issues).
-If you find what looks like a security issue, please use instructions
-in SECURITY.md.
+If you find what looks like a security issue, please follow
+[special instructions](./SECURITY.md).
 
 ## Download and install
-The latest release (with links to cross-platform source code archives, as well
-as archived binaries for Windows and macOS) can be found on the
-[GitHub Releases page](https://github.com/quotient-im/Quaternion/releases/latest).
 
-For those who want to run the bleeding edge code, automatic builds from
-continuous integration pipelines can be found in the
-[Quaternion CI repo at bintray](https://bintray.com/quotient/ci/Quaternion/#files).
-All these builds come with fairly recent Qt bundled. Beware: these builds may
-tell you obscenities in your local language, steal your smartphone and
-share your private photos. Jokes aside: unless you are ready for very bad and
-sweeping surprises, do NOT run those. Before you do, make sure you have your
-backups in order.
+The latest release (with links to cross-platform source code archives, as well
+as binaries for major platforms) can be found at the
+[GitHub Releases page](https://github.com/quotient-im/Quaternion/releases).
+
+For GNU/Linux, the recommended way to install Quaternion is via your
+distribution's package manager; most major distributions provide Quaternion
+package in their repos by now. Only use AppImage binaries provided at
+the Releases page if Quaternion is not available from your distribution's
+repos. Distribution-specific packages better integrate into the system
+(particularly, the desktop environment) and include all relevant customisations
+(e.g. themes) and fixes (e.g. security). If you wish to use features depending
+on newer Qt (such as Markdown) than your distribution provides, consider
+installing Quaternion as a
+[Flatpak](https://flathub.org/apps/details/com.github.quaternion).
+Both Flatpak packages and distribution-specific packages are built in a more
+reproducible and controlled way than AppImages assembled within this project;
+unlike AppImages, they are also signed which gives certain protection from
+tampering.
+
+### Development builds
+
+Thanks to generous and supportive folks at [Cloudsmith](https://cloudsmith.io)
+who provide free hosting to OSS projects, those who want to check out the latest
+(not necessarily the greatest, see below) code can find packages produced by
+continuous integration (CI) in the
+[Quaternion repo there](https://cloudsmith.io/~quotient/repos/quaternion/groups/).
+
+A few important notes on these packages in case you're new to them:
+- All these builds come bundled with recent Qt (5.14, as of this writing).
+- They are only provided for testing; do not expect the developers to address
+  issues in any but the latest snapshot but feedback on any release is welcome
+  as long as you know which build you run.
+- In case it's still unclear: these builds are UNSTABLE by default; some may
+  not run at all, and if they do, they may ~~tell you obscenities in your
+  local language, steal your smartphone, and share your private photos~~
+  scramble the messages you send, interfere with or even break other clients
+  including Element ones, and generally corrupt your account in ways unexpected
+  and hard to fix (all of that actually happened in the past). Do NOT run these
+  builds if you're not prepared to deal with the problems.
+- If you understand the above, have your backups in order and are still willing
+  to try things out or just generally help with the project - make sure to
+  `/join #quotient:matrix.org` and have the URL you downloaded handy. In case
+  of trouble, ~~show this label to your doctor~~ provide the URL in the chat
+  room (you may need to use another client or Quaternion version for that),
+  describe what happened and we'll try to pull you out of it.
 
 If you want to build Quaternion from sources, see [BUILDING.md](./BUILDING.md).
-Packagers are still scarce, so please step up and support your favourite system!
 
 ### Requirements
 Quaternion 0.0.95 packages on Linux need Qt version 5.9 or higher;
