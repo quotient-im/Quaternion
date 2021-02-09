@@ -124,6 +124,11 @@ jobs:
         elif [[ '${{ matrix.compiler }}' == 'Clang' ]]; then
             echo "CC=clang" >>$GITHUB_ENV
             echo "CXX=clang++" >>$GITHUB_ENV
+            # Use one of faster variations without own-quotient to do CodeQL analysis
+            # (libQuotient should be analysed in its own repo)
+            if [[ '${{ matrix.composition }}' == 'dynamic' ]]; then
+                echo "CODEQL_ANALYSIS=true" >>$GITHUB_ENV
+            fi
         fi
         echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
               -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }}" \
@@ -164,6 +169,16 @@ jobs:
             echo "DEP_SO_PATH=$DEP_SO_PATH:$QUOTIENT_SO_PATH" >>$GITHUB_ENV
         fi
 
+    - name: Initialize CodeQL tools
+      if: env.CODEQL_ANALYSIS
+      uses: github/codeql-action/init@v1
+      with:
+        languages: cpp
+        # If you wish to specify custom queries, you can do so here or in a config file.
+        # By default, queries listed here will override any specified in a config file.
+        # Prefix the list here with "+" to use these queries and those in the config file.
+        # queries: ./path/to/local/query, your-org/your-repo/queries@main
+
     - name: Configure Quaternion
       run: |
         if [[ '${{ runner.os }}' == 'Windows' ]]; then
@@ -184,6 +199,10 @@ jobs:
 
     - name: Build and install Quaternion
       run: cmake --build build --target install
+
+    - name: Perform CodeQL analysis
+      if: env.CODEQL_ANALYSIS
+      uses: github/codeql-action/analyze@v1
 
     - name: Validate installation (Linux)
       if: startsWith(matrix.os, 'ubuntu')
