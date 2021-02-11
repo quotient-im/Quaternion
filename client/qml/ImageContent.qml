@@ -20,10 +20,6 @@ Attachment {
         source: parent.source
         sourceSize: parent.sourceSize
 
-//        AnimationBehavior on height {
-//            FastNumberAnimation { easing.type: Easing.OutQuad }
-//        }
-
         TimelineMouseArea {
             anchors.fill: parent
             acceptedButtons: Qt.LeftButton

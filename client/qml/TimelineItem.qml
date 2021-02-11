@@ -35,7 +35,6 @@ Item {
     readonly property bool sectionVisible: section !== aboveSection
     readonly property bool authorSectionVisible:
                             sectionVisible || author !== aboveAuthor
-    readonly property bool redacted: marks === EventStatus.Redacted
     readonly property bool replaced: marks === EventStatus.Replaced
     readonly property bool pending: [
                                         EventStatus.Submitted,
@@ -44,11 +43,12 @@ Item {
                                         EventStatus.SendingFailed
                                     ].indexOf(marks) != -1
     readonly property bool failed: marks === EventStatus.SendingFailed
-    readonly property bool eventWithTextPart: ["message", "emote", "image", "file"].indexOf(eventType) >= 0
-    /*readonly*/ property string textColor:
+    readonly property bool eventWithTextPart:
+        ["message", "emote", "image", "file"].indexOf(eventType) >= 0
+    /* readonly but animated */ property string textColor:
         marks === EventStatus.Submitted || failed ? defaultPalette.mid :
         marks === EventStatus.Departed ? disabledPalette.text :
-        redacted ? disabledPalette.text :
+        marks === EventStatus.Redacted ? disabledPalette.text :
         (eventWithTextPart && author === room.localUser) ? settings.outgoing_color :
         highlight && settings.highlight_mode == "text" ? settings.highlight_color :
         (["state", "notice", "other"].indexOf(eventType) >= 0) ?
