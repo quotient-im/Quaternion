@@ -98,9 +98,10 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
 {
     // Escape ampersands outside of character entities
     // (HTML tolerates it, XML doesn't)
-    html.replace(QRegularExpression("&(?!(#[0-9]+|#x[0-9a-fA-F]+|[[:alpha:]_][-"
-                                    "[:alnum:]_:.]*);)",
-                                    QRegularExpression::CaseInsensitiveOption),
+    html.replace(QRegularExpression("&(?!(#[0-9]+"
+                                        "|#x[0-9a-fA-F]+"
+                                        "|[[:alpha:]_][-[:alnum:]_:.]*"
+                                    ");)"),
                  "&amp;");
     return html;
 }
@@ -503,8 +504,6 @@ void Processor::filterText(QString& textBuffer)
     if (textBuffer.isEmpty())
         return;
 
-    textBuffer = textBuffer.toHtmlEscaped(); // The reader unescaped it
-
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     if (mode.testFlag(ConvertMarkdown)) {
         QTextDocument doc;
@@ -513,6 +512,7 @@ void Processor::filterText(QString& textBuffer)
     } else
 #endif
     {
+        textBuffer = textBuffer.toHtmlEscaped(); // The reader unescaped it
         Quotient::linkifyUrls(textBuffer);
         textBuffer = "<body>" % textBuffer % "</body>";
     }
