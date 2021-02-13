@@ -103,11 +103,13 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
                                         "|[[:alpha:]_][-[:alnum:]_:.]*"
                                     ");)"),
                  "&amp;");
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     // The processor handles Markdown in chunks between HTML tags;
     // <br/> breaks character sequences that are otherwise valid Markdown,
     // leading to issues with, e.g., lists.
     if (mode.testFlag(ConvertMarkdown))
         html.replace("<br />", QStringLiteral("\n"));
+#endif
     return html;
 }
 
