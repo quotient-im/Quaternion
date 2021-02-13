@@ -94,7 +94,7 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
  * the XML reader doesn't choke on trivial things like unclosed `br` or `img`
  * tags and unescaped ampersands in `href` attributes.
  */
-[[nodiscard]] QString preprocess(QString html)
+[[nodiscard]] QString preprocess(QString html, Mode mode = Default)
 {
     // Escape ampersands outside of character entities
     // (HTML tolerates it, XML doesn't)
@@ -103,13 +103,18 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
                                         "|[[:alpha:]_][-[:alnum:]_:.]*"
                                     ");)"),
                  "&amp;");
+    // The processor handles Markdown in chunks between HTML tags;
+    // <br/> breaks character sequences that are otherwise valid Markdown,
+    // leading to issues with, e.g., lists.
+    if (mode.testFlag(ConvertMarkdown))
+        html.replace("<br />", QStringLiteral("\n"));
     return html;
 }
 
 QString qtToMatrix(const QString& qtMarkup, QuaternionRoom* context, Mode mode)
 {
     const auto& result =
-        Processor::process(preprocess(qtMarkup), QtToMatrix, context, mode);
+        Processor::process(preprocess(qtMarkup, mode), QtToMatrix, context, mode);
     Q_ASSERT(result.errorPos == -1);
     return result.filteredHtml;
 }
@@ -119,7 +124,7 @@ Result matrixToQt(const QString& matrixHtml, QuaternionRoom* context,
 {
     auto html = preprocess(matrixHtml);
 
-    // Catch early non-compliant tags, non-tags and minimised attributes
+    // Catch non-compliant tags, non-tags and minimised attributes
     // before they upset the XML parser.
     for (auto pos = html.indexOf('<'); pos != -1; pos = html.indexOf('<', pos)) {
         const auto tagNamePos = pos + 1 + (html[pos + 1] == '/');
