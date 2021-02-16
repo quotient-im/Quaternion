@@ -102,6 +102,13 @@ public Q_SLOTS:
      */
     virtual void switchContext(QObject* contextKey);
 
+    /**
+     * @brief Reset the current character(s) formatting
+     *
+     * This is equivalent to calling `setCurrentCharFormat({})`.
+     */
+    void resetCurrentFormat();
+
 Q_SIGNALS:
     /**
      * A new input has been saved in the history.

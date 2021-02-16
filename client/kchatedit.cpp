@@ -125,7 +125,7 @@ void KChatEdit::KChatEditPrivate::saveInput()
 
     index = history.size() - 1;
     q->clear();
-    q->setCurrentCharFormat({});
+    q->resetCurrentFormat();
 }
 
 KChatEdit::KChatEdit(QWidget *parent)
@@ -191,6 +191,11 @@ void KChatEdit::switchContext(QObject* contextKey)
     setDocument(cachedInput ? cachedInput : d->makeDocument());
     moveCursor(QTextCursor::End);
     emit contextSwitched();
+}
+
+void KChatEdit::resetCurrentFormat()
+{
+    setCurrentCharFormat({});
 }
 
 QSize KChatEdit::minimumSizeHint() const

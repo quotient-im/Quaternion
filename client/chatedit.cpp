@@ -21,15 +21,22 @@
 
 #include "chatroomwidget.h"
 
-#include <util.h>
-
+#include <QtWidgets/QMenu>
+#include <QtWidgets/QShortcut>
 #include <QtGui/QKeyEvent>
 #include <QtCore/QMimeData>
 #include <QtCore/QStringBuilder>
 
+#include <util.h>
+
+static const QKeySequence ResetFormatShortcut("Ctrl+M");
+
 ChatEdit::ChatEdit(ChatRoomWidget* c)
     : KChatEdit(c), chatRoomWidget(c), matchesListPosition(0)
-{ }
+{
+    new QShortcut(ResetFormatShortcut, this,
+                  this, &KChatEdit::resetCurrentFormat);
+}
 
 void ChatEdit::keyPressEvent(QKeyEvent* event)
 {
@@ -41,6 +48,20 @@ void ChatEdit::keyPressEvent(QKeyEvent* event)
 
     cancelCompletion();
     KChatEdit::keyPressEvent(event);
+}
+
+void ChatEdit::contextMenuEvent(QContextMenuEvent *event)
+{
+    auto* menu = createStandardContextMenu();
+    // The shortcut here is in order to show it to the user; it's the QShortcut
+    // in the constructor that actually triggers on Ctrl+M (no idea
+    // why the QAction doesn't work - because it's not in the main menu?)
+    menu->addAction(tr("Reset formatting"),
+                    this, &KChatEdit::resetCurrentFormat, ResetFormatShortcut)
+        ->setStatusTip(
+            tr("Reset the current character formatting to the default"));
+    menu->setAttribute(Qt::WA_DeleteOnClose);
+    menu->popup(event->globalPos());
 }
 
 void ChatEdit::switchContext(QObject* contextKey)

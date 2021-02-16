@@ -69,6 +69,7 @@ class ChatEdit : public KChatEdit
         void appendMentionAt(QTextCursor& cursor, QString mention,
                              QUrl mentionUrl, bool select);
         void keyPressEvent(QKeyEvent* event) override;
+        void contextMenuEvent(QContextMenuEvent* event) override;
 };
 
 
