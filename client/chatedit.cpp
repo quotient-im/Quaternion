@@ -34,8 +34,9 @@ static const QKeySequence ResetFormatShortcut("Ctrl+M");
 ChatEdit::ChatEdit(ChatRoomWidget* c)
     : KChatEdit(c), chatRoomWidget(c), matchesListPosition(0)
 {
-    new QShortcut(ResetFormatShortcut, this,
-                  this, &KChatEdit::resetCurrentFormat);
+    auto* sh = new QShortcut(this);
+    sh->setKey(ResetFormatShortcut);
+    connect(sh, &QShortcut::activated, this, &KChatEdit::resetCurrentFormat);
 }
 
 void ChatEdit::keyPressEvent(QKeyEvent* event)
