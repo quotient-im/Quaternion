@@ -159,7 +159,7 @@ QAction* MainWindow::addTimelineOptionCheckbox(QMenu* parent,
 {
     using Quotient::SettingsGroup;
     auto action =
-        parent->addAction(text,
+        parent->addAction(text, this,
             [this,settingsKey] (bool checked)
             {
                 SettingsGroup("UI").setValue(settingsKey, checked);
@@ -282,7 +282,7 @@ void MainWindow::createMenu()
 
     viewMenu->addSeparator();
 
-    viewMenu->addAction(tr("Edit tags order"), [this]
+    viewMenu->addAction(tr("Edit tags order"), this, [this]
     {
         static const auto SettingsKey = QStringLiteral("tags_order");
         Quotient::SettingsGroup sg { QStringLiteral("UI/RoomsDock") };
@@ -381,15 +381,18 @@ void MainWindow::createMenu()
                                     notifAction->data().toString());
             });
 
+        static const auto MinSetting = QStringLiteral("none");
+        static const auto GentleSetting = QStringLiteral("non-intrusive");
+        static const auto LoudSetting = QStringLiteral("intrusive");
         auto noNotif = notifGroup->addAction(tr("&Highlight only"));
-        noNotif->setData(QStringLiteral("none"));
+        noNotif->setData(MinSetting);
         noNotif->setStatusTip(tr("Notifications are entirely suppressed"));
         auto gentleNotif = notifGroup->addAction(tr("&Non-intrusive"));
-        gentleNotif->setData(QStringLiteral("non-intrusive"));
+        gentleNotif->setData(GentleSetting);
         gentleNotif->setStatusTip(
             tr("Show notifications but do not activate the window"));
         auto fullNotif = notifGroup->addAction(tr("&Full"));
-        fullNotif->setData(QStringLiteral("intrusive"));
+        fullNotif->setData(LoudSetting);
         fullNotif->setStatusTip(
             tr("Show notifications and activate the window"));
 
@@ -402,11 +405,11 @@ void MainWindow::createMenu()
             notifMenu->addAction(a);
         }
 
-        const auto curSetting = Settings().value("UI/notifications",
-                                                 fullNotif->data().toString());
-        if (curSetting == noNotif->data().toString())
+        const auto curSetting =
+                Settings().get("UI/notifications", LoudSetting);
+        if (curSetting == MinSetting)
             noNotif->setChecked(true);
-        else if (curSetting == gentleNotif->data().toString())
+        else if (curSetting == GentleSetting)
             gentleNotif->setChecked(true);
         else
             fullNotif->setChecked(true);
@@ -513,17 +516,11 @@ QByteArray MainWindow::loadAccessToken(const AccountSettings& account)
 {
 #ifdef USE_KEYCHAIN
     if (Settings().value("UI/use_keychain", true).toBool())
-    {
         return loadAccessTokenFromKeyChain(account);
-    }
-    else
-    {
-        qDebug() << "Explicit opt-out from keychain by user setting";
-        return loadAccessTokenFromFile(account);
-    }
-#else
-    return loadAccessTokenFromFile(account);
+
+    qDebug() << "Explicit opt-out from keychain by user setting";
 #endif
+    return loadAccessTokenFromFile(account);
 }
 
 QByteArray MainWindow::loadAccessTokenFromFile(const AccountSettings& account)
@@ -1447,7 +1444,7 @@ void MainWindow::networkError(Connection* c)
     auto timer = new QTimer(this);
     timer->start(1000);
     showMillisToRecon(c);
-    timer->connect(timer, &QTimer::timeout, this, [=] {
+    connect(timer, &QTimer::timeout, this, [this,c,timer] {
         if (c->millisToReconnect() > 0)
             showMillisToRecon(c);
         else
