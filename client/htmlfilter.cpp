@@ -98,17 +98,90 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
 {
     // Escape ampersands outside of character entities
     // (HTML tolerates it, XML doesn't)
+    // clang-format off
     html.replace(QRegularExpression("&(?!(#[0-9]+"
                                         "|#x[0-9a-fA-F]+"
                                         "|[[:alpha:]_][-[:alnum:]_:.]*"
                                     ");)"),
                  "&amp;");
+    // clang-format on
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     // The processor handles Markdown in chunks between HTML tags;
-    // <br/> breaks character sequences that are otherwise valid Markdown,
+    // <br /> breaks character sequences that are otherwise valid Markdown,
     // leading to issues with, e.g., lists.
-    if (mode.testFlag(ConvertMarkdown))
+    if (mode.testFlag(ConvertMarkdown)) {
         html.replace("<br />", QStringLiteral("\n"));
+
+#   if 0
+        // This code intends to merge user-entered Markdown+HTML markup
+        // (HTML-escaped at this point) into HTML exported by QTextDocument.
+        // Unfortunately, Markdown engine of QTextDocument is not dealing well
+        // with ampersands and &-escaped HTML entities inside HTML tags:
+        // see https://bugreports.qt.io/browse/QTBUG-91222
+        // Instead, Processor::runOn() splits segments between HTML tags and
+        // filterText() treats each of them as Markdown individually.
+        QXmlStreamReader reader(html);
+        QString mdWithHtml;
+        QXmlStreamWriter writer(&mdWithHtml);
+        while (reader.readNext() != QXmlStreamReader::StartElement
+               || reader.qualifiedName() != "p")
+            if (reader.atEnd()) {
+                Q_ASSERT_X(false, __FUNCTION__, "Malformed Qt markup");
+                qCritical() << "The text passed to qtToMatrix() doesn't seem"
+                               " to come from QTextDocument";
+                return {};
+            }
+
+        int depth = 1; // Count <p> just entered
+        while (!reader.atEnd()) {
+            // Minimal validation, just pipe things through
+            // decoding what needs decoding
+            const auto tokenType = reader.readNext();
+            switch (tokenType) {
+            case QXmlStreamReader::Characters:
+            case QXmlStreamReader::EntityReference: {
+                auto text = reader.text().toString();
+                if (depth > 1)
+                    break;
+
+                // Flush the writer's buffer before side-writing
+                writer.writeCharacters({});
+                mdWithHtml += text; // Append text as is
+                continue;
+            }
+
+            case QXmlStreamReader::StartElement:
+                ++depth;
+                if (reader.qualifiedName() != "p")
+                    break;
+                // Convert <p> elements except the first one
+                // to Markdown paragraph breaks
+                writer.writeCharacters("\n\n");
+                continue;
+            case QXmlStreamReader::EndElement:
+                --depth;
+                if (reader.qualifiedName() == "p")
+                    continue; // See above in StartElement
+                break;
+            case QXmlStreamReader::Comment:
+                continue; // Just drop comments
+            default:
+                qWarning() << "Unexpected token, type" << tokenType;
+            }
+            if (depth < 0) {
+                Q_ASSERT(tokenType == QXmlStreamReader::EndElement
+                         && reader.qualifiedName() == "body");
+                break;
+            }
+            writer.writeCurrentToken(reader);
+        }
+        writer.writeEndElement();
+        QTextDocument doc;
+        doc.setMarkdown(mdWithHtml);
+        html = doc.toHtml();
+        mode &= ~ConvertMarkdown;
+#   endif
+    }
 #endif
     return html;
 }
@@ -220,7 +293,7 @@ Result matrixToQt(const QString& matrixHtml, QuaternionRoom* context,
 
 void Processor::runOn(const QString &html)
 {
-    QXmlStreamReader reader { html };
+    QXmlStreamReader reader(html);
 
     /// The entry in the (outer) stack corresponds to each level in the source
     /// document; the (inner) stack in each entry records open elements in the
@@ -513,9 +586,30 @@ void Processor::filterText(QString& textBuffer)
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     if (mode.testFlag(ConvertMarkdown)) {
+        // Protect leading/trailing whitespaces (Markdown disregards them);
+        // specific character doesn't matter as long as it isn't a whitespace
+        // itself and doesn't occur in the HTML boilerplate that QTextDocument
+        // generates.
+        static const auto Marker = '$';
+        const bool hasLeadingWhitespace = textBuffer.cbegin()->isSpace();
+        if (hasLeadingWhitespace)
+            textBuffer.prepend(Marker);
+        const bool hasTrailingWhitespace = (textBuffer.cend() - 1)->isSpace();
+        if (hasTrailingWhitespace)
+            textBuffer.append(Marker);
+        int markerCount = textBuffer.count(Marker);
+
+        // Convert Markdown to HTML
         QTextDocument doc;
-        doc.setMarkdown(textBuffer);
+        doc.setMarkdown(textBuffer, QTextDocument::MarkdownNoHTML);
         textBuffer = doc.toHtml();
+
+        // Delete protection characters
+        Q_ASSERT(textBuffer.count(Marker) == markerCount);
+        if (hasLeadingWhitespace)
+            textBuffer.remove(textBuffer.indexOf(Marker), 1);
+        if (hasTrailingWhitespace)
+            textBuffer.remove(textBuffer.lastIndexOf(Marker), 1);
     } else
 #endif
     {
@@ -523,7 +617,8 @@ void Processor::filterText(QString& textBuffer)
         Quotient::linkifyUrls(textBuffer);
         textBuffer = "<body>" % textBuffer % "</body>";
     }
-    // Re-process this piece of text as HTML but dump text snippets as they are
+    // Re-process this piece of text as HTML but dump text snippets as they are,
+    // without recursing into filterText() again
     Processor(direction, InnerHtml, context, writer).runOn(textBuffer);
 
     textBuffer.clear();

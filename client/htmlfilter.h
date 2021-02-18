@@ -42,24 +42,37 @@ public:
     QString errorString {};
 };
 
-/*! \brief Make the passed HTML compliant with Matrix requirements
+/*! \brief Convert user input to Matrix-flavoured HTML
  *
- * This function removes HTML tags disallowed in Matrix; on top of that,
+ * This function takes user input in \p markup and converts it to the Matrix
+ * flavour of HTML. The text in \p markup is treated as-if exported as HTML
+ * from QTextDocument; however, the literal body contents are itself treated
+ * as (HTML-encoded) rich text as well, in assumption that machine-generated
+ * rich text comes on the outer level while the user adds their own markup
+ * on the inner level. The function decodes and merges the two levels of markup
+ * before converting the resulting HTML to its Matrix flavour.
+ *
+ * When compiling with Qt 5.14 or newer, it is possible to pass ConvertMarkdown
+ * in \p mode in order to handle the user's rich text as Markdown using Qt's
+ * QTextDocument implementation. In that case qtToMatrix() will first turn
+ * the Markdown to HTML and then merge it with the outer markup.
+ *
+ * The function removes HTML tags disallowed in Matrix; on top of that,
  * it cleans away extra parts (DTD, `head`, top-level `p`, extra `span`
  * inside hyperlinks etc.) added by Qt when exporting QTextDocument
- * to HTML, and converts some formatting accepted in Matrix to tags
- * attributes allowed by the CS API spec.
+ * to HTML, and converts some formatting that can be represented in Matrix
+ * to tags and attributes allowed by the CS API spec.
  *
  * \note This function assumes well-formed XHTML produced by Qt classes; while
- *       it corrects unescaped ampersands (`&`) it doesn't check for other
- *       HTML errors and only closes tags usually not closed in HTML (`br`,
- *       `hr` and `img`). In case of an error, debug builds will fail
- *       on assertion, release builds will silently stop at the first error
+ *       it corrects unescaped ampersands (`&`) it does not try to turn HTML
+ *       to XHTML, as matrixToQt() does. In case of an error, debug builds will
+ *       fail on assertion, release builds will silently stop processing and
+ *       return what could be processed so far.
  *
  * \sa
  * https://matrix.org/docs/spec/client_server/latest#m-room-message-msgtypes
  */
-QString qtToMatrix(const QString& html, QuaternionRoom* context = nullptr,
+QString qtToMatrix(const QString& markup, QuaternionRoom* context = nullptr,
                    Mode mode = Default);
 
 /*! \brief Make the received HTML with Matrix attributes compatible with Qt
