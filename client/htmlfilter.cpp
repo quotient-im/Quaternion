@@ -334,11 +334,21 @@ void Processor::runOn(const QString &html)
                 }
             }
 
+            const auto& attrs = reader.attributes();
+            if (find_if(attrs.cbegin(), attrs.cend(),
+                        [](const auto& a) {
+                            return a.qualifiedName() == "style"
+                                && a.value()
+                                    .contains("-qt-paragraph-type:empty");
+                }) != attrs.cend()) {
+                reader.skipCurrentElement();
+                continue; // Hidden text block, just skip it
+            }
+
             tagsStack.emplace();
             if (tagsStack.size() > 100)
                 qCritical() << "CS API spec limits HTML tags depth at 100";
 
-            const auto& attrs = reader.attributes();
             if (direction == QtToMatrix) {
                 // Qt hardcodes the link style in a `<span>` under `<a>`.
                 // This breaks the looks on the receiving side if the sender
