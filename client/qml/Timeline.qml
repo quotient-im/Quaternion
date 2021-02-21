@@ -237,7 +237,9 @@ Rectangle {
         anchors.bottom: parent.bottom
         clip: true
         ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
-        ScrollBar.vertical.policy: ScrollBar.AlwaysOn
+        ScrollBar.vertical.policy:
+            settings.use_shuttle_dial ? ScrollBar.AlwaysOff
+                                      : ScrollBar.AsNeeded
         ScrollBar.vertical.interactive: true
         ScrollBar.vertical.active: true
 //        ScrollBar.vertical.background: Item { /* TODO: timeline map */ }
@@ -247,8 +249,7 @@ Rectangle {
 
             model: messageModel
             delegate: TimelineItem {
-                width: chatView.width
-                       - chatScrollView.ScrollBar.vertical.width
+                width: chatView.width - scrollerArea.width
                 view: chatView
                 moving: chatView.moving || shuttleDial.value
                 // #737; the solution found in
@@ -507,15 +508,65 @@ Rectangle {
         }
     }
 
+    // === Timeline map ===
+    // Only used with the shuttle scroller for now
+
+    Rectangle {
+        id: cachedEventsBar
+
+        property int requestedHistoryEventsCount:
+            room && room.eventsHistoryJob
+            ? chatView.lastRequestedEvents : 0
+
+        AnimationBehavior on requestedHistoryEventsCount {
+            NormalNumberAnimation { }
+        }
+
+        property real averageEvtHeight:
+            chatView.count + requestedHistoryEventsCount > 0
+            ? chatView.height
+              / (chatView.count + requestedHistoryEventsCount)
+            : 0
+
+        AnimationBehavior on averageEvtHeight {
+            FastNumberAnimation { }
+        }
+
+        anchors.horizontalCenter: shuttleDial.horizontalCenter
+        anchors.bottom: chatScrollView.bottom
+        anchors.bottomMargin:
+            averageEvtHeight * chatView.bottommostVisibleIndex
+        width: shuttleDial.backgroundWidth / 2
+        height: chatView.bottommostVisibleIndex < 0 ? 0 :
+            averageEvtHeight
+            * (chatView.count - chatView.bottommostVisibleIndex)
+        visible: shuttleDial.visible
+
+        color: defaultPalette.mid
+    }
+    Rectangle {
+        // Loading history events bar, stacked above
+        // the cached events bar when more history has been requested
+        anchors.right: cachedEventsBar.right
+        anchors.top: chatScrollView.top
+        anchors.bottom: cachedEventsBar.top
+        width: cachedEventsBar.width
+        visible: shuttleDial.visible
+
+        opacity: 0.4
+        color: defaultPalette.mid
+    }
+
+    // === Scrolling extensions ===
+
     Slider {
         id: shuttleDial
         orientation: Qt.Vertical
-        height: chatScrollView.height * 0.5
+        height: chatScrollView.height * 0.7
         width: chatScrollView.ScrollBar.vertical.width
-        padding: 4
+        padding: 2
         anchors.right: parent.right
-        anchors.rightMargin: chatScrollView.ScrollBar.vertical.width
-                             + (background.width - width) / 2
+        anchors.rightMargin: (background.width - width) / 2
         anchors.verticalCenter: chatScrollView.verticalCenter
         enabled: settings.use_shuttle_dial
         visible: enabled && chatView.count > 0
@@ -530,21 +581,6 @@ Rectangle {
         background: Item {
             x: shuttleDial.handle.x - shuttleDial.leftPadding
             width: shuttleDial.backgroundWidth
-            Rectangle { // actual background
-                anchors.fill: parent
-                opacity: 0.7
-                color: defaultPalette.window
-                radius: 3
-                border.width: 1
-                border.color: defaultPalette.mid
-            }
-            Rectangle { // handle track
-                y: shuttleDial.topPadding
-                height: shuttleDial.availableHeight
-                anchors.horizontalCenter: springLine.horizontalCenter
-                width: springLine.width
-                color: defaultPalette.mid
-            }
             Rectangle {
                 id: springLine
                 // Rectangles (normally) have (x,y) as their top-left corner.
@@ -554,11 +590,10 @@ Rectangle {
                 height: Math.abs(shuttleDial.deviation)
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: 2
-                opacity: scrollerArea.containsMouse ? 1 : 0.3
                 color: defaultPalette.highlight
             }
         }
-        opacity: scrollerArea.containsMouse ? 1 : 0.5
+        opacity: scrollerArea.containsMouse ? 1 : 0.7
         AnimationBehavior on opacity { FastNumberAnimation { } }
 
         from: -maxValue
@@ -606,8 +641,9 @@ Rectangle {
         anchors.top: chatScrollView.top
         anchors.bottom: chatScrollView.bottom
         anchors.right: parent.right
-        width: chatScrollView.ScrollBar.vertical.width
-                + settings.use_shuttle_dial * shuttleDial.background.width
+        width: settings.use_shuttle_dial
+               ? shuttleDial.backgroundWidth
+               : chatScrollView.ScrollBar.vertical.width
         acceptedButtons: Qt.NoButton
 
         hoverEnabled: true
@@ -638,16 +674,12 @@ Rectangle {
         }
     }
 
-    readonly property real scrollButtonsMargin:
-        scrollerArea.width + (shuttleDial.enabled ? -shuttleDial.width / 2
-                                                  : width / 2)
-
     ScrollToButton {
         id: scrollToBottomButton
 
-        anchors.right: parent.right
+        anchors.right: scrollerArea.left
+        anchors.rightMargin: 2
         anchors.bottom: parent.bottom
-        anchors.rightMargin: scrollButtonsMargin
         anchors.bottomMargin: visible ? 0.5 * height : -height
 
         visible: !chatView.atYEnd
@@ -666,9 +698,9 @@ Rectangle {
     ScrollToButton {
         id: scrollToReaderMarkerButton
 
-        anchors.right: parent.right
+        anchors.right: scrollerArea.left
+        anchors.rightMargin: 2
         anchors.bottom: scrollToBottomButton.top
-        anchors.rightMargin: scrollButtonsMargin
         anchors.bottomMargin: visible ? 0.5 * height : -3 * height
 
         visible: chatView.count > 1 &&
