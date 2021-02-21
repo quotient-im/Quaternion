@@ -239,9 +239,10 @@ Rectangle {
         ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
         ScrollBar.vertical.policy:
             settings.use_shuttle_dial ? ScrollBar.AlwaysOff
-                                      : ScrollBar.AlwaysOn
+                                      : ScrollBar.AsNeeded
         ScrollBar.vertical.interactive: true
         ScrollBar.vertical.active: true
+//        ScrollBar.vertical.background: Item { /* TODO: timeline map */ }
 
         ListView {
             id: chatView
@@ -276,6 +277,9 @@ Rectangle {
                 // 0.03 is just an arbitrary reasonable number
 
             property int lastRequestedEvents: 0
+            readonly property int currentRequestedEvents:
+                room && room.eventsHistoryJob ? lastRequestedEvents : 0
+
             property var textEditWithSelection
             property real readMarkerContentPos: originY
             readonly property real readMarkerViewportPos:
@@ -285,7 +289,8 @@ Rectangle {
 
             function parkReadMarker() {
                 readMarkerContentPos = Qt.binding(function() {
-                    return messageModel.readMarkerVisualIndex > indexAt(contentX, contentY)
+                    return !messageModel || messageModel.readMarkerVisualIndex
+                                             > indexAt(contentX, contentY)
                            ? originY : contentY + contentHeight
                 })
                 console.log("Read marker parked at index",
@@ -405,7 +410,8 @@ Rectangle {
             }
 
             Behavior on contentY {
-                enabled: !chatView.moving && settings.enable_animations
+                enabled: !chatView.moving && !cruisingAnimation.running
+                         && settings.enable_animations
                 SmoothedAnimation {
                     id: scrollAnimation
                     // It would mislead the benchmark below
@@ -511,10 +517,9 @@ Rectangle {
     Rectangle {
         id: cachedEventsBar
 
+        // A proxy property for animation
         property int requestedHistoryEventsCount:
-            room && room.eventsHistoryJob
-            ? chatView.lastRequestedEvents : 0
-
+            chatView.currentRequestedEvents
         AnimationBehavior on requestedHistoryEventsCount {
             NormalNumberAnimation { }
         }
@@ -524,7 +529,6 @@ Rectangle {
             ? chatView.height
               / (chatView.count + requestedHistoryEventsCount)
             : 0
-
         AnimationBehavior on averageEvtHeight {
             FastNumberAnimation { }
         }
@@ -533,13 +537,13 @@ Rectangle {
         anchors.bottom: chatScrollView.bottom
         anchors.bottomMargin:
             averageEvtHeight * chatView.bottommostVisibleIndex
-        width: shuttleDial.width
+        width: shuttleDial.backgroundWidth / 2
         height: chatView.bottommostVisibleIndex < 0 ? 0 :
             averageEvtHeight
             * (chatView.count - chatView.bottommostVisibleIndex)
         visible: shuttleDial.visible
 
-        color: defaultPalette.highlight
+        color: defaultPalette.mid
     }
     Rectangle {
         // Loading history events bar, stacked above
@@ -551,7 +555,7 @@ Rectangle {
         visible: shuttleDial.visible
 
         opacity: 0.4
-        color: defaultPalette.highlight
+        color: defaultPalette.mid
     }
 
     // === Scrolling extensions ===
@@ -559,20 +563,42 @@ Rectangle {
     Slider {
         id: shuttleDial
         orientation: Qt.Vertical
-        height: chatScrollView.height
-        width: chatScrollView.ScrollBar.vertical.width / 2
+        height: chatScrollView.height * 0.7
+        width: chatScrollView.ScrollBar.vertical.width
+        padding: 2
         anchors.right: parent.right
-        // Shift to the left to fit the handle in the visible area
-        anchors.rightMargin: Math.max(handle.width - width, 0) / 2
+        anchors.rightMargin: (background.width - width) / 2
         anchors.verticalCenter: chatScrollView.verticalCenter
         enabled: settings.use_shuttle_dial
         visible: enabled && chatView.count > 0
 
-        background: Item { /* no background */ }
-        handle.opacity: scrollerArea.containsMouse ? 1 : 0.7
+        readonly property real backgroundWidth:
+            handle.width + leftPadding + rightPadding
+        // Npages/sec = value^2 => maxNpages/sec = 9
+        readonly property real maxValue: 3.0
+        readonly property real deviation:
+            value / (maxValue * 2) * availableHeight
 
-        from: -10.0
-        to: 10.0
+        background: Item {
+            x: shuttleDial.handle.x - shuttleDial.leftPadding
+            width: shuttleDial.backgroundWidth
+            Rectangle {
+                id: springLine
+                // Rectangles (normally) have (x,y) as their top-left corner.
+                // To draw the "spring" line up from the middle point, its `y`
+                // should still be the top edge, not the middle point.
+                y: shuttleDial.height / 2 - Math.max(shuttleDial.deviation, 0)
+                height: Math.abs(shuttleDial.deviation)
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: 2
+                color: defaultPalette.highlight
+            }
+        }
+        opacity: scrollerArea.containsMouse ? 1 : 0.7
+        AnimationBehavior on opacity { FastNumberAnimation { } }
+
+        from: -maxValue
+        to: maxValue
 
         activeFocusOnTab: false
 
@@ -583,15 +609,31 @@ Rectangle {
             }
         }
 
-        onValueChanged: {
-            if (value)
-                chatView.flick(0, parent.height * value)
+        // This is not an ordinary animation, it's the engine that makes
+        // the shuttle dial work; for that reason it's not governed by
+        // settings.enable_animations and only can be disabled together with
+        // the shuttle dial.
+        SmoothedAnimation {
+            id: cruisingAnimation
+            target: chatView
+            property: "contentY"
+            velocity: shuttleDial.value * shuttleDial.value * chatView.height
+            maximumEasingTime: settings.animations_duration_ms
+            to: chatView.originY + (shuttleDial.value > 0 ? 0 :
+                    chatView.contentHeight - chatView.height)
+            running: shuttleDial.value != 0
+
+            onStopped: chatView.saveViewport()
         }
-        Component.onCompleted: {
-            // Continue scrolling while the shuttle is held out of 0
-            chatView.flickEnded.connect(shuttleDial.valueChanged)
-            // #375: Resume scrolling after more events arrived
-            messageModel.rowsInserted.connect(shuttleDial.valueChanged)
+
+        // Animations don't update `to` value when they are running; so
+        // when the shuttle value changes sign without becoming zero (which,
+        // turns out, is quite usual when dragging the shuttle around) the
+        // animation has to be restarted.
+        onValueChanged: cruisingAnimation.restart()
+        Component.onCompleted: { // same reason as above
+            chatView.originYChanged.connect(cruisingAnimation.restart)
+            chatView.contentHeightChanged.connect(cruisingAnimation.restart)
         }
     }
 
@@ -601,7 +643,7 @@ Rectangle {
         anchors.bottom: chatScrollView.bottom
         anchors.right: parent.right
         width: settings.use_shuttle_dial
-               ? (shuttleDial.handle.width + shuttleDial.width) / 2
+               ? shuttleDial.backgroundWidth
                : chatScrollView.ScrollBar.vertical.width
         acceptedButtons: Qt.NoButton
 
@@ -609,14 +651,30 @@ Rectangle {
     }
 
     Rectangle {
+        id: timelineStats
         anchors.right: scrollerArea.left
         anchors.top: chatScrollView.top
         width: childrenRect.width + 3
         height: childrenRect.height + 3
         color: defaultPalette.alternateBase
-        opacity: chatView.bottommostVisibleIndex >= 0
-            && (scrollerArea.containsMouse || scrollAnimation.running)
-            ? 0.8 : 0
+        property bool shown:
+            (chatView.bottommostVisibleIndex >= 0
+                  && (scrollerArea.containsMouse || scrollAnimation.running))
+                 || chatView.currentRequestedEvents > 0
+
+        onShownChanged: {
+            if (shown) {
+                fadeOutDelay.stop()
+                opacity = 0.8
+            } else
+                fadeOutDelay.restart()
+        }
+        Timer {
+            id: fadeOutDelay
+            interval: 2000
+            onTriggered: parent.opacity = 0
+        }
+
         AnimationBehavior on opacity { FastNumberAnimation { } }
 
         Label {
@@ -625,10 +683,18 @@ Rectangle {
             font.pointSize: settings.font.pointSize
             opacity: 0.8
             renderType: settings.render_type
-            text: (chatView.bottommostVisibleIndex === 0
-                   ? qsTr("Latest events") : qsTr("%Ln events back from now","",
-                                                  chatView.bottommostVisibleIndex))
-                  + '\n' + qsTr("%Ln cached", "", chatView.count)
+            text: (chatView.count > 0
+                   ? (chatView.bottommostVisibleIndex === 0
+                     ? qsTr("Latest events")
+                     : qsTr("%Ln events back from now","",
+                            chatView.bottommostVisibleIndex))
+                       + "\n" + qsTr("%Ln events cached", "", chatView.count)
+                   : "")
+                  + (chatView.currentRequestedEvents > 0
+                     ? (chatView.count > 0 ? "\n" : "")
+                       + qsTr("%Ln events requested from the server",
+                              "", chatView.currentRequestedEvents)
+                     : "")
             horizontalAlignment: Label.AlignRight
         }
     }
@@ -636,9 +702,9 @@ Rectangle {
     ScrollToButton {
         id: scrollToBottomButton
 
-        anchors.right: parent.right
+        anchors.right: scrollerArea.left
+        anchors.rightMargin: 2
         anchors.bottom: parent.bottom
-        anchors.rightMargin: width * 1.5
         anchors.bottomMargin: visible ? 0.5 * height : -height
 
         visible: !chatView.atYEnd
@@ -657,14 +723,15 @@ Rectangle {
     ScrollToButton {
         id: scrollToReaderMarkerButton
 
-        anchors.right: parent.right
+        anchors.right: scrollerArea.left
+        anchors.rightMargin: 2
         anchors.bottom: scrollToBottomButton.top
-        anchors.rightMargin: width * 1.5
         anchors.bottomMargin: visible ? 0.5 * height : -3 * height
 
         visible: chatView.count > 1 &&
                  messageModel.readMarkerVisualIndex > 0 &&
-                 messageModel.readMarkerVisualIndex > chatView.indexAt(chatView.contentX, chatView.contentY)
+                 messageModel.readMarkerVisualIndex
+                    > chatView.indexAt(chatView.contentX, chatView.contentY)
 
         icon {
             name: "go-top"
@@ -672,7 +739,8 @@ Rectangle {
         }
 
         onClicked: {
-            chatView.positionViewAtIndex(messageModel.readMarkerVisualIndex, ListView.Center)
+            chatView.positionViewAtIndex(messageModel.readMarkerVisualIndex,
+                                         ListView.Center)
             chatView.saveViewport()
         }
     }

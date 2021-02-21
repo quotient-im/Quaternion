@@ -66,6 +66,13 @@ int QuaternionRoom::savedBottomVisibleIndex() const
 
 void QuaternionRoom::saveViewport(int topIndex, int bottomIndex)
 {
+    // Don't save more frequently than once a second
+    static auto lastSaved = QDateTime::currentMSecsSinceEpoch();
+    const auto now = QDateTime::currentMSecsSinceEpoch();
+    if (lastSaved >= now - 1000)
+        return;
+    lastSaved = now;
+
     if (topIndex == -1 || bottomIndex == -1
         || (bottomIndex == savedBottomVisibleIndex()
             && (bottomIndex == 0 || topIndex == savedTopVisibleIndex())))
