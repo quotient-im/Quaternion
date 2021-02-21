@@ -586,6 +586,8 @@ Rectangle {
             to: chatView.originY + (shuttleDial.value > 0 ? 0 :
                     chatView.contentHeight - chatView.height)
             running: shuttleDial.value != 0
+
+            onStopped: chatView.saveViewport()
         }
 
         // Animations don't update `to` value when they are running; so
