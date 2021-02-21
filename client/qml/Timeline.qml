@@ -277,6 +277,9 @@ Rectangle {
                 // 0.03 is just an arbitrary reasonable number
 
             property int lastRequestedEvents: 0
+            readonly property int currentRequestedEvents:
+                room && room.eventsHistoryJob ? lastRequestedEvents : 0
+
             property var textEditWithSelection
             property real readMarkerContentPos: originY
             readonly property real readMarkerViewportPos:
@@ -514,10 +517,9 @@ Rectangle {
     Rectangle {
         id: cachedEventsBar
 
+        // A proxy property for animation
         property int requestedHistoryEventsCount:
-            room && room.eventsHistoryJob
-            ? chatView.lastRequestedEvents : 0
-
+            chatView.currentRequestedEvents
         AnimationBehavior on requestedHistoryEventsCount {
             NormalNumberAnimation { }
         }
@@ -527,7 +529,6 @@ Rectangle {
             ? chatView.height
               / (chatView.count + requestedHistoryEventsCount)
             : 0
-
         AnimationBehavior on averageEvtHeight {
             FastNumberAnimation { }
         }
@@ -650,14 +651,30 @@ Rectangle {
     }
 
     Rectangle {
+        id: timelineStats
         anchors.right: scrollerArea.left
         anchors.top: chatScrollView.top
         width: childrenRect.width + 3
         height: childrenRect.height + 3
         color: defaultPalette.alternateBase
-        opacity: chatView.bottommostVisibleIndex >= 0
-            && (scrollerArea.containsMouse || scrollAnimation.running)
-            ? 0.8 : 0
+        property bool shown:
+            (chatView.bottommostVisibleIndex >= 0
+                  && (scrollerArea.containsMouse || scrollAnimation.running))
+                 || chatView.currentRequestedEvents > 0
+
+        onShownChanged: {
+            if (shown) {
+                fadeOutDelay.stop()
+                opacity = 0.8
+            } else
+                fadeOutDelay.restart()
+        }
+        Timer {
+            id: fadeOutDelay
+            interval: 2000
+            onTriggered: parent.opacity = 0
+        }
+
         AnimationBehavior on opacity { FastNumberAnimation { } }
 
         Label {
@@ -666,10 +683,18 @@ Rectangle {
             font.pointSize: settings.font.pointSize
             opacity: 0.8
             renderType: settings.render_type
-            text: (chatView.bottommostVisibleIndex === 0
-                   ? qsTr("Latest events") : qsTr("%Ln events back from now","",
-                                                  chatView.bottommostVisibleIndex))
-                  + '\n' + qsTr("%Ln cached", "", chatView.count)
+            text: (chatView.count > 0
+                   ? (chatView.bottommostVisibleIndex === 0
+                     ? qsTr("Latest events")
+                     : qsTr("%Ln events back from now","",
+                            chatView.bottommostVisibleIndex))
+                       + "\n" + qsTr("%Ln events cached", "", chatView.count)
+                   : "")
+                  + (chatView.currentRequestedEvents > 0
+                     ? (chatView.count > 0 ? "\n" : "")
+                       + qsTr("%Ln events requested from the server",
+                              "", chatView.currentRequestedEvents)
+                     : "")
             horizontalAlignment: Label.AlignRight
         }
     }
