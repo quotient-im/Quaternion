@@ -285,7 +285,8 @@ Rectangle {
 
             function parkReadMarker() {
                 readMarkerContentPos = Qt.binding(function() {
-                    return messageModel.readMarkerVisualIndex > indexAt(contentX, contentY)
+                    return !messageModel || messageModel.readMarkerVisualIndex
+                                             > indexAt(contentX, contentY)
                            ? originY : contentY + contentHeight
                 })
                 console.log("Read marker parked at index",
