@@ -942,7 +942,7 @@ void MainWindow::showAboutWindow()
 
         auto* linkLabel =
                 new QLabel("<a href=\"https://matrix.org/docs/projects/client/quaternion.html\">"
-                           + tr("Web page") + "</a>");
+                           % tr("Web page") % "</a>");
         linkLabel->setAlignment(Qt::AlignHCenter);
         linkLabel->setOpenExternalLinks(true);
         layout->addWidget(linkLabel);
@@ -970,25 +970,28 @@ void MainWindow::showAboutWindow()
     {
         auto* thanksLabel = new QLabel(
             tr("Original project author: %1")
-            .arg("<a href='https://github.com/Fxrh'>Felix Rohrbach</a>") + "<br/>" +
+            .arg("<a href='https://github.com/Fxrh'>"
+                 % tr("Felix Rohrbach") % "</a>") % "<br/>" %
             tr("Project leader: %1")
-            .arg("<a href='https://github.com/KitsuneRal'>Kitsune Ral</a>") +
-            "<br/><br/>" +
-            tr("Contributors:") + "<br/>" +
-            "<a href='https://github.com/quotient-im/Quaternion/graphs/contributors'>" +
-                tr("Quaternion contributors @ GitHub") + "</a><br/>" +
-            "<a href='https://github.com/quotient-im/libQuotient/graphs/contributors'>" +
-                tr("libQuotient contributors @ GitHub") + "</a><br/>" +
-            "<a href='https://lokalise.com/contributors/730769035bbc328c31e863.62506391/'>" +
-                tr("Quaternion translators @ Lokalise.co") + "</a><br/>" +
+            .arg("<a href='https://github.com/KitsuneRal'>"
+                 % tr("Alexey \"Kitsune\" Rusakov") % "</a>") %
+            "<br/><br/>" %
+            tr("Contributors:") % "<br/>" %
+            "<a href='https://github.com/quotient-im/Quaternion/graphs/contributors'>" %
+                tr("Quaternion contributors @ GitHub") % "</a><br/>" +
+            "<a href='https://github.com/quotient-im/libQuotient/graphs/contributors'>" %
+                tr("libQuotient contributors @ GitHub") % "</a><br/>" %
+            "<a href='https://lokalise.com/contributors/730769035bbc328c31e863.62506391/'>" %
+                tr("Quaternion translators @ Lokalise.co") % "</a><br/>" %
             tr("Special thanks to %1 for all the testing effort")
-            .arg("<a href='mailto:nep-quaternion@packageloss.eu'>nephele</a>") +
-            "<br/><br/>" +
-            tr("Made with:") + "<br/>" +
+            .arg("<a href='mailto:nep-quaternion@packageloss.eu'>nephele</a>") %
+            "<br/><br/>" %
+            tr("Made with:") % "<br/>" %
             "<a href='https://www.qt.io/'>Qt 5</a><br/>"
             "<a href='https://www.qt.io/product/development-tools'>Qt Creator</a><br/>"
             "<a href='https://www.jetbrains.com/clion/'>CLion</a><br/>"
             "<a href='https://lokalise.com'>Lokalise</a>"
+            "<a href='https://cloudsmith.io'>Cloudsmith<a>"
         );
         thanksLabel->setTextInteractionFlags(Qt::TextSelectableByKeyboard|
                                              Qt::TextBrowserInteraction);
