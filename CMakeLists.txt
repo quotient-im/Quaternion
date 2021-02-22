@@ -4,7 +4,7 @@ cmake_policy(SET CMP0092 NEW)
 endif()
 
 set(IDENTIFIER "com.github.quaternion")
-set(COPYRIGHT "Copyright © 2016-2020 Quaternion project contributors")
+set(COPYRIGHT "Copyright © 2016-2021 Quaternion project contributors")
 
 project(quaternion VERSION 0.0.94.93 LANGUAGES CXX)
 
@@ -51,7 +51,7 @@ endif()
 find_package(Qt5 5.9 REQUIRED Widgets Network Quick Gui LinguistTools
                               Multimedia DBus QuickControls2)
 # Qt5_Prefix is only used to show Qt path in message()
-# Qt5_BinDir is where all the binary tools for Qt are
+# Qt5_BinDir is where all the *deployqt tools reside
 if (QT_QMAKE_EXECUTABLE)
     get_filename_component(Qt5_BinDir "${QT_QMAKE_EXECUTABLE}" DIRECTORY)
     get_filename_component(Qt5_Prefix "${Qt5_BinDir}/.." ABSOLUTE)

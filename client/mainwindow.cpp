@@ -948,7 +948,8 @@ void MainWindow::showAboutWindow()
         layout->addWidget(linkLabel);
 
         layout->addWidget(
-                    new QLabel(tr("Copyright (C) 2019 The Quotient project.")));
+                    new QLabel("Copyright (C) 2016-2021 "
+                               % tr("Quaternion project contributors")));
 
 #ifdef GIT_SHA1
         auto* commitLabel = new QLabel(tr("Built from Git, commit SHA:") + '\n' +
