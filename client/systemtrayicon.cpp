@@ -35,7 +35,7 @@ SystemTrayIcon::SystemTrayIcon(MainWindow* parent)
 {
     auto contextMenu = new QMenu(parent);
     auto showHideAction = contextMenu->addAction(tr("Hide"), this, &SystemTrayIcon::showHide);
-    contextMenu->addAction(tr("Quit"), QApplication::quit);
+    contextMenu->addAction(tr("Quit"), this, QApplication::quit);
     connect(m_parent->windowHandle(), &QWindow::visibleChanged, [showHideAction](bool visible) {
         showHideAction->setText(visible ? tr("Hide") : tr("Show"));
     });
@@ -55,11 +55,10 @@ void SystemTrayIcon::newRoom(Quotient::Room* room)
 void SystemTrayIcon::highlightCountChanged(Quotient::Room* room)
 {
     using namespace Quotient;
-    auto mode = SettingsGroup("UI").value("notifications", "intrusive");
+    const auto mode = Settings().get<QString>("UI/notifications", "intrusive");
     if (mode == "none")
         return;
-    if( room->highlightCount() > 0 )
-    {
+    if( room->highlightCount() > 0 ) {
         showMessage(tr("Highlight in %1").arg(room->displayName()),
                     tr("%n highlight(s)", "", room->highlightCount()));
         if (mode != "non-intrusive")
@@ -72,25 +71,16 @@ void SystemTrayIcon::highlightCountChanged(Quotient::Room* room)
 
 void SystemTrayIcon::systemTrayIconAction(QSystemTrayIcon::ActivationReason reason)
 {
-    switch (reason)
-    {
-        case QSystemTrayIcon::Trigger:
-        case QSystemTrayIcon::DoubleClick:
-            this->showHide();
-            break;
-        default:
-            ;
-    }
+    if (reason == QSystemTrayIcon::Trigger
+        || reason == QSystemTrayIcon::DoubleClick)
+        showHide();
 }
 
 void SystemTrayIcon::showHide()
 {
-    if( m_parent->isVisible() )
-    {
+    if (m_parent->isVisible())
         m_parent->hide();
-    }
-    else
-    {
+    else {
         m_parent->show();
         m_parent->activateWindow();
         m_parent->raise();
