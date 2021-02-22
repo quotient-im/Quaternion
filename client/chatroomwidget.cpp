@@ -336,9 +336,8 @@ void ChatRoomWidget::typingChanged()
 
     if (usersTyping.size() > MaxNamesToShow) {
         typingNames.push_back(
-            tr("%Ln more",
-               "The number of users in the typing or completion list",
-               usersTyping.size() - SampleSizeForHud));
+            //: The number of users in the typing or completion list
+            tr("%L1 more").arg(usersTyping.size() - SampleSizeForHud));
     }
     setHudHtml(tr("Currently typing:"), typingNames);
 }
@@ -684,7 +683,9 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         const auto& [cleanQtHtml, errorPos, errorString] =
             HtmlFilter::matrixToQt(argString, m_currentRoom, true);
         if (errorPos != -1)
-            return tr("At pos %1: ").arg(errorPos) % errorString;
+            return tr("At pos %1: %2",
+                      "%1 is a position of the error; %2 is the error message")
+                   .arg(errorPos).arg(errorString);
 
         const auto& fragment = QTextDocumentFragment::fromHtml(cleanQtHtml);
         m_currentRoom->postHtmlText(fragment.toPlainText(),

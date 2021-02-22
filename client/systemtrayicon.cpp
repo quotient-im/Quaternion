@@ -59,8 +59,10 @@ void SystemTrayIcon::highlightCountChanged(Quotient::Room* room)
     if (mode == "none")
         return;
     if( room->highlightCount() > 0 ) {
-        showMessage(tr("Highlight in %1").arg(room->displayName()),
-                    tr("%n highlight(s)", "", room->highlightCount()));
+        showMessage(
+            //: %1 is the room display name
+            tr("Highlight in %1").arg(room->displayName()),
+            tr("%Ln highlight(s)", "", room->highlightCount()));
         if (mode != "non-intrusive")
             m_parent->activateWindow();
         connectSingleShot(this, &SystemTrayIcon::messageClicked, m_parent,

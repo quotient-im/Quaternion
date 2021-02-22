@@ -330,5 +330,5 @@ void RoomListDock::addTagsSelected()
 
 void RoomListDock::refreshTitle()
 {
-    setWindowTitle(tr("Rooms (%1)").arg(model->totalRooms()));
+    setWindowTitle(tr("Rooms (%L1)").arg(model->totalRooms()));
 }

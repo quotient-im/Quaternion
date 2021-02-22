@@ -27,7 +27,7 @@ Rectangle {
             return qsTr("%Ln byte(s)", "", bytes)
         bytes = Math.round(bytes / 100) / 10
         if (bytes < 2000)
-            return qsTr("%L1 KB").arg(bytes)
+            return qsTr("%L1 kB").arg(bytes)
         bytes = Math.round(bytes / 100) / 10
         if (bytes < 2000)
             return qsTr("%L1 MB").arg(bytes)

@@ -516,13 +516,12 @@ Item {
                             hoverEnabled: true
                             MyToolTip {
                                 visible: hovered
-                                text: qsTr("%1 reacted with '%2'",
-                                           "%1 is a list of users, %2 is " +
-                                           "the reaction (usually an emoji)",
-                                           modelData.authors.length)
+                                //: %2 is either the list of users or
+                                //: 'N authors' (see the next translation node)
+                                text: qsTr("Reaction '%1' from %2 ")
                                       .arg(modelData.authors.length <= 10
                                            ? modelData.authors.join(", ")
-                                           : qsTr("%n author(s)", "",
+                                           : qsTr("%Ln author(s)", "",
                                                   model.data.authors.length))
                                       .arg(modelData.key)
                             }

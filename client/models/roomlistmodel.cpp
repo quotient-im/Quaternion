@@ -438,14 +438,11 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
                 QStringLiteral("<b>%1</b>")
                     .arg(room->displayName().toHtmlEscaped()) % "<br>" %
                 tr("Main alias: %1").arg(room->canonicalAlias()) % "<br>" %
-                tr("Joined: %L1",
-                   "The number of joined members", room->joinedCount())
-                .arg(room->joinedCount());
+                //: The number of joined members
+                tr("Joined: %L1").arg(room->joinedCount());
             if (room->invitedCount() > 0)
-                result += "<br>"
-                          % tr("Invited: %L1", "The number of invited users",
-                               room->invitedCount())
-                            .arg(room->invitedCount());
+                result += //: The number of invited users
+                    "<br>" % tr("Invited: %L1").arg(room->invitedCount());
 
             auto directChatUsers = room->directChatUsers();
             if (!directChatUsers.isEmpty())
@@ -473,8 +470,9 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
             {
                 const auto unreadLine =
                     room->readMarker() == room->timelineEdge()
-                        ? tr("Unread messages: %L1+", "", unreadCount)
-                        : tr("Unread messages: %L1", "", unreadCount);
+                        ? tr("Unread messages: %L1 (maybe more)")
+                          .arg(unreadCount)
+                        : tr("Unread messages: %L1").arg(unreadCount);
                 result += "<br>" % unreadLine.arg(unreadCount);
             }
 
