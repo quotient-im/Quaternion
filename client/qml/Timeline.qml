@@ -265,9 +265,8 @@ Rectangle {
 
             section.property: "section"
 
-            readonly property bool atBeginning: contentY + height == 0
             readonly property int bottommostVisibleIndex: count > 0 ?
-                atBeginning ? 0 : indexAt(contentX, contentY + height - 1) : -1
+                atYEnd ? 0 : indexAt(contentX, contentY + height - 1) : -1
             readonly property bool noNeedMoreContent:
                 !room || room.eventsHistoryJob || room.allHistoryLoaded
 
