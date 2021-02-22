@@ -31,10 +31,14 @@
     </message>
     <message>
         <source>/invite &lt;memberId&gt;</source>
+        <comment>Does this string need translation?</comment>
+        <comment>Seems this is command, that don't need translation</comment>
         <translation>/invite &lt;memberId&gt;</translation>
     </message>
     <message>
         <source>/%1 &lt;userId&gt; &lt;reason&gt;</source>
+        <comment>Does this string need translation?</comment>
+        <comment>Yes - similar to what you can see for German. Probably, something like &quot;/%1 &lt;id пользователя&gt; &lt;причина&gt;&quot;?</comment>
         <translation>/%1 &lt;userId&gt; &lt;reason&gt;</translation>
     </message>
     <message>
@@ -43,6 +47,8 @@
     </message>
     <message>
         <source>/unban &lt;userId&gt;</source>
+        <comment>Does this string need translation?</comment>
+        <comment>Seems this is command, that don't need translation</comment>
         <translation>/unban &lt;userId&gt;</translation>
     </message>
     <message>
@@ -51,6 +57,7 @@
     </message>
     <message>
         <source>/ignore &lt;userId&gt;</source>
+        <comment>Does this string need translation?</comment>
         <translation>/ignore &lt;userId&gt;</translation>
     </message>
     <message>
@@ -71,6 +78,7 @@
     </message>
     <message>
         <source>/%1 &lt;memberId&gt; &lt;message&gt;</source>
+        <comment>Does this string need translation?</comment>
         <translation>/%1 &lt;memberId&gt; &lt;message&gt;</translation>
     </message>
     <message>
@@ -79,6 +87,7 @@
     </message>
     <message>
         <source>%1 doesn&apos;t look like a user id or room alias</source>
+        <comment>it looks in both cases like a check for an id</comment>
         <translation>%1 no parece un ID de usuario o alias de sala</translation>
     </message>
     <message>
@@ -139,6 +148,7 @@
     </message>
     <message>
         <source>Send a message (over %1) or enter a command...</source>
+        <comment>%1 is the protocol used by the server (usually HTTPS)</comment>
         <translation>Envía un mensaje (más de %1) o introduce un comando...</translation>
     </message>
     <message>
@@ -151,6 +161,7 @@
     </message>
     <message>
         <source>Quote</source>
+        <comment>a verb (do quote), not a noun (a quote)</comment>
         <translation>Comillas</translation>
     </message>
     <message>
@@ -182,6 +193,7 @@
     </message>
     <message>
         <source>Unknown</source>
+        <comment>Unknown attachment size</comment>
         <translation>Desconocido</translation>
     </message>
     <message numerus="yes">
@@ -225,6 +237,7 @@ Go to Room Settings to upgrade the room</source>
     </message>
     <message>
         <source>Add</source>
+        <comment>Add a user to the list of invitees</comment>
         <translation>Añadir</translation>
     </message>
     <message>
@@ -330,6 +343,7 @@ Go to Room Settings to upgrade the room</source>
     </message>
     <message>
         <source>&amp;No-effect activity</source>
+        <comment>Please provide context of this string (outer text)</comment>
         <translation>&amp;Actividad sin efectos</translation>
     </message>
     <message>
@@ -410,6 +424,8 @@ Go to Room Settings to upgrade the room</source>
     </message>
     <message>
         <source>XChat</source>
+        <comment>Please provide context. What is XChat?</comment>
+        <comment>Sorry, this one is not supposed to be translated. Actually, XChat is the name of a popular IRC client.</comment>
         <translation>XChat</translation>
     </message>
     <message>
@@ -604,10 +620,12 @@ Al hacer clic en &quot;Cancelar&quot; se detendrá la sincronización de esta cu
     </message>
     <message>
         <source>Use shuttle scrollbar (requires restart)</source>
+        <comment>Empty translate to empty? :)</comment>
         <translation>Use la barra de desplazamiento de la lanzaderar (requiere reinicio)</translation>
     </message>
     <message>
         <source>Control scroll velocity instead of position with the timeline scrollbar</source>
+        <comment>Empty translate to empty? :)</comment>
         <translation>Controle la velocidad de desplazamiento en lugar de la posición con la barra de desplazamiento de la línea de tiempo</translation>
     </message>
     <message>
@@ -949,14 +967,17 @@ or matrix.to link</source>
     </message>
     <message>
         <source>updated the database</source>
+        <comment>TWIM bot updated the database</comment>
         <translation>actualizada la base de datos</translation>
     </message>
     <message>
         <source>updated %1 state</source>
+        <comment>%1 - Matrix event type</comment>
         <translation>Estado actualizado de %1</translation>
     </message>
     <message>
         <source>updated %1 state for %2</source>
+        <comment>%1 - Matrix event type, %2 - state key</comment>
         <translation>estado actualizado de %1 para %2</translation>
     </message>
     <message>
@@ -1051,14 +1072,17 @@ or matrix.to link</source>
     </message>
     <message>
         <source>(loading)</source>
+        <comment>Loading room versions from the server</comment>
         <translation>(cargando)</translation>
     </message>
     <message>
         <source>default</source>
+        <comment>Default room version</comment>
         <translation>Predeterminado</translation>
     </message>
     <message>
         <source>stable</source>
+        <comment>Stable room version</comment>
         <translation>estable</translation>
     </message>
     <message>
@@ -1134,6 +1158,7 @@ or matrix.to link</source>
     </message>
     <message>
         <source>Add</source>
+        <comment>A caption on a button to add tags</comment>
         <translation>Añadir</translation>
     </message>
 </context>
@@ -1168,6 +1193,7 @@ or matrix.to link</source>
     </message>
     <message>
         <source>%1 (as %2)</source>
+        <comment>%Room (as %user)</comment>
         <translation>%1 (como %2)</translation>
     </message>
     <message>
@@ -1188,6 +1214,7 @@ or matrix.to link</source>
     </message>
     <message numerus="yes">
         <source>Joined: %Ln</source>
+        <comment>The number of joined members</comment>
         <translation>
             <numerusform>Unido: %Ln</numerusform>
             <numerusform>Unidos: %Ln</numerusform>
@@ -1195,6 +1222,7 @@ or matrix.to link</source>
     </message>
     <message numerus="yes">
         <source>Invited: %Ln</source>
+        <comment>The number of invited users</comment>
         <translation>
             <numerusform>Invitado: %Ln</numerusform>
             <numerusform>Invitados: %Ln</numerusform>
@@ -1230,6 +1258,7 @@ or matrix.to link</source>
     </message>
     <message>
         <source>as %1</source>
+        <comment>as  (disambiguates entries in the room list)</comment>
         <translation>como %1</translation>
     </message>
     <message>
@@ -1269,6 +1298,7 @@ or matrix.to link</source>
     </message>
     <message>
         <source>Upgrade</source>
+        <comment>Upgrade a room version</comment>
         <translation>Actualización</translation>
     </message>
     <message>
@@ -1334,6 +1364,7 @@ Esta operación no se puede revertir.</translation>
     </message>
     <message>
         <source>(%L1 out of %L2)</source>
+        <comment>%found out of %total users</comment>
         <translation>(%L1 de %L2)</translation>
     </message>
 </context>
@@ -1388,14 +1419,17 @@ Esta operación no se puede revertir.</translation>
     </message>
     <message>
         <source>uploaded from %1</source>
+        <comment>%1 is a local file name</comment>
         <translation>subido desde %1</translation>
     </message>
     <message>
         <source>being uploaded from %1</source>
+        <comment>%1 is a local file name</comment>
         <translation>siendo subido desde %1</translation>
     </message>
     <message>
         <source>downloaded to %1</source>
+        <comment>%1 is a local file name</comment>
         <translation>descargado a %1</translation>
     </message>
 </context>
@@ -1463,6 +1497,10 @@ Esta operación no se puede revertir.</translation>
     <name>UserListModel</name>
     <message>
         <source>Bridged from: %1</source>
+        <comment>Переправлено з</comment>
+        <comment>Did you mean to put it to the translation instead?</comment>
+        <comment>Also - note that this is about a user, not a message (&quot;bridged messages&quot; don't exist); so its should probably be &quot;Переправлен(а) з&quot;. With that said, I'm not quite sure how much this is the best fitting translation even - but &quot;Мiст&quot; is even more obscure.</comment>
+        <comment>Конечно &quot;Мiст&quot; не правильно.&nbsp;If this means user, then&nbsp;&quot;Переправлен(а)....</comment>
         <translation>Puenteado desde: %1</translation>
     </message>
 </context>

@@ -31,10 +31,14 @@
     </message>
     <message>
         <source>/invite &lt;memberId&gt;</source>
+        <comment>Does this string need translation?</comment>
+        <comment>Seems this is command, that don't need translation</comment>
         <translation>/invite &lt;ID-участника&gt;</translation>
     </message>
     <message>
         <source>/%1 &lt;userId&gt; &lt;reason&gt;</source>
+        <comment>Does this string need translation?</comment>
+        <comment>Yes - similar to what you can see for German. Probably, something like &quot;/%1 &lt;id пользователя&gt; &lt;причина&gt;&quot;?</comment>
         <translation>/%1 &lt;ID-пользователя&gt; &lt;причина&gt;</translation>
     </message>
     <message>
@@ -43,6 +47,8 @@
     </message>
     <message>
         <source>/unban &lt;userId&gt;</source>
+        <comment>Does this string need translation?</comment>
+        <comment>Seems this is command, that don't need translation</comment>
         <translation>/unban &lt;ID-пользователя&gt;</translation>
     </message>
     <message>
@@ -51,6 +57,7 @@
     </message>
     <message>
         <source>/ignore &lt;userId&gt;</source>
+        <comment>Does this string need translation?</comment>
         <translation>/ignore &lt;ID-пользователя&gt;</translation>
     </message>
     <message>
@@ -71,6 +78,7 @@
     </message>
     <message>
         <source>/%1 &lt;memberId&gt; &lt;message&gt;</source>
+        <comment>Does this string need translation?</comment>
         <translation>/%1 &lt;ID-участника&gt; &lt;сообщение&gt;</translation>
     </message>
     <message>
@@ -79,6 +87,7 @@
     </message>
     <message>
         <source>%1 doesn&apos;t look like a user id or room alias</source>
+        <comment>it looks in both cases like a check for an id</comment>
         <translation>%1 не похож на идентификатор пользователя или псевдоним комнаты</translation>
     </message>
     <message>
@@ -139,7 +148,20 @@
     </message>
     <message>
         <source>Send a message (over %1) or enter a command...</source>
+        <comment>%1 is the protocol used by the server (usually HTTPS)</comment>
         <translation>Отправить сообщение (через %1) или ввести команду...</translation>
+    </message>
+    <message>
+        <source>Attaching an image from clipboard</source>
+        <translation>Добавление изображения из буфера обмена</translation>
+    </message>
+    <message>
+        <source>Referenced message not found</source>
+        <translation>Указанное сообщение не найдено</translation>
+    </message>
+    <message>
+        <source>Send a message (no end-to-end encryption support yet)...</source>
+        <translation>Отправить сообщение (сквозное шифрование пока не поддерживается)...</translation>
     </message>
     <message>
         <source>Redact</source>
@@ -150,8 +172,41 @@
         <translation>Скопировать ссылку в буфер обмена</translation>
     </message>
     <message>
+        <source>Copy permalink to clipboard</source>
+        <translation>Скопировать постоянную ссылку в буфер обмена</translation>
+    </message>
+    <message>
+        <source>Quote</source>
+        <comment>a verb (do quote), not a noun (a quote)</comment>
+        <translation>Процитировать</translation>
+    </message>
+    <message>
+        <source>Show details</source>
+        <translation>Показать детали</translation>
+    </message>
+    <message>
         <source>Open externally</source>
         <translation>Открыть через приложение</translation>
+    </message>
+    <message>
+        <source>Open Folder</source>
+        <translation>Открыть папку</translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <translation>Скачать</translation>
+    </message>
+    <message>
+        <source>Save file as...</source>
+        <translation>Сохранить файл как...</translation>
+    </message>
+    <message>
+        <source>At pos %1: </source>
+        <translation>В процессе %1:</translation>
+    </message>
+    <message>
+        <source>Your build of Quaternion doesn&apos;t support Markdown</source>
+        <translation>Ваша сборка Quaternion не поддерживает Markdown</translation>
     </message>
 </context>
 <context>
@@ -178,6 +233,7 @@
     </message>
     <message>
         <source>Unknown</source>
+        <comment>Unknown attachment size</comment>
         <translation>Неизвестно</translation>
     </message>
     <message numerus="yes">
@@ -214,7 +270,54 @@ Go to Room Settings to upgrade the room</source>
         <translation>Перейдите в Настройки комнаты, чтобы изменить версию комнаты</translation>
     </message>
     <message numerus="yes">
+        <source>%Ln byte(s)</source>
+        <translation>
+            <numerusform>%Ln байт</numerusform>
+            <numerusform>%Ln байта</numerusform>
+            <numerusform>%Ln байтов</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>%L1 KB</source>
+        <translation>%1 КБ</translation>
+    </message>
+    <message>
+        <source>%L1 MB</source>
+        <translation>%1 МБ</translation>
+    </message>
+    <message>
+        <source>%L1 GB</source>
+        <translation>% 1 ГБ</translation>
+    </message>
+    <message>
+        <source>This room has been upgraded.</source>
+        <translation>Эта комната была обновлена</translation>
+    </message>
+    <message>
+        <source>Go to
+new room</source>
+        <translation>Перейти в новую комнату</translation>
+    </message>
+    <message>
+        <source>Room
+settings</source>
+        <translation>Настройки комнаты</translation>
+    </message>
+    <message>
+        <source>Latest events</source>
+        <translation>Последние события</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln events back from now</source>
+        <translation>
+            <numerusform>%Ln событие с этого момента</numerusform>
+            <numerusform>%Ln событий с этого момента</numerusform>
+            <numerusform>%Ln событий с этого момента</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
         <source>%Ln cached</source>
+        <comment>%Ln is the number of messages cached</comment>
         <translation>
             <numerusform>%Ln закешировано</numerusform>
             <numerusform>%Ln закешированы</numerusform>
@@ -230,6 +333,7 @@ Go to Room Settings to upgrade the room</source>
     </message>
     <message>
         <source>Add</source>
+        <comment>Add a user to the list of invitees</comment>
         <translation>Добавить</translation>
     </message>
     <message>
@@ -290,6 +394,42 @@ Go to Room Settings to upgrade the room</source>
         <source>Restoring access, please wait</source>
         <translation>Восстанавливается доступ, пожалуйста подождите</translation>
     </message>
+    <message>
+        <source>Resolving the homeserver...</source>
+        <translation>Поиск домашнего сервера...</translation>
+    </message>
+    <message>
+        <source>The server URL doesn&apos;t look valid</source>
+        <translation>URL-адрес сервера выглядит недействительным</translation>
+    </message>
+    <message>
+        <source>Login with SSO</source>
+        <translation>Войти с помощью SSO</translation>
+    </message>
+    <message>
+        <source>The homeserver is available</source>
+        <translation>Домашний сервер доступен</translation>
+    </message>
+    <message>
+        <source>Could not connect to the homeserver</source>
+        <translation>Не удалось подключиться к домашнему серверу</translation>
+    </message>
+    <message>
+        <source>No supported login flows</source>
+        <translation>Нет поддерживаемых вариантов входа</translation>
+    </message>
+    <message>
+        <source>Single sign-on</source>
+        <translation>Единая точка входа</translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t automatically open the single sign-on URL. Please copy and paste it to the right application (usually a web browser):</source>
+        <translation>Quaternion не смог автоматически открыть URL-адрес единого входа. Скопируйте и вставьте его в нужное приложение (обычно в веб-браузер):</translation>
+    </message>
+    <message>
+        <source>After authentication, the browser will follow the temporary local address setup by Quaternion to conclude the login sequence.</source>
+        <translation>После аутентификации браузер будет следовать временному локальному адресу, установленному Quaternion, чтобы завершить вход.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -335,6 +475,7 @@ Go to Room Settings to upgrade the room</source>
     </message>
     <message>
         <source>&amp;No-effect activity</source>
+        <comment>Please provide context of this string (outer text)</comment>
         <translation>Активность &amp;без результата</translation>
     </message>
     <message>
@@ -415,6 +556,8 @@ Go to Room Settings to upgrade the room</source>
     </message>
     <message>
         <source>XChat</source>
+        <comment>Please provide context. What is XChat?</comment>
+        <comment>Sorry, this one is not supposed to be translated. Actually, XChat is the name of a popular IRC client.</comment>
         <translation>XChat</translation>
     </message>
     <message>
@@ -609,10 +752,12 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Use shuttle scrollbar (requires restart)</source>
+        <comment>Empty translate to empty? :)</comment>
         <translation>Использовать прокрутку с контролем скорости (требуется перезапуск)</translation>
     </message>
     <message>
         <source>Control scroll velocity instead of position with the timeline scrollbar</source>
+        <comment>Empty translate to empty? :)</comment>
         <translation>Полоса прокрутки меняет скорость прокрутки вместо позиции</translation>
     </message>
     <message>
@@ -818,6 +963,201 @@ or matrix.to link</source>
         <translation>Разработчики libQuotient @ GitHub</translation>
     </message>
     <message>
+        <source>Do you want to migrate the access token for %1 from the file to the keychain?</source>
+        <translation>Вы хотите перенести токен доступа для %1 из файла в хранилище ключей?</translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t migrate access token for %1 from the file to the keychain.</source>
+        <translation>Quaternion не удалось перенести токен доступа для %1 из файла в хранилище ключей.</translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t save the access token to the keychain. Do you want to save the access token to file %1?</source>
+        <translation>Quaternion не удалось сохранить токен доступа в хранилище ключей. Вы хотите сохранить токен доступа в файл %1?</translation>
+    </message>
+    <message>
+        <source>First sync completed for %1</source>
+        <comment>%1 is user id</comment>
+        <translation>Первая синхронизация завершена для %1</translation>
+    </message>
+    <message>
+        <source>Copyright (C) 2019 The Quotient project.</source>
+        <translation>Copyright © 2019 The Quotient project.</translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t delete the access token from the keychain.</source>
+        <translation>Quaternion не смог удалить токен доступа из связки ключей.</translation>
+    </message>
+    <message>
+        <source>No application for the link</source>
+        <translation>Нет приложения для ссылки</translation>
+    </message>
+    <message>
+        <source>Your operating system could not find an application for the link.</source>
+        <translation>Ваша операционная система не смогла найти приложение по ссылке.</translation>
+    </message>
+    <message>
+        <source>External link confirmation</source>
+        <translation>Подтверждение перехода по внешней ссылке</translation>
+    </message>
+    <message>
+        <source>An external application will be opened to visit a non-Matrix link:
+
+%1
+
+Is that right?</source>
+        <translation>Внешнее приложение будет открыто для перехода по ссылке, не относящейся к Matrix: 
+
+ %1 
+
+ Это правильно?</translation>
+    </message>
+    <message>
+        <source>Do not ask again</source>
+        <translation>Не спрашивать снова</translation>
+    </message>
+    <message>
+        <source>Malformed or empty Matrix id</source>
+        <translation>Неправильный или пустой идентификатор Matrix</translation>
+    </message>
+    <message>
+        <source>%1 is not a correct Matrix identifier</source>
+        <translation>% 1 - неправильный идентификатор Matrix</translation>
+    </message>
+    <message>
+        <source>Please connect to a server</source>
+        <translation>Пожалуйста, подключитесь к серверу</translation>
+    </message>
+    <message>
+        <source>Confirm your account to open a direct chat with %1</source>
+        <translation>Подтвердите свою учётную запись, чтобы начать чат с %1</translation>
+    </message>
+    <message>
+        <source>User &amp;profiles...</source>
+        <translation>Профили пользователей...</translation>
+    </message>
+    <message>
+        <source>Log&amp;out</source>
+        <translation>Выйти</translation>
+    </message>
+    <message>
+        <source>Invite events</source>
+        <translation>События приглашений</translation>
+    </message>
+    <message>
+        <source>Show invite and withdrawn invitation events</source>
+        <translation>Показать события приглашений</translation>
+    </message>
+    <message>
+        <source>Ban events</source>
+        <translation>События блокировок</translation>
+    </message>
+    <message>
+        <source>Show ban and unban events</source>
+        <translation>Показать события блокировок и разблокировок</translation>
+    </message>
+    <message>
+        <source>Changes in display na&amp;me</source>
+        <translation>Изменения в имени</translation>
+    </message>
+    <message>
+        <source>Show display name change</source>
+        <translation>Показать события изменения имени</translation>
+    </message>
+    <message>
+        <source>Avatar &amp;changes</source>
+        <translation>Изменения аватара</translation>
+    </message>
+    <message>
+        <source>Show avatar update events</source>
+        <translation>Показать события обновления аватара</translation>
+    </message>
+    <message>
+        <source>Room alias &amp;updates</source>
+        <translation>Обновления псевдонима комнаты</translation>
+    </message>
+    <message>
+        <source>Show room alias updates events</source>
+        <translation>Показать событие обновления псевдонима комнаты</translation>
+    </message>
+    <message>
+        <source>Un&amp;known event types</source>
+        <translation>Неизвестные типы событий</translation>
+    </message>
+    <message>
+        <source>Show/hide unknown event types</source>
+        <translation>Показать/скрыть неизвестные типы событий</translation>
+    </message>
+    <message>
+        <source>Tags can be wildcarded by * next to dot(s)
+Clear the box to reset to defaults
+Special tags starting with &quot;im.quotient.&quot; are: %1
+User-defined tags should start with &quot;u.&quot;</source>
+        <translation>Метки могут быть помечены * рядом с точкой(ами).
+Снимите флажок, чтобы сбросить настройки по умолчанию
+Специальные метки, начинающиеся с &quot;im.quotient&quot; - это: %1
+Пользовательские теги должны начинаться с &quot;u&quot;.</translation>
+    </message>
+    <message>
+        <source>&amp;About Quaternion</source>
+        <translation>&amp;О Quaternion</translation>
+    </message>
+    <message>
+        <source>About &amp;Qt</source>
+        <translation>О &amp;Qt</translation>
+    </message>
+    <message>
+        <source>Use Breeze style (requires restart)</source>
+        <translation>Использовать стиль Breeze (требуется перезапуск)</translation>
+    </message>
+    <message>
+        <source>Force use Breeze style and icon theme</source>
+        <translation>Принудительно использовать стиль и тему значков Breeze</translation>
+    </message>
+    <message>
+        <source>Chat with user</source>
+        <comment>On a button in 'Open room' dialog when a user identifier is entered</comment>
+        <translation>Чат с пользователем</translation>
+    </message>
+    <message>
+        <source>Can&apos;t open</source>
+        <comment>On a disabled button in 'Open room' dialog when an invalid/unsupported URI is entered</comment>
+        <translation>Нельзя открыть</translation>
+    </message>
+    <message>
+        <source>Could not resolve id</source>
+        <translation>Не удалось найти идентификатор</translation>
+    </message>
+    <message>
+        <source>Could not find an external application to open the URI:</source>
+        <translation>Не удалось найти внешнее приложение для открытия URI:</translation>
+    </message>
+    <message>
+        <source>Could not resolve Matrix identifier</source>
+        <translation>Не удалось найти идентификатор Matrix</translation>
+    </message>
+    <message>
+        <source>Incorrect action on a Matrix resource</source>
+        <translation>Неправильное действие над ресурсом Matrix</translation>
+    </message>
+    <message>
+        <source>The URI contains an action &apos;%1&apos; that cannot be applied to Matrix resource %2</source>
+        <translation>URI содержит действие &apos;%1&apos;, которое не может быть применено к ресурсу Matrix %2</translation>
+    </message>
+    <message>
+        <source>Failed to resolve server %1</source>
+        <translation>Не удалось подключится к серверу %1</translation>
+    </message>
+    <message>
+        <source>Room or user ID, room alias,
+Matrix URI or matrix.to link</source>
+        <translation>Идентификатор комнаты или пользователя, псевдоним комнаты,
+Matrix URI или matrix.to ссылка</translation>
+    </message>
+    <message>
+        <source>Go to room</source>
+        <translation>Перейти в комнату</translation>
+    </message>
+    <message>
         <source>Join room</source>
         <translation>Войти в комнату</translation>
     </message>
@@ -954,14 +1294,17 @@ or matrix.to link</source>
     </message>
     <message>
         <source>updated the database</source>
+        <comment>TWIM bot updated the database</comment>
         <translation>обновил базу данных</translation>
     </message>
     <message>
         <source>updated %1 state</source>
+        <comment>%1 - Matrix event type</comment>
         <translation>обновил состояние %1</translation>
     </message>
     <message>
         <source>updated %1 state for %2</source>
+        <comment>%1 - Matrix event type, %2 - state key</comment>
         <translation>обновил состояние %1 для ключа %2</translation>
     </message>
     <message>
@@ -987,6 +1330,19 @@ or matrix.to link</source>
     <message>
         <source>banned %1 from the room: %2</source>
         <translation>заблокировал %1 в комнате: %2</translation>
+    </message>
+    <message>
+        <source>kicked %1 from the room: %2</source>
+        <translation>%1 выгнал из комнаты %2</translation>
+    </message>
+    <message>
+        <source>upgraded the room: %1</source>
+        <translation>обновил комнату: %1</translation>
+    </message>
+    <message>
+        <source> and </source>
+        <comment>joiner for member profile updates</comment>
+        <translation>и</translation>
     </message>
 </context>
 <context>
@@ -1056,14 +1412,17 @@ or matrix.to link</source>
     </message>
     <message>
         <source>(loading)</source>
+        <comment>Loading room versions from the server</comment>
         <translation>(загрузка)</translation>
     </message>
     <message>
         <source>default</source>
+        <comment>Default room version</comment>
         <translation>по умолчанию</translation>
     </message>
     <message>
         <source>stable</source>
+        <comment>Stable room version</comment>
         <translation>стабильная</translation>
     </message>
     <message>
@@ -1139,7 +1498,12 @@ or matrix.to link</source>
     </message>
     <message>
         <source>Add</source>
+        <comment>A caption on a button to add tags</comment>
         <translation>Добавить</translation>
+    </message>
+    <message>
+        <source>Copy room link to clipboard</source>
+        <translation>Скопировать ссылку на комнату в буфер обмена</translation>
     </message>
 </context>
 <context>
@@ -1174,6 +1538,7 @@ or matrix.to link</source>
     </message>
     <message>
         <source>%1 (as %2)</source>
+        <comment>%Room (as %user)</comment>
         <translation>%1 (как %2)</translation>
     </message>
     <message>
@@ -1194,6 +1559,7 @@ or matrix.to link</source>
     </message>
     <message numerus="yes">
         <source>Joined: %Ln</source>
+        <comment>The number of joined members</comment>
         <translation>
             <numerusform>Присоединился: %Ln</numerusform>
             <numerusform>Присоединились: %Ln</numerusform>
@@ -1202,6 +1568,7 @@ or matrix.to link</source>
     </message>
     <message numerus="yes">
         <source>Invited: %Ln</source>
+        <comment>The number of invited users</comment>
         <translation>
             <numerusform>Приглашен: %Ln</numerusform>
             <numerusform>Приглашено: %Ln</numerusform>
@@ -1238,6 +1605,7 @@ or matrix.to link</source>
     </message>
     <message>
         <source>as %1</source>
+        <comment>as  (disambiguates entries in the room list)</comment>
         <translation>как %1</translation>
     </message>
     <message>
@@ -1247,6 +1615,52 @@ or matrix.to link</source>
     <message>
         <source>Consider upgrading to a stable version (use room settings for that)</source>
         <translation>Рекомендуется обновление до стабильной версии комнаты (используйте настройки комнаты для этого)</translation>
+    </message>
+    <message>
+        <source>Server notices</source>
+        <translation>Уведомления сервера</translation>
+    </message>
+    <message numerus="yes">
+        <source>Joined: %L1</source>
+        <comment>The number of joined members</comment>
+        <translation>
+            <numerusform>Зашло пользователей: %L1</numerusform>
+            <numerusform>Зашло пользователей: %L1</numerusform>
+            <numerusform>Зашло пользователей: %L1</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Invited: %L1</source>
+        <comment>The number of invited users</comment>
+        <translation>
+            <numerusform>Приглашено: %L1</numerusform>
+            <numerusform>Приглашено: %L1</numerusform>
+            <numerusform>Приглашено: %L1</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Unread messages: %L1+</source>
+        <translation>
+            <numerusform>%L1+ непрочитанное сообщение</numerusform>
+            <numerusform>%L1+ непрочитанных сообщений</numerusform>
+            <numerusform>%L1+ непрочитанных сообщений</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Unread messages: %L1</source>
+        <translation>
+            <numerusform>%L1 непрочитанное сообщение</numerusform>
+            <numerusform>%L1 непрочитанных сообщений</numerusform>
+            <numerusform>%L1 непрочитанных сообщений</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Unread highlights: %L1</source>
+        <translation>Непрочитанные основные моменты: %L1</translation>
+    </message>
+    <message>
+        <source>Unread notifications: %L1</source>
+        <translation>Непрочитанных уведомлений: %L1</translation>
     </message>
 </context>
 <context>
@@ -1277,6 +1691,7 @@ or matrix.to link</source>
     </message>
     <message>
         <source>Upgrade</source>
+        <comment>Upgrade a room version</comment>
         <translation>Обновить</translation>
     </message>
     <message>
@@ -1342,6 +1757,7 @@ This operation cannot be reverted.</source>
     </message>
     <message>
         <source>(%L1 out of %L2)</source>
+        <comment>%found out of %total users</comment>
         <translation>(%L1 из %L2)</translation>
     </message>
 </context>
@@ -1396,14 +1812,17 @@ This operation cannot be reverted.</source>
     </message>
     <message>
         <source>uploaded from %1</source>
+        <comment>%1 is a local file name</comment>
         <translation>отправлен из файла %1</translation>
     </message>
     <message>
         <source>being uploaded from %1</source>
+        <comment>%1 is a local file name</comment>
         <translation>отправляется из файла %1</translation>
     </message>
     <message>
         <source>downloaded to %1</source>
+        <comment>%1 is a local file name</comment>
         <translation>скачано в %1</translation>
     </message>
 </context>
@@ -1452,8 +1871,13 @@ This operation cannot be reverted.</source>
         <source>Quote</source>
         <translation>Цитировать</translation>
     </message>
+    <message>
+        <source>edited</source>
+        <translation>изменено</translation>
+    </message>
     <message numerus="yes">
         <source>%1 reacted with &apos;%2&apos;</source>
+        <comment>%1 is a list of users, %2 is the reaction (usually an emoji)</comment>
         <translation>
             <numerusform>%1 реакция: %2</numerusform>
             <numerusform>%1 реакции: %2</numerusform>
@@ -1467,6 +1891,16 @@ This operation cannot be reverted.</source>
             <numerusform>%n автора</numerusform>
             <numerusform>%n авторов</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>Go to
+older room</source>
+        <translation>Перейти в старую комнату</translation>
+    </message>
+    <message>
+        <source>Go to
+new room</source>
+        <translation>Перейти в новую комнату</translation>
     </message>
 </context>
 <context>
@@ -1483,11 +1917,27 @@ This operation cannot be reverted.</source>
             <numerusform>%n упоминаний</numerusform>
         </translation>
     </message>
+    <message>
+        <source>Hide</source>
+        <translation>Скрыть</translation>
+    </message>
+    <message>
+        <source>Quit</source>
+        <translation>Выход</translation>
+    </message>
+    <message>
+        <source>Show</source>
+        <translation>Показать</translation>
+    </message>
 </context>
 <context>
     <name>UserListModel</name>
     <message>
         <source>Bridged from: %1</source>
+        <comment>Переправлено з</comment>
+        <comment>Did you mean to put it to the translation instead?</comment>
+        <comment>Also - note that this is about a user, not a message (&quot;bridged messages&quot; don't exist); so its should probably be &quot;Переправлен(а) з&quot;. With that said, I'm not quite sure how much this is the best fitting translation even - but &quot;Мiст&quot; is even more obscure.</comment>
+        <comment>Конечно &quot;Мiст&quot; не правильно.&nbsp;If this means user, then&nbsp;&quot;Переправлен(а)....</comment>
         <translation>Переправлен(а) из: %1</translation>
     </message>
 </context>
@@ -1509,12 +1959,72 @@ This operation cannot be reverted.</source>
         <source>No connection to perform image request</source>
         <translation>Нет соединения для выполнения запроса изображения</translation>
     </message>
+    <message>
+        <source>Image request is pending</source>
+        <translation>Запрос на изображение в процессе</translation>
+    </message>
 </context>
 <context>
     <name>ProfileDialog</name>
     <message>
+        <source>This is the current device</source>
+        <translation>Это текущее устройство</translation>
+    </message>
+    <message>
+        <source>Device display name</source>
+        <translation>Отображаемое имя устройства</translation>
+    </message>
+    <message>
+        <source>Device ID</source>
+        <translation>Идентификатор устройства</translation>
+    </message>
+    <message>
+        <source>Last time seen</source>
+        <translation>Последний раз видели</translation>
+    </message>
+    <message>
+        <source>Last IP address</source>
+        <translation>Последний IP-адрес</translation>
+    </message>
+    <message>
+        <source>No Avatar</source>
+        <translation>Нет аватара</translation>
+    </message>
+    <message>
+        <source>User profiles</source>
+        <translation>Профили пользователей</translation>
+    </message>
+    <message>
         <source>Account</source>
         <translation>Учетная запись</translation>
+    </message>
+    <message>
+        <source>Display Name</source>
+        <translation>Отображаемое имя</translation>
+    </message>
+    <message>
+        <source>Copy to clipboard</source>
+        <translation>Скопировать в буфер обмена</translation>
+    </message>
+    <message>
+        <source>Access token</source>
+        <translation>Ключ доступа</translation>
+    </message>
+    <message>
+        <source>Apply and close</source>
+        <translation>Применить и закрыть</translation>
+    </message>
+    <message>
+        <source>Loading other devices...</source>
+        <translation>Загрузка других устройств ...</translation>
+    </message>
+    <message>
+        <source>No avatar</source>
+        <translation>Нет аватара</translation>
+    </message>
+    <message>
+        <source>Set avatar</source>
+        <translation>Установить аватар</translation>
     </message>
 </context>
 </TS>

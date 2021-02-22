@@ -31,10 +31,14 @@
     </message>
     <message>
         <source>/invite &lt;memberId&gt;</source>
+        <comment>Does this string need translation?</comment>
+        <comment>Seems this is command, that don't need translation</comment>
         <translation>/invite &lt;Nutzer-ID&gt;</translation>
     </message>
     <message>
         <source>/%1 &lt;userId&gt; &lt;reason&gt;</source>
+        <comment>Does this string need translation?</comment>
+        <comment>Yes - similar to what you can see for German. Probably, something like &quot;/%1 &lt;id пользователя&gt; &lt;причина&gt;&quot;?</comment>
         <translation>/%1 &lt;NutzerId&gt; &lt;Grund&gt;</translation>
     </message>
     <message>
@@ -43,6 +47,8 @@
     </message>
     <message>
         <source>/unban &lt;userId&gt;</source>
+        <comment>Does this string need translation?</comment>
+        <comment>Seems this is command, that don't need translation</comment>
         <translation>/unban &lt;NutzerId&gt;</translation>
     </message>
     <message>
@@ -51,6 +57,7 @@
     </message>
     <message>
         <source>/ignore &lt;userId&gt;</source>
+        <comment>Does this string need translation?</comment>
         <translation>/ignore &lt;NutzerID&gt;</translation>
     </message>
     <message>
@@ -71,6 +78,7 @@
     </message>
     <message>
         <source>/%1 &lt;memberId&gt; &lt;message&gt;</source>
+        <comment>Does this string need translation?</comment>
         <translation>/%1 &lt;NutzerId&gt; &lt;Nachricht&gt;</translation>
     </message>
     <message>
@@ -79,6 +87,7 @@
     </message>
     <message>
         <source>%1 doesn&apos;t look like a user id or room alias</source>
+        <comment>it looks in both cases like a check for an id</comment>
         <translation>%1 sieht nicht nach einer Nutzer- oder Raum-ID aus</translation>
     </message>
     <message>
@@ -139,6 +148,7 @@
     </message>
     <message>
         <source>Send a message (over %1) or enter a command...</source>
+        <comment>%1 is the protocol used by the server (usually HTTPS)</comment>
         <translation>Sende eine Nachricht (über %1) oder gebe einen Befehl ein...</translation>
     </message>
 </context>
@@ -166,6 +176,7 @@
     </message>
     <message>
         <source>Unknown</source>
+        <comment>Unknown attachment size</comment>
         <translation>Unbekannt</translation>
     </message>
     <message numerus="yes">
@@ -209,6 +220,7 @@ Go to Room Settings to upgrade the room</source>
     </message>
     <message>
         <source>Add</source>
+        <comment>Add a user to the list of invitees</comment>
         <translation>Hinzufügen</translation>
     </message>
     <message>
@@ -314,6 +326,7 @@ Go to Room Settings to upgrade the room</source>
     </message>
     <message>
         <source>&amp;No-effect activity</source>
+        <comment>Please provide context of this string (outer text)</comment>
         <translation>&amp;Effektlose Aktivität</translation>
     </message>
     <message>
@@ -394,6 +407,8 @@ Go to Room Settings to upgrade the room</source>
     </message>
     <message>
         <source>XChat</source>
+        <comment>Please provide context. What is XChat?</comment>
+        <comment>Sorry, this one is not supposed to be translated. Actually, XChat is the name of a popular IRC client.</comment>
         <translation>XChat</translation>
     </message>
     <message>
@@ -588,10 +603,12 @@ Clicking &apos;Cancel&apos; will stop further synchronisation of this account un
     </message>
     <message>
         <source>Use shuttle scrollbar (requires restart)</source>
+        <comment>Empty translate to empty? :)</comment>
         <translation>Pendellaufleiste benutzen (erfordert Neustart)</translation>
     </message>
     <message>
         <source>Control scroll velocity instead of position with the timeline scrollbar</source>
+        <comment>Empty translate to empty? :)</comment>
         <translation>Der Laufleisten-Schieberegler fürs Gesprächsprotokoll ändert die Laufgeschwindigkeit anstatt der Position.</translation>
     </message>
     <message>
@@ -929,14 +946,17 @@ or matrix.to link</source>
     </message>
     <message>
         <source>updated the database</source>
+        <comment>TWIM bot updated the database</comment>
         <translation>aktualisierte die Datenbank.</translation>
     </message>
     <message>
         <source>updated %1 state</source>
+        <comment>%1 - Matrix event type</comment>
         <translation>aktualisierte Status von %1.</translation>
     </message>
     <message>
         <source>updated %1 state for %2</source>
+        <comment>%1 - Matrix event type, %2 - state key</comment>
         <translation>aktualisierte %1-Status für %2.</translation>
     </message>
     <message>
@@ -1031,14 +1051,17 @@ or matrix.to link</source>
     </message>
     <message>
         <source>(loading)</source>
+        <comment>Loading room versions from the server</comment>
         <translation>(Laden)</translation>
     </message>
     <message>
         <source>default</source>
+        <comment>Default room version</comment>
         <translation>Standard</translation>
     </message>
     <message>
         <source>stable</source>
+        <comment>Stable room version</comment>
         <translation>stabil</translation>
     </message>
     <message>
@@ -1114,6 +1137,7 @@ or matrix.to link</source>
     </message>
     <message>
         <source>Add</source>
+        <comment>A caption on a button to add tags</comment>
         <translation>Hinzufügen</translation>
     </message>
 </context>
@@ -1148,6 +1172,7 @@ or matrix.to link</source>
     </message>
     <message>
         <source>%1 (as %2)</source>
+        <comment>%Room (as %user)</comment>
         <translation>%1 (als %2)</translation>
     </message>
     <message>
@@ -1168,6 +1193,7 @@ or matrix.to link</source>
     </message>
     <message numerus="yes">
         <source>Joined: %Ln</source>
+        <comment>The number of joined members</comment>
         <translation>
             <numerusform>Beigetreten: %L</numerusform>
             <numerusform>Beigetreten: %L</numerusform>
@@ -1175,6 +1201,7 @@ or matrix.to link</source>
     </message>
     <message numerus="yes">
         <source>Invited: %Ln</source>
+        <comment>The number of invited users</comment>
         <translation>
             <numerusform>Eingeladen: %L</numerusform>
             <numerusform>Eingeladen: %L</numerusform>
@@ -1210,6 +1237,7 @@ or matrix.to link</source>
     </message>
     <message>
         <source>as %1</source>
+        <comment>as  (disambiguates entries in the room list)</comment>
         <translation>als %1</translation>
     </message>
     <message>
@@ -1249,6 +1277,7 @@ or matrix.to link</source>
     </message>
     <message>
         <source>Upgrade</source>
+        <comment>Upgrade a room version</comment>
         <translation>Aktualisierung</translation>
     </message>
     <message>
@@ -1314,6 +1343,7 @@ Dieser Vorgang kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>(%L1 out of %L2)</source>
+        <comment>%found out of %total users</comment>
         <translation>(%L1 von %L2)</translation>
     </message>
 </context>
@@ -1368,14 +1398,17 @@ Dieser Vorgang kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>uploaded from %1</source>
+        <comment>%1 is a local file name</comment>
         <translation>hochgeladen von %1</translation>
     </message>
     <message>
         <source>being uploaded from %1</source>
+        <comment>%1 is a local file name</comment>
         <translation>lädt hoch von %1</translation>
     </message>
     <message>
         <source>downloaded to %1</source>
+        <comment>%1 is a local file name</comment>
         <translation>nach %1 heruntergeladen</translation>
     </message>
 </context>
@@ -1443,6 +1476,10 @@ Dieser Vorgang kann nicht rückgängig gemacht werden.</translation>
     <name>UserListModel</name>
     <message>
         <source>Bridged from: %1</source>
+        <comment>Переправлено з</comment>
+        <comment>Did you mean to put it to the translation instead?</comment>
+        <comment>Also - note that this is about a user, not a message (&quot;bridged messages&quot; don't exist); so its should probably be &quot;Переправлен(а) з&quot;. With that said, I'm not quite sure how much this is the best fitting translation even - but &quot;Мiст&quot; is even more obscure.</comment>
+        <comment>Конечно &quot;Мiст&quot; не правильно.&nbsp;If this means user, then&nbsp;&quot;Переправлен(а)....</comment>
         <translation>Überbrückt von: %1</translation>
     </message>
 </context>

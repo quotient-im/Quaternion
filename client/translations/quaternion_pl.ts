@@ -31,10 +31,14 @@
     </message>
     <message>
         <source>/invite &lt;memberId&gt;</source>
+        <comment>Does this string need translation?</comment>
+        <comment>Seems this is command, that don't need translation</comment>
         <translation>/invite &lt;memberId&gt;</translation>
     </message>
     <message>
         <source>/%1 &lt;userId&gt; &lt;reason&gt;</source>
+        <comment>Does this string need translation?</comment>
+        <comment>Yes - similar to what you can see for German. Probably, something like &quot;/%1 &lt;id пользователя&gt; &lt;причина&gt;&quot;?</comment>
         <translation>/%1 &lt;userId&gt; &lt;reason&gt;</translation>
     </message>
     <message>
@@ -43,6 +47,8 @@
     </message>
     <message>
         <source>/unban &lt;userId&gt;</source>
+        <comment>Does this string need translation?</comment>
+        <comment>Seems this is command, that don't need translation</comment>
         <translation>/unban &lt;userId&gt;</translation>
     </message>
     <message>
@@ -51,6 +57,7 @@
     </message>
     <message>
         <source>/ignore &lt;userId&gt;</source>
+        <comment>Does this string need translation?</comment>
         <translation>/ignore &lt;userId&gt;</translation>
     </message>
     <message>
@@ -71,6 +78,7 @@
     </message>
     <message>
         <source>/%1 &lt;memberId&gt; &lt;message&gt;</source>
+        <comment>Does this string need translation?</comment>
         <translation>/%1 &lt;memberId&gt; &lt;message&gt;</translation>
     </message>
     <message>
@@ -79,6 +87,7 @@
     </message>
     <message>
         <source>%1 doesn&apos;t look like a user id or room alias</source>
+        <comment>it looks in both cases like a check for an id</comment>
         <translation>%1 nie wygląda jak identyfikator użytkownika lub alias pokoju</translation>
     </message>
     <message>
@@ -139,7 +148,20 @@
     </message>
     <message>
         <source>Send a message (over %1) or enter a command...</source>
+        <comment>%1 is the protocol used by the server (usually HTTPS)</comment>
         <translation>Wyślij wiadomość (poprzez %1) lub wprowadź polecenie…</translation>
+    </message>
+    <message>
+        <source>Attaching an image from clipboard</source>
+        <translation>Załączanie obrazu ze schowka</translation>
+    </message>
+    <message>
+        <source>Referenced message not found</source>
+        <translation>Nie znaleziono odwołanej wiadomości</translation>
+    </message>
+    <message>
+        <source>Send a message (no end-to-end encryption support yet)...</source>
+        <translation>Wyślij wiadomość (brak obsługi szyfrowania typu end-to-end)…</translation>
     </message>
     <message>
         <source>Redact</source>
@@ -150,8 +172,37 @@
         <translation>Skopiuj link do schowka</translation>
     </message>
     <message>
+        <source>Copy permalink to clipboard</source>
+        <translation>Skopiuj link bezpośredni do schowka</translation>
+    </message>
+    <message>
+        <source>Quote</source>
+        <comment>a verb (do quote), not a noun (a quote)</comment>
+        <translation>Cytuj</translation>
+    </message>
+    <message>
+        <source>Show details</source>
+        <translation>Pokaż szczegóły</translation>
+    </message>
+    <message>
         <source>Open externally</source>
         <translation>Otwórz zewnętrznie</translation>
+    </message>
+    <message>
+        <source>Open Folder</source>
+        <translation>Otwórz folder</translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <translation>Pobierz</translation>
+    </message>
+    <message>
+        <source>Save file as...</source>
+        <translation>Zapisz plik jako…</translation>
+    </message>
+    <message>
+        <source>Your build of Quaternion doesn&apos;t support Markdown</source>
+        <translation>Twoja wersja Quaterniona nie wspiera składni Markdown</translation>
     </message>
 </context>
 <context>
@@ -178,6 +229,7 @@
     </message>
     <message>
         <source>Unknown</source>
+        <comment>Unknown attachment size</comment>
         <translation>Nieznany</translation>
     </message>
     <message numerus="yes">
@@ -210,6 +262,47 @@ Go to Room Settings to upgrade the room</source>
         <source>Go to Room Settings to upgrade the room</source>
         <translation>Przejdź do ustawień pokoju, aby zaktualizować pokój</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln byte(s)</source>
+        <translation>
+            <numerusform>%Ln bajt</numerusform>
+            <numerusform>%Ln bajty</numerusform>
+            <numerusform>%Ln bajtów</numerusform>
+            <numerusform>%Ln bajtów</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>%L1 KB</source>
+        <translation>%L1 KB</translation>
+    </message>
+    <message>
+        <source>%L1 MB</source>
+        <translation>%L1 MB</translation>
+    </message>
+    <message>
+        <source>%L1 GB</source>
+        <translation>%L1 GB</translation>
+    </message>
+    <message>
+        <source>This room has been upgraded.</source>
+        <translation>Ten pokój został zaktualizowany.</translation>
+    </message>
+    <message>
+        <source>Go to
+new room</source>
+        <translation>Przejdź do
+nowego pokoju</translation>
+    </message>
+    <message>
+        <source>Room
+settings</source>
+        <translation>Ustawienia
+pokoju</translation>
+    </message>
+    <message>
+        <source>Latest events</source>
+        <translation>Ostatnie wydarzenia</translation>
+    </message>
 </context>
 <context>
     <name>CreateRoomDialog</name>
@@ -219,6 +312,7 @@ Go to Room Settings to upgrade the room</source>
     </message>
     <message>
         <source>Add</source>
+        <comment>Add a user to the list of invitees</comment>
         <translation>Dodaj</translation>
     </message>
     <message>
@@ -323,6 +417,11 @@ Go to Room Settings to upgrade the room</source>
         <translation>Pokaż zredagowane wydarzenia na osi czasu jako „Zredagowane”, zamiast całkowicie je ukrywać</translation>
     </message>
     <message>
+        <source>&amp;No-effect activity</source>
+        <comment>Please provide context of this string (outer text)</comment>
+        <translation>Aktywności &amp;bez efektu</translation>
+    </message>
+    <message>
         <source>Edit tags order</source>
         <translation>Edytuj kolejność tagów</translation>
     </message>
@@ -396,6 +495,8 @@ Go to Room Settings to upgrade the room</source>
     </message>
     <message>
         <source>XChat</source>
+        <comment>Please provide context. What is XChat?</comment>
+        <comment>Sorry, this one is not supposed to be translated. Actually, XChat is the name of a popular IRC client.</comment>
         <translation>XChat</translation>
     </message>
     <message>
@@ -421,6 +522,10 @@ Go to Room Settings to upgrade the room</source>
     <message>
         <source>Quaternion couldn&apos;t open a file to write the access token to. You&apos;re logged in but will have to provide your password again when you restart the application.</source>
         <translation>Quaternion nie mógł otworzyć pliku, aby zapisać token dostępu. Jesteś zalogowany, ale będziesz musiał podać hasło ponownie po ponownym uruchomieniu aplikacji.</translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t set access token file permissions</source>
+        <translation>Nie można ustawić uprawnień do pliku tokenu dostępu</translation>
     </message>
     <message>
         <source>Logged out as %1</source>
@@ -767,6 +872,107 @@ lub link matrix.to</translation>
         <translation>Współautorzy libQuotient na GitHubie</translation>
     </message>
     <message>
+        <source>Quaternion couldn&apos;t delete the access token from the keychain.</source>
+        <translation>Quaternion nie mógł usunąć tokena dostępu z pęku kluczy.</translation>
+    </message>
+    <message>
+        <source>External link confirmation</source>
+        <translation>Potwierdzenie odnośnika zewnętrznego</translation>
+    </message>
+    <message>
+        <source>An external application will be opened to visit a non-Matrix link:
+
+%1
+
+Is that right?</source>
+        <translation>Otworzy się zewnętrzna aplikacja, aby odwiedzić odnośnik inny niż Matrix: 
+
+%1 
+
+Czy to się zgadza?</translation>
+    </message>
+    <message>
+        <source>Do not ask again</source>
+        <translation>Nie pytaj ponownie</translation>
+    </message>
+    <message>
+        <source>Please connect to a server</source>
+        <translation>Połącz się z serwerem</translation>
+    </message>
+    <message>
+        <source>User &amp;profiles...</source>
+        <translation>Profile &amp;użytkowników…</translation>
+    </message>
+    <message>
+        <source>Log&amp;out</source>
+        <translation>Wyl&amp;oguj</translation>
+    </message>
+    <message>
+        <source>Invite events</source>
+        <translation>Wydarzenia zaproszeń</translation>
+    </message>
+    <message>
+        <source>Show invite and withdrawn invitation events</source>
+        <translation>Pokazuj zdarzenia zaproszeń i odrzucenia zaproszeń</translation>
+    </message>
+    <message>
+        <source>Changes in display na&amp;me</source>
+        <translation>Z&amp;miany w wyświetlanej nazwie</translation>
+    </message>
+    <message>
+        <source>Show display name change</source>
+        <translation>Pokazuj zmianę wyświetlanej nazwy</translation>
+    </message>
+    <message>
+        <source>Avatar &amp;changes</source>
+        <translation>Zmiany &amp;awatara</translation>
+    </message>
+    <message>
+        <source>Show avatar update events</source>
+        <translation>Pokazuj zdarzenia aktualizacji awatara</translation>
+    </message>
+    <message>
+        <source>Room alias &amp;updates</source>
+        <translation>Aktualizacje aliasu pokoju</translation>
+    </message>
+    <message>
+        <source>Show room alias updates events</source>
+        <translation>Pokazuj zdarzenia aktualizacji aliasu serwera</translation>
+    </message>
+    <message>
+        <source>Un&amp;known event types</source>
+        <translation>&amp;Nieznane typy wydarzeń</translation>
+    </message>
+    <message>
+        <source>Show/hide unknown event types</source>
+        <translation>Pokazuj/ukrywaj nieznane typy zdarzeń</translation>
+    </message>
+    <message>
+        <source>&amp;About Quaternion</source>
+        <translation>&amp;Informacje o Quaternion</translation>
+    </message>
+    <message>
+        <source>About &amp;Qt</source>
+        <translation>Informacje o &amp;Qt</translation>
+    </message>
+    <message>
+        <source>Use Breeze style (requires restart)</source>
+        <translation>Użyj stylu Breeze (wymaga ponownego uruchomienia)</translation>
+    </message>
+    <message>
+        <source>Force use Breeze style and icon theme</source>
+        <translation>Wymuś użycie stylu i motywu ikon Breeze</translation>
+    </message>
+    <message>
+        <source>Can&apos;t open</source>
+        <comment>On a disabled button in 'Open room' dialog when an invalid/unsupported URI is entered</comment>
+        <translation>Nie można otworzyć</translation>
+    </message>
+    <message>
+        <source>Go to room</source>
+        <translation>Przejdź do pokoju</translation>
+    </message>
+    <message>
         <source>Join room</source>
         <translation>Dołącz do pokoju</translation>
     </message>
@@ -895,14 +1101,17 @@ lub link matrix.to</translation>
     </message>
     <message>
         <source>updated the database</source>
+        <comment>TWIM bot updated the database</comment>
         <translation>zaktualizował bazę danych</translation>
     </message>
     <message>
         <source>updated %1 state</source>
+        <comment>%1 - Matrix event type</comment>
         <translation>zaktualizował(a) stan %1</translation>
     </message>
     <message>
         <source>updated %1 state for %2</source>
+        <comment>%1 - Matrix event type, %2 - state key</comment>
         <translation>zaktualizował(a) stan %1 dla %2</translation>
     </message>
     <message>
@@ -928,6 +1137,14 @@ lub link matrix.to</translation>
     <message>
         <source>banned %1 from the room: %2</source>
         <translation>zbanował(a) %1 z pokoju: %2</translation>
+    </message>
+    <message>
+        <source>kicked %1 from the room: %2</source>
+        <translation>wyrzucił(-a) %1 z pokoju: %2</translation>
+    </message>
+    <message>
+        <source>upgraded the room: %1</source>
+        <translation>zaktualizował(-a) pokój: %1</translation>
     </message>
 </context>
 <context>
@@ -997,14 +1214,17 @@ lub link matrix.to</translation>
     </message>
     <message>
         <source>(loading)</source>
+        <comment>Loading room versions from the server</comment>
         <translation>(ładowanie)</translation>
     </message>
     <message>
         <source>default</source>
+        <comment>Default room version</comment>
         <translation>domyślna</translation>
     </message>
     <message>
         <source>stable</source>
+        <comment>Stable room version</comment>
         <translation>stabilna</translation>
     </message>
     <message>
@@ -1080,7 +1300,12 @@ lub link matrix.to</translation>
     </message>
     <message>
         <source>Add</source>
+        <comment>A caption on a button to add tags</comment>
         <translation>Dodaj</translation>
+    </message>
+    <message>
+        <source>Copy room link to clipboard</source>
+        <translation>Skopiuj link do pokoju do schowka</translation>
     </message>
 </context>
 <context>
@@ -1116,6 +1341,7 @@ lub link matrix.to</translation>
     </message>
     <message>
         <source>%1 (as %2)</source>
+        <comment>%Room (as %user)</comment>
         <translation>%1 (jako %2)</translation>
     </message>
     <message>
@@ -1136,6 +1362,7 @@ lub link matrix.to</translation>
     </message>
     <message numerus="yes">
         <source>Joined: %Ln</source>
+        <comment>The number of joined members</comment>
         <translation>
             <numerusform>Dołączeni: %Ln</numerusform>
             <numerusform>Dołączeni: %Ln</numerusform>
@@ -1145,6 +1372,7 @@ lub link matrix.to</translation>
     </message>
     <message numerus="yes">
         <source>Invited: %Ln</source>
+        <comment>The number of invited users</comment>
         <translation>
             <numerusform>Zaproszeni: %Ln</numerusform>
             <numerusform>Zaproszeni: %Ln</numerusform>
@@ -1182,11 +1410,42 @@ lub link matrix.to</translation>
     </message>
     <message>
         <source>as %1</source>
+        <comment>as  (disambiguates entries in the room list)</comment>
         <translation>jako %1</translation>
     </message>
     <message>
         <source>This room&apos;s version is unstable!</source>
         <translation>Wersja tego pokoju jest niestabilna!</translation>
+    </message>
+    <message>
+        <source>Server notices</source>
+        <translation>Ogłoszenia serwera</translation>
+    </message>
+    <message numerus="yes">
+        <source>Unread messages: %L1+</source>
+        <translation>
+            <numerusform>Nieprzeczytane wiadomości: %L1+</numerusform>
+            <numerusform>Nieprzeczytane wiadomości: %L1+</numerusform>
+            <numerusform>Nieprzeczytane wiadomości: %L1+</numerusform>
+            <numerusform>Nieprzeczytane wiadomości: %L1+</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Unread messages: %L1</source>
+        <translation>
+            <numerusform>Nieprzeczytane wiadomości: %L1</numerusform>
+            <numerusform>Nieprzeczytane wiadomości: %L1</numerusform>
+            <numerusform>Nieprzeczytane wiadomości: %L1</numerusform>
+            <numerusform>Nieprzeczytane wiadomości: %L1</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Unread highlights: %L1</source>
+        <translation>Nieprzeczytane wyróżnienia: %L1</translation>
+    </message>
+    <message>
+        <source>Unread notifications: %L1</source>
+        <translation>Nieprzeczytane powiadomienia: %L1</translation>
     </message>
 </context>
 <context>
@@ -1217,6 +1476,7 @@ lub link matrix.to</translation>
     </message>
     <message>
         <source>Upgrade</source>
+        <comment>Upgrade a room version</comment>
         <translation>Zaktualizuj</translation>
     </message>
     <message>
@@ -1282,6 +1542,7 @@ Ta operacja nie może zostać cofnięta.</translation>
     </message>
     <message>
         <source>(%L1 out of %L2)</source>
+        <comment>%found out of %total users</comment>
         <translation>(%L1 z %L2)</translation>
     </message>
 </context>
@@ -1336,10 +1597,12 @@ Ta operacja nie może zostać cofnięta.</translation>
     </message>
     <message>
         <source>uploaded from %1</source>
+        <comment>%1 is a local file name</comment>
         <translation>przesłany z %1</translation>
     </message>
     <message>
         <source>downloaded to %1</source>
+        <comment>%1 is a local file name</comment>
         <translation>pobrano do %1</translation>
     </message>
 </context>
@@ -1388,6 +1651,41 @@ Ta operacja nie może zostać cofnięta.</translation>
         <source>Quote</source>
         <translation>Cytuj</translation>
     </message>
+    <message>
+        <source>edited</source>
+        <translation>edytowane</translation>
+    </message>
+    <message numerus="yes">
+        <source>%1 reacted with &apos;%2&apos;</source>
+        <comment>%1 is a list of users, %2 is the reaction (usually an emoji)</comment>
+        <translation>
+            <numerusform>%1 zareagował(-a) używając &apos;%2&apos;</numerusform>
+            <numerusform>%1 zareagowali(-ły) używając &apos;%2&apos;</numerusform>
+            <numerusform>%1 zareagowali(-ły) używając &apos;%2&apos;</numerusform>
+            <numerusform>%1 zareagowało używając &apos;%2&apos;</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n author(s)</source>
+        <translation>
+            <numerusform>%n autor</numerusform>
+            <numerusform>%n autorzy</numerusform>
+            <numerusform>%n autorów</numerusform>
+            <numerusform>%n autorów</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Go to
+older room</source>
+        <translation>Przejdź do
+starszego pokoju</translation>
+    </message>
+    <message>
+        <source>Go to
+new room</source>
+        <translation>Przejdź do
+nowego pokoju</translation>
+    </message>
 </context>
 <context>
     <name>SystemTrayIcon</name>
@@ -1404,11 +1702,27 @@ Ta operacja nie może zostać cofnięta.</translation>
             <numerusform>%n podświetleń</numerusform>
         </translation>
     </message>
+    <message>
+        <source>Hide</source>
+        <translation>Ukryj</translation>
+    </message>
+    <message>
+        <source>Quit</source>
+        <translation>Zakończ</translation>
+    </message>
+    <message>
+        <source>Show</source>
+        <translation>Pokaż</translation>
+    </message>
 </context>
 <context>
     <name>UserListModel</name>
     <message>
         <source>Bridged from: %1</source>
+        <comment>Переправлено з</comment>
+        <comment>Did you mean to put it to the translation instead?</comment>
+        <comment>Also - note that this is about a user, not a message (&quot;bridged messages&quot; don't exist); so its should probably be &quot;Переправлен(а) з&quot;. With that said, I'm not quite sure how much this is the best fitting translation even - but &quot;Мiст&quot; is even more obscure.</comment>
+        <comment>Конечно &quot;Мiст&quot; не правильно.&nbsp;If this means user, then&nbsp;&quot;Переправлен(а)....</comment>
         <translation>Mostkowany(-a) z: %1</translation>
     </message>
 </context>
@@ -1430,8 +1744,64 @@ Ta operacja nie może zostać cofnięta.</translation>
 <context>
     <name>ProfileDialog</name>
     <message>
+        <source>This is the current device</source>
+        <translation>To jest obecne urządzenie</translation>
+    </message>
+    <message>
+        <source>Device display name</source>
+        <translation>Wyświetlana nazwa urządzenia</translation>
+    </message>
+    <message>
+        <source>Device ID</source>
+        <translation>Identyfikator urządzenia</translation>
+    </message>
+    <message>
+        <source>Last time seen</source>
+        <translation>Ostatnio widziany</translation>
+    </message>
+    <message>
+        <source>Last IP address</source>
+        <translation>Ostatni adres IP</translation>
+    </message>
+    <message>
+        <source>No Avatar</source>
+        <translation>Brak awatara</translation>
+    </message>
+    <message>
+        <source>User profiles</source>
+        <translation>Profile użytkowników</translation>
+    </message>
+    <message>
         <source>Account</source>
         <translation>Konto</translation>
+    </message>
+    <message>
+        <source>Display Name</source>
+        <translation>Wyświetlana nazwa</translation>
+    </message>
+    <message>
+        <source>Copy to clipboard</source>
+        <translation>Skopiuj do schowka</translation>
+    </message>
+    <message>
+        <source>Access token</source>
+        <translation>Token dostępu</translation>
+    </message>
+    <message>
+        <source>Apply and close</source>
+        <translation>Zastosuj i zamknij</translation>
+    </message>
+    <message>
+        <source>Loading other devices...</source>
+        <translation>Ładowanie innych urządzeń…</translation>
+    </message>
+    <message>
+        <source>No avatar</source>
+        <translation>Brak awatara</translation>
+    </message>
+    <message>
+        <source>Set avatar</source>
+        <translation>Ustaw awatar</translation>
     </message>
 </context>
 </TS>

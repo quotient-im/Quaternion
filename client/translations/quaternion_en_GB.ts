@@ -31,10 +31,14 @@
     </message>
     <message>
         <source>/invite &lt;memberId&gt;</source>
+        <comment>Does this string need translation?</comment>
+        <comment>Seems this is command, that don't need translation</comment>
         <translation>/invite &lt;memberId&gt;</translation>
     </message>
     <message>
         <source>/%1 &lt;userId&gt; &lt;reason&gt;</source>
+        <comment>Does this string need translation?</comment>
+        <comment>Yes - similar to what you can see for German. Probably, something like &quot;/%1 &lt;id пользователя&gt; &lt;причина&gt;&quot;?</comment>
         <translation>/%1 &lt;userId&gt; &lt;reason&gt;</translation>
     </message>
     <message>
@@ -43,6 +47,8 @@
     </message>
     <message>
         <source>/unban &lt;userId&gt;</source>
+        <comment>Does this string need translation?</comment>
+        <comment>Seems this is command, that don't need translation</comment>
         <translation>/unban &lt;userId&gt;</translation>
     </message>
     <message>
@@ -51,6 +57,7 @@
     </message>
     <message>
         <source>/ignore &lt;userId&gt;</source>
+        <comment>Does this string need translation?</comment>
         <translation>/ignore &lt;userId&gt;</translation>
     </message>
     <message>
@@ -71,6 +78,7 @@
     </message>
     <message>
         <source>/%1 &lt;memberId&gt; &lt;message&gt;</source>
+        <comment>Does this string need translation?</comment>
         <translation>/%1 &lt;memberId&gt; &lt;message&gt;</translation>
     </message>
     <message>
@@ -79,6 +87,7 @@
     </message>
     <message>
         <source>%1 doesn&apos;t look like a user id or room alias</source>
+        <comment>it looks in both cases like a check for an id</comment>
         <translation>%1 doesn&apos;t look like a user id or room alias</translation>
     </message>
     <message>
@@ -139,6 +148,7 @@
     </message>
     <message>
         <source>Send a message (over %1) or enter a command...</source>
+        <comment>%1 is the protocol used by the server (usually HTTPS)</comment>
         <translation>Send a message (over %1) or enter a command...</translation>
     </message>
     <message>
@@ -167,6 +177,7 @@
     </message>
     <message>
         <source>Quote</source>
+        <comment>a verb (do quote), not a noun (a quote)</comment>
         <translation>Quote</translation>
     </message>
     <message>
@@ -214,6 +225,7 @@
     </message>
     <message>
         <source>Unknown</source>
+        <comment>Unknown attachment size</comment>
         <translation>Unknown</translation>
     </message>
     <message numerus="yes">
@@ -296,6 +308,7 @@ settings</translation>
     </message>
     <message numerus="yes">
         <source>%Ln cached</source>
+        <comment>%Ln is the number of messages cached</comment>
         <translation>
             <numerusform>%Ln cached</numerusform>
             <numerusform>%Ln cached</numerusform>
@@ -310,6 +323,7 @@ settings</translation>
     </message>
     <message>
         <source>Add</source>
+        <comment>Add a user to the list of invitees</comment>
         <translation>Add</translation>
     </message>
     <message>
@@ -451,6 +465,7 @@ settings</translation>
     </message>
     <message>
         <source>&amp;No-effect activity</source>
+        <comment>Please provide context of this string (outer text)</comment>
         <translation>&amp;No-effect activity</translation>
     </message>
     <message>
@@ -531,6 +546,8 @@ settings</translation>
     </message>
     <message>
         <source>XChat</source>
+        <comment>Please provide context. What is XChat?</comment>
+        <comment>Sorry, this one is not supposed to be translated. Actually, XChat is the name of a popular IRC client.</comment>
         <translation>XChat</translation>
     </message>
     <message>
@@ -725,10 +742,12 @@ Clicking &apos;Cancel&apos; will stop further synchronization of this account un
     </message>
     <message>
         <source>Use shuttle scrollbar (requires restart)</source>
+        <comment>Empty translate to empty? :)</comment>
         <translation>Use shuttle scrollbar (requires restart)</translation>
     </message>
     <message>
         <source>Control scroll velocity instead of position with the timeline scrollbar</source>
+        <comment>Empty translate to empty? :)</comment>
         <translation>Control scroll velocity instead of position with the timeline scrollbar</translation>
     </message>
     <message>
@@ -947,6 +966,7 @@ or matrix.to link</translation>
     </message>
     <message>
         <source>First sync completed for %1</source>
+        <comment>%1 is user id</comment>
         <translation>First sync completed for %1</translation>
     </message>
     <message>
@@ -1085,10 +1105,12 @@ User-defined tags should start with &quot;u.&quot;</translation>
     </message>
     <message>
         <source>Chat with user</source>
+        <comment>On a button in 'Open room' dialog when a user identifier is entered</comment>
         <translation>Chat with user</translation>
     </message>
     <message>
         <source>Can&apos;t open</source>
+        <comment>On a disabled button in 'Open room' dialog when an invalid/unsupported URI is entered</comment>
         <translation>Can&apos;t open</translation>
     </message>
     <message>
@@ -1262,14 +1284,17 @@ Matrix URI or matrix.to link</translation>
     </message>
     <message>
         <source>updated the database</source>
+        <comment>TWIM bot updated the database</comment>
         <translation>updated the database</translation>
     </message>
     <message>
         <source>updated %1 state</source>
+        <comment>%1 - Matrix event type</comment>
         <translation>updated %1 state</translation>
     </message>
     <message>
         <source>updated %1 state for %2</source>
+        <comment>%1 - Matrix event type, %2 - state key</comment>
         <translation>updated %1 state for %2</translation>
     </message>
     <message>
@@ -1372,14 +1397,17 @@ Matrix URI or matrix.to link</translation>
     </message>
     <message>
         <source>(loading)</source>
+        <comment>Loading room versions from the server</comment>
         <translation>(loading)</translation>
     </message>
     <message>
         <source>default</source>
+        <comment>Default room version</comment>
         <translation>default</translation>
     </message>
     <message>
         <source>stable</source>
+        <comment>Stable room version</comment>
         <translation>stable</translation>
     </message>
     <message>
@@ -1455,6 +1483,7 @@ Matrix URI or matrix.to link</translation>
     </message>
     <message>
         <source>Add</source>
+        <comment>A caption on a button to add tags</comment>
         <translation>Add</translation>
     </message>
     <message>
@@ -1493,6 +1522,7 @@ Matrix URI or matrix.to link</translation>
     </message>
     <message>
         <source>%1 (as %2)</source>
+        <comment>%Room (as %user)</comment>
         <translation>%1 (as %2)</translation>
     </message>
     <message>
@@ -1513,6 +1543,7 @@ Matrix URI or matrix.to link</translation>
     </message>
     <message numerus="yes">
         <source>Joined: %Ln</source>
+        <comment>The number of joined members</comment>
         <translation>
             <numerusform>Joined: %Ln</numerusform>
             <numerusform>Joined: %Ln</numerusform>
@@ -1520,6 +1551,7 @@ Matrix URI or matrix.to link</translation>
     </message>
     <message numerus="yes">
         <source>Invited: %Ln</source>
+        <comment>The number of invited users</comment>
         <translation>
             <numerusform>Invited: %Ln</numerusform>
             <numerusform>Invited: %Ln</numerusform>
@@ -1555,6 +1587,7 @@ Matrix URI or matrix.to link</translation>
     </message>
     <message>
         <source>as %1</source>
+        <comment>as  (disambiguates entries in the room list)</comment>
         <translation>as %1</translation>
     </message>
     <message>
@@ -1571,6 +1604,7 @@ Matrix URI or matrix.to link</translation>
     </message>
     <message numerus="yes">
         <source>Joined: %L1</source>
+        <comment>The number of joined members</comment>
         <translation>
             <numerusform>Joined: %L1</numerusform>
             <numerusform>Joined: %L1</numerusform>
@@ -1578,6 +1612,7 @@ Matrix URI or matrix.to link</translation>
     </message>
     <message numerus="yes">
         <source>Invited: %L1</source>
+        <comment>The number of invited users</comment>
         <translation>
             <numerusform>Invited: %L1</numerusform>
             <numerusform>Invited: %L1</numerusform>
@@ -1634,6 +1669,7 @@ Matrix URI or matrix.to link</translation>
     </message>
     <message>
         <source>Upgrade</source>
+        <comment>Upgrade a room version</comment>
         <translation>Upgrade</translation>
     </message>
     <message>
@@ -1699,6 +1735,7 @@ This operation cannot be reverted.</translation>
     </message>
     <message>
         <source>(%L1 out of %L2)</source>
+        <comment>%found out of %total users</comment>
         <translation>(%L1 out of %L2)</translation>
     </message>
 </context>
@@ -1753,14 +1790,17 @@ This operation cannot be reverted.</translation>
     </message>
     <message>
         <source>uploaded from %1</source>
+        <comment>%1 is a local file name</comment>
         <translation>uploaded from %1</translation>
     </message>
     <message>
         <source>being uploaded from %1</source>
+        <comment>%1 is a local file name</comment>
         <translation>being uploaded from %1</translation>
     </message>
     <message>
         <source>downloaded to %1</source>
+        <comment>%1 is a local file name</comment>
         <translation>downloaded to %1</translation>
     </message>
 </context>
@@ -1815,6 +1855,7 @@ This operation cannot be reverted.</translation>
     </message>
     <message numerus="yes">
         <source>%1 reacted with &apos;%2&apos;</source>
+        <comment>%1 is a list of users, %2 is the reaction (usually an emoji)</comment>
         <translation>
             <numerusform>%1 reacted with &apos;%2&apos;</numerusform>
             <numerusform>%1 reacted with &apos;%2&apos;</numerusform>
@@ -1870,6 +1911,10 @@ new room</translation>
     <name>UserListModel</name>
     <message>
         <source>Bridged from: %1</source>
+        <comment>Переправлено з</comment>
+        <comment>Did you mean to put it to the translation instead?</comment>
+        <comment>Also - note that this is about a user, not a message (&quot;bridged messages&quot; don't exist); so its should probably be &quot;Переправлен(а) з&quot;. With that said, I'm not quite sure how much this is the best fitting translation even - but &quot;Мiст&quot; is even more obscure.</comment>
+        <comment>Конечно &quot;Мiст&quot; не правильно.&nbsp;If this means user, then&nbsp;&quot;Переправлен(а)....</comment>
         <translation>Bridged from: %1</translation>
     </message>
 </context>
