@@ -486,28 +486,25 @@ Item {
                         model: reactions
                         ToolButton {
                             id: reactionButton
-                            readonly property bool includesLocalUser:
-                                modelData.authors.indexOf(
-                                    room.safeMemberName(room.localUser.id)) !== -1
 
                             topPadding: 2
                             bottomPadding: 2
 
                             contentItem: Text {
                                 text: modelData.key + " \u00d7" /* Math "multiply" */
-                                      + modelData.authors.length
+                                      + modelData.authorsCount
                                 font.family: settings.font.family
                                 font.pointSize: settings.font.pointSize - 1
-                                color: reactionButton.includesLocalUser
+                                color: modelData.includesLocalUser
                                            ? defaultPalette.highlight
                                            : defaultPalette.buttonText
                             }
 
                             background: Rectangle {
                                 radius: 4
-                                color: reactionButton.down ? defaultPalette.button
-                                                           : "transparent"
-                                border.color: reactionButton.includesLocalUser
+                                color: reactionButton.down
+                                       ? defaultPalette.button : "transparent"
+                                border.color: modelData.includesLocalUser
                                                   ? defaultPalette.highlight
                                                   : disabledPalette.buttonText
                                 border.width: 1
@@ -516,18 +513,13 @@ Item {
                             hoverEnabled: true
                             MyToolTip {
                                 visible: hovered
-                                //: %2 is either the list of users or
-                                //: 'N authors' (see the next translation node)
-                                text: qsTr("Reaction '%1' from %2 ")
-                                      .arg(modelData.authors.length <= 10
-                                           ? modelData.authors.join(", ")
-                                           : qsTr("%Ln author(s)", "",
-                                                  model.data.authors.length))
-                                      .arg(modelData.key)
+                                //: %2 is the list of users
+                                text: qsTr("Reaction '%1' from %2")
+                                      .arg(modelData.key).arg(modelData.authors)
                             }
 
-                            onClicked: controller.reactionButtonClicked(eventId,
-                                                                        modelData.key)
+                            onClicked: controller.reactionButtonClicked(
+                                           eventId, modelData.key)
                         }
                     }
                 }

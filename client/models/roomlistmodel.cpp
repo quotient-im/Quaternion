@@ -466,14 +466,11 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
             }
 
             auto unreadCount = room->unreadCount();
-            if (unreadCount >= 0)
-            {
-                const auto unreadLine =
-                    room->readMarker() == room->timelineEdge()
-                        ? tr("Unread messages: %L1 (maybe more)")
-                          .arg(unreadCount)
-                        : tr("Unread messages: %L1").arg(unreadCount);
-                result += "<br>" % unreadLine.arg(unreadCount);
+            if (unreadCount >= 0) {
+                result += "<br/>" % tr("Unread messages: %L1")
+                                    .arg(unreadCount);
+                if (room->readMarker() == room->timelineEdge())
+                    result += ' ' % /*: Unread messages */ tr("(maybe more)");
             }
 
             auto hlCount = room->highlightCount();
@@ -485,10 +482,10 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
                 result += "<br>" % tr("Unread notifications: %L1").arg(nfCount);
 
             result += "<br>" % tr("ID: %1").arg(room->id()) % "<br>";
-            auto asUser = m_connections.size() < 2 ? QString() : ' ' +
-                tr("as %1",
-                   "as <user account> (disambiguates entries in the room list)")
-                .arg(room->localUser()->id());
+            //: "as %user" disambiguates entries in the room list
+            const auto asUser = m_connections.size() < 2
+                    ? QString() : ' ' % tr("as %1")
+                                        .arg(room->localUser()->id());
             switch (room->joinState())
             {
                 case JoinState::Join:

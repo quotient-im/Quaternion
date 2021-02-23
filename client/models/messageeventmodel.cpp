@@ -514,7 +514,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                         {
                             if (!text.isEmpty())
                                 //: Joiner for member profile updates;
-                                //: mind the leading/trailing space!
+                                //: mind the leading and trailing spaces!
                                 text += tr(" and ");
                             if (e.avatarUrl().isEmpty())
                                 text += tr("cleared the avatar");
@@ -773,42 +773,50 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
     if( role == AnnotationRole )
         return isPending ? pendingIt->annotation() : QString();
 
-    if( role == ReactionsRole )
-    {
+    if( role == ReactionsRole ) {
+        // Filter reactions out of all annotations and collate them by key
+        struct Reaction {
+            QString key;
+            QStringList authorsList {};
+            bool includesLocalUser = false;
+        };
+        std::vector<Reaction> reactions; // using vector to maintain the order
+        // XXX: Should the list be ordered by the number of reactions instead?
         const auto& annotations =
             m_currentRoom->relatedEvents(evt, EventRelation::Annotation());
-        if (annotations.isEmpty())
-            return {};
-        QJsonArray reactions;
-        for (const auto& a : annotations) {
-            if (auto e = eventCast<const ReactionEvent>(a)) {
-                QJsonObject obj;
+        for (const auto& a: annotations)
+            if (const auto e = eventCast<const ReactionEvent>(a)) {
+                auto rIt = std::find_if(reactions.begin(), reactions.end(),
+                                        [&e] (const Reaction& r) {
+                                            return r.key == e->relation().key;
+                                       });
+                if (rIt == reactions.end())
+                    rIt = reactions.insert(reactions.end(), {e->relation().key});
 
-                for (const auto& reaction : reactions) {
-                    if (reaction.toObject()["key"] == e->relation().key) {
-                        obj = reaction.toObject();
-                        break;
-                    }
-                }
-
-                QJsonArray authors = obj["authors"].toArray()
-                    + m_currentRoom->roomMembername(e->senderId());
-
-                QJsonObject reaction {
-                    {"authors", authors},
-                    {"count", obj["count"].toInt() + 1},
-                    {"key", e->relation().key},
-                };
-
-                auto it = std::find(reactions.begin(), reactions.end(), obj);
-                if (it != reactions.end())
-                    reactions.replace(it - reactions.begin(), reaction);
-                else
-                    reactions.append(reaction);
+                rIt->authorsList
+                        << m_currentRoom->safeMemberName(e->senderId());
+                rIt->includesLocalUser |=
+                        e->senderId() == m_currentRoom->localUser()->id();
             }
+        // Prepare the QML model data
+        QJsonArray qmlReactions;
+        for (auto&& r: reactions) {
+            if (r.authorsList.size() > 7) {
+                //: When the reaction comes from too many members
+                r.authorsList.replace(3, tr("%Ln more member(s)", "",
+                                            r.authorsList.size() - 3));
+                r.authorsList.erase(r.authorsList.begin() + 4,
+                                    r.authorsList.end());
+            }
+            qmlReactions << QJsonObject {
+                    { QStringLiteral("key"), r.key },
+                    { QStringLiteral("authorsCount"), r.authorsList.size() },
+                    { QStringLiteral("authors"),
+                            QLocale().createSeparatedList(r.authorsList) },
+                    { QStringLiteral("includesLocalUser"), r.includesLocalUser }
+                };
         }
-
-        return reactions;
+        return qmlReactions;
     }
 
     if( role == TimeRole || role == SectionRole)
