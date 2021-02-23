@@ -79,25 +79,9 @@
         <translation>Next completion:</translation>
     </message>
     <message>
-        <source>Next completion: %1</source>
-        <translation type="vanished">Next completion: %1</translation>
-    </message>
-    <message>
         <location filename="../chatroomwidget.cpp" line="317"/>
         <source>Referenced message not found</source>
         <translation>Referenced message not found</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln more</source>
-        <comment>The number of users in the typing or completion list</comment>
-        <translation type="vanished">
-            <numerusform>%Ln more</numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Currently typing: %1</source>
-        <translation type="vanished">Currently typing: %1</translation>
     </message>
     <message>
         <location filename="../chatroomwidget.cpp" line="342"/>
@@ -1349,14 +1333,8 @@ or alias (starting with #)</translation>
         <translation>changed the display name to %1</translation>
     </message>
     <message>
+        <location filename="../models/messageeventmodel.cpp" line="518"/>
         <source> and </source>
-        <comment>joiner for member profile updates</comment>
-        <translation type="obsolete"> and </translation>
-    </message>
-    <message>
-        <location filename="../models/messageeventmodel.cpp" line="516"/>
-        <source> and </source>
-        <comment>joiner for member profile updates; mind the leading/trailing space!</comment>
         <translation> and </translation>
     </message>
     <message>
@@ -1501,6 +1479,15 @@ or alias (starting with #)</translation>
         <location filename="../models/messageeventmodel.cpp" line="609"/>
         <source>Unknown event</source>
         <translation>Unknown event</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../models/messageeventmodel.cpp" line="806"/>
+        <source>%Ln more member(s)</source>
+        <extracomment>When the reaction comes from too many members</extracomment>
+        <translation>
+            <numerusform>%Ln more member</numerusform>
+            <numerusform>%Ln more members</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -1765,10 +1752,6 @@ or alias (starting with #)</translation>
         <source>Rooms (%L1)</source>
         <translation>Rooms (%L1)</translation>
     </message>
-    <message>
-        <source>Rooms (%1)</source>
-        <translation type="vanished">Rooms (%1)</translation>
-    </message>
 </context>
 <context>
     <name>RoomListModel</name>
@@ -1829,22 +1812,6 @@ or alias (starting with #)</translation>
         <source>Main alias: %1</source>
         <translation>Main alias: %1</translation>
     </message>
-    <message numerus="yes">
-        <source>Joined: %Ln</source>
-        <extracomment>The number of joined members</extracomment>
-        <translation type="vanished">
-            <numerusform>Joined: %Ln</numerusform>
-            <numerusform>Joined: %Ln</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>Invited: %L1</source>
-        <comment>The number of invited users</comment>
-        <translation type="vanished">
-            <numerusform>Invited: %L1</numerusform>
-            <numerusform>Invited: %L1</numerusform>
-        </translation>
-    </message>
     <message>
         <location filename="../models/roomlistmodel.cpp" line="442"/>
         <source>Joined: %L1</source>
@@ -1877,56 +1844,49 @@ or alias (starting with #)</translation>
         <source>Consider upgrading to a stable version (use room settings for that)</source>
         <translation>Consider upgrading to a stable version (use room settings for that)</translation>
     </message>
-    <message numerus="yes">
-        <source>Unread messages: %L1+</source>
-        <translation type="vanished">
-            <numerusform>Unread message: %L1+</numerusform>
-            <numerusform>Unread messages: %L1+</numerusform>
-        </translation>
+    <message>
+        <location filename="../models/roomlistmodel.cpp" line="487"/>
+        <source>as %1</source>
+        <extracomment>&quot;as %user&quot; disambiguates entries in the room list</extracomment>
+        <translation>as %1</translation>
+    </message>
+    <message>
+        <location filename="../models/roomlistmodel.cpp" line="470"/>
+        <source>Unread messages: %L1</source>
+        <translation>Unread messages: %L1</translation>
     </message>
     <message>
         <location filename="../models/roomlistmodel.cpp" line="473"/>
-        <source>Unread messages: %L1 (maybe more)</source>
-        <translation>Unread messages: %L1 (maybe more)</translation>
+        <source>(maybe more)</source>
+        <translation>(maybe more)</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="475"/>
-        <source>Unread messages: %L1</source>
-        <translation>Unread message: %L1</translation>
-    </message>
-    <message>
-        <location filename="../models/roomlistmodel.cpp" line="481"/>
+        <location filename="../models/roomlistmodel.cpp" line="478"/>
         <source>Unread highlights: %L1</source>
         <translation>Unread highlights: %L1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="485"/>
+        <location filename="../models/roomlistmodel.cpp" line="482"/>
         <source>Unread notifications: %L1</source>
         <translation>Unread notifications: %L1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="487"/>
+        <location filename="../models/roomlistmodel.cpp" line="484"/>
         <source>ID: %1</source>
         <translation>ID: %1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="489"/>
-        <source>as %1</source>
-        <comment>as &lt;user account&gt; (disambiguates entries in the room list)</comment>
-        <translation>as %1</translation>
-    </message>
-    <message>
-        <location filename="../models/roomlistmodel.cpp" line="495"/>
+        <location filename="../models/roomlistmodel.cpp" line="492"/>
         <source>You joined this room</source>
         <translation>You joined this room</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="498"/>
+        <location filename="../models/roomlistmodel.cpp" line="495"/>
         <source>You left this room</source>
         <translation>You left this room</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="501"/>
+        <location filename="../models/roomlistmodel.cpp" line="498"/>
         <source>You were invited into this room</source>
         <translation>You were invited into this room</translation>
     </message>
@@ -2142,42 +2102,30 @@ settings</translation>
         <translation>edited</translation>
     </message>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="521"/>
-        <source>Reaction &apos;%1&apos; from %2 </source>
-        <extracomment>%2 is either the list of users or &apos;N authors&apos; (see the next translation node)</extracomment>
-        <translation>Reaction &apos;%1&apos; from %2 </translation>
+        <location filename="../qml/TimelineItem.qml" line="517"/>
+        <source>Reaction &apos;%1&apos; from %2</source>
+        <extracomment>%2 is the list of users</extracomment>
+        <translation>Reaction &apos;%1&apos; from %2</translation>
     </message>
     <message>
-        <source>%L1 author(s)</source>
-        <translation type="obsolete">%L1 author(s)</translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../qml/TimelineItem.qml" line="524"/>
-        <source>%Ln author(s)</source>
-        <translation>
-            <numerusform>%Ln author</numerusform>
-            <numerusform>%Ln authors</numerusform>
-        </translation>
-    </message>
-    <message>
-        <location filename="../qml/TimelineItem.qml" line="561"/>
+        <location filename="../qml/TimelineItem.qml" line="553"/>
         <source>Resend</source>
         <translation>Resend</translation>
     </message>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="570"/>
+        <location filename="../qml/TimelineItem.qml" line="562"/>
         <source>Discard</source>
         <translation>Discard</translation>
     </message>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="578"/>
+        <location filename="../qml/TimelineItem.qml" line="570"/>
         <source>Go to
 older room</source>
         <translation>Go to
 older room</translation>
     </message>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="587"/>
+        <location filename="../qml/TimelineItem.qml" line="579"/>
         <source>Go to
 new room</source>
         <translation>Go to
