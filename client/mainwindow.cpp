@@ -153,12 +153,11 @@ void summon(QPointer<DialogT>& dlg, DialogArgTs&&... dialogArgs)
     dlg->reactivate();
 }
 
-QAction* MainWindow::addTimelineOptionCheckbox(QMenu* parent,
-    const QString& text, const QString& statusTip, const QString& settingsKey,
-    bool defaultValue)
+QAction* MainWindow::addUiOptionCheckbox(QMenu* parent, const QString& text,
+    const QString& statusTip, const QString& settingsKey, bool defaultValue)
 {
     using Quotient::SettingsGroup;
-    auto action =
+    auto* const action =
         parent->addAction(text, this,
             [this,settingsKey] (bool checked)
             {
@@ -168,8 +167,7 @@ QAction* MainWindow::addTimelineOptionCheckbox(QMenu* parent,
             });
     action->setStatusTip(statusTip);
     action->setCheckable(true);
-    action->setChecked(
-        SettingsGroup("UI").value(settingsKey, defaultValue).toBool());
+    action->setChecked(SettingsGroup("UI").get(settingsKey, defaultValue));
     return action;
 }
 
@@ -216,21 +214,21 @@ void MainWindow::createMenu()
     viewMenu->addSeparator();
 
     auto showEventsMenu = viewMenu->addMenu(tr("&Display in timeline"));
-    addTimelineOptionCheckbox(
+    addUiOptionCheckbox(
         showEventsMenu,
         tr("Invite events"),
         tr("Show invite and withdrawn invitation events"),
         QStringLiteral("show_invite"),
         true
     );
-    addTimelineOptionCheckbox(
+    addUiOptionCheckbox(
         showEventsMenu,
         tr("Normal &join/leave events"),
         tr("Show join and leave events"),
         QStringLiteral("show_joinleave"),
         true
     );
-    addTimelineOptionCheckbox(
+    addUiOptionCheckbox(
         showEventsMenu,
         tr("Ban events"),
         tr("Show ban and unban events"),
@@ -238,42 +236,43 @@ void MainWindow::createMenu()
         true
     );
     showEventsMenu->addSeparator();
-    addTimelineOptionCheckbox(
+    addUiOptionCheckbox(
         showEventsMenu,
         tr("&Redacted events"),
         tr("Show redacted events in the timeline as 'Redacted'"
            " instead of hiding them entirely"),
         QStringLiteral("show_redacted")
     );
-    addTimelineOptionCheckbox(
+    addUiOptionCheckbox(
         showEventsMenu,
         tr("Changes in display na&me"),
         tr("Show display name change"),
         QStringLiteral("show_rename"),
         true
     );
-    addTimelineOptionCheckbox(
+    addUiOptionCheckbox(
         showEventsMenu,
         tr("Avatar &changes"),
         tr("Show avatar update events"),
         QStringLiteral("show_avatar_update"),
         true
     );
-    addTimelineOptionCheckbox(
+    addUiOptionCheckbox(
         showEventsMenu,
         tr("Room alias &updates"),
         tr("Show room alias updates events"),
         QStringLiteral("show_alias_update"),
         true
     );
-    addTimelineOptionCheckbox(
+    addUiOptionCheckbox(
         showEventsMenu,
-        tr("&No-effect activity",
-           "A menu item to show/hide meaningless activity such as redacted spam"),
-        tr("Show/hide meaningless activity (join-leave pairs and redacted events between)"),
+        //: A menu item to show/hide meaningless activity such as redacted spam
+        tr("&No-effect activity"),
+        tr("Show/hide meaningless activity"
+           " (join-leave pairs and redacted events between)"),
         QStringLiteral("show_spammy")
     );
-    addTimelineOptionCheckbox(
+    addUiOptionCheckbox(
         showEventsMenu,
         tr("Un&known event types"),
         tr("Show/hide unknown event types"),
@@ -449,26 +448,27 @@ void MainWindow::createMenu()
             defaultLayout->setChecked(true);
     }
 #if defined Q_OS_UNIX && !defined Q_OS_MAC
-    addTimelineOptionCheckbox(
+    addUiOptionCheckbox(
         settingsMenu,
         tr("Use Breeze style (requires restart)"),
         tr("Force use Breeze style and icon theme"),
         QStringLiteral("use_breeze_style"), inFlatpak()
     );
 #endif
-    addTimelineOptionCheckbox(
+    addUiOptionCheckbox(
         settingsMenu,
         tr("Use shuttle scrollbar (requires restart)"),
-        tr("Control scroll velocity instead of position with the timeline scrollbar"),
+        tr("Control scroll velocity instead of position"
+           " with the timeline scrollbar"),
         QStringLiteral("use_shuttle_dial"), true
     );
-    addTimelineOptionCheckbox(
+    addUiOptionCheckbox(
         settingsMenu,
         tr("Load full-size images at once"),
         tr("Automatically download a full-size image instead of a thumbnail"),
         QStringLiteral("autoload_images"), true
     );
-    addTimelineOptionCheckbox(
+    addUiOptionCheckbox(
         settingsMenu,
         tr("Close to tray"),
         tr("Make close button [X] minimize to tray instead of closing main window"),

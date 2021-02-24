@@ -131,9 +131,9 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         QuaternionRoom* currentRoom = nullptr;
 
         void createMenu();
-        QAction* addTimelineOptionCheckbox(QMenu* parent,
-            const QString& text, const QString& statusTip,
-            const QString& settingsKey, bool defaultValue = false);
+        QAction* addUiOptionCheckbox(QMenu* parent, const QString& text,
+            const QString& statusTip, const QString& settingsKey,
+            bool defaultValue = false);
         void showFirstSyncIndicator();
         void firstSyncOver(Connection* c);
         void loadSettings();
