@@ -171,6 +171,9 @@ QAction* MainWindow::addUiOptionCheckbox(QMenu* parent, const QString& text,
     return action;
 }
 
+static const auto ConfirmLinksSettingKey =
+        QStringLiteral("/confirm_external_links");
+
 void MainWindow::createMenu()
 {
     // Connection menu
@@ -474,6 +477,14 @@ void MainWindow::createMenu()
         tr("Make close button [X] minimize to tray instead of closing main window"),
         QStringLiteral("close_to_tray"), false
     );
+
+    confirmLinksAction =
+        addUiOptionCheckbox(
+            settingsMenu,
+            tr("Confirm opening external links"),
+            tr("Show a confirmation box before opening non-Matrix links"
+               " in an external application"),
+            ConfirmLinksSettingKey, true);
 
     settingsMenu->addSeparator();
     settingsMenu->addAction(QIcon::fromTheme("preferences-system-network"),
@@ -1153,8 +1164,8 @@ bool MainWindow::visitNonMatrix(const QUrl& url)
                                  tr("Your operating system could not find an "
                                     "application for the link."));
     };
-    static const auto SettingPath = QStringLiteral("UI/confirm_external_links");
-    if (Settings().get(SettingPath, true)) {
+    using Quotient::SettingsGroup;
+    if (SettingsGroup("UI").get(ConfirmLinksSettingKey, true)) {
         auto* confirmation = new QMessageBox(
             QMessageBox::Warning, tr("External link confirmation"),
             tr("An external application will be opened to visit a "
@@ -1165,12 +1176,18 @@ bool MainWindow::visitNonMatrix(const QUrl& url)
         confirmation->setCheckBox(new QCheckBox(tr("Do not ask again")));
         confirmation->setWindowModality(Qt::WindowModal);
         confirmation->show();
-        Settings().setValue(SettingPath, confirmation->checkBox()->checkState()
-                                             == Qt::Unchecked);
-        connect(confirmation, &QDialog::finished, this, [doVisit](int result) {
-            if (result == QMessageBox::Ok)
-                doVisit();
-        });
+        connect(confirmation, &QDialog::finished,
+                this, [this,doVisit,confirmation](int result) {
+                    const bool doNotAsk =
+                        confirmation->checkBox()->checkState() == Qt::Checked;
+                    if (doNotAsk)
+                        confirmLinksAction->setDisabled(true);
+
+                    SettingsGroup("UI").setValue(ConfirmLinksSettingKey,
+                                                 !doNotAsk);
+                    if (result == QMessageBox::Ok)
+                        doVisit();
+                });
     } else
         doVisit();
     return true;

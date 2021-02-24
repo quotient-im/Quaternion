@@ -123,6 +123,7 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         QAction* createRoomAction = nullptr;
         QAction* dcAction = nullptr;
         QAction* joinAction = nullptr;
+        QAction* confirmLinksAction = nullptr;
 
         SystemTrayIcon* systemTrayIcon = nullptr;
 
