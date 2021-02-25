@@ -6,10 +6,6 @@
         <translation>Elija una sala para enviar mensajes o ingrese un comando...</translation>
     </message>
     <message>
-        <source>Sending encrypted messages is not supported yet</source>
-        <translation>El envío de mensajes cifrados aún no es compatible</translation>
-    </message>
-    <message>
         <source>There&apos;s nothing to send</source>
         <translation>No hay nada que enviar</translation>
     </message>
@@ -94,12 +90,8 @@
         <translation>Guardar archivo como</translation>
     </message>
     <message>
-        <source>Next completion: %1</source>
-        <translation>Próxima finalización: %1</translation>
-    </message>
-    <message>
-        <source>Currently typing: %1</source>
-        <translation>Actualmente escribiendo: %1</translation>
+        <source>Copy link to clipboard</source>
+        <translation>Copiar el enlace al portapapeles</translation>
     </message>
     <message>
         <source>Attach</source>
@@ -146,16 +138,20 @@
         <translation>Redactar</translation>
     </message>
     <message>
-        <source>Copy link to clipboard</source>
-        <translation>Copiar el enlace al portapapeles</translation>
-    </message>
-    <message>
         <source>Quote</source>
         <translation>Comillas</translation>
     </message>
     <message>
         <source>Open externally</source>
         <translation>Abrir externamente</translation>
+    </message>
+    <message>
+        <source>Next completion:</source>
+        <translation>Próxima finalización:</translation>
+    </message>
+    <message>
+        <source>Currently typing:</source>
+        <translation>Actualmente escribiendo:</translation>
     </message>
 </context>
 <context>
@@ -165,35 +161,8 @@
         <translation>(sin tema)</translation>
     </message>
     <message>
-        <source>%1 bytes</source>
-        <translation>%1 bytes</translation>
-    </message>
-    <message>
-        <source>%1 KB</source>
-        <translation>%1 KB</translation>
-    </message>
-    <message>
-        <source>%1 MB</source>
-        <translation>%1 MB</translation>
-    </message>
-    <message>
-        <source>%1 GB</source>
-        <translation>%1 GB</translation>
-    </message>
-    <message>
         <source>Unknown</source>
         <translation>Desconocido</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln events back from now (%L1 cached%2)</source>
-        <translation>
-            <numerusform>%Ln evento desde ahora (%L1 en caché%2)</numerusform>
-            <numerusform>%Ln eventos desde ahora (%L1 en caché%2)</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>and loading</source>
-        <translation>y cargando</translation>
     </message>
     <message>
         <source>Unstable room version!</source>
@@ -203,18 +172,48 @@
         <source>(no name)</source>
         <translation>(sin nombre)</translation>
     </message>
-    <message>
-        <source>This room has been upgraded</source>
-        <translation>Esta sala ha sido mejorada</translation>
+    <message numerus="yes">
+        <source>%Ln byte(s)</source>
+        <translation>
+            <numerusform>%Ln byte</numerusform>
+            <numerusform>%Ln bytes</numerusform>
+        </translation>
     </message>
     <message>
-        <source>
-Go to Room Settings to upgrade the room</source>
-        <translation>Vaya a Configuración de la Sala para actualizar la sala</translation>
+        <source>%L1 MB</source>
+        <translation>%L1 MB</translation>
     </message>
     <message>
-        <source>Go to Room Settings to upgrade the room</source>
-        <translation>Vaya a Configuración de la Sala para actualizar la sala</translation>
+        <source>%L1 GB</source>
+        <translation>%L1 GB</translation>
+    </message>
+    <message>
+        <source>This room has been upgraded.</source>
+        <translation>Esta sala ha sido mejorada.</translation>
+    </message>
+    <message>
+        <source>Room
+settings</source>
+        <translation>Configuración
+de sala</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln events back from now</source>
+        <translation>
+            <numerusform>%Ln evento desde ahora</numerusform>
+            <numerusform>%Ln eventos desde ahora</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>%L1 kB</source>
+        <translation>%L1 kB</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln events cached</source>
+        <translation>
+            <numerusform>%Ln evento en caché</numerusform>
+            <numerusform>%Ln eventos en caché</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -349,10 +348,6 @@ Go to Room Settings to upgrade the room</source>
         <translation>Crear &amp;nueva sala ...</translation>
     </message>
     <message>
-        <source>&amp;Direct chat...</source>
-        <translation>&amp;Chat directo...</translation>
-    </message>
-    <message>
         <source>&amp;Join room...</source>
         <translation>&amp;Unirse a la sala...</translation>
     </message>
@@ -407,10 +402,6 @@ Go to Room Settings to upgrade the room</source>
     <message>
         <source>The layout with author labels above blocks of messages</source>
         <translation>El diseño con etiquetas de autor sobre bloques de mensajes</translation>
-    </message>
-    <message>
-        <source>XChat</source>
-        <translation>XChat</translation>
     </message>
     <message>
         <source>The layout with author labels to the left from each message</source>
@@ -479,22 +470,6 @@ Al hacer clic en &quot;Cancelar&quot; se detendrá la sincronización de esta cu
         <translation>Abrir página web</translation>
     </message>
     <message>
-        <source>Show &amp;access token</source>
-        <translation>Mostrar &amp;token de acceso</translation>
-    </message>
-    <message>
-        <source>Access token for %1</source>
-        <translation>Token de acceso para %1</translation>
-    </message>
-    <message>
-        <source>Your access token is %1...%2; click &quot;Show details...&quot; for the full token</source>
-        <translation>El token de acceso es %1...%2; haga clic en &quot;Mostrar detalles...&quot; para el token completo</translation>
-    </message>
-    <message>
-        <source>&amp;Logout</source>
-        <translation>&amp;Cerrar sesión</translation>
-    </message>
-    <message>
         <source>About Quaternion</source>
         <translation>Acerca de Quaternion</translation>
     </message>
@@ -503,24 +478,8 @@ Al hacer clic en &quot;Cancelar&quot; se detendrá la sincronización de esta cu
         <translation>Bienvenido a Quaternion</translation>
     </message>
     <message>
-        <source>No connections</source>
-        <translation>Sin conexiones</translation>
-    </message>
-    <message>
-        <source>Join</source>
-        <translation>Unirse</translation>
-    </message>
-    <message>
         <source>Joined %1 as %2</source>
         <translation>Se unió a %1 como %2</translation>
-    </message>
-    <message>
-        <source>Enter user id to start direct chat.</source>
-        <translation>Introduzca el ID de usuario para iniciar el chat directo.</translation>
-    </message>
-    <message>
-        <source>Sync completed - have a good chat</source>
-        <translation>Sincronización completada - que tengas una buena charla</translation>
     </message>
     <message>
         <source>Couldn&apos;t connect to the server as %1; will retry within %2 seconds</source>
@@ -559,10 +518,6 @@ Al hacer clic en &quot;Cancelar&quot; se detendrá la sincronización de esta cu
         <translation>Contraseña</translation>
     </message>
     <message>
-        <source>Copyright (C) 2018 QMatrixClient project.</source>
-        <translation>Copyright (C) 2018 proyecto QMatrixClient.</translation>
-    </message>
-    <message>
         <source>&amp;Thanks</source>
         <translation>&amp;Gracias</translation>
     </message>
@@ -585,10 +540,6 @@ Al hacer clic en &quot;Cancelar&quot; se detendrá la sincronización de esta cu
     <message>
         <source>Quaternion contributors @ GitHub</source>
         <translation>Colaboradores de Quaternion @ GitHub</translation>
-    </message>
-    <message>
-        <source>libQMatrixClient contributors @ GitHub</source>
-        <translation>Colaboradores de libQMatrixClient @ GitHub</translation>
     </message>
     <message>
         <source>Quaternion translators @ Lokalise.co</source>
@@ -619,16 +570,6 @@ Response:
  %2</translation>
     </message>
     <message>
-        <source>Tags can be wildcarded by * next to dot(s)
-Clear the box to reset to defaults
-Special tags starting with &quot;org.qmatrixclient.&quot; are: %1
-User-defined tags should start with &quot;u.&quot;</source>
-        <translation>Las etiquetas pueden ser marcadas con un * (comodín) al lado de un punto[s].
-Desactive la casilla para restablecer los valores predeterminados.
-Etiquetas especiales que comienzan con &quot;org.qmatrixclient&quot;. son: %1
-Las etiquetas definidas por el usuario deben comenzar con &quot;u&quot;.</translation>
-    </message>
-    <message>
         <source>Close to tray</source>
         <translation>Cerrar a la bandeja</translation>
     </message>
@@ -657,10 +598,6 @@ Las etiquetas definidas por el usuario deben comenzar con &quot;u&quot;.</transl
         <translation>Sala abierta</translation>
     </message>
     <message>
-        <source>Switch to room</source>
-        <translation>Cambiar a la sala</translation>
-    </message>
-    <message>
         <source>Open a room from the room list</source>
         <translation>Abrir una sala de la lista de salas</translation>
     </message>
@@ -677,24 +614,12 @@ Las etiquetas definidas por el usuario deben comenzar con &quot;u&quot;.</transl
         <translation>Se encontró el archivo de token de acceso</translation>
     </message>
     <message>
-        <source>Do you want to migrate the access token for %1 from the file to keychain?</source>
-        <translation>¿Desea migrar el token de acceso para %1 del archivo al llavero?</translation>
-    </message>
-    <message>
         <source>Couldn&apos;t migrate access token</source>
         <translation>No se pudo migrar el token de acceso</translation>
     </message>
     <message>
-        <source>Quaternion couldn&apos;t migrate access token %1 from the file to keychain.</source>
-        <translation>Quaternion no pudo migrar el token de acceso %1 del archivo al llavero.</translation>
-    </message>
-    <message>
         <source>Couldn&apos;t save access token</source>
         <translation>No se pudo guardar el token de acceso</translation>
-    </message>
-    <message>
-        <source>Quaternion couldn&apos;t save the access token to keychain. Do you want to save the access token to file %1?</source>
-        <translation>Quaternion no pudo guardar el token de acceso en el llavero. ¿Desea guardar el token de acceso en un archivo %1?</translation>
     </message>
     <message>
         <source>Logging in into a logged in account</source>
@@ -709,24 +634,12 @@ Las etiquetas definidas por el usuario deben comenzar con &quot;u&quot;.</transl
         <translation>No se pudo eliminar el token de acceso</translation>
     </message>
     <message>
-        <source>Quaternion couldn&apos;t delete the access token from keychain.</source>
-        <translation>Quaternion no pudo eliminar el token de acceso del llavero.</translation>
-    </message>
-    <message>
         <source>Open direct chat?</source>
         <translation>¿Abrir chat directo?</translation>
     </message>
     <message>
         <source>Open direct chat with user %1?</source>
         <translation>¿Abrir chat directo con el usuario %1?</translation>
-    </message>
-    <message>
-        <source>Malformed user id</source>
-        <translation>ID de usuario con formato incorrecto</translation>
-    </message>
-    <message>
-        <source>%1 is not a correct user id</source>
-        <translation>%1 no es un id de usuario correcto</translation>
     </message>
     <message>
         <source>Room not found</source>
@@ -741,20 +654,12 @@ Las etiquetas definidas por el usuario deben comenzar con &quot;u&quot;.</transl
         <translation>Confirme su cuenta para abrir %1</translation>
     </message>
     <message>
-        <source>Please connect to a server first</source>
-        <translation>Por favor, conéctese a un servidor primero</translation>
-    </message>
-    <message>
         <source>Confirm account</source>
         <translation>Confirmar la cuenta</translation>
     </message>
     <message>
         <source>Account</source>
         <translation>Cuenta</translation>
-    </message>
-    <message>
-        <source>Enter room id or alias</source>
-        <translation>Ingrese el id de la sala o alias</translation>
     </message>
     <message>
         <source>Room ID (starting with !)
@@ -765,20 +670,6 @@ o alias (comenzando con #)</translation>
     <message>
         <source>Confirm account to join %1</source>
         <translation>Confirme la cuenta para unirse a %1</translation>
-    </message>
-    <message>
-        <source>User ID (starting with @)</source>
-        <translation>ID de usuario (comenzando con @)</translation>
-    </message>
-    <message>
-        <source>Start chat</source>
-        <translation>Comenzar chat</translation>
-    </message>
-    <message>
-        <source>Room/user ID, room alias,
-or matrix.to link</source>
-        <translation>ID de sala / usuario, alias de sala, 
- o enlace matriz.to</translation>
     </message>
     <message>
         <source>Edit quote style</source>
@@ -813,8 +704,68 @@ or matrix.to link</source>
         <translation>Colaboradores de libQuotient en @ GitHub</translation>
     </message>
     <message>
+        <source>Do you want to migrate the access token for %1 from the file to the keychain?</source>
+        <translation>¿Desea migrar el token de acceso para %1 del archivo al llavero?</translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t migrate access token for %1 from the file to the keychain.</source>
+        <translation>Quaternion no pudo migrar el token de acceso %1 del archivo al llavero.</translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t save the access token to the keychain. Do you want to save the access token to file %1?</source>
+        <translation>Quaternion no pudo guardar el token de acceso en el llavero. ¿Desea guardar el token de acceso en un archivo %1?</translation>
+    </message>
+    <message>
+        <source>First sync completed for %1</source>
+        <translation>Primera sincronización completada para %1</translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t delete the access token from the keychain.</source>
+        <translation>Quaternion no pudo eliminar el token de acceso del llavero.</translation>
+    </message>
+    <message>
+        <source>Please connect to a server</source>
+        <translation>Por favor, conéctese a un servidor</translation>
+    </message>
+    <message>
+        <source>Confirm your account to open a direct chat with %1</source>
+        <translation>Confirme su cuenta para abrir un chat directo con %1</translation>
+    </message>
+    <message>
+        <source>Log&amp;out</source>
+        <translation>&amp;Cerrar sesión</translation>
+    </message>
+    <message>
+        <source>Tags can be wildcarded by * next to dot(s)
+Clear the box to reset to defaults
+Special tags starting with &quot;im.quotient.&quot; are: %1
+User-defined tags should start with &quot;u.&quot;</source>
+        <translation>Las etiquetas pueden ser marcadas con un * (comodín) al lado de un punto[s].
+Desactive la casilla para restablecer los valores predeterminados.
+Etiquetas especiales que comienzan con &quot;im.quotient.&quot; son: %1
+Las etiquetas definidas por el usuario deben comenzar con &quot;u.&quot;</translation>
+    </message>
+    <message>
+        <source>Room or user ID, room alias,
+Matrix URI or matrix.to link</source>
+        <translation>ID de sala o del usuario, alias de sala, 
+Matrix URI o enlace matriz.to</translation>
+    </message>
+    <message>
         <source>Join room</source>
         <translation>Unirse a la sala</translation>
+    </message>
+    <message>
+        <source>Quaternion project contributors</source>
+        <translation>Colaboradores del proyecto Quaternion</translation>
+    </message>
+    <message>
+        <source>Felix Rohrbach</source>
+        <translation>Felix Rohrbach</translation>
+    </message>
+    <message>
+        <source>Alexey &quot;Kitsune&quot; Rusakov</source>
+        <translation>Alexey &quot;Kitsune&quot; Rusakov</translation>
     </message>
 </context>
 <context>
@@ -846,10 +797,6 @@ or matrix.to link</source>
     <message>
         <source>reinvited %1 to the room</source>
         <translation>reinvitado %1 a la sala</translation>
-    </message>
-    <message>
-        <source>joined the room (repeated)</source>
-        <translation>se unió a la sala (repetido)</translation>
     </message>
     <message>
         <source>invited %1 to the room</source>
@@ -884,16 +831,8 @@ or matrix.to link</source>
         <translation>sin prohibiciones</translation>
     </message>
     <message>
-        <source>has put %1 out of the room</source>
-        <translation>ha sacado a %1 de la sala</translation>
-    </message>
-    <message>
         <source>left the room</source>
         <translation>salió de la sala</translation>
-    </message>
-    <message>
-        <source>banned %1 from the room</source>
-        <translation>suspendido %1 de la sala</translation>
     </message>
     <message>
         <source>self-banned from the room</source>
@@ -976,12 +915,24 @@ or matrix.to link</source>
         <translation>ha establecido alias de sala en el servidor %1 a: %2</translation>
     </message>
     <message>
-        <source>has put %1 out of the room: %2</source>
+        <source>banned %1 from the room: %2</source>
+        <translation>suspendido %1 de la sala: %2</translation>
+    </message>
+    <message>
+        <source>kicked %1 from the room: %2</source>
         <translation>ha sacado a %1 de la sala: %2</translation>
     </message>
     <message>
-        <source>banned %1 from the room: %2</source>
-        <translation>suspendido %1 de la sala: %2</translation>
+        <source> and </source>
+        <translation> y </translation>
+    </message>
+    <message>
+        <source>(repeated)</source>
+        <translation>(repetido)</translation>
+    </message>
+    <message>
+        <source>kicked %1 from the room</source>
+        <translation>ha sacado a %1 de la sala</translation>
     </message>
 </context>
 <context>
@@ -1113,28 +1064,16 @@ or matrix.to link</source>
         <translation>Ingrese etiquetas para agregar a esta sala, una etiqueta por línea</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoritos</translation>
-    </message>
-    <message>
-        <source>Low priority</source>
-        <translation>Baja prioridad</translation>
-    </message>
-    <message>
-        <source>Rooms (%1)</source>
-        <translation>Salas (%1)</translation>
-    </message>
-    <message>
-        <source>Re-sort rooms (TODO)</source>
-        <translation>Reordenar sala (TODO)</translation>
-    </message>
-    <message>
         <source>Change room &amp;settings...</source>
         <translation>Cambiar sala y configuraciones ...</translation>
     </message>
     <message>
         <source>Add</source>
         <translation>Añadir</translation>
+    </message>
+    <message>
+        <source>Rooms (%L1)</source>
+        <translation>Salas (%L1)</translation>
     </message>
 </context>
 <context>
@@ -1186,20 +1125,6 @@ or matrix.to link</source>
         <source>Main alias: %1</source>
         <translation>Alias principal: %1</translation>
     </message>
-    <message numerus="yes">
-        <source>Joined: %Ln</source>
-        <translation>
-            <numerusform>Unido: %Ln</numerusform>
-            <numerusform>Unidos: %Ln</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>Invited: %Ln</source>
-        <translation>
-            <numerusform>Invitado: %Ln</numerusform>
-            <numerusform>Invitados: %Ln</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Direct chat with %1</source>
         <translation>Charla directa con %1</translation>
@@ -1207,18 +1132,6 @@ or matrix.to link</source>
     <message>
         <source>The room enforces encryption</source>
         <translation>La sala impone el cifrado</translation>
-    </message>
-    <message>
-        <source>Unread messages: %1+</source>
-        <translation>Mensajes no leídos: %1+</translation>
-    </message>
-    <message>
-        <source>Unread messages: %1</source>
-        <translation>Mensajes no leídos: %1</translation>
-    </message>
-    <message>
-        <source>Unread highlights: %1</source>
-        <translation>Puntos destacados no leídos: %1</translation>
     </message>
     <message>
         <source>ID: %1</source>
@@ -1240,6 +1153,14 @@ or matrix.to link</source>
         <source>Consider upgrading to a stable version (use room settings for that)</source>
         <translation>Considere actualizar a una versión estable (use la configuración de sala para ello)</translation>
     </message>
+    <message>
+        <source>Joined: %L1</source>
+        <translation>Unidos: %L1</translation>
+    </message>
+    <message>
+        <source>Invited: %L1</source>
+        <translation>Invitado: %L1</translation>
+    </message>
 </context>
 <context>
     <name>RoomSettingsDialog</name>
@@ -1254,14 +1175,6 @@ or matrix.to link</source>
     <message>
         <source>Tags</source>
         <translation>Etiquetas</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>Favoritos</translation>
-    </message>
-    <message>
-        <source>Low priority</source>
-        <translation>Baja prioridad</translation>
     </message>
     <message>
         <source>This version is unstable! Consider upgrading.</source>
@@ -1400,29 +1313,6 @@ Esta operación no se puede revertir.</translation>
     </message>
 </context>
 <context>
-    <name>ImageContent</name>
-    <message>
-        <source>Cancel downloading</source>
-        <translation>Cancelar la descarga</translation>
-    </message>
-    <message>
-        <source>Open externally</source>
-        <translation>Abrir externamente</translation>
-    </message>
-    <message>
-        <source>Download full size</source>
-        <translation>Descargar a tamaño completo</translation>
-    </message>
-    <message>
-        <source>Save as...</source>
-        <translation>Guardar como...</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Cancelar</translation>
-    </message>
-</context>
-<context>
     <name>TimelineItem</name>
     <message>
         <source>Resend</source>
@@ -1432,18 +1322,6 @@ Esta operación no se puede revertir.</translation>
         <source>Discard</source>
         <translation>Descartar</translation>
     </message>
-    <message>
-        <source>Redact</source>
-        <translation>Redactar</translation>
-    </message>
-    <message>
-        <source>Copy link to clipboard</source>
-        <translation>Copiar el enlace al portapapeles</translation>
-    </message>
-    <message>
-        <source>Quote</source>
-        <translation>Comillas</translation>
-    </message>
 </context>
 <context>
     <name>SystemTrayIcon</name>
@@ -1452,26 +1330,15 @@ Esta operación no se puede revertir.</translation>
         <translation>Resaltar en %1</translation>
     </message>
     <message numerus="yes">
-        <source>%n highlight(s)</source>
+        <source>%Ln highlight(s)</source>
         <translation>
-            <numerusform>%n destacado</numerusform>
-            <numerusform>%n destacados</numerusform>
+            <numerusform>%Ln destacado</numerusform>
+            <numerusform>%Ln destacados</numerusform>
         </translation>
     </message>
 </context>
 <context>
-    <name>UserListModel</name>
-    <message>
-        <source>Bridged from: %1</source>
-        <translation>Puenteado desde: %1</translation>
-    </message>
-</context>
-<context>
     <name>ThumbnailResponse</name>
-    <message>
-        <source>Image request hasn&apos;t started</source>
-        <translation>La solicitud de imagen no ha comenzado</translation>
-    </message>
     <message>
         <source>Image request has been cancelled</source>
         <translation>La solicitud de imagen ha sido cancelada</translation>
@@ -1490,6 +1357,10 @@ Esta operación no se puede revertir.</translation>
     <message>
         <source>Account</source>
         <translation>Cuenta</translation>
+    </message>
+    <message>
+        <source>Access token</source>
+        <translation>Token de acceso</translation>
     </message>
 </context>
 </TS>
