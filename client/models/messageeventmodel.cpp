@@ -486,8 +486,9 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
 
                         if (!text.isEmpty()) {
                             if (e.repeatsState())
-                                //: State event that doesn't change the state
-                                text += ' ' % tr("(repeated)");
+                                text += ' '
+                                    //: State event that doesn't change the state
+                                    % tr("(repeated)");
                             if (!e.reason().isEmpty())
                                 text += ": " + e.reason().toHtmlEscaped();
                             return text;

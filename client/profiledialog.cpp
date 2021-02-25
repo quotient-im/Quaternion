@@ -140,7 +140,7 @@ void updateAvatarButton(Quotient::User* user, QPushButton* btn)
 {
     const auto img = user->avatar(128);
     if (img.isNull()) {
-        btn->setText(ProfileDialog::tr("No Avatar"));
+        btn->setText(ProfileDialog::tr("No avatar"));
         btn->setIcon({});
     } else {
         btn->setText({});
