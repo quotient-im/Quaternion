@@ -6,7 +6,7 @@ endif()
 set(IDENTIFIER "com.github.quaternion")
 set(COPYRIGHT "Copyright © 2016-2021 Quaternion project contributors")
 
-project(quaternion VERSION 0.0.94.93 LANGUAGES CXX)
+project(quaternion VERSION 0.0.94.94 LANGUAGES CXX)
 
 if(UNIX AND NOT APPLE)
     set(LINUX 1)
