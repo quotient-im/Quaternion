@@ -50,7 +50,7 @@ Option 1 as default; due to popular demand, Option 2 is used by default
   - Recent enough Linux examples: Debian Buster; Fedora 28; OpenSUSE Leap 15;
     Ubuntu Bionic Beaver.
 - Qt 5 (either Open Source or Commercial), version 5.9 or higher
-  (5.12 is recommended)
+  (5.14+ is recommended)
 - CMake 3.10 or newer (from your package management system or
   [the official website](https://cmake.org/download/))
 - A C++ toolchain with C++17 support:
@@ -70,45 +70,44 @@ If your Qt package base is fine-grained you might want to take a look at
 `CMakeLists.txt` to figure out which specific libraries Quaternion uses
 (or blindly run cmake and look at error messages). Note also that you'll need
 several Qt Quick plugins for Quaternion to work (without them, it will compile
-and run but won't show the messages timeline). The following line should get you
-everything necessary to build and run Quaternion:
+and run but won't show the messages timeline). On Debian/Ubuntu, the following
+line should get you everything necessary to build and run Quaternion:
 ```bash
 sudo apt-get install cmake qtdeclarative5-dev qttools5-dev qml-module-qtquick-controls qml-module-qtquick-controls2 qtmultimedia5-dev
 ```
-To enable libsecret keyring support, install QtKeychain by
+To enable libsecret keyring support, also install QtKeychain by
 ```bash
 sudo apt-get install qt5keychain-dev
 ```
 On Fedora 28, the following command should be enough for building and running:
 ```bash
-dnf install cmake qt5-qtdeclarative-devel qt5-qtquickcontrols qt5-qtquickcontrols2 qt5-qtmultimedia-devel
+sudo dnf install cmake qt5-qtdeclarative-devel qt5-qtquickcontrols qt5-qtquickcontrols2 qt5-qtmultimedia-devel
 ```
 
 #### macOS
 `brew install qt5` should get you Qt5. If you want to build with QtKeychain,
-call `brew install qtkeychain`.
+also call `brew install qtkeychain`.
 
 You have to point CMake at the Qt5 installation location, with something like:
 ```bash
 # if using in-tree libQuotient:
-cmake .. -DUSE_QQUICKWIDGET=ON -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)
+cmake .. -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)
 # or otherwise...
-cmake .. -DCMAKE_PREFIX_PATH=/path/to/libQuotient -DUSE_QQUICKWIDGET=ON -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)
+cmake .. -DCMAKE_PREFIX_PATH=/path/to/libQuotient -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)
 ```
-(read on to find out about `USE_QQUICKWIDGET`).
 
 #### Windows
 1. Install CMake. The commands in further sections imply that cmake is in your
    PATH - otherwise you have to prepend them with actual paths.
 1. Install Qt5, using their official installer.
-1. Optionally, get the QtKeychain sources and make them available to CMake
-   (TODO: elaborate the steps).
 1. Make sure CMake knows about Qt and the toolchain - the easiest way is to run
    `qtenv2.bat` script that can be found in `C:\Qt\<Qt version>\<toolchain>\bin`
    (assuming you installed Qt to `C:\Qt`). The only thing it does is adding
    necessary paths to `PATH` - you might not want to run it on system startup
    but it's very handy to setup environment before building.
    Setting `CMAKE_PREFIX_PATH`, the same way as for macOS (see above), also helps.
+1. If needed, get and build
+   [QtKeychain](https://github.com/frankosterfeld/qtkeychain).
 
 ### Build
 In the root directory of the project sources:
@@ -150,20 +149,20 @@ configuration.
 As of now, Quaternion will build with `QQuickWidget` if Qt 5.12 is detected
 and with the legacy mechanism on lower versions. To override this you can pass
 `-DUSE_QQUICKWIDGET=ON` to the first (configuring) `cmake` invocation to force
-usage of `QQuickWidget` or `-DDISABLE_QQUICKWIDGET=ON` to force the legacy code.
-Further on the choice will be made (and an override handle provided) at runtime,
-depending on the detected Qt version.
+usage of `QQuickWidget` even with older Qt; or `-DDISABLE_QQUICKWIDGET=ON`
+to force usage of `QQuickView` with newer Qt (if need to do that because of
+a bug in `QQuickWidget` configuration, please file an issue at Quaternion).
+
+By now, `QQuickWidget` is considered stable and reliable. Once Qt 5.12 becomes
+the oldest supported version (likely in Quaternion 0.0.96), `QQuickView` mode
+will be entirely deprecated and later removed.
 
 ### Install
 In the root directory of the project sources: `cmake --build build_dir --target install`.
 
 If you use GNU Make, `make install` (with `sudo` if needed) will work equally well.
 
-### Package
-We're still somewhat short of packagers, so please step up and support your
-favourite system!
-
-#### Flatpak
+### Building as Flatpak
 If you run Linux and your distribution supports flatpak, you can easily build and install Quaternion as a flatpak package:
 
 ```bash
