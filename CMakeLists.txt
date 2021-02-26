@@ -180,7 +180,8 @@ set(quaternion_QRC
 # while all other translation files are created and updated externally at
 # Lokalise.co
 set(quaternion_en_TS client/translations/quaternion_en.ts)
-QT5_CREATE_TRANSLATION(quaternion_QM ${quaternion_en_TS} client/ client/qml/)
+QT5_CREATE_TRANSLATION(quaternion_QM ${quaternion_en_TS}
+                       client/ client/qml/ OPTIONS -no-obsolete)
 add_custom_target(trbase DEPENDS ${quaternion_en_TS})
 
 set(quaternion_TS
