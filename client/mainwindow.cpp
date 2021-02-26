@@ -1440,8 +1440,7 @@ void MainWindow::openUserInput(bool forJoining)
             this, tr("Incorrect action on a Matrix resource"),
             tr("The URI contains an action '%1' that cannot be applied"
                " to Matrix resource %2")
-                .arg(uri.action())
-                .arg(uri.toDisplayString(QUrl::RemoveQuery)));
+                .arg(uri.action(), uri.toDisplayString(QUrl::RemoveQuery)));
         break;
     default:
         Q_ASSERT(false); // No other values should occur
