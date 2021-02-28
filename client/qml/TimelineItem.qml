@@ -243,7 +243,7 @@ Item {
 
                 // 2 text line heights by default; 1 line height for XChat
                 width: settings.show_author_avatars
-                       * authorLabel.height * (2 - xchatStyle)
+                       * settings.defaultText.height * (2 - xchatStyle)
                 fillMode: Image.PreserveAspectFit
                 horizontalAlignment: Image.AlignRight
 
