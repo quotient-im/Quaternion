@@ -515,66 +515,138 @@ void MainWindow::saveSettings() const
     sg.sync();
 }
 
-inline QString accessTokenFileName(const AccountSettings& account)
+template <class KeySourceT>
+inline QString accessTokenKey(const KeySourceT& source, bool legacyLocation)
 {
-    QString fileName = account.userId();
+    auto k = source.userId();
+    if (!legacyLocation) {
+        if (source.deviceId().isEmpty())
+            qWarning() << "Device id on the account is not set";
+        else
+            k += '-' % source.deviceId();
+    }
+    return k;
+}
+
+template <class JobT>
+inline std::unique_ptr<JobT> makeKeychainJob(const QString& appName,
+                                             const QString& key,
+                                             bool legacyLocation = false)
+{
+    auto slotName = appName;
+    if (!legacyLocation)
+        slotName += " access token for " % key;
+    auto j = std::make_unique<JobT>(slotName);
+    j->setAutoDelete(false);
+    j->setKey(key);
+    return j;
+}
+
+template <class KeySourceT>
+inline QString accessTokenFileName(const KeySourceT& account,
+                                   bool legacyLocation = false)
+{
+    auto fileName = accessTokenKey(account, legacyLocation);
     fileName.replace(':', '_');
     return QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)
-            % '/' % fileName;
+           % '/' % fileName;
 }
+
+class AccessTokenFile : public QFile { // clazy:exclude=missing-qobject-macro
+    bool legacyLocation = false;
+
+public:
+    template <class KeySourceT>
+    explicit AccessTokenFile(const KeySourceT& source, OpenMode mode = ReadOnly)
+    {
+        Q_ASSERT(mode == ReadOnly || mode == WriteOnly);
+        if (mode == WriteOnly) {
+            remove(accessTokenFileName(source, true));
+            setFileName(accessTokenFileName(source, false));
+            remove();
+            const auto fileDir = QFileInfo(*this).dir();
+            if (fileDir.exists() || fileDir.mkpath("."))
+                open(QFile::WriteOnly);
+            return;
+        }
+        for (bool getLegacyLocation: { false, true }) {
+            setFileName(accessTokenFileName(source, getLegacyLocation));
+            if (open(QFile::ReadOnly)) {
+                if (size() < 1024) {
+                    qDebug() << "Found access token file at" << fileName();
+                    legacyLocation = getLegacyLocation;
+                    return;
+                }
+                qWarning() << "File" << fileName() << "is" << size()
+                           << "bytes long - too long for a token, ignoring it.";
+            } else
+                qWarning() << "Could not open access token file" << fileName();
+            close();
+        }
+    }
+    [[nodiscard]] bool isAtLegacyLocation() const { return legacyLocation; }
+};
 
 QByteArray MainWindow::loadAccessToken(const AccountSettings& account)
 {
 #ifdef USE_KEYCHAIN
-    if (Settings().value("UI/use_keychain", true).toBool())
+    if (Settings().get("UI/use_keychain", true))
         return loadAccessTokenFromKeyChain(account);
 
     qDebug() << "Explicit opt-out from keychain by user setting";
 #endif
-    return loadAccessTokenFromFile(account);
-}
-
-QByteArray MainWindow::loadAccessTokenFromFile(const AccountSettings& account)
-{
-    QFile accountTokenFile { accessTokenFileName(account) };
-    if (accountTokenFile.open(QFile::ReadOnly))
-    {
-        if (accountTokenFile.size() < 1024)
-            return accountTokenFile.readAll();
-
-        qWarning() << "File" << accountTokenFile.fileName()
-                   << "is" << accountTokenFile.size()
-                   << "bytes long - too long for a token, ignoring it.";
-    }
-    qWarning() << "Could not open access token file"
-               << accountTokenFile.fileName();
-
-    return {};
+    return AccessTokenFile(account).readAll();
 }
 
 #ifdef USE_KEYCHAIN
 QByteArray MainWindow::loadAccessTokenFromKeyChain(const AccountSettings& account)
 {
-    qDebug() << "Read the access token from the keychain for account"
-             << account.userId();
-    QKeychain::ReadPasswordJob job(qAppName());
-    job.setAutoDelete(false);
-    job.setKey(account.userId());
-    QEventLoop loop;
-    QObject::connect(&job, &QKeychain::Job::finished, &loop, &QEventLoop::quit);
-    job.start();
-    loop.exec();
+    using namespace QKeychain;
+    auto lastError = Error::OtherError;
+    bool legacyLocation = true;
+    do {
+        legacyLocation = !legacyLocation; // Start with non-legacy
 
-    if (job.error() == QKeychain::Error::NoError)
-        return job.binaryData();
+        const auto& key = accessTokenKey(account, legacyLocation);
+        qDebug().noquote() << "Reading the access token from the keychain for"
+                           << key;
+        auto job =
+            makeKeychainJob<ReadPasswordJob>(qAppName(), key, legacyLocation);
+        QEventLoop loop;
+        connect(job.get(), &Job::finished, &loop, &QEventLoop::quit);
+        job->start();
+        loop.exec();
 
-    qWarning().noquote() << "Could not read the access token from the keychain:"
-                         << job.errorString();
+        if (job->error() == Error::NoError) {
+            auto token = job->binaryData();
+            if (legacyLocation) {
+                qDebug() << "Migrating the token to the new keychain slot";
+                if (saveAccessTokenToKeyChain(account, token, false)) {
+                    auto* delJob = new DeletePasswordJob(qAppName());
+                    delJob->setAutoDelete(true);
+                    delJob->setKey(accessTokenKey(account, true));
+                    connect(delJob, &Job::finished, this, [delJob] {
+                        if (delJob->error() != Error::NoError)
+                            qWarning().noquote()
+                                << "Cleanup of the old keychain slot failed:"
+                                << delJob->errorString();
+                    });
+                    delJob->start(); // Run async and move on
+                }
+            }
+            return token;
+        }
+
+        qWarning().noquote() << "Could not read" << job->service()
+                             << "from the keychain:" << job->errorString();
+        lastError = job->error();
+    } while (!legacyLocation); // Exit once the legacy round is through
 
     // Try token file
-    const auto& accessToken = loadAccessTokenFromFile(account);
+    AccessTokenFile atf(account);
+    const auto& accessToken = atf.readAll();
     // Only offer migration if QtKeychain is usable but doesn't have the entry
-    if (job.error() == QKeychain::Error::EntryNotFound && !accessToken.isEmpty()
+    if (lastError == Error::EntryNotFound && !accessToken.isEmpty()
         && QMessageBox::warning(
                this, tr("Access token file found"),
                tr("Do you want to migrate the access token for %1 "
@@ -585,7 +657,7 @@ QByteArray MainWindow::loadAccessTokenFromKeyChain(const AccountSettings& accoun
         qInfo() << "Migrating the access token for" << account.userId()
                 << "from the file to the keychain";
         if (saveAccessTokenToKeyChain(account, accessToken, false)) {
-            if (!QFile::remove(accessTokenFileName(account)))
+            if (!atf.remove())
                 qWarning()
                     << "Could not remove the access token after migration";
         } else {
@@ -605,7 +677,7 @@ bool MainWindow::saveAccessToken(const AccountSettings& account,
                                  const QByteArray& accessToken)
 {
 #ifdef USE_KEYCHAIN
-    if (Settings().value("UI/use_keychain", true).toBool())
+    if (Settings().get("UI/use_keychain", true))
         return saveAccessTokenToKeyChain(account, accessToken);
 
     qDebug() << "Explicit opt-out from keychain by user setting";
@@ -617,13 +689,8 @@ bool MainWindow::saveAccessTokenToFile(const AccountSettings& account,
                                        const QByteArray& accessToken)
 {
     // (Re-)Make a dedicated file for access_token.
-    QFile accountTokenFile { accessTokenFileName(account) };
-    accountTokenFile.remove(); // Just in case
-
-    auto fileDir = QFileInfo(accountTokenFile).dir();
-    if (!( (fileDir.exists() || fileDir.mkpath(".")) &&
-            accountTokenFile.open(QFile::WriteOnly) ))
-    {
+    AccessTokenFile accountTokenFile(account, QFile::WriteOnly);
+    if (!accountTokenFile.isOpen()) {
         QMessageBox::warning(this,
             tr("Couldn't open a file to save access token"),
             tr("Quaternion couldn't open a file to write the"
@@ -662,27 +729,25 @@ bool MainWindow::saveAccessTokenToKeyChain(const AccountSettings& account,
                                            const QByteArray& accessToken,
                                            bool writeToFile)
 {
-    qDebug().noquote() << "Save the access token to the keychain for"
-                       << account.userId();
-    QKeychain::WritePasswordJob job(qAppName());
-    job.setAutoDelete(false);
-    job.setKey(account.userId());
-    job.setBinaryData(accessToken);
+    using namespace QKeychain;
+    const auto key = accessTokenKey(account, false);
+    qDebug().noquote() << "Save the access token to the keychain for" << key;
+    auto job = makeKeychainJob<WritePasswordJob>(qAppName(), key);
+    job->setBinaryData(accessToken);
     QEventLoop loop;
-    QObject::connect(&job, &QKeychain::Job::finished, &loop, &QEventLoop::quit);
-    job.start();
+    connect(job.get(), &Job::finished, &loop, &QEventLoop::quit);
+    job->start();
     loop.exec();
 
-    if (!job.error())
+    if (!job->error())
         return true;
 
     qWarning().noquote() << "Could not save access token to the keychain:"
-                         << job.errorString();
-    if (job.error() != QKeychain::Error::NoBackendAvailable
-        && job.error() != QKeychain::Error::NotImplemented
-        && job.error() != QKeychain::Error::OtherError) {
-        if (writeToFile)
-        {
+                         << job->errorString();
+    if (job->error() != Error::NoBackendAvailable
+        && job->error() != Error::NotImplemented
+        && job->error() != Error::OtherError) {
+        if (writeToFile) {
             const auto button = QMessageBox::warning(
                 this, tr("Couldn't save access token"),
                 tr("Quaternion couldn't save the access token to the keychain."
@@ -879,7 +944,7 @@ void MainWindow::showLoginWindow(const QString& statusMessage,
     doOpenLoginDialog(dialog);
     connect(dialog, &QDialog::rejected, this, [reloginAccount] {
         reloginAccount->clearAccessToken();
-        QFile(accessTokenFileName(*reloginAccount)).remove();
+        AccessTokenFile(*reloginAccount).remove();
         // XXX: Maybe even remove the account altogether as below?
         // Quotient::SettingsGroup("Accounts").remove(reloginAccount->userId());
     });
@@ -1075,36 +1140,41 @@ void MainWindow::logout(Connection* c)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Logout on a null connection");
 
-    QFile(accessTokenFileName(AccountSettings(c->userId()))).remove();
+    AccessTokenFile(*c).remove();
 
 #ifdef USE_KEYCHAIN
-    if (Settings().value("UI/use_keychain", true).toBool())
-    {
-        QKeychain::DeletePasswordJob job(qAppName());
-        job.setAutoDelete(false);
-        job.setKey(c->userId());
-        QEventLoop loop;
-        QKeychain::DeletePasswordJob::connect(&job, &QKeychain::Job::finished, &loop, &QEventLoop::quit);
-        job.start();
-        loop.exec();
-        if (job.error()) {
-            if (job.error() == QKeychain::Error::EntryNotFound)
-                qDebug() << "Access token is not in the keychain, nothing to delete";
-            else {
-                qWarning() << "Could not delete access token from the keychain: "
-                           << qPrintable(job.errorString());
-                if (job.error() != QKeychain::Error::NoBackendAvailable &&
-                    job.error() != QKeychain::Error::NotImplemented &&
-                    job.error() != QKeychain::Error::OtherError)
-                {
-                    QMessageBox::warning(this, tr("Couldn't delete access token"),
-                                         tr("Quaternion couldn't delete the access "
-                                            "token from the keychain."),
-                                         QMessageBox::Close);
+    if (Settings().get("UI/use_keychain", true))
+        for (bool legacyLocation: { false, true }) {
+            using namespace QKeychain;
+            auto* job = new DeletePasswordJob(qAppName());
+            job->setAutoDelete(true);
+            job->setKey(accessTokenKey(*c, legacyLocation));
+            connect(job, &Job::finished, this, [this, job] {
+                switch (job->error()) {
+                case Error::EntryNotFound:
+                    qDebug() << "Access token is not in the keychain, nothing "
+                                "to delete";
+                    [[fallthrough]];
+                case Error::NoError:
+                    return;
+                // Actual errors follow
+                case Error::NoBackendAvailable:
+                case Error::NotImplemented:
+                case Error::OtherError:
+                    break;
+                default:
+                    QMessageBox::warning(
+                        this, tr("Couldn't delete access token"),
+                        tr("Quaternion couldn't delete the access "
+                           "token from the keychain."),
+                        QMessageBox::Close);
                 }
-            }
+                qWarning()
+                    << "Could not delete access token from the keychain: "
+                    << qUtf8Printable(job->errorString());
+            });
+            job->start();
         }
-    }
 #endif
 
     c->logout();

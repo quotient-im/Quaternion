@@ -141,7 +141,6 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         void saveSettings() const;
         void doOpenLoginDialog(LoginDialog* dialog);
         QByteArray loadAccessToken(const Quotient::AccountSettings& account);
-        QByteArray loadAccessTokenFromFile(const Quotient::AccountSettings& account);
         QByteArray loadAccessTokenFromKeyChain(const Quotient::AccountSettings &account);
         bool saveAccessToken(const Quotient::AccountSettings& account,
                              const QByteArray& accessToken);
