@@ -679,7 +679,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
             return e->hasFileContent()
                     ? QVariant::fromValue(e->content()->originalJson)
                     : QVariant();
-        };
+        }
     }
 
     if( role == HighlightRole )
@@ -836,11 +836,11 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                                 ? SectionRole : AuthorRole);
         }
 
-    if (role == UserHueRole)
-        return QVariant::fromValue(
-            isPending ? m_currentRoom->localUser()->hueF() :
-            evt.senderId().isEmpty() ? 0.0 :
-            m_currentRoom->user(evt.senderId())->hueF());
+    if (role == UserHueRole) {
+        auto* const user = isPending ? m_currentRoom->localUser()
+                                     : m_currentRoom->user(evt.senderId());
+        return QVariant::fromValue(user ? 0.0 : user->hueF());
+    }
 
     if (role == RefRole)
         return visit(
