@@ -55,29 +55,23 @@ Rectangle {
 
         Image {
             id: roomAvatar
-            anchors.top: parent.top
+            anchors.verticalCenter: headerText.verticalCenter
             anchors.left: parent.left
             anchors.margins: 2
             height: headerText.height
+            width: Math.min(implicitWidth,
+                            parent.width / 2.618) // Golden ratio - just for fun
 
             source: room && room.avatarMediaId
                     ? "image://mtx/" + room.avatarMediaId : ""
-            sourceSize { // Kinda safe upper limits
-                height: root.height / 3
-                width: parent.width
-            }
+            // Safe upper limit (see also topicField)
+            sourceSize: Qt.size(-1, settings.defaultText.height * 13)
+
             fillMode: Image.PreserveAspectFit
 
             AnimationBehavior on width {
                 NormalNumberAnimation { easing.type: Easing.OutQuad }
             }
-        }
-        Binding {
-            target: roomAvatar
-            property: "width"
-            value: roomHeader.width ? roomHeader.width / 2 : 0
-            when: roomAvatar.width && roomHeader.width
-                  && roomAvatar.width > roomHeader.width / 2
         }
 
         Column {
@@ -145,8 +139,8 @@ Rectangle {
             ScrollView {
                 id: topicField
                 width: parent.width
-                height: Math.min(topicText.contentHeight,
-                                 room ? root.height / 5 : 0)
+                height: Math.min(topicText.contentHeight, root.height / 5,
+                                 settings.defaultText.height * 10)
                 clip: true
 
                 ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
