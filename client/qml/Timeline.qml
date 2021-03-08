@@ -305,8 +305,10 @@ Rectangle {
                     return
 
                 // Take the current speed, or assume we can scroll 8 screens/s
-                var velocity = moving ? -verticalVelocity
-                                      : chatScrollView.height * 8
+                var velocity = moving ? -verticalVelocity :
+                               cruisingAnimation.running ?
+                                            cruisingAnimation.velocity :
+                               chatScrollView.height * 8
                 // Check if we're about to bump into the ceiling in
                 // 2 seconds and if yes, request the amount of messages
                 // enough to scroll at this rate for 3 more seconds
