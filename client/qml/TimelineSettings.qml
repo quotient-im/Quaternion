@@ -22,7 +22,7 @@ Settings {
         pointSize: font_pointSize_impl > 0 ? font_pointSize_impl
                                            : defaultText.fontInfo.pointSize
     })
-    property alias defaultTextHeight: defaultText.height
+    readonly property var defaultTextHeight: defaultText.height
 
     readonly property var render_type_impl: value("UI/Fonts/render_type",
                                                   "NativeRendering")
