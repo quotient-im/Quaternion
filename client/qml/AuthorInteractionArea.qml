@@ -1,6 +1,7 @@
 TimelineMouseArea {
     property var authorId
 
+    enabled: parent.visible
     anchors.fill: parent
     cursorShape: Qt.PointingHandCursor
     acceptedButtons: Qt.LeftButton|Qt.MiddleButton
