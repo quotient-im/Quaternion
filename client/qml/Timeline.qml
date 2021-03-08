@@ -415,19 +415,12 @@ Rectangle {
                          && settings.enable_animations
                 SmoothedAnimation {
                     id: scrollAnimation
-                    // It would mislead the benchmark below
-                    duration: settings.animations_duration_ms_impl > 0 ? settings.fast_animations_duration_ms / 4 : 0
-                    maximumEasingTime: settings.animations_duration_ms_impl > 0 ? settings.fast_animations_duration_ms / 2 : 0
+                    duration: settings.fast_animations_duration_ms / 3
+                    maximumEasingTime: settings.fast_animations_duration_ms
 
                     onRunningChanged: {
-                        if (!running) {
+                        if (!running)
                             chatView.saveViewport()
-                            if (settings.animations_duration_ms_impl == 0)
-                                console.timeEnd("scroll")
-                        } else {
-                            if (settings.animations_duration_ms_impl == 0)
-                                console.time("scroll")
-                        }
                     }
             }}
 
