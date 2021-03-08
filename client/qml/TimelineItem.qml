@@ -68,20 +68,21 @@ Item {
 
     readonly property bool readMarkerHere: messageModel.readMarkerVisualIndex === index
 
-    // A message is considered shown if its bottom is within the
-    // viewing area of the timeline.
-    readonly property bool shown: y + height - 1 > view.contentY &&
-                                  y + height - 1 < view.contentY + view.height
-
     readonly property bool partiallyShown: y + height - 1 > view.contentY
-                                           && y < view.contentY + view.height
+                                         && y < view.contentY + view.height
 
-    onShownChanged: {
+    readonly property bool bottomEdgeShown:
+        y + height - 1 > view.contentY
+        && y + height - 1 < view.contentY + view.height
+
+    onBottomEdgeShownChanged: {
+        // A message is considered as "read" if its bottom spent long enough
+        // within the viewing area of the timeline
         if (!pending)
-            controller.onMessageShownChanged(eventId, shown)
+            controller.onMessageShownChanged(eventId, bottomEdgeShown)
     }
 
-    onPendingChanged: shownChanged()
+    onPendingChanged: bottomEdgeShownChanged()
 
     onReadMarkerHereChanged: {
         if (readMarkerHere) {
@@ -97,8 +98,8 @@ Item {
     onPartiallyShownChanged: readMarkerHereChanged()
 
     Component.onCompleted: {
-        if (shown)
-            shownChanged(true)
+        if (bottomEdgeShown)
+            bottomEdgeShownChanged(true)
         readMarkerHereChanged()
     }
 
