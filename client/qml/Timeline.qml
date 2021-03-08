@@ -65,7 +65,7 @@ Rectangle {
             source: room && room.avatarMediaId
                     ? "image://mtx/" + room.avatarMediaId : ""
             // Safe upper limit (see also topicField)
-            sourceSize: Qt.size(-1, settings.defaultText.height * 13)
+            sourceSize: Qt.size(-1, settings.defaultTextHeight * 13)
 
             fillMode: Image.PreserveAspectFit
 
@@ -86,7 +86,7 @@ Rectangle {
             TextEdit {
                 id: roomName
                 width: roomNameMetrics.advanceWidth
-                height: settings.defaultText.height
+                height: settings.defaultTextHeight
                 clip: true
 
                 readonly property bool hasName: room && room.displayName !== ""
@@ -140,7 +140,7 @@ Rectangle {
                 id: topicField
                 width: parent.width
                 height: Math.min(topicText.contentHeight, root.height / 5,
-                                 settings.defaultText.height * 10)
+                                 settings.defaultTextHeight * 10)
                 clip: true
 
                 ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
