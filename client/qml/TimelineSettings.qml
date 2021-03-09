@@ -1,4 +1,4 @@
-import QtQuick 2.2
+import QtQuick 2.4
 import Quotient 1.0
 
 Settings {
@@ -15,14 +15,16 @@ Settings {
         value("UI/Fonts/timeline_family", "")
     readonly property real font_pointSize_impl:
         parseFloat(value("UI/Fonts/timeline_pointSize", ""))
-    readonly property var defaultText: Text {}
-    readonly property var font: Qt.font({
-        family: font_family_impl ? font_family_impl
-                                 : defaultText.fontInfo.family,
-        pointSize: font_pointSize_impl > 0 ? font_pointSize_impl
-                                           : defaultText.fontInfo.pointSize
-    })
-    readonly property var defaultTextHeight: defaultText.height
+    readonly property var defaultMetrics: FontMetrics { }
+    readonly property var fontInfo: FontMetrics {
+        font.family: font_family_impl ? font_family_impl
+                                      : defaultMetrics.font.family
+        font.pointSize: font_pointSize_impl > 0 ? font_pointSize_impl
+                                                : defaultMetrics.font.pointSize
+    }
+    readonly property var font: fontInfo.font
+    readonly property real fontHeight: fontInfo.height
+    readonly property real lineSpacing: fontInfo.lineSpacing
 
     readonly property var render_type_impl: value("UI/Fonts/render_type",
                                                   "NativeRendering")

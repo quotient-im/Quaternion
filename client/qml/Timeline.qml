@@ -65,7 +65,7 @@ Rectangle {
             source: room && room.avatarMediaId
                     ? "image://mtx/" + room.avatarMediaId : ""
             // Safe upper limit (see also topicField)
-            sourceSize: Qt.size(-1, settings.defaultTextHeight * 13)
+            sourceSize: Qt.size(-1, settings.lineSpacing * 9)
 
             fillMode: Image.PreserveAspectFit
 
@@ -86,7 +86,7 @@ Rectangle {
             TextEdit {
                 id: roomName
                 width: roomNameMetrics.advanceWidth
-                height: settings.defaultTextHeight
+                height: roomNameMetrics.height
                 clip: true
 
                 readonly property bool hasName: room && room.displayName !== ""
@@ -139,8 +139,10 @@ Rectangle {
             ScrollView {
                 id: topicField
                 width: parent.width
+                // Allow 6 lines of the topic (or 20% of the vertical space);
+                // if there are more than 6 lines, show half-line as a hint
                 height: Math.min(topicText.contentHeight, root.height / 5,
-                                 settings.defaultTextHeight * 10)
+                                 settings.lineSpacing * 6.5)
                 clip: true
 
                 ScrollBar.horizontal.policy: ScrollBar.AlwaysOff

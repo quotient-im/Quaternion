@@ -2,7 +2,7 @@ import QtQuick 2.9
 import QtQuick.Controls 2.2
 
 RoundButton {
-    height: settings.defaultTextHeight * 2
+    height: settings.fontHeight * 2
     width: height
     hoverEnabled: true
     opacity: visible * (0.7 + hovered * 0.2)
