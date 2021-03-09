@@ -222,6 +222,7 @@ Item {
             Label {
                 id: timelabel
                 visible: xchatStyle
+                width: if (!visible) { 0 }
                 anchors.top: authorAvatar.top
                 anchors.left: parent.left
 
@@ -231,14 +232,15 @@ Item {
                 font.pointSize: settings.font.pointSize
                 font.italic: pending
 
-                text: "<" + time.toLocaleTimeString(Qt.locale(), Locale.ShortFormat) + ">"
+                text: "<" + time.toLocaleTimeString(Qt.locale(),
+                                                    Locale.ShortFormat) + ">"
             }
             Image {
                 id: authorAvatar
                 visible: (authorSectionVisible || xchatStyle)
                          && settings.show_author_avatars && author.avatarMediaId
-                anchors.left: xchatStyle ? timelabel.right : parent.left
-                anchors.leftMargin: 3 * xchatStyle
+                anchors.left: timelabel.right
+                anchors.leftMargin: 3
                 height: if (!visible) { authorLabel.height }
 
                 // 2 text line heights by default; 1 line height for XChat
@@ -250,7 +252,7 @@ Item {
 
                 source: author.avatarMediaId
                         ? "image://mtx/" + author.avatarMediaId : ""
-                sourceSize: Qt.size(width * 2, -1)
+                sourceSize: Qt.size(width, -1)
 
                 AuthorInteractionArea { authorId: author.id }
             }
@@ -285,11 +287,10 @@ Item {
                 height: textFieldImpl.height
                 anchors.left: xchatStyle ? authorLabel.right
                                          : authorAvatar.right
-                anchors.leftMargin: 1
+                anchors.leftMargin: 2
                 anchors.right: parent.right
                 anchors.rightMargin: 1
 
-                // Uncomment for fancy highlighting
                 RectangularGlow {
                     id: highlighter
                     anchors.fill: parent
@@ -601,7 +602,6 @@ Item {
                 id: detailsHeader
                 width: parent.width
                 height: childrenRect.height
-                anchors.top: parent.top
 
                 TextEdit {
                     text: "<" + time.toLocaleString(Qt.locale(), Locale.ShortFormat) + ">"

@@ -317,8 +317,9 @@ Rectangle {
             onContentHeightChanged: ensurePreviousContent()
 
             function saveViewport() {
-                room.saveViewport(indexAt(contentX, contentY),
-                                  bottommostVisibleIndex)
+                if (room)
+                    room.saveViewport(indexAt(contentX, contentY),
+                                      bottommostVisibleIndex)
             }
 
             function onModelReset() {
@@ -329,13 +330,8 @@ Rectangle {
                     // Load events if there are not enough of them
                     ensurePreviousContent()
                     var lastScrollPosition = room.savedTopVisibleIndex()
-                    if (lastScrollPosition === 0)
-                        positionViewAtBeginning()
-                    else
-                    {
-                        console.log("Scrolling to position", lastScrollPosition)
-                        positionViewAtIndex(lastScrollPosition, ListView.Contain)
-                    }
+                    console.log("Scrolling to position", lastScrollPosition)
+                    positionViewAtIndex(lastScrollPosition, ListView.Contain)
                 }
             }
 
@@ -407,8 +403,8 @@ Rectangle {
             }
 
             Behavior on contentY {
-                enabled: !chatView.moving && !cruisingAnimation.running
-                         && settings.enable_animations
+                enabled: settings.enable_animations && !chatView.moving
+                         && !cruisingAnimation.running
                 SmoothedAnimation {
                     id: scrollAnimation
                     duration: settings.fast_animations_duration_ms / 3
@@ -448,7 +444,7 @@ Rectangle {
                 /// @sa readMarkerViewportPos
                 height: chatView.readMarkerViewportPos - anchors.topMargin
                 anchors.left: parent.left
-                width: parent.width
+                width: readMarkerLine.width
                 z: -1
                 opacity: 0.1
 
@@ -459,7 +455,7 @@ Rectangle {
                 id: readMarkerLine
 
                 visible: chatView.count > 0
-                width: parent.width
+                width: parent.width - scrollerArea.width
                 anchors.bottom: readShade.bottom
                 height: 4
                 z: 2.5 // On top of any ListView content, below the banner
