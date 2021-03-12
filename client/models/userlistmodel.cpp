@@ -23,6 +23,7 @@
 #include <QtCore/QDebug>
 #include <QtGui/QPixmap>
 #include <QtGui/QPalette>
+#include <QtGui/QFontMetrics>
 #include <QtWidgets/QApplication>
 
 #include <connection.h>
@@ -98,7 +99,12 @@ QVariant UserListModel::data(const QModelIndex& index, int role) const
     }
     if( role == Qt::DecorationRole )
     {
-        return user->avatar(25,25, m_currentRoom);
+        // Make user avatars 150% high compared to display names
+        const auto iconSize = int(QApplication::fontMetrics().height() * 1.5
+                                  * qApp->devicePixelRatio());
+        auto av = user->avatar(iconSize, m_currentRoom);
+        av.setDevicePixelRatio(qApp->devicePixelRatio());
+        return av;
     }
 
     if (role == Qt::ToolTipRole)

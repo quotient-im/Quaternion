@@ -25,13 +25,12 @@
 #include <connection.h>
 #include <settings.h>
 
+#include <QtWidgets/QApplication>
 #include <QtGui/QIcon>
-#include <QtCore/QStringBuilder>
-
-// See the comment next to QGuiApplication::palette().brush() usage in this file
-#include <QtGui/QGuiApplication>
+#include <QtGui/QFontMetrics>
 #include <QtGui/QPalette>
 #include <QtGui/QBrush>
+#include <QtCore/QStringBuilder>
 
 RoomListModel::RoomListModel(QObject* parent)
     : QAbstractItemModel(parent)
@@ -369,7 +368,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         // It would be more proper to do it in RoomListItemDelegate
         // (see roomlistdock.cpp) but I (@kitsune) couldn't find a working way.
         if (role == Qt::BackgroundRole)
-            return QGuiApplication::palette()
+            return QApplication::palette()
                    .brush(QPalette::Active, QPalette::Button);
 
         if (role == HighlightCountRole) {
@@ -416,19 +415,33 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         }
         case Qt::DecorationRole:
         {
-            auto avatar = room->avatar(16, 16);
-            if (!avatar.isNull())
+            const auto iconSize = int(QApplication::fontMetrics().height()
+                                      * qApp->devicePixelRatio());
+            if (auto avatar = room->avatar(iconSize); !avatar.isNull()) {
+                avatar.setDevicePixelRatio(qApp->devicePixelRatio());
                 return avatar;
-            switch( room->joinState() )
-            {
-                case JoinState::Join:
-                    return QIcon(":/irc-channel-joined.svg");
-                case JoinState::Invite:
-                    return QIcon(":/irc-channel-invited.svg");
-                case JoinState::Leave:
-                    return QIcon(":/irc-channel-parted.svg");
-                default:
-                    Q_ASSERT(false); // Unknown JoinState?
+            }
+            switch (room->joinState()) {
+            case JoinState::Join: {
+                static const auto joinedIcon =
+                    QIcon::fromTheme("user-available",
+                                     QIcon(":/irc-channel-joined.svg"));
+                return joinedIcon;
+            }
+            case JoinState::Invite: {
+                static const auto invitedIcon =
+                    QIcon::fromTheme("contact-new",
+                                     QIcon(":/irc-channel-invited.svg"));
+                return invitedIcon;
+            }
+            case JoinState::Leave: {
+                static const auto leftIcon =
+                    QIcon::fromTheme("user-offline",
+                                     QIcon(":/irc-channel-parted.svg"));
+                return leftIcon;
+            }
+            default:
+                Q_ASSERT(false); // Unknown JoinState?
             }
             return {}; // Shouldn't reach here
         }
