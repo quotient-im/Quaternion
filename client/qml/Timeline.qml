@@ -59,7 +59,9 @@ Rectangle {
             anchors.left: parent.left
             anchors.margins: 2
             height: headerText.height
-            width: Math.min(implicitWidth,
+            // implicitWidth on its own doesn't respect the scale down of
+            // the received image (that almost always happens)
+            width: Math.min(headerText.height / implicitHeight * implicitWidth,
                             parent.width / 2.618) // Golden ratio - just for fun
 
             source: room && room.avatarMediaId
