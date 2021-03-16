@@ -25,14 +25,15 @@
 #include <connection.h>
 #include <settings.h>
 
-#include <QtWidgets/QApplication>
+// See a comment in the same place at userlistmodel.cpp
+#include <QtWidgets/QAbstractItemView>
 #include <QtGui/QIcon>
 #include <QtGui/QFontMetrics>
 #include <QtGui/QPalette>
 #include <QtGui/QBrush>
 #include <QtCore/QStringBuilder>
 
-RoomListModel::RoomListModel(QObject* parent)
+RoomListModel::RoomListModel(QAbstractItemView* parent)
     : QAbstractItemModel(parent)
 {
     connect(this, &RoomListModel::modelAboutToBeReset,
@@ -351,6 +352,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
     if (!index.isValid())
         return {};
 
+    const auto* view = static_cast<const QAbstractItemView*>(parent());
     if (isValidGroupIndex(index))
     {
         if (role == Qt::DisplayRole) {
@@ -368,8 +370,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         // It would be more proper to do it in RoomListItemDelegate
         // (see roomlistdock.cpp) but I (@kitsune) couldn't find a working way.
         if (role == Qt::BackgroundRole)
-            return QApplication::palette()
-                   .brush(QPalette::Active, QPalette::Button);
+            return view->palette().brush(QPalette::Active, QPalette::Button);
 
         if (role == HighlightCountRole) {
             int highlightCount = 0;
@@ -415,11 +416,11 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         }
         case Qt::DecorationRole:
         {
-            const auto iconSize = int(QApplication::fontMetrics().height()
-                                      * qApp->devicePixelRatio());
-            if (auto avatar = room->avatar(iconSize); !avatar.isNull()) {
-                avatar.setDevicePixelRatio(qApp->devicePixelRatio());
-                return avatar;
+            const auto dpi = view->devicePixelRatioF();
+            if (auto avatar = room->avatar(int(view->iconSize().height() * dpi));
+                !avatar.isNull()) {
+                avatar.setDevicePixelRatio(dpi);
+                return QIcon(QPixmap::fromImage(avatar));
             }
             switch (room->joinState()) {
             case JoinState::Join:

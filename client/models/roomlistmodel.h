@@ -27,6 +27,8 @@
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QMultiHash>
 
+class QAbstractItemView;
+
 class RoomListModel: public QAbstractItemModel
 {
         Q_OBJECT
@@ -40,7 +42,7 @@ class RoomListModel: public QAbstractItemModel
 
         using Room = Quotient::Room;
 
-        explicit RoomListModel(QObject* parent = nullptr);
+        explicit RoomListModel(QAbstractItemView* parent);
         ~RoomListModel() override = default;
 
         QVariant roomGroupAt(QModelIndex idx) const;
@@ -51,6 +53,7 @@ class RoomListModel: public QAbstractItemModel
         QModelIndex index(int row, int column,
                           const QModelIndex& parent = {}) const override;
         QModelIndex parent(const QModelIndex& index) const override;
+        using QObject::parent;
         QVariant data(const QModelIndex& index, int role) const override;
         int columnCount(const QModelIndex&) const override;
         int rowCount(const QModelIndex& parent) const override;

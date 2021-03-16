@@ -48,6 +48,12 @@ UserListDock::UserListDock(QWidget* parent)
 
     m_view = new QTableView(this);
     m_view->setShowGrid(false);
+    // Derive the member icon size from that of the default icon used when
+    // the member doesn't have an avatar
+    const auto iconExtent = m_view->fontMetrics().height() * 3 / 2;
+    m_view->setIconSize(
+        QIcon::fromTheme("user-available", QIcon(":/irc-channel-joined"))
+            .actualSize({ iconExtent, iconExtent }));
     m_view->horizontalHeader()->setStretchLastSection(true);
     m_view->horizontalHeader()->setVisible(false);
     m_view->verticalHeader()->setVisible(false);
@@ -64,7 +70,7 @@ UserListDock::UserListDock(QWidget* parent)
             startChatSelected();
     });
 
-    m_model = new UserListModel();
+    m_model = new UserListModel(m_view);
     m_view->setModel(m_model);
 
     connect( m_model, &UserListModel::membersChanged,

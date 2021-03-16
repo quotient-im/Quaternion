@@ -24,14 +24,16 @@
 #include <QtGui/QPixmap>
 #include <QtGui/QPalette>
 #include <QtGui/QFontMetrics>
-#include <QtWidgets/QApplication>
+// Injecting the dependency on a view is not so nice; but the way the model
+// provides avatar decorations depends on the delegate size
+#include <QtWidgets/QAbstractItemView>
 
 #include <connection.h>
 #include <room.h>
 #include <user.h>
 
 
-UserListModel::UserListModel(QObject* parent)
+UserListModel::UserListModel(QAbstractItemView* parent)
     : QAbstractListModel(parent)
     , m_currentRoom(nullptr)
 { }
@@ -97,14 +99,19 @@ QVariant UserListModel::data(const QModelIndex& index, int role) const
     {
         return user->displayname(m_currentRoom);
     }
-    if( role == Qt::DecorationRole )
-    {
+    const auto* view = static_cast<const QAbstractItemView*>(parent());
+    if (role == Qt::DecorationRole) {
         // Make user avatars 150% high compared to display names
-        const auto iconSize = int(QApplication::fontMetrics().height() * 1.5
-                                  * qApp->devicePixelRatio());
-        auto av = user->avatar(iconSize, m_currentRoom);
-        av.setDevicePixelRatio(qApp->devicePixelRatio());
-        return av;
+        const auto dpi = view->devicePixelRatioF();
+        if (auto av = user->avatar(int(view->iconSize().height() * dpi),
+                                   m_currentRoom);
+            !av.isNull()) {
+            av.setDevicePixelRatio(dpi);
+            return QIcon(QPixmap::fromImage(av));
+        }
+        // TODO: Show a different fallback icon for invited users
+        return QIcon::fromTheme("user_available",
+                                QIcon(":/irc-channel-joined"));
     }
 
     if (role == Qt::ToolTipRole)
@@ -117,14 +124,13 @@ QVariant UserListModel::data(const QModelIndex& index, int role) const
         return tooltip;
     }
 
-    if (role == Qt::ForegroundRole)
-    {
+    if (role == Qt::ForegroundRole) {
         // FIXME: boilerplate with TimelineItem.qml:57
+        const auto& palette = view->palette();
         return QColor::fromHslF(user->hueF(),
-                                1 - QApplication::palette().color(QPalette::Window).saturationF(),
-                                -0.7 * QApplication::palette().color(QPalette::Window).lightnessF() + 0.9,
-                                QApplication::palette().color(QPalette::ButtonText).alphaF()
-                                );
+            1 - palette.color(QPalette::Window).saturationF(),
+            0.9 - 0.7 * palette.color(QPalette::Window).lightnessF(),
+            palette.color(QPalette::ButtonText).alphaF());
     }
 
     return QVariant();

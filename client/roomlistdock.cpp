@@ -80,10 +80,10 @@ void RoomListItemDelegate::paint(QPainter* painter,
 
 RoomListDock::RoomListDock(MainWindow* parent)
     : QDockWidget("Rooms", parent)
+    , view(new QTreeView(this))
+    , model(new RoomListModel(view))
 {
     setObjectName("RoomsDock");
-    model      = new RoomListModel(this);
-    view       = new QTreeView();
 //    proxyModel = new QSortFilterProxyModel();
 //    proxyModel->setDynamicSortFilter(true);
 //    proxyModel->setSourceModel(model);
