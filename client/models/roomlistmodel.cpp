@@ -422,24 +422,16 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
                 return avatar;
             }
             switch (room->joinState()) {
-            case JoinState::Join: {
-                static const auto joinedIcon =
-                    QIcon::fromTheme("user-available",
-                                     QIcon(":/irc-channel-joined.svg"));
-                return joinedIcon;
-            }
-            case JoinState::Invite: {
-                static const auto invitedIcon =
-                    QIcon::fromTheme("contact-new",
-                                     QIcon(":/irc-channel-invited.svg"));
-                return invitedIcon;
-            }
-            case JoinState::Leave: {
-                static const auto leftIcon =
-                    QIcon::fromTheme("user-offline",
-                                     QIcon(":/irc-channel-parted.svg"));
-                return leftIcon;
-            }
+            case JoinState::Join:
+                return QIcon::fromTheme("user-available",
+                                        QIcon(":/irc-channel-joined.svg"));
+
+            case JoinState::Invite:
+                return QIcon::fromTheme("contact-new",
+                                        QIcon(":/irc-channel-invited.svg"));
+            case JoinState::Leave:
+                return QIcon::fromTheme("user-offline",
+                                        QIcon(":/irc-channel-parted.svg"));
             default:
                 Q_ASSERT(false); // Unknown JoinState?
             }
