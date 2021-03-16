@@ -66,7 +66,7 @@ UserListDock::UserListDock(QWidget* parent)
     connect(m_view, &QTableView::activated,
             this, &UserListDock::requestUserMention);
     connect( m_view, &QTableView::pressed, this, [this] {
-        if (QGuiApplication::mouseButtons() & Qt::MidButton)
+        if (QGuiApplication::mouseButtons() & Qt::MiddleButton)
             startChatSelected();
     });
 

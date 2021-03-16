@@ -102,7 +102,7 @@ RoomListDock::RoomListDock(MainWindow* parent)
     connect( view, &QTreeView::activated, this, &RoomListDock::rowSelected ); // See #608
     connect( view, &QTreeView::clicked, this, &RoomListDock::rowSelected);
     connect( view, &QTreeView::pressed, this, [this] {
-        if (QGuiApplication::mouseButtons() & Qt::MidButton) {
+        if (QGuiApplication::mouseButtons() & Qt::MiddleButton) {
             if (auto room = getSelectedRoom())
                 room->markAllMessagesAsRead();
         }

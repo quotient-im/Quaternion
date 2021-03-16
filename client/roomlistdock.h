@@ -56,7 +56,7 @@ class RoomListDock : public QDockWidget
     private:
         QTreeView* view = nullptr;
         RoomListModel* model = nullptr;
-        //        QSortFilterProxyModel* proxyModel;
+//        QSortFilterProxyModel* proxyModel;
         QMenu* roomContextMenu = nullptr;
         QMenu* groupContextMenu = nullptr;
         QAction* markAsReadAction = nullptr;

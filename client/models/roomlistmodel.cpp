@@ -48,10 +48,9 @@ void RoomListModel::addConnection(Quotient::Connection* connection)
 
     using namespace Quotient;
     m_connections.emplace_back(connection, this);
-    connect( connection, &Connection::loggedOut,
-             this, [=]{ deleteConnection(connection); } );
-    connect( connection, &Connection::newRoom,
-             this, &RoomListModel::addRoom);
+    connect(connection, &Connection::loggedOut, this,
+            [=] { deleteConnection(connection); });
+    connect(connection, &Connection::newRoom, this, &RoomListModel::addRoom);
     m_roomOrder->connectSignals(connection);
 
     for (auto* r: connection->allRooms())

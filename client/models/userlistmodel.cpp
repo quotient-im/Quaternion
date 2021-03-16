@@ -32,10 +32,8 @@
 #include <room.h>
 #include <user.h>
 
-
 UserListModel::UserListModel(QAbstractItemView* parent)
-    : QAbstractListModel(parent)
-    , m_currentRoom(nullptr)
+    : QAbstractListModel(parent), m_currentRoom(nullptr)
 { }
 
 UserListModel::~UserListModel() = default;
@@ -47,31 +45,29 @@ void UserListModel::setRoom(Quotient::Room* room)
 
     using namespace Quotient;
     beginResetModel();
-    if( m_currentRoom )
-    {
-        m_currentRoom->connection()->disconnect( this );
-        m_currentRoom->disconnect( this );
-        for( User* user: m_users )
-            user->disconnect( this );
+    if (m_currentRoom) {
+        m_currentRoom->connection()->disconnect(this);
+        m_currentRoom->disconnect(this);
+        for (auto* user: std::as_const(m_users))
+            user->disconnect(this);
         m_users.clear();
     }
     m_currentRoom = room;
-    if( m_currentRoom )
-    {
-        connect( m_currentRoom, &Room::userAdded, this, &UserListModel::userAdded );
-        connect( m_currentRoom, &Room::userRemoved, this, &UserListModel::userRemoved );
-        connect( m_currentRoom, &Room::memberAboutToRename, this, &UserListModel::userRemoved );
-        connect( m_currentRoom, &Room::memberRenamed, this, &UserListModel::userAdded );
-        connect( m_currentRoom, &Room::memberListChanged, this, &UserListModel::membersChanged );
+    if (m_currentRoom) {
+        connect(m_currentRoom, &Room::userAdded, this, &UserListModel::userAdded);
+        connect(m_currentRoom, &Room::userRemoved, this, &UserListModel::userRemoved);
+        connect(m_currentRoom, &Room::memberAboutToRename, this, &UserListModel::userRemoved);
+        connect(m_currentRoom, &Room::memberRenamed, this, &UserListModel::userAdded);
+        connect(m_currentRoom, &Room::memberListChanged, this, &UserListModel::membersChanged);
 
-        filter("");
+        filter({});
 
-        for( User* user: m_users )
-        {
-            connect( user, &User::avatarChanged, this, &UserListModel::avatarChanged );
-        }
-        connect( m_currentRoom->connection(), &Connection::loggedOut,
-                 this, [=] { setRoom(nullptr); } );
+        for (auto* user: std::as_const(m_users))
+            connect(user, &User::avatarChanged, this,
+                    &UserListModel::avatarChanged);
+
+        connect(m_currentRoom->connection(), &Connection::loggedOut, this,
+                [=] { setRoom(nullptr); });
         qDebug() << m_users.count() << "user(s) in the room";
     }
     endResetModel();
