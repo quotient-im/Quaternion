@@ -849,95 +849,95 @@ User-defined tags should start with &quot;u.&quot;</translation>
         <translation>Configure &amp;network proxy...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="578"/>
+        <location filename="../mainwindow.cpp" line="651"/>
         <source>Access token file found</source>
         <translation>Access token file found</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="579"/>
+        <location filename="../mainwindow.cpp" line="652"/>
         <source>Do you want to migrate the access token for %1 from the file to the keychain?</source>
         <translation>Do you want to migrate the access token for %1 from the file to the keychain?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="594"/>
+        <location filename="../mainwindow.cpp" line="665"/>
         <source>Couldn&apos;t migrate access token</source>
         <translation>Couldn&apos;t migrate access token</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="595"/>
+        <location filename="../mainwindow.cpp" line="666"/>
         <source>Quaternion couldn&apos;t migrate access token for %1 from the file to the keychain.</source>
         <translation>Quaternion couldn&apos;t migrate access token for %1 from the file to the keychain.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="629"/>
+        <location filename="../mainwindow.cpp" line="695"/>
         <source>Couldn&apos;t open a file to save access token</source>
         <translation>Couldn&apos;t open a file to save access token</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="630"/>
+        <location filename="../mainwindow.cpp" line="696"/>
         <source>Quaternion couldn&apos;t open a file to write the access token to. You&apos;re logged in but will have to provide your password again when you restart the application.</source>
         <translation>Quaternion couldn&apos;t open a file to write the access token to. You&apos;re logged in but will have to provide your password again when you restart the application.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="647"/>
+        <location filename="../mainwindow.cpp" line="713"/>
         <source>Couldn&apos;t set access token file permissions</source>
         <translation>Couldn&apos;t set access token file permissions</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="648"/>
+        <location filename="../mainwindow.cpp" line="714"/>
         <source>Quaternion couldn&apos;t restrict permissions on the access token file. Do you still want to save the access token to it?</source>
         <translation>Quaternion couldn&apos;t restrict permissions on the access token file. Do you still want to save the access token to it?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="687"/>
+        <location filename="../mainwindow.cpp" line="752"/>
         <source>Couldn&apos;t save access token</source>
         <translation>Couldn&apos;t save access token</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="688"/>
+        <location filename="../mainwindow.cpp" line="753"/>
         <source>Quaternion couldn&apos;t save the access token to the keychain. Do you want to save the access token to file %1?</source>
         <translation>Quaternion couldn&apos;t save the access token to the keychain. Do you want to save the access token to file %1?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="722"/>
+        <location filename="../mainwindow.cpp" line="787"/>
         <source>First sync completed for %1</source>
         <comment>%1 is user id</comment>
         <translation>First sync completed for %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="734"/>
+        <location filename="../mainwindow.cpp" line="799"/>
         <source>Logged out as %1</source>
         <translation>Logged out as %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="741"/>
+        <location filename="../mainwindow.cpp" line="806"/>
         <source>Sync failed</source>
         <translation>Sync failed</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="743"/>
+        <location filename="../mainwindow.cpp" line="808"/>
         <source>The last sync of account %1 has failed with error: %2</source>
         <translation>The last sync of account %1 has failed with error: %2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="745"/>
+        <location filename="../mainwindow.cpp" line="810"/>
         <source>The last sync has failed with error: %1</source>
         <translation>The last sync has failed with error: %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="749"/>
+        <location filename="../mainwindow.cpp" line="814"/>
         <source>Clicking &apos;Retry&apos; will attempt to resume synchronisation;
 Clicking &apos;Cancel&apos; will stop further synchronisation of this account until logout or Quaternion restart.</source>
         <translation>Clicking &apos;Retry&apos; will attempt to resume synchronisation;
 Clicking &apos;Cancel&apos; will stop further synchronisation of this account until logout or Quaternion restart.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="764"/>
+        <location filename="../mainwindow.cpp" line="829"/>
         <source>Before this server can process your information, you have to agree with its terms and conditions; please click the button below to open the web page where you can do that</source>
         <translation>Before this server can process your information, you have to agree with its terms and conditions; please click the button below to open the web page where you can do that</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="773"/>
+        <location filename="../mainwindow.cpp" line="838"/>
         <source>Request URL: %1
 Response:
 %2</source>
@@ -946,157 +946,157 @@ Response:
 %2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="781"/>
+        <location filename="../mainwindow.cpp" line="846"/>
         <source>Open web page</source>
         <translation>Open web page</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="918"/>
+        <location filename="../mainwindow.cpp" line="983"/>
         <source>Logging in into a logged in account</source>
         <translation>Logging in into a logged in account</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="919"/>
+        <location filename="../mainwindow.cpp" line="984"/>
         <source>You&apos;re trying to log in into an account that&apos;s already logged in. Do you want to continue?</source>
         <translation>You&apos;re trying to log in into an account that&apos;s already logged in. Do you want to continue?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="934"/>
+        <location filename="../mainwindow.cpp" line="999"/>
         <source>About Quaternion</source>
         <translation>About Quaternion</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="939"/>
+        <location filename="../mainwindow.cpp" line="1004"/>
         <source>&amp;About</source>
         <translation>&amp;About</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="956"/>
+        <location filename="../mainwindow.cpp" line="1021"/>
         <source>Web page</source>
         <translation>Web page</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="963"/>
+        <location filename="../mainwindow.cpp" line="1028"/>
         <source>Quaternion project contributors</source>
         <translation>Quaternion project contributors</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="966"/>
+        <location filename="../mainwindow.cpp" line="1031"/>
         <source>Built from Git, commit SHA:</source>
         <translation>Built from Git, commit SHA:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="974"/>
+        <location filename="../mainwindow.cpp" line="1039"/>
         <source>Library commit SHA:</source>
         <translation>Library commit SHA:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="983"/>
+        <location filename="../mainwindow.cpp" line="1048"/>
         <source>Original project author: %1</source>
         <translation>Original project author: %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="985"/>
+        <location filename="../mainwindow.cpp" line="1050"/>
         <source>Felix Rohrbach</source>
         <translation>Felix Rohrbach</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="986"/>
+        <location filename="../mainwindow.cpp" line="1051"/>
         <source>Project leader: %1</source>
         <translation>Project leader: %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="988"/>
+        <location filename="../mainwindow.cpp" line="1053"/>
         <source>Alexey &quot;Kitsune&quot; Rusakov</source>
         <translation>Alexey &quot;Kitsune&quot; Rusakov</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="990"/>
+        <location filename="../mainwindow.cpp" line="1055"/>
         <source>Contributors:</source>
         <translation>Contributors:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="992"/>
+        <location filename="../mainwindow.cpp" line="1057"/>
         <source>Quaternion contributors @ GitHub</source>
         <translation>Quaternion contributors @ GitHub</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="994"/>
+        <location filename="../mainwindow.cpp" line="1059"/>
         <source>libQuotient contributors @ GitHub</source>
         <translation>libQuotient contributors @ GitHub</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="996"/>
+        <location filename="../mainwindow.cpp" line="1061"/>
         <source>Quaternion translators @ Lokalise.co</source>
         <translation>Quaternion translators @ Lokalise.co</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="997"/>
+        <location filename="../mainwindow.cpp" line="1062"/>
         <source>Special thanks to %1 for all the testing effort</source>
         <translation>Special thanks to %1 for all the testing effort</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1000"/>
+        <location filename="../mainwindow.cpp" line="1065"/>
         <source>Made with:</source>
         <translation>Made with:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1011"/>
+        <location filename="../mainwindow.cpp" line="1076"/>
         <source>&amp;Thanks</source>
         <translation>&amp;Thanks</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1053"/>
+        <location filename="../mainwindow.cpp" line="1118"/>
         <source>Failed to resolve server %1</source>
         <translation>Failed to resolve server %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1061"/>
+        <location filename="../mainwindow.cpp" line="1126"/>
         <source>Welcome to Quaternion</source>
         <translation>Welcome to Quaternion</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1100"/>
+        <location filename="../mainwindow.cpp" line="1167"/>
         <source>Couldn&apos;t delete access token</source>
         <translation>Couldn&apos;t delete access token</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1101"/>
+        <location filename="../mainwindow.cpp" line="1168"/>
         <source>Quaternion couldn&apos;t delete the access token from the keychain.</source>
         <translation>Quaternion couldn&apos;t delete the access token from the keychain.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1122"/>
+        <location filename="../mainwindow.cpp" line="1192"/>
         <source>Open direct chat?</source>
         <translation>Open direct chat?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1123"/>
+        <location filename="../mainwindow.cpp" line="1193"/>
         <source>Open direct chat with user %1?</source>
         <translation>Open direct chat with user %1?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1153"/>
+        <location filename="../mainwindow.cpp" line="1223"/>
         <source>Joined %1 as %2</source>
         <translation>Joined %1 as %2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1163"/>
+        <location filename="../mainwindow.cpp" line="1233"/>
         <source>No application for the link</source>
         <translation>No application for the link</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1164"/>
+        <location filename="../mainwindow.cpp" line="1234"/>
         <source>Your operating system could not find an application for the link.</source>
         <translation>Your operating system could not find an application for the link.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1170"/>
+        <location filename="../mainwindow.cpp" line="1240"/>
         <source>External link confirmation</source>
         <translation>External link confirmation</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1171"/>
+        <location filename="../mainwindow.cpp" line="1241"/>
         <source>An external application will be opened to visit a non-Matrix link:
 
 %1
@@ -1109,171 +1109,171 @@ Is that right?</source>
 Is that right?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1176"/>
+        <location filename="../mainwindow.cpp" line="1246"/>
         <source>Do not ask again</source>
         <translation>Do not ask again</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1207"/>
+        <location filename="../mainwindow.cpp" line="1277"/>
         <source>Malformed or empty Matrix id</source>
         <translation>Malformed or empty Matrix id</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1208"/>
+        <location filename="../mainwindow.cpp" line="1278"/>
         <source>%1 is not a correct Matrix identifier</source>
         <translation>%1 is not a correct Matrix identifier</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1215"/>
-        <location filename="../mainwindow.cpp" line="1321"/>
+        <location filename="../mainwindow.cpp" line="1285"/>
+        <location filename="../mainwindow.cpp" line="1391"/>
         <source>Please connect to a server</source>
         <translation>Please connect to a server</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1227"/>
+        <location filename="../mainwindow.cpp" line="1297"/>
         <source>Confirm account to join %1</source>
         <translation>Confirm account to join %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1232"/>
+        <location filename="../mainwindow.cpp" line="1302"/>
         <source>Confirm your account to open a direct chat with %1</source>
         <translation>Confirm your account to open a direct chat with %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1234"/>
+        <location filename="../mainwindow.cpp" line="1304"/>
         <source>Confirm your account to open %1</source>
         <translation>Confirm your account to open %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1240"/>
+        <location filename="../mainwindow.cpp" line="1310"/>
         <source>Room not found</source>
         <translation>Room not found</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1241"/>
+        <location filename="../mainwindow.cpp" line="1311"/>
         <source>There&apos;s no room %1 in the room list. Check the spelling and the account.</source>
         <translation>There&apos;s no room %1 in the room list. Check the spelling and the account.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1304"/>
+        <location filename="../mainwindow.cpp" line="1374"/>
         <source>Confirm account</source>
         <translation>Confirm account</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1331"/>
+        <location filename="../mainwindow.cpp" line="1401"/>
         <source>Open room</source>
         <translation>Open room</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1332"/>
+        <location filename="../mainwindow.cpp" line="1402"/>
         <source>Room or user ID, room alias,
 Matrix URI or matrix.to link</source>
         <translation>Room or user ID, room alias,
 Matrix URI or matrix.to link</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1333"/>
+        <location filename="../mainwindow.cpp" line="1403"/>
         <source>Go to room</source>
         <translation>Go to room</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1334"/>
-        <location filename="../mainwindow.cpp" line="1336"/>
+        <location filename="../mainwindow.cpp" line="1404"/>
+        <location filename="../mainwindow.cpp" line="1406"/>
         <source>Join room</source>
         <translation>Join room</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1335"/>
+        <location filename="../mainwindow.cpp" line="1405"/>
         <source>Room ID (starting with !)
 or alias (starting with #)</source>
         <translation>Room ID (starting with !)
 or alias (starting with #)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1351"/>
+        <location filename="../mainwindow.cpp" line="1421"/>
         <source>Account</source>
         <translation>Account</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1403"/>
+        <location filename="../mainwindow.cpp" line="1473"/>
         <source>Chat with user</source>
         <comment>On a button in &apos;Open room&apos; dialog when a user identifier is entered</comment>
         <translation>Chat with user</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1410"/>
+        <location filename="../mainwindow.cpp" line="1480"/>
         <source>Can&apos;t open</source>
         <comment>On a disabled button in &apos;Open room&apos; dialog when an invalid/unsupported URI is entered</comment>
         <translation>Can&apos;t open</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1432"/>
+        <location filename="../mainwindow.cpp" line="1502"/>
         <source>Could not resolve id</source>
         <translation>Could not resolve id</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1434"/>
+        <location filename="../mainwindow.cpp" line="1504"/>
         <source>Could not find an external application to open the URI:</source>
         <translation>Could not find an external application to open the URI:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1435"/>
+        <location filename="../mainwindow.cpp" line="1505"/>
         <source>Could not resolve Matrix identifier</source>
         <translation>Could not resolve Matrix identifier</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1440"/>
+        <location filename="../mainwindow.cpp" line="1510"/>
         <source>Incorrect action on a Matrix resource</source>
         <translation>Incorrect action on a Matrix resource</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1441"/>
+        <location filename="../mainwindow.cpp" line="1511"/>
         <source>The URI contains an action &apos;%1&apos; that cannot be applied to Matrix resource %2</source>
         <translation>The URI contains an action &apos;%1&apos; that cannot be applied to Matrix resource %2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1457"/>
+        <location filename="../mainwindow.cpp" line="1527"/>
         <source>Couldn&apos;t connect to the server as %1; will retry within %2 seconds</source>
         <translation>Couldn&apos;t connect to the server as %1; will retry within %2 seconds</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1472"/>
+        <location filename="../mainwindow.cpp" line="1542"/>
         <source>Reconnecting...</source>
         <translation>Reconnecting...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1487"/>
+        <location filename="../mainwindow.cpp" line="1557"/>
         <source>No SSL support</source>
         <translation>No SSL support</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1490"/>
+        <location filename="../mainwindow.cpp" line="1560"/>
         <source>Your SSL configuration does not allow Quaternion to establish secure connections.</source>
         <translation>Your SSL configuration does not allow Quaternion to establish secure connections.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1497"/>
+        <location filename="../mainwindow.cpp" line="1567"/>
         <source>SSL error</source>
         <translation>SSL error</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1512"/>
+        <location filename="../mainwindow.cpp" line="1582"/>
         <source>Proxy needs authentication</source>
         <translation>Proxy needs authentication</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1514"/>
+        <location filename="../mainwindow.cpp" line="1584"/>
         <source>Authenticate</source>
         <comment>Authenticate with the proxy server</comment>
         <translation>Authenticate</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1518"/>
+        <location filename="../mainwindow.cpp" line="1588"/>
         <source>User name</source>
         <translation>User name</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1521"/>
+        <location filename="../mainwindow.cpp" line="1591"/>
         <source>Password</source>
         <translation>Password</translation>
     </message>
@@ -1699,68 +1699,68 @@ or alias (starting with #)</translation>
 <context>
     <name>RoomListDock</name>
     <message>
-        <location filename="../roomlistdock.cpp" line="162"/>
+        <location filename="../roomlistdock.cpp" line="166"/>
         <source>Mark room as read</source>
         <translation>Mark room as read</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="169"/>
+        <location filename="../roomlistdock.cpp" line="173"/>
         <source>Add tags...</source>
         <translation>Add tags...</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="172"/>
+        <location filename="../roomlistdock.cpp" line="176"/>
         <source>Change room &amp;settings...</source>
         <translation>Change room &amp;settings...</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="175"/>
+        <location filename="../roomlistdock.cpp" line="179"/>
         <source>Copy room link to clipboard</source>
         <translation>Copy room link to clipboard</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="182"/>
+        <location filename="../roomlistdock.cpp" line="186"/>
         <source>Join room</source>
         <translation>Join room</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="198"/>
+        <location filename="../roomlistdock.cpp" line="202"/>
         <source>Forget room</source>
         <translation>Forget room</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="209"/>
+        <location filename="../roomlistdock.cpp" line="213"/>
         <source>Remove tag</source>
         <translation>Remove tag</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="280"/>
+        <location filename="../roomlistdock.cpp" line="284"/>
         <source>Reject invitation</source>
         <translation>Reject invitation</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="280"/>
+        <location filename="../roomlistdock.cpp" line="284"/>
         <source>Leave room</source>
         <translation>Leave room</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="305"/>
+        <location filename="../roomlistdock.cpp" line="309"/>
         <source>Enter new tags for the room</source>
         <translation>Enter new tags for the room</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="306"/>
+        <location filename="../roomlistdock.cpp" line="310"/>
         <source>Add</source>
         <comment>A caption on a button to add tags</comment>
         <translation>Add</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="309"/>
+        <location filename="../roomlistdock.cpp" line="313"/>
         <source>Enter tags to add to this room, one tag per line</source>
         <translation>Enter tags to add to this room, one tag per line</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="333"/>
+        <location filename="../roomlistdock.cpp" line="337"/>
         <source>Rooms (%L1)</source>
         <translation>Rooms (%L1)</translation>
     </message>
@@ -1814,92 +1814,92 @@ or alias (starting with #)</translation>
         </translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="411"/>
+        <location filename="../models/roomlistmodel.cpp" line="410"/>
         <source>%1 (as %2)</source>
         <comment>%Room (as %user)</comment>
         <translation>%1 (as %2)</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="440"/>
+        <location filename="../models/roomlistmodel.cpp" line="445"/>
         <source>Main alias: %1</source>
         <translation>Main alias: %1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="442"/>
+        <location filename="../models/roomlistmodel.cpp" line="447"/>
         <source>Joined: %L1</source>
         <extracomment>The number of joined members</extracomment>
         <translation>Joined: %L1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="445"/>
+        <location filename="../models/roomlistmodel.cpp" line="450"/>
         <source>Invited: %L1</source>
         <extracomment>The number of invited users</extracomment>
         <translation>Invited: %L1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="453"/>
+        <location filename="../models/roomlistmodel.cpp" line="458"/>
         <source>Direct chat with %1</source>
         <translation>Direct chat with %1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="458"/>
+        <location filename="../models/roomlistmodel.cpp" line="463"/>
         <source>The room enforces encryption</source>
         <translation>The room enforces encryption</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="462"/>
+        <location filename="../models/roomlistmodel.cpp" line="467"/>
         <source>This room&apos;s version is unstable!</source>
         <translation>This room&apos;s version is unstable!</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="464"/>
+        <location filename="../models/roomlistmodel.cpp" line="469"/>
         <source>Consider upgrading to a stable version (use room settings for that)</source>
         <translation>Consider upgrading to a stable version (use room settings for that)</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="487"/>
+        <location filename="../models/roomlistmodel.cpp" line="492"/>
         <source>as %1</source>
         <extracomment>&quot;as %user&quot; disambiguates entries in the room list</extracomment>
         <translation>as %1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="470"/>
+        <location filename="../models/roomlistmodel.cpp" line="475"/>
         <source>Unread messages: %L1</source>
         <translation>Unread messages: %L1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="473"/>
+        <location filename="../models/roomlistmodel.cpp" line="478"/>
         <source>(maybe more)</source>
         <extracomment>Unread messages</extracomment>
         <translation>(maybe more)</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="478"/>
+        <location filename="../models/roomlistmodel.cpp" line="483"/>
         <source>Unread highlights: %L1</source>
         <translation>Unread highlights: %L1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="482"/>
+        <location filename="../models/roomlistmodel.cpp" line="487"/>
         <source>Unread notifications: %L1</source>
         <translation>Unread notifications: %L1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="484"/>
+        <location filename="../models/roomlistmodel.cpp" line="489"/>
         <source>ID: %1</source>
         <translation>ID: %1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="492"/>
+        <location filename="../models/roomlistmodel.cpp" line="497"/>
         <source>You joined this room</source>
         <translation>You joined this room</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="495"/>
+        <location filename="../models/roomlistmodel.cpp" line="500"/>
         <source>You left this room</source>
         <translation>You left this room</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="498"/>
+        <location filename="../models/roomlistmodel.cpp" line="503"/>
         <source>You were invited into this room</source>
         <translation>You were invited into this room</translation>
     </message>
@@ -2044,46 +2044,46 @@ This operation cannot be reverted.</translation>
         <translation>%L1 GB</translation>
     </message>
     <message>
-        <location filename="../qml/Timeline.qml" line="104"/>
+        <location filename="../qml/Timeline.qml" line="100"/>
         <source>(no name)</source>
         <translation>(no name)</translation>
     </message>
     <message>
-        <location filename="../qml/Timeline.qml" line="133"/>
+        <location filename="../qml/Timeline.qml" line="129"/>
         <source>This room has been upgraded.</source>
         <translation>This room has been upgraded.</translation>
     </message>
     <message>
-        <location filename="../qml/Timeline.qml" line="134"/>
+        <location filename="../qml/Timeline.qml" line="130"/>
         <source>Unstable room version!</source>
         <translation>Unstable room version!</translation>
     </message>
     <message>
-        <location filename="../qml/Timeline.qml" line="168"/>
+        <location filename="../qml/Timeline.qml" line="166"/>
         <source>(no topic)</source>
         <translation>(no topic)</translation>
     </message>
     <message>
-        <location filename="../qml/Timeline.qml" line="206"/>
+        <location filename="../qml/Timeline.qml" line="204"/>
         <source>Go to
 new room</source>
         <translation>Go to
 new room</translation>
     </message>
     <message>
-        <location filename="../qml/Timeline.qml" line="206"/>
+        <location filename="../qml/Timeline.qml" line="204"/>
         <source>Room
 settings</source>
         <translation>Room
 settings</translation>
     </message>
     <message>
-        <location filename="../qml/Timeline.qml" line="687"/>
+        <location filename="../qml/Timeline.qml" line="676"/>
         <source>Latest events</source>
         <translation>Latest events</translation>
     </message>
     <message numerus="yes">
-        <location filename="../qml/Timeline.qml" line="688"/>
+        <location filename="../qml/Timeline.qml" line="677"/>
         <source>%Ln events back from now</source>
         <translation>
             <numerusform>%Ln event back from now</numerusform>
@@ -2091,7 +2091,7 @@ settings</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../qml/Timeline.qml" line="690"/>
+        <location filename="../qml/Timeline.qml" line="679"/>
         <source>%Ln events cached</source>
         <translation>
             <numerusform>%Ln event cached</numerusform>
@@ -2099,7 +2099,7 @@ settings</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../qml/Timeline.qml" line="694"/>
+        <location filename="../qml/Timeline.qml" line="683"/>
         <source>%Ln events requested from the server</source>
         <translation>
             <numerusform>%Ln event requested from the server</numerusform>
@@ -2110,12 +2110,12 @@ settings</translation>
 <context>
     <name>TimelineItem</name>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="352"/>
+        <location filename="../qml/TimelineItem.qml" line="353"/>
         <source>edited</source>
         <translation>edited</translation>
     </message>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="517"/>
+        <location filename="../qml/TimelineItem.qml" line="518"/>
         <source>Reaction &apos;%1&apos; from %2</source>
         <extracomment>%2 is the list of users</extracomment>
         <translation>Reaction &apos;%1&apos; from %2</translation>
@@ -2149,7 +2149,7 @@ new room</translation>
     <name>UserListDock</name>
     <message>
         <location filename="../userlistdock.cpp" line="37"/>
-        <location filename="../userlistdock.cpp" line="95"/>
+        <location filename="../userlistdock.cpp" line="101"/>
         <source>Users</source>
         <translation>Users</translation>
     </message>
@@ -2159,49 +2159,49 @@ new room</translation>
         <translation>Search</translation>
     </message>
     <message>
-        <location filename="../userlistdock.cpp" line="99"/>
+        <location filename="../userlistdock.cpp" line="105"/>
         <source>(%L1 out of %L2)</source>
         <comment>%found out of %total users</comment>
         <translation>(%L1 out of %L2)</translation>
     </message>
     <message>
-        <location filename="../userlistdock.cpp" line="112"/>
+        <location filename="../userlistdock.cpp" line="118"/>
         <source>Open direct chat</source>
         <translation>Open direct chat</translation>
     </message>
     <message>
-        <location filename="../userlistdock.cpp" line="113"/>
+        <location filename="../userlistdock.cpp" line="119"/>
         <source>Mention user</source>
         <translation>Mention user</translation>
     </message>
     <message>
-        <location filename="../userlistdock.cpp" line="117"/>
+        <location filename="../userlistdock.cpp" line="123"/>
         <source>Ignore user</source>
         <translation>Ignore user</translation>
     </message>
     <message>
-        <location filename="../userlistdock.cpp" line="127"/>
+        <location filename="../userlistdock.cpp" line="133"/>
         <source>Kick user</source>
         <translation>Kick user</translation>
     </message>
     <message>
-        <location filename="../userlistdock.cpp" line="131"/>
+        <location filename="../userlistdock.cpp" line="137"/>
         <source>Ban user</source>
         <translation>Ban user</translation>
     </message>
     <message>
-        <location filename="../userlistdock.cpp" line="156"/>
+        <location filename="../userlistdock.cpp" line="162"/>
         <source>Kick %1</source>
         <translation>Kick %1</translation>
     </message>
     <message>
-        <location filename="../userlistdock.cpp" line="156"/>
-        <location filename="../userlistdock.cpp" line="170"/>
+        <location filename="../userlistdock.cpp" line="162"/>
+        <location filename="../userlistdock.cpp" line="176"/>
         <source>Reason</source>
         <translation>Reason</translation>
     </message>
     <message>
-        <location filename="../userlistdock.cpp" line="170"/>
+        <location filename="../userlistdock.cpp" line="176"/>
         <source>Ban %1</source>
         <translation>Ban %1</translation>
     </message>
@@ -2209,27 +2209,27 @@ new room</translation>
 <context>
     <name>main</name>
     <message>
-        <location filename="../main.cpp" line="130"/>
+        <location filename="../main.cpp" line="141"/>
         <source>Quaternion - an IM client for the Matrix protocol</source>
         <translation>Quaternion - an IM client for the Matrix protocol</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="137"/>
+        <location filename="../main.cpp" line="148"/>
         <source>Override locale</source>
         <translation>Override locale</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="138"/>
+        <location filename="../main.cpp" line="149"/>
         <source>locale</source>
         <translation>locale</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="141"/>
+        <location filename="../main.cpp" line="152"/>
         <source>Hide main window on startup</source>
         <translation>Hide main window on startup</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="144"/>
+        <location filename="../main.cpp" line="155"/>
         <source>Display debug information</source>
         <translation>Display debug information</translation>
     </message>
