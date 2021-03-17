@@ -9,24 +9,22 @@
 
 ### Getting the source code
 
-The source code is hosted at GitHub: https://github.com/quotient-im/Quaternion. The best way for one-off building is checking out a tag for a given release from GitHub (master branch is unstable and may or may not work). If you plan to work on Quaternion code, feel free to fork/clone the repo and check out the master branch.
+The source code is hosted at GitHub: https://github.com/quotient-im/Quaternion.
+The best way for one-off building is checking out a tag for a given release
+from GitHub (make sure to pass `--recurse-submodules` to `git checkout` if you
+use Option 2 - see below). If you plan to work on Quaternion code, feel free
+to fork/clone the repo and base your changes on the master branch.
 
 Quaternion needs libQuotient to build. Since version 0.0.9.3 there are two
 options to use the library:
-1. Use the library installation known to CMake - either as a (possibly but not
-   necessarily system-wide) package available from your favourite package
-   repository, or as a result of building the library from the source code in
-   another directory. In the latter case CMake internally registers the
-   library upon succesfully building it so you shouldn't even need to pass
-   `CMAKE_PREFIX_PATH`. This option can be forced by passing
-   `-DUSE_INTREE_LIBQMC=0` (or `NO`, or `OFF`) to the configuring
-   invocation of CMake (the one _without_ `--build`); alternatively, the build
-   system will fall back to this option if it doesn't find in-tree sources
-   for the library (under `lib/`) and `USE_INTREE_LIBQMC` is unset completely.
-2. As a Git submodule. This option can be forced (disabling the fallback
-   mentioned above) by passing `-DUSE_INTREE_LIBQMC=1` (or `YES`, or `ON`)
-   to CMake. If you haven't cloned Quaternion sources yet, the following will
-   get you all sources in one go:
+1. Use a library installation known to CMake - either as a (possibly but not
+   necessarily system-wide) package available from your package repository,
+   or as a result of building the library from the source code in another
+   directory. In the latter case CMake internally registers the library
+   upon succesfully building it so you shouldn't even need to pass
+   `CMAKE_PREFIX_PATH`.
+2. As a Git submodule. If you haven't cloned Quaternion sources yet,
+   the following will get you all sources in one go:
    ```bash
    git clone --recursive https://github.com/quotient-im/Quaternion.git
    ```
@@ -36,13 +34,25 @@ options to use the library:
    git submodule init
    git submodule update
    ```
+   In either case here, to correctly check out a given tag or branch, make sure
+   to also check out submodules:
+   ```bash
+   git checkout --recurse-submodules <ref>
+   ```
 
 Depending on your case, either option can be preferrable. For instance, Option 2
 is more convenient if you're actively hacking on Quaternion and libQuotient
 at the same time. On the other hand, packagers should make a separate package
 for libQuotient so should use Option 1. 0.0.9.3 is the only version using
-Option 1 as default; due to popular demand, Option 2 is used by default
-(with a fallback to Option 1) from 0.0.9.4 beta onwards.
+Option 1 as default; due to popular demand, Option 2 is used _by default_
+(with a fallback to Option 1) from 0.0.9.4 beta onwards. To override that
+you can pass `USE_INTREE_LIBQMC` option to CMake: `-DUSE_INTREE_LIBQMC=0`
+(or `NO`, or `OFF`) will force Option 1 (using an external libQuotient even when
+a submodule is there). The other way works too: if you intend to use libQuotient
+from the submodule, pass `-DUSE_INTREE_LIBQMC=1` (or `YES`, or `ON`) to make
+sure the build configuration process fails instead of finding an external
+libQuotient somewhere when a submodule is unusable for some reason (e.g. when
+`--recursive` has been forgotten when cloning).
 
 ### Pre-requisites
 - a recent Linux, macOS or Windows system (desktop versions tried; mobile
