@@ -74,6 +74,7 @@ jobs:
           qt-version: '5.15.2'
           composition: package
           qt-arch: win64_msvc2019_64
+          # qt-arch MUST be in sync with artefact-type in Publish job below
 
     env:
       DEPLOY_VERBOSITY: 1
@@ -264,9 +265,9 @@ jobs:
         - package-name: Linux
           artefact-type: '.AppImage'
         - package-name: Windows_32bit
-          artefact-type: '-win32_msvc2017.zip'
+          artefact-type: '-win32_msvc2019.zip'
         - package-name: Windows_64bit
-          artefact-type: '-win64_msvc2017_64.zip'
+          artefact-type: '-win64_msvc2019_64.zip'
     env:
       FILE_NAME: quaternion-${{ needs.Prepare.outputs.version }}${{ matrix.artefact-type }}
 
