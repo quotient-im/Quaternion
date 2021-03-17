@@ -96,6 +96,10 @@ RoomListDock::RoomListDock(MainWindow* parent)
     view->setHeaderHidden(true);
     view->setIndentation(0);
     view->setRootIsDecorated(false);
+    const auto iconExtent = view->fontMetrics().height();
+    view->setIconSize(
+        QIcon::fromTheme("user-available", QIcon(":/irc-channel-joined"))
+            .actualSize({ iconExtent, iconExtent }));
 
     static const auto Expanded = QStringLiteral("expand");
     static const auto Collapsed = QStringLiteral("collapse");
