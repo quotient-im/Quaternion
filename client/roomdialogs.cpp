@@ -348,7 +348,7 @@ class InviteeList : public QListWidget
         }
         void mousePressEvent(QMouseEvent* event) override
         {
-            if (event->button() == Qt::MidButton)
+            if (event->button() == Qt::MiddleButton)
                 delete takeItem(currentRow());
         }
 };
