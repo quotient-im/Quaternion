@@ -300,6 +300,8 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: ${{ env.FILE_NAME }}
+        # It needs to false-prerelease things but that's better than false-release them
+        prerelease: contains(${{ needs.Prepare.outputs.version }}, '-')
         allowUpdates: true
         omitNameDuringUpdate: true
         omitBodyDuringUpdate: true
