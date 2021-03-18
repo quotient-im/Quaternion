@@ -72,7 +72,7 @@ int main( int argc, char* argv[] )
     QApplication::setOrganizationName(QStringLiteral("Quotient"));
     QApplication::setApplicationName(QStringLiteral("quaternion"));
     QApplication::setApplicationDisplayName(QStringLiteral("Quaternion"));
-    QApplication::setApplicationVersion(QStringLiteral("0.0.95-beta5"));
+    QApplication::setApplicationVersion(QStringLiteral("0.0.95-beta5+git"));
     QApplication::setDesktopFileName(
         QStringLiteral("com.github.quaternion.desktop"));
 
@@ -111,6 +111,7 @@ int main( int argc, char* argv[] )
         const auto qqc2styles = QQuickStyle::availableStyles();
         if (qqc2styles.contains("Fusion"))
             QQuickStyle::setFallbackStyle("Fusion"); // Looks better on desktops
+//        QQuickStyle::setStyle("Material");
     }
 
     {
