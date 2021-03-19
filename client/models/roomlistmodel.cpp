@@ -424,14 +424,14 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
             switch (room->joinState()) {
             case JoinState::Join:
                 return QIcon::fromTheme("user-available",
-                                        QIcon(":/irc-channel-joined.svg"));
+                                        QIcon(":/irc-channel-joined"));
 
             case JoinState::Invite:
                 return QIcon::fromTheme("contact-new",
-                                        QIcon(":/irc-channel-invited.svg"));
+                                        QIcon(":/irc-channel-invited"));
             case JoinState::Leave:
                 return QIcon::fromTheme("user-offline",
-                                        QIcon(":/irc-channel-parted.svg"));
+                                        QIcon(":/irc-channel-parted"));
             default:
                 Q_ASSERT(false); // Unknown JoinState?
             }
