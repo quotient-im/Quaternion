@@ -106,7 +106,7 @@ QVariant UserListModel::data(const QModelIndex& index, int role) const
             return QIcon(QPixmap::fromImage(av));
         }
         // TODO: Show a different fallback icon for invited users
-        return QIcon::fromTheme("user_available",
+        return QIcon::fromTheme("user-available",
                                 QIcon(":/irc-channel-joined"));
     }
 
