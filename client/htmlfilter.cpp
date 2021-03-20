@@ -16,33 +16,33 @@ using namespace std;
 
 namespace HtmlFilter {
 
-enum Dir : unsigned char { QtToMatrix, MatrixToQt };
+enum Mode : unsigned char { QtToMatrix, MatrixToQt };
 
 class Processor {
 public:
-    [[nodiscard]] static Result process(const QString& html, Dir direction,
+    [[nodiscard]] static Result process(const QString& html, Mode mode,
                                         QuaternionRoom* context,
-                                        Mode mode = Default)
+                                        Options options = Default)
     {
         QString resultHtml;
         QXmlStreamWriter writer(&resultHtml);
         writer.setAutoFormatting(false);
-        Processor p { direction, mode, context, writer };
+        Processor p { mode, options, context, writer };
         p.runOn(html);
         return { resultHtml, p.errorPos, p.errorString };
     }
 
 private:
-    Dir direction;
     Mode mode;
+    Options options;
     QuaternionRoom* context;
     QXmlStreamWriter& writer;
     int errorPos = -1;
     QString errorString {};
 
-    Processor(Dir direction, Mode mode, QuaternionRoom* context,
+    Processor(Mode mode, Options options, QuaternionRoom* context,
               QXmlStreamWriter& writer)
-        : direction(direction), mode(mode), context(context), writer(writer)
+        : mode(mode), options(options), context(context), writer(writer)
     {}
     void runOn(const QString& html);
 
@@ -94,7 +94,7 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
  * the XML reader doesn't choke on trivial things like unclosed `br` or `img`
  * tags and unescaped ampersands in `href` attributes.
  */
-[[nodiscard]] QString preprocess(QString html, Mode mode = Default)
+[[nodiscard]] QString preprocess(QString html, Options options = Default)
 {
     // Escape ampersands outside of character entities
     // (HTML tolerates it, XML doesn't)
@@ -109,7 +109,7 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
     // The processor handles Markdown in chunks between HTML tags;
     // <br /> breaks character sequences that are otherwise valid Markdown,
     // leading to issues with, e.g., lists.
-    if (mode.testFlag(ConvertMarkdown)) {
+    if (options.testFlag(ConvertMarkdown)) {
         html.replace("<br />", QStringLiteral("\n"));
 
 #   if 0
@@ -179,17 +179,17 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
         QTextDocument doc;
         doc.setMarkdown(mdWithHtml);
         html = doc.toHtml();
-        mode &= ~ConvertMarkdown;
+        options &= ~ConvertMarkdown;
 #   endif
     }
 #endif
     return html;
 }
 
-QString qtToMatrix(const QString& qtMarkup, QuaternionRoom* context, Mode mode)
+QString qtToMatrix(const QString& qtMarkup, QuaternionRoom* context, Options options)
 {
     const auto& result =
-        Processor::process(preprocess(qtMarkup, mode), QtToMatrix, context, mode);
+        Processor::process(preprocess(qtMarkup, options), QtToMatrix, context, options);
     Q_ASSERT(result.errorPos == -1);
     return result.filteredHtml;
 }
@@ -204,8 +204,8 @@ Result matrixToQt(const QString& matrixHtml, QuaternionRoom* context,
     for (auto pos = html.indexOf('<'); pos != -1; pos = html.indexOf('<', pos)) {
         const auto tagNamePos = pos + 1 + (html[pos + 1] == '/');
         const auto uncheckedHtml = html.midRef(tagNamePos);
-        const QLatin1String commentOpen("!--");
-        const QLatin1String commentClose("-->");
+        static const QLatin1String commentOpen("!--");
+        static const QLatin1String commentClose("-->");
         if (uncheckedHtml.startsWith(commentOpen)) { // Skip comments
             pos = html.indexOf(commentClose, tagNamePos + commentOpen.size())
                   + commentClose.size();
@@ -349,7 +349,7 @@ void Processor::runOn(const QString &html)
             if (tagsStack.size() > 100)
                 qCritical() << "CS API spec limits HTML tags depth at 100";
 
-            if (direction == QtToMatrix) {
+            if (mode == QtToMatrix) {
                 // Qt hardcodes the link style in a `<span>` under `<a>`.
                 // This breaks the looks on the receiving side if the sender
                 // uses a different style of links from that of the receiver.
@@ -375,7 +375,7 @@ void Processor::runOn(const QString &html)
                     continue; // Skip unsetting firstElement at the loop end
                 writer.writeEmptyElement("br");
             } else if (tagName != "mx-reply"
-                       || (firstElement && !mode.testFlag(InnerHtml))) {
+                       || (firstElement && !options.testFlag(InnerHtml))) {
                 // ^ The spec only allows `<mx-reply>` at the very beginning
                 const auto& rewrite = filterTag(tagName, attrs);
                 for (const auto& [tag, attrs]: rewrite) {
@@ -390,7 +390,7 @@ void Processor::runOn(const QString &html)
         }
         case QXmlStreamReader::Characters:
         case QXmlStreamReader::EntityReference: {
-            if (firstElement && direction == QtToMatrix) {
+            if (firstElement && mode == QtToMatrix) {
                 // Remove the line break Qt inserts after <body> because it
                 // adds an unnecessary whitespace in the HTML context and
                 // an unnecessary line break in the Markdown context.
@@ -402,7 +402,7 @@ void Processor::runOn(const QString &html)
             // Outside of links, defer writing until the next non-character,
             // non-entity reference token in order to pass the whole text
             // piece to filterText() with all entity references resolved.
-            if (!inAnchor && !mode.testFlag(InnerHtml))
+            if (!inAnchor && !options.testFlag(InnerHtml))
                 textBuffer += reader.text();
             else
                 writer.writeCurrentToken(reader);
@@ -464,7 +464,7 @@ inline QStringRef cssValue(const QStringRef& css,
 Processor::rewrite_t Processor::filterTag(const QStringRef& tag,
                                           QXmlStreamAttributes attributes)
 {
-    if (direction == MatrixToQt) {
+    if (mode == MatrixToQt) {
         if (tag == "del" || tag == "strike") { // Qt doesn't support these...
             QXmlStreamAttributes attrs;
             attrs.append("style", "text-decoration:line-through");
@@ -502,7 +502,7 @@ Processor::rewrite_t Processor::filterTag(const QStringRef& tag,
         auto it = find_if(rewrite.begin(), rewrite.end(),
                           [this](const rewrite_t::value_type& element) {
                               return element.first == "font"
-                                     || (direction == QtToMatrix
+                                     || (mode == QtToMatrix
                                          && element.first == "span");
                           });
         if (it == rewrite.end())
@@ -513,7 +513,7 @@ Processor::rewrite_t Processor::filterTag(const QStringRef& tag,
     const auto& passList = it->allowedAttrs;
     for (auto&& a: attributes) {
         // Attribute conversions between Matrix and Qt subsets
-        if (direction == MatrixToQt) {
+        if (mode == MatrixToQt) {
             if (a.qualifiedName() == mxColorAttr) {
                 addColorAttr(htmlColorAttr, a.value());
                 continue;
@@ -595,7 +595,7 @@ void Processor::filterText(QString& textBuffer)
         return;
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-    if (mode.testFlag(ConvertMarkdown)) {
+    if (options.testFlag(ConvertMarkdown)) {
         // Protect leading/trailing whitespaces (Markdown disregards them);
         // specific character doesn't matter as long as it isn't a whitespace
         // itself and doesn't occur in the HTML boilerplate that QTextDocument
@@ -629,7 +629,7 @@ void Processor::filterText(QString& textBuffer)
     }
     // Re-process this piece of text as HTML but dump text snippets as they are,
     // without recursing into filterText() again
-    Processor(direction, InnerHtml, context, writer).runOn(textBuffer);
+    Processor(mode, InnerHtml, context, writer).runOn(textBuffer);
 
     textBuffer.clear();
 }

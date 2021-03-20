@@ -8,15 +8,15 @@ class QuaternionRoom;
 namespace HtmlFilter {
 Q_NAMESPACE
 
-enum Options : unsigned char {
+enum Option : unsigned char {
     Default = 0x0,
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     ConvertMarkdown = 0x5,
 #endif
     InnerHtml = 0x8
 };
-Q_ENUM_NS(Options)
-Q_DECLARE_FLAGS(Mode, Options)
+Q_ENUM_NS(Option)
+Q_DECLARE_FLAGS(Options, Option)
 
 /*! \brief Result structure for Matrix HTML parsing
  *
@@ -53,7 +53,7 @@ public:
  * before converting the resulting HTML to its Matrix flavour.
  *
  * When compiling with Qt 5.14 or newer, it is possible to pass ConvertMarkdown
- * in \p mode in order to handle the user's rich text as Markdown using Qt's
+ * in \p options in order to handle the user's rich text as Markdown using Qt's
  * QTextDocument implementation. In that case qtToMatrix() will first turn
  * the Markdown to HTML and then merge it with the outer markup.
  *
@@ -73,7 +73,7 @@ public:
  * https://matrix.org/docs/spec/client_server/latest#m-room-message-msgtypes
  */
 QString qtToMatrix(const QString& markup, QuaternionRoom* context = nullptr,
-                   Mode mode = Default);
+                   Options options = Default);
 
 /*! \brief Make the received HTML with Matrix attributes compatible with Qt
  *
