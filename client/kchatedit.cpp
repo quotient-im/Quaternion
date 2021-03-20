@@ -70,6 +70,7 @@ public:
 
     int index = 0;
     int maxHistorySize = 100;
+    QTextBlockFormat defaultBlockFmt;
 };
 
 QString KChatEdit::KChatEditPrivate::getDocumentText(QTextDocument* doc) const
@@ -137,6 +138,7 @@ KChatEdit::KChatEdit(QWidget *parent)
 
     d->setContext(this); // A special context that always exists
     setDocument(d->makeDocument());
+    d->defaultBlockFmt = textCursor().blockFormat();
 }
 
 KChatEdit::~KChatEdit() = default;
@@ -195,7 +197,10 @@ void KChatEdit::switchContext(QObject* contextKey)
 
 void KChatEdit::resetCurrentFormat()
 {
-    setCurrentCharFormat({});
+    auto c = textCursor();
+    c.setCharFormat({});
+    c.setBlockFormat(d->defaultBlockFmt);
+    setTextCursor(c);
 }
 
 QSize KChatEdit::minimumSizeHint() const
