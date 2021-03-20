@@ -57,10 +57,12 @@ void ChatEdit::contextMenuEvent(QContextMenuEvent *event)
     // The shortcut here is in order to show it to the user; it's the QShortcut
     // in the constructor that actually triggers on Ctrl+M (no idea
     // why the QAction doesn't work - because it's not in the main menu?)
-    menu->addAction(tr("Reset formatting"),
-                    this, &KChatEdit::resetCurrentFormat, ResetFormatShortcut)
-        ->setStatusTip(
-            tr("Reset the current character formatting to the default"));
+    auto* action = new QAction(tr("Reset formatting"), this);
+    action->setShortcut(ResetFormatShortcut);
+    action->setStatusTip(tr("Reset the current character formatting to the default"));
+    connect(action, &QAction::triggered, this, &KChatEdit::resetCurrentFormat);
+    menu->addAction(action);
+
     menu->setAttribute(Qt::WA_DeleteOnClose);
     menu->popup(event->globalPos());
 }
