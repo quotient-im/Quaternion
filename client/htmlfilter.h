@@ -11,9 +11,16 @@ Q_NAMESPACE
 enum Option : unsigned char {
     Default = 0x0,
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-    ConvertMarkdown = 0x5,
+    /// Treat `<body>` contents as Markdown (toMatrixHtml() only)
+    ConvertMarkdown = 0x1,
 #endif
-    InnerHtml = 0x8
+    /// Treat `<body>` contents as a fragment in a bigger HTML payload
+    /// (suppresses markup processing inside HTML elements and `<mx-reply>`
+    /// conversion - toMatrixHtml() only)
+    Fragment = 0x2,
+    /// Stop at tags not allowed in Matrix, instead of ignoring them
+    /// (from*Html() functions only)
+    Validate = 0x4
 };
 Q_ENUM_NS(Option)
 Q_DECLARE_FLAGS(Options, Option)
@@ -91,13 +98,13 @@ QString toMatrixHtml(const QString& markup, QuaternionRoom* context,
  *
  * \param matrixHtml text in Matrix HTML that should be converted to Qt HTML
  * \param context optional room context to enrich the text
- * \param validate whether the algorithm should stop at disallowed HTML tags
+ * \param options whether the algorithm should stop at disallowed HTML tags
  *                 rather than ignore them and try to continue
  * \sa Result
  * \sa
  * https://matrix.org/docs/spec/client_server/latest#m-room-message-msgtypes
  */
-Result fromMatrixHtml(const QString& matrixHtml, QuaternionRoom* context = nullptr,
-                      bool validate = false);
+Result fromMatrixHtml(const QString& matrixHtml, QuaternionRoom* context,
+                      Options options = Default);
 }
 Q_DECLARE_METATYPE(HtmlFilter::Result)

@@ -189,6 +189,8 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
 QString toMatrixHtml(const QString& qtMarkup, QuaternionRoom* context,
                      Options options)
 {
+    // Validation of HTML emitted by Qt doesn't make much sense
+    Q_ASSERT(!options.testFlag(Validate));
     const auto& result =
         Processor::process(preprocess(qtMarkup, options), QtToMatrix, context,
                            options);
@@ -197,8 +199,10 @@ QString toMatrixHtml(const QString& qtMarkup, QuaternionRoom* context,
 }
 
 Result fromMatrixHtml(const QString& matrixHtml, QuaternionRoom* context,
-                      bool validate)
+                      Options options)
 {
+    // Matrix HTML body should never be treated as Markdown
+    Q_ASSERT(!options.testFlag(ConvertMarkdown));
     auto html = preprocess(matrixHtml);
 
     // Catch non-compliant tags, non-tags and minimised attributes
@@ -236,7 +240,7 @@ Result fromMatrixHtml(const QString& matrixHtml, QuaternionRoom* context,
         if (tagIt == end(permittedTags)) {
             // Invalid tag or non-tag - either remove the abusing piece or stop
             // and report
-            if (validate)
+            if (options.testFlag(Validate))
                 return { {},
                          pos,
                          "Non-tag or disallowed tag: "
@@ -377,7 +381,7 @@ void Processor::runOn(const QString &html)
                     continue; // Skip unsetting firstElement at the loop end
                 writer.writeEmptyElement("br");
             } else if (tagName != "mx-reply"
-                       || (firstElement && !options.testFlag(InnerHtml))) {
+                       || (firstElement && !options.testFlag(Fragment))) {
                 // ^ The spec only allows `<mx-reply>` at the very beginning
                 // and it's not supposed to be in the user input
                 const auto& rewrite = filterTag(tagName, attrs);
@@ -405,7 +409,7 @@ void Processor::runOn(const QString &html)
             // Outside of links, defer writing until the next non-character,
             // non-entity reference token in order to pass the whole text
             // piece to filterText() with all entity references resolved.
-            if (!inAnchor && !options.testFlag(InnerHtml))
+            if (!inAnchor && !options.testFlag(Fragment))
                 textBuffer += reader.text();
             else
                 writer.writeCurrentToken(reader);
@@ -632,7 +636,7 @@ void Processor::filterText(QString& textBuffer)
     }
     // Re-process this piece of text as HTML but dump text snippets as they are,
     // without recursing into filterText() again
-    Processor(mode, InnerHtml, context, writer).runOn(textBuffer);
+    Processor(mode, Fragment, context, writer).runOn(textBuffer);
 
     textBuffer.clear();
 }

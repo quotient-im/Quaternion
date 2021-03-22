@@ -681,7 +681,8 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         // back to Matrix HTML to produce the (clean) rich text version
         // of the message
         const auto& [cleanQtHtml, errorPos, errorString] =
-            HtmlFilter::fromMatrixHtml(argString, m_currentRoom, true);
+            HtmlFilter::fromMatrixHtml(argString, m_currentRoom,
+                                       HtmlFilter::Validate);
         if (errorPos != -1)
             return tr("At pos %1: %2",
                       "%1 is a position of the error; %2 is the error message")
