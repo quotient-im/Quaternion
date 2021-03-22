@@ -186,16 +186,18 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
     return html;
 }
 
-QString qtToMatrix(const QString& qtMarkup, QuaternionRoom* context, Options options)
+QString toMatrixHtml(const QString& qtMarkup, QuaternionRoom* context,
+                     Options options)
 {
     const auto& result =
-        Processor::process(preprocess(qtMarkup, options), QtToMatrix, context, options);
+        Processor::process(preprocess(qtMarkup, options), QtToMatrix, context,
+                           options);
     Q_ASSERT(result.errorPos == -1);
     return result.filteredHtml;
 }
 
-Result matrixToQt(const QString& matrixHtml, QuaternionRoom* context,
-                  bool validate)
+Result fromMatrixHtml(const QString& matrixHtml, QuaternionRoom* context,
+                      bool validate)
 {
     auto html = preprocess(matrixHtml);
 
@@ -377,6 +379,7 @@ void Processor::runOn(const QString &html)
             } else if (tagName != "mx-reply"
                        || (firstElement && !options.testFlag(InnerHtml))) {
                 // ^ The spec only allows `<mx-reply>` at the very beginning
+                // and it's not supposed to be in the user input
                 const auto& rewrite = filterTag(tagName, attrs);
                 for (const auto& [tag, attrs]: rewrite) {
                     tagsStack.top().push(tag);

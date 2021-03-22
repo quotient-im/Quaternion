@@ -442,7 +442,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                     auto htmlBody =
                         static_cast<const TextContent*>(e.content())->body;
                     auto [cleanHtml, errorPos, errorString] =
-                        HtmlFilter::matrixToQt(htmlBody, m_currentRoom);
+                        HtmlFilter::fromMatrixHtml(htmlBody, m_currentRoom);
                     // If HTML is bad (or it's not HTML at all), fall back
                     // to returning the prettified plain text
                     if (errorPos != -1) {
