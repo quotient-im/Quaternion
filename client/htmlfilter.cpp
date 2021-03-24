@@ -20,22 +20,14 @@ enum Mode : unsigned char { QtToMatrix, MatrixToQt };
 
 class Processor {
 public:
-    [[nodiscard]] static Result process(const QString& html, Mode mode,
+    [[nodiscard]] static Result process(QString html, Mode mode,
                                         QuaternionRoom* context,
-                                        Options options = Default)
-    {
-        QString resultHtml;
-        QXmlStreamWriter writer(&resultHtml);
-        writer.setAutoFormatting(false);
-        Processor p { mode, options, context, writer };
-        p.runOn(html);
-        return { resultHtml, p.errorPos, p.errorString };
-    }
+                                        Options options = Default);
 
 private:
-    Mode mode;
-    Options options;
-    QuaternionRoom* context;
+    const Mode mode;
+    const Options options;
+    QuaternionRoom* const context;
     QXmlStreamWriter& writer;
     int errorPos = -1;
     QString errorString {};
@@ -85,128 +77,94 @@ static const auto& htmlStyleAttr = QStringLiteral("style");
 static const auto& mxColorAttr = QStringLiteral("data-mx-color");
 static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
 
-/*! \brief Massage the passed HTML to look more like XHTML
+[[nodiscard]] QString mergeMarkdown(const QString& html)
+{
+    // This code intends to merge user-entered Markdown+HTML markup
+    // (HTML-escaped at this point) into HTML exported by QTextDocument.
+    // Unfortunately, Markdown engine of QTextDocument is not dealing well
+    // with ampersands and &-escaped HTML entities inside HTML tags:
+    // see https://bugreports.qt.io/browse/QTBUG-91222
+    // Instead, Processor::runOn() splits segments between HTML tags and
+    // filterText() treats each of them as Markdown individually.
+    QXmlStreamReader reader(html);
+    QString mdWithHtml;
+    QXmlStreamWriter writer(&mdWithHtml);
+    while (reader.readNext() != QXmlStreamReader::StartElement
+           || reader.qualifiedName() != "p")
+        if (reader.atEnd()) {
+            Q_ASSERT_X(false, __FUNCTION__, "Malformed Qt markup");
+            qCritical() << "The text passed to qtToMatrix() doesn't seem"
+                           " to come from QTextDocument";
+            return {};
+        }
+
+    int depth = 1; // Count <p> just entered
+    while (!reader.atEnd()) {
+        // Minimal validation, just pipe things through
+        // decoding what needs decoding
+        const auto tokenType = reader.readNext();
+        switch (tokenType) {
+        case QXmlStreamReader::Characters:
+        case QXmlStreamReader::EntityReference: {
+            auto text = reader.text().toString();
+            if (depth > 1)
+                break;
+
+            // Flush the writer's buffer before side-writing
+            writer.writeCharacters({});
+            mdWithHtml += text; // Append text as is
+            continue;
+        }
+
+        case QXmlStreamReader::StartElement:
+            ++depth;
+            if (reader.qualifiedName() != "p")
+                break;
+            // Convert <p> elements except the first one
+            // to Markdown paragraph breaks
+            writer.writeCharacters("\n\n");
+            continue;
+        case QXmlStreamReader::EndElement:
+            --depth;
+            if (reader.qualifiedName() == "p")
+                continue; // See above in StartElement
+            break;
+        case QXmlStreamReader::Comment:
+            continue; // Just drop comments
+        default:
+            qWarning() << "Unexpected token, type" << tokenType;
+        }
+        if (depth < 0) {
+            Q_ASSERT(tokenType == QXmlStreamReader::EndElement
+                     && reader.qualifiedName() == "body");
+            break;
+        }
+        writer.writeCurrentToken(reader);
+    }
+    writer.writeEndElement();
+    QTextDocument doc;
+    doc.setMarkdown(mdWithHtml);
+    return doc.toHtml();
+}
+
+[[nodiscard]] inline bool isTagNameTerminator(QChar c)
+{
+    return c.isSpace() || c == '/' || c == '>';
+}
+
+/*! \brief Massage user HTML to look more like XHTML
  *
  * Since Qt doesn't have an HTML parser (outside of QTextDocument)
  * Processor::runOn() uses QXmlStreamReader instead, and it's quite picky
- * about properly closed tags and escaped ampersands. This helper tries
- * to convert the passed HTML to something more XHTML-like, so that
- * the XML reader doesn't choke on trivial things like unclosed `br` or `img`
- * tags and unescaped ampersands in `href` attributes.
+ * about properly closed tags and escaped ampersands. Processor::process()
+ * deals with the ampersands; this helper further tries to convert the passed
+ * HTML to something more XHTML-like, so that the XML reader doesn't choke on,
+ * e.g., unclosed `br` or `img` tags and minimised HTML attributes. It also
+ * filters awaytags that are not compliant with Matrix specification, where
+ * appropriate.
  */
-[[nodiscard]] QString preprocess(QString html, Options options = Default)
+[[nodiscard]] Result preprocess(QString html, Mode mode, Options options)
 {
-    // Escape ampersands outside of character entities
-    // (HTML tolerates it, XML doesn't)
-    // clang-format off
-    html.replace(QRegularExpression("&(?!(#[0-9]+"
-                                        "|#x[0-9a-fA-F]+"
-                                        "|[[:alpha:]_][-[:alnum:]_:.]*"
-                                    ");)"),
-                 "&amp;");
-    // clang-format on
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-    // The processor handles Markdown in chunks between HTML tags;
-    // <br /> breaks character sequences that are otherwise valid Markdown,
-    // leading to issues with, e.g., lists.
-    if (options.testFlag(ConvertMarkdown)) {
-        html.replace("<br />", QStringLiteral("\n"));
-
-#   if 0
-        // This code intends to merge user-entered Markdown+HTML markup
-        // (HTML-escaped at this point) into HTML exported by QTextDocument.
-        // Unfortunately, Markdown engine of QTextDocument is not dealing well
-        // with ampersands and &-escaped HTML entities inside HTML tags:
-        // see https://bugreports.qt.io/browse/QTBUG-91222
-        // Instead, Processor::runOn() splits segments between HTML tags and
-        // filterText() treats each of them as Markdown individually.
-        QXmlStreamReader reader(html);
-        QString mdWithHtml;
-        QXmlStreamWriter writer(&mdWithHtml);
-        while (reader.readNext() != QXmlStreamReader::StartElement
-               || reader.qualifiedName() != "p")
-            if (reader.atEnd()) {
-                Q_ASSERT_X(false, __FUNCTION__, "Malformed Qt markup");
-                qCritical() << "The text passed to qtToMatrix() doesn't seem"
-                               " to come from QTextDocument";
-                return {};
-            }
-
-        int depth = 1; // Count <p> just entered
-        while (!reader.atEnd()) {
-            // Minimal validation, just pipe things through
-            // decoding what needs decoding
-            const auto tokenType = reader.readNext();
-            switch (tokenType) {
-            case QXmlStreamReader::Characters:
-            case QXmlStreamReader::EntityReference: {
-                auto text = reader.text().toString();
-                if (depth > 1)
-                    break;
-
-                // Flush the writer's buffer before side-writing
-                writer.writeCharacters({});
-                mdWithHtml += text; // Append text as is
-                continue;
-            }
-
-            case QXmlStreamReader::StartElement:
-                ++depth;
-                if (reader.qualifiedName() != "p")
-                    break;
-                // Convert <p> elements except the first one
-                // to Markdown paragraph breaks
-                writer.writeCharacters("\n\n");
-                continue;
-            case QXmlStreamReader::EndElement:
-                --depth;
-                if (reader.qualifiedName() == "p")
-                    continue; // See above in StartElement
-                break;
-            case QXmlStreamReader::Comment:
-                continue; // Just drop comments
-            default:
-                qWarning() << "Unexpected token, type" << tokenType;
-            }
-            if (depth < 0) {
-                Q_ASSERT(tokenType == QXmlStreamReader::EndElement
-                         && reader.qualifiedName() == "body");
-                break;
-            }
-            writer.writeCurrentToken(reader);
-        }
-        writer.writeEndElement();
-        QTextDocument doc;
-        doc.setMarkdown(mdWithHtml);
-        html = doc.toHtml();
-        options &= ~ConvertMarkdown;
-#   endif
-    }
-#endif
-    return html;
-}
-
-QString toMatrixHtml(const QString& qtMarkup, QuaternionRoom* context,
-                     Options options)
-{
-    // Validation of HTML emitted by Qt doesn't make much sense
-    Q_ASSERT(!options.testFlag(Validate));
-    const auto& result =
-        Processor::process(preprocess(qtMarkup, options), QtToMatrix, context,
-                           options);
-    Q_ASSERT(result.errorPos == -1);
-    return result.filteredHtml;
-}
-
-Result fromMatrixHtml(const QString& matrixHtml, QuaternionRoom* context,
-                      Options options)
-{
-    // Matrix HTML body should never be treated as Markdown
-    Q_ASSERT(!options.testFlag(ConvertMarkdown));
-    auto html = preprocess(matrixHtml);
-
-    // Catch non-compliant tags, non-tags and minimised attributes
-    // before they upset the XML parser.
     for (auto pos = html.indexOf('<'); pos != -1; pos = html.indexOf('<', pos)) {
         const auto tagNamePos = pos + 1 + (html[pos + 1] == '/');
         const auto uncheckedHtml = html.midRef(tagNamePos);
@@ -251,10 +209,11 @@ Result fromMatrixHtml(const QString& matrixHtml, QuaternionRoom* context,
         }
         // Got a valid tag
 
-        // Treat minimised attributes (https://www.w3.org/TR/xhtml1/diffs.html#h-4.5)
+        // Treat minimised attributes
+        // (https://www.w3.org/TR/xhtml1/diffs.html#h-4.5)
 
         // There's no simple way to replace all occurences within
-        // a string segment so just go through the segment and insert
+        // a string segment; so just go through the segment and insert
         // `=''` after minimized attributes.
         // This is not the place to _filter_ allowed/disallowed attributes -
         // filtering is left for filterTag()
@@ -285,10 +244,84 @@ Result fromMatrixHtml(const QString& matrixHtml, QuaternionRoom* context,
         Q_ASSERT(pos > 0);
     }
     // Wrap in a no-op tag to make the text look like valid XML; Qt's rich
-    // text engine produces valid XHTML so QtToMatrix doesn't need this.
-    html = "<body>" % html % "</body>";
+    // text engine produces HTML that is also valid XHTML so QtToMatrix
+    // doesn't need this.
+    html = "<span>" % html % "</span>";
+    return { html };
+}
 
-    auto result = Processor::process(html, MatrixToQt, context);
+Result Processor::process(QString html, Mode mode, QuaternionRoom* context,
+                          Options options)
+{
+    // Since Qt doesn't have an HTML parser (outside of QTextDocument; and
+    // the one in QTextDocument is opinionated and not configurable)
+    // Processor::runOn() uses QXmlStreamReader instead. Being an XML parser,
+    // this class is quite picky about properly closed tags and escaped
+    // ampersands. Before passing to runOn(), the following code tries to bring
+    // the passed HTML to something more XHTML-like, so that the XML parser
+    // doesn't choke on things HTML-but-not-XML. In QtToMatrix mode the only
+    // such thing is unescaped ampersands in attributes (especially `href`),
+    // since QTextDocument::toHtml() produces (otherwise) valid XHTML. In other
+    // modes no such assumption can be made so an attempt is taken to close
+    // elements that are normally empty (`br`, `hr` and `img`), turn minimised
+    // attributes to their full interpretations (`disabled -> disabled=''`)
+    // and remove things that are obvious non-tags around unescaped `<`
+    // characters.
+
+    // 1. Escape ampersands outside of character entities
+    html.replace(QRegularExpression("&(?!(#[0-9]+" // clang-format off
+                                        "|#x[0-9a-fA-F]+"
+                                        "|[[:alpha:]_][-[:alnum:]_:.]*"
+                                    ");)"), // clang-format on
+                 "&amp;");
+
+    if (mode == QtToMatrix) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+        if (options.testFlag(ConvertMarkdown)) {
+            // The processor handles Markdown in chunks between HTML tags;
+            // <br /> breaks character sequences that are otherwise valid
+            // Markdown, leading to issues with, e.g., lists.
+            html.replace("<br />", QStringLiteral("\n"));
+#    if 0
+        html = mergeMarkdown(html);
+        if (html.isEmpty())
+            return { "", 0, "This markup doesn't seem to be sourced from Qt" };
+        options &= ~ConvertMarkdown;
+#    endif
+        }
+#endif
+    } else {
+        auto r = preprocess(html, mode, options);
+        if (r.errorPos != -1)
+            return r;
+        html = r.filteredHtml;
+    }
+
+    QString resultHtml;
+    QXmlStreamWriter writer(&resultHtml);
+    writer.setAutoFormatting(false);
+    Processor p { mode, options, context, writer };
+    p.runOn(html);
+    return { resultHtml, p.errorPos, p.errorString };
+}
+
+QString toMatrixHtml(const QString& qtMarkup, QuaternionRoom* context,
+                     Options options)
+{
+    // Validation of HTML emitted by Qt doesn't make much sense
+    Q_ASSERT(!options.testFlag(Validate));
+    const auto& result =
+        Processor::process(qtMarkup, QtToMatrix, context, options);
+    Q_ASSERT(result.errorPos == -1);
+    return result.filteredHtml;
+}
+
+Result fromMatrixHtml(const QString& matrixHtml, QuaternionRoom* context,
+                      Options options)
+{
+    // Matrix HTML body should never be treated as Markdown
+    Q_ASSERT(!options.testFlag(ConvertMarkdown));
+    auto result = Processor::process(matrixHtml, MatrixToQt, context, options);
     if (result.errorPos == -1) {
         // Make sure to preserve whitespace sequences
         result.filteredHtml = "<span style=\"whitespace: pre-wrap\">"
@@ -344,9 +377,10 @@ void Processor::runOn(const QString &html)
             if (find_if(attrs.cbegin(), attrs.cend(),
                         [](const auto& a) {
                             return a.qualifiedName() == "style"
-                                && a.value()
-                                    .contains("-qt-paragraph-type:empty");
-                }) != attrs.cend()) {
+                                   && a.value().contains(
+                                       "-qt-paragraph-type:empty");
+                        })
+                != attrs.cend()) {
                 reader.skipCurrentElement();
                 continue; // Hidden text block, just skip it
             }
