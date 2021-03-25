@@ -4,7 +4,7 @@
 <context>
     <name>ChatEdit</name>
     <message>
-        <location filename="../chatedit.cpp" line="60"/>
+        <location filename="../chatedit.cpp" line="61"/>
         <source>Reset formatting</source>
         <translation>Reset formatting</translation>
     </message>
@@ -34,13 +34,13 @@
     <message>
         <location filename="../chatroomwidget.cpp" line="149"/>
         <location filename="../chatroomwidget.cpp" line="184"/>
-        <location filename="../chatroomwidget.cpp" line="1065"/>
+        <location filename="../chatroomwidget.cpp" line="1066"/>
         <source>Add a message to the file or just push Enter</source>
         <translation>Add a message to the file or just push Enter</translation>
     </message>
     <message>
         <location filename="../chatroomwidget.cpp" line="150"/>
-        <location filename="../chatroomwidget.cpp" line="1066"/>
+        <location filename="../chatroomwidget.cpp" line="1067"/>
         <source>Attaching %1</source>
         <translation>Attaching %1</translation>
     </message>
@@ -115,13 +115,13 @@
         <translation>There&apos;s no such /command outside of room.</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="686"/>
+        <location filename="../chatroomwidget.cpp" line="688"/>
         <source>At pos %1: %2</source>
         <comment>%1 is a position of the error; %2 is the error message</comment>
         <translation>At pos %1: %2</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="741"/>
+        <location filename="../chatroomwidget.cpp" line="743"/>
         <source>You should select a room to send messages.</source>
         <translation>You should select a room to send messages.</translation>
     </message>
@@ -163,7 +163,7 @@
     </message>
     <message>
         <location filename="../chatroomwidget.cpp" line="558"/>
-        <location filename="../chatroomwidget.cpp" line="714"/>
+        <location filename="../chatroomwidget.cpp" line="716"/>
         <source>%1 doesn&apos;t look like a user id</source>
         <translation>%1 doesn&apos;t look like a user id</translation>
     </message>
@@ -223,78 +223,78 @@
         <translation>%1 doesn&apos;t look like a user id or room alias</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="706"/>
+        <location filename="../chatroomwidget.cpp" line="708"/>
         <source>Your build of Quaternion doesn&apos;t support Markdown</source>
         <translation>Your build of Quaternion doesn&apos;t support Markdown</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="712"/>
+        <location filename="../chatroomwidget.cpp" line="714"/>
         <source>/%1 &lt;memberId&gt;</source>
         <translation>/%1 &lt;memberId&gt;</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="721"/>
+        <location filename="../chatroomwidget.cpp" line="723"/>
         <source>Unknown /command. Use // to send this line literally</source>
         <translation>Unknown /command. Use // to send this line literally</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="784"/>
+        <location filename="../chatroomwidget.cpp" line="786"/>
         <source>Save file as</source>
         <translation>Save file as</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="895"/>
+        <location filename="../chatroomwidget.cpp" line="898"/>
         <source>Redact</source>
         <translation>Redact</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="901"/>
+        <location filename="../chatroomwidget.cpp" line="903"/>
         <source>Copy selected text to clipboard</source>
         <translation>Copy selected text to clipboard</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="907"/>
+        <location filename="../chatroomwidget.cpp" line="908"/>
         <source>Copy link to clipboard</source>
         <translation>Copy link to clipboard</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="911"/>
+        <location filename="../chatroomwidget.cpp" line="912"/>
         <source>Copy permalink to clipboard</source>
         <translation>Copy permalink to clipboard</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="916"/>
+        <location filename="../chatroomwidget.cpp" line="919"/>
         <source>Quote</source>
         <comment>a verb (do quote), not a noun (a quote)</comment>
         <translation>Quote</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="919"/>
+        <location filename="../chatroomwidget.cpp" line="923"/>
         <source>Show details</source>
         <translation>Show details</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="933"/>
+        <location filename="../chatroomwidget.cpp" line="938"/>
         <source>Open externally</source>
         <translation>Open externally</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="937"/>
+        <location filename="../chatroomwidget.cpp" line="941"/>
         <source>Open Folder</source>
         <translation>Open Folder</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="942"/>
+        <location filename="../chatroomwidget.cpp" line="946"/>
         <source>Copy image to clipboard</source>
         <translation>Copy image to clipboard</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="949"/>
+        <location filename="../chatroomwidget.cpp" line="952"/>
         <source>Download</source>
         <translation>Download</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="953"/>
+        <location filename="../chatroomwidget.cpp" line="956"/>
         <source>Save file as...</source>
         <translation>Save file as...</translation>
     </message>
