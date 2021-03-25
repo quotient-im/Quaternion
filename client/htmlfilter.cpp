@@ -77,6 +77,7 @@ static const auto& htmlStyleAttr = QStringLiteral("style");
 static const auto& mxColorAttr = QStringLiteral("data-mx-color");
 static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
 [[nodiscard]] QString mergeMarkdown(const QString& html)
 {
     // This code intends to merge user-entered Markdown+HTML markup
@@ -146,6 +147,7 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
     doc.setMarkdown(mdWithHtml);
     return doc.toHtml();
 }
+#endif
 
 [[nodiscard]] inline bool isTagNameTerminator(QChar c)
 {
@@ -353,8 +355,10 @@ QString toMatrixHtml(const QString& qtMarkup, QuaternionRoom* context,
 Result fromMatrixHtml(const QString& matrixHtml, QuaternionRoom* context,
                       Options options)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     // Matrix HTML body should never be treated as Markdown
     Q_ASSERT(!options.testFlag(ConvertMarkdown));
+#endif
     auto result = Processor::process(matrixHtml, MatrixToQt, context, options);
     if (result.errorPos == -1) {
         // Make sure to preserve whitespace sequences
