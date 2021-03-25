@@ -20,6 +20,7 @@
 #include "chatedit.h"
 
 #include "chatroomwidget.h"
+#include "htmlfilter.h"
 
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QShortcut>
@@ -75,15 +76,24 @@ void ChatEdit::switchContext(QObject* contextKey)
 
 bool ChatEdit::canInsertFromMimeData(const QMimeData *source) const
 {
-    return source->hasImage() || QTextEdit::canInsertFromMimeData(source);
+    return source->hasImage() || KChatEdit::canInsertFromMimeData(source);
 }
 
 void ChatEdit::insertFromMimeData(const QMimeData *source)
 {
-    if (source->hasImage())
+    if (!source) {
+        qWarning() << "Nothing to insert";
+        return;
+    }
+
+    if (source->hasHtml()) {
+        // Before insertion, remove formatting unsupported in Matrix
+        insertHtml(HtmlFilter::fromLocalHtml(source->html()).filteredHtml);
+        ensureCursorVisible();
+    } else if (source->hasImage())
         emit insertFromMimeDataRequested(source);
     else
-        QTextEdit::insertFromMimeData(source);
+        KChatEdit::insertFromMimeData(source);
 }
 
 void ChatEdit::appendMentionAt(QTextCursor& cursor, QString mention,
