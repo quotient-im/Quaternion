@@ -16,7 +16,7 @@ using namespace std;
 
 namespace HtmlFilter {
 
-enum Mode : unsigned char { QtToMatrix, MatrixToQt };
+enum Mode : unsigned char { QtToMatrix, MatrixToQt, GenericToQt };
 
 class Processor {
 public:
@@ -165,6 +165,9 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
  */
 [[nodiscard]] Result preprocess(QString html, Mode mode, Options options)
 {
+    Q_ASSERT(mode != QtToMatrix);
+    bool isFragment = mode == MatrixToQt;
+    bool inHead = false;
     for (auto pos = html.indexOf('<'); pos != -1; pos = html.indexOf('<', pos)) {
         const auto tagNamePos = pos + 1 + (html[pos + 1] == '/');
         const auto uncheckedHtml = html.midRef(tagNamePos);
@@ -186,28 +189,58 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
             pos += to.size(); // Put pos after the escaped sequence
             continue;
         }
-        // Check if it's a valid (opening or closing) tag allowed in Matrix
-        const auto tagIt = find_if(begin(permittedTags), end(permittedTags),
-                                [&uncheckedHtml](const QString& tag) {
-            if (uncheckedHtml.size() <= tag.size()
-                || !uncheckedHtml.startsWith(tag, Qt::CaseInsensitive))
-                return false;
-            const auto& charAfter = uncheckedHtml[tag.size()];
-            return charAfter.isSpace() || charAfter == '/' || charAfter == '>';
-        });
-        if (tagIt == end(permittedTags)) {
-            // Invalid tag or non-tag - either remove the abusing piece or stop
-            // and report
-            if (options.testFlag(Validate))
-                return { {},
-                         pos,
-                         "Non-tag or disallowed tag: "
-                             % uncheckedHtml.left(gtPos - tagNamePos) };
+        if (uncheckedHtml.startsWith("head>", Qt::CaseInsensitive)) {
+            if (mode == MatrixToQt) {
+                // Matrix spec doesn't allow <head>; report if it occurs in
+                // user input (Validate is on) or remove the whole header if
+                // it comes from the wire (Validate is off).
+                if (options.testFlag(Validate))
+                    return { {},
+                             pos,
+                             "<head> elements are not allowed in Matrix" };
+                static const QLatin1String HeadEnd("</head>");
+                const auto headEndPos =
+                    html.indexOf(HeadEnd, tagNamePos, Qt::CaseInsensitive);
+                html.remove(pos, headEndPos - pos + HeadEnd.size());
+                continue;
+            }
+            Q_ASSERT(mode == GenericToQt);
+            inHead = html[pos + 1] != '/'; // Track header entry and exit
+        }
 
-            html.remove(pos, gtPos - pos + 1);
+        const auto tagEndIt = find_if(uncheckedHtml.cbegin(),
+                                      uncheckedHtml.cend(), isTagNameTerminator);
+        const auto tag =
+            uncheckedHtml.left(int(tagEndIt - uncheckedHtml.cbegin()))
+                .toString()
+                .toLower();
+        // <head> contents are necessary to apply styles but obviously
+        // neither `head` nor tags inside of it are in permittedTags;
+        // however, minimised attributes still have to be handled everywhere
+        // and <meta> tags should be closed
+        if (mode == GenericToQt && tag == "html") {
+            // Only in generic mode, allow <html> element
+            pos += tagNamePos + tag.size() + 1;
+            isFragment = false;
             continue;
         }
-        // Got a valid tag
+        if (!inHead) {
+            // Check if it's a valid (opening or closing) tag allowed in Matrix
+            const auto tagIt =
+                find(cbegin(permittedTags), cend(permittedTags), tag);
+            if (tagIt == cend(permittedTags)) {
+                // Invalid tag or non-tag - either remove the abusing piece
+                // or stop and report
+                if (options.testFlag(Validate))
+                    return { {},
+                             pos,
+                             "Non-tag or disallowed tag: "
+                                 % uncheckedHtml.left(gtPos - tagNamePos) };
+
+                html.remove(pos, gtPos - pos + 1);
+                continue;
+            }
+        }
 
         // Treat minimised attributes
         // (https://www.w3.org/TR/xhtml1/diffs.html#h-4.5)
@@ -220,7 +253,7 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
         static const QRegularExpression MinAttrRE {
             R"(([^[:space:]>/"'=]+)\s*(=\s*([^[:space:]>/"']|"[^"]*"|'[^']*')+)?)"
         };
-        pos = tagNamePos + tagIt->size();
+        pos = tagNamePos + tag.size();
         QRegularExpressionMatch m;
         while ((m = MinAttrRE.match(html, pos)).hasMatch()
                && m.capturedEnd(1) < gtPos) {
@@ -234,19 +267,20 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
         }
         // Make sure empty elements are properly closed
         static const QRegularExpression EmptyElementRE {
-            "^img|[hb]r$", QRegularExpression::CaseInsensitiveOption
+            "^img|[hb]r|meta$", QRegularExpression::CaseInsensitiveOption
         };
-        if (html[gtPos - 1] != '/' && EmptyElementRE.match(*tagIt).hasMatch()) {
+        if (html[gtPos - 1] != '/' && EmptyElementRE.match(tag).hasMatch()) {
             html.insert(gtPos, '/');
             ++gtPos;
         }
         pos = gtPos + 1;
         Q_ASSERT(pos > 0);
     }
-    // Wrap in a no-op tag to make the text look like valid XML; Qt's rich
-    // text engine produces HTML that is also valid XHTML so QtToMatrix
-    // doesn't need this.
-    html = "<span>" % html % "</span>";
+    // Wrap in a no-op tag to make the text look like valid XML if it's
+    // a fragment (always the case when HTML comes from a homeserver, and
+    // possibly with generic HTML).
+    if (isFragment)
+        html = "<span>" % html % "</span>";
     return { html };
 }
 
@@ -330,6 +364,12 @@ Result fromMatrixHtml(const QString& matrixHtml, QuaternionRoom* context,
     return result;
 }
 
+Result fromLocalHtml(const QString& html,
+                     QuaternionRoom* context, Options options)
+{
+    return Processor::process(html, GenericToQt, context, options);
+}
+
 void Processor::runOn(const QString &html)
 {
     QXmlStreamReader reader(html);
@@ -345,12 +385,20 @@ void Processor::runOn(const QString &html)
     /// text parts.
     QString textBuffer;
     int bodyOffset = 0;
-    bool firstElement = true, inAnchor = false;
+    bool firstElement = true, inAnchor = false, inHead = false;
     while (!reader.atEnd()) {
         const auto tokenType = reader.readNext();
         if (bodyOffset == -1) // See below in 'case StartElement:'
             bodyOffset = reader.characterOffset();
 
+        if (inHead) {
+            writer.writeCurrentToken(reader);
+            if (tokenType == QXmlStreamReader::EndElement
+                && reader.qualifiedName() == "head") {
+                inHead = false;
+            }
+            continue;
+        }
         if (!textBuffer.isEmpty() && !reader.isCharacters()
             && !reader.isEntityReference())
             filterText(textBuffer);
@@ -363,8 +411,13 @@ void Processor::runOn(const QString &html)
                 // care to put them to tagsStack
                 if (tagName == "html")
                     break; // Just ignore, get to the content inside
-                if (tagName == "head") { // Entirely uninteresting
-                    reader.skipCurrentElement();
+                if (tagName == "head") {
+                    if (mode == GenericToQt) {
+                        inHead = true;
+                        writer.writeCurrentToken(reader);
+                        continue;
+                    }
+                    reader.skipCurrentElement(); // Entirely uninteresting
                     break;
                 }
                 if (tagName == "body") { // Skip but note the encounter
@@ -389,17 +442,16 @@ void Processor::runOn(const QString &html)
             if (tagsStack.size() > 100)
                 qCritical() << "CS API spec limits HTML tags depth at 100";
 
-            if (mode == QtToMatrix) {
-                // Qt hardcodes the link style in a `<span>` under `<a>`.
-                // This breaks the looks on the receiving side if the sender
-                // uses a different style of links from that of the receiver.
-                // Since Qt decorates links when importing HTML anyway, we
-                // don't lose anything if we just strip away this span tag.
-                if (inAnchor && textBuffer.isEmpty() && tagName == "span"
-                    && attrs.size() == 1
-                    && attrs.front().qualifiedName() == "style")
-                    continue; // inAnchor == true ==> firstElement == false
-            }
+            // Qt hardcodes the link style in a `<span>` under `<a>`.
+            // This breaks the looks on the receiving side if the sender
+            // uses a different style of links from that of the receiver.
+            // Since Qt decorates links when importing HTML anyway, we
+            // don't lose anything if we just strip away this span tag.
+            if (mode != MatrixToQt && inAnchor && textBuffer.isEmpty()
+                && tagName == "span" && attrs.size() == 1
+                && attrs.front().qualifiedName() == "style")
+                continue; // inAnchor == true ==> firstElement == false
+
             // Skip the first top-level <p> and replace further top-level
             // `<p>...</p>` with `<br/>...` - kinda controversial but
             // there's no cleaner way to get rid of the single top-level <p>
@@ -409,13 +461,15 @@ void Processor::runOn(const QString &html)
             // e.g.). This is also a very special case where a converted tag
             // is immediately closed, unlike the one in the source text;
             // which is why it's checked here rather than in filterTag().
-            if (tagName == "p"
+            if (mode == QtToMatrix && tagName == "p"
                 && tagsStack.size() == 1 /* top-level, just emplaced */) {
                 if (firstElement)
                     continue; // Skip unsetting firstElement at the loop end
                 writer.writeEmptyElement("br");
-            } else if (tagName != "mx-reply"
-                       || (firstElement && !options.testFlag(Fragment))) {
+                break;
+            }
+            if (tagName != "mx-reply"
+                || (firstElement && !options.testFlag(Fragment))) {
                 // ^ The spec only allows `<mx-reply>` at the very beginning
                 // and it's not supposed to be in the user input
                 const auto& rewrite = filterTag(tagName, attrs);
@@ -517,7 +571,7 @@ Processor::rewrite_t Processor::filterTag(const QStringRef& tag,
     }
 
     rewrite_t rewrite { { tag.toString(), {} } };
-    if (tag == "code") { // Special case
+    if (tag == "code" && mode != GenericToQt) { // Special case
         copy_if(attributes.begin(), attributes.end(),
                 back_inserter(rewrite.back().second), [](const auto& a) {
                     return a.qualifiedName() == "class"
@@ -553,22 +607,25 @@ Processor::rewrite_t Processor::filterTag(const QStringRef& tag,
 
     const auto& passList = it->allowedAttrs;
     for (auto&& a: attributes) {
-        // Attribute conversions between Matrix and Qt subsets
-        if (mode == MatrixToQt) {
-            if (a.qualifiedName() == mxColorAttr) {
-                addColorAttr(htmlColorAttr, a.value());
+        const auto aName = a.qualifiedName();
+        const auto aValue = a.value();
+        // Attribute conversions between Matrix and Qt subsets; generic HTML
+        // is treated as possibly-Matrix
+        if (mode != QtToMatrix) {
+            if (aName == mxColorAttr) {
+                addColorAttr(htmlColorAttr, aValue);
                 continue;
             }
-            if (a.qualifiedName() == mxBgColorAttr) {
+            if (aName == mxBgColorAttr) {
                 rewrite.front().second.append(htmlStyleAttr,
-                                              "background-color:" + a.value());
+                                              "background-color:" + aValue);
                 continue;
             }
         } else {
-            if (a.qualifiedName() == htmlStyleAttr) {
+            if (aName == htmlStyleAttr) {
                 // 'style' attribute is not allowed in Matrix; convert
                 // everything possible to tags and other attributes
-                const auto& cssProperties = a.value().split(';');
+                const auto& cssProperties = aValue.split(';');
                 for (auto p: cssProperties) {
                     p = p.trimmed();
                     if (p.isEmpty())
@@ -605,16 +662,19 @@ Processor::rewrite_t Processor::filterTag(const QStringRef& tag,
                 }
                 continue;
             }
-            if (a.qualifiedName() == htmlColorAttr)
-                addColorAttr(mxColorAttr, a.value()); // Add to 'color'
+            if (aName == htmlColorAttr)
+                addColorAttr(mxColorAttr, aValue); // Add to 'color'
         }
 
         // Generic filtering for attributes
-        if ((tag == "a" && a.qualifiedName() == "href"
-             && any_of(begin(permittedSchemes), end(permittedSchemes),
-                       [&a](const char* s) { return a.value().startsWith(s); }))
-            || (tag == "img" && a.qualifiedName() == "src"
-                && a.value().startsWith("mxc:"))
+        if ((mode == GenericToQt
+             && (aName == htmlStyleAttr || aName == "class" || aName == "id"))
+            || (tag == "a" && aName == "href"
+                && any_of(begin(permittedSchemes), end(permittedSchemes),
+                          [&aValue](const char* s) {
+                              return aValue.startsWith(s);
+                          }))
+            || (tag == "img" && aName == "src" && aValue.startsWith("mxc:"))
             || find(passList.begin(), passList.end(), a.qualifiedName())
                    != passList.end())
             rewrite.front().second.push_back(move(a));

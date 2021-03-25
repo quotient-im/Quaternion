@@ -27,13 +27,13 @@ Q_DECLARE_FLAGS(Options, Option)
 
 /*! \brief Result structure for HTML parsing
  *
- * This is the return type of fromMatrixHtml(), which, unlike toMatrixHtml(),
- * can't assume that HTML it receives is valid since it either comes from
- * the wire or a user input and therefore need a means to report an error when
- * the parser cannot cope (most often because of incorrectly
+ * This is the return type of from*Html() functions, which, unlike
+ * toMatrixHtml(), can't assume that HTML it receives is valid since it either
+ * comes from the wire or a user input and therefore need a means to report
+ * an error when the parser cannot cope (most often because of incorrectly
  * closed tags but also if plain incorrect HTML is passed).
  *
- * \sa fromMatrixHtml()
+ * \sa fromMatrixHtml(), fromLocalHtml()
  */
 struct Result {
     Q_GADGET
@@ -74,7 +74,7 @@ public:
  *
  * \note This function assumes well-formed XHTML produced by Qt classes; while
  *       it corrects unescaped ampersands (`&`) it does not try to turn HTML
- *       to XHTML, as fromMatrixHtml() does. In case of an error, debug
+ *       to XHTML, as from*Html() functions do. In case of an error, debug
  *       builds will fail on assertion, release builds will silently stop
  *       processing and return what could be processed so far.
  *
@@ -106,5 +106,27 @@ QString toMatrixHtml(const QString& markup, QuaternionRoom* context,
  */
 Result fromMatrixHtml(const QString& matrixHtml, QuaternionRoom* context,
                       Options options = Default);
+
+/*! \brief Make the received generic HTML compatible with Qt and convertible
+ *         to Matrix
+ *
+ * This function is similar to fromMatrixHtml() in that it produces HTML that
+ * can be fed to Qt components - QTextDocument[Fragment]::fromHtml(),
+ * in particular; it also uses the same way to tackle irregularities and errors
+ * in HTML and removes tags and attributes that cannot be converted to Matrix.
+ * Unlike fromMatrixHtml() that accepts Matrix-flavoured HTML, this function
+ * accepts generic HTML and allows a few exceptions compared to the Matrix spec
+ * recommendations for HTML; specifically, it preserves the `head` element;
+ * and `id`, `class`, and `style` attributes throughout HTML are not restricted,
+ * allowing generic CSS stuff to do its job inasmuch as Qt supports that.
+ *
+ * The case for this function is loading a piece of external HTML into a Qt
+ * component in anticipation that this piece will later be translated to Matrix
+ * HTML - e.g. drag-n-drop/clipboard paste into the message input control.
+ *
+ * \sa fromMatrixHtml
+ */
+Result fromLocalHtml(const QString& html, QuaternionRoom* context = nullptr,
+                     Options options = Fragment);
 }
 Q_DECLARE_METATYPE(HtmlFilter::Result)
