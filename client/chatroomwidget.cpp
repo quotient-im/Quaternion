@@ -666,6 +666,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
                 .arg(args.front());
     }
     if (command == "plain") {
+        // argString eats away leading spaces, so can't be used here
         static const auto CmdLen = QStringLiteral("/plain ").size();
         const auto& plainMsg = m_chatEdit->toPlainText().mid(CmdLen);
         if (plainMsg.isEmpty())
