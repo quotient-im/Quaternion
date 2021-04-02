@@ -449,8 +449,8 @@ void ChatRoomWidget::sendFile()
 void sendMarkdown(QuaternionRoom* room, const QTextDocumentFragment& text)
 {
     room->postHtmlText(text.toPlainText(),
-                       HtmlFilter::qtToMatrix(text.toHtml(), room,
-                                              HtmlFilter::ConvertMarkdown));
+                       HtmlFilter::toMatrixHtml(text.toHtml(), room,
+                                                HtmlFilter::ConvertMarkdown));
 }
 #endif
 
@@ -468,7 +468,7 @@ void ChatRoomWidget::sendMessage()
 #endif
     const auto& plainText = m_chatEdit->toPlainText();
     const auto& htmlText =
-        HtmlFilter::qtToMatrix(m_chatEdit->toHtml(), m_currentRoom);
+        HtmlFilter::toMatrixHtml(m_chatEdit->toHtml(), m_currentRoom);
     Q_ASSERT(!plainText.isEmpty() && !htmlText.isEmpty());
     m_currentRoom->postHtmlText(plainText, htmlText);
 }
@@ -666,6 +666,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
                 .arg(args.front());
     }
     if (command == "plain") {
+        // argString eats away leading spaces, so can't be used here
         static const auto CmdLen = QStringLiteral("/plain ").size();
         const auto& plainMsg = m_chatEdit->toPlainText().mid(CmdLen);
         if (plainMsg.isEmpty())
@@ -681,7 +682,8 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         // back to Matrix HTML to produce the (clean) rich text version
         // of the message
         const auto& [cleanQtHtml, errorPos, errorString] =
-            HtmlFilter::matrixToQt(argString, m_currentRoom, true);
+            HtmlFilter::fromMatrixHtml(argString, m_currentRoom,
+                                       HtmlFilter::Validate);
         if (errorPos != -1)
             return tr("At pos %1: %2",
                       "%1 is a position of the error; %2 is the error message")
@@ -689,8 +691,8 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
 
         const auto& fragment = QTextDocumentFragment::fromHtml(cleanQtHtml);
         m_currentRoom->postHtmlText(fragment.toPlainText(),
-                                    HtmlFilter::qtToMatrix(fragment.toHtml(),
-                                                           m_currentRoom));
+                                    HtmlFilter::toMatrixHtml(fragment.toHtml(),
+                                                             m_currentRoom));
         return {};
     }
     if (command == "md") {

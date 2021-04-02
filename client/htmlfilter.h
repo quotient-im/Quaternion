@@ -8,24 +8,32 @@ class QuaternionRoom;
 namespace HtmlFilter {
 Q_NAMESPACE
 
-enum Options : unsigned char {
+enum Option : unsigned char {
     Default = 0x0,
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-    ConvertMarkdown = 0x5,
+    /// Treat `<body>` contents as Markdown (toMatrixHtml() only)
+    ConvertMarkdown = 0x1,
 #endif
-    InnerHtml = 0x8
+    /// Treat `<body>` contents as a fragment in a bigger HTML payload
+    /// (suppresses markup processing inside HTML elements and `<mx-reply>`
+    /// conversion - toMatrixHtml() only)
+    Fragment = 0x2,
+    /// Stop at tags not allowed in Matrix, instead of ignoring them
+    /// (from*Html() functions only)
+    Validate = 0x4
 };
-Q_ENUM_NS(Options)
-Q_DECLARE_FLAGS(Mode, Options)
+Q_ENUM_NS(Option)
+Q_DECLARE_FLAGS(Options, Option)
 
-/*! \brief Result structure for Matrix HTML parsing
+/*! \brief Result structure for HTML parsing
  *
- * This is the return type of matrixToQt(), which, unlike qtToMatrix(),
- * can't assume that HTML it receives is valid since it either comes from
- * the wire or a user input and therefore need a means to report an error when
- * the parser cannot cope (most often because of incorrectly closed tags).
+ * This is the return type of from*Html() functions, which, unlike
+ * toMatrixHtml(), can't assume that HTML it receives is valid since it either
+ * comes from the wire or a user input and therefore need a means to report
+ * an error when the parser cannot cope (most often because of incorrectly
+ * closed tags but also if plain incorrect HTML is passed).
  *
- * \sa matrixToQt()
+ * \sa fromMatrixHtml(), fromLocalHtml()
  */
 struct Result {
     Q_GADGET
@@ -45,17 +53,18 @@ public:
 /*! \brief Convert user input to Matrix-flavoured HTML
  *
  * This function takes user input in \p markup and converts it to the Matrix
- * flavour of HTML. The text in \p markup is treated as-if exported as HTML
- * from QTextDocument; however, the literal body contents are itself treated
- * as (HTML-encoded) rich text as well, in assumption that machine-generated
- * rich text comes on the outer level while the user adds their own markup
- * on the inner level. The function decodes and merges the two levels of markup
- * before converting the resulting HTML to its Matrix flavour.
+ * flavour of HTML. The text in \p markup is treated as-if taken from
+ * QTextDocument[Fragment]::toHtml(); however, the body of this HTML is itself
+ * treated as (HTML-encoded) markup as well, in assumption that rich text
+ * (in QTextDocument sense) is exported as the outer level of HTML while
+ * the user adds their own HTML inside that rich text. The function decodes
+ * and merges the two levels of markup before converting the resulting HTML
+ * to its Matrix flavour.
  *
  * When compiling with Qt 5.14 or newer, it is possible to pass ConvertMarkdown
- * in \p mode in order to handle the user's rich text as Markdown using Qt's
- * QTextDocument implementation. In that case qtToMatrix() will first turn
- * the Markdown to HTML and then merge it with the outer markup.
+ * in \p options in order to handle the user's markup as a mix of Markdown and
+ * HTML. In that case the function will first turn the Markdown parts to HTML
+ * and then merge the resulting HTML snippets with the outer markup.
  *
  * The function removes HTML tags disallowed in Matrix; on top of that,
  * it cleans away extra parts (DTD, `head`, top-level `p`, extra `span`
@@ -65,36 +74,59 @@ public:
  *
  * \note This function assumes well-formed XHTML produced by Qt classes; while
  *       it corrects unescaped ampersands (`&`) it does not try to turn HTML
- *       to XHTML, as matrixToQt() does. In case of an error, debug builds will
- *       fail on assertion, release builds will silently stop processing and
- *       return what could be processed so far.
+ *       to XHTML, as from*Html() functions do. In case of an error, debug
+ *       builds will fail on assertion, release builds will silently stop
+ *       processing and return what could be processed so far.
  *
  * \sa
  * https://matrix.org/docs/spec/client_server/latest#m-room-message-msgtypes
  */
-QString qtToMatrix(const QString& markup, QuaternionRoom* context = nullptr,
-                   Mode mode = Default);
+QString toMatrixHtml(const QString& markup, QuaternionRoom* context,
+                     Options options = Default);
 
 /*! \brief Make the received HTML with Matrix attributes compatible with Qt
  *
- * Similar to qtToMatrix(), this function removes HTML tags disallowed in Matrix
- * and cleans away extraneous HTML parts but it does the reverse conversion of
- * Matrix-specific attributes to standard HTML that Qt understands. It can deal
- * with a few more escaping errors compared to qtToMatrix(), but still
- * doesn't recover from missing closing tags except those usually not closed
- * in HTML (`br` etc.). In case of an irrecoverable error the returned structure
- * will contain the error details (position and brief description), along with
- * whatever HTML the function managed to produce before the failure.
+ * Similar to toMatrixHtml(), this function removes HTML tags disallowed in
+ * Matrix and cleans away extraneous HTML parts but it does the reverse
+ * conversion of Matrix-specific attributes to HTML subset that Qt supports.
+ * It can deal with a few more irregularities compared to toMatrixHtml(), but
+ * still doesn't recover from, e.g., missing closing tags except those usually
+ * not closed in HTML (`br` etc.). In case of an irrecoverable error
+ * the returned structure will contain the error details (position and brief
+ * description), along with whatever HTML the function managed to produce before
+ * the failure.
  *
  * \param matrixHtml text in Matrix HTML that should be converted to Qt HTML
  * \param context optional room context to enrich the text
- * \param validate whether the algorithm should stop at disallowed HTML tags
- *                 rather than ignore them
+ * \param options whether the algorithm should stop at disallowed HTML tags
+ *                 rather than ignore them and try to continue
  * \sa Result
  * \sa
  * https://matrix.org/docs/spec/client_server/latest#m-room-message-msgtypes
  */
-Result matrixToQt(const QString& matrixHtml, QuaternionRoom* context = nullptr,
-                  bool validate = false);
+Result fromMatrixHtml(const QString& matrixHtml, QuaternionRoom* context,
+                      Options options = Default);
+
+/*! \brief Make the received generic HTML compatible with Qt and convertible
+ *         to Matrix
+ *
+ * This function is similar to fromMatrixHtml() in that it produces HTML that
+ * can be fed to Qt components - QTextDocument[Fragment]::fromHtml(),
+ * in particular; it also uses the same way to tackle irregularities and errors
+ * in HTML and removes tags and attributes that cannot be converted to Matrix.
+ * Unlike fromMatrixHtml() that accepts Matrix-flavoured HTML, this function
+ * accepts generic HTML and allows a few exceptions compared to the Matrix spec
+ * recommendations for HTML; specifically, it preserves the `head` element;
+ * and `id`, `class`, and `style` attributes throughout HTML are not restricted,
+ * allowing generic CSS stuff to do its job inasmuch as Qt supports that.
+ *
+ * The case for this function is loading a piece of external HTML into a Qt
+ * component in anticipation that this piece will later be translated to Matrix
+ * HTML - e.g. drag-n-drop/clipboard paste into the message input control.
+ *
+ * \sa fromMatrixHtml
+ */
+Result fromLocalHtml(const QString& html, QuaternionRoom* context = nullptr,
+                     Options options = Fragment);
 }
 Q_DECLARE_METATYPE(HtmlFilter::Result)
