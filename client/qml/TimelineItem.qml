@@ -495,7 +495,7 @@ Item {
                             text: modelData.key + " \u00d7" /* Math "multiply" */
                                   + modelData.authorsCount
                             font.family: settings.font.family
-                            font.pointSize: settings.font.pointSize - 1
+                            font.pointSize: settings.font.pointSize
                             color: modelData.includesLocalUser
                                        ? defaultPalette.highlight
                                        : defaultPalette.buttonText
