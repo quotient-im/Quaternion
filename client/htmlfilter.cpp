@@ -42,7 +42,7 @@ private:
 
     [[nodiscard]] rewrite_t filterTag(const QStringRef& tag,
                                       QXmlStreamAttributes attributes);
-    void filterText(QString& textBuffer);
+    void filterText(QString& text);
 };
 
 static const QString permittedTags[] = {
@@ -94,8 +94,8 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
            || reader.qualifiedName() != "p")
         if (reader.atEnd()) {
             Q_ASSERT_X(false, __FUNCTION__, "Malformed Qt markup");
-            qCritical() << "The text passed to qtToMatrix() doesn't seem"
-                           " to come from QTextDocument";
+            qCritical()
+                << "The passed text doesn't seem to come from QTextDocument";
             return {};
         }
 
@@ -694,9 +694,9 @@ Processor::rewrite_t Processor::filterTag(const QStringRef& tag,
     return rewrite;
 }
 
-void Processor::filterText(QString& textBuffer)
+void Processor::filterText(QString& text)
 {
-    if (textBuffer.isEmpty())
+    if (text.isEmpty())
         return;
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
@@ -706,37 +706,37 @@ void Processor::filterText(QString& textBuffer)
         // itself and doesn't occur in the HTML boilerplate that QTextDocument
         // generates.
         static const auto Marker = '$';
-        const bool hasLeadingWhitespace = textBuffer.cbegin()->isSpace();
+        const bool hasLeadingWhitespace = text.cbegin()->isSpace();
         if (hasLeadingWhitespace)
-            textBuffer.prepend(Marker);
-        const bool hasTrailingWhitespace = (textBuffer.cend() - 1)->isSpace();
+            text.prepend(Marker);
+        const bool hasTrailingWhitespace = (text.cend() - 1)->isSpace();
         if (hasTrailingWhitespace)
-            textBuffer.append(Marker);
-        int markerCount = textBuffer.count(Marker);
+            text.append(Marker);
+        int markerCount = text.count(Marker);
 
         // Convert Markdown to HTML
         QTextDocument doc;
-        doc.setMarkdown(textBuffer, QTextDocument::MarkdownNoHTML);
-        textBuffer = doc.toHtml();
+        doc.setMarkdown(text, QTextDocument::MarkdownNoHTML);
+        text = doc.toHtml();
 
-        // Delete protection characters
-        Q_ASSERT(textBuffer.count(Marker) == markerCount);
+        // Delete protection characters, now buried inside HTML
+        Q_ASSERT(text.count(Marker) == markerCount);
         if (hasLeadingWhitespace)
-            textBuffer.remove(textBuffer.indexOf(Marker), 1);
+            text.remove(text.indexOf(Marker), 1);
         if (hasTrailingWhitespace)
-            textBuffer.remove(textBuffer.lastIndexOf(Marker), 1);
+            text.remove(text.lastIndexOf(Marker), 1);
     } else
 #endif
     {
-        textBuffer = textBuffer.toHtmlEscaped(); // The reader unescaped it
-        Quotient::linkifyUrls(textBuffer);
-        textBuffer = "<body>" % textBuffer % "</body>";
+        text = text.toHtmlEscaped(); // The reader unescaped it
+        Quotient::linkifyUrls(text);
+        text = "<body>" % text % "</body>";
     }
     // Re-process this piece of text as HTML but dump text snippets as they are,
     // without recursing into filterText() again
-    Processor(mode, Fragment, context, writer).runOn(textBuffer);
+    Processor(mode, Fragment, context, writer).runOn(text);
 
-    textBuffer.clear();
+    text.clear();
 }
 
 } // namespace HtmlFilter
