@@ -702,17 +702,30 @@ void Processor::filterText(QString& text)
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     if (options.testFlag(ConvertMarkdown)) {
         // Protect leading/trailing whitespaces (Markdown disregards them);
-        // specific character doesn't matter as long as it isn't a whitespace
-        // itself and doesn't occur in the HTML boilerplate that QTextDocument
-        // generates.
-        static const auto Marker = '$';
+        // specific string doesn't matter as long as it isn't whitespace itself,
+        // doesn't have special meaning in Markdown and doesn't occur in
+        // the HTML boilerplate that QTextDocument generates.
+        static const auto Marker("$$");
         const bool hasLeadingWhitespace = text.cbegin()->isSpace();
         if (hasLeadingWhitespace)
             text.prepend(Marker);
         const bool hasTrailingWhitespace = (text.cend() - 1)->isSpace();
         if (hasTrailingWhitespace)
             text.append(Marker);
-        int markerCount = text.count(Marker);
+        const auto markerCount = text.count(Marker); // For self-check
+
+#ifndef QTBUG_92445_FIXED
+        // Protect list items from https://bugreports.qt.io/browse/QTBUG-92445
+        // (see also https://spec.commonmark.org/0.29/#list-items)
+        static const auto ReOptions = QRegularExpression::MultilineOption;
+        static const QRegularExpression //
+            UlRE("^( *[-+*] {1,4})(?=[^ ])", ReOptions),
+            OlRE("^( *[0-9]{1,9}+[.)] {1,4})(?=[^ ])", ReOptions);
+        static const QLatin1String UlMarker("@@ul@@"), OlMarker("@@ol@@");
+        text.replace(UlRE, "\\1" % UlMarker);
+        text.replace(OlRE, "\\1" % OlMarker);
+        const auto markerCount2 = text.count(Marker);
+#endif
 
         // Convert Markdown to HTML
         QTextDocument doc;
@@ -720,6 +733,13 @@ void Processor::filterText(QString& text)
         text = doc.toHtml();
 
         // Delete protection characters, now buried inside HTML
+#ifndef QTBUG_92445_FIXED
+        Q_ASSERT(text.count(Marker) == markerCount2);
+        // After HTML conversion, list markers end up being after HTML tags
+        text.replace(QRegularExpression('>' % OlMarker), ">");
+        text.replace(QRegularExpression('>' % UlMarker), ">");
+#endif
+
         Q_ASSERT(text.count(Marker) == markerCount);
         if (hasLeadingWhitespace)
             text.remove(text.indexOf(Marker), 1);
