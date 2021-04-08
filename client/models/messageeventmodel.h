@@ -65,11 +65,11 @@ class MessageEventModel: public QAbstractListModel
     private slots:
         int refreshEvent(const QString& eventId);
         void refreshRow(int row);
+        void incomingEvents(Quotient::RoomEventsRange events, int atIndex);
 
     private:
         QuaternionRoom* m_currentRoom = nullptr;
         int readMarkerVisualIndex() const;
-        int rowBelowInserted = -1;
         bool movingEvent = false;
 
         int timelineBaseIndex() const;

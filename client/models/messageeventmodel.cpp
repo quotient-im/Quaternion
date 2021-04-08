@@ -93,26 +93,21 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
     {
         using namespace Quotient;
         connect(m_currentRoom, &Room::aboutToAddNewMessages, this,
-                [=](RoomEventsRange events)
-                {
-                    beginInsertRows({}, timelineBaseIndex(),
-                                    timelineBaseIndex() + int(events.size()) - 1);
+                [this](RoomEventsRange events) {
+                    incomingEvents(events, timelineBaseIndex());
                 });
         connect(m_currentRoom, &Room::aboutToAddHistoricalMessages, this,
-                [=](RoomEventsRange events)
-                {
-                    if (rowCount() > 0)
-                        rowBelowInserted = rowCount() - 1; // See #312
-                    beginInsertRows({}, rowCount(),
-                                    rowCount() + int(events.size()) - 1);
+                [this](RoomEventsRange events) {
+                    incomingEvents(events, rowCount());
                 });
         connect(m_currentRoom, &Room::addedMessages, this,
-                [=] (int lowest, int biggest) {
+                [this] (int lowest, int biggest) {
                     endInsertRows();
                     if (biggest < m_currentRoom->maxTimelineIndex())
                     {
-                        auto rowBelowInserted =
-                                m_currentRoom->maxTimelineIndex() - biggest + timelineBaseIndex() - 1;
+                        const auto rowBelowInserted =
+                            m_currentRoom->maxTimelineIndex() - biggest
+                            + timelineBaseIndex() - 1;
                         refreshEventRoles(rowBelowInserted,
                                          {AboveAuthorRole, AboveSectionRole});
                     }
@@ -194,6 +189,12 @@ int MessageEventModel::refreshEvent(const QString& eventId)
 void MessageEventModel::refreshRow(int row)
 {
     refreshEventRoles(row);
+}
+
+void MessageEventModel::incomingEvents(Quotient::RoomEventsRange events,
+                                       int atIndex)
+{
+    beginInsertRows({}, atIndex, atIndex + int(events.size()) - 1);
 }
 
 int MessageEventModel::readMarkerVisualIndex() const
