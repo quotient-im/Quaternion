@@ -255,6 +255,7 @@ Item {
                 sourceSize: Qt.size(width, -1)
 
                 AuthorInteractionArea { authorId: author.id }
+                AnimationBehavior on height { FastNumberAnimation { } }
             }
             Label {
                 id: authorLabel
@@ -282,11 +283,15 @@ Item {
 
             Item {
                 id: textField
-                anchors.top: !xchatStyle && authorLabel.visible
-                             ? authorLabel.bottom : authorLabel.top
                 height: textFieldImpl.height
-                anchors.left: xchatStyle ? authorLabel.right
-                                         : authorAvatar.right
+                anchors.top:
+                    !xchatStyle && authorLabel.visible ? authorLabel.bottom :
+                    height >= authorAvatar.height ? authorLabel.top : undefined
+                anchors.verticalCenter: !xchatStyle && !authorLabel.visible
+                                        && height < authorAvatar.height
+                                        ? authorAvatar.verticalCenter
+                                        : undefined
+                anchors.left: (xchatStyle ? authorLabel : authorAvatar).right
                 anchors.leftMargin: 2
                 anchors.right: parent.right
                 anchors.rightMargin: 1
