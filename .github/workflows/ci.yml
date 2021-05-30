@@ -232,7 +232,8 @@ jobs:
         done
         PACKAGE_NAME=quaternion-$VERSION.AppImage
         LD_LIBRARY_PATH=$Qt5_DIR/lib QMAKE=$Qt5_DIR/bin/qmake OUTPUT=package/$PACKAGE_NAME \
-            linuxdeploy/linuxdeploy-x86_64.AppImage --appdir $DESTDIR --plugin qt --output appimage
+            linuxdeploy/linuxdeploy-x86_64.AppImage --appdir $DESTDIR --plugin qt --output appimage \
+            --icon-file=$DESTDIR/usr/share/icons/hicolor/64x64/apps/quaternion.png
         find package/$PACKAGE_NAME -size +10M && echo "PACKAGE_NAME=$PACKAGE_NAME" >>$GITHUB_ENV
 
     - name: Archive the install tree (Windows)
