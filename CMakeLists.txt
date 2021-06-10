@@ -278,7 +278,7 @@ if(LINUX)
             DESTINATION ${CMAKE_INSTALL_DATADIR}/Quotient/quaternion/translations
             )
     file(GLOB quaternion_icons icons/quaternion/*-apps-quaternion.png)
-    ecm_install_icons(ICONS ${quaternion_icons} icons/quaternion/sc-apps-quaternion.svgz
+    ecm_install_icons(ICONS ${quaternion_icons} icons/quaternion/sources/quaternion.svg
                       DESTINATION ${CMAKE_INSTALL_DATADIR}/icons
                       )
 endif(LINUX)
