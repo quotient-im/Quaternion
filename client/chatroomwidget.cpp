@@ -185,33 +185,36 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
         emit showStatusMessage(tr("Attaching an image from clipboard"));
     });
     connect(m_chatEdit, &ChatEdit::proposedCompletion, this,
-        [this](QStringList matches, int pos) {
-            // If the completion list is MaxNamesToShow or shorter, show all
-            // of it; if it's longer, show SampleSizeForHud entries and
-            // append how many more matches are there.
+            [this](QStringList matches, int pos) {
+                Q_ASSERT(pos >= 0 && pos < matches.size());
+                // If the completion list is MaxNamesToShow or shorter, show all
+                // of it; if it's longer, show SampleSizeForHud entries and
+                // append how many more matches are there.
+                // #344: in any case, drop the current match from the list
+                // ("Next completion:" showing the current match looks wrong)
 
-            if (matches.isEmpty()) {
-                setHudHtml(tr("No completions"));
-                return;
-            }
+                switch (matches.size()) {
+                case 0:
+                    setHudHtml(tr("No completions"));
+                    return;
+                case 1:
+                    setHudHtml({}); // That one match is already in the text
+                    return;
+                default:;
+                }
+                matches.removeAt(pos); // Drop the current match (#344)
 
-            // Save the size before manipulations on matches
-            const int extraSize = matches.size() - SampleSizeForHud;
-            if (pos > 0 && pos >= matches.size() - SampleSizeForHud)
-                matches.back() +=
-                    tr("(end of list)",
-                       "Marks the last entry in the completion list");
-
-            // Replenish the tail of the list from the beginning, if needed
-            std::rotate(matches.begin(), matches.begin() + pos,
-                        matches.end());
-            if (matches.size() > MaxNamesToShow) {
-                const auto moreIt = matches.begin() + SampleSizeForHud;
-                *moreIt = tr("%Ln more completions", "", extraSize);
-                matches.erase(moreIt + 1, matches.end());
-            }
-            setHudHtml(tr("Next completion:"), matches);
-        });
+                // Replenish the tail of the list from the beginning, if needed
+                std::rotate(matches.begin(), matches.begin() + pos,
+                            matches.end());
+                if (matches.size() > MaxNamesToShow) {
+                    const auto moreIt = matches.begin() + SampleSizeForHud;
+                    *moreIt = tr("%Ln more completions", "",
+                                 matches.size() - SampleSizeForHud);
+                    matches.erase(moreIt + 1, matches.end());
+                }
+                setHudHtml(tr("Next completion:"), matches);
+            });
     // When completion is cancelled, show typing users, if any
     connect(m_chatEdit, &ChatEdit::cancelledCompletion,
             this, &ChatRoomWidget::typingChanged);
