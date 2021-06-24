@@ -147,7 +147,7 @@
     </message>
     <message>
         <source>Redact</source>
-        <translation>Przeredaguj</translation>
+        <translation>Zredaguj</translation>
     </message>
     <message>
         <source>Copy permalink to clipboard</source>
@@ -182,12 +182,41 @@
         <translation>Twoja wersja Quaterniona nie wspiera składni Markdown</translation>
     </message>
     <message>
+        <source>Copy selected text to clipboard</source>
+        <translation>Skopiuj zaznaczony tekst do schowka</translation>
+    </message>
+    <message>
+        <source>Copy image to clipboard</source>
+        <translation>Skopiuj obraz do schowka</translation>
+    </message>
+    <message>
+        <source>No completions</source>
+        <translation>Brak dokończeń</translation>
+    </message>
+    <message>
+        <source>(end of list)</source>
+        <translation>(koniec listy)</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln more completions</source>
+        <translation>
+            <numerusform>%Ln dokończenie więcej</numerusform>
+            <numerusform>%Ln dokończenia więcej</numerusform>
+            <numerusform>%Ln dokończeń więcej</numerusform>
+            <numerusform>%Ln dokończeń więcej</numerusform>
+        </translation>
+    </message>
+    <message>
         <source>Next completion:</source>
         <translation>Następne dokończenie</translation>
     </message>
     <message>
         <source>Currently typing:</source>
-        <translation>Obecnie piszę:</translation>
+        <translation>Obecnie pisze:</translation>
+    </message>
+    <message>
+        <source>%L1 more</source>
+        <translation>%L1 więcej</translation>
     </message>
 </context>
 <context>
@@ -261,10 +290,10 @@ pokoju</translation>
     <message numerus="yes">
         <source>%Ln events cached</source>
         <translation>
-            <numerusform>%Ln wydarzenie cached</numerusform>
-            <numerusform>%Ln wydarzenia cached</numerusform>
-            <numerusform>%Ln wydarzeń cached</numerusform>
-            <numerusform>%Ln wydarzeń cached</numerusform>
+            <numerusform>%Ln wydarzenie w pamięci podręcznej</numerusform>
+            <numerusform>%Ln wydarzenia w pamięci podręcznej</numerusform>
+            <numerusform>%Ln wydarzeń w pamięci podręcznej</numerusform>
+            <numerusform>%Ln wydarzeń w pamięci podręcznej</numerusform>
         </translation>
     </message>
 </context>
@@ -335,6 +364,14 @@ pokoju</translation>
     <message>
         <source>Restoring access, please wait</source>
         <translation>Przywracanie dostępu, proszę czekać</translation>
+    </message>
+    <message>
+        <source>The homeserver is available</source>
+        <translation>Serwer domowy jest dostępny</translation>
+    </message>
+    <message>
+        <source>Could not connect to the homeserver</source>
+        <translation>Nie można było się połączyć z serwerem domowym</translation>
     </message>
 </context>
 <context>
@@ -452,6 +489,14 @@ pokoju</translation>
         <translation>Domyślny</translation>
     </message>
     <message>
+        <source>The layout with author labels above blocks of messages</source>
+        <translation>Układ z etykietami autora nad blokami wiadomości</translation>
+    </message>
+    <message>
+        <source>The layout with author labels to the left from each message</source>
+        <translation>Układ z etykietami autora po lewej stronie przy każdej wiadomości</translation>
+    </message>
+    <message>
         <source>Timeline layout</source>
         <translation>Układ osi czasu</translation>
     </message>
@@ -478,6 +523,10 @@ pokoju</translation>
     <message>
         <source>Couldn&apos;t set access token file permissions</source>
         <translation>Nie można ustawić uprawnień do pliku tokenu dostępu</translation>
+    </message>
+    <message>
+        <source>Quaternion couldn&apos;t restrict permissions on the access token file. Do you still want to save the access token to it?</source>
+        <translation>Quaternion nie mógł ograniczyć uprawnień do pliku z tokenem dostępu. Czy nadal chcesz tam zapisać token dostępu?</translation>
     </message>
     <message>
         <source>Logged out as %1</source>
@@ -606,6 +655,10 @@ Odpowiedź:
         <translation>Zamykaj do zasobnika</translation>
     </message>
     <message>
+        <source>Make close button [X] minimize to tray instead of closing main window</source>
+        <translation>Minimalizuje główne okno do zasobnika po wciśnięciu przycisku zamykania [X] zamiast zamykania go</translation>
+    </message>
+    <message>
         <source>Show/hide meaningless activity (join-leave pairs and redacted events between)</source>
         <translation>Pokaż/ukryj bezsensowną aktywność (pary dołączenia, opuszczenia i zredagowanych wydarzeń pomiędzy)</translation>
     </message>
@@ -628,6 +681,14 @@ Odpowiedź:
     <message>
         <source>Open a room from the room list</source>
         <translation>Otwórz pokój z listy pokoi</translation>
+    </message>
+    <message>
+        <source>Show/hide Rooms dock panel</source>
+        <translation>Pokazuje/ukrywa panel dock pokojów</translation>
+    </message>
+    <message>
+        <source>Show/hide Users dock panel</source>
+        <translation>Pokazuje/ukrywa panel dock użytkowników</translation>
     </message>
     <message>
         <source>Access token file found</source>
@@ -744,6 +805,10 @@ lub alias (zaczynający się od #)</translation>
         <translation>Quaternion nie mógł usunąć tokena dostępu z pęku kluczy.</translation>
     </message>
     <message>
+        <source>No application for the link</source>
+        <translation>Nie znaleziono aplikacji mogącą otworzyć link</translation>
+    </message>
+    <message>
         <source>External link confirmation</source>
         <translation>Potwierdzenie odnośnika zewnętrznego</translation>
     </message>
@@ -762,6 +827,14 @@ Czy to się zgadza?</translation>
     <message>
         <source>Do not ask again</source>
         <translation>Nie pytaj ponownie</translation>
+    </message>
+    <message>
+        <source>Malformed or empty Matrix id</source>
+        <translation>Nieprawidłowy lub pusty identyfikator Matrixa</translation>
+    </message>
+    <message>
+        <source>%1 is not a correct Matrix identifier</source>
+        <translation>%1 nie jest prawidłowym identyfikatorem Matrixa</translation>
     </message>
     <message>
         <source>Please connect to a server</source>
@@ -842,8 +915,28 @@ Tagi zdefiniowane przez użytkownika powinny zaczynać się od „u.”</transla
         <translation>Wymuś użycie stylu i motywu ikon Breeze</translation>
     </message>
     <message>
+        <source>Chat with user</source>
+        <translation>Czatuj z użytkownikiem</translation>
+    </message>
+    <message>
         <source>Can&apos;t open</source>
         <translation>Nie można otworzyć</translation>
+    </message>
+    <message>
+        <source>Could not resolve id</source>
+        <translation>Nie można ustalić identyfikatora</translation>
+    </message>
+    <message>
+        <source>Could not find an external application to open the URI:</source>
+        <translation>Nie udało się znaleźć zewnętrznej aplikacji do otwarcia identyfikatora URI:</translation>
+    </message>
+    <message>
+        <source>Could not resolve Matrix identifier</source>
+        <translation>Nie można ustalić identyfikatora Matrix</translation>
+    </message>
+    <message>
+        <source>Failed to resolve server %1</source>
+        <translation>Nie udało się ustalić serwera %1</translation>
     </message>
     <message>
         <source>Room or user ID, room alias,
@@ -870,6 +963,14 @@ Matrix URI lub link matrix.to</translation>
     <message>
         <source>Alexey &quot;Kitsune&quot; Rusakov</source>
         <translation>Alexey &quot;Kitsune&quot; Rusakov</translation>
+    </message>
+    <message>
+        <source>Confirm opening external links</source>
+        <translation>Potwierdzaj otwieranie linków zewnętrznych</translation>
+    </message>
+    <message>
+        <source>Show a confirmation box before opening non-Matrix links in an external application</source>
+        <translation>Pokazuj okno potwierdzenia przed otwarciem linków innych niż Matrix w zewnętrznej aplikacji</translation>
     </message>
 </context>
 <context>
@@ -1025,6 +1126,15 @@ Matrix URI lub link matrix.to</translation>
     <message>
         <source> and </source>
         <translation> i </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln more member(s)</source>
+        <translation>
+            <numerusform>%Ln użytkownika więcej</numerusform>
+            <numerusform>%Ln użytkowników więcej</numerusform>
+            <numerusform>%Ln użytkowników więcej</numerusform>
+            <numerusform>%Ln użytkowników więcej</numerusform>
+        </translation>
     </message>
     <message>
         <source>(repeated)</source>
@@ -1279,6 +1389,10 @@ Matrix URI lub link matrix.to</translation>
         <source>Unread notifications: %L1</source>
         <translation>Nieprzeczytane powiadomienia: %L1</translation>
     </message>
+    <message>
+        <source>(maybe more)</source>
+        <translation>(możliwie więcej)</translation>
+    </message>
 </context>
 <context>
     <name>RoomSettingsDialog</name>
@@ -1452,6 +1566,10 @@ new room</source>
         <translation>Przejdź do
 nowego pokoju</translation>
     </message>
+    <message>
+        <source>Reaction &apos;%1&apos; from %2</source>
+        <translation>Reakcja „%1” od %2</translation>
+    </message>
 </context>
 <context>
     <name>SystemTrayIcon</name>
@@ -1474,10 +1592,10 @@ nowego pokoju</translation>
     <message numerus="yes">
         <source>%Ln highlight(s)</source>
         <translation>
-            <numerusform>%Ln wyróżnenie</numerusform>
-            <numerusform>%Ln wyróżnenia</numerusform>
-            <numerusform>%Ln wyróżnen</numerusform>
-            <numerusform>%Ln wyróżnen</numerusform>
+            <numerusform>%Ln wyróżnienie</numerusform>
+            <numerusform>%Ln wyróżnienia</numerusform>
+            <numerusform>%Ln wyróżnień</numerusform>
+            <numerusform>%Ln wyróżnień</numerusform>
         </translation>
     </message>
 </context>
@@ -1490,6 +1608,10 @@ nowego pokoju</translation>
     <message>
         <source>No connection to perform image request</source>
         <translation>Brak połączeń do wykonania żądania obrazu</translation>
+    </message>
+    <message>
+        <source>Image request is pending</source>
+        <translation>Oczekiwanie na obraz</translation>
     </message>
 </context>
 <context>
@@ -1549,6 +1671,17 @@ nowego pokoju</translation>
     <message>
         <source>Set avatar</source>
         <translation>Ustaw awatar</translation>
+    </message>
+</context>
+<context>
+    <name>ChatEdit</name>
+    <message>
+        <source>Reset formatting</source>
+        <translation>Zresetuj formatowanie</translation>
+    </message>
+    <message>
+        <source>Reset the current character formatting to the default</source>
+        <translation>Przywraca domyślne formatowanie znaków</translation>
     </message>
 </context>
 </TS>

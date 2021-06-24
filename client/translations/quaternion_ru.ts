@@ -338,11 +338,11 @@ settings</source>
     <name>LoginDialog</name>
     <message>
         <source>Login</source>
-        <translation>Подключиться</translation>
+        <translation>Войти</translation>
     </message>
     <message>
         <source>Stay logged in</source>
-        <translation>Оставаться в системе</translation>
+        <translation>Оставаться подключённым к учётной записи</translation>
     </message>
     <message>
         <source>Matrix ID</source>
@@ -362,11 +362,11 @@ settings</source>
     </message>
     <message>
         <source>Connecting and logging in, please wait</source>
-        <translation>Выполняются подключение и вход в систему; пожалуйста, подождите</translation>
+        <translation>Подождите, выполняются подключение и вход в учётную запись</translation>
     </message>
     <message>
         <source>Re-login</source>
-        <translation>Войти снова</translation>
+        <translation>Переподключиться</translation>
     </message>
     <message>
         <source>Restoring access, please wait</source>
@@ -406,7 +406,7 @@ settings</source>
     </message>
     <message>
         <source>After authentication, the browser will follow the temporary local address setup by Quaternion to conclude the login sequence.</source>
-        <translation>После аутентификации браузер перейдет на временный адрес, созданный Quaternion, чтобы завершить вход.</translation>
+        <translation>После аутентификации браузер перейдет на временный адрес, созданный Quaternion, чтобы завершить подключение к учетной записи.</translation>
     </message>
     <message>
         <source>Getting supported login flows...</source>
@@ -421,11 +421,11 @@ settings</source>
     </message>
     <message>
         <source>&amp;Accounts</source>
-        <translation>&amp;Учетные записи</translation>
+        <translation>&amp;Учётные записи</translation>
     </message>
     <message>
         <source>&amp;Login...</source>
-        <translation>&amp;Подключиться...</translation>
+        <translation>Под&amp;ключиться...</translation>
     </message>
     <message>
         <source>&amp;Quit</source>
@@ -449,11 +449,11 @@ settings</source>
     </message>
     <message>
         <source>&amp;Redacted events</source>
-        <translation>&amp;Удаленные события</translation>
+        <translation>&amp;Удалённые события</translation>
     </message>
     <message>
         <source>Show redacted events in the timeline as &apos;Redacted&apos; instead of hiding them entirely</source>
-        <translation>Показывать пометку «Удалено» на месте удаленных событий, а не полностью их скрывать</translation>
+        <translation>Показывать пометку «Удалено» на месте удалённых событий, а не полностью их скрывать</translation>
     </message>
     <message>
         <source>&amp;No-effect activity</source>
@@ -557,7 +557,7 @@ settings</source>
     </message>
     <message>
         <source>Quaternion couldn&apos;t open a file to write the access token to. You&apos;re logged in but will have to provide your password again when you restart the application.</source>
-        <translation>Quaternion не смог открыть файл для записи ключа доступа. Вы вошли в систему, но при повторном запуске приложения вам придется снова указать свой пароль.</translation>
+        <translation>Quaternion не смог открыть файл для записи ключа доступа. Учётная запись подключена, но при повторном запуске приложения вам придется снова ввести свой пароль.</translation>
     </message>
     <message>
         <source>Couldn&apos;t set access token file permissions</source>
@@ -569,7 +569,7 @@ settings</source>
     </message>
     <message>
         <source>Logged out as %1</source>
-        <translation>Вышел как %1</translation>
+        <translation>Учётная запись %1 отключена</translation>
     </message>
     <message>
         <source>Sync failed</source>
@@ -587,7 +587,7 @@ settings</source>
         <source>Clicking &apos;Retry&apos; will attempt to resume synchronisation;
 Clicking &apos;Cancel&apos; will stop further synchronisation of this account until logout or Quaternion restart.</source>
         <translation>Нажмите кнопку «Повторить попытку», чтобы попытаться возобновить синхронизацию; 
-нажмите «Отмена», чтобы остановить дальнейшую синхронизацию этой учетной записи до выхода из системы или перезапуска Quaternion.</translation>
+нажмите «Отмена», чтобы остановить дальнейшую синхронизацию этой учётной записи до отключения от неё или перезапуска Quaternion.</translation>
     </message>
     <message>
         <source>Before this server can process your information, you have to agree with its terms and conditions; please click the button below to open the web page where you can do that</source>
@@ -707,7 +707,7 @@ Response:
     </message>
     <message>
         <source>Show/hide meaningless activity (join-leave pairs and redacted events between)</source>
-        <translation>Показать/скрыть бесполезную активность (пары из входа и выхода и удаленные события между ними)</translation>
+        <translation>Показать/скрыть бесполезную активность (пары из входа и выхода и удалённые события между ними)</translation>
     </message>
     <message>
         <source>Built from Git, commit SHA:</source>
@@ -751,7 +751,7 @@ Response:
     </message>
     <message>
         <source>Logging in into a logged in account</source>
-        <translation>Вход в уже подключённый аккаунт</translation>
+        <translation>Подключение к уже подключённой учётной записи</translation>
     </message>
     <message>
         <source>You&apos;re trying to log in into an account that&apos;s already logged in. Do you want to continue?</source>
@@ -787,7 +787,7 @@ Response:
     </message>
     <message>
         <source>Account</source>
-        <translation>Учетная запись</translation>
+        <translation>Учётная запись</translation>
     </message>
     <message>
         <source>Room ID (starting with !)
@@ -901,7 +901,7 @@ Is that right?</source>
     </message>
     <message>
         <source>Log&amp;out</source>
-        <translation>В&amp;ыйти</translation>
+        <translation>&amp;Отключиться</translation>
     </message>
     <message>
         <source>Invite events</source>
@@ -1270,7 +1270,7 @@ Matrix URI или ссылка на сервис matrix.to</translation>
     </message>
     <message>
         <source>Account</source>
-        <translation>Учетная запись</translation>
+        <translation>Учётная запись</translation>
     </message>
     <message>
         <source>Room name</source>
@@ -1728,7 +1728,7 @@ new room</source>
     </message>
     <message>
         <source>Account</source>
-        <translation>Учетная запись</translation>
+        <translation>Учётная запись</translation>
     </message>
     <message>
         <source>Display Name</source>
