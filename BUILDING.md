@@ -60,7 +60,7 @@ libQuotient somewhere when a submodule is unusable for some reason (e.g. when
   - Recent enough Linux examples: Debian Buster; Fedora 28; OpenSUSE Leap 15;
     Ubuntu Bionic Beaver.
 - Qt 5 (either Open Source or Commercial), version 5.9 or higher
-  (5.14+ is recommended)
+  (5.14+ is recommended). Quaternion 0.0.95 and earlier does not build with Qt 6.
 - CMake 3.10 or newer (from your package management system or
   [the official website](https://cmake.org/download/))
 - A C++ toolchain with C++17 support:
@@ -68,8 +68,10 @@ libQuotient somewhere when a submodule is unusable for some reason (e.g. when
     and Visual Studio 2017 (Windows) are the oldest officially supported.
 - Any build system that works with CMake should be fine:
   GNU Make, ninja (any platform), NMake, jom (Windows) are known to work.
-- optionally, libQuotient 0.6 development files (from your package management
+- optionally, libQuotient 0.6.x development files (from your package management
   system), or prebuilt libQuotient (see "Getting the source code" above).
+  libQuotient 0.7 (in development as of this writing) is not compatible with
+  Quaternion 0.0.95.
 - optionally (but strongly recommended),
   [QtKeychain](https://github.com/frankosterfeld/qtkeychain) to store
   access tokens in libsecret keyring or similar providers.
@@ -130,9 +132,10 @@ cmake --build . --target all
 This will get you an executable in `build_dir` inside your project sources.
 Noteworthy CMake variables that you can use:
 - `-DCMAKE_PREFIX_PATH=/path` - add a path to CMake's list of searched paths
-  for preinstalled software (Qt, libQuotient, QtKeychain)
+  for preinstalled software (Qt, libQuotient, QtKeychain); multiple paths are
+  separated by `;` (semicolons).
 - `-DCMAKE_INSTALL_PREFIX=/path` - controls where Quaternion will be installed
-  (see below on installing from sources)
+  (see below on installing from sources).
 - `-DUSE_INTREE_LIBQMC=<ON|OFF>` - force using/not-using the in-tree copy of
   libQuotient sources (see "Getting the source code" above).
 - `-DUSE_QQUICKWIDGET=<ON|OFF>` - by default it's `ON` with Qt 5.12 and `OFF`
@@ -140,32 +143,30 @@ Noteworthy CMake variables that you can use:
 
 #### QQuickWidget
 
-Quaternion uses a combination of Qt Widgets and QML to render its UI (before
-any protests and arguments: this _might_ change at some point in time but
-certainly not in any near future). Internally, embedding QML in a Qt Widget
-can be done in two ways that provide very similar API but are different
-underneath: swallowing a `QQuickView` in a window container and
-using `QQuickWidget`. Historically Quaternion used the former method; however,
-its implementation in Qt is so ugly that
+Quaternion uses a combination of Qt Widgets and QML to render its UI (this
+_might_ change at some point in time but certainly not in any near future).
+Internally, embedding QML in a Qt Widget used to be done in two ways providing
+very similar API but different underneath: swallowing a `QQuickView` object in
+a window container and using `QQuickWidget`. Historically Quaternion used
+the former method; however, `QQuickView` implementation in Qt is so ugly that
 [it's officially deprecated by The Qt Project](https://blog.qt.io/blog/2014/07/02/qt-weekly-16-qquickwidget/).
 
-Quaternion suffers from it too: if you see healthy QML chirping in the logs
-but don't see anything where the timeline should be - you've got issue #355
-and the only way for you to fix it is to get Quaternion rebuilt
-with `QQuickWidget`. Unfortunately, Quaternion's QML is tricky enough to crash
-`QQuickWidget` on Qt versions before 5.12, so there's no single good
-configuration.
+Quaternion suffered from that ugliness too (see, e.g., #355 - a completely blank
+timeline despite the QML engine being up and running). As of now, Quaternion
+uses better and more reliable `QQuickWidget` when built with Qt 5.12 or newer.
+Unfortunately, Quaternion's QML is tricky enough to crash the less mature
+`QQuickWidget` code on Qt versions before 5.12, so if you have to use an older
+Qt version Quaternion will build with `QQuickView` by default.
 
-As of now, Quaternion will build with `QQuickWidget` if Qt 5.12 is detected
-and with the legacy mechanism on lower versions. To override this you can pass
-`-DUSE_QQUICKWIDGET=ON` to the first (configuring) `cmake` invocation to force
-usage of `QQuickWidget` even with older Qt; or `-DDISABLE_QQUICKWIDGET=ON`
-to force usage of `QQuickView` with newer Qt (if need to do that because of
-a bug in `QQuickWidget` configuration, please file an issue at Quaternion).
+To override the defaults you can pass `-DUSE_QQUICKWIDGET=ON` to the first
+(configuring) `cmake` invocation to force usage of `QQuickWidget` even with
+older Qt; or `-DDISABLE_QQUICKWIDGET=ON` to force usage of `QQuickView` with
+newer Qt - by the way, if you have to do that because of some problem with
+`QQuickWidget`, please file an issue at Quaternion).
 
-By now, `QQuickWidget` is considered stable and reliable. Once Qt 5.12 becomes
-the oldest supported version (likely in Quaternion 0.0.96), `QQuickView` mode
-will be entirely deprecated and later removed.
+With `QQuickWidget` considered stable and reliable now, `QQuickView` mode
+will be entirely deprecated in Quaternion 0.0.96 (that will require Qt 5.12+),
+and later removed.
 
 ### Install
 In the root directory of the project sources: `cmake --build build_dir --target install`.
@@ -211,6 +212,13 @@ CMake Error at CMakeLists.txt:30 (add_subdirectory):
 ```
 ...then you don't have libQuotient sources - most likely because you didn't do the `git submodule init && git submodule update` dance.
 
-If you have made sure that your toolchain is in order (versions of compilers and Qt are among supported ones, `PATH` is set correctly etc.) but building fails with strange Qt-related errors such as not found symbols or undefined references, double-check that you don't have Qt 4.x packages around ([here is a typical example](https://github.com/quotient-im/Quaternion/issues/185)). If you need those packages reinstalling them may help; but if you use Qt4 by default you have to explicitly pass Qt5 location to CMake (see notes about `CMAKE_PREFIX_PATH` in "Building").
+If you have made sure that your toolchain is in order (versions of compilers
+and Qt are among supported ones, `PATH` is set correctly etc.) but building
+fails with strange Qt-related errors such as not found symbols or undefined
+references, double-check that you don't have Qt 4.x (or Qt 6.x) packages around
+([here is a typical example](https://github.com/quotient-im/Quaternion/issues/185)).
+If you need those packages reinstalling them may help; but if you use Qt4/6
+by default you have to explicitly pass Qt5 location to CMake (see notes about
+`CMAKE_PREFIX_PATH` in "Building").
 
 See also the Troubleshooting section in [README.md](./README.md)

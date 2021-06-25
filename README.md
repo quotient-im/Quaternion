@@ -38,17 +38,17 @@ Qt libraries bundled. On Windows, you need to separately install OpenSSL
 (see the next section).
 
 ### Windows
-Since we can't rely on package management on Windows, Qt libraries and
-a C++ runtime are packaged/installed together with Quaternion. However,
-OpenSSL libraries are not installed automatically because of export restrictions.
-Unless you already have them around (e.g., they are a part of any
-Qt development installation), you should install OpenSSL yourself.
+Since we can't rely on package management on Windows, all needed libraries and
+a C++ runtime are packaged/installed together with Quaternion - except OpenSSL,
+because of export restrictions.
+Unless you already have OpenSSL around (e.g., it is a part of any
+Qt development installation), you should install it yourself.
 [OpenSSL's Wiki](https://wiki.openssl.org/index.php/Binaries) lists a few links
 to OpenSSL installers. They come in different build configurations; Quaternion
-archives need OpenSSL made with/for Visual Studio (not MinGW). Normally you
-should install OpenSSL 1.1.x. Older releases (0.0.9.4 and before) used
-OpenSSL 1.0.x but neither that version of OpenSSL nor those Quaternion releases
-are supported; don't use them unless you really know what you're doing.
+archives provided at GitHub need OpenSSL made with/for Visual Studio (not MinGW).
+Normally you should install OpenSSL 1.1.x. Older releases (0.0.9.4 and before)
+used OpenSSL 1.0.x but neither that version of OpenSSL nor those Quaternion
+releases are supported; don't use them unless you really know what you're doing.
 
 ### macOS
 You can download the latest release from
@@ -69,7 +69,6 @@ Flatpaks for Quaternion are available from Flathub. To install, use:
 ```
 flatpak install https://flathub.org/repo/appstream/com.github.quaternion.flatpakref
 ```
-While generally working well, Flatpak support is still a bit experimental.
 Please file issues at https://github.com/flathub/com.github.quaternion
 if you believe there's a problem specific to Flatpak.
 
@@ -257,10 +256,13 @@ Settings not exposed in UI:
   hyperlink matrix user IDs in messages. By default it's true.
 - `auto_markdown` - since version 0.0.95 beta 3, and only if built with Qt 5.14
   or newer (that pertains to all binaries at GitHub Releases as well as
-  to Flatpaks), setting this to `true` makes Quaternion parse all messages that
-  you send as Markdown, without having to prepend them with `/md` command.
-  By default, this is `false` now since it cannot be enabled in builds
-  with older Qt and since the whole functionality is experimental. If you
+  to Flatpaks), Quaternion supports Markdown when entering messages. Quaternion
+  only treats the message as Markdown if the message starts with `/md` command
+  (the command itself is removed from the message before sending). Setting
+  `auto_markdown` to `true` enables Markdown parsing in all messages that
+  _do not_ start with `/plain` instead. By default, this setting is `false`
+  since the current Qt support of Markdown is buggy, it cannot be enabled in
+  builds with older Qt and the whole functionality is experimental. If you
   have it enabled, feel free to submit bug reports at the usual place.
 
 Since version 0.0.95, all Quaternion binaries at GitHub Releases are compiled
@@ -352,7 +354,7 @@ If you have troubles with dynamic libraries on Windows,
 [the Dependencies Walker tool aka depends.exe](http://www.dependencywalker.com/)
 helps a lot in navigating the DLL hell - especially when you have a mixed
 32/64-bit environment or have different versions of the same library scattered
-around. OpenSSL, in particular, is notoriously often dragged along by all kinds
+around. OpenSSL, in particular, is very often dragged along by all kinds
 of software; and you may have other copies of Qt around which you didn't even
 know about - e.g., with CMake GUI. Entries in PATH for such programs may lead
 to the operating system choosing those bundled libraries instead of those you
