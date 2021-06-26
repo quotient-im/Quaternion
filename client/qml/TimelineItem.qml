@@ -241,7 +241,8 @@ Item {
                          && settings.show_author_avatars && author.avatarMediaId
                 anchors.left: timelabel.right
                 anchors.leftMargin: 3
-                height: if (!visible) { authorLabel.height }
+                height: visible ? settings.lineSpacing * (2 - xchatStyle)
+                                : authorLabel.height
 
                 // 2 text line heights by default; 1 line height for XChat
                 width: settings.show_author_avatars
