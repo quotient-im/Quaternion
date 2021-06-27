@@ -291,7 +291,7 @@ jobs:
         description: |
           The builds produced by the continuous integration; only intended for testing,
           not for production usage. No workability guarantees whatsoever.
-        version: '${{ needs.Prepare.outputs.version }}'
+        version: ${{ needs.Prepare.outputs.version }}
         republish: true
 
     - name: Upload artefact to GitHub Releases (tag builds)
@@ -300,8 +300,8 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: ${{ env.FILE_NAME }}
-        # It needs to false-prerelease things but that's better than false-release them
-        prerelease: contains(${{ needs.Prepare.outputs.version }}, '-')
+        # It tends to false-prerelease things but that's better than false-release them
+        prerelease: ${{ contains(needs.Prepare.outputs.version, '-') }}
         allowUpdates: true
         omitNameDuringUpdate: true
         omitBodyDuringUpdate: true
