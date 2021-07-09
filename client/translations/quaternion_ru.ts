@@ -303,6 +303,14 @@ settings</source>
             <numerusform>%Ln событий запрошено с сервера</numerusform>
         </translation>
     </message>
+    <message>
+        <source>Hide topic</source>
+        <translation>Скрыть тему</translation>
+    </message>
+    <message>
+        <source>Show topic</source>
+        <translation>Показать тему</translation>
+    </message>
 </context>
 <context>
     <name>CreateRoomDialog</name>
