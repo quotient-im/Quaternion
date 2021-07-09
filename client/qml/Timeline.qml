@@ -53,6 +53,8 @@ Rectangle {
         radius: 2
         visible: room
 
+        property bool showTopic: true
+
         Image {
             id: roomAvatar
             anchors.verticalCenter: headerText.verticalCenter
@@ -138,8 +140,10 @@ Rectangle {
                     text: parent.text
                 }
             }
+
             ScrollView {
                 id: topicField
+                visible: roomHeader.showTopic
                 width: parent.width
                 // Allow 6 lines of the topic (or 20% of the vertical space);
                 // if there are more than 6 lines, show half-line as a hint
@@ -183,7 +187,7 @@ Rectangle {
         }
         MouseArea {
             anchors.fill: headerText
-            acceptedButtons: Qt.MiddleButton
+            acceptedButtons: Qt.MiddleButton | Qt.RightButton
             cursorShape: topicText.hoveredLink
                          ? Qt.PointingHandCursor : Qt.IBeamCursor
 
@@ -191,6 +195,15 @@ Rectangle {
                 if (topicText.hoveredLink)
                     controller.resourceRequested(topicText.hoveredLink,
                                                  "_interactive")
+                else if (mouse.button === Qt.RightButton)
+                    contextMenu.popup()
+            }
+            Menu {
+                id: contextMenu
+                MenuItem {
+                    text: roomHeader.showTopic ? qsTr("Hide topic") : qsTr("Show topic")
+                    onTriggered: roomHeader.showTopic = !roomHeader.showTopic
+                }
             }
         }
         Button {
