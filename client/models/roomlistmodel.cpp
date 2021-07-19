@@ -293,8 +293,8 @@ void RoomListModel::doSetOrder(std::unique_ptr<AbstractRoomOrdering>&& newOrder)
     for (const auto& c: m_connections)
     {
         m_roomOrder->connectSignals(c);
-        for (auto* r: c->allRooms())
-        {
+        const auto& allRooms = c->allRooms();
+        for (auto* r: allRooms) {
             addRoomToGroups(r);
             m_roomOrder->connectSignals(r);
         }
@@ -453,10 +453,12 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
             if (!directChatUsers.isEmpty())
             {
                 QStringList userNames;
+                userNames.reserve(directChatUsers.size());
                 for (auto* user: directChatUsers)
                     userNames.push_back(user->displayname(room).toHtmlEscaped());
-                result += "<br>" % tr("Direct chat with %1")
-                                   .arg(userNames.join(','));
+                result += "<br>"
+                          % tr("Direct chat with %1")
+                                .arg(QLocale().createSeparatedList(userNames));
             }
 
             if (room->usesEncryption())
