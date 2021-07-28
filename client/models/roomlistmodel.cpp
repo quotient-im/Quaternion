@@ -391,28 +391,31 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
 //    if (index.column() == 2)
 //        return room->lastAttended();
 
+    static const auto RoomNameTemplate = tr("%1 (as %2)", "%Room (as %user)");
+    auto disambiguatedName = room->displayName();
+    if (role == Qt::DisplayRole || role == Qt::ToolTipRole)
+        for (const auto& c: m_connections)
+            if (c != room->connection()
+                && c->room(room->id(), room->joinState()))
+                disambiguatedName =
+                    RoomNameTemplate.arg(room->displayName(),
+                                         room->localUser()->id());
+
     using Quotient::JoinState;
     switch (role)
     {
         case Qt::DisplayRole:
         {
-            const auto prefix =
-                    room->isUnstable() ? QStringLiteral("(!)") : QString();
-            const auto unreadCount = room->unreadCount();
-            const auto postfix = unreadCount == -1 ? QString() :
-                room->readMarker() != room->timelineEdge()
-                    ? QStringLiteral(" [%1]").arg(unreadCount)
-                    : QStringLiteral(" [%1+]").arg(unreadCount);
-            for (const auto& c: m_connections)
-            {
-                if (c == room->connection())
-                    continue;
-                if (c->room(room->id(), room->joinState()))
-                    return prefix + tr("%1 (as %2)", "%Room (as %user)")
-                           .arg(room->displayName(), room->connection()->userId())
-                           + postfix;
+            auto value = room->isUnstable() ? QStringLiteral("(!)") : QString();
+            value += disambiguatedName;
+
+            if (auto unreadCount = room->unreadCount(); unreadCount >= 0) {
+                value += QStringLiteral(" [%L1").arg(unreadCount);
+                if (room->readMarker() == room->historyEdge())
+                    value += '?';
+                value += ']';
             }
-            return prefix + room->displayName() + postfix;
+            return value;
         }
         case Qt::DecorationRole:
         {
@@ -441,9 +444,8 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         case Qt::ToolTipRole:
         {
             QString result =
-                QStringLiteral("<b>%1</b>")
-                    .arg(room->displayName().toHtmlEscaped()) % "<br>" %
-                tr("Main alias: %1").arg(room->canonicalAlias()) % "<br>" %
+                "<b>" % disambiguatedName.toHtmlEscaped() % "</b><br>"
+                % tr("Main alias: %1").arg(room->canonicalAlias()) % "<br>" %
                 //: The number of joined members
                 tr("Joined: %L1").arg(room->joinedCount());
             if (room->invitedCount() > 0)
@@ -488,13 +490,13 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
             switch (room->joinState())
             {
                 case JoinState::Join:
-                    result += tr("You joined this room") % asUser;
+                    result += tr("You joined this room");
                     break;
                 case JoinState::Leave:
-                    result += tr("You left this room") % asUser;
+                    result += tr("You left this room");
                     break;
                 case JoinState::Invite:
-                    result += tr("You were invited into this room") % asUser;
+                    result += tr("You were invited into this room");
             }
             return result;
         }
