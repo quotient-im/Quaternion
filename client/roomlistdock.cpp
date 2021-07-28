@@ -36,7 +36,8 @@
 
 using Quotient::SettingsGroup;
 
-class RoomListItemDelegate : public QStyledItemDelegate
+class RoomListItemDelegate // clazy:exclude=missing-qobject-macro
+    : public QStyledItemDelegate
 {
     public:
         using QStyledItemDelegate::QStyledItemDelegate;

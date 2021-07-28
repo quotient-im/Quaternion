@@ -211,18 +211,18 @@ void RoomListModel::addRoomToGroups(Room* room, QVariantList groups)
 {
     if (groups.empty())
         groups = m_roomOrder->roomGroups(room);
-    for (const auto& g: groups)
+    for (const auto& g: std::as_const(groups))
     {
         const auto gIt = tryInsertGroup(g);
         const auto rIt = lowerBoundRoom(*gIt, room);
-        if (rIt != gIt->rooms.end() && *rIt == room)
+        if (rIt != gIt->rooms.cend() && *rIt == room)
         {
             qWarning() << "RoomListModel:" << room->objectName()
                        << "is already listed under group" << g.toString();
             continue;
         }
-        const auto rPos = rIt - gIt->rooms.begin();
-        const auto gIdx = index(gIt - m_roomGroups.begin(), 0);
+        const auto rPos = int(rIt - gIt->rooms.cbegin());
+        const auto gIdx = index(int(gIt - m_roomGroups.cbegin()), 0);
         beginInsertRows(gIdx, rPos, rPos);
         gIt->rooms.insert(rIt, room);
         endInsertRows();
@@ -246,7 +246,7 @@ void RoomListModel::connectRoomSignals(Room* room)
             this, [this,room] { refresh(room, { Qt::DecorationRole }); });
 }
 
-void RoomListModel::doRemoveRoom(QModelIndex idx)
+void RoomListModel::doRemoveRoom(const QModelIndex &idx)
 {
     if (!isValidRoomIndex(idx))
     {
@@ -255,8 +255,9 @@ void RoomListModel::doRemoveRoom(QModelIndex idx)
         return;
     }
     const auto gPos = idx.parent().row();
-    auto& group = m_roomGroups[gPos];
-    const auto rIt = group.rooms.begin() + idx.row();
+    auto& group = m_roomGroups[gPos]; // clazy:exclude=detaching-member
+    const auto rIt =
+        group.rooms.begin() + idx.row(); // clazy:exclude=detaching-member
     qDebug() << "RoomListModel: Removing room" << (*rIt)->objectName()
              << "from group" << group.key.toString();
     if (m_roomIndices.remove(*rIt, idx) != 1)
@@ -335,12 +336,12 @@ int RoomListModel::totalRooms() const
     return result;
 }
 
-bool RoomListModel::isValidGroupIndex(QModelIndex i) const
+bool RoomListModel::isValidGroupIndex(const QModelIndex& i) const
 {
     return i.isValid() && !i.parent().isValid() && i.row() < m_roomGroups.size();
 }
 
-bool RoomListModel::isValidRoomIndex(QModelIndex i) const
+bool RoomListModel::isValidRoomIndex(const QModelIndex& i) const
 {
     return i.isValid() && isValidGroupIndex(i.parent()) &&
             i.row() < m_roomGroups[i.parent().row()].rooms.size();
@@ -449,9 +450,8 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
                 result += //: The number of invited users
                     "<br>" % tr("Invited: %L1").arg(room->invitedCount());
 
-            auto directChatUsers = room->directChatUsers();
-            if (!directChatUsers.isEmpty())
-            {
+            const auto directChatUsers = room->directChatUsers();
+            if (!directChatUsers.isEmpty()) {
                 QStringList userNames;
                 userNames.reserve(directChatUsers.size());
                 for (auto* user: directChatUsers)
@@ -464,35 +464,27 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
             if (room->usesEncryption())
                 result += "<br>" % tr("The room enforces encryption");
 
-            if (room->isUnstable())
-            {
+            if (room->isUnstable()) {
                 result += "<br>(!) " % tr("This room's version is unstable!");
                 if (room->canSwitchVersions())
                     result += ' ' % tr("Consider upgrading to a stable version"
                                        " (use room settings for that)");
             }
 
-            auto unreadCount = room->unreadCount();
-            if (unreadCount >= 0) {
+            if (const auto unreadCount = room->unreadCount(); unreadCount >= 0) {
                 result += "<br/>" % tr("Unread messages: %L1")
                                     .arg(unreadCount);
                 if (room->readMarker() == room->timelineEdge())
                     result += ' ' % /*: Unread messages */ tr("(maybe more)");
             }
 
-            auto hlCount = room->highlightCount();
-            if (hlCount > 0)
-                result += "<br>" % tr("Unread highlights: %L1").arg(hlCount);
-
-            auto nfCount = room->notificationCount();
-            if (nfCount > 0)
+            if (const auto nfCount = room->notificationCount(); nfCount > 0)
                 result += "<br>" % tr("Unread notifications: %L1").arg(nfCount);
 
+            if (const auto hlCount = room->highlightCount(); hlCount > 0)
+                result += "<br>" % tr("Unread highlights: %L1").arg(hlCount);
+
             result += "<br>" % tr("ID: %1").arg(room->id()) % "<br>";
-            //: "as %user" disambiguates entries in the room list
-            const auto asUser = m_connections.size() < 2
-                    ? QString() : ' ' % tr("as %1")
-                                        .arg(room->localUser()->id());
             switch (room->joinState())
             {
                 case JoinState::Join:
@@ -565,7 +557,7 @@ void RoomListModel::refresh(Room* room, const QVector<int>& roles)
     // The problem here is that the change might cause the room to change
     // its groups. Assume for now that such changes are processed elsewhere
     // where details about the change are available (e.g. in tagsChanged).
-    visitRoom(*room, [this,&roles] (QModelIndex idx) {
+    visitRoom(*room, [this,&roles] (const QModelIndex &idx) {
         emit dataChanged(idx, idx, roles);
         emit dataChanged(idx.parent(), idx.parent(), roles);
     });

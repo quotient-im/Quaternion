@@ -58,8 +58,8 @@ class RoomListModel: public QAbstractItemModel
         int columnCount(const QModelIndex&) const override;
         int rowCount(const QModelIndex& parent) const override;
         int totalRooms() const;
-        bool isValidGroupIndex(QModelIndex i) const;
-        bool isValidRoomIndex(QModelIndex i) const;
+        bool isValidGroupIndex(const QModelIndex& i) const;
+        bool isValidRoomIndex(const QModelIndex& i) const;
 
         template <typename OrderT>
         void setOrder() { doSetOrder(std::make_unique<OrderT>(this)); }
@@ -96,7 +96,7 @@ class RoomListModel: public QAbstractItemModel
         RoomGroups::iterator tryInsertGroup(const QVariant& key);
         void addRoomToGroups(Room* room, QVariantList groups = {});
         void connectRoomSignals(Room* room);
-        void doRemoveRoom(QModelIndex idx);
+        void doRemoveRoom(const QModelIndex& idx);
 
         void visitRoom(const Room& room,
                        const std::function<void(QModelIndex)>& visitor);
