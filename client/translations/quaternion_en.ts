@@ -1693,68 +1693,68 @@ or alias (starting with #)</translation>
 <context>
     <name>RoomListDock</name>
     <message>
-        <location filename="../roomlistdock.cpp" line="166"/>
+        <location filename="../roomlistdock.cpp" line="167"/>
         <source>Mark room as read</source>
         <translation>Mark room as read</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="173"/>
+        <location filename="../roomlistdock.cpp" line="174"/>
         <source>Add tags...</source>
         <translation>Add tags...</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="176"/>
+        <location filename="../roomlistdock.cpp" line="177"/>
         <source>Change room &amp;settings...</source>
         <translation>Change room &amp;settings...</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="179"/>
+        <location filename="../roomlistdock.cpp" line="180"/>
         <source>Copy room link to clipboard</source>
         <translation>Copy room link to clipboard</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="186"/>
+        <location filename="../roomlistdock.cpp" line="187"/>
         <source>Join room</source>
         <translation>Join room</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="202"/>
+        <location filename="../roomlistdock.cpp" line="203"/>
         <source>Forget room</source>
         <translation>Forget room</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="213"/>
+        <location filename="../roomlistdock.cpp" line="214"/>
         <source>Remove tag</source>
         <translation>Remove tag</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="284"/>
+        <location filename="../roomlistdock.cpp" line="285"/>
         <source>Reject invitation</source>
         <translation>Reject invitation</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="284"/>
+        <location filename="../roomlistdock.cpp" line="285"/>
         <source>Leave room</source>
         <translation>Leave room</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="309"/>
+        <location filename="../roomlistdock.cpp" line="310"/>
         <source>Enter new tags for the room</source>
         <translation>Enter new tags for the room</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="310"/>
+        <location filename="../roomlistdock.cpp" line="311"/>
         <source>Add</source>
         <comment>A caption on a button to add tags</comment>
         <translation>Add</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="313"/>
+        <location filename="../roomlistdock.cpp" line="314"/>
         <source>Enter tags to add to this room, one tag per line</source>
         <translation>Enter tags to add to this room, one tag per line</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="337"/>
+        <location filename="../roomlistdock.cpp" line="338"/>
         <source>Rooms (%L1)</source>
         <translation>Rooms (%L1)</translation>
     </message>
@@ -1808,72 +1808,66 @@ or alias (starting with #)</translation>
         </translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="410"/>
+        <location filename="../models/roomlistmodel.cpp" line="394"/>
         <source>%1 (as %2)</source>
         <comment>%Room (as %user)</comment>
         <translation>%1 (as %2)</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="445"/>
+        <location filename="../models/roomlistmodel.cpp" line="448"/>
         <source>Main alias: %1</source>
         <translation>Main alias: %1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="447"/>
+        <location filename="../models/roomlistmodel.cpp" line="450"/>
         <source>Joined: %L1</source>
         <extracomment>The number of joined members</extracomment>
         <translation>Joined: %L1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="450"/>
+        <location filename="../models/roomlistmodel.cpp" line="453"/>
         <source>Invited: %L1</source>
         <extracomment>The number of invited users</extracomment>
         <translation>Invited: %L1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="458"/>
+        <location filename="../models/roomlistmodel.cpp" line="462"/>
         <source>Direct chat with %1</source>
         <translation>Direct chat with %1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="463"/>
+        <location filename="../models/roomlistmodel.cpp" line="467"/>
         <source>The room enforces encryption</source>
         <translation>The room enforces encryption</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="467"/>
+        <location filename="../models/roomlistmodel.cpp" line="470"/>
         <source>This room&apos;s version is unstable!</source>
         <translation>This room&apos;s version is unstable!</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="469"/>
+        <location filename="../models/roomlistmodel.cpp" line="472"/>
         <source>Consider upgrading to a stable version (use room settings for that)</source>
         <translation>Consider upgrading to a stable version (use room settings for that)</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="492"/>
-        <source>as %1</source>
-        <extracomment>&quot;as %user&quot; disambiguates entries in the room list</extracomment>
-        <translation>as %1</translation>
-    </message>
-    <message>
-        <location filename="../models/roomlistmodel.cpp" line="475"/>
+        <location filename="../models/roomlistmodel.cpp" line="477"/>
         <source>Unread messages: %L1</source>
         <translation>Unread messages: %L1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="478"/>
+        <location filename="../models/roomlistmodel.cpp" line="480"/>
         <source>(maybe more)</source>
         <extracomment>Unread messages</extracomment>
         <translation>(maybe more)</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="483"/>
+        <location filename="../models/roomlistmodel.cpp" line="487"/>
         <source>Unread highlights: %L1</source>
         <translation>Unread highlights: %L1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="487"/>
+        <location filename="../models/roomlistmodel.cpp" line="484"/>
         <source>Unread notifications: %L1</source>
         <translation>Unread notifications: %L1</translation>
     </message>
@@ -1883,17 +1877,17 @@ or alias (starting with #)</translation>
         <translation>ID: %1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="497"/>
+        <location filename="../models/roomlistmodel.cpp" line="493"/>
         <source>You joined this room</source>
         <translation>You joined this room</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="500"/>
+        <location filename="../models/roomlistmodel.cpp" line="496"/>
         <source>You left this room</source>
         <translation>You left this room</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="503"/>
+        <location filename="../models/roomlistmodel.cpp" line="499"/>
         <source>You were invited into this room</source>
         <translation>You were invited into this room</translation>
     </message>
@@ -2038,46 +2032,56 @@ This operation cannot be reverted.</translation>
         <translation>%L1 GB</translation>
     </message>
     <message>
-        <location filename="../qml/Timeline.qml" line="100"/>
+        <location filename="../qml/Timeline.qml" line="102"/>
         <source>(no name)</source>
         <translation>(no name)</translation>
     </message>
     <message>
-        <location filename="../qml/Timeline.qml" line="129"/>
+        <location filename="../qml/Timeline.qml" line="131"/>
         <source>This room has been upgraded.</source>
         <translation>This room has been upgraded.</translation>
     </message>
     <message>
-        <location filename="../qml/Timeline.qml" line="130"/>
+        <location filename="../qml/Timeline.qml" line="132"/>
         <source>Unstable room version!</source>
         <translation>Unstable room version!</translation>
     </message>
     <message>
-        <location filename="../qml/Timeline.qml" line="166"/>
+        <location filename="../qml/Timeline.qml" line="170"/>
         <source>(no topic)</source>
         <translation>(no topic)</translation>
     </message>
     <message>
         <location filename="../qml/Timeline.qml" line="204"/>
+        <source>Hide topic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Timeline.qml" line="204"/>
+        <source>Show topic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Timeline.qml" line="217"/>
         <source>Go to
 new room</source>
         <translation>Go to
 new room</translation>
     </message>
     <message>
-        <location filename="../qml/Timeline.qml" line="204"/>
+        <location filename="../qml/Timeline.qml" line="217"/>
         <source>Room
 settings</source>
         <translation>Room
 settings</translation>
     </message>
     <message>
-        <location filename="../qml/Timeline.qml" line="676"/>
+        <location filename="../qml/Timeline.qml" line="689"/>
         <source>Latest events</source>
         <translation>Latest events</translation>
     </message>
     <message numerus="yes">
-        <location filename="../qml/Timeline.qml" line="677"/>
+        <location filename="../qml/Timeline.qml" line="690"/>
         <source>%Ln events back from now</source>
         <translation>
             <numerusform>%Ln event back from now</numerusform>
@@ -2085,7 +2089,7 @@ settings</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../qml/Timeline.qml" line="679"/>
+        <location filename="../qml/Timeline.qml" line="692"/>
         <source>%Ln events cached</source>
         <translation>
             <numerusform>%Ln event cached</numerusform>
@@ -2093,7 +2097,7 @@ settings</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../qml/Timeline.qml" line="683"/>
+        <location filename="../qml/Timeline.qml" line="696"/>
         <source>%Ln events requested from the server</source>
         <translation>
             <numerusform>%Ln event requested from the server</numerusform>
@@ -2104,35 +2108,35 @@ settings</translation>
 <context>
     <name>TimelineItem</name>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="358"/>
+        <location filename="../qml/TimelineItem.qml" line="359"/>
         <source>edited</source>
         <translation>edited</translation>
     </message>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="523"/>
+        <location filename="../qml/TimelineItem.qml" line="524"/>
         <source>Reaction &apos;%1&apos; from %2</source>
         <extracomment>%2 is the list of users</extracomment>
         <translation>Reaction &apos;%1&apos; from %2</translation>
     </message>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="558"/>
+        <location filename="../qml/TimelineItem.qml" line="559"/>
         <source>Resend</source>
         <translation>Resend</translation>
     </message>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="567"/>
+        <location filename="../qml/TimelineItem.qml" line="568"/>
         <source>Discard</source>
         <translation>Discard</translation>
     </message>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="575"/>
+        <location filename="../qml/TimelineItem.qml" line="576"/>
         <source>Go to
 older room</source>
         <translation>Go to
 older room</translation>
     </message>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="584"/>
+        <location filename="../qml/TimelineItem.qml" line="585"/>
         <source>Go to
 new room</source>
         <translation>Go to
