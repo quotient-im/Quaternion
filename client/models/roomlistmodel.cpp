@@ -404,16 +404,29 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
     using Quotient::JoinState;
     switch (role)
     {
-        case Qt::DisplayRole:
-        {
-            auto value = room->isUnstable() ? QStringLiteral("(!)") : QString();
-            value += disambiguatedName;
-
-            if (auto unreadCount = room->unreadCount(); unreadCount >= 0) {
-                value += QStringLiteral(" [%L1").arg(unreadCount);
-                if (room->readMarker() == room->historyEdge())
-                    value += '?';
-                value += ']';
+        case Qt::DisplayRole: {
+            static Quotient::Settings settings;
+            auto unreadCount = room->unreadCount();
+            auto notifCount = room->notificationCount();
+            auto unreadTilReadReceipt = unreadCount - notifCount;
+            QString value =
+                (room->isUnstable() ? "(!)" : "") % disambiguatedName;
+            if (unreadCount >= 0)
+                value += " ["
+                    % (unreadTilReadReceipt > 0
+                           ? QLocale().toString(unreadTilReadReceipt)
+                           : QString())
+                    % (room->readMarker() == room->historyEdge() ? "?" : "")
+                    % (notifCount > 0 ? QStringLiteral("+%L1").arg(notifCount)
+                                      : QString())
+                    % ']';
+            if (settings.get("Debug/read_receipts", false)) {
+                auto localReadReceipt = room->readMarker(room->localUser());
+                value += " <"
+                    % QString::number(room->historyEdge() - localReadReceipt)
+                    % '|'
+                    % QString::number(room->syncEdge() - localReadReceipt.base())
+                    % '>';
             }
             return value;
         }
@@ -474,12 +487,14 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
             }
 
             if (const auto unreadCount = room->unreadCount(); unreadCount >= 0) {
+                // TODO for 0.0.96: tr("Messages after fully read: %L1")
                 result += "<br/>" % tr("Unread messages: %L1")
                                     .arg(unreadCount);
-                if (room->readMarker() == room->timelineEdge())
+                if (room->readMarker() == room->historyEdge())
                     result += ' ' % /*: Unread messages */ tr("(maybe more)");
             }
 
+            // TODO for 0.0.96: tr("Unread notifications since read receipt: %L1")
             if (const auto nfCount = room->notificationCount(); nfCount > 0)
                 result += "<br>" % tr("Unread notifications: %L1").arg(nfCount);
 
@@ -501,7 +516,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
             return result;
         }
         case HasUnreadRole:
-            return room->hasUnreadMessages();
+            return room->notificationCount() > 0;
         case HighlightCountRole:
             return room->highlightCount();
         case JoinStateRole:
