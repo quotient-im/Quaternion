@@ -46,9 +46,6 @@ class QuaternionRoom: public Quotient::Room
         // class as NOTIFY targets
         void htmlSafeDisplayNameChanged();
 
-    private slots:
-        void countChanged();
-
     private:
         QSet<const Quotient::RoomEvent*> highlights;
         QString m_cachedUserFilter;

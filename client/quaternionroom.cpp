@@ -29,12 +29,8 @@ QuaternionRoom::QuaternionRoom(Connection* connection, QString roomId,
                                JoinState joinState)
     : Room(connection, std::move(roomId), joinState)
 {
-    connect(this, &QuaternionRoom::notificationCountChanged,
-    		this, &QuaternionRoom::countChanged);
-    connect(this, &QuaternionRoom::highlightCountChanged,
-    		this, &QuaternionRoom::countChanged);
     connect(this, &Room::namesChanged,
-    		this, &QuaternionRoom::htmlSafeDisplayNameChanged);
+            this, &QuaternionRoom::htmlSafeDisplayNameChanged);
 }
 
 const QString& QuaternionRoom::cachedUserFilter() const
@@ -91,14 +87,6 @@ void QuaternionRoom::saveViewport(int topIndex, int bottomIndex)
 QString QuaternionRoom::htmlSafeDisplayName() const
 {
     return displayName().toHtmlEscaped();
-}
-
-void QuaternionRoom::countChanged()
-{
-    if (displayed() && !hasUnreadMessages()) {
-        resetNotificationCount();
-        resetHighlightCount();
-    }
 }
 
 void QuaternionRoom::onAddNewTimelineEvents(timeline_iter_t from)
