@@ -448,8 +448,9 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                     // to returning the prettified plain text
                     if (errorPos != -1) {
                         cleanHtml = m_currentRoom->prettyPrint(e.plainBody());
+                        static Settings settings;
                         // A manhole to visualise HTML errors
-                        if (Settings().get("Debug/html", false))
+                        if (settings.get("Debug/html", false))
                             cleanHtml +=
                                 QStringLiteral("<br /><font color=\"red\">"
                                                "At pos %1: %2</font>")
