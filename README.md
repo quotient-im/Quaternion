@@ -9,7 +9,7 @@
 [![](https://img.shields.io/cii/percentage/1663.svg?label=CII%20best%20practices)](https://bestpractices.coreinfrastructure.org/projects/1663/badge)
 [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/quotient-im/Quaternion.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/quotient-im/Quaternion/context:cpp)
 [![CI builds hosted by: Cloudsmith](https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&style=flat-square)](https://cloudsmith.com)
-[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![merge-chance-badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fmerge-chance.info%2Fbadge%3Frepo%3Dquotient-im/quaternion)](https://merge-chance.info/target?repo=quotient-im/quaternion)
 
 Quaternion is a cross-platform desktop IM client for the [Matrix](https://matrix.org) protocol. This file contains general information about application usage and settings. See [BUILDING.md](./BUILDING.md) for building instructions.
 
@@ -31,16 +31,20 @@ for major platforms can also be found at the
 Make sure to read the notes below depending to your environment.
 
 ### Requirements
-Quaternion 0.0.95 packages on Linux need Qt version 5.9 or higher;
-Debian Buster, Ubuntu Bionic Beaver, Fedora 28 and OpenSUSE 15 are new enough.
-The packages provided on the download page (see below) have all necessary
-Qt libraries bundled. On Windows, you need to separately install OpenSSL
-(see the next section).
+Quaternion 0.0.95 packages on Linux need Qt version 5.11 or higher; for major
+distros, that means Debian 10 (Buster), Ubuntu 18.10 (Cosmic), Fedora 29 and
+OpenSUSE 15.2 or newer releases. The packages published by the project
+at GitHub (see below) come with Qt libraries bundled; Linux packages, including
+those from Flathub, use respective package managers to pull necessary libraries
+automatically.
 
 ### Windows
-Since we can't rely on package management on Windows, all needed libraries and
-a C++ runtime are packaged/installed together with Quaternion - except OpenSSL,
-because of export restrictions.
+You can download the latest release from
+[GitHub](https://github.com/quotient-im/Quaternion/releases/latest).
+
+Since there's no established package management on Windows to resolve
+dependencies, all needed libraries and a C++ runtime are packaged/installed
+together with Quaternion - except OpenSSL, because of export restrictions.
 Unless you already have OpenSSL around (e.g., it is a part of any
 Qt development installation), you should install it yourself.
 [OpenSSL's Wiki](https://wiki.openssl.org/index.php/Binaries) lists a few links

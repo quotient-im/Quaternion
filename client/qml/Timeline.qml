@@ -1,4 +1,4 @@
-import QtQuick 2.4
+import QtQuick 2.10 // Qt 5.10
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.1
 import QtGraphicalEffects 1.0 // For fancy highlighting
@@ -270,7 +270,7 @@ Rectangle {
             verticalLayoutDirection: ListView.BottomToTop
             flickableDirection: Flickable.VerticalFlick
             flickDeceleration: 8000
-            boundsBehavior: Flickable.StopAtBounds
+            boundsMovement: Flickable.StopAtBounds
 //            pixelAligned: true // Causes false-negatives in atYEnd
             cacheBuffer: 200
 
@@ -352,12 +352,11 @@ Rectangle {
 
             function scrollUp(dy) {
                 if (contentHeight > height)
-                    contentY = Math.max(originY, contentY - dy)
+                    contentY -= dy
             }
             function scrollDown(dy) {
                 if (contentHeight > height)
-                    contentY = Math.min(originY + contentHeight - height,
-                                        contentY + dy)
+                    contentY += dy
             }
 
             function onWheel(wheel) {
