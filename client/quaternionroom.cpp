@@ -29,18 +29,8 @@ QuaternionRoom::QuaternionRoom(Connection* connection, QString roomId,
                                JoinState joinState)
     : Room(connection, std::move(roomId), joinState)
 {
-    connect( this, &QuaternionRoom::notificationCountChanged, this, &QuaternionRoom::countChanged );
-    connect( this, &QuaternionRoom::highlightCountChanged, this, &QuaternionRoom::countChanged );
-}
-
-const QString& QuaternionRoom::cachedInput() const
-{
-    return m_cachedInput;
-}
-
-void QuaternionRoom::setCachedInput(const QString& input)
-{
-    m_cachedInput = input;
+    connect(this, &Room::namesChanged,
+            this, &QuaternionRoom::htmlSafeDisplayNameChanged);
 }
 
 const QString& QuaternionRoom::cachedUserFilter() const
@@ -72,14 +62,21 @@ int QuaternionRoom::savedBottomVisibleIndex() const
 
 void QuaternionRoom::saveViewport(int topIndex, int bottomIndex)
 {
-    if (topIndex == -1 || bottomIndex == -1 ||
-            (bottomIndex == savedBottomVisibleIndex() &&
-             (bottomIndex == 0 || topIndex == savedTopVisibleIndex())))
+    // Don't save more frequently than once a second
+    static auto lastSaved = QDateTime::currentMSecsSinceEpoch();
+    const auto now = QDateTime::currentMSecsSinceEpoch();
+    if (lastSaved >= now - 1000)
         return;
-    if (bottomIndex == 0)
-    {
+    lastSaved = now;
+
+    if (topIndex == -1 || bottomIndex == -1
+        || (bottomIndex == savedBottomVisibleIndex()
+            && (bottomIndex == 0 || topIndex == savedTopVisibleIndex())))
+        return;
+    if (bottomIndex == 0) {
         qDebug() << "Saving viewport as the latest available";
-        setFirstDisplayedEventId({}); setLastDisplayedEventId({});
+        setFirstDisplayedEventId({});
+        setLastDisplayedEventId({});
         return;
     }
     qDebug() << "Saving viewport:" << topIndex << "thru" << bottomIndex;
@@ -87,56 +84,53 @@ void QuaternionRoom::saveViewport(int topIndex, int bottomIndex)
     setLastDisplayedEvent(maxTimelineIndex() - bottomIndex);
 }
 
-QString QuaternionRoom::prettyPrint(const QString& plainText) const
+QString QuaternionRoom::htmlSafeDisplayName() const
 {
-    return Room::prettyPrint(plainText);
-}
-
-bool QuaternionRoom::canSwitchVersions() const
-{
-    return Room::canSwitchVersions();
-}
-
-QString QuaternionRoom::safeMemberName(const QString& userId) const
-{
-    return sanitized(roomMembername(userId));
-}
-
-void QuaternionRoom::countChanged()
-{
-    if( displayed() && !hasUnreadMessages() )
-    {
-        resetNotificationCount();
-        resetHighlightCount();
-    }
+    return displayName().toHtmlEscaped();
 }
 
 void QuaternionRoom::onAddNewTimelineEvents(timeline_iter_t from)
 {
     std::for_each(from, messageEvents().cend(),
-                  [this] (const TimelineItem& ti) { checkForHighlights(ti); });
+                  [this](const TimelineItem& ti) { checkForHighlights(ti); });
 }
 
 void QuaternionRoom::onAddHistoricalTimelineEvents(rev_iter_t from)
 {
     std::for_each(from, messageEvents().crend(),
-                  [this] (const TimelineItem& ti) { checkForHighlights(ti); });
+                  [this](const TimelineItem& ti) { checkForHighlights(ti); });
 }
 
 void QuaternionRoom::checkForHighlights(const Quotient::TimelineItem& ti)
 {
-    auto localUserId = localUser()->id();
+    const auto localUserId = localUser()->id();
     if (ti->senderId() == localUserId)
         return;
-    if (auto* e = ti.viewAs<RoomMessageEvent>())
-    {
-        const QRegularExpression localUserRe("(\\W|^)" + localUserId + "(\\W|$)", QRegularExpression::MultilineOption | QRegularExpression::CaseInsensitiveOption);
-        const QRegularExpression roomMembernameRe("(\\W|^)" + roomMembername(localUserId) + "(\\W|$)", QRegularExpression::MultilineOption | QRegularExpression::CaseInsensitiveOption);
+    if (auto* e = ti.viewAs<RoomMessageEvent>()) {
+        constexpr auto ReOpt = QRegularExpression::MultilineOption
+                               | QRegularExpression::CaseInsensitiveOption;
+        constexpr auto MatchOpt = QRegularExpression::PartialPreferFirstMatch;
+
+        // Building a QRegularExpression is quite expensive and this function is called a lot
+        // Given that the localUserId is usually the same we can reuse the QRegularExpression instead of building it every time
+        static QHash<QString, QRegularExpression> localUserExpressions;
+        static QHash<QString, QRegularExpression> roomMemberExpressions;
+
+        if (!localUserExpressions.contains(localUserId)) {
+            localUserExpressions[localUserId] = QRegularExpression("(\\W|^)" + localUserId + "(\\W|$)", ReOpt);
+        }
+
+        const auto memberName = roomMembername(localUserId);
+        if (!roomMemberExpressions.contains(memberName)) {
+            // FIXME: unravels if the room member name contains characters special
+            //        to regexp($, e.g.)
+            roomMemberExpressions[memberName] = QRegularExpression("(\\W|^)" + roomMembername(localUserId) + "(\\W|$)", ReOpt);
+        }
+
         const auto& text = e->plainBody();
-        QRegularExpressionMatch localMatch = localUserRe.match(text, 0, QRegularExpression::PartialPreferFirstMatch);
-        QRegularExpressionMatch roomMemberMatch = roomMembernameRe.match(text, 0, QRegularExpression::PartialPreferFirstMatch);
-        if (localMatch.hasMatch() ||
-                roomMemberMatch.hasMatch())
+        const auto& localMatch = localUserExpressions[localUserId].match(text, 0, MatchOpt);
+        const auto& roomMemberMatch = roomMemberExpressions[memberName].match(text, 0, MatchOpt);
+        if (localMatch.hasMatch() || roomMemberMatch.hasMatch())
             highlights.insert(e);
     }
 }

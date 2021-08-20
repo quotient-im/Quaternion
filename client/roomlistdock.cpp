@@ -24,6 +24,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPlainTextEdit>
 #include <QtGui/QGuiApplication>
+#include <QtGui/QClipboard>
 
 #include "mainwindow.h"
 #include "models/roomlistmodel.h"
@@ -35,7 +36,8 @@
 
 using Quotient::SettingsGroup;
 
-class RoomListItemDelegate : public QStyledItemDelegate
+class RoomListItemDelegate // clazy:exclude=missing-qobject-macro
+    : public QStyledItemDelegate
 {
     public:
         using QStyledItemDelegate::QStyledItemDelegate;
@@ -79,10 +81,10 @@ void RoomListItemDelegate::paint(QPainter* painter,
 
 RoomListDock::RoomListDock(MainWindow* parent)
     : QDockWidget("Rooms", parent)
+    , view(new QTreeView(this))
+    , model(new RoomListModel(view))
 {
     setObjectName("RoomsDock");
-    model      = new RoomListModel(this);
-    view       = new QTreeView();
 //    proxyModel = new QSortFilterProxyModel();
 //    proxyModel->setDynamicSortFilter(true);
 //    proxyModel->setSourceModel(model);
@@ -95,13 +97,17 @@ RoomListDock::RoomListDock(MainWindow* parent)
     view->setHeaderHidden(true);
     view->setIndentation(0);
     view->setRootIsDecorated(false);
+    const auto iconExtent = view->fontMetrics().height();
+    view->setIconSize(
+        QIcon::fromTheme("user-available", QIcon(":/irc-channel-joined"))
+            .actualSize({ iconExtent, iconExtent }));
 
     static const auto Expanded = QStringLiteral("expand");
     static const auto Collapsed = QStringLiteral("collapse");
     connect( view, &QTreeView::activated, this, &RoomListDock::rowSelected ); // See #608
     connect( view, &QTreeView::clicked, this, &RoomListDock::rowSelected);
     connect( view, &QTreeView::pressed, this, [this] {
-        if (QGuiApplication::mouseButtons() & Qt::MidButton) {
+        if (QGuiApplication::mouseButtons() & Qt::MiddleButton) {
             if (auto room = getSelectedRoom())
                 room->markAllMessagesAsRead();
         }
@@ -166,15 +172,15 @@ RoomListDock::RoomListDock(MainWindow* parent)
     addTagsAction =
         roomContextMenu->addAction(QIcon::fromTheme("tag-new"),
         tr("Add tags..."), this, &RoomListDock::addTagsSelected);
-    roomSettingsAction =
-        roomContextMenu->addAction(QIcon::fromTheme("user-group-properties"),
-            tr("Change room &settings..."), [this,parent]
-            {
-                auto* dlg = new RoomSettingsDialog(getSelectedRoom(), parent);
-                dlg->setModal(false);
-                dlg->setAttribute(Qt::WA_DeleteOnClose);
-                dlg->reactivate();
-            });
+    roomSettingsAction = roomContextMenu->addAction(
+        QIcon::fromTheme("user-group-properties"),
+        tr("Change room &settings..."),
+        [this, parent] { parent->openRoomSettings(getSelectedRoom()); });
+    roomPermalinkAction = roomContextMenu->addAction(
+        QIcon::fromTheme("link"), tr("Copy room link to clipboard"), [this] {
+            QGuiApplication::clipboard()->setText(
+                "https://matrix.to/#/" + getSelectedRoom()->canonicalAlias());
+        });
     roomContextMenu->addSeparator();
     joinAction =
         roomContextMenu->addAction(QIcon::fromTheme("irc-join-channel"),
@@ -313,8 +319,13 @@ void RoomListDock::addTagsSelected()
             return;
 
         auto tags = room->tags();
-        const auto enteredTags =
-                tagsInput->toPlainText().split('\n', QString::SkipEmptyParts);
+        const auto enteredTags = tagsInput->toPlainText().split('\n',
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+                                                                Qt::SkipEmptyParts
+#else
+                                                                QString::SkipEmptyParts
+#endif
+        );
         for (const auto& tag: enteredTags)
             tags[captionToTag(tag)]; // No overwriting, just ensure existence
 
@@ -324,5 +335,5 @@ void RoomListDock::addTagsSelected()
 
 void RoomListDock::refreshTitle()
 {
-    setWindowTitle(tr("Rooms (%1)").arg(model->totalRooms()));
+    setWindowTitle(tr("Rooms (%L1)").arg(model->totalRooms()));
 }

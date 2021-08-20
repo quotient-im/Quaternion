@@ -25,7 +25,7 @@ Dialog::Dialog(const QString& title, QWidget *parent,
                UseStatusLine useStatusLine, const QString& applyTitle,
                QDialogButtonBox::StandardButtons addButtons)
     : Dialog(title
-        , QDialogButtonBox::Ok | QDialogButtonBox::Cancel | addButtons
+        , QDialogButtonBox::Ok | /*QDialogButtonBox::Cancel |*/ addButtons
         , parent, useStatusLine)
 {
     if (!applyTitle.isEmpty())
@@ -55,16 +55,16 @@ Dialog::Dialog(const QString& title, QDialogButtonBox::StandardButtons setButton
         outerLayout.addWidget(statusLabel);
 }
 
-void Dialog::addLayout(QLayout* l)
+void Dialog::addLayout(QLayout* l, int stretch)
 {
     int offset = 1 + (statusLabel != nullptr);
-    outerLayout.insertLayout(outerLayout.count() - offset, l);
+    outerLayout.insertLayout(outerLayout.count() - offset, l, stretch);
 }
 
-void Dialog::addWidget(QWidget* w)
+void Dialog::addWidget(QWidget* w, int stretch, Qt::Alignment alignment)
 {
     int offset = 1 + (statusLabel != nullptr);
-    outerLayout.insertWidget(outerLayout.count() - offset, w);
+    outerLayout.insertWidget(outerLayout.count() - offset, w, stretch, alignment);
 }
 
 QPushButton*Dialog::button(QDialogButtonBox::StandardButton which)

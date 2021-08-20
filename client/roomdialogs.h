@@ -26,6 +26,8 @@ namespace Quotient {
 
 class MainWindow;
 class QuaternionRoom;
+class AccountRegistry;
+class AccountSelector;
 
 class QComboBox;
 class QLineEdit;
@@ -34,6 +36,7 @@ class QCheckBox;
 class QPushButton;
 class QListWidget;
 class QFormLayout;
+class QStandardItemModel;
 
 class RoomDialogBase : public Dialog
 {
@@ -87,7 +90,8 @@ class CreateRoomDialog : public RoomDialogBase
 {
         Q_OBJECT
     public:
-        CreateRoomDialog(QVector<Connection*> cs, QWidget* parent = nullptr);
+        CreateRoomDialog(const AccountRegistry* accounts,
+                         QWidget* parent = nullptr);
 
     public slots:
         void updatePushButtons();
@@ -99,10 +103,11 @@ class CreateRoomDialog : public RoomDialogBase
         void accountSwitched();
 
     private:
-        const QVector<Connection*> connections;
-        QComboBox* account;
+        AccountSelector* accountChooser;
         QComboBox* version;
         QComboBox* nextInvitee;
         QPushButton* inviteButton;
         QListWidget* invitees;
+
+        QHash<Connection*, QStandardItemModel*> userLists;
 };

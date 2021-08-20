@@ -23,16 +23,17 @@
 #include <QtCore/QDebug>
 #include <QtGui/QPixmap>
 #include <QtGui/QPalette>
-#include <QtWidgets/QApplication>
+#include <QtGui/QFontMetrics>
+// Injecting the dependency on a view is not so nice; but the way the model
+// provides avatar decorations depends on the delegate size
+#include <QtWidgets/QAbstractItemView>
 
 #include <connection.h>
 #include <room.h>
 #include <user.h>
 
-
-UserListModel::UserListModel(QObject* parent)
-    : QAbstractListModel(parent)
-    , m_currentRoom(nullptr)
+UserListModel::UserListModel(QAbstractItemView* parent)
+    : QAbstractListModel(parent), m_currentRoom(nullptr)
 { }
 
 UserListModel::~UserListModel() = default;
@@ -44,31 +45,29 @@ void UserListModel::setRoom(Quotient::Room* room)
 
     using namespace Quotient;
     beginResetModel();
-    if( m_currentRoom )
-    {
-        m_currentRoom->connection()->disconnect( this );
-        m_currentRoom->disconnect( this );
-        for( User* user: m_users )
-            user->disconnect( this );
+    if (m_currentRoom) {
+        m_currentRoom->connection()->disconnect(this);
+        m_currentRoom->disconnect(this);
+        for (auto* user: std::as_const(m_users))
+            user->disconnect(this);
         m_users.clear();
     }
     m_currentRoom = room;
-    if( m_currentRoom )
-    {
-        connect( m_currentRoom, &Room::userAdded, this, &UserListModel::userAdded );
-        connect( m_currentRoom, &Room::userRemoved, this, &UserListModel::userRemoved );
-        connect( m_currentRoom, &Room::memberAboutToRename, this, &UserListModel::userRemoved );
-        connect( m_currentRoom, &Room::memberRenamed, this, &UserListModel::userAdded );
-        connect( m_currentRoom, &Room::memberListChanged, this, &UserListModel::membersChanged );
+    if (m_currentRoom) {
+        connect(m_currentRoom, &Room::userAdded, this, &UserListModel::userAdded);
+        connect(m_currentRoom, &Room::userRemoved, this, &UserListModel::userRemoved);
+        connect(m_currentRoom, &Room::memberAboutToRename, this, &UserListModel::userRemoved);
+        connect(m_currentRoom, &Room::memberRenamed, this, &UserListModel::userAdded);
+        connect(m_currentRoom, &Room::memberListChanged, this, &UserListModel::membersChanged);
 
-        filter("");
+        filter({});
 
-        for( User* user: m_users )
-        {
-            connect( user, &User::avatarChanged, this, &UserListModel::avatarChanged );
-        }
-        connect( m_currentRoom->connection(), &Connection::loggedOut,
-                 this, [=] { setRoom(nullptr); } );
+        for (auto* user: std::as_const(m_users))
+            connect(user, &User::avatarChanged, this,
+                    &UserListModel::avatarChanged);
+
+        connect(m_currentRoom->connection(), &Connection::loggedOut, this,
+                [=] { setRoom(nullptr); });
         qDebug() << m_users.count() << "user(s) in the room";
     }
     endResetModel();
@@ -96,28 +95,38 @@ QVariant UserListModel::data(const QModelIndex& index, int role) const
     {
         return user->displayname(m_currentRoom);
     }
-    if( role == Qt::DecorationRole )
-    {
-        return user->avatar(25,25, m_currentRoom);
+    const auto* view = static_cast<const QAbstractItemView*>(parent());
+    if (role == Qt::DecorationRole) {
+        // Make user avatars 150% high compared to display names
+        const auto dpi = view->devicePixelRatioF();
+        if (auto av = user->avatar(int(view->iconSize().height() * dpi),
+                                   m_currentRoom);
+            !av.isNull()) {
+            av.setDevicePixelRatio(dpi);
+            return QIcon(QPixmap::fromImage(av));
+        }
+        // TODO: Show a different fallback icon for invited users
+        return QIcon::fromTheme("user-available",
+                                QIcon(":/irc-channel-joined"));
     }
 
     if (role == Qt::ToolTipRole)
     {
         auto tooltip = QStringLiteral("<b>%1</b><br>%2")
                 .arg(user->name(m_currentRoom).toHtmlEscaped(), user->id());
-        if (!user->bridged().isEmpty())
-            tooltip += "<br>" + tr("Bridged from: %1").arg(user->bridged());
+        // TODO: Find a new way to determine that the user is bridged
+//        if (!user->bridged().isEmpty())
+//            tooltip += "<br>" + tr("Bridged from: %1").arg(user->bridged());
         return tooltip;
     }
 
-    if (role == Qt::ForegroundRole)
-    {
+    if (role == Qt::ForegroundRole) {
         // FIXME: boilerplate with TimelineItem.qml:57
+        const auto& palette = view->palette();
         return QColor::fromHslF(user->hueF(),
-                                1 - QApplication::palette().color(QPalette::Window).saturationF(),
-                                -0.7 * QApplication::palette().color(QPalette::Window).lightnessF() + 0.9,
-                                QApplication::palette().color(QPalette::ButtonText).alphaF()
-                                );
+            1 - palette.color(QPalette::Window).saturationF(),
+            0.9 - 0.7 * palette.color(QPalette::Window).lightnessF(),
+            palette.color(QPalette::ButtonText).alphaF());
     }
 
     return QVariant();
@@ -174,7 +183,7 @@ void UserListModel::filter(const QString& filterString)
     const auto all = m_currentRoom->users();
     std::remove_copy_if(all.begin(), all.end(), std::back_inserter(m_users),
         [&](User* u) {
-            return !(u->rawName(m_currentRoom).contains(filterString) ||
+            return !(u->name(m_currentRoom).contains(filterString) ||
                      u->id().contains(filterString));
         });
     std::sort(m_users.begin(), m_users.end(), m_currentRoom->memberSorter());

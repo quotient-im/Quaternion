@@ -19,16 +19,18 @@
 
 #pragma once
 
+#include "quaternionroom.h"
+#include "chatedit.h"
+
+#include <settings.h>
+
 #include <QtWidgets/QWidget>
 #include <QtCore/QBasicTimer>
-
-#include "quaternionroom.h"
 
 #ifndef USE_QQUICKWIDGET
 #define DISABLE_QQUICKWIDGET
 #endif
 
-class ChatEdit;
 class MessageEventModel;
 class ImageProvider;
 
@@ -41,23 +43,27 @@ class QQuickWidget;
 class QLabel;
 class QAction;
 class QTextDocument;
+class QMimeData;
+class QTemporaryFile;
 
 class ChatRoomWidget: public QWidget
 {
         Q_OBJECT
     public:
+        using completions_t = ChatEdit::completions_t;
+
         explicit ChatRoomWidget(QWidget* parent = nullptr);
 
         void enableDebug();
         bool pendingMarkRead() const;
 
-        QStringList findCompletionMatches(const QString& pattern) const;
-        Qt::KeyboardModifiers getModifierKeys() const;
+        completions_t findCompletionMatches(const QString& pattern) const;
+        Q_INVOKABLE Qt::KeyboardModifiers getModifierKeys() const;
 
     signals:
-        void joinRequested(const QString& roomAlias);
         void resourceRequested(const QString& idOrUri,
                                const QString& action = {});
+        void roomSettingsRequested();
         void showStatusMessage(const QString& message, int timeout = 0) const;
         void readMarkerMoved();
         void readMarkerCandidateMoved();
@@ -65,9 +71,12 @@ class ChatRoomWidget: public QWidget
         void pageDownPressed();
         void openExternally(int currentIndex);
         void showDetails(int currentIndex);
+        void scrollViewTo(int currentIndex);
+        void animateMessage(int currentIndex);
 
     public slots:
         void setRoom(QuaternionRoom* room);
+        void spotlightEvent(QString eventId);
 
         void insertMention(Quotient::User* user);
         void focusInput();
@@ -77,28 +86,37 @@ class ChatRoomWidget: public QWidget
         void markShownAsRead();
         void saveFileAs(QString eventId);
         void quote(const QString& htmlText);
-        void showMenu(int index, const QString& hoveredLink, bool showingDetails);
+        void showMenu(int index, const QString& hoveredLink, const QString& selectedText, bool showingDetails);
+        void reactionButtonClicked(const QString& eventId, const QString& key);
         void fileDrop(const QString& url);
+        void htmlDrop(const QString& html);
         void textDrop(const QString& text);
         void setGlobalSelectionBuffer(QString text);
 
     private slots:
         void sendInput();
         void encryptionChanged();
-        void setHudCaption(QString newCaption);
+        /// Set a line just above the message input, with optional list of
+        /// member displaynames
+        void setHudHtml(const QString& htmlCaption,
+                        const QStringList& plainTextNames = {});
 
     private:
         // Data
         MessageEventModel* m_messageModel;
         QuaternionRoom* m_currentRoom;
         ImageProvider* m_imageProvider;
+        QTemporaryFile* m_fileToAttach;
 
+        // Settings
+        Quotient::SettingsGroup m_uiSettings;
+
+        // Controls
 #ifdef DISABLE_QQUICKWIDGET
         using timelineWidget_t = QQuickView;
 #else
         using timelineWidget_t = QQuickWidget;
 #endif
-        // Controls
         timelineWidget_t* m_timelineWidget;
         QLabel* m_hudCaption; //< For typing and completion notifications
         QAction* m_attachAction;
@@ -106,16 +124,18 @@ class ChatRoomWidget: public QWidget
 
         // Supplementary/cache data members
         using timeline_index_t = Quotient::TimelineItem::index_t;
-        QVector<timeline_index_t> indicesOnScreen;
+        std::vector<timeline_index_t> indicesOnScreen;
         timeline_index_t indexToMaybeRead;
         QBasicTimer maybeReadTimer;
         bool readMarkerOnScreen;
-        QMap<QuaternionRoom*, QVector<QTextDocument*>> roomHistories;
         QString attachedFileName;
         QString selectedText;
 
         void reStartShownTimer();
-        QString doSendInput();
+        void sendFile();
+        void sendMessage();
+        [[nodiscard]] QString sendCommand(const QStringRef& command,
+                                          const QString& argString);
 
         void timerEvent(QTimerEvent* qte) override;
         void resizeEvent(QResizeEvent*) override;

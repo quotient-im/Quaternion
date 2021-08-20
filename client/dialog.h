@@ -46,16 +46,17 @@ class Dialog : public QDialog
         /*! This creates a new layout object and adds it to the bottom of
          * the dialog client area (i.e., above the button box). */
         template <typename LayoutT>
-        LayoutT* addLayout()
+        LayoutT* addLayout(int stretch = 0)
         {
             auto l = new LayoutT;
-            addLayout(l);
+            addLayout(l, stretch);
             return l;
         }
         /// Add a layout to the bottom of the dialog's client area
-        void addLayout(QLayout* l);
+        void addLayout(QLayout* l, int stretch = 0);
         /// Add a widget to the bottom of the dialog's client area
-        void addWidget(QWidget* w);
+        void addWidget(QWidget* w, int stretch = 0,
+                       Qt::Alignment alignment = {});
 
         QPushButton* button(QDialogButtonBox::StandardButton which);
 

@@ -21,6 +21,8 @@
 
 #include <QtCore/QAbstractListModel>
 
+class QAbstractItemView;
+
 namespace Quotient
 {
     class Connection;
@@ -34,7 +36,7 @@ class UserListModel: public QAbstractListModel
     public:
         using User = Quotient::User;
 
-        UserListModel(QObject* parent = nullptr);
+        UserListModel(QAbstractItemView* parent);
         virtual ~UserListModel();
 
         void setRoom(Quotient::Room* room);

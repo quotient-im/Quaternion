@@ -19,8 +19,13 @@
 
 #include "systemtrayicon.h"
 
+#include <QtGui/QWindow>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QMenu>
+
 #include "mainwindow.h"
 #include "quaternionroom.h"
+#include "linuxutils.h"
 #include <settings.h>
 #include <qt_connection_util.h>
 
@@ -28,8 +33,16 @@ SystemTrayIcon::SystemTrayIcon(MainWindow* parent)
     : QSystemTrayIcon(parent)
     , m_parent(parent)
 {
-    setIcon(QIcon(":/icon.png"));
+    auto contextMenu = new QMenu(parent);
+    auto showHideAction = contextMenu->addAction(tr("Hide"), this, &SystemTrayIcon::showHide);
+    contextMenu->addAction(tr("Quit"), this, QApplication::quit);
+    connect(m_parent->windowHandle(), &QWindow::visibleChanged, [showHideAction](bool visible) {
+        showHideAction->setText(visible ? tr("Hide") : tr("Show"));
+    });
+
+    setIcon(QIcon::fromTheme(appIconName(), QIcon(":/icon.png")));
     setToolTip("Quaternion");
+    setContextMenu(contextMenu);
     connect( this, &SystemTrayIcon::activated, this, &SystemTrayIcon::systemTrayIconAction);
 }
 
@@ -42,13 +55,14 @@ void SystemTrayIcon::newRoom(Quotient::Room* room)
 void SystemTrayIcon::highlightCountChanged(Quotient::Room* room)
 {
     using namespace Quotient;
-    auto mode = SettingsGroup("UI").value("notifications", "intrusive");
+    const auto mode = Settings().get<QString>("UI/notifications", "intrusive");
     if (mode == "none")
         return;
-    if( room->highlightCount() > 0 )
-    {
-        showMessage(tr("Highlight in %1").arg(room->displayName()),
-                    tr("%n highlight(s)", "", room->highlightCount()));
+    if( room->highlightCount() > 0 ) {
+        showMessage(
+            //: %1 is the room display name
+            tr("Highlight in %1").arg(room->displayName()),
+            tr("%Ln highlight(s)", "", room->highlightCount()));
         if (mode != "non-intrusive")
             m_parent->activateWindow();
         connectSingleShot(this, &SystemTrayIcon::messageClicked, m_parent,
@@ -59,25 +73,16 @@ void SystemTrayIcon::highlightCountChanged(Quotient::Room* room)
 
 void SystemTrayIcon::systemTrayIconAction(QSystemTrayIcon::ActivationReason reason)
 {
-    switch (reason)
-    {
-        case QSystemTrayIcon::Trigger:
-        case QSystemTrayIcon::DoubleClick:
-            this->showHide();
-            break;
-        default:
-            ;
-    }
+    if (reason == QSystemTrayIcon::Trigger
+        || reason == QSystemTrayIcon::DoubleClick)
+        showHide();
 }
 
 void SystemTrayIcon::showHide()
 {
-    if( m_parent->isVisible() )
-    {
+    if (m_parent->isVisible())
         m_parent->hide();
-    }
-    else
-    {
+    else {
         m_parent->show();
         m_parent->activateWindow();
         m_parent->raise();

@@ -2,8 +2,13 @@
 
 ## Supported Versions
 
-Only the latest released version of Quaternion is supported with security updates; users of older versions are
-strongly advised to upgrade to the latest release.
+Only the latest released version of Quaternion is supported with security
+updates. Also, an effort is put into supporting the latest released version
+on most recent stable releases of each major Linux distribution (Debian,
+Ubuntu, Fedora, OpenSuse). Users of older Quaternion versions are strongly
+advised to upgrade to the latest release. If you can't do it because your
+Linux distribution is too old, you likely have other security problems as well;
+upgrade your Linux distribution!
 
 ## Reporting a Vulnerability
 
@@ -11,12 +16,15 @@ If you find a significant vulnerability, or evidence of one, use either of the f
 - send an email to [Kitsune Ral](mailto:Kitsune-Ral@users.sf.net); or
 - reach out in Matrix to [@kitsune:matrix.org](https://matrix.to/#/@kitsune:matrix.org) (if you can, switch encryption on).
 
-In any of these two options, indicate that you have such information (do not share it yet), and we'll tell you the next steps.
+In any of these two options, first indicate that you have such information
+(do not disclose it yet) and wait for further instructions.
 
 By default, we will give credit to anyone who reports a vulnerability in a responsible way so that we can fix it before public disclosure.
 If you want to remain anonymous or pseudonymous instead, please let us know; we will gladly respect your wishes.
-If you provide a fix as a PR, you have no way to remain anonymous; you also thereby lay out the vulnerability itself
-so this is NOT the right way for undisclosed vulnerabilities, whether or not you want to stay incognito.
+
+If you provide a security fix as a PR, you have no way to remain anonymous; you
+also thereby lay out the vulnerability itself so this is NOT the right way for
+undisclosed vulnerabilities, whether or not you want to stay incognito.
 
 ## Timeline and commitments
 

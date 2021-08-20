@@ -167,22 +167,18 @@ AbstractRoomOrdering::groups_t OrderByTag::roomGroups(const Room* room) const
     if (room->joinState() == Quotient::JoinState::Leave)
         return groups_t {{ Left }};
 
-    auto tags = room->tags().keys();
-    if (room->isDirectChat())
-        tags.push_back(DirectChat);
+    auto tags = getFilteredTags(room);
     if (tags.empty())
         tags.push_back(Untagged);
     // Check successors, reusing room as the current frame, and for each group
     // shadow this room if there's already any of its successors in the group
     while ((room = room->successor(Quotient::JoinState::Join))) {
-        auto successorTags = room->tags().keys();
-        if (room->isDirectChat())
-            successorTags.push_back(DirectChat);
+        auto successorTags = getFilteredTags(room);
 
         if (successorTags.empty())
             tags.removeOne(Untagged);
         else
-            for (const auto& t : successorTags)
+            for (const auto& t: successorTags)
                 if (tags.contains(t))
                     tags.removeOne(t);
         if (tags.empty())
@@ -227,6 +223,19 @@ void OrderByTag::updateGroups(Room* room)
     // As the room may shadow predecessors, need to update their groups too.
     if (auto* predRoom = room->predecessor(Quotient::JoinState::Join))
         updateGroups(predRoom);
+}
+
+QStringList OrderByTag::getFilteredTags(const Room* room) const
+{
+    auto allTags = room->tags().keys();
+    if (room->isDirectChat())
+        allTags.push_back(DirectChat);
+
+    QStringList result;
+    for (const auto& t: allTags)
+        if (findIndexWithWildcards(tagsOrder, '-' + t) == tagsOrder.size())
+            result.push_back(t); // Only copy tags that are not disabled
+    return result;
 }
 
 QStringList OrderByTag::initTagsOrder()

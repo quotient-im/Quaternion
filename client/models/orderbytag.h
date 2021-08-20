@@ -41,12 +41,11 @@ class OrderByTag : public AbstractRoomOrdering
                            const QVariant& g2key) const override;
         bool roomLessThan(const QVariant& groupKey,
                           const Room* r1, const Room* r2) const override;
-
         groups_t roomGroups(const Room* room) const override;
         void connectSignals(Connection* connection) override;
         void connectSignals(Room* room) override;
-
         void updateGroups(Room* room) override;
+        QStringList getFilteredTags(const Room* room) const;
 
         static QStringList initTagsOrder();
 };

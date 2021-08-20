@@ -35,22 +35,27 @@ class ThumbnailResponse : public QQuickImageResponse
     public:
         ThumbnailResponse(Connection* c, QString id, QSize size)
             : c(c), mediaId(std::move(id)), requestedSize(size)
-            , errorStr(tr("Image request hasn't started"))
         {
             if (!c)
-            {
                 errorStr = tr("No connection to perform image request");
-                emit finished();
-                return;
-            }
-            if (mediaId.count('/') != 1)
-            {
+            else if (mediaId.count('/') != 1)
                 errorStr =
                     tr("Media id '%1' doesn't follow server/mediaId pattern")
-                    .arg(mediaId);
+                        .arg(mediaId);
+            else if (requestedSize.isEmpty()) {
+                qDebug() << "ThumbnailResponse: returning an empty image for"
+                         << mediaId << "due to empty" << requestedSize;
+                image = {requestedSize, QImage::Format_Invalid};
+            }
+            if (!errorStr.isEmpty() || requestedSize.isEmpty()) {
                 emit finished();
                 return;
             }
+            // We are good to go
+            qDebug().nospace() << "ThumbnailResponse: requesting " << mediaId
+                               << ", " << size;
+            errorStr = tr("Image request is pending");
+
             // Execute a request on the main thread asynchronously
             moveToThread(c->thread());
             QMetaObject::invokeMethod(this,
@@ -87,14 +92,15 @@ class ThumbnailResponse : public QQuickImageResponse
                 {
                     image = job->thumbnail();
                     errorStr.clear();
-                    qDebug() << "ThumbnailResponse: image ready for" << mediaId;
+                    qDebug().nospace() << "ThumbnailResponse: image ready for "
+                                       << mediaId << ", " << image.size();
                 } else if (job->error() == BaseJob::Abandoned) {
                     errorStr = tr("Image request has been cancelled");
                     qDebug() << "ThumbnailResponse: cancelled for" << mediaId;
                 } else {
                     errorStr = job->errorString();
-                    qWarning() << "ThumbnailResponse: no valid image for" << mediaId
-                               << "-" << errorStr;
+                    qWarning() << "ThumbnailResponse: no valid image for"
+                               << mediaId << "-" << errorStr;
                 }
             }
             job = nullptr;
@@ -164,8 +170,14 @@ ImageProvider::ImageProvider(Connection* connection)
 QQuickImageResponse* ImageProvider::requestImageResponse(
         const QString& id, const QSize& requestedSize)
 {
-    qDebug() << "ImageProvider: requesting " << id;
-    return new ThumbnailResponse(LOAD_ATOMIC(m_connection), id, requestedSize);
+    auto size = requestedSize;
+    // Force integer overflow if the value is -1 - may cause issues when
+    // screens resolution becomes 100K+ each dimension :-D
+    if (size.width() == -1)
+        size.setWidth(ushort(-1));
+    if (size.height() == -1)
+        size.setHeight(ushort(-1));
+    return new ThumbnailResponse(LOAD_ATOMIC(m_connection), id, size);
 }
 
 void ImageProvider::setConnection(Connection* connection)

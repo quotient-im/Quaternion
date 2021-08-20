@@ -43,7 +43,7 @@ Attachment {
             cursorShape: Qt.IBeamCursor
 
             onClicked: controller.showMenu(index, textFieldImpl.hoveredLink,
-                showingDetails)
+                textFieldImpl.selectedText, showingDetails)
         }
     }
     ProgressBar {

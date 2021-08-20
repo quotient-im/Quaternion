@@ -27,6 +27,8 @@
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QMultiHash>
 
+class QAbstractItemView;
+
 class RoomListModel: public QAbstractItemModel
 {
         Q_OBJECT
@@ -40,7 +42,7 @@ class RoomListModel: public QAbstractItemModel
 
         using Room = Quotient::Room;
 
-        explicit RoomListModel(QObject* parent = nullptr);
+        explicit RoomListModel(QAbstractItemView* parent);
         ~RoomListModel() override = default;
 
         QVariant roomGroupAt(QModelIndex idx) const;
@@ -51,12 +53,13 @@ class RoomListModel: public QAbstractItemModel
         QModelIndex index(int row, int column,
                           const QModelIndex& parent = {}) const override;
         QModelIndex parent(const QModelIndex& index) const override;
+        using QObject::parent;
         QVariant data(const QModelIndex& index, int role) const override;
         int columnCount(const QModelIndex&) const override;
         int rowCount(const QModelIndex& parent) const override;
         int totalRooms() const;
-        bool isValidGroupIndex(QModelIndex i) const;
-        bool isValidRoomIndex(QModelIndex i) const;
+        bool isValidGroupIndex(const QModelIndex& i) const;
+        bool isValidRoomIndex(const QModelIndex& i) const;
 
         template <typename OrderT>
         void setOrder() { doSetOrder(std::make_unique<OrderT>(this)); }
@@ -93,7 +96,7 @@ class RoomListModel: public QAbstractItemModel
         RoomGroups::iterator tryInsertGroup(const QVariant& key);
         void addRoomToGroups(Room* room, QVariantList groups = {});
         void connectRoomSignals(Room* room);
-        void doRemoveRoom(QModelIndex idx);
+        void doRemoveRoom(const QModelIndex& idx);
 
         void visitRoom(const Room& room,
                        const std::function<void(QModelIndex)>& visitor);

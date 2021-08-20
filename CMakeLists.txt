@@ -4,9 +4,9 @@ cmake_policy(SET CMP0092 NEW)
 endif()
 
 set(IDENTIFIER "com.github.quaternion")
-set(COPYRIGHT "Copyright © 2016-2018 QMatrixClient, 2019 The Quotient Project")
+set(COPYRIGHT "Copyright © 2016-2021 Quaternion project contributors")
 
-project(quaternion VERSION 0.0.9.5 LANGUAGES CXX)
+project(quaternion VERSION 0.0.94.97 LANGUAGES CXX)
 
 if(UNIX AND NOT APPLE)
     set(LINUX 1)
@@ -48,9 +48,10 @@ else()
 endif()
 
 # Find the libraries
-find_package(Qt5 5.9 REQUIRED Widgets Network Quick Qml Gui LinguistTools Multimedia DBus)
+find_package(Qt5 5.11 REQUIRED Widgets Network Quick Gui LinguistTools
+                              Multimedia DBus QuickControls2)
 # Qt5_Prefix is only used to show Qt path in message()
-# Qt5_BinDir is where all the binary tools for Qt are
+# Qt5_BinDir is where all the *deployqt tools reside
 if (QT_QMAKE_EXECUTABLE)
     get_filename_component(Qt5_BinDir "${QT_QMAKE_EXECUTABLE}" DIRECTORY)
     get_filename_component(Qt5_Prefix "${Qt5_BinDir}/.." ABSOLUTE)
@@ -59,7 +60,7 @@ else()
     get_filename_component(Qt5_Prefix "${Qt5_DIR}/../../../.." ABSOLUTE)
 endif()
 if (USE_QQUICKWIDGET)
-    find_package(Qt5 5.9 REQUIRED QuickWidgets)
+    find_package(Qt5 5.11 REQUIRED QuickWidgets)
 elseif(NOT DISABLE_QQUICKWIDGET)
     # QQuickWidget only stopped crashing in Qt 5.12, use it by default if found
     find_package(Qt5 5.12 QUIET COMPONENTS QuickWidgets)
@@ -80,7 +81,7 @@ endif()
 
 if ((NOT DEFINED USE_INTREE_LIBQMC OR USE_INTREE_LIBQMC)
         AND EXISTS ${PROJECT_SOURCE_DIR}/lib/lib/util.h)
-    add_subdirectory(lib EXCLUDE_FROM_ALL)
+    add_subdirectory(lib)
     include_directories(lib)
     if (NOT DEFINED USE_INTREE_LIBQMC)
         set (USE_INTREE_LIBQMC 1)
@@ -103,7 +104,7 @@ endif()
 
 message( STATUS )
 message( STATUS "=============================================================================" )
-message( STATUS "                          Quaternion Build Information" )
+message( STATUS "                     Quaternion ${quaternion_VERSION} Build Information" )
 message( STATUS "=============================================================================" )
 if (CMAKE_BUILD_TYPE)
     message( STATUS "Build type: ${CMAKE_BUILD_TYPE}")
@@ -145,7 +146,9 @@ message( STATUS )
 
 # Set up source files
 set(quaternion_SRCS
+    client/accountregistry.cpp
     client/quaternionroom.cpp
+    client/htmlfilter.cpp
     client/imageprovider.cpp
     client/activitydetector.cpp
     client/dialog.cpp
@@ -155,10 +158,12 @@ set(quaternion_SRCS
     client/mainwindow.cpp
     client/roomlistdock.cpp
     client/userlistdock.cpp
+    client/accountselector.cpp
     client/kchatedit.cpp
     client/chatedit.cpp
     client/chatroomwidget.cpp
     client/systemtrayicon.cpp
+    client/profiledialog.cpp
     client/models/messageeventmodel.cpp
     client/models/userlistmodel.cpp
     client/models/roomlistmodel.cpp
@@ -175,14 +180,16 @@ set(quaternion_QRC
 # while all other translation files are created and updated externally at
 # Lokalise.co
 set(quaternion_en_TS client/translations/quaternion_en.ts)
-QT5_CREATE_TRANSLATION(client/translations ${quaternion_SRCS} ${quaternion_QRC} ${quaternion_en_TS})
-add_custom_target(trbase SOURCES ${quaternion_en_TS} VERBATIM)
+QT5_CREATE_TRANSLATION(quaternion_QM ${quaternion_en_TS}
+                       client/ client/qml/ OPTIONS -no-obsolete)
+add_custom_target(trbase DEPENDS ${quaternion_en_TS})
 
 set(quaternion_TS
     client/translations/quaternion_en_GB.ts
-    client/translations/quaternion_de_DE.ts
+    client/translations/quaternion_de.ts
     client/translations/quaternion_pl.ts
     client/translations/quaternion_ru.ts
+    client/translations/quaternion_es.ts
     )
 QT5_ADD_TRANSLATION(quaternion_QM ${quaternion_TS})
 
@@ -197,6 +204,11 @@ if(WIN32)
 endif()
 
 if(APPLE)
+    if(NOT CMAKE_OSX_DEPLOYMENT_TARGET)
+        set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13")
+    endif()
+    MESSAGE(STATUS "CMAKE_OSX_DEPLOYMENT_TARGET: " ${CMAKE_OSX_DEPLOYMENT_TARGET})
+
     set(MACOSX_BUNDLE_GUI_IDENTIFIER ${IDENTIFIER})
     set(MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME})
 
@@ -221,8 +233,13 @@ target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     GIT_SHA1="${GIT_SHA1}" LIB_GIT_SHA1="${LIB_GIT_SHA1}")
-target_link_libraries(${PROJECT_NAME}
-    Quotient Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network)
+target_compile_definitions(${PROJECT_NAME} PRIVATE QT_NO_JAVA_STYLE_ITERATORS)
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.16.0"
+        AND NOT CMAKE_CXX_COMPILER_ID STREQUAL GNU) # https://bugzilla.redhat.com/show_bug.cgi?id=1721553
+    target_precompile_headers(${PROJECT_NAME} PRIVATE <room.h>)
+endif ()
+target_link_libraries(${PROJECT_NAME} Quotient
+    Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network Qt5::QuickControls2)
 
 if (USE_QQUICKWIDGET)
     target_compile_definitions(${PROJECT_NAME} PRIVATE USE_QQUICKWIDGET)
@@ -261,7 +278,7 @@ if(LINUX)
             DESTINATION ${CMAKE_INSTALL_DATADIR}/Quotient/quaternion/translations
             )
     file(GLOB quaternion_icons icons/quaternion/*-apps-quaternion.png)
-    ecm_install_icons(ICONS ${quaternion_icons} icons/quaternion/sc-apps-quaternion.svgz
+    ecm_install_icons(ICONS ${quaternion_icons} icons/quaternion/sources/sc-apps-quaternion.svg
                       DESTINATION ${CMAKE_INSTALL_DATADIR}/icons
                       )
 endif(LINUX)

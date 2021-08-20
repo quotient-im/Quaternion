@@ -24,12 +24,10 @@
 class QuaternionRoom: public Quotient::Room
 {
         Q_OBJECT
+        Q_PROPERTY(QString htmlSafeDisplayName READ htmlSafeDisplayName NOTIFY htmlSafeDisplayNameChanged)
     public:
         QuaternionRoom(Quotient::Connection* connection,
                        QString roomId, Quotient::JoinState joinState);
-
-        const QString& cachedInput() const;
-        void setCachedInput(const QString& input);
 
         const QString& cachedUserFilter() const;
         void setCachedUserFilter(const QString& input);
@@ -39,23 +37,17 @@ class QuaternionRoom: public Quotient::Room
         Q_INVOKABLE int savedTopVisibleIndex() const;
         Q_INVOKABLE int savedBottomVisibleIndex() const;
         Q_INVOKABLE void saveViewport(int topIndex, int bottomIndex);
-        // FIXME: This should be deleted as soon as Room::prettyPrint and
-        // Room::canSwitchVersions() become Q_INVOKABLE (canSwitchVersions()
-        // may - or may not - become a Q_PROPERTY even).
-        Q_INVOKABLE QString prettyPrint(const QString& plainText) const;
-        Q_INVOKABLE bool canSwitchVersions() const;
 
-        /*! Get a display-safe member name in the context of this room
-         * Display-safe means HTML-safe + without RLO/LRO markers (see #545)
-         */
-        Q_INVOKABLE QString safeMemberName(const QString& userId) const;
+        QString htmlSafeDisplayName() const;
 
-    private slots:
-        void countChanged();
+    signals:
+        // Gotta wrap the Room::namesChanged signal because it has parameters
+        // and moc cannot use signals with parameters defined in the parent
+        // class as NOTIFY targets
+        void htmlSafeDisplayNameChanged();
 
     private:
         QSet<const Quotient::RoomEvent*> highlights;
-        QString m_cachedInput;
         QString m_cachedUserFilter;
 
         void onAddNewTimelineEvents(timeline_iter_t from) override;

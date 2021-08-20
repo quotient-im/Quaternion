@@ -21,45 +21,109 @@
 #include <QtCore/QTranslator>
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QCommandLineParser>
-#include <QtCore/QDebug>
+#include <QtCore/QLoggingCategory>
 #include <QtCore/QStandardPaths>
+#include <QtWidgets/QStyleFactory>
+#include <QtQuickControls2/QQuickStyle>
 
 #include "networksettings.h"
 #include "mainwindow.h"
 #include "activitydetector.h"
+#include "linuxutils.h"
 #include <settings.h>
+
+void loadTranslations(
+        std::initializer_list<std::pair<QStringList, QString>> translationConfigs)
+{
+    for (const auto& [configNames, configPath]: translationConfigs)
+        for (const auto& configName: configNames) {
+            auto* translator = new QTranslator(qApp);
+            bool loaded = false;
+            // Check the current directory then configPath
+            if (translator->load(QLocale(), configName, "_")
+                || translator->load(QLocale(), configName, "_", configPath)) {
+                auto path =
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
+                    translator->filePath();
+#else
+                    configPath;
+#endif
+                if ((loaded = QApplication::installTranslator(translator)))
+                    qDebug().noquote() << "Loaded translations from" << path;
+                else
+                    qWarning().noquote()
+                        << "Failed to load translations from" << path;
+            } else
+                qDebug() << "No translations for" << configName << "at" << configPath;
+            if (!loaded)
+                delete translator;
+        }
+}
 
 int main( int argc, char* argv[] )
 {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
     QApplication::setAttribute(Qt::AA_DisableWindowContextHelpButton);
 #endif
+#if defined(Q_OS_LINUX)
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+#endif
 
-    QApplication app(argc, argv);
     QApplication::setOrganizationName(QStringLiteral("Quotient"));
     QApplication::setApplicationName(QStringLiteral("quaternion"));
     QApplication::setApplicationDisplayName(QStringLiteral("Quaternion"));
-    QApplication::setApplicationVersion(QStringLiteral("0.0.9.4+git"));
-    QApplication::setDesktopFileName(QStringLiteral("com.github.quaternion.desktop"));
+    QApplication::setApplicationVersion(QStringLiteral("0.0.95-rc2"));
+    QApplication::setDesktopFileName(
+        QStringLiteral("com.github.quaternion.desktop"));
 
     using Quotient::Settings;
     Settings::setLegacyNames(QStringLiteral("QMatrixClient"),
                              QStringLiteral("quaternion"));
+    Settings settings;
+
+    // Qt 5.15 introduces a new way to handle connections in QML and at
+    // the same time deprecates the old way. Rather than go to pains of
+    // making two different versions of QML code, just disable
+    // the deprecation warning as it doesn't help neither users nor developers.
+    if (QLibraryInfo::version() >= QVersionNumber(5,15))
+        QLoggingCategory::setFilterRules(
+            QStringLiteral("qt.qml.connections=false"));
+
+    QApplication app(argc, argv);
+#if defined Q_OS_UNIX && !defined Q_OS_MAC
+    // #681: When in Flatpak and unless overridden by configuration, set
+    // the style to Breeze as it looks much fresher than Fusion that Qt
+    // applications default to in Flatpak outside KDE. Although Qt docs
+    // recommend to call setStyle() before constructing a QApplication object
+    // (to make sure the style's palette is applied?) that doesn't work with
+    // Breeze because it seems to make use of platform theme hints, which
+    // in turn need a created QApplication object (see #700).
+    const auto useBreezeStyle = settings.get("UI/use_breeze_style", inFlatpak());
+    if (useBreezeStyle) {
+        QApplication::setStyle("Breeze");
+        QIcon::setThemeName("breeze");
+#    if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        QIcon::setFallbackThemeName("breeze");
+#    endif
+    } else
+#endif
+    {
+        const auto qqc2styles = QQuickStyle::availableStyles();
+        if (qqc2styles.contains("Fusion"))
+            QQuickStyle::setFallbackStyle("Fusion"); // Looks better on desktops
+//        QQuickStyle::setStyle("Material");
+    }
 
     {
-        Settings s;
         auto font = QApplication::font();
-        if (const auto fontFamily = s.value("UI/Fonts/family");
-            !fontFamily.toString().isEmpty())
-        {
-            font.setFamily(fontFamily.toString());
-        }
+        if (const auto fontFamily = settings.get<QString>("UI/Fonts/family");
+            !fontFamily.isEmpty())
+            font.setFamily(fontFamily);
 
-        if (const auto fontPointSize = s.value("UI/Fonts/pointSize");
-            fontPointSize.toReal() > 0)
-        {
-            font.setPointSizeF(fontPointSize.toReal());
-        }
+        if (const auto fontPointSize =
+                settings.value("UI/Fonts/pointSize").toReal();
+            fontPointSize > 0)
+            font.setPointSizeF(fontPointSize);
 
         qDebug() << "Using application font:" << font.toString();
         QApplication::setFont(font);
@@ -105,17 +169,23 @@ int main( int argc, char* argv[] )
         qInfo() << "Using locale" << QLocale().name();
     }
 
-    QTranslator qtTranslator;
-    qtTranslator.load(QLocale(), "qt", "_",
-                      QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-    app.installTranslator(&qtTranslator);
-
-    QTranslator appTranslator;
-    if (!appTranslator.load(QLocale(), "quaternion", "_"))
-        appTranslator.load(QLocale(), "quaternion", "_",
+    loadTranslations(
+        { { { "qt", "qtbase", "qtnetwork", "qtdeclarative", "qtmultimedia",
+              "qtquickcontrols", "qtquickcontrols2",
+              // QtKeychain tries to install its translations to Qt's path;
+              // try to look there, just in case (see also below)
+              "qtkeychain" },
+            QLibraryInfo::location(QLibraryInfo::TranslationsPath) },
+          { { "qtkeychain" },
+            // Assuming https://github.com/frankosterfeld/qtkeychain/pull/166
+            // is accepted and QtKeychain is installed at a default location
+            QStandardPaths::locate(QStandardPaths::GenericDataLocation,
+                                   "qt5keychain/translations",
+                                   QStandardPaths::LocateDirectory) },
+          { { "qt", "qtkeychain", "quotient", "quaternion" },
             QStandardPaths::locate(QStandardPaths::AppLocalDataLocation,
-            "translations", QStandardPaths::LocateDirectory));
-    app.installTranslator(&appTranslator);
+                                   "translations",
+                                   QStandardPaths::LocateDirectory) } });
 
     Quotient::NetworkSettings().setupApplicationProxy();
 

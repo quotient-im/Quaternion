@@ -29,32 +29,47 @@ class ChatEdit : public KChatEdit
 {
         Q_OBJECT
     public:
+        using completions_t = QVector<QPair<QString, QUrl>>;
+
         ChatEdit(ChatRoomWidget* c);
 
         void triggerCompletion();
         void cancelCompletion();
+        bool isCompletionActive();
 
-        void insertMention(QString author);
+        void insertMention(QString author, QUrl url);
+
+    public slots:
+        void switchContext(QObject* contextKey) override;
 
     signals:
         void proposedCompletion(const QStringList& allCompletions, int curIndex);
         void cancelledCompletion();
+        void insertFromMimeDataRequested(const QMimeData* source);
 
     protected:
-        void keyPressEvent(QKeyEvent* event) override;
-        QString sanitizeMention(QString mentionText);
+        bool canInsertFromMimeData(const QMimeData* source) const override;
+        void insertFromMimeData(const QMimeData* source) override;
 
     private:
         ChatRoomWidget* chatRoomWidget;
 
         QTextCursor completionCursor;
-        QStringList completionMatches;
+        /// Text/href pairs for completion
+        completions_t completionMatches;
         int matchesListPosition;
 
         bool pickingMentions = false;
 
-        void startNewCompletion();
-        void appendTextAtCursor(const QString& text, bool select = false);
+        /// \brief Initialise a new completion
+        ///
+        /// \return true if completion matches exist for the current entry;
+        ///         false otherwise
+        bool initCompletion();
+        void appendMentionAt(QTextCursor& cursor, QString mention,
+                             QUrl mentionUrl, bool select);
+        void keyPressEvent(QKeyEvent* event) override;
+        void contextMenuEvent(QContextMenuEvent* event) override;
 };
 
 

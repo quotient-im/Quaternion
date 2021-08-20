@@ -26,6 +26,7 @@
 class MessageEventModel: public QAbstractListModel
 {
         Q_OBJECT
+        Q_PROPERTY(int readMarkerVisualIndex READ readMarkerVisualIndex NOTIFY readMarkerUpdated)
     public:
         enum EventRoles {
             EventTypeRole = Qt::UserRole + 1,
@@ -38,12 +39,12 @@ class MessageEventModel: public QAbstractListModel
             ContentRole,
             ContentTypeRole,
             HighlightRole,
-            ReadMarkerRole,
             SpecialMarksRole,
             LongOperationRole,
             AnnotationRole,
             UserHueRole,
             RefRole,
+            ReactionsRole,
             EventResolvedTypeRole,
         };
 
@@ -54,23 +55,28 @@ class MessageEventModel: public QAbstractListModel
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
         QVariant data(const QModelIndex& idx, int role = Qt::DisplayRole) const override;
         QHash<int, QByteArray> roleNames() const override;
+        int findRow(const QString& id, bool includePending = false) const;
+
+    signals:
+        /// This is different from Room::readMarkerMoved() in that it is also
+        /// emitted when the room or the last read event is first shown
+        void readMarkerUpdated();
 
     private slots:
         int refreshEvent(const QString& eventId);
         void refreshRow(int row);
+        void incomingEvents(Quotient::RoomEventsRange events, int atIndex);
 
     private:
         QuaternionRoom* m_currentRoom = nullptr;
-        QString lastReadEventId;
-        int rowBelowInserted = -1;
+        int readMarkerVisualIndex() const;
         bool movingEvent = false;
 
         int timelineBaseIndex() const;
         QDateTime makeMessageTimestamp(const QuaternionRoom::rev_iter_t& baseIt) const;
-        QString renderDate(const QDateTime& timestamp) const;
+        static QString renderDate(const QDateTime& timestamp);
         bool isUserActivityNotable(const QuaternionRoom::rev_iter_t& baseIt) const;
 
         void refreshLastUserEvents(int baseTimelineRow);
         void refreshEventRoles(int row, const QVector<int>& roles = {});
-        int refreshEventRoles(const QString& id, const QVector<int>& roles = {});
 };

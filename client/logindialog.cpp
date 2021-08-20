@@ -20,6 +20,7 @@
 #include "logindialog.h"
 
 #include <connection.h>
+#include <ssosession.h>
 #include <settings.h>
 
 #include <QtWidgets/QLineEdit>
@@ -27,10 +28,16 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFormLayout>
+#include <QtWidgets/QMessageBox>
+#include <QtGui/QDesktopServices>
 
 using Quotient::Connection;
 
-LoginDialog::LoginDialog(QWidget* parent, const QStringList& knownAccounts)
+static const auto MalformedServerUrl =
+        LoginDialog::tr("The server URL doesn't look valid");
+
+LoginDialog::LoginDialog(const QString& statusMessage, QWidget* parent,
+                         const QStringList& knownAccounts)
     : Dialog(tr("Login"), parent, Dialog::StatusLine, tr("Login"),
              Dialog::NoExtraButtons)
     , userEdit(new QLineEdit(this))
@@ -40,14 +47,47 @@ LoginDialog::LoginDialog(QWidget* parent, const QStringList& knownAccounts)
     , saveTokenCheck(new QCheckBox(tr("Stay logged in"), this))
     , m_connection(new Connection)
 {
-    setup();
+    setup(statusMessage);
     setPendingApplyMessage(tr("Connecting and logging in, please wait"));
 
-    connect(userEdit, &QLineEdit::editingFinished, m_connection.data(),
-            [=] {
-                auto userId = userEdit->text();
-                if (userId.startsWith('@') && userId.indexOf(':') != -1)
-                    m_connection->resolveServer(userId);
+    connect(userEdit, &QLineEdit::editingFinished, m_connection.data(), [=] {
+        auto userId = userEdit->text();
+        if (userId.startsWith('@') && userId.indexOf(':') != -1) {
+            setStatusMessage(tr("Resolving the homeserver..."));
+            serverEdit->clear();
+            button(QDialogButtonBox::Ok)->setEnabled(false);
+            m_connection->resolveServer(userId);
+        }
+    });
+
+    connect(serverEdit, &QLineEdit::editingFinished, m_connection.data(), [this] {
+        if (QUrl hsUrl { serverEdit->text() }; hsUrl.isValid()) {
+            m_connection->setHomeserver(serverEdit->text());
+            button(QDialogButtonBox::Ok)->setEnabled(true);
+        } else {
+            setStatusMessage(MalformedServerUrl);
+            button(QDialogButtonBox::Ok)->setEnabled(false);
+        }
+    });
+
+    // This button is only shown when BOTH password auth and SSO are available
+    // If only one flow is there, the "Login" button text is changed instead
+    auto* ssoButton = buttonBox()->addButton(tr("Login with SSO"),
+                                             QDialogButtonBox::AcceptRole);
+    connect(ssoButton, &QPushButton::clicked, this, &LoginDialog::loginWithSso);
+    ssoButton->setHidden(true);
+    connect(m_connection.data(), &Connection::loginFlowsChanged, this,
+            [this, ssoButton] {
+                // There may be more ways to login but Quaternion only supports
+                // SSO and password for now; in the worst case of no known
+                // options password login is kept enabled as the last resort.
+                bool canUseSso = m_connection->supportsSso();
+                bool canUsePassword = m_connection->supportsPasswordAuth();
+                ssoButton->setVisible(canUseSso && canUsePassword);
+                button(QDialogButtonBox::Ok)
+                    ->setText(canUseSso && !canUsePassword
+                                  ? QStringLiteral("Login with SSO")
+                                  : QStringLiteral("Login"));
             });
 
     {
@@ -61,7 +101,6 @@ LoginDialog::LoginDialog(QWidget* parent, const QStringList& knownAccounts)
             auto homeserver = account.homeserver();
             if (!homeserver.isEmpty())
                 m_connection->setHomeserver(homeserver);
-//                serverEdit->setText(homeserver.toString());
 
             initialDeviceName->setText(account.deviceName());
             saveTokenCheck->setChecked(account.keepLoggedIn());
@@ -75,7 +114,7 @@ LoginDialog::LoginDialog(QWidget* parent, const QStringList& knownAccounts)
     }
 }
 
-LoginDialog::LoginDialog(QWidget* parent,
+LoginDialog::LoginDialog(const QString &statusMessage, QWidget* parent,
                          const Quotient::AccountSettings& reloginData)
     : Dialog(tr("Re-login"), parent, Dialog::StatusLine, tr("Re-login"),
              Dialog::NoExtraButtons)
@@ -86,19 +125,43 @@ LoginDialog::LoginDialog(QWidget* parent,
     , saveTokenCheck(new QCheckBox(tr("Stay logged in"), this))
     , m_connection(new Connection)
 {
-    setup();
+    setup(statusMessage);
     userEdit->setReadOnly(true);
     userEdit->setFrame(false);
     setPendingApplyMessage(tr("Restoring access, please wait"));
 }
 
-void LoginDialog::setup()
+void LoginDialog::setup(const QString& statusMessage)
 {
+    setStatusMessage(statusMessage);
     passwordEdit->setEchoMode( QLineEdit::Password );
 
+    // This is triggered whenever the server URL has been changed
     connect(m_connection.data(), &Connection::homeserverChanged, serverEdit,
-            [=] (const QUrl& newUrl) { serverEdit->setText(newUrl.toString()); });
+            [this](const QUrl& hsUrl) {
+        serverEdit->setText(hsUrl.toString());
+        if (hsUrl.isValid())
+            setStatusMessage(tr("Getting supported login flows..."));
 
+        // Allow to click login even before getting the flows and
+        // do LoginDialog::loginWithBestFlow() as soon as flows arrive
+        button(QDialogButtonBox::Ok)->setEnabled(hsUrl.isValid());
+    });
+    connect(m_connection.data(), &Connection::loginFlowsChanged, this, [this] {
+        serverEdit->setText(m_connection->homeserver().toString());
+        setStatusMessage(m_connection->isUsable()
+                             ? tr("The homeserver is available")
+                             : tr("Could not connect to the homeserver"));
+        button(QDialogButtonBox::Ok)->setEnabled(m_connection->isUsable());
+    });
+    // This overrides the above in case of an unsuccessful attempt to resolve
+    // the server URL from a changed MXID
+    connect(m_connection.data(), &Connection::resolveError, this,
+            [this](const QString& message) {
+                qDebug() << "Resolve error";
+                serverEdit->clear();
+                setStatusMessage(message);
+            });
     auto* formLayout = addLayout<QFormLayout>();
     formLayout->addRow(tr("Matrix ID"), userEdit);
     formLayout->addRow(tr("Password"), passwordEdit);
@@ -129,11 +192,63 @@ void LoginDialog::apply()
     auto url = QUrl::fromUserInput(serverEdit->text());
     if (!serverEdit->text().isEmpty() && !serverEdit->text().startsWith("http:"))
         url.setScheme("https"); // Qt defaults to http (or even ftp for some)
-    m_connection->setHomeserver(url);
-    connect( m_connection.data(), &Connection::connected,
-             this, &Dialog::accept );
-    connect( m_connection.data(), &Connection::loginError,
-             this, &Dialog::applyFailed);
-    m_connection->connectToServer(userEdit->text(), passwordEdit->text(),
+
+    // Whichever the flow, the two connections are the same
+    connect(m_connection.data(), &Connection::connected,
+            this, &Dialog::accept);
+    connect(m_connection.data(), &Connection::loginError,
+            this, &Dialog::applyFailed);
+    if (m_connection->homeserver() == url && !m_connection->loginFlows().empty())
+        loginWithBestFlow();
+    else if (!url.isValid())
+        applyFailed(MalformedServerUrl);
+    else {
+        m_connection->setHomeserver(url);
+
+        // Wait for new flows and check them
+        connectSingleShot(m_connection.data(), &Connection::loginFlowsChanged,
+                          this, [this] {
+                              qDebug()
+                                  << "Received login flows, trying to login";
+                              loginWithBestFlow();
+                          });
+    }
+}
+
+void LoginDialog::loginWithBestFlow()
+{
+    if (m_connection->loginFlows().empty()
+        || m_connection->supportsPasswordAuth())
+        loginWithPassword();
+    else if (m_connection->supportsSso())
+        loginWithSso();
+    else
+        applyFailed(tr("No supported login flows"));
+}
+
+void LoginDialog::loginWithPassword()
+{
+    m_connection->loginWithPassword(userEdit->text(), passwordEdit->text(),
                                   initialDeviceName->text());
+}
+
+void LoginDialog::loginWithSso()
+{
+    auto* ssoSession = m_connection->prepareForSso(initialDeviceName->text());
+    if (!QDesktopServices::openUrl(ssoSession->ssoUrl())) {
+        auto* instructionsBox =
+            new Dialog(tr("Single sign-on"), QDialogButtonBox::NoButton, this);
+        instructionsBox->addWidget(new QLabel(
+            tr("Quaternion couldn't automatically open the single sign-on URL. "
+               "Please copy and paste it to the right application (usually "
+               "a web browser):")));
+        auto* urlBox = new QLineEdit(ssoSession->ssoUrl().toString());
+        urlBox->setReadOnly(true);
+        instructionsBox->addWidget(urlBox);
+        instructionsBox->addWidget(
+            new QLabel(tr("After authentication, the browser will follow "
+                          "the temporary local address setup by Quaternion "
+                          "to conclude the login sequence.")));
+        instructionsBox->open();
+    }
 }

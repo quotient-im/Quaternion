@@ -20,11 +20,6 @@ Attachment {
         source: parent.source
         sourceSize: parent.sourceSize
 
-//        Behavior on height { NumberAnimation {
-//            duration: settings.fast_animations_duration_ms
-//            easing.type: Easing.OutQuad
-//        }}
-
         TimelineMouseArea {
             anchors.fill: parent
             acceptedButtons: Qt.LeftButton
@@ -41,7 +36,7 @@ Attachment {
             acceptedButtons: Qt.RightButton
             cursorShape: Qt.PointingHandCursor
             onClicked: controller.showMenu(index, textFieldImpl.hoveredLink,
-                showingDetails)
+                textFieldImpl.selectedText, showingDetails)
         }
 
         Component.onCompleted:

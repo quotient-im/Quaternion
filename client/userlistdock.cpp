@@ -27,6 +27,7 @@
 #include <QtGui/QGuiApplication>
 
 #include <connection.h>
+#include <events/roompowerlevelsevent.h>
 #include <room.h>
 #include <user.h>
 #include "models/userlistmodel.h"
@@ -34,7 +35,6 @@
 
 UserListDock::UserListDock(QWidget* parent)
     : QDockWidget(tr("Users"), parent)
-    , contextMenu(new QMenu(this))
 {
     setObjectName(QStringLiteral("UsersDock"));
 
@@ -48,6 +48,12 @@ UserListDock::UserListDock(QWidget* parent)
 
     m_view = new QTableView(this);
     m_view->setShowGrid(false);
+    // Derive the member icon size from that of the default icon used when
+    // the member doesn't have an avatar
+    const auto iconExtent = m_view->fontMetrics().height() * 3 / 2;
+    m_view->setIconSize(
+        QIcon::fromTheme("user-available", QIcon(":/irc-channel-joined"))
+            .actualSize({ iconExtent, iconExtent }));
     m_view->horizontalHeader()->setStretchLastSection(true);
     m_view->horizontalHeader()->setVisible(false);
     m_view->verticalHeader()->setVisible(false);
@@ -60,11 +66,11 @@ UserListDock::UserListDock(QWidget* parent)
     connect(m_view, &QTableView::activated,
             this, &UserListDock::requestUserMention);
     connect( m_view, &QTableView::pressed, this, [this] {
-        if (QGuiApplication::mouseButtons() & Qt::MidButton)
+        if (QGuiApplication::mouseButtons() & Qt::MiddleButton)
             startChatSelected();
     });
 
-    m_model = new UserListModel();
+    m_model = new UserListModel(m_view);
     m_view->setModel(m_model);
 
     connect( m_model, &UserListModel::membersChanged,
@@ -73,20 +79,6 @@ UserListDock::UserListDock(QWidget* parent)
              this, &UserListDock::refreshTitle );
     connect(m_filterline, &QLineEdit::textEdited,
              m_model, &UserListModel::filter);
-
-    contextMenu->addAction(QIcon::fromTheme("contact-new"),
-        tr("Open direct chat"), this, &UserListDock::startChatSelected);
-    contextMenu->addAction(tr("Mention user"), this,
-        &UserListDock::requestUserMention);
-    ignoreAction =
-        contextMenu->addAction(QIcon::fromTheme("mail-thread-ignored"),
-            tr("Ignore user"), this, &UserListDock::ignoreUser);
-    ignoreAction->setCheckable(true);
-    contextMenu->addSeparator();
-    contextMenu->addAction(QIcon::fromTheme("im-ban-kick-user"),
-        tr("Kick user"), this,&UserListDock::kickUser);
-    contextMenu->addAction(QIcon::fromTheme("im-ban-user"),
-        tr("Ban user"), this, &UserListDock::banUser);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested,
@@ -117,6 +109,34 @@ void UserListDock::refreshTitle()
 
 void UserListDock::showContextMenu(QPoint pos)
 {
+    if (!getSelectedUser())
+        return;
+
+    auto* contextMenu = new QMenu(this);
+
+    contextMenu->addAction(QIcon::fromTheme("contact-new"),
+        tr("Open direct chat"), this, &UserListDock::startChatSelected);
+    contextMenu->addAction(tr("Mention user"), this,
+        &UserListDock::requestUserMention);
+    QAction* ignoreAction =
+        contextMenu->addAction(QIcon::fromTheme("mail-thread-ignored"),
+            tr("Ignore user"), this, &UserListDock::ignoreUser);
+    ignoreAction->setCheckable(true);
+    contextMenu->addSeparator();
+
+    const auto* plEvt =
+        m_currentRoom->getCurrentState<Quotient::RoomPowerLevelsEvent>();
+    int userPl = plEvt->powerLevelForUser(m_currentRoom->localUser()->id());
+
+    if (!plEvt || userPl >= plEvt->kick()) {
+        contextMenu->addAction(QIcon::fromTheme("im-ban-kick-user"),
+            tr("Kick user"), this,&UserListDock::kickUser);
+    }
+    if (!plEvt || userPl >= plEvt->ban()) {
+        contextMenu->addAction(QIcon::fromTheme("im-ban-user"),
+            tr("Ban user"), this, &UserListDock::banUser);
+    }
+
     contextMenu->popup(mapToGlobal(pos));
     ignoreAction->setChecked(isIgnored());
 }

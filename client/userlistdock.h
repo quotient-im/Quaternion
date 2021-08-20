@@ -30,7 +30,6 @@ namespace Quotient
 class UserListModel;
 class QuaternionRoom;
 class QTableView;
-class QMenu;
 class QLineEdit;
 
 class UserListDock: public QDockWidget
@@ -61,9 +60,6 @@ class UserListDock: public QDockWidget
         QLineEdit* m_filterline;
         UserListModel* m_model;
         QuaternionRoom* m_currentRoom = nullptr;
-
-        QMenu* contextMenu;
-        QAction* ignoreAction;
 
         Quotient::User* getSelectedUser() const;
 };

@@ -1,0 +1,9 @@
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN11QCursorData10initializeEv
+   fun:_ZN22QGuiApplicationPrivate4initEv
+   fun:_ZN19QApplicationPrivate4initEv
+   fun:main
+}

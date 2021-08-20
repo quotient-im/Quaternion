@@ -16,33 +16,61 @@
  */
 
 #include "kchatedit.h"
-#include <settings.h>
 
-#include <QDebug>
-#include <QGuiApplication>
-#include <QKeyEvent>
-
-static inline QTextDocument* makeDocument()
-{
-    return new QTextDocument;
-}
+#include <QtCore/QDebug>
+#include <QtGui/QGuiApplication>
+#include <QtGui/QKeyEvent>
 
 class KChatEdit::KChatEditPrivate
 {
 public:
     QString getDocumentText(QTextDocument* doc) const;
     void updateAndMoveInHistory(int increment);
-    void rewindHistory();
-    void forwardHistory();
     void saveInput();
 
-    KChatEdit *q = nullptr;
-    // History always ends with a placeholder string that is initially empty
-    // but may be filled with tentative input when the user entered something
-    // and then went out for history.
-    QVector<QTextDocument*> history { 1, makeDocument() };
+    QTextDocument* makeDocument()
+    {
+        Q_ASSERT(contextKey);
+        return new QTextDocument(contextKey);
+    }
+
+    void setContext(QObject* newContextKey)
+    {
+        contextKey = newContextKey;
+        auto& context = contexts[contextKey]; // Create if needed
+        auto& history = context.history;
+        // History always ends with a placeholder that is initially empty
+        // but may be filled with tentative input when the user entered
+        // something and then went out for history.
+        if (history.isEmpty() || !history.last()->isEmpty())
+            history.push_back(makeDocument());
+
+        while (history.size() > maxHistorySize)
+            delete history.takeFirst();
+        index = history.size() - 1;
+
+        // QTextDocuments are parented to the context object, so are destroyed
+        // automatically along with it; but the hashmap should be cleaned up
+        if (newContextKey != q)
+            QObject::connect(newContextKey, &QObject::destroyed, q,
+                             [this, newContextKey] {
+                                 contexts.remove(newContextKey);
+                             });
+        Q_ASSERT(contexts.contains(newContextKey) && !history.empty());
+    }
+
+    KChatEdit* q = nullptr;
+    QObject* contextKey = nullptr;
+
+    struct Context {
+        QVector<QTextDocument*> history;
+        QTextDocument* cachedInput = nullptr;
+    };
+    QHash<QObject*, Context> contexts;
+
     int index = 0;
     int maxHistorySize = 100;
+    QTextBlockFormat defaultBlockFmt;
 };
 
 QString KChatEdit::KChatEditPrivate::getDocumentText(QTextDocument* doc) const
@@ -53,63 +81,52 @@ QString KChatEdit::KChatEditPrivate::getDocumentText(QTextDocument* doc) const
 
 void KChatEdit::KChatEditPrivate::updateAndMoveInHistory(int increment)
 {
+    Q_ASSERT(contexts.contains(contextKey));
+    auto& history = contexts.find(contextKey)->history;
     Q_ASSERT(index >= 0 && index < history.size());
+    if (index + increment < 0 || index + increment >= history.size())
+        return; // Prevent stepping out of bounds
+    auto& historyItem = history[index];
+
     // Only save input if different from the latest one.
-    if (getDocumentText(q->document()) != getDocumentText(history[index]))
-    {
-        history[index] = q->document();
-        history[index]->setParent(nullptr);
-    }
+    if (q->document() !=  historyItem /* shortcut expensive getDocumentText() */
+        && getDocumentText(q->document()) != getDocumentText(historyItem))
+        historyItem = q->document();
 
-    const auto* nextDocument = history.at(index += increment);
-    q->setDocument(nextDocument->clone(q));
+    // Fill the input with a copy of the history entry at a new index
+    q->setDocument(history.at(index += increment)->clone(contextKey));
     q->moveCursor(QTextCursor::End);
-}
-
-void KChatEdit::KChatEditPrivate::rewindHistory()
-{
-    if (index > 0)
-        updateAndMoveInHistory(-1);
-}
-
-void KChatEdit::KChatEditPrivate::forwardHistory()
-{
-    if (index < history.size() - 1)
-        updateAndMoveInHistory(+1);
 }
 
 void KChatEdit::KChatEditPrivate::saveInput()
 {
-    if (q->document()->isEmpty()) {
+    if (q->document()->isEmpty())
         return;
-    }
 
+    Q_ASSERT(contexts.contains(contextKey));
+    auto& history = contexts.find(contextKey)->history;
     // Only save input if different from the latest one or from the history.
     const auto input = getDocumentText(q->document());
-    if (index < history.size() - 1 &&
-            input == getDocumentText(history[index])) {
+    if (index < history.size() - 1
+        && input == getDocumentText(history[index])) {
         // Take the history entry and move it to the most recent position (but
         // before the placeholder).
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
         history.move(index, history.size() - 2);
-#else
-        history.insert(history.size() - 2, history.takeAt(index));
-#endif
         emit q->savedInputChanged();
     } else if (input != getDocumentText(q->savedInput())) {
-        // Replace the placeholder with the new input.
-        history.back() = q->document()->clone();
+        // Insert a copy of the edited text just before the placeholder
+        history.insert(history.end() - 1, q->document());
+        q->setDocument(makeDocument());
 
         if (history.size() >= maxHistorySize) {
             delete history.takeFirst();
         }
-        // Make a new placeholder.
-        history << makeDocument();
         emit q->savedInputChanged();
     }
 
     index = history.size() - 1;
     q->clear();
+    q->resetCurrentFormat();
 }
 
 KChatEdit::KChatEdit(QWidget *parent)
@@ -119,18 +136,22 @@ KChatEdit::KChatEdit(QWidget *parent)
     connect(this, &QTextEdit::textChanged, this, &QWidget::updateGeometry);
     d->q = this; // KChatEdit initialization complete, pimpl can use it
 
-    setDocument(makeDocument());
+    d->setContext(this); // A special context that always exists
+    setDocument(d->makeDocument());
+    d->defaultBlockFmt = textCursor().blockFormat();
 }
 
 KChatEdit::~KChatEdit() = default;
 
 QTextDocument* KChatEdit::savedInput() const
 {
-    if (d->history.size() >= 2)
-        return d->history.at(d->history.size() - 2);
+    Q_ASSERT(d->contexts.contains(d->contextKey));
+    auto& history = d->contexts.find(d->contextKey)->history;
+    if (history.size() >= 2)
+        return history.at(history.size() - 2);
 
-    Q_ASSERT(d->history.size() == 1);
-    return d->history.front();
+    Q_ASSERT(history.size() == 1);
+    return history.front();
 }
 
 void KChatEdit::saveInput()
@@ -140,21 +161,8 @@ void KChatEdit::saveInput()
 
 QVector<QTextDocument*> KChatEdit::history() const
 {
-    return d->history;
-}
-
-void KChatEdit::setHistory(const QVector<QTextDocument*> &history)
-{
-    d->history = history;
-    if (history.isEmpty() || !history.last()->isEmpty()) {
-        d->history << makeDocument();
-    }
-
-    while (d->history.size() > maxHistorySize()) {
-        delete d->history.takeFirst();
-    }
-
-    d->index = d->history.size() - 1;
+    Q_ASSERT(d->contexts.contains(d->contextKey));
+    return d->contexts.value(d->contextKey).history;
 }
 
 int KChatEdit::maxHistorySize() const
@@ -162,9 +170,37 @@ int KChatEdit::maxHistorySize() const
     return d->maxHistorySize;
 }
 
-void KChatEdit::setMaxHistorySize(int maxHistorySize)
+void KChatEdit::setMaxHistorySize(int newMaxSize)
 {
-    d->maxHistorySize = maxHistorySize;
+    if (d->maxHistorySize != newMaxSize) {
+        d->maxHistorySize = newMaxSize;
+        emit maxHistorySizeChanged();
+    }
+}
+
+void KChatEdit::switchContext(QObject* contextKey)
+{
+    if (!contextKey)
+        contextKey = this;
+    if (d->contextKey == contextKey)
+        return;
+
+    Q_ASSERT(d->contexts.contains(d->contextKey));
+    d->contexts.find(d->contextKey)->cachedInput =
+        document()->isEmpty() ? nullptr : document();
+    d->setContext(contextKey);
+    auto& cachedInput = d->contexts.find(d->contextKey)->cachedInput;
+    setDocument(cachedInput ? cachedInput : d->makeDocument());
+    moveCursor(QTextCursor::End);
+    emit contextSwitched();
+}
+
+void KChatEdit::resetCurrentFormat()
+{
+    auto c = textCursor();
+    c.setCharFormat({});
+    c.setBlockFormat(d->defaultBlockFmt);
+    setTextCursor(c);
 }
 
 QSize KChatEdit::minimumSizeHint() const
@@ -205,7 +241,7 @@ QSize KChatEdit::sizeHint() const
     size.rheight() += margins.top() + margins.bottom();
 
     // Be consistent with minimumSizeHint().
-    if (document()->lineCount() == 1 && !toPlainText().contains(QLatin1Char('\n'))) {
+    if (document()->lineCount() == 1 && !toPlainText().contains('\n')) {
         size.setHeight(fontMetrics().lineSpacing() + margins.top() + margins.bottom());
     }
 
@@ -229,12 +265,12 @@ void KChatEdit::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_Up:
         if (!textCursor().movePosition(QTextCursor::Up)) {
-            d->rewindHistory();
+            d->updateAndMoveInHistory(-1);
         }
         break;
     case Qt::Key_Down:
         if (!textCursor().movePosition(QTextCursor::Down)) {
-            d->forwardHistory();
+            d->updateAndMoveInHistory(+1);
         }
         break;
     default:

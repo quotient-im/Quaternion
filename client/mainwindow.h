@@ -19,6 +19,10 @@
 
 #pragma once
 
+#include "accountregistry.h"
+
+#include <uriresolver.h>
+
 #include <QtWidgets/QMainWindow>
 
 namespace Quotient {
@@ -47,16 +51,7 @@ class QSslError;
 class QNetworkProxy;
 class QAuthenticator;
 
-struct Locator
-{
-    enum ResolveResult { Success, NotFound, MalformedId, NoAccount };
-
-    Quotient::Connection* account = nullptr;
-    QString identifier; //< Room id, room alias, or user id
-};
-
-class MainWindow: public QMainWindow
-{
+class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         Q_OBJECT
     public:
         using Connection = Quotient::Connection;
@@ -71,29 +66,23 @@ class MainWindow: public QMainWindow
 
         ChatRoomWidget* getChatRoomWidget() const;
 
-        /// Tries to resolve the locator using the specified action hint
-        /*!
-         * This method doesn't show warnings or errors in UI; it either
-         * executes what's requested or returns an error result. It is up to
-         * the caller to provide any messages upon failure. One exception
-         * is opening direct chats; openLocator() will always ask a confirmation
-         * from the user because this action may lead to creation of a new room
-         * and invitation being sent.
-         */
-        Locator::ResolveResult openLocator(const Locator& l,
-                                           const QString& action = {});
+        // For openUserInput()
+        enum : bool { NoRoomJoining = false, ForJoining = true };
 
     public slots:
-        /// Opens non-empty id or URI using the specified action hint
+        /// Open non-empty id or URI using the specified action hint
         /*! Asks the user to choose the connection if necessary */
         void openResource(const QString& idOrUri, const QString& action = {});
+        /// Open a dialog to enter the resource id/URI and then navigate to it
+        void openUserInput(bool forJoining = NoRoomJoining);
+        /// Open/focus the room settings dialog
+        /*! If \p r is empty, the currently open room is used */
+        void openRoomSettings(QuaternionRoom* r = nullptr);
         void selectRoom(Quotient::Room* r);
+        void logout(Connection* c);
 
     private slots:
         void invokeLogin();
-        void joinRoom(const QString& roomAlias = {});
-        void getNewEvents(Connection* c);
-        void gotEvents(Connection* c);
 
         void loginError(Connection* c, const QString& message = {});
         void networkError(Connection* c);
@@ -103,19 +92,22 @@ class MainWindow: public QMainWindow
 
         void showLoginWindow(const QString& statusMessage = {});
         void showLoginWindow(const QString& statusMessage,
-            Quotient::AccountSettings& reloginAccount);
+                             const QString& userId);
         void showAboutWindow();
-        void logout(Connection* c);
+
+        // UriResolverBase overrides
+        Quotient::UriResolveResult visitUser(Quotient::User* user,
+                                             const QString& action) override;
+        void visitRoom(Quotient::Room* room, const QString& eventId) override;
+        void joinRoom(Quotient::Connection* account,
+                      const QString& roomAliasOrId,
+                      const QStringList& viaServers = {}) override;
+        bool visitNonMatrix(const QUrl& url) override;
 
     private:
-        enum CompletionType {
-            None,
-            Room,
-            User
-        };
-
-        QVector<Connection*> connections;
+        AccountRegistry accountRegistry;
         QVector<Connection*> logoutOnExit;
+        QVector<Connection*> firstSyncing;
 
         RoomListDock* roomListDock = nullptr;
         UserListDock* userListDock = nullptr;
@@ -125,12 +117,13 @@ class MainWindow: public QMainWindow
         QLabel* busyLabel = nullptr;
 
         QMenu* connectionMenu = nullptr;
-        QAction* accountListGrowthPoint = nullptr;
+        QMenu* logoutMenu = nullptr;
         QAction* openRoomAction = nullptr;
         QAction* roomSettingsAction = nullptr;
         QAction* createRoomAction = nullptr;
         QAction* dcAction = nullptr;
         QAction* joinAction = nullptr;
+        QAction* confirmLinksAction = nullptr;
 
         SystemTrayIcon* systemTrayIcon = nullptr;
 
@@ -139,15 +132,15 @@ class MainWindow: public QMainWindow
         QuaternionRoom* currentRoom = nullptr;
 
         void createMenu();
-        QAction* addTimelineOptionCheckbox(QMenu* parent,
-            const QString& text, const QString& statusTip,
-            const QString& settingsKey, bool defaultValue = false);
+        QAction* addUiOptionCheckbox(QMenu* parent, const QString& text,
+            const QString& statusTip, const QString& settingsKey,
+            bool defaultValue = false);
         void showFirstSyncIndicator();
+        void firstSyncOver(Connection* c);
         void loadSettings();
         void saveSettings() const;
-        void processLogin(LoginDialog& dialog);
+        void doOpenLoginDialog(LoginDialog* dialog);
         QByteArray loadAccessToken(const Quotient::AccountSettings& account);
-        QByteArray loadAccessTokenFromFile(const Quotient::AccountSettings& account);
         QByteArray loadAccessTokenFromKeyChain(const Quotient::AccountSettings &account);
         bool saveAccessToken(const Quotient::AccountSettings& account,
                              const QByteArray& accessToken);
@@ -165,25 +158,6 @@ class MainWindow: public QMainWindow
          *         one connection, that connection; failing that, nullptr
          */
         Connection* getDefaultConnection() const;
-
-        QString resolveToId(const QString &uri);
-
-        /// Ask a user to pick an account and enter the Matrix identifier
-        /*!
-         * The identifier can be a room id or alias (to join/open rooms) or
-         * a user MXID (e.g., to open direct chats or user profiles).
-         * \param initialConn initially selected account, if there are several
-         * \param completionType - type of completion
-         * \param prompt - dialog box title
-         * \param label - the text next to the identifier field (e.g., "User ID")
-         * \param actionName - the text on the accepting button
-         */
-        Locator obtainIdentifier(Connection* initialConn,
-                                 QFlags<CompletionType> completionType,
-                                 const QString& prompt, const QString& label,
-                                 const QString& actionName);
-        void setCompleter(QLineEdit* edit, Connection* connection,
-                          QFlags<CompletionType> type);
 
         void closeEvent(QCloseEvent* event) override;
 };

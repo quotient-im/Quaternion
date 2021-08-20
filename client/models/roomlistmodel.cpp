@@ -25,15 +25,15 @@
 #include <connection.h>
 #include <settings.h>
 
+// See a comment in the same place at userlistmodel.cpp
+#include <QtWidgets/QAbstractItemView>
 #include <QtGui/QIcon>
-#include <QtCore/QStringBuilder>
-
-// See the comment next to QGuiApplication::palette().brush() usage in this file
-#include <QtGui/QGuiApplication>
+#include <QtGui/QFontMetrics>
 #include <QtGui/QPalette>
 #include <QtGui/QBrush>
+#include <QtCore/QStringBuilder>
 
-RoomListModel::RoomListModel(QObject* parent)
+RoomListModel::RoomListModel(QAbstractItemView* parent)
     : QAbstractItemModel(parent)
 {
     connect(this, &RoomListModel::modelAboutToBeReset,
@@ -48,10 +48,9 @@ void RoomListModel::addConnection(Quotient::Connection* connection)
 
     using namespace Quotient;
     m_connections.emplace_back(connection, this);
-    connect( connection, &Connection::loggedOut,
-             this, [=]{ deleteConnection(connection); } );
-    connect( connection, &Connection::newRoom,
-             this, &RoomListModel::addRoom);
+    connect(connection, &Connection::loggedOut, this,
+            [=] { deleteConnection(connection); });
+    connect(connection, &Connection::newRoom, this, &RoomListModel::addRoom);
     m_roomOrder->connectSignals(connection);
 
     for (auto* r: connection->allRooms())
@@ -97,6 +96,8 @@ void RoomListModel::deleteTag(QModelIndex index)
     for (const auto& c: m_connections)
         for (auto* r: c->roomsWithTag(tag))
             r->removeTag(tag);
+
+    Quotient::SettingsGroup("UI/RoomsDock").remove(tag);
 }
 
 void RoomListModel::visitRoom(const Room& room,
@@ -210,18 +211,18 @@ void RoomListModel::addRoomToGroups(Room* room, QVariantList groups)
 {
     if (groups.empty())
         groups = m_roomOrder->roomGroups(room);
-    for (const auto& g: groups)
+    for (const auto& g: std::as_const(groups))
     {
         const auto gIt = tryInsertGroup(g);
         const auto rIt = lowerBoundRoom(*gIt, room);
-        if (rIt != gIt->rooms.end() && *rIt == room)
+        if (rIt != gIt->rooms.cend() && *rIt == room)
         {
             qWarning() << "RoomListModel:" << room->objectName()
                        << "is already listed under group" << g.toString();
             continue;
         }
-        const auto rPos = rIt - gIt->rooms.begin();
-        const auto gIdx = index(gIt - m_roomGroups.begin(), 0);
+        const auto rPos = int(rIt - gIt->rooms.cbegin());
+        const auto gIdx = index(int(gIt - m_roomGroups.cbegin()), 0);
         beginInsertRows(gIdx, rPos, rPos);
         gIt->rooms.insert(rIt, room);
         endInsertRows();
@@ -245,7 +246,7 @@ void RoomListModel::connectRoomSignals(Room* room)
             this, [this,room] { refresh(room, { Qt::DecorationRole }); });
 }
 
-void RoomListModel::doRemoveRoom(QModelIndex idx)
+void RoomListModel::doRemoveRoom(const QModelIndex &idx)
 {
     if (!isValidRoomIndex(idx))
     {
@@ -254,8 +255,9 @@ void RoomListModel::doRemoveRoom(QModelIndex idx)
         return;
     }
     const auto gPos = idx.parent().row();
-    auto& group = m_roomGroups[gPos];
-    const auto rIt = group.rooms.begin() + idx.row();
+    auto& group = m_roomGroups[gPos]; // clazy:exclude=detaching-member
+    const auto rIt =
+        group.rooms.begin() + idx.row(); // clazy:exclude=detaching-member
     qDebug() << "RoomListModel: Removing room" << (*rIt)->objectName()
              << "from group" << group.key.toString();
     if (m_roomIndices.remove(*rIt, idx) != 1)
@@ -292,8 +294,8 @@ void RoomListModel::doSetOrder(std::unique_ptr<AbstractRoomOrdering>&& newOrder)
     for (const auto& c: m_connections)
     {
         m_roomOrder->connectSignals(c);
-        for (auto* r: c->allRooms())
-        {
+        const auto& allRooms = c->allRooms();
+        for (auto* r: allRooms) {
             addRoomToGroups(r);
             m_roomOrder->connectSignals(r);
         }
@@ -334,12 +336,12 @@ int RoomListModel::totalRooms() const
     return result;
 }
 
-bool RoomListModel::isValidGroupIndex(QModelIndex i) const
+bool RoomListModel::isValidGroupIndex(const QModelIndex& i) const
 {
     return i.isValid() && !i.parent().isValid() && i.row() < m_roomGroups.size();
 }
 
-bool RoomListModel::isValidRoomIndex(QModelIndex i) const
+bool RoomListModel::isValidRoomIndex(const QModelIndex& i) const
 {
     return i.isValid() && isValidGroupIndex(i.parent()) &&
             i.row() < m_roomGroups[i.parent().row()].rooms.size();
@@ -350,16 +352,34 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
     if (!index.isValid())
         return {};
 
+    const auto* view = static_cast<const QAbstractItemView*>(parent());
     if (isValidGroupIndex(index))
     {
-        if (role == Qt::DisplayRole)
-            return m_roomOrder->groupLabel(m_roomGroups[index.row()]);
+        if (role == Qt::DisplayRole) {
+            int unreadRoomsCount = 0;
+            for (auto &r: m_roomGroups[index.row()].rooms)
+                unreadRoomsCount += r->unreadCount() != -1;
+
+            const auto postfix = unreadRoomsCount
+                ? QStringLiteral(" [%1]").arg(unreadRoomsCount) : QString();
+
+            return m_roomOrder->groupLabel(m_roomGroups[index.row()]).toString()
+                + postfix;
+        }
 
         // It would be more proper to do it in RoomListItemDelegate
         // (see roomlistdock.cpp) but I (@kitsune) couldn't find a working way.
         if (role == Qt::BackgroundRole)
-            return QGuiApplication::palette()
-                   .brush(QPalette::Active, QPalette::Button);
+            return view->palette().brush(QPalette::Active, QPalette::Button);
+
+        if (role == HighlightCountRole) {
+            int highlightCount = 0;
+            for (auto &r: m_roomGroups[index.row()].rooms)
+                highlightCount += r->highlightCount();
+
+            return highlightCount;
+        }
+
         return {};
     }
 
@@ -371,118 +391,132 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
 //    if (index.column() == 2)
 //        return room->lastAttended();
 
+    static const auto RoomNameTemplate = tr("%1 (as %2)", "%Room (as %user)");
+    auto disambiguatedName = room->displayName();
+    if (role == Qt::DisplayRole || role == Qt::ToolTipRole)
+        for (const auto& c: m_connections)
+            if (c != room->connection()
+                && c->room(room->id(), room->joinState()))
+                disambiguatedName =
+                    RoomNameTemplate.arg(room->displayName(),
+                                         room->localUser()->id());
+
     using Quotient::JoinState;
     switch (role)
     {
-        case Qt::DisplayRole:
-        {
-            const auto prefix =
-                    room->isUnstable() ? QStringLiteral("(!)") : QString();
-            const auto unreadCount = room->unreadCount();
-            const auto postfix = unreadCount == -1 ? QString() :
-                room->readMarker() != room->timelineEdge()
-                    ? QStringLiteral(" [%1]").arg(unreadCount)
-                    : QStringLiteral(" [%1+]").arg(unreadCount);
-            for (const auto& c: m_connections)
-            {
-                if (c == room->connection())
-                    continue;
-                if (c->room(room->id(), room->joinState()))
-                    return prefix + tr("%1 (as %2)", "%Room (as %user)")
-                           .arg(room->displayName(), room->connection()->userId())
-                           + postfix;
+        case Qt::DisplayRole: {
+            static Quotient::Settings settings;
+            auto unreadCount = room->unreadCount();
+            auto notifCount = room->notificationCount();
+            auto unreadTilReadReceipt = unreadCount - notifCount;
+            QString value =
+                (room->isUnstable() ? "(!)" : "") % disambiguatedName;
+            if (unreadCount >= 0)
+                value += " ["
+                    % (unreadTilReadReceipt > 0
+                           ? QLocale().toString(unreadTilReadReceipt)
+                           : QString())
+                    % (room->readMarker() == room->historyEdge() ? "?" : "")
+                    % (notifCount > 0 ? QStringLiteral("+%L1").arg(notifCount)
+                                      : QString())
+                    % ']';
+            if (settings.get("Debug/read_receipts", false)) {
+                auto localReadReceipt = room->readMarker(room->localUser());
+                value += " <"
+                    % QString::number(room->historyEdge() - localReadReceipt)
+                    % '|'
+                    % QString::number(room->syncEdge() - localReadReceipt.base())
+                    % '>';
             }
-            return prefix + room->displayName() + postfix;
+            return value;
         }
         case Qt::DecorationRole:
         {
-            auto avatar = room->avatar(16, 16);
-            if (!avatar.isNull())
-                return avatar;
-            switch( room->joinState() )
-            {
-                case JoinState::Join:
-                    return QIcon(":/irc-channel-joined.svg");
-                case JoinState::Invite:
-                    return QIcon(":/irc-channel-invited.svg");
-                case JoinState::Leave:
-                    return QIcon(":/irc-channel-parted.svg");
-                default:
-                    Q_ASSERT(false); // Unknown JoinState?
+            const auto dpi = view->devicePixelRatioF();
+            if (auto avatar = room->avatar(int(view->iconSize().height() * dpi));
+                !avatar.isNull()) {
+                avatar.setDevicePixelRatio(dpi);
+                return QIcon(QPixmap::fromImage(avatar));
+            }
+            switch (room->joinState()) {
+            case JoinState::Join:
+                return QIcon::fromTheme("user-available",
+                                        QIcon(":/irc-channel-joined"));
+
+            case JoinState::Invite:
+                return QIcon::fromTheme("contact-new",
+                                        QIcon(":/irc-channel-invited"));
+            case JoinState::Leave:
+                return QIcon::fromTheme("user-offline",
+                                        QIcon(":/irc-channel-parted"));
+            default:
+                Q_ASSERT(false); // Unknown JoinState?
             }
             return {}; // Shouldn't reach here
         }
         case Qt::ToolTipRole:
         {
             QString result =
-                QStringLiteral("<b>%1</b>").arg(room->displayName()) % "<br>" %
-                tr("Main alias: %1").arg(room->canonicalAlias()) % "<br>" %
-                tr("Joined: %Ln",
-                   "The number of joined members", room->joinedCount());
+                "<b>" % disambiguatedName.toHtmlEscaped() % "</b><br>"
+                % tr("Main alias: %1").arg(room->canonicalAlias()) % "<br>" %
+                //: The number of joined members
+                tr("Joined: %L1").arg(room->joinedCount());
             if (room->invitedCount() > 0)
-                result += "<br>" % tr("Invited: %Ln",
-                                      "The number of invited users",
-                                      room->invitedCount());
+                result += //: The number of invited users
+                    "<br>" % tr("Invited: %L1").arg(room->invitedCount());
 
-            auto directChatUsers = room->directChatUsers();
-            if (!directChatUsers.isEmpty())
-            {
+            const auto directChatUsers = room->directChatUsers();
+            if (!directChatUsers.isEmpty()) {
                 QStringList userNames;
+                userNames.reserve(directChatUsers.size());
                 for (auto* user: directChatUsers)
-                    userNames.push_back(user->displayname(room));
-                result += "<br>" % tr("Direct chat with %1")
-                                   .arg(userNames.join(','));
+                    userNames.push_back(user->displayname(room).toHtmlEscaped());
+                result += "<br>"
+                          % tr("Direct chat with %1")
+                                .arg(QLocale().createSeparatedList(userNames));
             }
 
             if (room->usesEncryption())
                 result += "<br>" % tr("The room enforces encryption");
 
-            if (room->isUnstable())
-            {
+            if (room->isUnstable()) {
                 result += "<br>(!) " % tr("This room's version is unstable!");
                 if (room->canSwitchVersions())
                     result += ' ' % tr("Consider upgrading to a stable version"
                                        " (use room settings for that)");
             }
 
-            auto unreadCount = room->unreadCount();
-            if (unreadCount >= 0)
-            {
-                const auto unreadLine =
-                    room->readMarker() == room->timelineEdge()
-                        ? tr("Unread messages: %1+")
-                        : tr("Unread messages: %1");
-                result += "<br>" % unreadLine.arg(unreadCount);
+            if (const auto unreadCount = room->unreadCount(); unreadCount >= 0) {
+                // TODO for 0.0.96: tr("Messages after fully read: %L1")
+                result += "<br/>" % tr("Unread messages: %L1")
+                                    .arg(unreadCount);
+                if (room->readMarker() == room->historyEdge())
+                    result += ' ' % /*: Unread messages */ tr("(maybe more)");
             }
 
-            auto hlCount = room->highlightCount();
-            if (hlCount > 0)
-                result += "<br>" % tr("Unread highlights: %1").arg(hlCount);
+            // TODO for 0.0.96: tr("Unread notifications since read receipt: %L1")
+            if (const auto nfCount = room->notificationCount(); nfCount > 0)
+                result += "<br>" % tr("Unread notifications: %L1").arg(nfCount);
 
-            auto nfCount = room->notificationCount();
-            if (nfCount > 0)
-                result += "<br>" % tr("Unread notifications: %1").arg(nfCount);
+            if (const auto hlCount = room->highlightCount(); hlCount > 0)
+                result += "<br>" % tr("Unread highlights: %L1").arg(hlCount);
 
             result += "<br>" % tr("ID: %1").arg(room->id()) % "<br>";
-            auto asUser = m_connections.size() < 2 ? QString() : ' ' +
-                tr("as %1",
-                   "as <user account> (disambiguates entries in the room list)")
-                .arg(room->localUser()->id());
             switch (room->joinState())
             {
                 case JoinState::Join:
-                    result += tr("You joined this room") % asUser;
+                    result += tr("You joined this room");
                     break;
                 case JoinState::Leave:
-                    result += tr("You left this room") % asUser;
+                    result += tr("You left this room");
                     break;
                 case JoinState::Invite:
-                    result += tr("You were invited into this room") % asUser;
+                    result += tr("You were invited into this room");
             }
             return result;
         }
         case HasUnreadRole:
-            return room->hasUnreadMessages();
+            return room->notificationCount() > 0;
         case HighlightCountRole:
             return room->highlightCount();
         case JoinStateRole:
@@ -540,6 +574,8 @@ void RoomListModel::refresh(Room* room, const QVector<int>& roles)
     // The problem here is that the change might cause the room to change
     // its groups. Assume for now that such changes are processed elsewhere
     // where details about the change are available (e.g. in tagsChanged).
-    visitRoom(*room,
-        [this,&roles] (QModelIndex idx) { emit dataChanged(idx, idx, roles); });
+    visitRoom(*room, [this,&roles] (const QModelIndex &idx) {
+        emit dataChanged(idx, idx, roles);
+        emit dataChanged(idx.parent(), idx.parent(), roles);
+    });
 }
