@@ -31,16 +31,20 @@ for major platforms can also be found at the
 Make sure to read the notes below depending to your environment.
 
 ### Requirements
-Quaternion 0.0.95 packages on Linux need Qt version 5.9 or higher;
-Debian Buster, Ubuntu Bionic Beaver, Fedora 28 and OpenSUSE 15 are new enough.
-The packages provided on the download page (see below) have all necessary
-Qt libraries bundled. On Windows, you need to separately install OpenSSL
-(see the next section).
+Quaternion 0.0.95 packages on Linux need Qt version 5.11 or higher; for major
+distros, that means Debian 10 (Buster), Ubuntu 18.10 (Cosmic), Fedora 29 and
+OpenSUSE 15.2 or newer releases. The packages published by the project
+at GitHub (see below) come with Qt libraries bundled; Linux packages, including
+those from Flathub, use respective package managers to pull necessary libraries
+automatically.
 
 ### Windows
-Since we can't rely on package management on Windows, all needed libraries and
-a C++ runtime are packaged/installed together with Quaternion - except OpenSSL,
-because of export restrictions.
+You can download the latest release from
+[GitHub](https://github.com/quotient-im/Quaternion/releases/latest).
+
+Since there's no established package management on Windows to resolve
+dependencies, all needed libraries and a C++ runtime are packaged/installed
+together with Quaternion - except OpenSSL, because of export restrictions.
 Unless you already have OpenSSL around (e.g., it is a part of any
 Qt development installation), you should install it yourself.
 [OpenSSL's Wiki](https://wiki.openssl.org/index.php/Binaries) lists a few links

@@ -59,7 +59,7 @@ libQuotient somewhere when a submodule is unusable for some reason (e.g. when
   Linux/Windows might work too but never tried)
   - Recent enough Linux examples: Debian Buster; Fedora 28; OpenSUSE Leap 15;
     Ubuntu Bionic Beaver.
-- Qt 5 (either Open Source or Commercial), version 5.9 or higher
+- Qt 5 (either Open Source or Commercial), version 5.11 or higher
   (5.14+ is recommended). Quaternion 0.0.95 and earlier does not build with Qt 6.
 - CMake 3.10 or newer (from your package management system or
   [the official website](https://cmake.org/download/))
@@ -70,7 +70,7 @@ libQuotient somewhere when a submodule is unusable for some reason (e.g. when
   GNU Make, ninja (any platform), NMake, jom (Windows) are known to work.
 - optionally, libQuotient 0.6.x development files (from your package management
   system), or prebuilt libQuotient (see "Getting the source code" above).
-  libQuotient 0.7 (in development as of this writing) is not compatible with
+  libQuotient 0.7 (in development as of this writing) is _not_ compatible with
   Quaternion 0.0.95.
 - optionally (but strongly recommended),
   [QtKeychain](https://github.com/frankosterfeld/qtkeychain) to store

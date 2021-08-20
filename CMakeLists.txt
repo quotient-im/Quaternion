@@ -48,7 +48,7 @@ else()
 endif()
 
 # Find the libraries
-find_package(Qt5 5.9 REQUIRED Widgets Network Quick Gui LinguistTools
+find_package(Qt5 5.11 REQUIRED Widgets Network Quick Gui LinguistTools
                               Multimedia DBus QuickControls2)
 # Qt5_Prefix is only used to show Qt path in message()
 # Qt5_BinDir is where all the *deployqt tools reside
@@ -60,7 +60,7 @@ else()
     get_filename_component(Qt5_Prefix "${Qt5_DIR}/../../../.." ABSOLUTE)
 endif()
 if (USE_QQUICKWIDGET)
-    find_package(Qt5 5.9 REQUIRED QuickWidgets)
+    find_package(Qt5 5.11 REQUIRED QuickWidgets)
 elseif(NOT DISABLE_QQUICKWIDGET)
     # QQuickWidget only stopped crashing in Qt 5.12, use it by default if found
     find_package(Qt5 5.12 QUIET COMPONENTS QuickWidgets)
