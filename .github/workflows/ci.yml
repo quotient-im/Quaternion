@@ -47,7 +47,7 @@ jobs:
         os: [ ubuntu-18.04 ]
         compiler: [ GCC, Clang ]
         platform: [ '' ]
-        qt-version: [ '5.9.9' ]
+        qt-version: [ '5.11.3' ]
         composition: [ own-quotient, static, dynamic ]
         qt-arch: [ '' ]
         exclude:
