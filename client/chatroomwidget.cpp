@@ -473,7 +473,13 @@ void ChatRoomWidget::sendMessage()
     const auto& htmlText =
         HtmlFilter::toMatrixHtml(m_chatEdit->toHtml(), m_currentRoom);
     Q_ASSERT(!plainText.isEmpty() && !htmlText.isEmpty());
-    m_currentRoom->postHtmlText(plainText, htmlText);
+    // Send plain text if htmlText has no markup or just <br/> elements
+    // (those are easily represented as line breaks in plain text)
+    static const QRegularExpression MarkupRE { "<(?![Bb][Rr])" };
+    if (htmlText.contains(MarkupRE))
+        m_currentRoom->postHtmlText(plainText, htmlText);
+    else
+        m_currentRoom->postPlainText(plainText);
 }
 
 static const auto NothingToSendMsg =
