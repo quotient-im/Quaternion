@@ -362,7 +362,7 @@ Result fromMatrixHtml(const QString& matrixHtml, QuaternionRoom* context,
     auto result = Processor::process(matrixHtml, MatrixToQt, context, options);
     if (result.errorPos == -1) {
         // Make sure to preserve whitespace sequences
-        result.filteredHtml = "<span style=\"whitespace: pre-wrap\">"
+        result.filteredHtml = "<span style=\"white-space: pre-wrap\">"
                               % result.filteredHtml % "</span>";
     }
     return result;
