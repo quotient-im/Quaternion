@@ -705,7 +705,7 @@ void Processor::filterText(QString& text)
         // specific string doesn't matter as long as it isn't whitespace itself,
         // doesn't have special meaning in Markdown and doesn't occur in
         // the HTML boilerplate that QTextDocument generates.
-        static const auto Marker("$$");
+        static const QLatin1String Marker { "$$" };
         const bool hasLeadingWhitespace = text.cbegin()->isSpace();
         if (hasLeadingWhitespace)
             text.prepend(Marker);
@@ -724,7 +724,8 @@ void Processor::filterText(QString& text)
         static const QLatin1String UlMarker("@@ul@@"), OlMarker("@@ol@@");
         text.replace(UlRE, "\\1" % UlMarker);
         text.replace(OlRE, "\\1" % OlMarker);
-        const auto markerCount2 = text.count(Marker);
+        const auto markerCountOl = text.count(OlMarker);
+        const auto markerCountUl = text.count(UlMarker);
 #endif
 
         // Convert Markdown to HTML
@@ -734,7 +735,8 @@ void Processor::filterText(QString& text)
 
         // Delete protection characters, now buried inside HTML
 #ifndef QTBUG_92445_FIXED
-        Q_ASSERT(text.count(Marker) == markerCount2);
+        Q_ASSERT(text.count(OlMarker) == markerCountOl);
+        Q_ASSERT(text.count(UlMarker) == markerCountUl);
         // After HTML conversion, list markers end up being after HTML tags
         text.replace(QRegularExpression('>' % OlMarker), ">");
         text.replace(QRegularExpression('>' % UlMarker), ">");
