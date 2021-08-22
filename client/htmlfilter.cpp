@@ -742,9 +742,9 @@ void Processor::filterText(QString& text)
 
         Q_ASSERT(text.count(Marker) == markerCount);
         if (hasLeadingWhitespace)
-            text.remove(text.indexOf(Marker), 1);
+            text.remove(text.indexOf(Marker), Marker.size());
         if (hasTrailingWhitespace)
-            text.remove(text.lastIndexOf(Marker), 1);
+            text.remove(text.lastIndexOf(Marker), Marker.size());
     } else
 #endif
     {
