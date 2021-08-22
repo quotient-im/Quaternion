@@ -149,7 +149,7 @@ bool OrderByTag::roomLessThan(const QVariant& groupKey,
         if (auto usersCmpRes = c1->userId().compare(c2->userId()))
             return usersCmpRes < 0;
 
-        // 3a. Two logins under the same userid: pervert, but technically correct
+        // 4a. Two logins under the same userid: pervert, but technically correct
         Q_ASSERT(c1->accessToken() != c2->accessToken());
         return c1->accessToken() < c2->accessToken();
     }
