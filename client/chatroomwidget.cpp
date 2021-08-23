@@ -1044,7 +1044,7 @@ void ChatRoomWidget::keyPressEvent(QKeyEvent* event)
 
 int ChatRoomWidget::maximumChatEditHeight() const
 {
-    return maximumHeight() / 3;
+    return height() / 3;
 }
 
 void ChatRoomWidget::markShownAsRead()
