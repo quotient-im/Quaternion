@@ -1463,12 +1463,14 @@ void MainWindow::openUserInput(bool forJoining)
                 identifier, setCompleter);
     }
 
+    const auto getUri = [identifier]() -> Uri {
+        return identifier->text().trimmed();
+    };
     auto* okButton = dlg.button(QDialogButtonBox::Ok);
     okButton->setDisabled(true);
     connect(identifier, &QLineEdit::textChanged, &dlg,
-            [identifier, okButton, buttonText = entry.actionText] {
-                Uri uri { identifier->text() };
-                switch (uri.type()) {
+            [getUri, okButton, buttonText = entry.actionText] {
+                switch (getUri().type()) {
                 case Uri::RoomId:
                 case Uri::RoomAlias:
                     okButton->setEnabled(true);
@@ -1492,7 +1494,7 @@ void MainWindow::openUserInput(bool forJoining)
     if (dlg.exec() != QDialog::Accepted)
         return;
 
-    Uri uri { identifier->text() };
+    auto uri = getUri();
     if (forJoining)
         uri.setAction("join");
     else if (uri.type() == Uri::UserId
