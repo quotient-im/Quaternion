@@ -1434,13 +1434,19 @@ void MainWindow::openUserInput(bool forJoining)
                 return;
             }
             QStringList completions;
-            for (auto* room: connection->allRooms()) {
+            const auto& allRooms = connection->allRooms();
+            const auto& users = connection->users();
+            // Assuming that roughly half of rooms in the room list have
+            // a canonical alias; this may be quite a bit off but is better
+            // than not reserving at all
+            completions.reserve(allRooms.size() * 3 / 2 + users.size());
+            for (auto* room: allRooms) {
                 completions << room->id();
                 if (!room->canonicalAlias().isEmpty())
                     completions << room->canonicalAlias();
             }
 
-            for (auto* user: connection->users())
+            for (auto* user: users)
                 completions << user->id();
 
             completions.sort();
