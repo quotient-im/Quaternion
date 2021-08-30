@@ -91,7 +91,7 @@ void ChatEdit::insertFromMimeData(const QMimeData *source)
         insertHtml(HtmlFilter::fromLocalHtml(source->html()).filteredHtml);
         ensureCursorVisible();
     } else if (source->hasImage())
-        emit insertFromMimeDataRequested(source);
+        emit insertImageRequested(source->imageData().value<QImage>());
     else
         KChatEdit::insertFromMimeData(source);
 }

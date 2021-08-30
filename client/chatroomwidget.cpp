@@ -170,20 +170,20 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
                 ? m_chatEdit->textCursor().selectedText()
                 : selectedText);
     });
-    connect(m_chatEdit, &ChatEdit::insertFromMimeDataRequested,
-            this, [=] (const QMimeData* source) {
-        if (m_fileToAttach->isOpen() || m_currentRoom == nullptr)
-            return;
-        m_fileToAttach->open();
+    connect(m_chatEdit, &ChatEdit::insertImageRequested, this,
+            [=](const QImage& image) {
+                if (m_currentRoom == nullptr || m_fileToAttach->isOpen())
+                    return;
 
-        qvariant_cast<QImage>(source->imageData()).save(m_fileToAttach, "PNG");
+                m_fileToAttach->open();
+                image.save(m_fileToAttach, "PNG");
 
-        attachedFileName = m_fileToAttach->fileName();
-        m_attachAction->setChecked(true);
-        m_chatEdit->setPlaceholderText(
-            tr("Add a message to the file or just push Enter"));
-        emit showStatusMessage(tr("Attaching an image from clipboard"));
-    });
+                attachedFileName = m_fileToAttach->fileName();
+                m_attachAction->setChecked(true);
+                m_chatEdit->setPlaceholderText(
+                    tr("Add a message to the file or just push Enter"));
+                emit showStatusMessage(tr("Attaching an image from clipboard"));
+            });
     connect(m_chatEdit, &ChatEdit::proposedCompletion, this,
             [this](QStringList matches, int pos) {
                 Q_ASSERT(pos >= 0 && pos < matches.size());
