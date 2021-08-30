@@ -7,6 +7,8 @@ import Quotient 1.0
 Rectangle {
     id: root
 
+    property var room: messageModel.room
+
     TimelineSettings {
         id: settings
         readonly property bool use_shuttle_dial: value("UI/use_shuttle_dial", true)

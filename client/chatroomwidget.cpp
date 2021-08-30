@@ -67,7 +67,6 @@ Q_STATIC_ASSERT(MaxNamesToShow > SampleSizeForHud);
 ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     : QWidget(parent)
     , m_messageModel(new MessageEventModel(this))
-    , m_currentRoom(nullptr)
     , m_uiSettings("UI")
     , indexToMaybeRead(-1)
     , readMarkerOnScreen(false)
@@ -113,7 +112,6 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     ctxt->setContextProperty(QStringLiteral("messageModel"), m_messageModel);
     ctxt->setContextProperty(QStringLiteral("controller"), this);
     ctxt->setContextProperty(QStringLiteral("debug"), QVariant(false));
-    ctxt->setContextProperty(QStringLiteral("room"), nullptr);
 
     m_timelineWidget->setSource(QUrl("qrc:///qml/Timeline.qml"));
 
@@ -172,7 +170,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     });
     connect(m_chatEdit, &ChatEdit::insertImageRequested, this,
             [=](const QImage& image) {
-                if (m_currentRoom == nullptr || m_fileToAttach->isOpen())
+                if (currentRoom() == nullptr || m_fileToAttach->isOpen())
                     return;
 
                 m_fileToAttach->open();
@@ -251,18 +249,18 @@ void ChatRoomWidget::enableDebug()
     ctxt->setContextProperty(QStringLiteral("debug"), true);
 }
 
-void ChatRoomWidget::setRoom(QuaternionRoom* room)
+QuaternionRoom* ChatRoomWidget::currentRoom() const { return m_messageModel->room(); }
+
+void ChatRoomWidget::setRoom(QuaternionRoom* newRoom)
 {
-    if (m_currentRoom == room) {
+    if (currentRoom() == newRoom) {
         focusInput();
         return;
     }
 
-    if( m_currentRoom )
-    {
-        m_currentRoom->setDisplayed(false);
-        m_currentRoom->connection()->disconnect(this);
-        m_currentRoom->disconnect( this );
+    if (currentRoom()) {
+        currentRoom()->connection()->disconnect(this);
+        currentRoom()->disconnect(this);
     }
     readMarkerOnScreen = false;
     maybeReadTimer.stop();
@@ -272,42 +270,35 @@ void ChatRoomWidget::setRoom(QuaternionRoom* room)
     if (m_fileToAttach->isOpen())
         m_fileToAttach->remove();
 
-    m_currentRoom = room;
-    m_attachAction->setEnabled(m_currentRoom != nullptr);
-    m_chatEdit->switchContext(room);
-    if( m_currentRoom )
-    {
+    m_messageModel->changeRoom(newRoom);
+    m_attachAction->setEnabled(newRoom != nullptr);
+    m_chatEdit->switchContext(newRoom);
+    if (newRoom) {
         using namespace Quotient;
-        m_imageProvider->setConnection(room->connection());
+        m_imageProvider->setConnection(newRoom->connection());
         focusInput();
-        connect( m_currentRoom, &Room::typingChanged,
-                 this, &ChatRoomWidget::typingChanged );
-        connect( m_currentRoom, &Room::readMarkerMoved, this, [this] {
-            const auto rm = m_currentRoom->readMarker();
-            readMarkerOnScreen =
-                rm != m_currentRoom->timelineEdge() &&
-                std::lower_bound( indicesOnScreen.cbegin(), indicesOnScreen.cend(),
-                                 rm->index() ) != indicesOnScreen.cend();
+        connect(newRoom, &Room::typingChanged, //
+                this, &ChatRoomWidget::typingChanged);
+        connect(newRoom, &Room::readMarkerMoved, this, [this] {
+            const auto rm = currentRoom()->readMarker();
+            readMarkerOnScreen = rm != currentRoom()->timelineEdge()
+                                 && std::lower_bound(indicesOnScreen.cbegin(),
+                                                     indicesOnScreen.cend(),
+                                                     rm->index())
+                                        != indicesOnScreen.cend();
             reStartShownTimer();
             emit readMarkerMoved();
         });
-        connect( m_currentRoom, &Room::encryption,
-                 this, &ChatRoomWidget::encryptionChanged);
-        connect(m_currentRoom->connection(), &Connection::loggedOut,
-                this, [this]
-        {
+        connect(newRoom, &Room::encryption, //
+                this, &ChatRoomWidget::encryptionChanged);
+        connect(newRoom->connection(), &Connection::loggedOut, this, [this] {
             qWarning() << "Logged out, escaping the room";
             setRoom(nullptr);
         });
-        m_currentRoom->setDisplayed(true);
     } else
         m_imageProvider->setConnection(nullptr);
-    m_timelineWidget->rootContext()
-                    ->setContextProperty(QStringLiteral("room"), room);
     typingChanged();
     encryptionChanged();
-
-    m_messageModel->changeRoom( m_currentRoom );
 }
 
 void ChatRoomWidget::spotlightEvent(QString eventId)
@@ -323,19 +314,19 @@ void ChatRoomWidget::spotlightEvent(QString eventId)
 
 void ChatRoomWidget::typingChanged()
 {
-    if (!m_currentRoom || m_currentRoom->usersTyping().isEmpty())
+    if (!currentRoom() || currentRoom()->usersTyping().isEmpty())
     {
         setHudHtml({});
         return;
     }
-    const auto& usersTyping = m_currentRoom->usersTyping();
+    const auto& usersTyping = currentRoom()->usersTyping();
     QStringList typingNames;
     typingNames.reserve(MaxNamesToShow);
     const auto endIt = usersTyping.size() > MaxNamesToShow
                        ? usersTyping.cbegin() + SampleSizeForHud
                        : usersTyping.cend();
     for (auto it = usersTyping.cbegin(); it != endIt; ++it)
-        typingNames << m_currentRoom->safeMemberName((*it)->id());
+        typingNames << currentRoom()->safeMemberName((*it)->id());
 
     if (usersTyping.size() > MaxNamesToShow) {
         typingNames.push_back(
@@ -348,12 +339,12 @@ void ChatRoomWidget::typingChanged()
 void ChatRoomWidget::encryptionChanged()
 {
     m_chatEdit->setPlaceholderText(
-        m_currentRoom
-            ? m_currentRoom->usesEncryption()
+        currentRoom()
+            ? currentRoom()->usesEncryption()
                 ? tr("Send a message (no end-to-end encryption support yet)...")
                 : tr("Send a message (over %1) or enter a command...",
                      "%1 is the protocol used by the server (usually HTTPS)")
-                  .arg(m_currentRoom->connection()->homeserver()
+                  .arg(currentRoom()->connection()->homeserver()
                        .scheme().toUpper())
             : DefaultPlaceholderText);
 }
@@ -395,9 +386,9 @@ void ChatRoomWidget::setHudHtml(const QString& htmlCaption,
 
 void ChatRoomWidget::insertMention(Quotient::User* user)
 {
-    Q_ASSERT(m_currentRoom != nullptr);
+    Q_ASSERT(currentRoom() != nullptr);
     m_chatEdit->insertMention(
-        user->displayname(m_currentRoom),
+        user->displayname(currentRoom()),
         Quotient::Uri(user->id()).toUrl(Quotient::Uri::MatrixToUri));
     m_chatEdit->setFocus();
 }
@@ -434,9 +425,9 @@ QVector<QString> lazySplitRef(const QString& s, QChar sep, int maxParts)
 
 void ChatRoomWidget::sendFile()
 {
-    Q_ASSERT(m_currentRoom != nullptr);
+    Q_ASSERT(currentRoom() != nullptr);
     const auto& description = m_chatEdit->toPlainText();
-    auto txnId = m_currentRoom->postFile(description.isEmpty()
+    auto txnId = currentRoom()->postFile(description.isEmpty()
                                              ? QUrl(attachedFileName).fileName()
                                              : description,
                                          QUrl::fromLocalFile(attachedFileName));
@@ -464,22 +455,22 @@ void ChatRoomWidget::sendMessage()
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     if (m_uiSettings.get("auto_markdown", false)) {
-        sendMarkdown(m_currentRoom,
+        sendMarkdown(currentRoom(),
                      QTextDocumentFragment(m_chatEdit->document()));
         return;
     }
 #endif
     const auto& plainText = m_chatEdit->toPlainText();
     const auto& htmlText =
-        HtmlFilter::toMatrixHtml(m_chatEdit->toHtml(), m_currentRoom);
+        HtmlFilter::toMatrixHtml(m_chatEdit->toHtml(), currentRoom());
     Q_ASSERT(!plainText.isEmpty() && !htmlText.isEmpty());
     // Send plain text if htmlText has no markup or just <br/> elements
     // (those are easily represented as line breaks in plain text)
     static const QRegularExpression MarkupRE { "<(?![Bb][Rr])" };
     if (htmlText.contains(MarkupRE))
-        m_currentRoom->postHtmlText(plainText, htmlText);
+        currentRoom()->postHtmlText(plainText, htmlText);
     else
-        m_currentRoom->postPlainText(plainText);
+        currentRoom()->postPlainText(plainText);
 }
 
 static const auto NothingToSendMsg =
@@ -519,7 +510,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         return {};
     }
     // --- Add more roomless commands here
-    if (!m_currentRoom)
+    if (!currentRoom())
     {
         return tr("There's no such /command outside of room.");
     }
@@ -533,7 +524,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
                       " If you intended to leave another room, switch to it"
                       " and type /leave there.");
 
-        m_currentRoom->leaveRoom();
+        currentRoom()->leaveRoom();
         return {};
     }
     if (command == "forget")
@@ -545,7 +536,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
             return tr("%1 doesn't look like a room id or alias").arg(argString);
 
         // Forget the specified room using the current room's connection
-        m_currentRoom->connection()->forgetRoom(argString);
+        currentRoom()->connection()->forgetRoom(argString);
         return {};
     }
     if (command == "invite")
@@ -555,7 +546,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         if (!argString.contains(UserIdRE))
             return tr("%1 doesn't look like a user ID").arg(argString);
 
-        m_currentRoom->inviteToRoom(argString);
+        currentRoom()->inviteToRoom(argString);
         return {};
     }
     if (command == "kick" || command == "ban")
@@ -568,13 +559,13 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
                     .arg(args.front());
 
         if (command == "ban")
-            m_currentRoom->ban(args.front(), args.back());
+            currentRoom()->ban(args.front(), args.back());
         else {
-            auto* const user = m_currentRoom->user(args.front());
-            if (m_currentRoom->memberJoinState(user) != JoinState::Join)
+            auto* const user = currentRoom()->user(args.front());
+            if (currentRoom()->memberJoinState(user) != JoinState::Join)
                 return tr("%1 is not a member of this room")
-                    .arg(user ? user->fullName(m_currentRoom) : args.front());
-            m_currentRoom->kickMember(user->id(), args.back());
+                    .arg(user ? user->fullName(currentRoom()) : args.front());
+            currentRoom()->kickMember(user->id(), args.back());
         }
         return {};
     }
@@ -585,7 +576,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         if (!argString.contains(UserIdRE))
             return tr("/unban argument doesn't look like a user ID");
 
-        m_currentRoom->unban(argString);
+        currentRoom()->unban(argString);
         return {};
     }
     if (command == "ignore" || command == "unignore")
@@ -595,7 +586,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         if (!argString.contains(UserIdRE))
             return tr("/ignore argument doesn't look like a user ID");
 
-        if (auto* user = m_currentRoom->user(argString))
+        if (auto* user = currentRoom()->user(argString))
         {
             if (command == "ignore")
                 user->ignore();
@@ -610,40 +601,40 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
     {
         if (argString.isEmpty())
             return tr("/me needs an argument");
-        m_currentRoom->postMessage(argString, MsgType::Emote);
+        currentRoom()->postMessage(argString, MsgType::Emote);
         return {};
     }
     if (command == "notice")
     {
         if (argString.isEmpty())
             return tr("/notice needs an argument");
-        m_currentRoom->postMessage(argString, MsgType::Notice);
+        currentRoom()->postMessage(argString, MsgType::Notice);
         return {};
     }
     if (command == "shrug") // Peeked at Discord
     {
-        m_currentRoom->postPlainText((argString.isEmpty() ? "" : argString + " ") +
+        currentRoom()->postPlainText((argString.isEmpty() ? "" : argString + " ") +
                                      "¯\\_(ツ)_/¯");
         return {};
     }
     if (command == "roomname")
     {
-        m_currentRoom->setName(argString);
+        currentRoom()->setName(argString);
         return {};
     }
     if (command == "topic")
     {
-        m_currentRoom->setTopic(argString);
+        currentRoom()->setTopic(argString);
         return {};
     }
     if (command == "nick" || command == "mynick")
     {
-        m_currentRoom->localUser()->rename(argString);
+        currentRoom()->localUser()->rename(argString);
         return {};
     }
     if (command == "roomnick" || command == "myroomnick")
     {
-        m_currentRoom->localUser()->rename(argString, m_currentRoom);
+        currentRoom()->localUser()->rename(argString, currentRoom());
         return {};
     }
     if (command == "pm" || command == "msg")
@@ -653,20 +644,20 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
             return tr("/%1 <memberId> <message>").arg(command.toString());
         if (RoomIdRE.match(args.front()).hasMatch() && command == "msg")
         {
-            if (auto* room = m_currentRoom->connection()->room(args.front()))
+            if (auto* room = currentRoom()->connection()->room(args.front()))
             {
                 room->postPlainText(args.back());
                 return {};
             }
             return tr("%1 doesn't seem to have joined room %2")
-                    .arg(m_currentRoom->localUser()->id(), args.front());
+                   .arg(currentRoom()->localUser()->id(), args.front());
         }
         if (UserIdRE.match(args.front()).hasMatch())
         {
             if (args.back().isEmpty())
-                m_currentRoom->connection()->requestDirectChat(args.front());
+                currentRoom()->connection()->requestDirectChat(args.front());
             else
-                m_currentRoom->connection()->doInDirectChat(args.front(),
+                currentRoom()->connection()->doInDirectChat(args.front(),
                     [msg=args.back()] (Room* dc) { dc->postPlainText(msg); });
             return {};
         }
@@ -680,7 +671,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         const auto& plainMsg = m_chatEdit->toPlainText().mid(CmdLen);
         if (plainMsg.isEmpty())
             return NothingToSendMsg;
-        m_currentRoom->postPlainText(plainMsg);
+        currentRoom()->postPlainText(plainMsg);
         return {};
     }
     if (command == "html")
@@ -691,7 +682,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         // back to Matrix HTML to produce the (clean) rich text version
         // of the message
         const auto& [cleanQtHtml, errorPos, errorString] =
-            HtmlFilter::fromMatrixHtml(argString, m_currentRoom,
+            HtmlFilter::fromMatrixHtml(argString, currentRoom(),
                                        HtmlFilter::Validate);
         if (errorPos != -1)
             return tr("At pos %1: %2",
@@ -699,9 +690,9 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
                    .arg(errorPos).arg(errorString);
 
         const auto& fragment = QTextDocumentFragment::fromHtml(cleanQtHtml);
-        m_currentRoom->postHtmlText(fragment.toPlainText(),
+        currentRoom()->postHtmlText(fragment.toPlainText(),
                                     HtmlFilter::toMatrixHtml(fragment.toHtml(),
-                                                             m_currentRoom));
+                                                             currentRoom()));
         return {};
     }
     if (command == "md") {
@@ -711,7 +702,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         QTextCursor c(m_chatEdit->document());
         c.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, 4);
         c.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-        sendMarkdown(m_currentRoom, c.selection());
+        sendMarkdown(currentRoom(), c.selection());
         return {};
 #else
         return tr("Your build of Quaternion doesn't support Markdown");
@@ -724,7 +715,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         if (!argString.contains(UserIdRE))
             return tr("%1 doesn't look like a user id").arg(argString);
 
-        m_currentRoom->connection()->requestDirectChat(argString);
+        currentRoom()->connection()->requestDirectChat(argString);
         return {};
     }
     // --- Add more room commands here
@@ -748,7 +739,7 @@ void ChatRoomWidget::sendInput()
             const auto& blanksMatch = cmdSplit.match(text, 1);
             error = sendCommand(blanksMatch.capturedRef(1),
                                 blanksMatch.captured(2));
-        } else if (!m_currentRoom)
+        } else if (!currentRoom())
             error = tr("You should select a room to send messages.");
         else
             sendMessage();
@@ -765,15 +756,14 @@ ChatRoomWidget::completions_t
 ChatRoomWidget::findCompletionMatches(const QString& pattern) const
 {
     completions_t matches;
-    if (m_currentRoom)
-    {
-        for(auto user: m_currentRoom->users() )
-        {
+    if (currentRoom()) {
+        const auto& users = currentRoom()->users();
+        for (auto user: users) {
             using Quotient::Uri;
-            if (user->displayname(m_currentRoom)
+            if (user->displayname(currentRoom())
                     .startsWith(pattern, Qt::CaseInsensitive)
                 || user->id().startsWith(pattern, Qt::CaseInsensitive))
-                matches.push_back({ user->displayname(m_currentRoom),
+                matches.push_back({ user->displayname(currentRoom()),
                                     Uri(user->id()).toUrl(Uri::MatrixToUri) });
         }
         std::sort(matches.begin(), matches.end(),
@@ -785,51 +775,49 @@ ChatRoomWidget::findCompletionMatches(const QString& pattern) const
 
 void ChatRoomWidget::saveFileAs(QString eventId)
 {
-    if (!m_currentRoom)
-    {
+    if (!currentRoom()) {
         qWarning()
             << "ChatRoomWidget::saveFileAs without an active room ignored";
         return;
     }
-    auto fileName = QFileDialog::getSaveFileName(
-                this, tr("Save file as"),
-                m_currentRoom->fileNameToDownload(eventId));
+    const auto fileName =
+        QFileDialog::getSaveFileName(this, tr("Save file as"),
+                                     currentRoom()->fileNameToDownload(eventId));
     if (!fileName.isEmpty())
-        m_currentRoom->downloadFile(eventId, QUrl::fromLocalFile(fileName));
+        currentRoom()->downloadFile(eventId, QUrl::fromLocalFile(fileName));
 }
 
 void ChatRoomWidget::onMessageShownChanged(const QString& eventId, bool shown)
 {
-    if (!m_currentRoom || !m_currentRoom->displayed())
+    const auto* room = currentRoom();
+    if (!room || !room->displayed())
         return;
 
     // A message can be auto-marked as read (as soon as the user is active), if:
     // 0. The read marker exists and is on the screen
     // 1. The message is shown on the screen now
     // 2. It's been the bottommost message on the screen for the last 1 second
+    //    (or whatever UI/maybe_read_timer tells in milliseconds)
     // 3. It's below the read marker
 
-    const auto readMarker = m_currentRoom->readMarker();
-    if (readMarker != m_currentRoom->timelineEdge() &&
-            readMarker->event()->id() == eventId)
+    if (const auto readMarker = room->readMarker();
+        readMarker != room->timelineEdge()
+        && readMarker->event()->id() == eventId) //
     {
         readMarkerOnScreen = shown;
-        if (shown)
-        {
+        if (shown) {
             qDebug() << "Read marker is on-screen, at" << *readMarker;
             indexToMaybeRead = readMarker->index();
             reStartShownTimer();
-        } else
-        {
+        } else {
             qDebug() << "Read marker is off-screen";
             qDebug() << "Bottommost shown message index was" << indexToMaybeRead;
             maybeReadTimer.stop();
         }
     }
 
-    const auto iter = m_currentRoom->findInTimeline(eventId);
-    if (iter == m_currentRoom->timelineEdge())
-    {
+    const auto iter = room->findInTimeline(eventId);
+    if (iter == room->timelineEdge()) {
         qWarning() << "Event" << eventId
                    << "is not in the timeline (local echo?)";
         return;
@@ -837,16 +825,13 @@ void ChatRoomWidget::onMessageShownChanged(const QString& eventId, bool shown)
     const auto timelineIndex = iter->index();
     auto pos = std::lower_bound(indicesOnScreen.begin(), indicesOnScreen.end(),
                                 timelineIndex);
-    if (shown)
-    {
-        if (pos == indicesOnScreen.end() || *pos != timelineIndex)
-        {
+    if (shown) {
+        if (pos == indicesOnScreen.end() || *pos != timelineIndex) {
             indicesOnScreen.insert(pos, timelineIndex);
             if (timelineIndex == indicesOnScreen.back())
                 reStartShownTimer();
         }
-    } else
-    {
+    } else {
         if (pos != indicesOnScreen.end() && *pos == timelineIndex)
             if (indicesOnScreen.erase(pos) == indicesOnScreen.end())
                 reStartShownTimer();
@@ -898,16 +883,15 @@ void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
     menu->setAttribute(Qt::WA_DeleteOnClose);
 
     const auto* plEvt =
-        m_currentRoom->getCurrentState<Quotient::RoomPowerLevelsEvent>();
-    const auto localUserId = m_currentRoom->localUser()->id();
+        currentRoom()->getCurrentState<Quotient::RoomPowerLevelsEvent>();
+    const auto localUserId = currentRoom()->localUser()->id();
     const int userPl = plEvt->powerLevelForUser(localUserId);
     const auto* modelUser =
         modelIndex.data(MessageEventModel::AuthorRole).value<Quotient::User*>();
-    if (!plEvt || userPl >= plEvt->redact() || localUserId == modelUser->id()) {
-        menu->addAction(QIcon::fromTheme("edit-delete"), tr("Redact"), this, [=] {
-            m_currentRoom->redactEvent(eventId);
-        });
-    }
+    if (!plEvt || userPl >= plEvt->redact() || localUserId == modelUser->id())
+        menu->addAction(QIcon::fromTheme("edit-delete"), tr("Redact"), this,
+                        [=] { currentRoom()->redactEvent(eventId); });
+
     if (!selectedText.isEmpty())
         menu->addAction(tr("Copy selected text to clipboard"), this, [=] {
             QApplication::clipboard()->setText(selectedText);
@@ -921,7 +905,7 @@ void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
     menu->addAction(QIcon::fromTheme("link"), tr("Copy permalink to clipboard"),
                     [=] {
                         QApplication::clipboard()->setText(
-                            "https://matrix.to/#/" + m_currentRoom->id() + "/"
+                            "https://matrix.to/#/" + currentRoom()->id() + "/"
                             + QUrl::toPercentEncoding(eventId));
                     });
     menu->addAction(QIcon::fromTheme("format-text-blockquote"),
@@ -959,7 +943,7 @@ void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
             }
         } else {
             menu->addAction(QIcon::fromTheme("edit-download"), tr("Download"),
-                            [=] { m_currentRoom->downloadFile(eventId); });
+                            [=] { currentRoom()->downloadFile(eventId); });
         }
         menu->addAction(QIcon::fromTheme("document-save-as"),
                         tr("Save file as..."), [=] { saveFileAs(eventId); });
@@ -971,18 +955,18 @@ void ChatRoomWidget::reactionButtonClicked(const QString& eventId, const QString
 {
     using namespace Quotient;
     const auto& annotations =
-        m_currentRoom->relatedEvents(eventId, EventRelation::Annotation());
+        currentRoom()->relatedEvents(eventId, EventRelation::Annotation());
 
-    for (const auto& a : annotations) {
-        auto* e = eventCast<const ReactionEvent>(a);
-        if (e != nullptr && e->relation().key == key
-                && a->senderId() == m_currentRoom->localUser()->id()) {
-            m_currentRoom->redactEvent(a->id());
+    for (const auto& a : annotations)
+        if (auto* e = eventCast<const ReactionEvent>(a);
+            e != nullptr && e->relation().key == key
+            && a->senderId() == currentRoom()->localUser()->id()) //
+        {
+            currentRoom()->redactEvent(a->id());
             return;
         }
-    }
 
-    m_currentRoom->postReaction(eventId, key);
+    currentRoom()->postReaction(eventId, key);
 }
 
 void ChatRoomWidget::setGlobalSelectionBuffer(QString text)
@@ -1050,21 +1034,20 @@ int ChatRoomWidget::maximumChatEditHeight() const
 void ChatRoomWidget::markShownAsRead()
 {
     // FIXME: a case when a single message doesn't fit on the screen.
-    if (m_currentRoom && readMarkerOnScreen)
-    {
-        const auto iter = m_currentRoom->findInTimeline(indicesOnScreen.back());
-        Q_ASSERT( iter != m_currentRoom->timelineEdge() );
-        m_currentRoom->markMessagesAsRead((*iter)->id());
+    if (auto room = currentRoom(); room != nullptr && readMarkerOnScreen) {
+        const auto iter = room->findInTimeline(indicesOnScreen.back());
+        Q_ASSERT(iter != room->timelineEdge());
+        room->markMessagesAsRead((*iter)->id());
     }
 }
 
 bool ChatRoomWidget::pendingMarkRead() const
 {
-    if (!readMarkerOnScreen || !m_currentRoom)
+    if (!readMarkerOnScreen || !currentRoom())
         return false;
 
-    const auto rm = m_currentRoom->readMarker();
-    return rm != m_currentRoom->timelineEdge() && rm->index() < indexToMaybeRead;
+    const auto rm = currentRoom()->readMarker();
+    return rm != currentRoom()->timelineEdge() && rm->index() < indexToMaybeRead;
 }
 
 void ChatRoomWidget::fileDrop(const QString& url)

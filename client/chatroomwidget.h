@@ -56,6 +56,7 @@ class ChatRoomWidget: public QWidget
 
         void enableDebug();
         bool pendingMarkRead() const;
+        QuaternionRoom* currentRoom() const;
 
         completions_t findCompletionMatches(const QString& pattern) const;
         Q_INVOKABLE Qt::KeyboardModifiers getModifierKeys() const;
@@ -104,7 +105,6 @@ class ChatRoomWidget: public QWidget
     private:
         // Data
         MessageEventModel* m_messageModel;
-        QuaternionRoom* m_currentRoom;
         ImageProvider* m_imageProvider;
         QTemporaryFile* m_fileToAttach;
 

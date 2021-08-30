@@ -76,21 +76,23 @@ MessageEventModel::MessageEventModel(QObject* parent)
         "EventStatus is not a creatable type");
 }
 
+QuaternionRoom* MessageEventModel::room() const { return m_currentRoom; }
+
 void MessageEventModel::changeRoom(QuaternionRoom* room)
 {
     if (room == m_currentRoom)
         return;
 
     beginResetModel();
-    if( m_currentRoom )
-    {
-        m_currentRoom->disconnect( this );
-        qDebug() << "Disconnected from" << m_currentRoom->objectName();
+    if (m_currentRoom) {
+        m_currentRoom->setDisplayed(false);
+        m_currentRoom->disconnect(this);
+        qDebug() << "Event model disconnected from"
+                 << m_currentRoom->objectName();
     }
 
     m_currentRoom = room;
-    if( room )
-    {
+    if (room) {
         using namespace Quotient;
         connect(m_currentRoom, &Room::aboutToAddNewMessages, this,
                 [this](RoomEventsRange events) {
@@ -169,9 +171,11 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                 this, &MessageEventModel::refreshEvent);
         connect(m_currentRoom, &Room::fileTransferCancelled,
                 this, &MessageEventModel::refreshEvent);
-        qDebug() << "Connected to room" << room->objectName()
+        qDebug() << "Event model connected to room" << room->objectName()
                  << "as" << room->localUser()->id();
+        room->setDisplayed(true);
     }
+    emit roomChanged();
     endResetModel();
     emit readMarkerUpdated();
 }

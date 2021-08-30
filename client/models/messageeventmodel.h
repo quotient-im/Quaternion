@@ -26,6 +26,7 @@
 class MessageEventModel: public QAbstractListModel
 {
         Q_OBJECT
+        Q_PROPERTY(QuaternionRoom* room READ room NOTIFY roomChanged)
         Q_PROPERTY(int readMarkerVisualIndex READ readMarkerVisualIndex NOTIFY readMarkerUpdated)
     public:
         enum EventRoles {
@@ -50,6 +51,7 @@ class MessageEventModel: public QAbstractListModel
 
         explicit MessageEventModel(QObject* parent = nullptr);
 
+        QuaternionRoom* room() const;
         void changeRoom(QuaternionRoom* room);
 
         int rowCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -58,6 +60,7 @@ class MessageEventModel: public QAbstractListModel
         int findRow(const QString& id, bool includePending = false) const;
 
     signals:
+        void roomChanged();
         /// This is different from Room::readMarkerMoved() in that it is also
         /// emitted when the room or the last read event is first shown
         void readMarkerUpdated();
