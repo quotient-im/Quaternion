@@ -890,31 +890,34 @@ void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
         modelIndex.data(MessageEventModel::AuthorRole).value<Quotient::User*>();
     if (!plEvt || userPl >= plEvt->redact() || localUserId == modelUser->id())
         menu->addAction(QIcon::fromTheme("edit-delete"), tr("Redact"), this,
-                        [=] { currentRoom()->redactEvent(eventId); });
+                        [this, eventId] { currentRoom()->redactEvent(eventId); });
 
     if (!selectedText.isEmpty())
-        menu->addAction(tr("Copy selected text to clipboard"), this, [=] {
-            QApplication::clipboard()->setText(selectedText);
-        });
+        menu->addAction(tr("Copy selected text to clipboard"), this,
+                        [selectedText] {
+                            QApplication::clipboard()->setText(selectedText);
+                        });
 
     if (!hoveredLink.isEmpty())
-        menu->addAction(tr("Copy link to clipboard"), this, [=] {
+        menu->addAction(tr("Copy link to clipboard"), this, [hoveredLink] {
             QApplication::clipboard()->setText(hoveredLink);
         });
 
     menu->addAction(QIcon::fromTheme("link"), tr("Copy permalink to clipboard"),
-                    [=] {
+                    [this, eventId] {
                         QApplication::clipboard()->setText(
                             "https://matrix.to/#/" + currentRoom()->id() + "/"
                             + QUrl::toPercentEncoding(eventId));
                     });
     menu->addAction(QIcon::fromTheme("format-text-blockquote"),
                     tr("Quote", "a verb (do quote), not a noun (a quote)"),
-                    [=] { emit quote(modelIndex.data().toString()); });
+                    [this, modelIndex] {
+                        emit quote(modelIndex.data().toString());
+                    });
 
     auto a = menu->addAction(QIcon::fromTheme("view-list-details"),
                              tr("Show details"),
-                             [=] { emit showDetails(index); });
+                             [this, index] { emit showDetails(index); });
     a->setCheckable(true);
     a->setChecked(showingDetails);
 
@@ -929,24 +932,28 @@ void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
 
         menu->addSeparator();
         menu->addAction(QIcon::fromTheme("document-open"), tr("Open externally"),
-                        [=] { emit openExternally(index); });
+                        [this, index] { emit openExternally(index); });
         if (downloaded) {
             menu->addAction(QIcon::fromTheme("folder-open"), tr("Open Folder"),
-                            [=] {
-                                QDesktopServices::openUrl(progressInfo.localDir);
+                            [localDir = progressInfo.localDir] {
+                                QDesktopServices::openUrl(localDir);
                             });
             if (eventType == "image") {
-                menu->addAction(tr("Copy image to clipboard"), this, [=] {
-                    QApplication::clipboard()->setImage(
-                        QImage(progressInfo.localPath.path()));
-                });
+                menu->addAction(tr("Copy image to clipboard"), this,
+                                [imgPath = progressInfo.localPath.path()] {
+                                    QApplication::clipboard()->setImage(
+                                        QImage(imgPath));
+                                });
             }
         } else {
             menu->addAction(QIcon::fromTheme("edit-download"), tr("Download"),
-                            [=] { currentRoom()->downloadFile(eventId); });
+                            [this, eventId] {
+                                currentRoom()->downloadFile(eventId);
+                            });
         }
         menu->addAction(QIcon::fromTheme("document-save-as"),
-                        tr("Save file as..."), [=] { saveFileAs(eventId); });
+                        tr("Save file as..."),
+                        [this, eventId] { saveFileAs(eventId); });
     }
     menu->popup(QCursor::pos());
 }
