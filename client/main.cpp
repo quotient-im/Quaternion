@@ -28,7 +28,6 @@
 
 #include "networksettings.h"
 #include "mainwindow.h"
-#include "activitydetector.h"
 #include "linuxutils.h"
 #include <settings.h>
 
@@ -186,8 +185,6 @@ int main( int argc, char* argv[] )
     Quotient::NetworkSettings().setupApplicationProxy();
 
     MainWindow window;
-
-    ActivityDetector ad(app, window); Q_UNUSED(ad);
     if (parser.isSet(hideMainWindow)) {
         qDebug() << "--- Hide time!";
         window.hide();
