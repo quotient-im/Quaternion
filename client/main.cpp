@@ -151,10 +151,6 @@ int main( int argc, char* argv[] )
     QCommandLineOption hideMainWindow { QStringLiteral("hide-mainwindow"),
         QApplication::translate("main", "Hide main window on startup") };
     options.append(hideMainWindow);
-    QCommandLineOption debug { QStringLiteral("debug"),
-        QApplication::translate("main", "Display debug information") };
-    debug.setFlags(QCommandLineOption::HiddenFromHelp); // FIXME, #415
-    options.append(debug);
     // Add more command line options before this line
 
     if (!parser.addOptions(options))
@@ -190,11 +186,6 @@ int main( int argc, char* argv[] )
     Quotient::NetworkSettings().setupApplicationProxy();
 
     MainWindow window;
-    if (parser.isSet(debug))
-    {
-        qInfo() << "Debug mode enabled";
-        window.enableDebug();
-    }
 
     ActivityDetector ad(app, window); Q_UNUSED(ad);
     if (parser.isSet(hideMainWindow)) {

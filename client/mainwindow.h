@@ -59,8 +59,6 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         MainWindow();
         ~MainWindow() override;
 
-        void enableDebug();
-
         void addConnection(Connection* c, const QString& deviceName);
         void dropConnection(Connection* c);
 

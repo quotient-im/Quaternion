@@ -243,12 +243,6 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     setLayout(layout);
 }
 
-void ChatRoomWidget::enableDebug()
-{
-    QQmlContext* ctxt = m_timelineWidget->rootContext();
-    ctxt->setContextProperty(QStringLiteral("debug"), true);
-}
-
 QuaternionRoom* ChatRoomWidget::currentRoom() const { return m_messageModel->room(); }
 
 void ChatRoomWidget::setRoom(QuaternionRoom* newRoom)

@@ -27,6 +27,7 @@
 #include <QtGui/QKeyEvent>
 #include <QtCore/QMimeData>
 #include <QtCore/QStringBuilder>
+#include <QtCore/QDebug>
 
 #include <util.h>
 

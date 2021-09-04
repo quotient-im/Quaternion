@@ -54,7 +54,6 @@ class ChatRoomWidget: public QWidget
 
         explicit ChatRoomWidget(QWidget* parent = nullptr);
 
-        void enableDebug();
         bool pendingMarkRead() const;
         QuaternionRoom* currentRoom() const;
 

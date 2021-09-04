@@ -763,11 +763,6 @@ bool MainWindow::saveAccessTokenToKeyChain(const AccountSettings& account,
 }
 #endif
 
-void MainWindow::enableDebug()
-{
-    chatRoomWidget->enableDebug();
-}
-
 void MainWindow::addConnection(Connection* c, const QString& deviceName)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Attempt to add a null connection");
