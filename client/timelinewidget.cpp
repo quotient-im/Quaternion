@@ -4,11 +4,11 @@
 #include "models/messageeventmodel.h"
 #include "imageprovider.h"
 
-#include <lib/settings.h>
-#include <lib/events/roompowerlevelsevent.h>
-#include <lib/events/reactionevent.h>
-#include <lib/csapi/message_pagination.h>
-#include <lib/user.h>
+#include <settings.h>
+#include <events/roompowerlevelsevent.h>
+#include <events/reactionevent.h>
+#include <csapi/message_pagination.h>
+#include <user.h>
 
 #include <QtQml/QQmlContext>
 #include <QtQml/QQmlEngine>
