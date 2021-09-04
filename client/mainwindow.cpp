@@ -109,7 +109,7 @@ MainWindow::MainWindow()
             chatRoomWidget, &ChatRoomWidget::insertMention);
 
     createMenu();
-    createWinId();
+    createWinId(); // TODO: check that it's actually needed
     systemTrayIcon = new SystemTrayIcon(this);
     systemTrayIcon->show();
 
@@ -123,7 +123,7 @@ MainWindow::MainWindow()
 
     busyLabel->show();
     busyIndicator->start();
-    QTimer::singleShot(0, this, SLOT(invokeLogin()));
+    QTimer::singleShot(0, this, &MainWindow::invokeLogin);
 }
 
 MainWindow::~MainWindow()

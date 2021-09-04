@@ -55,7 +55,8 @@ Item {
         (["state", "notice", "other"].indexOf(eventType) >= 0)
         ? mixColors(disabledPalette.text, defaultPalette.text, 0.5)
         : defaultPalette.text
-    readonly property string authorName: room && room.safeMemberName(author.id)
+    readonly property string authorName:
+        room && author ? room.safeMemberName(author.id) : ""
     // FIXME: boilerplate with models/userlistmodel.cpp:115
     readonly property string authorColor: Qt.hsla(userHue,
                                                   (1-defaultPalette.window.hslSaturation),
