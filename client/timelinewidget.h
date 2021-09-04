@@ -31,7 +31,7 @@ using TimelineBaseWidget =
 class TimelineWidget : public TimelineBaseWidget {
     Q_OBJECT
 public:
-    TimelineWidget(ChatRoomWidget* parent);
+    TimelineWidget(ChatRoomWidget* chatRoomWidget);
     QString selectedText() const;
     QuaternionRoom* currentRoom() const;
 
@@ -68,8 +68,8 @@ private:
     QBasicTimer maybeReadTimer;
     bool readMarkerOnScreen;
     ActivityDetector activityDetector;
+    ChatRoomWidget* roomWidget;
 
-    ChatRoomWidget* roomWidget() const;
     void reStartShownTimer();
     void timerEvent(QTimerEvent* qte) override;
     bool pendingMarkRead() const;
