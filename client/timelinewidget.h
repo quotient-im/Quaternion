@@ -32,6 +32,7 @@ class TimelineWidget : public TimelineBaseWidget {
     Q_OBJECT
 public:
     TimelineWidget(ChatRoomWidget* chatRoomWidget);
+    ~TimelineWidget() override;
     QString selectedText() const;
     QuaternionRoom* currentRoom() const;
 

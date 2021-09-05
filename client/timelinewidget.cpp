@@ -70,6 +70,12 @@ TimelineWidget::TimelineWidget(ChatRoomWidget* chatRoomWidget)
             &TimelineWidget::markShownAsRead);
 }
 
+TimelineWidget::~TimelineWidget()
+{
+    // Clean away the view to prevent further requests to the controller
+    setSource({});
+}
+
 QString TimelineWidget::selectedText() const { return m_selectedText; }
 
 QuaternionRoom* TimelineWidget::currentRoom() const
