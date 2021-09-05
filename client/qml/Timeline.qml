@@ -7,7 +7,7 @@ import Quotient 1.0
 Rectangle {
     id: root
 
-    property var room: messageModel.room
+    property var room: messageModel ? messageModel.room : undefined
 
     TimelineSettings {
         id: settings
@@ -53,7 +53,7 @@ Rectangle {
         color: defaultPalette.window
         border.color: disabledPalette.windowText
         radius: 2
-        visible: room
+        visible: !!room
 
         property bool showTopic: true
 
@@ -95,7 +95,7 @@ Rectangle {
                 height: roomNameMetrics.height
                 clip: true
 
-                readonly property bool hasName: room && room.displayName !== ""
+                readonly property bool hasName: !!room && room.displayName !== ""
                 TextMetrics {
                     id: roomNameMetrics
                     font: roomName.font
@@ -125,7 +125,7 @@ Rectangle {
 
             Label {
                 id: versionNotice
-                visible: room && (room.isUnstable || room.successorId !== "")
+                visible: !!room && (room.isUnstable || room.successorId !== "")
                 width: parent.width
 
                 text: !room ? "" :
@@ -167,7 +167,7 @@ Rectangle {
                     id: topicText
                     width: topicField.width
 
-                    readonly property bool hasTopic: room && room.topic !== ""
+                    readonly property bool hasTopic: !!room && room.topic !== ""
                     text: hasTopic
                           ? room.prettyPrint(room.topic) : qsTr("(no topic)")
                     color:
@@ -210,7 +210,7 @@ Rectangle {
         }
         Button {
             id: versionActionButton
-            visible: room && ((room.isUnstable && room.canSwitchVersions())
+            visible: !!room && ((room.isUnstable && room.canSwitchVersions())
                               || room.successorId !== "")
             anchors.verticalCenter: headerText.verticalCenter
             anchors.right: parent.right
@@ -226,22 +226,6 @@ Rectangle {
         }
     }
 
-    DropArea {
-        anchors.fill: parent
-        onEntered: if (!room) drag.accepted = false
-        onDropped: {
-            if (drop.hasUrls) {
-                controller.fileDrop(drop.urls)
-                drop.acceptProposedAction()
-            } else if (drop.hasHtml) {
-                controller.htmlDrop(drop.html)
-                drop.acceptProposedAction()
-            } else if (drop.hasText) {
-                controller.textDrop(drop.text)
-                drop.acceptProposedAction()
-            }
-        }
-    }
     ScrollView {
         id: chatScrollView
         anchors.top: roomHeader.bottom

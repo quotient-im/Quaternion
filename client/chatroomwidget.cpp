@@ -25,19 +25,10 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QMenu>
 #include <QtGui/QClipboard>
 #include <QtGui/QTextCursor> // for last-minute message fixups before sending
 #include <QtGui/QTextDocumentFragment> // to produce plain text from /html
-#include <QtGui/QDesktopServices>
 
-#include <QtQml/QQmlContext>
-#include <QtQml/QQmlEngine>
-#ifdef DISABLE_QQUICKWIDGET
-#include <QtQuick/QQuickView>
-#else
-#include <QtQuickWidgets/QQuickWidget>
-#endif
 #include <QtCore/QRegularExpression>
 #include <QtCore/QStringBuilder>
 #include <QtCore/QLocale>
@@ -45,15 +36,13 @@
 #include <QtCore/QMimeData>
 
 #include <events/roommessageevent.h>
-#include <events/roompowerlevelsevent.h>
-#include <events/reactionevent.h>
-#include <csapi/message_pagination.h>
 #include <user.h>
-#include <connection.h>
 #include <uri.h>
 #include <settings.h>
-#include "models/messageeventmodel.h"
-#include "imageprovider.h"
+
+#include "mainwindow.h"
+#include "timelinewidget.h"
+#include "quaternionroom.h"
 #include "chatedit.h"
 #include "htmlfilter.h"
 
@@ -64,36 +53,11 @@ static constexpr auto MaxNamesToShow = 5;
 static constexpr auto SampleSizeForHud = 3;
 Q_STATIC_ASSERT(MaxNamesToShow > SampleSizeForHud);
 
-ChatRoomWidget::ChatRoomWidget(QWidget* parent)
+ChatRoomWidget::ChatRoomWidget(MainWindow* parent)
     : QWidget(parent)
-    , m_messageModel(new MessageEventModel(this))
+    , m_timelineWidget(new TimelineWidget(this))
     , m_uiSettings("UI")
-    , indexToMaybeRead(-1)
-    , readMarkerOnScreen(false)
 {
-    {
-        using namespace Quotient;
-        qmlRegisterUncreatableType<QuaternionRoom>("Quotient", 1, 0, "Room",
-            "Room objects can only be created by libQuotient");
-        qmlRegisterUncreatableType<User>("Quotient", 1, 0, "User",
-            "User objects can only be created by libQuotient");
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
-        qmlRegisterAnonymousType<GetRoomEventsJob>("Quotient", 1);
-        qmlRegisterAnonymousType<MessageEventModel>("Quotient", 1);
-#else
-        qmlRegisterType<GetRoomEventsJob>();
-        qmlRegisterType<MessageEventModel>();
-#endif
-        qRegisterMetaType<GetRoomEventsJob*>("GetRoomEventsJob*");
-        qRegisterMetaType<User*>("User*");
-        qmlRegisterType<Settings>("Quotient", 1, 0, "Settings");
-        qmlRegisterUncreatableType<RoomMessageEvent>("Quotient", 1, 0,
-            "RoomMessageEvent", "RoomMessageEvent is uncreatable");
-    }
-
-    m_timelineWidget = new timelineWidget_t;
-    qDebug() << "Rendering QML with"
-             << timelineWidget_t::staticMetaObject.className();
     auto* qmlContainer =
 #ifdef DISABLE_QQUICKWIDGET
             QWidget::createWindowContainer(m_timelineWidget, this);
@@ -101,19 +65,6 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
             m_timelineWidget;
 #endif // Use different objects but the same method with the same parameters
     qmlContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-    m_timelineWidget->setResizeMode(timelineWidget_t::SizeRootObjectToView);
-
-    m_imageProvider = new ImageProvider();
-    m_timelineWidget->engine()
-            ->addImageProvider(QStringLiteral("mtx"), m_imageProvider);
-
-    auto* ctxt = m_timelineWidget->rootContext();
-    ctxt->setContextProperty(QStringLiteral("messageModel"), m_messageModel);
-    ctxt->setContextProperty(QStringLiteral("controller"), this);
-    ctxt->setContextProperty(QStringLiteral("debug"), QVariant(false));
-
-    m_timelineWidget->setSource(QUrl("qrc:///qml/Timeline.qml"));
 
     {
         m_hudCaption = new QLabel();
@@ -145,11 +96,12 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
         {
             m_chatEdit->setPlaceholderText(
                 tr("Add a message to the file or just push Enter"));
-            emit showStatusMessage(tr("Attaching %1").arg(attachedFileName));
+            mainWindow()->showStatusMessage(
+                tr("Attaching %1").arg(attachedFileName));
         } else {
             m_attachAction->setChecked(false);
             m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
-            emit showStatusMessage(tr("Attaching cancelled"), 3000);
+            mainWindow()->showStatusMessage(tr("Attaching cancelled"), 3000);
         }
     });
     attachButton->setDefaultAction(m_attachAction);
@@ -166,7 +118,7 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
         QApplication::clipboard()->setText(
             m_chatEdit->textCursor().hasSelection()
                 ? m_chatEdit->textCursor().selectedText()
-                : selectedText);
+                : m_timelineWidget->selectedText());
     });
     connect(m_chatEdit, &ChatEdit::insertImageRequested, this,
             [=](const QImage& image) {
@@ -180,7 +132,8 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
                 m_attachAction->setChecked(true);
                 m_chatEdit->setPlaceholderText(
                     tr("Add a message to the file or just push Enter"));
-                emit showStatusMessage(tr("Attaching an image from clipboard"));
+                mainWindow()->showStatusMessage(
+                    tr("Attaching an image from clipboard"));
             });
     connect(m_chatEdit, &ChatEdit::proposedCompletion, this,
             [this](QStringList matches, int pos) {
@@ -243,7 +196,20 @@ ChatRoomWidget::ChatRoomWidget(QWidget* parent)
     setLayout(layout);
 }
 
-QuaternionRoom* ChatRoomWidget::currentRoom() const { return m_messageModel->room(); }
+TimelineWidget* ChatRoomWidget::timelineWidget() const
+{
+    return m_timelineWidget;
+}
+
+MainWindow* ChatRoomWidget::mainWindow() const
+{
+    return static_cast<MainWindow*>(parent());
+}
+
+QuaternionRoom* ChatRoomWidget::currentRoom() const
+{
+    return m_timelineWidget->currentRoom();
+}
 
 void ChatRoomWidget::setRoom(QuaternionRoom* newRoom)
 {
@@ -256,54 +222,28 @@ void ChatRoomWidget::setRoom(QuaternionRoom* newRoom)
         currentRoom()->connection()->disconnect(this);
         currentRoom()->disconnect(this);
     }
-    readMarkerOnScreen = false;
-    maybeReadTimer.stop();
-    indicesOnScreen.clear();
     attachedFileName.clear();
     m_attachAction->setChecked(false);
     if (m_fileToAttach->isOpen())
         m_fileToAttach->remove();
 
-    m_messageModel->changeRoom(newRoom);
+    m_timelineWidget->setRoom(newRoom);
     m_attachAction->setEnabled(newRoom != nullptr);
     m_chatEdit->switchContext(newRoom);
     if (newRoom) {
         using namespace Quotient;
-        m_imageProvider->setConnection(newRoom->connection());
         focusInput();
         connect(newRoom, &Room::typingChanged, //
                 this, &ChatRoomWidget::typingChanged);
-        connect(newRoom, &Room::readMarkerMoved, this, [this] {
-            const auto rm = currentRoom()->readMarker();
-            readMarkerOnScreen = rm != currentRoom()->timelineEdge()
-                                 && std::lower_bound(indicesOnScreen.cbegin(),
-                                                     indicesOnScreen.cend(),
-                                                     rm->index())
-                                        != indicesOnScreen.cend();
-            reStartShownTimer();
-            emit readMarkerMoved();
-        });
         connect(newRoom, &Room::encryption, //
                 this, &ChatRoomWidget::encryptionChanged);
         connect(newRoom->connection(), &Connection::loggedOut, this, [this] {
             qWarning() << "Logged out, escaping the room";
             setRoom(nullptr);
         });
-    } else
-        m_imageProvider->setConnection(nullptr);
+    }
     typingChanged();
     encryptionChanged();
-}
-
-void ChatRoomWidget::spotlightEvent(QString eventId)
-{
-    auto index = m_messageModel->findRow(eventId);
-    if (index >= 0) {
-        emit scrollViewTo(index);
-        emit animateMessage(index);
-    } else
-        setHudHtml("<font color=red>" % tr("Referenced message not found")
-                   % "</font>");
 }
 
 void ChatRoomWidget::typingChanged()
@@ -495,7 +435,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
     {
         if (!argString.contains(RoomIdRE))
             return tr("/join argument doesn't look like a room ID or alias");
-        emit resourceRequested(argString, "join");
+        mainWindow()->openResource(argString, "join");
         return {};
     }
     if (command == "quit")
@@ -738,7 +678,7 @@ void ChatRoomWidget::sendInput()
         else
             sendMessage();
         if (!error.isEmpty()) {
-            emit showStatusMessage(error, 5000);
+            mainWindow()->showStatusMessage(error, 5000);
             return;
         }
     }
@@ -765,71 +705,6 @@ ChatRoomWidget::findCompletionMatches(const QString& pattern) const
                 { return p1.first.localeAwareCompare(p2.first) < 0; });
     }
     return matches;
-}
-
-void ChatRoomWidget::saveFileAs(QString eventId)
-{
-    if (!currentRoom()) {
-        qWarning()
-            << "ChatRoomWidget::saveFileAs without an active room ignored";
-        return;
-    }
-    const auto fileName =
-        QFileDialog::getSaveFileName(this, tr("Save file as"),
-                                     currentRoom()->fileNameToDownload(eventId));
-    if (!fileName.isEmpty())
-        currentRoom()->downloadFile(eventId, QUrl::fromLocalFile(fileName));
-}
-
-void ChatRoomWidget::onMessageShownChanged(const QString& eventId, bool shown)
-{
-    const auto* room = currentRoom();
-    if (!room || !room->displayed())
-        return;
-
-    // A message can be auto-marked as read (as soon as the user is active), if:
-    // 0. The read marker exists and is on the screen
-    // 1. The message is shown on the screen now
-    // 2. It's been the bottommost message on the screen for the last 1 second
-    //    (or whatever UI/maybe_read_timer tells in milliseconds)
-    // 3. It's below the read marker
-
-    if (const auto readMarker = room->readMarker();
-        readMarker != room->timelineEdge()
-        && readMarker->event()->id() == eventId) //
-    {
-        readMarkerOnScreen = shown;
-        if (shown) {
-            qDebug() << "Read marker is on-screen, at" << *readMarker;
-            indexToMaybeRead = readMarker->index();
-            reStartShownTimer();
-        } else {
-            qDebug() << "Read marker is off-screen";
-            qDebug() << "Bottommost shown message index was" << indexToMaybeRead;
-            maybeReadTimer.stop();
-        }
-    }
-
-    const auto iter = room->findInTimeline(eventId);
-    if (iter == room->timelineEdge()) {
-        qWarning() << "Event" << eventId
-                   << "is not in the timeline (local echo?)";
-        return;
-    }
-    const auto timelineIndex = iter->index();
-    auto pos = std::lower_bound(indicesOnScreen.begin(), indicesOnScreen.end(),
-                                timelineIndex);
-    if (shown) {
-        if (pos == indicesOnScreen.end() || *pos != timelineIndex) {
-            indicesOnScreen.insert(pos, timelineIndex);
-            if (timelineIndex == indicesOnScreen.back())
-                reStartShownTimer();
-        }
-    } else {
-        if (pos != indicesOnScreen.end() && *pos == timelineIndex)
-            if (indicesOnScreen.erase(pos) == indicesOnScreen.end())
-                reStartShownTimer();
-    }
 }
 
 void ChatRoomWidget::quote(const QString& htmlText)
@@ -867,147 +742,6 @@ void ChatRoomWidget::quote(const QString& htmlText)
     m_chatEdit->insertPlainText(sendString);
 }
 
-void ChatRoomWidget::showMenu(int index, const QString& hoveredLink,
-                              const QString& selectedText, bool showingDetails)
-{
-    const auto modelIndex = m_messageModel->index(index, 0);
-    const auto eventId = modelIndex.data(MessageEventModel::EventIdRole).toString();
-
-    auto menu = new QMenu(this);
-    menu->setAttribute(Qt::WA_DeleteOnClose);
-
-    const auto* plEvt =
-        currentRoom()->getCurrentState<Quotient::RoomPowerLevelsEvent>();
-    const auto localUserId = currentRoom()->localUser()->id();
-    const int userPl = plEvt->powerLevelForUser(localUserId);
-    const auto* modelUser =
-        modelIndex.data(MessageEventModel::AuthorRole).value<Quotient::User*>();
-    if (!plEvt || userPl >= plEvt->redact() || localUserId == modelUser->id())
-        menu->addAction(QIcon::fromTheme("edit-delete"), tr("Redact"), this,
-                        [this, eventId] { currentRoom()->redactEvent(eventId); });
-
-    if (!selectedText.isEmpty())
-        menu->addAction(tr("Copy selected text to clipboard"), this,
-                        [selectedText] {
-                            QApplication::clipboard()->setText(selectedText);
-                        });
-
-    if (!hoveredLink.isEmpty())
-        menu->addAction(tr("Copy link to clipboard"), this, [hoveredLink] {
-            QApplication::clipboard()->setText(hoveredLink);
-        });
-
-    menu->addAction(QIcon::fromTheme("link"), tr("Copy permalink to clipboard"),
-                    [this, eventId] {
-                        QApplication::clipboard()->setText(
-                            "https://matrix.to/#/" + currentRoom()->id() + "/"
-                            + QUrl::toPercentEncoding(eventId));
-                    });
-    menu->addAction(QIcon::fromTheme("format-text-blockquote"),
-                    tr("Quote", "a verb (do quote), not a noun (a quote)"),
-                    [this, modelIndex] {
-                        emit quote(modelIndex.data().toString());
-                    });
-
-    auto a = menu->addAction(QIcon::fromTheme("view-list-details"),
-                             tr("Show details"),
-                             [this, index] { emit showDetails(index); });
-    a->setCheckable(true);
-    a->setChecked(showingDetails);
-
-    const auto eventType =
-        modelIndex.data(MessageEventModel::EventTypeRole).toString();
-    if (eventType == "image" || eventType == "file") {
-        const auto progressInfo =
-            modelIndex.data(MessageEventModel::LongOperationRole)
-                .value<Quotient::FileTransferInfo>();
-        const bool downloaded = !progressInfo.isUpload
-                                && progressInfo.completed();
-
-        menu->addSeparator();
-        menu->addAction(QIcon::fromTheme("document-open"), tr("Open externally"),
-                        [this, index] { emit openExternally(index); });
-        if (downloaded) {
-            menu->addAction(QIcon::fromTheme("folder-open"), tr("Open Folder"),
-                            [localDir = progressInfo.localDir] {
-                                QDesktopServices::openUrl(localDir);
-                            });
-            if (eventType == "image") {
-                menu->addAction(tr("Copy image to clipboard"), this,
-                                [imgPath = progressInfo.localPath.path()] {
-                                    QApplication::clipboard()->setImage(
-                                        QImage(imgPath));
-                                });
-            }
-        } else {
-            menu->addAction(QIcon::fromTheme("edit-download"), tr("Download"),
-                            [this, eventId] {
-                                currentRoom()->downloadFile(eventId);
-                            });
-        }
-        menu->addAction(QIcon::fromTheme("document-save-as"),
-                        tr("Save file as..."),
-                        [this, eventId] { saveFileAs(eventId); });
-    }
-    menu->popup(QCursor::pos());
-}
-
-void ChatRoomWidget::reactionButtonClicked(const QString& eventId, const QString& key)
-{
-    using namespace Quotient;
-    const auto& annotations =
-        currentRoom()->relatedEvents(eventId, EventRelation::Annotation());
-
-    for (const auto& a : annotations)
-        if (auto* e = eventCast<const ReactionEvent>(a);
-            e != nullptr && e->relation().key == key
-            && a->senderId() == currentRoom()->localUser()->id()) //
-        {
-            currentRoom()->redactEvent(a->id());
-            return;
-        }
-
-    currentRoom()->postReaction(eventId, key);
-}
-
-void ChatRoomWidget::setGlobalSelectionBuffer(QString text)
-{
-    if (QApplication::clipboard()->supportsSelection())
-        QApplication::clipboard()->setText(text, QClipboard::Selection);
-
-    selectedText = text;
-}
-
-void ChatRoomWidget::reStartShownTimer()
-{
-    if (!readMarkerOnScreen || indicesOnScreen.empty() ||
-            indexToMaybeRead >= indicesOnScreen.back())
-        return;
-
-    maybeReadTimer.start(m_uiSettings.get<int>("maybe_read_timer", 1000), this);
-    qDebug() << "Scheduled maybe-read message update:"
-             << indexToMaybeRead << "->" << indicesOnScreen.back();
-}
-
-void ChatRoomWidget::timerEvent(QTimerEvent* qte)
-{
-    if (qte->timerId() != maybeReadTimer.timerId())
-    {
-        QWidget::timerEvent(qte);
-        return;
-    }
-    maybeReadTimer.stop();
-    // Only update the maybe-read message if we're tracking it
-    if (readMarkerOnScreen && !indicesOnScreen.empty()
-            && indexToMaybeRead < indicesOnScreen.back())
-    {
-        qDebug() << "Maybe-read message update:" << indexToMaybeRead
-                 << "->" << indicesOnScreen.back();
-        indexToMaybeRead = indicesOnScreen.back();
-        emit readMarkerCandidateMoved();
-    }
-}
-
 void ChatRoomWidget::resizeEvent(QResizeEvent*)
 {
     m_chatEdit->setMaximumHeight(maximumChatEditHeight());
@@ -1017,13 +751,13 @@ void ChatRoomWidget::keyPressEvent(QKeyEvent* event)
 {
     // This only handles keypresses not handled by ChatEdit; in particular,
     // this means that PageUp/PageDown below are actually Ctrl-PageUp/PageDown
-    switch(event->key()) {
-        case Qt::Key_PageUp:
-            emit pageUpPressed();
-            break;
-        case Qt::Key_PageDown:
-            emit pageDownPressed();
-            break;
+    switch (event->key()) {
+    case Qt::Key_PageUp:
+        emit m_timelineWidget->pageUpPressed();
+        break;
+    case Qt::Key_PageDown:
+        emit m_timelineWidget->pageDownPressed();
+        break;
     }
 }
 
@@ -1032,32 +766,13 @@ int ChatRoomWidget::maximumChatEditHeight() const
     return height() / 3;
 }
 
-void ChatRoomWidget::markShownAsRead()
-{
-    // FIXME: a case when a single message doesn't fit on the screen.
-    if (auto room = currentRoom(); room != nullptr && readMarkerOnScreen) {
-        const auto iter = room->findInTimeline(indicesOnScreen.back());
-        Q_ASSERT(iter != room->timelineEdge());
-        room->markMessagesAsRead((*iter)->id());
-    }
-}
-
-bool ChatRoomWidget::pendingMarkRead() const
-{
-    if (!readMarkerOnScreen || !currentRoom())
-        return false;
-
-    const auto rm = currentRoom()->readMarker();
-    return rm != currentRoom()->timelineEdge() && rm->index() < indexToMaybeRead;
-}
-
 void ChatRoomWidget::fileDrop(const QString& url)
 {
     attachedFileName = QUrl(url).path();
     m_attachAction->setChecked(true);
     m_chatEdit->setPlaceholderText(
         tr("Add a message to the file or just push Enter"));
-    emit showStatusMessage(tr("Attaching %1").arg(attachedFileName));
+    mainWindow()->showStatusMessage(tr("Attaching %1").arg(attachedFileName));
 }
 
 void ChatRoomWidget::htmlDrop(const QString &html)

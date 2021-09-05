@@ -19,29 +19,9 @@
 
 #include "activitydetector.h"
 
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QWidget>
 #include <QtCore/QDebug>
-
-#include "mainwindow.h"
-#include "chatroomwidget.h"
-
-ActivityDetector::ActivityDetector(QApplication& a, MainWindow& w)
-    : m_app(a)
-    , m_mainWindow(w)
-    , m_enabled(false)
-{
-    const auto chatWidget = w.getChatRoomWidget();
-    connect( chatWidget, &ChatRoomWidget::readMarkerMoved,
-             this, &ActivityDetector::updateEnabled );
-    connect( chatWidget, &ChatRoomWidget::readMarkerCandidateMoved,
-             this, &ActivityDetector::updateEnabled );
-    connect( this, &ActivityDetector::triggered,
-             chatWidget, &ChatRoomWidget::markShownAsRead );
-}
-
-void ActivityDetector::updateEnabled()
-{
-    setEnabled(m_mainWindow.getChatRoomWidget()->pendingMarkRead());
-}
 
 void ActivityDetector::setEnabled(bool enabled)
 {
@@ -49,11 +29,14 @@ void ActivityDetector::setEnabled(bool enabled)
         return;
 
     m_enabled = enabled;
-    m_mainWindow.setMouseTracking(enabled);
+    const auto& topLevels = qApp->topLevelWidgets();
+    for (auto* w: topLevels)
+        if (!w->isHidden())
+            w->setMouseTracking(enabled);
     if (enabled)
-        m_app.installEventFilter(this);
+        qApp->installEventFilter(this);
     else
-        m_app.removeEventFilter(this);
+        qApp->removeEventFilter(this);
     qDebug() << "Activity Detector enabled:" << enabled;
 }
 

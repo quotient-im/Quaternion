@@ -22,6 +22,8 @@
 #include "roomlistdock.h"
 #include "userlistdock.h"
 #include "chatroomwidget.h"
+#include "timelinewidget.h"
+#include "quaternionroom.h"
 #include "profiledialog.h"
 #include "logindialog.h"
 #include "networkconfigdialog.h"
@@ -94,19 +96,20 @@ MainWindow::MainWindow()
     addDockWidget(Qt::RightDockWidgetArea, userListDock);
     chatRoomWidget = new ChatRoomWidget(this);
     setCentralWidget(chatRoomWidget);
-    connect( chatRoomWidget, &ChatRoomWidget::resourceRequested,
-             this, &MainWindow::openResource);
-    connect(chatRoomWidget, &ChatRoomWidget::roomSettingsRequested,
+    auto* timelineWidget = chatRoomWidget->timelineWidget();
+    connect(timelineWidget, &TimelineWidget::resourceRequested,
+            this, &MainWindow::openResource);
+    connect(timelineWidget, &TimelineWidget::roomSettingsRequested,
             this, [this] { openRoomSettings(); });
-    connect( roomListDock, &RoomListDock::roomSelected,
-             this, &MainWindow::selectRoom);
-    connect( chatRoomWidget, &ChatRoomWidget::showStatusMessage,
-             statusBar(), &QStatusBar::showMessage );
-    connect( userListDock, &UserListDock::userMentionRequested,
-             chatRoomWidget, &ChatRoomWidget::insertMention);
+    connect(timelineWidget, &TimelineWidget::showStatusMessage,
+            statusBar(), &QStatusBar::showMessage);
+    connect(roomListDock, &RoomListDock::roomSelected,
+            this, &MainWindow::selectRoom);
+    connect(userListDock, &UserListDock::userMentionRequested,
+            chatRoomWidget, &ChatRoomWidget::insertMention);
 
     createMenu();
-    createWinId();
+    createWinId(); // TODO: check that it's actually needed
     systemTrayIcon = new SystemTrayIcon(this);
     systemTrayIcon->show();
 
@@ -120,7 +123,7 @@ MainWindow::MainWindow()
 
     busyLabel->show();
     busyIndicator->start();
-    QTimer::singleShot(0, this, SLOT(invokeLogin()));
+    QTimer::singleShot(0, this, &MainWindow::invokeLogin);
 }
 
 MainWindow::~MainWindow()
@@ -133,11 +136,6 @@ MainWindow::~MainWindow()
     for (auto* acc: qAsConst(logoutOnExit))
         logout(acc);
     saveSettings();
-}
-
-ChatRoomWidget* MainWindow::getChatRoomWidget() const
-{
-    return chatRoomWidget;
 }
 
 template <typename DialogT, typename... DialogArgTs>
@@ -1199,7 +1197,7 @@ void MainWindow::visitRoom(Quotient::Room* room, const QString& eventId)
 {
     selectRoom(room);
     if (!eventId.isEmpty())
-        chatRoomWidget->spotlightEvent(eventId);
+        chatRoomWidget->timelineWidget()->spotlightEvent(eventId);
 }
 
 void MainWindow::joinRoom(Quotient::Connection* account,
@@ -1347,6 +1345,11 @@ void MainWindow::selectRoom(Quotient::Room* r)
     }
     qDebug().noquote() << et << "to "
                        << (r ? "select room " + r->canonicalAlias() : "close the room");
+}
+
+void MainWindow::showStatusMessage(const QString& message, int timeout)
+{
+    statusBar()->showMessage(message, timeout);
 }
 
 MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,

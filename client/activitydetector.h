@@ -19,29 +19,19 @@
 
 #pragma once
 
-#include <QtWidgets/QApplication>
-
-class MainWindow;
+#include <QtCore/QObject>
 
 class ActivityDetector : public QObject
 {
     Q_OBJECT
+public slots:
+    void setEnabled(bool enabled);
 
-    public:
-        ActivityDetector(QApplication& a, MainWindow& w);
+signals:
+    void triggered();
 
-    public slots:
-        void updateEnabled();
-        void setEnabled(bool enabled);
+private:
+    bool m_enabled = false;
 
-    signals:
-        void triggered();
-
-    protected:
-        bool eventFilter(QObject* obj, QEvent* ev) override;
-
-    private:
-        QApplication& m_app;
-        MainWindow& m_mainWindow;
-        bool m_enabled;
+    bool eventFilter(QObject* obj, QEvent* ev) override;
 };

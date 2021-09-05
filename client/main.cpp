@@ -28,7 +28,6 @@
 
 #include "networksettings.h"
 #include "mainwindow.h"
-#include "activitydetector.h"
 #include "linuxutils.h"
 #include <settings.h>
 
@@ -132,9 +131,9 @@ int main( int argc, char* argv[] )
     // We should not need to do the following, as quitOnLastWindowClosed is
     // set to "true" by default; might be a bug, see
     // https://forum.qt.io/topic/71112/application-does-not-quit
-    QObject::connect(&app, &QApplication::lastWindowClosed, []{
+    QObject::connect(&app, &QApplication::lastWindowClosed, &app, [&app]{
         qDebug() << "Last window closed!";
-        QApplication::postEvent(qApp, new QEvent(QEvent::Quit));
+        QApplication::postEvent(&app, new QEvent(QEvent::Quit));
     });
 
     QCommandLineParser parser;
@@ -186,8 +185,6 @@ int main( int argc, char* argv[] )
     Quotient::NetworkSettings().setupApplicationProxy();
 
     MainWindow window;
-
-    ActivityDetector ad(app, window); Q_UNUSED(ad);
     if (parser.isSet(hideMainWindow)) {
         qDebug() << "--- Hide time!";
         window.hide();
@@ -197,6 +194,6 @@ int main( int argc, char* argv[] )
         window.show();
     }
 
-    return app.exec();
+    return QApplication::exec();
 }
 

@@ -19,126 +19,78 @@
 
 #pragma once
 
-#include "quaternionroom.h"
 #include "chatedit.h"
 
 #include <settings.h>
 
 #include <QtWidgets/QWidget>
-#include <QtCore/QBasicTimer>
 
-#ifndef USE_QQUICKWIDGET
-#define DISABLE_QQUICKWIDGET
-#endif
+class TimelineWidget;
+class QuaternionRoom;
+class MainWindow;
 
-class MessageEventModel;
-class ImageProvider;
-
-class QFrame;
-#ifdef DISABLE_QQUICKWIDGET
-class QQuickView;
-#else
-class QQuickWidget;
-#endif
 class QLabel;
 class QAction;
 class QTextDocument;
 class QMimeData;
 class QTemporaryFile;
 
-class ChatRoomWidget: public QWidget
+namespace Quotient {
+class User;
+}
+
+class ChatRoomWidget : public QWidget
 {
         Q_OBJECT
     public:
         using completions_t = ChatEdit::completions_t;
 
-        explicit ChatRoomWidget(QWidget* parent = nullptr);
-
-        bool pendingMarkRead() const;
-        QuaternionRoom* currentRoom() const;
+        explicit ChatRoomWidget(MainWindow* parent = nullptr);
+        TimelineWidget* timelineWidget() const;
 
         completions_t findCompletionMatches(const QString& pattern) const;
         Q_INVOKABLE Qt::KeyboardModifiers getModifierKeys() const;
 
-    signals:
-        void resourceRequested(const QString& idOrUri,
-                               const QString& action = {});
-        void roomSettingsRequested();
-        void showStatusMessage(const QString& message, int timeout = 0) const;
-        void readMarkerMoved();
-        void readMarkerCandidateMoved();
-        void pageUpPressed();
-        void pageDownPressed();
-        void openExternally(int currentIndex);
-        void showDetails(int currentIndex);
-        void scrollViewTo(int currentIndex);
-        void animateMessage(int currentIndex);
-
     public slots:
-        void setRoom(QuaternionRoom* room);
-        void spotlightEvent(QString eventId);
-
+        void setRoom(QuaternionRoom* newRoom);
         void insertMention(Quotient::User* user);
         void focusInput();
 
-        void typingChanged();
-        void onMessageShownChanged(const QString& eventId, bool shown);
-        void markShownAsRead();
-        void saveFileAs(QString eventId);
-        void quote(const QString& htmlText);
-        void showMenu(int index, const QString& hoveredLink, const QString& selectedText, bool showingDetails);
-        void reactionButtonClicked(const QString& eventId, const QString& key);
-        void fileDrop(const QString& url);
-        void htmlDrop(const QString& html);
-        void textDrop(const QString& text);
-        void setGlobalSelectionBuffer(QString text);
-
-    private slots:
-        void sendInput();
-        void encryptionChanged();
         /// Set a line just above the message input, with optional list of
         /// member displaynames
         void setHudHtml(const QString& htmlCaption,
                         const QStringList& plainTextNames = {});
 
+        void typingChanged();
+        void quote(const QString& htmlText);
+        void fileDrop(const QString& url);
+        void htmlDrop(const QString& html);
+        void textDrop(const QString& text);
+
+    private slots:
+        void sendInput();
+        void encryptionChanged();
+
     private:
-        // Data
-        MessageEventModel* m_messageModel;
-        ImageProvider* m_imageProvider;
-        QTemporaryFile* m_fileToAttach;
-
-        // Settings
-        Quotient::SettingsGroup m_uiSettings;
-
-        // Controls
-#ifdef DISABLE_QQUICKWIDGET
-        using timelineWidget_t = QQuickView;
-#else
-        using timelineWidget_t = QQuickWidget;
-#endif
-        timelineWidget_t* m_timelineWidget;
+        TimelineWidget* m_timelineWidget;
         QLabel* m_hudCaption; //< For typing and completion notifications
         QAction* m_attachAction;
         ChatEdit* m_chatEdit;
 
-        // Supplementary/cache data members
-        using timeline_index_t = Quotient::TimelineItem::index_t;
-        std::vector<timeline_index_t> indicesOnScreen;
-        timeline_index_t indexToMaybeRead;
-        QBasicTimer maybeReadTimer;
-        bool readMarkerOnScreen;
         QString attachedFileName;
-        QString selectedText;
+        QTemporaryFile* m_fileToAttach;
+        Quotient::SettingsGroup m_uiSettings;
 
-        void reStartShownTimer();
+        MainWindow* mainWindow() const;
+        QuaternionRoom* currentRoom() const;
+
         void sendFile();
         void sendMessage();
         [[nodiscard]] QString sendCommand(const QStringRef& command,
                                           const QString& argString);
 
-        void timerEvent(QTimerEvent* qte) override;
         void resizeEvent(QResizeEvent*) override;
-        void keyPressEvent(QKeyEvent*) override;
+        void keyPressEvent(QKeyEvent* event) override;
 
         int maximumChatEditHeight() const;
 };

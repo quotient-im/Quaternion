@@ -62,8 +62,6 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         void addConnection(Connection* c, const QString& deviceName);
         void dropConnection(Connection* c);
 
-        ChatRoomWidget* getChatRoomWidget() const;
-
         // For openUserInput()
         enum : bool { NoRoomJoining = false, ForJoining = true };
 
@@ -77,6 +75,7 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         /*! If \p r is empty, the currently open room is used */
         void openRoomSettings(QuaternionRoom* r = nullptr);
         void selectRoom(Quotient::Room* r);
+        void showStatusMessage(const QString& message, int timeout = 0);
         void logout(Connection* c);
 
     private slots:
