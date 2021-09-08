@@ -107,6 +107,7 @@ void TimelineWidget::setRoom(QuaternionRoom* newRoom)
             reStartShownTimer();
             activityDetector.setEnabled(pendingMarkRead());
         });
+        newRoom->setDisplayed(true);
     }
 }
 

@@ -92,7 +92,7 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
     }
 
     m_currentRoom = room;
-    if (room) {
+    if (m_currentRoom) {
         using namespace Quotient;
         connect(m_currentRoom, &Room::aboutToAddNewMessages, this,
                 [this](RoomEventsRange events) {
@@ -173,7 +173,6 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                 this, &MessageEventModel::refreshEvent);
         qDebug() << "Event model connected to room" << room->objectName()
                  << "as" << room->localUser()->id();
-        room->setDisplayed(true);
     }
     emit roomChanged();
     endResetModel();
