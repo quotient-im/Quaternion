@@ -50,7 +50,8 @@ Item {
         marks === EventStatus.Departed ?
             mixColors(disabledPalette.text, defaultPalette.text, 0.5) :
         marks === EventStatus.Redacted ? disabledPalette.text :
-        (eventWithTextPart && author === room.localUser) ? settings.outgoing_color :
+        (eventWithTextPart && room && author === room.localUser) ?
+            settings.outgoing_color :
         highlight && settings.highlight_mode == "text" ? settings.highlight_color :
         (["state", "notice", "other"].indexOf(eventType) >= 0)
         ? mixColors(disabledPalette.text, defaultPalette.text, 0.5)
@@ -343,11 +344,13 @@ Item {
                                 color:\"" + mixColors(disabledPalette.text,
                                                       defaultPalette.text, 0.3)
                               + "\"'><tr><td>"
-                              + toHtmlEscaped(time.toLocaleTimeString(Qt.locale(),
-                                                                      Locale.ShortFormat))
+                              + (time
+                                 ? toHtmlEscaped(time.toLocaleTimeString(
+                                                     Qt.locale(), Locale.ShortFormat))
+                                 : "")
                               + "</td></tr></table>"
                               + (actionEvent
-                                 ? ("<a href='" + author.id
+                                 ? ("<a href='" + (author ? author.id : "")
                                     + "' style='text-decoration:none;color:\""
                                     + authorColor + "\";font-weight:bold'>"
                                     + toHtmlEscaped(authorName) + "</a> ")
