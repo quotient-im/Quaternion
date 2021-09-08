@@ -74,6 +74,14 @@ MessageEventModel::MessageEventModel(QObject* parent)
 #endif
     qmlRegisterUncreatableType<EventStatus>("Quotient", 1, 0, "EventStatus",
         "EventStatus is not a creatable type");
+    // This could be a single line in changeRoom() but then there's a race
+    // condition between the model reset completion and the room property
+    // update in QML - connecting the two signals early on overtakes any QML
+    // connection to modelReset. Ideally the room property could use modelReset
+    // for its NOTIFY signal - unfortunately, moc doesn't support using
+    // parent's signals with parameters in NOTIFY
+    connect(this, &MessageEventModel::modelReset, //
+            this, &MessageEventModel::roomChanged);
 }
 
 QuaternionRoom* MessageEventModel::room() const { return m_currentRoom; }
@@ -174,7 +182,6 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
         qDebug() << "Event model connected to room" << room->objectName()
                  << "as" << room->localUser()->id();
     }
-    emit roomChanged();
     endResetModel();
     emit readMarkerUpdated();
 }
