@@ -46,8 +46,11 @@
 #include "chatedit.h"
 #include "htmlfilter.h"
 
-static const auto DefaultPlaceholderText =
-        ChatRoomWidget::tr("Choose a room to send messages or enter a command...");
+static auto DefaultPlaceholderText()
+{
+    return ChatRoomWidget::tr(
+        "Choose a room to send messages or enter a command...");
+}
 
 static constexpr auto MaxNamesToShow = 5;
 static constexpr auto SampleSizeForHud = 3;
@@ -100,7 +103,7 @@ ChatRoomWidget::ChatRoomWidget(MainWindow* parent)
                 tr("Attaching %1").arg(attachedFileName));
         } else {
             m_attachAction->setChecked(false);
-            m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
+            m_chatEdit->setPlaceholderText(DefaultPlaceholderText());
             mainWindow()->showStatusMessage(tr("Attaching cancelled"), 3000);
         }
     });
@@ -109,7 +112,7 @@ ChatRoomWidget::ChatRoomWidget(MainWindow* parent)
     m_fileToAttach = new QTemporaryFile(this);
 
     m_chatEdit = new ChatEdit(this);
-    m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
+    m_chatEdit->setPlaceholderText(DefaultPlaceholderText());
     m_chatEdit->setAcceptRichText(true); // m_uiSettings.get("rich_text_editor", false);
     m_chatEdit->setMaximumHeight(maximumChatEditHeight());
     connect(m_chatEdit, &KChatEdit::returnPressed, this,
@@ -280,7 +283,7 @@ void ChatRoomWidget::encryptionChanged()
                      "%1 is the protocol used by the server (usually HTTPS)")
                   .arg(currentRoom()->connection()->homeserver()
                        .scheme().toUpper())
-            : DefaultPlaceholderText);
+            : DefaultPlaceholderText());
 }
 
 void ChatRoomWidget::setHudHtml(const QString& htmlCaption,
@@ -370,7 +373,7 @@ void ChatRoomWidget::sendFile()
         m_fileToAttach->remove();
     attachedFileName.clear();
     m_attachAction->setChecked(false);
-    m_chatEdit->setPlaceholderText(DefaultPlaceholderText);
+    m_chatEdit->setPlaceholderText(DefaultPlaceholderText());
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
@@ -407,8 +410,10 @@ void ChatRoomWidget::sendMessage()
         currentRoom()->postPlainText(plainText);
 }
 
-static const auto NothingToSendMsg =
-    ChatRoomWidget::tr("There's nothing to send");
+static auto NothingToSendMsg()
+{
+    return ChatRoomWidget::tr("There's nothing to send");
+}
 
 QString ChatRoomWidget::sendCommand(const QStringRef& command,
                                     const QString& argString)
@@ -604,7 +609,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         static const auto CmdLen = QStringLiteral("/plain ").size();
         const auto& plainMsg = m_chatEdit->toPlainText().mid(CmdLen);
         if (plainMsg.isEmpty())
-            return NothingToSendMsg;
+            return NothingToSendMsg();
         currentRoom()->postPlainText(plainMsg);
         return {};
     }
@@ -665,7 +670,7 @@ void ChatRoomWidget::sendInput()
         const auto& text = m_chatEdit->toPlainText();
         QString error;
         if (text.isEmpty())
-            error = NothingToSendMsg;
+            error = NothingToSendMsg();
         else if (text.startsWith('/') && !text.midRef(1).startsWith('/')) {
             QRegularExpression cmdSplit(
                     "(\\w+)(?:\\s+(.*))?",

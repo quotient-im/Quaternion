@@ -27,24 +27,33 @@ static const auto Untagged = RoomGroup::SystemPrefix + "none";
 static const auto Left = RoomGroup::SystemPrefix + "left";
 
 // TODO: maybe move the tr() strings below from RoomListModel context
-static const auto InvitesLabel =
-        RoomListModel::tr("Invited", "The caption for invitations");
-static const auto FavouritesLabel = RoomListModel::tr("Favourites");
-static const auto LowPriorityLabel = RoomListModel::tr("Low priority");
-static const auto ServerNoticeLabel = RoomListModel::tr("Server notices");
-static const auto DirectChatsLabel =
-        RoomListModel::tr("People", "The caption for direct chats");
-static const auto UngroupedRoomsLabel = RoomListModel::tr("Ungrouped rooms");
-static const auto LeftLabel =
-        RoomListModel::tr("Left", "The caption for left rooms");
+static auto InvitesLabel()
+{
+    return RoomListModel::tr("Invited", "The caption for invitations");
+}
+static auto FavouritesLabel() { return RoomListModel::tr("Favourites"); }
+static auto LowPriorityLabel() { return RoomListModel::tr("Low priority"); }
+static auto ServerNoticeLabel() { return RoomListModel::tr("Server notices"); }
+static auto DirectChatsLabel()
+{
+    return RoomListModel::tr("People", "The caption for direct chats");
+}
+static auto UngroupedRoomsLabel()
+{
+    return RoomListModel::tr("Ungrouped rooms");
+}
+static auto LeftLabel()
+{
+    return RoomListModel::tr("Left", "The caption for left rooms");
+}
 
 QString tagToCaption(const QString& tag)
 {
     // clang-format off
     return
-        tag == Quotient::FavouriteTag ? FavouritesLabel :
-        tag == Quotient::LowPriorityTag ? LowPriorityLabel :
-        tag == Quotient::ServerNoticeTag ? ServerNoticeLabel :
+        tag == Quotient::FavouriteTag ? FavouritesLabel() :
+        tag == Quotient::LowPriorityTag ? LowPriorityLabel() :
+        tag == Quotient::ServerNoticeTag ? ServerNoticeLabel() :
         tag.startsWith("u.") ? tag.mid(2) :
         tag;
     // clang-format on
@@ -54,9 +63,9 @@ QString captionToTag(const QString& caption)
 {
     // clang-format off
     return
-        caption == FavouritesLabel ? Quotient::FavouriteTag :
-        caption == LowPriorityLabel ? Quotient::LowPriorityTag :
-        caption == ServerNoticeLabel ? Quotient::ServerNoticeTag :
+        caption == FavouritesLabel() ? Quotient::FavouriteTag :
+        caption == LowPriorityLabel() ? Quotient::LowPriorityTag :
+        caption == ServerNoticeLabel() ? Quotient::ServerNoticeTag :
         caption.startsWith("m.") || caption.startsWith("u.") ? caption :
         "u." + caption;
     // clang-format on
@@ -90,10 +99,10 @@ QVariant OrderByTag::groupLabel(const RoomGroup& g) const
 {
     // clang-format off
     const auto caption =
-        g.key == Untagged ? UngroupedRoomsLabel :
-        g.key == Invite ? InvitesLabel :
-        g.key == DirectChat ? DirectChatsLabel :
-        g.key == Left ? LeftLabel :
+        g.key == Untagged ? UngroupedRoomsLabel() :
+        g.key == Invite ? InvitesLabel() :
+        g.key == DirectChat ? DirectChatsLabel() :
+        g.key == Left ? LeftLabel() :
         tagToCaption(g.key.toString());
     // clang-format on
     return RoomListModel::tr("%1 (%Ln room(s))", "", g.rooms.size()).arg(caption);
