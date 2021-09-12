@@ -59,6 +59,18 @@ TimelineWidget::TimelineWidget(ChatRoomWidget* chatRoomWidget)
                 else
                     imageProvider->setConnection(nullptr);
             });
+    connect(m_messageModel, &MessageEventModel::readMarkerUpdated, this, [this] {
+        if (auto room = currentRoom()) {
+            const auto readMarker = room->readMarker();
+            readMarkerOnScreen = readMarker != room->timelineEdge()
+                                 && std::lower_bound(indicesOnScreen.cbegin(),
+                                                     indicesOnScreen.cend(),
+                                                     readMarker->index())
+                                        != indicesOnScreen.cend();
+            reStartShownTimer();
+            activityDetector.setEnabled(pendingMarkRead());
+        }
+    });
 
     auto* ctxt = rootContext();
     ctxt->setContextProperty(QStringLiteral("messageModel"), m_messageModel);
@@ -96,19 +108,8 @@ void TimelineWidget::setRoom(QuaternionRoom* newRoom)
     indicesOnScreen.clear();
     m_messageModel->changeRoom(newRoom);
 
-    if (newRoom) {
-        connect(newRoom, &Quotient::Room::readMarkerMoved, this, [this] {
-            const auto rm = currentRoom()->readMarker();
-            readMarkerOnScreen = rm != currentRoom()->timelineEdge()
-                                 && std::lower_bound(indicesOnScreen.cbegin(),
-                                                     indicesOnScreen.cend(),
-                                                     rm->index())
-                                        != indicesOnScreen.cend();
-            reStartShownTimer();
-            activityDetector.setEnabled(pendingMarkRead());
-        });
+    if (newRoom)
         newRoom->setDisplayed(true);
-    }
 }
 
 void TimelineWidget::focusInput() { roomWidget->focusInput(); }
