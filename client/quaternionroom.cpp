@@ -50,13 +50,13 @@ bool QuaternionRoom::isEventHighlighted(const RoomEvent* e) const
 
 int QuaternionRoom::savedTopVisibleIndex() const
 {
-    return firstDisplayedMarker() == timelineEdge() ? 0 :
+    return firstDisplayedMarker() == historyEdge() ? 0 :
                 firstDisplayedMarker() - messageEvents().rbegin();
 }
 
 int QuaternionRoom::savedBottomVisibleIndex() const
 {
-    return lastDisplayedMarker() == timelineEdge() ? 0 :
+    return lastDisplayedMarker() == historyEdge() ? 0 :
                 lastDisplayedMarker() - messageEvents().rbegin();
 }
 

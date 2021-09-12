@@ -99,7 +99,7 @@ void TimelineWidget::setRoom(QuaternionRoom* newRoom)
     if (newRoom) {
         connect(newRoom, &Quotient::Room::readMarkerMoved, this, [this] {
             const auto rm = currentRoom()->readMarker();
-            readMarkerOnScreen = rm != currentRoom()->timelineEdge()
+            readMarkerOnScreen = rm != currentRoom()->historyEdge()
                                  && std::lower_bound(indicesOnScreen.cbegin(),
                                                      indicesOnScreen.cend(),
                                                      rm->index())
@@ -339,7 +339,7 @@ void TimelineWidget::markShownAsRead()
     // FIXME: a case when a single message doesn't fit on the screen.
     if (auto room = currentRoom(); room != nullptr && readMarkerOnScreen) {
         const auto iter = room->findInTimeline(indicesOnScreen.back());
-        Q_ASSERT(iter != room->timelineEdge());
+        Q_ASSERT(iter != room->historyEdge());
         room->markMessagesAsRead((*iter)->id());
     }
 }
@@ -350,5 +350,5 @@ bool TimelineWidget::pendingMarkRead() const
         return false;
 
     const auto rm = currentRoom()->readMarker();
-    return rm != currentRoom()->timelineEdge() && rm->index() < indexToMaybeRead;
+    return rm != currentRoom()->historyEdge() && rm->index() < indexToMaybeRead;
 }

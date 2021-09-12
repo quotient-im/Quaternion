@@ -247,7 +247,7 @@ int MessageEventModel::findRow(const QString& id, bool includePending) const
                 return int(pendingIt - m_currentRoom->pendingEvents().begin());
         }
         const auto timelineIt = m_currentRoom->findInTimeline(id);
-        if (timelineIt != m_currentRoom->timelineEdge())
+        if (timelineIt != m_currentRoom->historyEdge())
             return int(timelineIt - m_currentRoom->messageEvents().rbegin())
                     + timelineBaseIndex();
     }
@@ -324,7 +324,7 @@ bool MessageEventModel::isUserActivityNotable(
     // Find the nearest join of this user above, or a no-nonsense event.
     for (auto it = baseIt,
               limit = baseIt +
-                    std::min(int(m_currentRoom->timelineEdge() - baseIt), 100);
+                    std::min(int(m_currentRoom->historyEdge() - baseIt), 100);
          it != limit; ++it)
     {
         const auto& e = **it;
