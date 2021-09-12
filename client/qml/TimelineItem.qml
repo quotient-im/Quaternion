@@ -504,7 +504,7 @@ Item {
                         contentItem: Text {
                             text: modelData.key + " \u00d7" /* Math "multiply" */
                                   + modelData.authorsCount
-                            textFormat: Text.PlainText
+                            textFormat: Text.RichText
                             font.family: settings.font.family
                             font.pointSize: settings.font.pointSize
                             color: modelData.includesLocalUser

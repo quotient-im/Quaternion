@@ -806,8 +806,8 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                 if (rIt == reactions.end())
                     rIt = reactions.insert(reactions.end(), {e->relation().key});
 
-                rIt->authorsList
-                        << m_currentRoom->safeMemberName(e->senderId());
+                rIt->authorsList << m_currentRoom->safeMemberName(e->senderId())
+                                        .toHtmlEscaped();
                 rIt->includesLocalUser |=
                         e->senderId() == m_currentRoom->localUser()->id();
             }
@@ -822,7 +822,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                                     r.authorsList.end());
             }
             qmlReactions << QJsonObject {
-                    { QStringLiteral("key"), r.key },
+                    { QStringLiteral("key"), r.key.toHtmlEscaped() },
                     { QStringLiteral("authorsCount"), r.authorsList.size() },
                     { QStringLiteral("authors"),
                             QLocale().createSeparatedList(r.authorsList) },
