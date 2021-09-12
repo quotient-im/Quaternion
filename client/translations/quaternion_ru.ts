@@ -86,14 +86,6 @@
         <translation>Неизвестная команда. Используйте //, чтобы отправить буквально эту строку</translation>
     </message>
     <message>
-        <source>Save file as</source>
-        <translation>Сохранить файл как</translation>
-    </message>
-    <message>
-        <source>Copy link to clipboard</source>
-        <translation>Скопировать ссылку в буфер обмена</translation>
-    </message>
-    <message>
         <source>Attach</source>
         <translation>Добавить</translation>
     </message>
@@ -138,64 +130,16 @@
         <translation>Добавление изображения из буфера обмена</translation>
     </message>
     <message>
-        <source>Referenced message not found</source>
-        <translation>Указанное сообщение не найдено</translation>
-    </message>
-    <message>
         <source>Send a message (no end-to-end encryption support yet)...</source>
         <translation>Отправить сообщение (сквозное шифрование пока не поддерживается)...</translation>
-    </message>
-    <message>
-        <source>Redact</source>
-        <translation>Скрыть</translation>
-    </message>
-    <message>
-        <source>Copy permalink to clipboard</source>
-        <translation>Скопировать постоянную ссылку в буфер обмена</translation>
-    </message>
-    <message>
-        <source>Quote</source>
-        <translation>Процитировать</translation>
-    </message>
-    <message>
-        <source>Show details</source>
-        <translation>Показать подробности</translation>
-    </message>
-    <message>
-        <source>Open externally</source>
-        <translation>Открыть через приложение</translation>
-    </message>
-    <message>
-        <source>Open Folder</source>
-        <translation>Открыть папку</translation>
-    </message>
-    <message>
-        <source>Download</source>
-        <translation>Скачать</translation>
-    </message>
-    <message>
-        <source>Save file as...</source>
-        <translation>Сохранить файл как...</translation>
     </message>
     <message>
         <source>Your build of Quaternion doesn&apos;t support Markdown</source>
         <translation>Ваша сборка Quaternion не поддерживает Markdown</translation>
     </message>
     <message>
-        <source>Copy selected text to clipboard</source>
-        <translation>Скопировать выделенный текст в буфер обмена</translation>
-    </message>
-    <message>
-        <source>Copy image to clipboard</source>
-        <translation>Скопировать изображение в буфер обмена</translation>
-    </message>
-    <message>
         <source>No completions</source>
         <translation>Подсказок нет</translation>
-    </message>
-    <message>
-        <source>(end of list)</source>
-        <translation>(конец списка)</translation>
     </message>
     <message numerus="yes">
         <source>%Ln more completions</source>
@@ -1079,10 +1023,6 @@ Matrix URI или ссылка на сервис matrix.to</translation>
         <translation>файл</translation>
     </message>
     <message>
-        <source>reinvited %1 to the room</source>
-        <translation>снова пригласил %1 в комнату</translation>
-    </message>
-    <message>
         <source>invited %1 to the room</source>
         <translation>пригласил пользователя %1 в комнату</translation>
     </message>
@@ -1443,10 +1383,6 @@ Matrix URI или ссылка на сервис matrix.to</translation>
         <translation>Избранные</translation>
     </message>
     <message>
-        <source>as %1</source>
-        <translation>как %1</translation>
-    </message>
-    <message>
         <source>This room&apos;s version is unstable!</source>
         <translation>Версия этой комнаты нестабильна!</translation>
     </message>
@@ -1572,29 +1508,6 @@ This operation cannot be reverted.</source>
     </message>
 </context>
 <context>
-    <name>main</name>
-    <message>
-        <source>Display debug information</source>
-        <translation>Отображать отладочную информацию</translation>
-    </message>
-    <message>
-        <source>Quaternion - an IM client for the Matrix protocol</source>
-        <translation>Quaternion - клиент мгновенных сообщений для протокола Matrix</translation>
-    </message>
-    <message>
-        <source>Override locale</source>
-        <translation>Переопределить язык</translation>
-    </message>
-    <message>
-        <source>locale</source>
-        <translation>язык</translation>
-    </message>
-    <message>
-        <source>Hide main window on startup</source>
-        <translation>Скрыть основное окно при запуске</translation>
-    </message>
-</context>
-<context>
     <name>FileContent</name>
     <message>
         <source>Size: %1, declared type: %2</source>
@@ -1663,6 +1576,25 @@ new room</source>
     </message>
 </context>
 <context>
+    <name>main</name>
+    <message>
+        <source>Quaternion - an IM client for the Matrix protocol</source>
+        <translation>Quaternion - клиент мгновенных сообщений для протокола Matrix</translation>
+    </message>
+    <message>
+        <source>Override locale</source>
+        <translation>Переопределить язык</translation>
+    </message>
+    <message>
+        <source>locale</source>
+        <translation>язык</translation>
+    </message>
+    <message>
+        <source>Hide main window on startup</source>
+        <translation>Скрыть основное окно при запуске</translation>
+    </message>
+</context>
+<context>
     <name>SystemTrayIcon</name>
     <message>
         <source>Highlight in %1</source>
@@ -1706,6 +1638,61 @@ new room</source>
     <message>
         <source>Image request is pending</source>
         <translation>Запрос на изображение в процессе обработки</translation>
+    </message>
+</context>
+<context>
+    <name>TimelineWidget</name>
+    <message>
+        <source>Referenced message not found</source>
+        <translation>Указанное сообщение не найдено</translation>
+    </message>
+    <message>
+        <source>Copy permalink to clipboard</source>
+        <translation>Скопировать постоянную ссылку в буфер обмена</translation>
+    </message>
+    <message>
+        <source>Show details</source>
+        <translation>Показать подробности</translation>
+    </message>
+    <message>
+        <source>Open Folder</source>
+        <translation>Открыть папку</translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <translation>Скачать</translation>
+    </message>
+    <message>
+        <source>Save file as...</source>
+        <translation>Сохранить файл как...</translation>
+    </message>
+    <message>
+        <source>Copy selected text to clipboard</source>
+        <translation>Скопировать выделенный текст в буфер обмена</translation>
+    </message>
+    <message>
+        <source>Copy image to clipboard</source>
+        <translation>Скопировать изображение в буфер обмена</translation>
+    </message>
+    <message>
+        <source>Save file as</source>
+        <translation>Сохранить файл как</translation>
+    </message>
+    <message>
+        <source>Redact</source>
+        <translation>Скрыть</translation>
+    </message>
+    <message>
+        <source>Copy link to clipboard</source>
+        <translation>Скопировать ссылку в буфер обмена</translation>
+    </message>
+    <message>
+        <source>Quote</source>
+        <translation>Процитировать</translation>
+    </message>
+    <message>
+        <source>Open externally</source>
+        <translation>Открыть через приложение</translation>
     </message>
 </context>
 <context>
