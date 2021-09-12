@@ -64,17 +64,10 @@ jobs:
           composition: package
         - os: windows-2019
           compiler: MSVC
-          platform: x86
-          qt-version: '5.15.2'
-          composition: package
-          qt-arch: win32_msvc2019
-        - os: windows-2019
-          compiler: MSVC
           platform: x64
           qt-version: '5.15.2'
           composition: package
           qt-arch: win64_msvc2019_64
-          # qt-arch MUST be in sync with artefact-type in Publish job below
 
     env:
       DEPLOY_VERBOSITY: 1
@@ -240,7 +233,7 @@ jobs:
       run: |
         rm -rf $INSTALL_PATH/{bearer,qmltooling}
         ls -l $INSTALL_PATH/quaternion.exe # Fail if it's not there
-        PACKAGE_NAME=quaternion-$VERSION-${{ matrix.qt-arch }}.zip
+        PACKAGE_NAME=quaternion-$VERSION-win64.zip
         7z a package/$PACKAGE_NAME $INSTALL_PATH
         find package/$PACKAGE_NAME -size +10M && echo "PACKAGE_NAME=$PACKAGE_NAME" >>$GITHUB_ENV
 
@@ -264,10 +257,8 @@ jobs:
           artefact-type: '.dmg'
         - package-name: Linux
           artefact-type: '.AppImage'
-        - package-name: Windows_32bit
-          artefact-type: '-win32_msvc2019.zip'
-        - package-name: Windows_64bit
-          artefact-type: '-win64_msvc2019_64.zip'
+        - package-name: Windows
+          artefact-type: '-win64.zip'
     env:
       FILE_NAME: quaternion-${{ needs.Prepare.outputs.version }}${{ matrix.artefact-type }}
 
