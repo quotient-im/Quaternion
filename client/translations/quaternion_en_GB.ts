@@ -86,14 +86,6 @@
         <translation>Unknown /command. Use // to send this line literally</translation>
     </message>
     <message>
-        <source>Save file as</source>
-        <translation>Save file as</translation>
-    </message>
-    <message>
-        <source>Copy link to clipboard</source>
-        <translation>Copy link to clipboard</translation>
-    </message>
-    <message>
         <source>Attach</source>
         <translation>Attach</translation>
     </message>
@@ -138,64 +130,16 @@
         <translation>Attaching an image from clipboard</translation>
     </message>
     <message>
-        <source>Referenced message not found</source>
-        <translation>Referenced message not found</translation>
-    </message>
-    <message>
         <source>Send a message (no end-to-end encryption support yet)...</source>
         <translation>Send a message (no end-to-end encryption support yet)...</translation>
-    </message>
-    <message>
-        <source>Redact</source>
-        <translation>Redact</translation>
-    </message>
-    <message>
-        <source>Copy permalink to clipboard</source>
-        <translation>Copy permalink to clipboard</translation>
-    </message>
-    <message>
-        <source>Quote</source>
-        <translation>Quote</translation>
-    </message>
-    <message>
-        <source>Show details</source>
-        <translation>Show details</translation>
-    </message>
-    <message>
-        <source>Open externally</source>
-        <translation>Open externally</translation>
-    </message>
-    <message>
-        <source>Open Folder</source>
-        <translation>Open Folder</translation>
-    </message>
-    <message>
-        <source>Download</source>
-        <translation>Download</translation>
-    </message>
-    <message>
-        <source>Save file as...</source>
-        <translation>Save file as...</translation>
     </message>
     <message>
         <source>Your build of Quaternion doesn&apos;t support Markdown</source>
         <translation>Your build of Quaternion doesn&apos;t support Markdown</translation>
     </message>
     <message>
-        <source>Copy selected text to clipboard</source>
-        <translation>Copy selected text to clipboard</translation>
-    </message>
-    <message>
-        <source>Copy image to clipboard</source>
-        <translation>Copy image to clipboard</translation>
-    </message>
-    <message>
         <source>No completions</source>
         <translation>No completions</translation>
-    </message>
-    <message>
-        <source>(end of list)</source>
-        <translation>(end of list)</translation>
     </message>
     <message numerus="yes">
         <source>%Ln more completions</source>
@@ -298,6 +242,14 @@ settings</translation>
             <numerusform>%Ln event requested from the server</numerusform>
             <numerusform>%Ln events requested from the server</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>Hide topic</source>
+        <translation>Hide topic</translation>
+    </message>
+    <message>
+        <source>Show topic</source>
+        <translation>Show topic</translation>
     </message>
 </context>
 <context>
@@ -1067,10 +1019,6 @@ Matrix URI or matrix.to link</translation>
         <translation>a file</translation>
     </message>
     <message>
-        <source>reinvited %1 to the room</source>
-        <translation>reinvited %1 to the room</translation>
-    </message>
-    <message>
         <source>invited %1 to the room</source>
         <translation>invited %1 to the room</translation>
     </message>
@@ -1429,10 +1377,6 @@ Matrix URI or matrix.to link</translation>
         <translation>Favourites</translation>
     </message>
     <message>
-        <source>as %1</source>
-        <translation>as %1</translation>
-    </message>
-    <message>
         <source>This room&apos;s version is unstable!</source>
         <translation>This room&apos;s version is unstable!</translation>
     </message>
@@ -1558,29 +1502,6 @@ This operation cannot be reverted.</translation>
     </message>
 </context>
 <context>
-    <name>main</name>
-    <message>
-        <source>Display debug information</source>
-        <translation>Display debug information</translation>
-    </message>
-    <message>
-        <source>Quaternion - an IM client for the Matrix protocol</source>
-        <translation>Quaternion - an IM client for the Matrix protocol</translation>
-    </message>
-    <message>
-        <source>Override locale</source>
-        <translation>Override locale</translation>
-    </message>
-    <message>
-        <source>locale</source>
-        <translation>locale</translation>
-    </message>
-    <message>
-        <source>Hide main window on startup</source>
-        <translation>Hide main window on startup</translation>
-    </message>
-</context>
-<context>
     <name>FileContent</name>
     <message>
         <source>Size: %1, declared type: %2</source>
@@ -1651,6 +1572,25 @@ new room</translation>
     </message>
 </context>
 <context>
+    <name>main</name>
+    <message>
+        <source>Quaternion - an IM client for the Matrix protocol</source>
+        <translation>Quaternion - an IM client for the Matrix protocol</translation>
+    </message>
+    <message>
+        <source>Override locale</source>
+        <translation>Override locale</translation>
+    </message>
+    <message>
+        <source>locale</source>
+        <translation>locale</translation>
+    </message>
+    <message>
+        <source>Hide main window on startup</source>
+        <translation>Hide main window on startup</translation>
+    </message>
+</context>
+<context>
     <name>SystemTrayIcon</name>
     <message>
         <source>Highlight in %1</source>
@@ -1693,6 +1633,61 @@ new room</translation>
     <message>
         <source>Image request is pending</source>
         <translation>Image request is pending</translation>
+    </message>
+</context>
+<context>
+    <name>TimelineWidget</name>
+    <message>
+        <source>Referenced message not found</source>
+        <translation>Referenced message not found</translation>
+    </message>
+    <message>
+        <source>Copy permalink to clipboard</source>
+        <translation>Copy permalink to clipboard</translation>
+    </message>
+    <message>
+        <source>Show details</source>
+        <translation>Show details</translation>
+    </message>
+    <message>
+        <source>Open Folder</source>
+        <translation>Open Folder</translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <translation>Download</translation>
+    </message>
+    <message>
+        <source>Save file as...</source>
+        <translation>Save file as...</translation>
+    </message>
+    <message>
+        <source>Copy selected text to clipboard</source>
+        <translation>Copy selected text to clipboard</translation>
+    </message>
+    <message>
+        <source>Copy image to clipboard</source>
+        <translation>Copy image to clipboard</translation>
+    </message>
+    <message>
+        <source>Save file as</source>
+        <translation>Save file as</translation>
+    </message>
+    <message>
+        <source>Redact</source>
+        <translation>Redact</translation>
+    </message>
+    <message>
+        <source>Copy link to clipboard</source>
+        <translation>Copy link to clipboard</translation>
+    </message>
+    <message>
+        <source>Quote</source>
+        <translation>Quote</translation>
+    </message>
+    <message>
+        <source>Open externally</source>
+        <translation>Open externally</translation>
     </message>
 </context>
 <context>

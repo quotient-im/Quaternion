@@ -86,14 +86,6 @@
         <translation>/command desconocido. Utilice // para enviar esta línea literalmente</translation>
     </message>
     <message>
-        <source>Save file as</source>
-        <translation>Guardar archivo como</translation>
-    </message>
-    <message>
-        <source>Copy link to clipboard</source>
-        <translation>Copiar el enlace al portapapeles</translation>
-    </message>
-    <message>
         <source>Attach</source>
         <translation>Adjuntar</translation>
     </message>
@@ -132,18 +124,6 @@
     <message>
         <source>Send a message (over %1) or enter a command...</source>
         <translation>Envía un mensaje (más de %1) o introduce un comando...</translation>
-    </message>
-    <message>
-        <source>Redact</source>
-        <translation>Redactar</translation>
-    </message>
-    <message>
-        <source>Quote</source>
-        <translation>Comillas</translation>
-    </message>
-    <message>
-        <source>Open externally</source>
-        <translation>Abrir externamente</translation>
     </message>
     <message>
         <source>Next completion:</source>
@@ -795,10 +775,6 @@ Matrix URI o enlace matriz.to</translation>
         <translation>un archivo</translation>
     </message>
     <message>
-        <source>reinvited %1 to the room</source>
-        <translation>reinvitado %1 a la sala</translation>
-    </message>
-    <message>
         <source>invited %1 to the room</source>
         <translation>invitado %1 a la sala</translation>
     </message>
@@ -1142,10 +1118,6 @@ Matrix URI o enlace matriz.to</translation>
         <translation>Favoritos</translation>
     </message>
     <message>
-        <source>as %1</source>
-        <translation>como %1</translation>
-    </message>
-    <message>
         <source>This room&apos;s version is unstable!</source>
         <translation>¡La versión de esta sala es inestable!</translation>
     </message>
@@ -1251,29 +1223,6 @@ Esta operación no se puede revertir.</translation>
     </message>
 </context>
 <context>
-    <name>main</name>
-    <message>
-        <source>Display debug information</source>
-        <translation>Mostrar información de depuración</translation>
-    </message>
-    <message>
-        <source>Quaternion - an IM client for the Matrix protocol</source>
-        <translation>Quaternion: un cliente de mensajería instantánea para el protocolo Matrix</translation>
-    </message>
-    <message>
-        <source>Override locale</source>
-        <translation>Reemplazar la configuración regional</translation>
-    </message>
-    <message>
-        <source>locale</source>
-        <translation>configuración regional</translation>
-    </message>
-    <message>
-        <source>Hide main window on startup</source>
-        <translation>Ocultar la ventana principal al iniciar</translation>
-    </message>
-</context>
-<context>
     <name>FileContent</name>
     <message>
         <source>Size: %1, declared type: %2</source>
@@ -1324,6 +1273,25 @@ Esta operación no se puede revertir.</translation>
     </message>
 </context>
 <context>
+    <name>main</name>
+    <message>
+        <source>Quaternion - an IM client for the Matrix protocol</source>
+        <translation>Quaternion: un cliente de mensajería instantánea para el protocolo Matrix</translation>
+    </message>
+    <message>
+        <source>Override locale</source>
+        <translation>Reemplazar la configuración regional</translation>
+    </message>
+    <message>
+        <source>locale</source>
+        <translation>configuración regional</translation>
+    </message>
+    <message>
+        <source>Hide main window on startup</source>
+        <translation>Ocultar la ventana principal al iniciar</translation>
+    </message>
+</context>
+<context>
     <name>SystemTrayIcon</name>
     <message>
         <source>Highlight in %1</source>
@@ -1361,6 +1329,25 @@ Esta operación no se puede revertir.</translation>
     <message>
         <source>Access token</source>
         <translation>Token de acceso</translation>
+    </message>
+</context>
+<context>
+    <name>TimelineWidget</name>
+    <message>
+        <source>Save file as</source>
+        <translation>Guardar archivo como</translation>
+    </message>
+    <message>
+        <source>Redact</source>
+        <translation>Redactar</translation>
+    </message>
+    <message>
+        <source>Quote</source>
+        <translation>Comillas</translation>
+    </message>
+    <message>
+        <source>Open externally</source>
+        <translation>Abrir externamente</translation>
     </message>
 </context>
 </TS>

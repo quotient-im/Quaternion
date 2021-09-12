@@ -86,14 +86,6 @@
         <translation>Nieznane polecenie. Użyj //, aby dosłownie wysłać tę linię</translation>
     </message>
     <message>
-        <source>Save file as</source>
-        <translation>Zapisz plik jako</translation>
-    </message>
-    <message>
-        <source>Copy link to clipboard</source>
-        <translation>Skopiuj link do schowka</translation>
-    </message>
-    <message>
         <source>Attach</source>
         <translation>Załącz</translation>
     </message>
@@ -138,64 +130,16 @@
         <translation>Załączanie obrazu ze schowka</translation>
     </message>
     <message>
-        <source>Referenced message not found</source>
-        <translation>Nie znaleziono odwołanej wiadomości</translation>
-    </message>
-    <message>
         <source>Send a message (no end-to-end encryption support yet)...</source>
         <translation>Wyślij wiadomość (brak obsługi szyfrowania typu end-to-end)…</translation>
-    </message>
-    <message>
-        <source>Redact</source>
-        <translation>Zredaguj</translation>
-    </message>
-    <message>
-        <source>Copy permalink to clipboard</source>
-        <translation>Skopiuj link bezpośredni do schowka</translation>
-    </message>
-    <message>
-        <source>Quote</source>
-        <translation>Cytuj</translation>
-    </message>
-    <message>
-        <source>Show details</source>
-        <translation>Pokaż szczegóły</translation>
-    </message>
-    <message>
-        <source>Open externally</source>
-        <translation>Otwórz zewnętrznie</translation>
-    </message>
-    <message>
-        <source>Open Folder</source>
-        <translation>Otwórz folder</translation>
-    </message>
-    <message>
-        <source>Download</source>
-        <translation>Pobierz</translation>
-    </message>
-    <message>
-        <source>Save file as...</source>
-        <translation>Zapisz plik jako…</translation>
     </message>
     <message>
         <source>Your build of Quaternion doesn&apos;t support Markdown</source>
         <translation>Twoja wersja Quaterniona nie wspiera składni Markdown</translation>
     </message>
     <message>
-        <source>Copy selected text to clipboard</source>
-        <translation>Skopiuj zaznaczony tekst do schowka</translation>
-    </message>
-    <message>
-        <source>Copy image to clipboard</source>
-        <translation>Skopiuj obraz do schowka</translation>
-    </message>
-    <message>
         <source>No completions</source>
         <translation>Brak dokończeń</translation>
-    </message>
-    <message>
-        <source>(end of list)</source>
-        <translation>(koniec listy)</translation>
     </message>
     <message numerus="yes">
         <source>%Ln more completions</source>
@@ -295,6 +239,14 @@ pokoju</translation>
             <numerusform>%Ln wydarzeń w pamięci podręcznej</numerusform>
             <numerusform>%Ln wydarzeń w pamięci podręcznej</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>Hide topic</source>
+        <translation>Ukryj temat</translation>
+    </message>
+    <message>
+        <source>Show topic</source>
+        <translation>Pokaż temat</translation>
     </message>
 </context>
 <context>
@@ -1000,10 +952,6 @@ Matrix URI lub link matrix.to</translation>
         <translation>plik</translation>
     </message>
     <message>
-        <source>reinvited %1 to the room</source>
-        <translation>ponownie zaprosił(a) %1 do pokoju</translation>
-    </message>
-    <message>
         <source>invited %1 to the room</source>
         <translation>zaprosił(a) %1 do pokoju</translation>
     </message>
@@ -1358,10 +1306,6 @@ Matrix URI lub link matrix.to</translation>
         <translation>Ulubione</translation>
     </message>
     <message>
-        <source>as %1</source>
-        <translation>jako %1</translation>
-    </message>
-    <message>
         <source>This room&apos;s version is unstable!</source>
         <translation>Wersja tego pokoju jest niestabilna!</translation>
     </message>
@@ -1483,29 +1427,6 @@ Ta operacja nie może zostać cofnięta.</translation>
     </message>
 </context>
 <context>
-    <name>main</name>
-    <message>
-        <source>Display debug information</source>
-        <translation>Wyświetl informacje debugowe</translation>
-    </message>
-    <message>
-        <source>Quaternion - an IM client for the Matrix protocol</source>
-        <translation>Quaternion - komunikator internetowy dla protokołu Matrix</translation>
-    </message>
-    <message>
-        <source>Override locale</source>
-        <translation>Nadpisz ustawienia regionalne</translation>
-    </message>
-    <message>
-        <source>locale</source>
-        <translation>locale</translation>
-    </message>
-    <message>
-        <source>Hide main window on startup</source>
-        <translation>Ukryj główne okno podczas uruchamiania</translation>
-    </message>
-</context>
-<context>
     <name>FileContent</name>
     <message>
         <source>Size: %1, declared type: %2</source>
@@ -1572,6 +1493,25 @@ nowego pokoju</translation>
     </message>
 </context>
 <context>
+    <name>main</name>
+    <message>
+        <source>Quaternion - an IM client for the Matrix protocol</source>
+        <translation>Quaternion - komunikator internetowy dla protokołu Matrix</translation>
+    </message>
+    <message>
+        <source>Override locale</source>
+        <translation>Nadpisz ustawienia regionalne</translation>
+    </message>
+    <message>
+        <source>locale</source>
+        <translation>locale</translation>
+    </message>
+    <message>
+        <source>Hide main window on startup</source>
+        <translation>Ukryj główne okno podczas uruchamiania</translation>
+    </message>
+</context>
+<context>
     <name>SystemTrayIcon</name>
     <message>
         <source>Highlight in %1</source>
@@ -1612,6 +1552,61 @@ nowego pokoju</translation>
     <message>
         <source>Image request is pending</source>
         <translation>Oczekiwanie na obraz</translation>
+    </message>
+</context>
+<context>
+    <name>TimelineWidget</name>
+    <message>
+        <source>Referenced message not found</source>
+        <translation>Nie znaleziono odwołanej wiadomości</translation>
+    </message>
+    <message>
+        <source>Copy permalink to clipboard</source>
+        <translation>Skopiuj link bezpośredni do schowka</translation>
+    </message>
+    <message>
+        <source>Show details</source>
+        <translation>Pokaż szczegóły</translation>
+    </message>
+    <message>
+        <source>Open Folder</source>
+        <translation>Otwórz folder</translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <translation>Pobierz</translation>
+    </message>
+    <message>
+        <source>Save file as...</source>
+        <translation>Zapisz plik jako…</translation>
+    </message>
+    <message>
+        <source>Copy selected text to clipboard</source>
+        <translation>Skopiuj zaznaczony tekst do schowka</translation>
+    </message>
+    <message>
+        <source>Copy image to clipboard</source>
+        <translation>Skopiuj obraz do schowka</translation>
+    </message>
+    <message>
+        <source>Save file as</source>
+        <translation>Zapisz plik jako</translation>
+    </message>
+    <message>
+        <source>Redact</source>
+        <translation>Zredaguj</translation>
+    </message>
+    <message>
+        <source>Copy link to clipboard</source>
+        <translation>Skopiuj link do schowka</translation>
+    </message>
+    <message>
+        <source>Quote</source>
+        <translation>Cytuj</translation>
+    </message>
+    <message>
+        <source>Open externally</source>
+        <translation>Otwórz zewnętrznie</translation>
     </message>
 </context>
 <context>

@@ -86,14 +86,6 @@
         <translation>Unbekannter /Befehl. Starte mit //, um diese Zeile normal zu senden</translation>
     </message>
     <message>
-        <source>Save file as</source>
-        <translation>Datei speichern unter</translation>
-    </message>
-    <message>
-        <source>Copy link to clipboard</source>
-        <translation>Link in Zwischenablage kopieren</translation>
-    </message>
-    <message>
         <source>Attach</source>
         <translation>Anhängen</translation>
     </message>
@@ -138,64 +130,16 @@
         <translation>Anhängen eines Bildes aus der Zwischenablage</translation>
     </message>
     <message>
-        <source>Referenced message not found</source>
-        <translation>Referenzierte Nachricht nicht gefunden</translation>
-    </message>
-    <message>
         <source>Send a message (no end-to-end encryption support yet)...</source>
         <translation>Eine Nachricht senden (noch keine Unterstützung für Ende-zu-Ende-Verschlüsselung) …</translation>
-    </message>
-    <message>
-        <source>Redact</source>
-        <translation>Entfernen</translation>
-    </message>
-    <message>
-        <source>Copy permalink to clipboard</source>
-        <translation>Permalink in die Zwischenablage kopieren</translation>
-    </message>
-    <message>
-        <source>Quote</source>
-        <translation>Zitieren</translation>
-    </message>
-    <message>
-        <source>Show details</source>
-        <translation>Zeige Details</translation>
-    </message>
-    <message>
-        <source>Open externally</source>
-        <translation>Extern öffnen</translation>
-    </message>
-    <message>
-        <source>Open Folder</source>
-        <translation>Ordner öffnen</translation>
-    </message>
-    <message>
-        <source>Download</source>
-        <translation>Herunterladen</translation>
-    </message>
-    <message>
-        <source>Save file as...</source>
-        <translation>Datei speichern unter …</translation>
     </message>
     <message>
         <source>Your build of Quaternion doesn&apos;t support Markdown</source>
         <translation>Ihr Build von Quaternion unterstützt Markdown nicht</translation>
     </message>
     <message>
-        <source>Copy selected text to clipboard</source>
-        <translation>Markierten Text in die Zwischenablage kopieren</translation>
-    </message>
-    <message>
-        <source>Copy image to clipboard</source>
-        <translation>Bild in die Zwischenablage kopieren</translation>
-    </message>
-    <message>
         <source>No completions</source>
         <translation>Keine Vervollständigungen</translation>
-    </message>
-    <message>
-        <source>(end of list)</source>
-        <translation>(Ende der Liste)</translation>
     </message>
     <message numerus="yes">
         <source>%Ln more completions</source>
@@ -298,6 +242,14 @@ Einstellungen</translation>
             <numerusform>%Ln Ereignis vom Server angefragt</numerusform>
             <numerusform>%Ln Ereignisse vom Server angefragt</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>Hide topic</source>
+        <translation>Thema ausblenden</translation>
+    </message>
+    <message>
+        <source>Show topic</source>
+        <translation>Thema anzeigen</translation>
     </message>
 </context>
 <context>
@@ -1067,10 +1019,6 @@ Matrix URI oder matrix.to Link</translation>
         <translation>eine Datei</translation>
     </message>
     <message>
-        <source>reinvited %1 to the room</source>
-        <translation>lud %1 erneut in den Raum ein</translation>
-    </message>
-    <message>
         <source>invited %1 to the room</source>
         <translation>lud %1 in den Raum ein</translation>
     </message>
@@ -1429,10 +1377,6 @@ Matrix URI oder matrix.to Link</translation>
         <translation>Favoriten</translation>
     </message>
     <message>
-        <source>as %1</source>
-        <translation>als %1</translation>
-    </message>
-    <message>
         <source>This room&apos;s version is unstable!</source>
         <translation>Die Version dieses Raumes ist instabil!</translation>
     </message>
@@ -1558,29 +1502,6 @@ Dieser Vorgang kann nicht rückgängig gemacht werden.</translation>
     </message>
 </context>
 <context>
-    <name>main</name>
-    <message>
-        <source>Display debug information</source>
-        <translation>Zeige Debug-Informationen</translation>
-    </message>
-    <message>
-        <source>Quaternion - an IM client for the Matrix protocol</source>
-        <translation>Quaternion – ein Chat-Client für das Matrix-Protokoll</translation>
-    </message>
-    <message>
-        <source>Override locale</source>
-        <translation>Sprache überschreiben</translation>
-    </message>
-    <message>
-        <source>locale</source>
-        <translation>Sprache</translation>
-    </message>
-    <message>
-        <source>Hide main window on startup</source>
-        <translation>Starte mit verstecktem Hauptfenster</translation>
-    </message>
-</context>
-<context>
     <name>FileContent</name>
     <message>
         <source>Size: %1, declared type: %2</source>
@@ -1651,6 +1572,25 @@ neuem Raum</translation>
     </message>
 </context>
 <context>
+    <name>main</name>
+    <message>
+        <source>Quaternion - an IM client for the Matrix protocol</source>
+        <translation>Quaternion – ein Chat-Client für das Matrix-Protokoll</translation>
+    </message>
+    <message>
+        <source>Override locale</source>
+        <translation>Sprache überschreiben</translation>
+    </message>
+    <message>
+        <source>locale</source>
+        <translation>Sprache</translation>
+    </message>
+    <message>
+        <source>Hide main window on startup</source>
+        <translation>Starte mit verstecktem Hauptfenster</translation>
+    </message>
+</context>
+<context>
     <name>SystemTrayIcon</name>
     <message>
         <source>Highlight in %1</source>
@@ -1693,6 +1633,61 @@ neuem Raum</translation>
     <message>
         <source>Image request is pending</source>
         <translation>Bildanforderung ist ausstehend</translation>
+    </message>
+</context>
+<context>
+    <name>TimelineWidget</name>
+    <message>
+        <source>Referenced message not found</source>
+        <translation>Referenzierte Nachricht nicht gefunden</translation>
+    </message>
+    <message>
+        <source>Copy permalink to clipboard</source>
+        <translation>Permalink in die Zwischenablage kopieren</translation>
+    </message>
+    <message>
+        <source>Show details</source>
+        <translation>Zeige Details</translation>
+    </message>
+    <message>
+        <source>Open Folder</source>
+        <translation>Ordner öffnen</translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <translation>Herunterladen</translation>
+    </message>
+    <message>
+        <source>Save file as...</source>
+        <translation>Datei speichern unter …</translation>
+    </message>
+    <message>
+        <source>Copy selected text to clipboard</source>
+        <translation>Markierten Text in die Zwischenablage kopieren</translation>
+    </message>
+    <message>
+        <source>Copy image to clipboard</source>
+        <translation>Bild in die Zwischenablage kopieren</translation>
+    </message>
+    <message>
+        <source>Save file as</source>
+        <translation>Datei speichern unter</translation>
+    </message>
+    <message>
+        <source>Redact</source>
+        <translation>Entfernen</translation>
+    </message>
+    <message>
+        <source>Copy link to clipboard</source>
+        <translation>Link in Zwischenablage kopieren</translation>
+    </message>
+    <message>
+        <source>Quote</source>
+        <translation>Zitieren</translation>
+    </message>
+    <message>
+        <source>Open externally</source>
+        <translation>Extern öffnen</translation>
     </message>
 </context>
 <context>
