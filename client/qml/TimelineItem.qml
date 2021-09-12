@@ -86,7 +86,8 @@ Item {
         // A message is considered as "read" if its bottom spent long enough
         // within the viewing area of the timeline
         if (!pending)
-            controller.onMessageShownChanged(eventId, bottomEdgeShown)
+            controller.onMessageShownChanged(index, bottomEdgeShown,
+                                             readMarkerHere)
     }
 
     onPendingChanged: bottomEdgeShownChanged()

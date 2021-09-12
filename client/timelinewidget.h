@@ -51,7 +51,7 @@ public slots:
     void setRoom(QuaternionRoom* room);
     void focusInput();
     void spotlightEvent(const QString& eventId);
-    void onMessageShownChanged(const QString& eventId, bool shown);
+    void onMessageShownChanged(int visualIndex, bool shown, bool hasReadMarker);
     void markShownAsRead();
     void saveFileAs(const QString& eventId);
     void showMenu(int index, const QString& hoveredLink,

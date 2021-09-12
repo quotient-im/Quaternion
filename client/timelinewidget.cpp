@@ -136,42 +136,34 @@ void TimelineWidget::saveFileAs(const QString& eventId)
         currentRoom()->downloadFile(eventId, QUrl::fromLocalFile(fileName));
 }
 
-void TimelineWidget::onMessageShownChanged(const QString& eventId, bool shown)
+void TimelineWidget::onMessageShownChanged(int visualIndex, bool shown,
+                                           bool hasReadMarker)
 {
     const auto* room = currentRoom();
     if (!room || !room->displayed())
         return;
 
-    // A message can be auto-marked as read (as soon as the user is active), if:
-    // 0. The read marker exists and is on the screen
+    // A message can be auto-marked as (fully) read if:
+    // 0. The (fully) read marker is on the screen
     // 1. The message is shown on the screen now
     // 2. It's been the bottommost message on the screen for the last 1 second
-    //    (or whatever UI/maybe_read_timer tells in milliseconds)
-    // 3. It's below the read marker
+    //    (or whatever UI/maybe_read_timer tells in milliseconds) and the user
+    //    is active during that time
+    // 3. It's below the read marker after that time
 
-    if (const auto readMarker = room->readMarker();
-        readMarker != room->timelineEdge()
-        && readMarker->event()->id() == eventId) //
-    {
+    Q_ASSERT(visualIndex <= room->timelineSize());
+    const auto eventIt = room->syncEdge() - visualIndex - 1;
+    const auto timelineIndex = eventIt->index();
+
+    if (hasReadMarker) {
         readMarkerOnScreen = shown;
         if (shown) {
-            qDebug() << "Read marker is on-screen, at" << *readMarker;
-            indexToMaybeRead = readMarker->index();
+            indexToMaybeRead = timelineIndex;
             reStartShownTimer();
-        } else {
-            qDebug() << "Read marker is off-screen";
-            qDebug() << "Bottommost shown message index was" << indexToMaybeRead;
+        } else
             maybeReadTimer.stop();
-        }
     }
 
-    const auto iter = room->findInTimeline(eventId);
-    if (iter == room->timelineEdge()) {
-        qWarning() << "Event" << eventId
-                   << "is not in the timeline (local echo?)";
-        return;
-    }
-    const auto timelineIndex = iter->index();
     auto pos = std::lower_bound(indicesOnScreen.begin(), indicesOnScreen.end(),
                                 timelineIndex);
     if (shown) {
