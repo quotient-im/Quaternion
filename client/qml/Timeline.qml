@@ -324,7 +324,6 @@ Rectangle {
             }
 
             function onModelReset() {
-                console.log("Model timeline reset")
                 if (room)
                 {
                     forceLayout()

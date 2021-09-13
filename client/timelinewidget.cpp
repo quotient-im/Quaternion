@@ -88,14 +88,15 @@ void TimelineWidget::setRoom(QuaternionRoom* newRoom)
     if (currentRoom() == newRoom)
         return;
 
-    if (currentRoom())
+    if (currentRoom()) {
+        currentRoom()->setDisplayed(false);
         currentRoom()->disconnect(this);
-
+    }
     readMarkerOnScreen = false;
     maybeReadTimer.stop();
     indicesOnScreen.clear();
-    m_messageModel->changeRoom(newRoom);
 
+    m_messageModel->changeRoom(newRoom);
     if (newRoom) {
         connect(newRoom, &Quotient::Room::readMarkerMoved, this, [this] {
             const auto rm = currentRoom()->readMarker();

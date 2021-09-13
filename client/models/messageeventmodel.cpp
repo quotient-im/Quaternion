@@ -91,13 +91,12 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
     if (room == m_currentRoom)
         return;
 
-    beginResetModel();
-    if (m_currentRoom) {
-        m_currentRoom->setDisplayed(false);
-        m_currentRoom->disconnect(this);
-        qDebug() << "Event model disconnected from"
+    if (m_currentRoom)
+        qDebug() << "Disconnecting event model from"
                  << m_currentRoom->objectName();
-    }
+    beginResetModel();
+    if (m_currentRoom)
+        m_currentRoom->disconnect(this);
 
     m_currentRoom = room;
     if (m_currentRoom) {
