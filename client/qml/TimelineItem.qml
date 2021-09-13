@@ -22,8 +22,8 @@ Item {
 
     // Property interface
 
-    /** Determines whether the view is moving at the moment */
     property var view
+    /** Determines whether the view is moving at the moment */
     property bool moving: view.moving
 
     // TimelineItem definition
