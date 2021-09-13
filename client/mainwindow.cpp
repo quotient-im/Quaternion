@@ -1343,8 +1343,9 @@ void MainWindow::selectRoom(Quotient::Room* r)
         show();
         activateWindow();
     }
-    qDebug().noquote() << et << "to "
-                       << (r ? "select room " + r->canonicalAlias() : "close the room");
+    qDebug().noquote() << et << "to"
+                       << (r ? "select room " + r->canonicalAlias()
+                             : "close the room");
 }
 
 void MainWindow::showStatusMessage(const QString& message, int timeout)
