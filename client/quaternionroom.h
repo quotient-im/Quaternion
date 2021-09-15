@@ -36,7 +36,8 @@ class QuaternionRoom: public Quotient::Room
 
         Q_INVOKABLE int savedTopVisibleIndex() const;
         Q_INVOKABLE int savedBottomVisibleIndex() const;
-        Q_INVOKABLE void saveViewport(int topIndex, int bottomIndex);
+        Q_INVOKABLE void saveViewport(int topIndex, int bottomIndex,
+                                      bool force = false);
 
         QString htmlSafeDisplayName() const;
 

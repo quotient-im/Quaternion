@@ -317,10 +317,15 @@ Rectangle {
             onContentYChanged: ensurePreviousContent()
             onContentHeightChanged: ensurePreviousContent()
 
-            function saveViewport() {
+            function saveViewport(force) {
                 if (room)
                     room.saveViewport(indexAt(contentX, contentY),
-                                      bottommostVisibleIndex)
+                                      bottommostVisibleIndex, force)
+            }
+
+            function beforeModelReset() {
+                parkReadMarker()
+                saveViewport(true)
             }
 
             function onModelReset() {
@@ -329,6 +334,9 @@ Rectangle {
                     forceLayout()
                     // Load events if there are not enough of them
                     ensurePreviousContent()
+                    // FIXME: This is not on the right place: ListView may or
+                    // may not have updated its structures according to the new
+                    // model by now
                     var lastScrollPosition = room.savedTopVisibleIndex()
                     console.log("Scrolling to position", lastScrollPosition)
                     positionViewAtIndex(lastScrollPosition, ListView.Contain)
@@ -371,14 +379,10 @@ Rectangle {
 
             Component.onCompleted: {
                 console.log("QML view loaded")
-                model.modelAboutToBeReset.connect(parkReadMarker)
-                // FIXME: This is not on the right place: ListView may or
-                // may not have updated his structures according to the new
-                // model by now
+                model.modelAboutToBeReset.connect(beforeModelReset)
                 model.modelReset.connect(onModelReset)
             }
-
-            onMovementEnded: saveViewport()
+            onMovementEnded: saveViewport(false)
 
             populate: AnimatedTransition {
                 FastNumberAnimation { property: "opacity"; from: 0; to: 1 }
@@ -411,7 +415,7 @@ Rectangle {
 
                     onRunningChanged: {
                         if (!running)
-                            chatView.saveViewport()
+                            chatView.saveViewport(false)
                     }
             }}
 
@@ -608,7 +612,7 @@ Rectangle {
                     chatView.contentHeight - chatView.height)
             running: shuttleDial.value != 0
 
-            onStopped: chatView.saveViewport()
+            onStopped: chatView.saveViewport(false)
         }
 
         // Animations don't update `to` value when they are running; so
@@ -701,7 +705,7 @@ Rectangle {
 
         onClicked: {
             chatView.positionViewAtBeginning()
-            chatView.saveViewport()
+            chatView.saveViewport(true)
         }
     }
 
@@ -726,7 +730,7 @@ Rectangle {
         onClicked: {
             chatView.positionViewAtIndex(messageModel.readMarkerVisualIndex,
                                          ListView.Center)
-            chatView.saveViewport()
+            chatView.saveViewport(true)
         }
     }
 }

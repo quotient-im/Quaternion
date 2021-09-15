@@ -60,12 +60,12 @@ int QuaternionRoom::savedBottomVisibleIndex() const
                 lastDisplayedMarker() - messageEvents().rbegin();
 }
 
-void QuaternionRoom::saveViewport(int topIndex, int bottomIndex)
+void QuaternionRoom::saveViewport(int topIndex, int bottomIndex, bool force)
 {
     // Don't save more frequently than once a second
     static auto lastSaved = QDateTime::currentMSecsSinceEpoch();
     const auto now = QDateTime::currentMSecsSinceEpoch();
-    if (lastSaved >= now - 1000)
+    if (!force && lastSaved >= now - 1000)
         return;
     lastSaved = now;
 
