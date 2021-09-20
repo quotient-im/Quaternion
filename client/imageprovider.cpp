@@ -159,6 +159,14 @@ ImageProvider::ImageProvider(Connection* connection)
     : m_connection(connection)
 { }
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+#    define LOAD_ATOMIC(Ptr) Ptr.load()
+#    define STORE_ATOMIC(Ptr, NewValue) Ptr.store(NewValue)
+#else
+#    define LOAD_ATOMIC(Ptr) Ptr.loadRelaxed()
+#    define STORE_ATOMIC(Ptr, NewValue) Ptr.storeRelaxed(NewValue)
+#endif
+
 QQuickImageResponse* ImageProvider::requestImageResponse(
         const QString& id, const QSize& requestedSize)
 {
@@ -169,10 +177,10 @@ QQuickImageResponse* ImageProvider::requestImageResponse(
         size.setWidth(ushort(-1));
     if (size.height() == -1)
         size.setHeight(ushort(-1));
-    return new ThumbnailResponse(m_connection.loadAcquire(), id, size);
+    return new ThumbnailResponse(LOAD_ATOMIC(m_connection), id, size);
 }
 
 void ImageProvider::setConnection(Connection* connection)
 {
-    m_connection.storeRelease(connection);
+    STORE_ATOMIC(m_connection, connection);
 }
