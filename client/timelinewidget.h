@@ -61,6 +61,7 @@ public slots:
 
 private:
     MessageEventModel* m_messageModel;
+    ImageProvider* m_imageProvider;
     QString m_selectedText;
 
     using timeline_index_t = Quotient::TimelineItem::index_t;
