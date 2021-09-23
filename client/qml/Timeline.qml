@@ -328,18 +328,45 @@ Rectangle {
                 saveViewport(true)
             }
 
+            function fixupPosition() {
+                if (count == 0)
+                    return;
+                var lastTopIndex = room.savedTopVisibleIndex()
+                if (lastTopIndex === 0) {
+                    if (bottommostVisibleIndex === 0)
+                        return // All correct
+
+                    console.warning("Fixing up the viewport to be at sync edge")
+                    positionViewAtBeginning()
+                } else if (lastTopIndex > indexAt(contentX, contentY)
+                           || lastTopIndex < indexAt(contentX,
+                                                     contentY + height / 3)) {
+                    console.log("Fixing up item", lastTopIndex,
+                        "to be at the top (" + indexAt(contentX, contentY) + "-"
+                        + bottommostVisibleIndex, "range is shown now)")
+                    positionViewAtIndex(lastTopIndex, ListView.End)
+                }
+
+            }
+
+            // FIXME, #793: Instead of this workaround, drop ScrollView
+            // and maybe try to pinpoint the position shortly after navigation
+            // to alleviate remaining inaccuracy.
+            Timer {
+                id: scrollDelay
+                interval: 200 // ms, just below human reaction time
+                onTriggered: chatView.fixupPosition()
+            }
+
             function onModelReset() {
-                if (room)
-                {
-                    forceLayout()
+                if (room) {
                     // Load events if there are not enough of them
                     ensurePreviousContent()
-                    // FIXME: This is not on the right place: ListView may or
-                    // may not have updated its structures according to the new
-                    // model by now
+
                     var lastScrollPosition = room.savedTopVisibleIndex()
                     console.log("Scrolling to position", lastScrollPosition)
-                    positionViewAtIndex(lastScrollPosition, ListView.Contain)
+                    positionViewAtIndex(lastScrollPosition, ListView.End)
+                    scrollDelay.start()
                 }
             }
 
