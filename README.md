@@ -171,8 +171,7 @@ Some settings exposed in the user interface (Settings and View menus) are:
     or otherwise demands attention in an environment-specific way).
 - `timeline_layout` - this allows to choose the timeline layout. If this is
   set to "xchat", Quaternion will show the author to the left of each message,
-  in a xchat/hexchat style (this was also the only available layout on
-  Quaternion before 0.0.9.2). Any other value will select the "default" layout,
+  in an xchat/hexchat style. Any other value will select the "default" layout,
   with author labels above blocks of messages.
 - `use_shuttle_dial` - Quaternion will use a shuttle dial instead of
   a classic scrollbar for the timeline's vertical scrolling control. To start
@@ -231,8 +230,7 @@ Settings not exposed in UI:
   rooms/messages; HTML color names and SVG `#codes` are supported;
   by default it's `orange`.
 - `highlight_mode` - set this to `text` if you prefer to use the text color
-  for highlighting (the only option available until 0.0.9.3); the new
-  default is to use the background for highlighting.
+  for highlighting; the default is to use the background for highlighting.
 - `use_human_friendly_dates` - set this to false (or 0) if you do NOT want
   usage of human-friendly dates ("Today", "Monday" instead of the standard
   day-month-year triad) in the UI; the default is true.
@@ -258,16 +256,16 @@ Settings not exposed in UI:
   the next paragraph); the default is true.
 - `hyperlink_users` - set this to false (or 0) if you do NOT want to
   hyperlink matrix user IDs in messages. By default it's true.
-- `auto_markdown` - since version 0.0.95 beta 3, and only if built with Qt 5.14
-  or newer (that pertains to all binaries at GitHub Releases as well as
-  to Flatpaks), Quaternion supports Markdown when entering messages. Quaternion
-  only treats the message as Markdown if the message starts with `/md` command
-  (the command itself is removed from the message before sending). Setting
-  `auto_markdown` to `true` enables Markdown parsing in all messages that
-  _do not_ start with `/plain` instead. By default, this setting is `false`
-  since the current Qt support of Markdown is buggy, it cannot be enabled in
-  builds with older Qt and the whole functionality is experimental. If you
-  have it enabled, feel free to submit bug reports at the usual place.
+- `auto_markdown` (EXPERIMENTAL) - since version 0.0.95, and only if built with
+  Qt 5.14 or newer (that pertains to all binaries at GitHub Releases as well as
+  to Flatpaks), Quaternion has experimental support for Markdown when entering
+  messages. Quaternion only treats the message as Markdown if the message starts
+  with `/md` command (the command itself is removed from the message before
+  sending). Setting `auto_markdown` to `true` enables Markdown parsing in all
+  messages that _do not_ start with `/plain` instead. By default, this setting
+  is `false` since the current support of Markdown by Qt is buggy, and the whole
+  functionality in Quaternion is, again, experimental. If you have it enabled
+  (or use `/md` command) feel free to submit bug reports at the usual place.
 
 Since version 0.0.95, all Quaternion binaries at GitHub Releases are compiled
 with Qt Keychain support. It means that Quaternion will try to store your access
@@ -334,17 +332,17 @@ extremely unlucky, both):
 - You might not have Qt Quick libraries and/or plugins installed. On Linux,
   this may be a case when you are not using the official packages for your
   distro. Check the stdout/stderr logs, they are quite clear in such cases.
-  On Windows and Mac, just open an issue (see "Contacts" in the beginning of
-  this README), because most likely not all necessary Qt parts were installed
-  along with Quaternion (which is a bug).
+  On Windows, Mac, and when using Flatpak, just open an issue (see "Contacts"
+  in the beginning of this README), because most likely not all necessary Qt
+  parts were installed along with Quaternion (which is a packaging bug).
 - If the logs confirm that QML is up and running but there's still nothing
   for the timeline, you might have hit an issue with QML view stacking order,
-  such as #355/#356. If you use Qt 5.12 or newer (as is the case on Windows
-  and macOS recently), please file a bug: it should not happen with
-  recent Qt at all. If you are on Linux and have to use older Qt, you have
-  to build Quaternion from sources, passing `-DUSE_QQUICKWIDGET=ON` to CMake.
-  Note that it's prone to crashing on some platforms so it's best to still
-  find a way to run Quaternion with Qt 5.12 (using AppImage, e.g.).
+  such as #355/#356. If you use Qt 5.12 or newer, please file a bug: it
+  should not happen with recent Qt at all. If you are on Linux and have to use
+  older Qt, you have to build Quaternion from sources, passing
+  `-DUSE_QQUICKWIDGET=ON` to CMake. Note that it's prone to crashing on some
+  platforms so it's best to still find a way to run Quaternion with Qt 5.12
+  (using AppImage, e.g.).
 
 #### SSL problems
 Especially on Windows, if Quaternion starts up but upon an attempt to connect
@@ -384,4 +382,4 @@ follows:
 (the scary `%{if}`s are just encoding the logging level into its initial letter).
 
 ## Screenshot
-![Screenshot](quaternion.png)
+![Screenshot, thanks to nep-quaternion@packageloss.eu](quaternion.png)

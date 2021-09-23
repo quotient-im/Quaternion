@@ -15,14 +15,13 @@ from GitHub (make sure to pass `--recurse-submodules` to `git checkout` if you
 use Option 2 - see below). If you plan to work on Quaternion code, feel free
 to fork/clone the repo and base your changes on the master branch.
 
-Quaternion needs libQuotient to build. Since version 0.0.9.3 there are two
-options to use the library:
-1. Use a library installation known to CMake - either as a (possibly but not
-   necessarily system-wide) package available from your package repository,
+Quaternion needs libQuotient to build. There are two options to use the library:
+1. Use a library installation known to CMake - either as a package available
+   from your package repository (possibly but not necessarily system-wide),
    or as a result of building the library from the source code in another
    directory. In the latter case CMake internally registers the library
    upon succesfully building it so you shouldn't even need to pass
-   `CMAKE_PREFIX_PATH`.
+   `CMAKE_PREFIX_PATH` (still better do pass it, to avoid surprises).
 2. As a Git submodule. If you haven't cloned Quaternion sources yet,
    the following will get you all sources in one go:
    ```bash
@@ -40,23 +39,25 @@ options to use the library:
    git checkout --recurse-submodules <ref>
    ```
 
-Depending on your case, either option can be preferrable. For instance, Option 2
-is more convenient if you're actively hacking on Quaternion and libQuotient
-at the same time. On the other hand, packagers should make a separate package
-for libQuotient so should use Option 1. 0.0.9.3 is the only version using
-Option 1 as default; due to popular demand, Option 2 is used _by default_
-(with a fallback to Option 1) from 0.0.9.4 beta onwards. To override that
-you can pass `USE_INTREE_LIBQMC` option to CMake: `-DUSE_INTREE_LIBQMC=0`
-(or `NO`, or `OFF`) will force Option 1 (using an external libQuotient even when
-a submodule is there). The other way works too: if you intend to use libQuotient
-from the submodule, pass `-DUSE_INTREE_LIBQMC=1` (or `YES`, or `ON`) to make
+Depending on your case, either option can be preferrable. General guidance is:
+- Option 1 is strongly recommended for packaging and also good for development
+  on Quaternion without changing libQuotient;
+- Option 2 is better for one-off building and for active development when
+  _both_ Quaternion and libQuotient get changed.
+  
+These days Option 2 is used by default (with a fallback to Option 1 if no
+libQuotient is found under `lib/`). To override that you can pass
+`USE_INTREE_LIBQMC` option to CMake: `-DUSE_INTREE_LIBQMC=0` (or `NO`, or `OFF`)
+will force Option 1 (using an external libQuotient even when a submodule is
+there). The other way works too: if you intend to use libQuotient from
+the submodule, pass `-DUSE_INTREE_LIBQMC=1` (or `YES`, or `ON`) to make
 sure the build configuration process fails instead of finding an external
 libQuotient somewhere when a submodule is unusable for some reason (e.g. when
 `--recursive` has been forgotten when cloning).
 
 ### Pre-requisites
 - a recent Linux, macOS or Windows system (desktop versions tried; mobile
-  Linux/Windows might work too but never tried)
+  platforms might work too but never tried)
   - Recent enough Linux examples: Debian Buster; Fedora 28; OpenSUSE Leap 15;
     Ubuntu Bionic Beaver.
 - Qt 5 (either Open Source or Commercial), version 5.11 or higher
@@ -87,13 +88,17 @@ line should get you everything necessary to build and run Quaternion:
 ```bash
 sudo apt-get install cmake qtdeclarative5-dev qttools5-dev qml-module-qtquick-controls qml-module-qtquick-controls2 qtmultimedia5-dev
 ```
-To enable libsecret keyring support, also install QtKeychain by
+To enable keyring support, also install QtKeychain by
 ```bash
 sudo apt-get install qt5keychain-dev
 ```
 On Fedora 28, the following command should be enough for building and running:
 ```bash
 sudo dnf install cmake qt5-qtdeclarative-devel qt5-qtquickcontrols qt5-qtquickcontrols2 qt5-qtmultimedia-devel
+```
+and QtKeychain can be installed with
+```bash
+sudo dnf install qtkeychain-qt5-devel
 ```
 
 #### macOS
@@ -199,7 +204,8 @@ CMake Warning at CMakeLists.txt:11 (find_package):
   has asked CMake to find a package configuration file provided by
   "Qt5Widgets", but CMake did not find one.
 ```
-...then you need to set the right `CMAKE_PREFIX_PATH` variable, see above.
+...or a similar error referring to Qt5 - make sure that your `CMAKE_PREFIX_PATH`
+actually points to the location where Qt5 is installed, see above.
 
 If `cmake` fails with...
 ```
@@ -210,7 +216,9 @@ CMake Error at CMakeLists.txt:30 (add_subdirectory):
 
   does not contain a CMakeLists.txt file.
 ```
-...then you don't have libQuotient sources - most likely because you didn't do the `git submodule init && git submodule update` dance.
+...then you don't have libQuotient sources - most likely because you didn't do
+the `git submodule init && git submodule update` dance and don't have
+libQuotient development files elsewhere - also, see the beginning of this file.
 
 If you have made sure that your toolchain is in order (versions of compilers
 and Qt are among supported ones, `PATH` is set correctly etc.) but building
