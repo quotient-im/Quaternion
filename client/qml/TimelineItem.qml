@@ -73,14 +73,14 @@ Item {
     /// The bottom event edge is below the top viewport edge and
     /// the top event edge is above the bottom viewport edge
     readonly property bool partiallyShown:
-        room.displayed && y + height - 1 > view.contentY
-                       && y < view.contentY + view.height
+        room && room.displayed && y + height - 1 > view.contentY
+                               && y < view.contentY + view.height
 
     /// The bottom event edge is below the top and above the bottom
     /// viewport edge; partiallyShown => bottomEdgeShown but not vice versa
     readonly property bool bottomEdgeShown:
-        room.displayed && y + height - 1 > view.contentY
-                       && y + height - 1 < view.contentY + view.height
+        room && room.displayed && y + height - 1 > view.contentY
+                               && y + height - 1 < view.contentY + view.height
 
     onBottomEdgeShownChanged: {
         // A message is considered as "read" if its bottom spent long enough
