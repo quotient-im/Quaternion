@@ -44,10 +44,6 @@ Dialog::Dialog(const QString& title, QDialogButtonBox::StandardButtons setButton
 {
     setWindowTitle(title);
 
-#if (QT_VERSION < QT_VERSION_CHECK(5, 10, 0))
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-#endif
-
     connect(buttons, &QDialogButtonBox::clicked, this, &Dialog::buttonClicked);
 
     outerLayout.addWidget(buttons);

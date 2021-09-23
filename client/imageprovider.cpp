@@ -58,13 +58,7 @@ class ThumbnailResponse : public QQuickImageResponse
 
             // Execute a request on the main thread asynchronously
             moveToThread(c->thread());
-            QMetaObject::invokeMethod(this,
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
-                &ThumbnailResponse::startRequest
-#else
-                "startRequest"
-#endif
-            );
+            QMetaObject::invokeMethod(this, &ThumbnailResponse::startRequest);
         }
         ~ThumbnailResponse() override = default;
 
@@ -143,13 +137,7 @@ class ThumbnailResponse : public QQuickImageResponse
         void cancel() override
         {
             // Flip from QML thread to the main thread
-            QMetaObject::invokeMethod(this,
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
-                &ThumbnailResponse::doCancel
-#else
-                "doCancel"
-#endif
-            );
+            QMetaObject::invokeMethod(this, &ThumbnailResponse::doCancel);
         }
 };
 
