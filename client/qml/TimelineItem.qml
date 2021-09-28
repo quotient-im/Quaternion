@@ -510,7 +510,7 @@ Item {
                         contentItem: Text {
                             text: modelData.key + " \u00d7" /* Math "multiply" */
                                   + modelData.authorsCount
-                            textFormat: Text.RichText
+                            textFormat: Text.PlainText
                             font.family: settings.font.family
                             font.pointSize: settings.font.pointSize
                             color: modelData.includesLocalUser
@@ -531,9 +531,12 @@ Item {
                         hoverEnabled: true
                         MyToolTip {
                             visible: hovered
-                            //: %2 is the list of users
-                            text: qsTr("Reaction '%1' from %2")
-                                  .arg(modelData.key).arg(modelData.authors)
+                            contentItem: Text {
+                                //: %2 is the list of users
+                                text: qsTr("Reaction '%1' from %2")
+                                      .arg(modelData.key).arg(modelData.authors)
+                                textFormat: Text.PlainText
+                            }
                         }
 
                         onClicked: controller.reactionButtonClicked(

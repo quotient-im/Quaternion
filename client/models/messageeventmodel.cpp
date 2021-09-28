@@ -805,14 +805,16 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                 if (rIt == reactions.end())
                     rIt = reactions.insert(reactions.end(), {e->relation().key});
 
-                rIt->authorsList << m_currentRoom->safeMemberName(e->senderId())
-                                        .toHtmlEscaped();
+                rIt->authorsList << m_currentRoom->safeMemberName(e->senderId());
                 rIt->includesLocalUser |=
                         e->senderId() == m_currentRoom->localUser()->id();
             }
         // Prepare the QML model data
+        // NB: Strings are NOT HTML-escaped; QML code must take care to use
+        // Text.PlainText format when displaying them
         QJsonArray qmlReactions;
         for (auto&& r: reactions) {
+            const auto authorsCount = r.authorsList.size();
             if (r.authorsList.size() > 7) {
                 //: When the reaction comes from too many members
                 r.authorsList.replace(3, tr("%Ln more member(s)", "",
@@ -821,8 +823,8 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                                     r.authorsList.end());
             }
             qmlReactions << QJsonObject {
-                    { QStringLiteral("key"), r.key.toHtmlEscaped() },
-                    { QStringLiteral("authorsCount"), r.authorsList.size() },
+                    { QStringLiteral("key"), r.key },
+                    { QStringLiteral("authorsCount"), authorsCount },
                     { QStringLiteral("authors"),
                             QLocale().createSeparatedList(r.authorsList) },
                     { QStringLiteral("includesLocalUser"), r.includesLocalUser }
