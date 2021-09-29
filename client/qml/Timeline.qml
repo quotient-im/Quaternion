@@ -4,7 +4,7 @@ import QtQuick.Layouts 1.1
 import QtGraphicalEffects 1.0 // For fancy highlighting
 import Quotient 1.0
 
-Rectangle {
+Page {
     id: root
 
     property var room: messageModel ? messageModel.room : undefined
@@ -18,8 +18,11 @@ Rectangle {
     SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
     SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
 
-    color: defaultPalette.base
-    radius: 2
+    background: Rectangle {
+        color: defaultPalette.base
+        radius: 2
+    }
+    contentWidth: width
 
     function humanSize(bytes)
     {
@@ -42,12 +45,9 @@ Rectangle {
                 Qt.rgba(mixedColor.r, mixedColor.g, mixedColor.b, mixRatio))
     }
 
-    Rectangle {
+    header: Rectangle {
         id: roomHeader
 
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
         height: headerText.height + 5
 
         color: defaultPalette.window
@@ -226,303 +226,297 @@ Rectangle {
         }
     }
 
-    ScrollView {
-        id: chatScrollView
-        anchors.top: roomHeader.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
+    ListView {
+        id: chatView
+        anchors.fill: parent
+
+        model: messageModel
+        delegate: TimelineItem {
+            width: chatView.width - scrollerArea.width
+            view: chatView
+            moving: chatView.moving || shuttleDial.value
+            // #737; the solution found in
+            // https://bugreports.qt.io/browse/QT3DS-784
+            ListView.delayRemove: true
+        }
+        verticalLayoutDirection: ListView.BottomToTop
+        flickableDirection: Flickable.VerticalFlick
+        flickDeceleration: 8000
+        boundsMovement: Flickable.StopAtBounds
+//        pixelAligned: true // Causes false-negatives in atYEnd
+        cacheBuffer: 200
+
         clip: true
-        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
-        ScrollBar.vertical.policy:
-            settings.use_shuttle_dial ? ScrollBar.AlwaysOff
-                                      : ScrollBar.AsNeeded
-        ScrollBar.vertical.interactive: true
-        ScrollBar.vertical.active: true
-//        ScrollBar.vertical.background: Item { /* TODO: timeline map */ }
+        ScrollBar.vertical: ScrollBar {
+            policy: settings.use_shuttle_dial ? ScrollBar.AlwaysOff
+                                              : ScrollBar.AsNeeded
+            interactive: true
+            active: true
+//            background: Item { /* TODO: timeline map */ }
+        }
 
-        ListView {
-            id: chatView
+        section.property: "section"
 
-            model: messageModel
-            delegate: TimelineItem {
-                width: chatView.width - scrollerArea.width
-                view: chatView
-                moving: chatView.moving || shuttleDial.value
-                // #737; the solution found in
-                // https://bugreports.qt.io/browse/QT3DS-784
-                ListView.delayRemove: true
+        readonly property int bottommostVisibleIndex: count > 0 ?
+            atYEnd ? 0 : indexAt(contentX, contentY + height - 1) : -1
+        readonly property bool noNeedMoreContent:
+            !room || room.eventsHistoryJob || room.allHistoryLoaded
+
+        /// The number of events per height unit - always positive
+        readonly property real eventDensity:
+            contentHeight > 0 && count > 0 ? count / contentHeight : 0.03
+            // 0.03 is just an arbitrary reasonable number
+
+        property int lastRequestedEvents: 0
+        readonly property int currentRequestedEvents:
+            room && room.eventsHistoryJob ? lastRequestedEvents : 0
+
+        property var textEditWithSelection
+        property real readMarkerContentPos: originY
+        readonly property real readMarkerViewportPos:
+            readMarkerContentPos < contentY ? 0 :
+            readMarkerContentPos > contentY + height ? height + readMarkerLine.height :
+            readMarkerContentPos - contentY
+
+        function parkReadMarker() {
+            readMarkerContentPos = Qt.binding(function() {
+                return !messageModel || messageModel.readMarkerVisualIndex
+                                         > indexAt(contentX, contentY)
+                       ? originY : contentY + contentHeight
+            })
+            console.log("Read marker parked at index",
+                        messageModel.readMarkerVisualIndex
+                        + ", content pos", chatView.readMarkerContentPos,
+                        "(full range is", chatView.originY, "-",
+                        chatView.originY + chatView.contentHeight,
+                        "as of now)")
+        }
+
+        function ensurePreviousContent() {
+            if (noNeedMoreContent)
+                return
+
+            // Take the current speed, or assume we can scroll 8 screens/s
+            var velocity = moving ? -verticalVelocity :
+                           cruisingAnimation.running ?
+                                        cruisingAnimation.velocity :
+                           chatView.height * 8
+            // Check if we're about to bump into the ceiling in
+            // 2 seconds and if yes, request the amount of messages
+            // enough to scroll at this rate for 3 more seconds
+            if (velocity > 0 && contentY - velocity*2 < originY) {
+                lastRequestedEvents = velocity * eventDensity * 3
+                room.getPreviousContent(lastRequestedEvents)
             }
-            verticalLayoutDirection: ListView.BottomToTop
-            flickableDirection: Flickable.VerticalFlick
-            flickDeceleration: 8000
-            boundsMovement: Flickable.StopAtBounds
-//            pixelAligned: true // Causes false-negatives in atYEnd
-            cacheBuffer: 200
+        }
+        onContentYChanged: ensurePreviousContent()
+        onContentHeightChanged: ensurePreviousContent()
 
-            section.property: "section"
+        function saveViewport(force) {
+            if (room)
+                room.saveViewport(indexAt(contentX, contentY),
+                                  bottommostVisibleIndex, force)
+        }
 
-            readonly property int bottommostVisibleIndex: count > 0 ?
-                atYEnd ? 0 : indexAt(contentX, contentY + height - 1) : -1
-            readonly property bool noNeedMoreContent:
-                !room || room.eventsHistoryJob || room.allHistoryLoaded
+        function beforeModelReset() {
+            parkReadMarker()
+            saveViewport(true)
+        }
 
-            /// The number of events per height unit - always positive
-            readonly property real eventDensity:
-                contentHeight > 0 && count > 0 ? count / contentHeight : 0.03
-                // 0.03 is just an arbitrary reasonable number
+        function fixupPosition() {
+            if (count == 0)
+                return;
+            var lastTopIndex = room.savedTopVisibleIndex()
+            if (lastTopIndex === 0) {
+                if (bottommostVisibleIndex === 0)
+                    return // All correct
 
-            property int lastRequestedEvents: 0
-            readonly property int currentRequestedEvents:
-                room && room.eventsHistoryJob ? lastRequestedEvents : 0
-
-            property var textEditWithSelection
-            property real readMarkerContentPos: originY
-            readonly property real readMarkerViewportPos:
-                readMarkerContentPos < contentY ? 0 :
-                readMarkerContentPos > contentY + height ? height + readMarkerLine.height :
-                readMarkerContentPos - contentY
-
-            function parkReadMarker() {
-                readMarkerContentPos = Qt.binding(function() {
-                    return !messageModel || messageModel.readMarkerVisualIndex
-                                             > indexAt(contentX, contentY)
-                           ? originY : contentY + contentHeight
-                })
-                console.log("Read marker parked at index",
-                            messageModel.readMarkerVisualIndex
-                            + ", content pos", chatView.readMarkerContentPos,
-                            "(full range is", chatView.originY, "-",
-                            chatView.originY + chatView.contentHeight,
-                            "as of now)")
+                console.warning("Fixing up the viewport to be at sync edge")
+                positionViewAtBeginning()
+            } else if (lastTopIndex > indexAt(contentX, contentY)
+                       || lastTopIndex < indexAt(contentX,
+                                                 contentY + height / 3)) {
+                console.log("Fixing up item", lastTopIndex,
+                    "to be at the top (" + indexAt(contentX, contentY) + "-"
+                    + bottommostVisibleIndex, "range is shown now)")
+                positionViewAtIndex(lastTopIndex, ListView.End)
             }
 
-            function ensurePreviousContent() {
-                if (noNeedMoreContent)
-                    return
+        }
 
-                // Take the current speed, or assume we can scroll 8 screens/s
-                var velocity = moving ? -verticalVelocity :
-                               cruisingAnimation.running ?
-                                            cruisingAnimation.velocity :
-                               chatScrollView.height * 8
-                // Check if we're about to bump into the ceiling in
-                // 2 seconds and if yes, request the amount of messages
-                // enough to scroll at this rate for 3 more seconds
-                if (velocity > 0 && contentY - velocity*2 < originY) {
-                    lastRequestedEvents = velocity * eventDensity * 3
-                    room.getPreviousContent(lastRequestedEvents)
+        Timer {
+            id: scrollDelay
+            interval: 200 // ms, just below human reaction time
+            onTriggered: chatView.fixupPosition()
+        }
+
+        function onModelReset() {
+            if (room) {
+                // Load events if there are not enough of them
+                ensurePreviousContent()
+
+                var lastScrollPosition = room.savedTopVisibleIndex()
+                console.log("Scrolling to position", lastScrollPosition)
+                positionViewAtIndex(lastScrollPosition, ListView.End)
+                scrollDelay.start()
+            }
+        }
+
+        function scrollUp(dy) {
+            if (contentHeight > height)
+                contentY -= dy
+        }
+        function scrollDown(dy) {
+            if (contentHeight > height)
+                contentY += dy
+        }
+
+        function onWheel(wheel) {
+            if (wheel.angleDelta.x === 0) {
+                var yDelta = wheel.angleDelta.y * 10 / 36
+
+                if (yDelta > 0)
+                    scrollUp(yDelta)
+                else
+                    scrollDown(-yDelta)
+                wheel.accepted = true
+            } else {
+                wheel.accepted = false
+            }
+        }
+
+        Connections {
+            target: controller
+            onPageUpPressed:
+                chatView.scrollUp(chatView.height
+                                  - sectionBanner.childrenRect.height)
+
+            onPageDownPressed:
+                chatView.scrollDown(chatView.height
+                                    - sectionBanner.childrenRect.height)
+            onViewPositionRequested:
+                chatView.positionViewAtIndex(currentIndex, ListView.Contain)
+        }
+
+        Component.onCompleted: {
+            console.log("QML view loaded")
+            model.modelAboutToBeReset.connect(beforeModelReset)
+            model.modelReset.connect(onModelReset)
+        }
+
+        onMovementEnded: saveViewport(false)
+
+        populate: AnimatedTransition {
+            FastNumberAnimation { property: "opacity"; from: 0; to: 1 }
+        }
+
+        add: AnimatedTransition {
+            FastNumberAnimation { property: "opacity"; from: 0; to: 1 }
+        }
+
+        move: AnimatedTransition {
+            FastNumberAnimation { property: "y"; }
+            FastNumberAnimation { property: "opacity"; to: 1 }
+        }
+
+        displaced: AnimatedTransition {
+            FastNumberAnimation {
+                property: "y";
+                easing.type: Easing.OutQuad
+            }
+            FastNumberAnimation { property: "opacity"; to: 1 }
+        }
+
+        Behavior on contentY {
+            enabled: settings.enable_animations && !chatView.moving
+                     && !cruisingAnimation.running
+            SmoothedAnimation {
+                id: scrollAnimation
+                duration: settings.fast_animations_duration_ms / 3
+                maximumEasingTime: settings.fast_animations_duration_ms
+
+                onRunningChanged: {
+                    if (!running)
+                        chatView.saveViewport(false)
                 }
+        }}
+
+        AnimationBehavior on readMarkerContentPos {
+            NormalNumberAnimation { easing.type: Easing.OutQuad }
+        }
+
+        // This covers the area above the items if there are not enough
+        // of them to fill the viewport
+        MouseArea {
+            z: -1
+            anchors.fill: parent
+            acceptedButtons: Qt.AllButtons
+            onReleased: controller.focusInput()
+        }
+
+        Rectangle {
+            id: readShade
+
+            visible: chatView.count > 0
+            anchors.top: parent.top
+            anchors.topMargin: chatView.originY > chatView.contentY
+                               ? chatView.originY - chatView.contentY : 0
+            /// At the bottom of the read shade is the read marker. If
+            /// the last read item is on the screen, the read marker is at
+            /// the item's bottom; otherwise, it's just beyond the edge of
+            /// chatView in the direction of the read marker index (or the
+            /// timeline, if the timeline is short enough).
+            /// @sa readMarkerViewportPos
+            height: chatView.readMarkerViewportPos - anchors.topMargin
+            anchors.left: parent.left
+            width: readMarkerLine.width
+            z: -1
+            opacity: 0.1
+
+            radius: readMarkerLine.height
+            color: mixColors(disabledPalette.base, defaultPalette.highlight, 0.5)
+        }
+        Rectangle {
+            id: readMarkerLine
+
+            visible: chatView.count > 0
+            width: parent.width - scrollerArea.width
+            anchors.bottom: readShade.bottom
+            height: 4
+            z: 2.5 // On top of any ListView content, below the banner
+
+            gradient: Gradient {
+                GradientStop { position: 0; color: "transparent" }
+                GradientStop { position: 1; color: defaultPalette.highlight }
             }
-            onContentYChanged: ensurePreviousContent()
-            onContentHeightChanged: ensurePreviousContent()
-
-            function saveViewport(force) {
-                if (room)
-                    room.saveViewport(indexAt(contentX, contentY),
-                                      bottommostVisibleIndex, force)
-            }
-
-            function beforeModelReset() {
-                parkReadMarker()
-                saveViewport(true)
-            }
-
-            function fixupPosition() {
-                if (count == 0)
-                    return;
-                var lastTopIndex = room.savedTopVisibleIndex()
-                if (lastTopIndex === 0) {
-                    if (bottommostVisibleIndex === 0)
-                        return // All correct
-
-                    console.warning("Fixing up the viewport to be at sync edge")
-                    positionViewAtBeginning()
-                } else if (lastTopIndex > indexAt(contentX, contentY)
-                           || lastTopIndex < indexAt(contentX,
-                                                     contentY + height / 3)) {
-                    console.log("Fixing up item", lastTopIndex,
-                        "to be at the top (" + indexAt(contentX, contentY) + "-"
-                        + bottommostVisibleIndex, "range is shown now)")
-                    positionViewAtIndex(lastTopIndex, ListView.End)
-                }
-
-            }
-
-            // FIXME, #793: Instead of this workaround, drop ScrollView
-            // and maybe try to pinpoint the position shortly after navigation
-            // to alleviate remaining inaccuracy.
-            Timer {
-                id: scrollDelay
-                interval: 200 // ms, just below human reaction time
-                onTriggered: chatView.fixupPosition()
-            }
-
-            function onModelReset() {
-                if (room) {
-                    // Load events if there are not enough of them
-                    ensurePreviousContent()
-
-                    var lastScrollPosition = room.savedTopVisibleIndex()
-                    console.log("Scrolling to position", lastScrollPosition)
-                    positionViewAtIndex(lastScrollPosition, ListView.End)
-                    scrollDelay.start()
-                }
-            }
-
-            function scrollUp(dy) {
-                if (contentHeight > height)
-                    contentY -= dy
-            }
-            function scrollDown(dy) {
-                if (contentHeight > height)
-                    contentY += dy
-            }
-
-            function onWheel(wheel) {
-                if (wheel.angleDelta.x === 0) {
-                    var yDelta = wheel.angleDelta.y * 10 / 36
-
-                    if (yDelta > 0)
-                        scrollUp(yDelta)
-                    else
-                        scrollDown(-yDelta)
-                    wheel.accepted = true
-                } else {
-                    wheel.accepted = false
-                }
-            }
-            Connections {
-                target: controller
-                onPageUpPressed:
-                    chatView.scrollUp(chatView.height
-                                      - sectionBanner.childrenRect.height)
-
-                onPageDownPressed:
-                    chatView.scrollDown(chatView.height
-                                        - sectionBanner.childrenRect.height)
-                onScrollViewTo: chatView.positionViewAtIndex(currentIndex, ListView.Contain)
-            }
-
-            Component.onCompleted: {
-                console.log("QML view loaded")
-                model.modelAboutToBeReset.connect(beforeModelReset)
-                model.modelReset.connect(onModelReset)
-            }
-            onMovementEnded: saveViewport(false)
-
-            populate: AnimatedTransition {
-                FastNumberAnimation { property: "opacity"; from: 0; to: 1 }
-            }
-
-            add: AnimatedTransition {
-                FastNumberAnimation { property: "opacity"; from: 0; to: 1 }
-            }
-
-            move: AnimatedTransition {
-                FastNumberAnimation { property: "y"; }
-                FastNumberAnimation { property: "opacity"; to: 1 }
-            }
-
-            displaced: AnimatedTransition {
-                FastNumberAnimation {
-                    property: "y";
-                    easing.type: Easing.OutQuad
-                }
-                FastNumberAnimation { property: "opacity"; to: 1 }
-            }
-
-            Behavior on contentY {
-                enabled: settings.enable_animations && !chatView.moving
-                         && !cruisingAnimation.running
-                SmoothedAnimation {
-                    id: scrollAnimation
-                    duration: settings.fast_animations_duration_ms / 3
-                    maximumEasingTime: settings.fast_animations_duration_ms
-
-                    onRunningChanged: {
-                        if (!running)
-                            chatView.saveViewport(false)
-                    }
-            }}
-
-            AnimationBehavior on readMarkerContentPos {
-                NormalNumberAnimation { easing.type: Easing.OutQuad }
-            }
-
-            // This covers the area above the items if there are not enough
-            // of them to fill the viewport
-            MouseArea {
-                z: -1
-                anchors.fill: parent
-                acceptedButtons: Qt.AllButtons
-                onReleased: controller.focusInput()
-            }
-
-            Rectangle {
-                id: readShade
-
-                visible: chatView.count > 0
-                anchors.top: parent.top
-                anchors.topMargin: chatView.originY > chatView.contentY
-                                   ? chatView.originY - chatView.contentY : 0
-                /// At the bottom of the read shade is the read marker. If
-                /// the last read item is on the screen, the read marker is at
-                /// the item's bottom; otherwise, it's just beyond the edge of
-                /// chatView in the direction of the read marker index (or the
-                /// timeline, if the timeline is short enough).
-                /// @sa readMarkerViewportPos
-                height: chatView.readMarkerViewportPos - anchors.topMargin
-                anchors.left: parent.left
-                width: readMarkerLine.width
-                z: -1
-                opacity: 0.1
-
-                radius: readMarkerLine.height
-                color: mixColors(disabledPalette.base, defaultPalette.highlight, 0.5)
-            }
-            Rectangle {
-                id: readMarkerLine
-
-                visible: chatView.count > 0
-                width: parent.width - scrollerArea.width
-                anchors.bottom: readShade.bottom
-                height: 4
-                z: 2.5 // On top of any ListView content, below the banner
-
-                gradient: Gradient {
-                    GradientStop { position: 0; color: "transparent" }
-                    GradientStop { position: 1; color: defaultPalette.highlight }
-                }
-            }
+        }
 
 
-            // itemAt is a function rather than a property, so it doesn't
-            // produce a QML binding; the piece with contentHeight compensates.
-            readonly property var underlayingItem: contentHeight >= height &&
-                itemAt(contentX, contentY + sectionBanner.height - 2)
-            readonly property bool sectionBannerVisible: underlayingItem &&
-                (!underlayingItem.sectionVisible || underlayingItem.y < contentY)
+        // itemAt is a function rather than a property, so it doesn't
+        // produce a QML binding; the piece with contentHeight compensates.
+        readonly property var underlayingItem: contentHeight >= height &&
+            itemAt(contentX, contentY + sectionBanner.height - 2)
+        readonly property bool sectionBannerVisible: underlayingItem &&
+            (!underlayingItem.sectionVisible || underlayingItem.y < contentY)
 
-            Rectangle {
-                id: sectionBanner
-                z: 3 // On top of ListView sections that have z=2
-                anchors.left: parent.left
-                anchors.top: parent.top
-                width: childrenRect.width + 2
-                height: childrenRect.height + 2
-                visible: chatView.sectionBannerVisible
-                color: defaultPalette.window
+        Rectangle {
+            id: sectionBanner
+            z: 3 // On top of ListView sections that have z=2
+            anchors.left: parent.left
+            anchors.top: parent.top
+            width: childrenRect.width + 2
+            height: childrenRect.height + 2
+            visible: chatView.sectionBannerVisible
+            color: defaultPalette.window
+            opacity: 0.8
+            Label {
+                font.bold: true
+                font.family: settings.font.family
+                font.pointSize: settings.font.pointSize
                 opacity: 0.8
-                Label {
-                    font.bold: true
-                    font.family: settings.font.family
-                    font.pointSize: settings.font.pointSize
-                    opacity: 0.8
-                    renderType: settings.render_type
-                    text: chatView.underlayingItem ?
-                              chatView.underlayingItem.ListView.section : ""
-                }
+                renderType: settings.render_type
+                text: chatView.underlayingItem ?
+                          chatView.underlayingItem.ListView.section : ""
             }
         }
     }
@@ -550,7 +544,7 @@ Rectangle {
         }
 
         anchors.horizontalCenter: shuttleDial.horizontalCenter
-        anchors.bottom: chatScrollView.bottom
+        anchors.bottom: chatView.bottom
         anchors.bottomMargin:
             averageEvtHeight * chatView.bottommostVisibleIndex
         width: shuttleDial.backgroundWidth / 2
@@ -565,7 +559,7 @@ Rectangle {
         // Loading history events bar, stacked above
         // the cached events bar when more history has been requested
         anchors.right: cachedEventsBar.right
-        anchors.top: chatScrollView.top
+        anchors.top: chatView.top
         anchors.bottom: cachedEventsBar.top
         width: cachedEventsBar.width
         visible: shuttleDial.visible
@@ -579,12 +573,12 @@ Rectangle {
     Slider {
         id: shuttleDial
         orientation: Qt.Vertical
-        height: chatScrollView.height * 0.7
-        width: chatScrollView.ScrollBar.vertical.width
+        height: chatView.height * 0.7
+        width: chatView.ScrollBar.vertical.width
         padding: 2
         anchors.right: parent.right
         anchors.rightMargin: (background.width - width) / 2
-        anchors.verticalCenter: chatScrollView.verticalCenter
+        anchors.verticalCenter: chatView.verticalCenter
         enabled: settings.use_shuttle_dial
         visible: enabled && chatView.count > 0
 
@@ -655,12 +649,12 @@ Rectangle {
 
     MouseArea {
         id: scrollerArea
-        anchors.top: chatScrollView.top
-        anchors.bottom: chatScrollView.bottom
+        anchors.top: chatView.top
+        anchors.bottom: chatView.bottom
         anchors.right: parent.right
         width: settings.use_shuttle_dial
                ? shuttleDial.backgroundWidth
-               : chatScrollView.ScrollBar.vertical.width
+               : chatView.ScrollBar.vertical.width
         acceptedButtons: Qt.NoButton
 
         hoverEnabled: true
@@ -669,7 +663,7 @@ Rectangle {
     Rectangle {
         id: timelineStats
         anchors.right: scrollerArea.left
-        anchors.top: chatScrollView.top
+        anchors.top: chatView.top
         width: childrenRect.width + 3
         height: childrenRect.height + 3
         color: defaultPalette.alternateBase

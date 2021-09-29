@@ -44,7 +44,7 @@ signals:
     void pageDownPressed();
     void openExternally(int currentIndex);
     void showDetails(int currentIndex);
-    void scrollViewTo(int currentIndex);
+    void viewPositionRequested(int index);
     void animateMessage(int currentIndex);
 
 public slots:

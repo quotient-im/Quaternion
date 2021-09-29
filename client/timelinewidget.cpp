@@ -114,7 +114,7 @@ void TimelineWidget::spotlightEvent(const QString& eventId)
 {
     auto index = m_messageModel->findRow(eventId);
     if (index >= 0) {
-        emit scrollViewTo(index);
+        emit viewPositionRequested(index);
         emit animateMessage(index);
     } else
         roomWidget->setHudHtml("<font color=red>"
