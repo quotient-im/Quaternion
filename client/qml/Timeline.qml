@@ -284,12 +284,6 @@ Page {
                                          > indexAt(contentX, contentY)
                        ? originY : contentY + contentHeight
             })
-            console.log("Read marker parked at index",
-                        messageModel.readMarkerVisualIndex
-                        + ", content pos", chatView.readMarkerContentPos,
-                        "(full range is", chatView.originY, "-",
-                        chatView.originY + chatView.contentHeight,
-                        "as of now)")
         }
 
         function ensurePreviousContent() {
@@ -320,6 +314,8 @@ Page {
 
         function beforeModelReset() {
             parkReadMarker()
+            console.log("Read marker parked at index",
+                        messageModel.readMarkerVisualIndex)
             saveViewport(true)
         }
 

@@ -98,8 +98,14 @@ Item {
                 chatView.readMarkerContentPos =
                     Qt.binding(function() { return y + height })
                 console.log("Read marker line bound at index", index)
-            } else
+            } else {
                 chatView.parkReadMarker()
+                console.log("Read marker parked at index", index
+                            + ", content pos", chatView.readMarkerContentPos,
+                            "(full range is", chatView.originY, "-",
+                            chatView.originY + chatView.contentHeight,
+                            "as of now)")
+            }
         }
     }
 
