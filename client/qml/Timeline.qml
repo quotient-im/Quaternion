@@ -323,42 +323,105 @@ Page {
             saveViewport(true)
         }
 
-        function fixupPosition() {
-            if (count == 0)
-                return;
-            var lastTopIndex = room.savedTopVisibleIndex()
-            if (lastTopIndex === 0) {
+        // Qt is not fabulous at positioning the list view when the delegate
+        // sizes vary too much; this function runs scrollDelay timer to adjust
+        // the position as needed shortly after the list was positioned.
+        // Nothing good in that, just a workaround.
+        function scrollViewTo(targetIndex, positionMode, saveViewportAfter) {
+            console.log("Scrolling to position", targetIndex)
+            positionViewAtIndex(targetIndex, positionMode)
+            scrollDelay.targetIndex = targetIndex
+            scrollDelay.positionMode = positionMode
+            scrollDelay.saveViewport = saveViewportAfter
+            scrollDelay.round = 1
+            scrollDelay.start()
+        }
+
+        /** @return true if no further action is needed;
+         *          false if scrollDelay has to be restarted. */
+        function fixupPosition(newIndex, newPos, positionMode) {
+            if (newIndex === 0) {
                 if (bottommostVisibleIndex === 0)
-                    return // All correct
+                    return true // Positioning is correct
 
-                console.warning("Fixing up the viewport to be at sync edge")
+                // This normally shouldn't happen even with the current
+                // imperfect positioning code in Qt
+                console.warn("Fixing up the viewport to be at sync edge")
                 positionViewAtBeginning()
-            } else if (lastTopIndex > indexAt(contentX, contentY)
-                       || lastTopIndex < indexAt(contentX,
-                                                 contentY + height / 3)) {
-                console.log("Fixing up item", lastTopIndex,
-                    "to be at the top (" + indexAt(contentX, contentY) + "-"
-                    + bottommostVisibleIndex, "range is shown now)")
-                positionViewAtIndex(lastTopIndex, ListView.End)
-            }
+                return false
+            } else {
+                // The viewport is divided into thirds; ListView.End should
+                // place newIndex at the top third, Center corresponds
+                // to the middle third; Beginning is not used for now.
+                var nameForLog, topContentY, bottomContentY
+                switch (positionMode) {
+                case ListView.Contain:
+                    nameForLog = "fully visible"
+                    topContentY = contentY
+                    bottomContentY = contentY + height
+                    newPos = Math.max(newPos, Math.min(contentY, newPos + height))
+                    break
+                case ListView.Center:
+                    nameForLog = "in the centre"
+                    topContentY = contentY + height / 3
+                    bottomContentY = contentY + 2 * height / 3
+                    newPos -= height / 2
+                    break
+                case ListView.End:
+                    nameForLog = "at the top"
+                    topContentY = contentY
+                    bottomContentY = contentY + height / 3
+                    break
+                default:
+                    console.warn("fixupPosition: Unsupported positioning mode:",
+                                 positionMode)
+                    return true // Refuse to do anything with it
+                }
 
+                var topShownIndex = indexAt(contentX, topContentY)
+                var bottomShownIndex = indexAt(contentX, bottomContentY)
+                if (bottomShownIndex !== -1 && newIndex <= topShownIndex
+                        && newIndex >= bottomShownIndex)
+                    return true // The item is within the expected range
+
+                console.log("Fixing up item", newIndex, "to be", nameForLog,
+                            "- round", scrollDelay.round,
+                            "(" + topShownIndex + "-" + bottomShownIndex,
+                            "range is shown now)")
+                contentY = newPos
+                return false
+            }
         }
 
         Timer {
             id: scrollDelay
-            interval: 200 // ms, just below human reaction time
-            onTriggered: chatView.fixupPosition()
+            interval: 120 // small enough to not look like stuttering
+            onTriggered: {
+                if (chatView.count === 0 || !targetPos)
+                    return
+
+                if (chatView.fixupPosition(targetIndex, targetPos,
+                                           positionMode)
+                    && ++round <= 3) {
+                    targetPos = undefined
+                    if (saveViewport)
+                        chatView.saveViewport(true)
+                } else
+                    start() // Positioning is not over yet
+            }
+
+            property int targetIndex: -1
+            property var targetPos
+            property int positionMode: ListView.End
+            property bool saveViewport: false
+            property int round: 0
         }
 
         function onModelReset() {
             if (room) {
                 // Load events if there are not enough of them
                 ensurePreviousContent()
-
-                var lastScrollPosition = room.savedTopVisibleIndex()
-                console.log("Scrolling to position", lastScrollPosition)
-                positionViewAtIndex(lastScrollPosition, ListView.End)
-                scrollDelay.start()
+                scrollViewTo(room.savedTopVisibleIndex(), ListView.End, false)
             }
         }
 
@@ -395,7 +458,7 @@ Page {
                 chatView.scrollDown(chatView.height
                                     - sectionBanner.childrenRect.height)
             onViewPositionRequested:
-                chatView.positionViewAtIndex(currentIndex, ListView.Contain)
+                chatView.scrollViewTo(index, ListView.Contain, true)
         }
 
         Component.onCompleted: {
@@ -748,10 +811,7 @@ Page {
             source: "qrc:///scrollup.svg"
         }
 
-        onClicked: {
-            chatView.positionViewAtIndex(messageModel.readMarkerVisualIndex,
-                                         ListView.Center)
-            chatView.saveViewport(true)
-        }
+        onClicked: chatView.scrollViewTo(messageModel.readMarkerVisualIndex,
+                                         ListView.Center, true)
     }
 }
