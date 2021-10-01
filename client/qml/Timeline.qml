@@ -344,7 +344,6 @@ Page {
                 // imperfect positioning code in Qt
                 console.warn("Fixing up the viewport to be at sync edge")
                 positionViewAtBeginning()
-                return false
             } else {
                 // The viewport is divided into thirds; ListView.End should
                 // place newIndex at the top third, Center corresponds
@@ -355,13 +354,16 @@ Page {
                     nameForLog = "fully visible"
                     topContentY = contentY
                     bottomContentY = contentY + height
-                    newPos = Math.max(newPos, Math.min(contentY, newPos + height))
+                    if (newPos)
+                        newPos = Math.max(newPos,
+                                          Math.min(contentY, newPos + height))
                     break
                 case ListView.Center:
                     nameForLog = "in the centre"
                     topContentY = contentY + height / 3
                     bottomContentY = contentY + 2 * height / 3
-                    newPos -= height / 2
+                    if (newPos)
+                        newPos -= height / 2
                     break
                 case ListView.End:
                     nameForLog = "at the top"
@@ -384,26 +386,33 @@ Page {
                             "- round", scrollDelay.round,
                             "(" + topShownIndex + "-" + bottomShownIndex,
                             "range is shown now)")
-                contentY = newPos
-                return false
+                // If the target item moved away too far and got destroyed,
+                // repeat positioning; otherwise, position the canvas exactly
+                // where it should be
+                if (newPos)
+                    contentY = newPos
+                else
+                    positionViewAtIndex(newIndex, positionMode)
             }
+            return false
         }
 
         Timer {
             id: scrollDelay
-            interval: 120 // small enough to not look like stuttering
+            interval: 120 // small enough to avoid visual stutter
             onTriggered: {
                 if (chatView.count === 0 || !targetPos)
                     return
 
                 if (chatView.fixupPosition(targetIndex, targetPos,
                                            positionMode)
-                    && ++round <= 3) {
+                    || ++round > 3) // Give up after 3 rounds
+                {
                     targetPos = undefined
                     if (saveViewport)
                         chatView.saveViewport(true)
-                } else
-                    start() // Positioning is not over yet
+                } else // Positioning is still in flux, might need another round
+                    start()
             }
 
             property int targetIndex: -1
