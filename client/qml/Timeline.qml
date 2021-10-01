@@ -816,7 +816,12 @@ Page {
             source: "qrc:///scrollup.svg"
         }
 
-        onClicked: chatView.scrollViewTo(messageModel.readMarkerVisualIndex,
-                                         ListView.Center, true)
+        onClicked: {
+            if (messageModel.readMarkerVisualIndex < chatView.count)
+                chatView.scrollViewTo(messageModel.readMarkerVisualIndex,
+                                      ListView.Center, true)
+            else
+                room.getPreviousContent(chatView.count / 2) // FIXME, #799
+        }
     }
 }
