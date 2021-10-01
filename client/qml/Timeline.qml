@@ -562,9 +562,9 @@ Page {
 
         // itemAt is a function rather than a property, so it doesn't
         // produce a QML binding; the piece with contentHeight compensates.
-        readonly property var underlayingItem: contentHeight >= height &&
-            itemAt(contentX, contentY + sectionBanner.height - 2)
-        readonly property bool sectionBannerVisible: underlayingItem &&
+        readonly property var underlayingItem: contentHeight >= height
+            ? itemAt(contentX, contentY + sectionBanner.height - 2) : undefined
+        readonly property bool sectionBannerVisible: !!underlayingItem &&
             (!underlayingItem.sectionVisible || underlayingItem.y < contentY)
 
         Rectangle {
