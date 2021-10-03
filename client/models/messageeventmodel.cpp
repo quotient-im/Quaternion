@@ -431,10 +431,9 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
     const auto& evt = isPending ? **pendingIt : **timelineIt;
 
     using namespace Quotient;
-    if( role == Qt::DisplayRole )
-    {
-        if (evt.isRedacted())
-        {
+    static Settings settings;
+    if (role == Qt::DisplayRole) {
+        if (evt.isRedacted()) {
             auto reason = evt.redactedBecause()->reason();
             if (reason.isEmpty())
                 return tr("Redacted");
@@ -458,9 +457,8 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                     // to returning the prettified plain text
                     if (errorPos != -1) {
                         cleanHtml = m_currentRoom->prettyPrint(e.plainBody());
-                        static Settings settings;
                         // A manhole to visualise HTML errors
-                        if (settings.get("Debug/html", false))
+                        if (settings.get<bool>("Debug/html"))
                             cleanHtml +=
                                 QStringLiteral("<br /><font color=\"red\">"
                                                "At pos %1: %2</font>")
@@ -508,7 +506,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
 
                         // Part 2: profile changes of joined members
                         if (e.isRename()
-                            && Settings().get("UI/show_rename", true)) {
+                            && settings.get("UI/show_rename", true)) {
                             if (e.displayName().isEmpty())
                                 text = tr("cleared the display name");
                             else
@@ -516,7 +514,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                                        .arg(e.displayName().toHtmlEscaped());
                         }
                         if (e.isAvatarUpdate()
-                            && Settings().get("UI/show_avatar_update", true)) {
+                            && settings.get("UI/show_avatar_update", true)) {
                             if (!text.isEmpty())
                                 //: Joiner for member profile updates;
                                 //: mind the leading and trailing spaces!
@@ -703,7 +701,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
             return EventStatus::Hidden; // Never show, even pending
 
         if (isPending)
-            return !Settings().get<bool>("UI/suppress_local_echo")
+            return !settings.get<bool>("UI/suppress_local_echo")
                     ? pendingIt->deliveryStatus() : EventStatus::Hidden;
 
         // isReplacement?
@@ -712,60 +710,59 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                 return EventStatus::Hidden;
 
         if ((is<RoomAliasesEvent>(evt) || is<RoomCanonicalAliasEvent>(evt))
-                && !Settings().value("UI/show_alias_update", true).toBool())
+            && !settings.get<bool>("UI/show_alias_update", true))
             return EventStatus::Hidden;
 
         auto* memberEvent = timelineIt->viewAs<RoomMemberEvent>();
-        if (memberEvent)
-        {
-            if ((memberEvent->isJoin() || memberEvent->isLeave()) &&
-                    !Settings().value("UI/show_joinleave", true).toBool())
+        if (memberEvent) {
+            if ((memberEvent->isJoin() || memberEvent->isLeave())
+                && !settings.get<bool>("UI/show_joinleave", true))
                 return EventStatus::Hidden;
 
             if ((memberEvent->isInvite() || memberEvent->isRejectedInvite())
-                    && !Settings().value("UI/show_invite", true).toBool())
+                && !settings.get<bool>("UI/show_invite", true))
                 return EventStatus::Hidden;
 
             if ((memberEvent->isBan() || memberEvent->isUnban())
-                    && !Settings().value("UI/show_ban", true).toBool())
+                && !settings.get<bool>("UI/show_ban", true))
                 return EventStatus::Hidden;
 
-            bool hideRename = memberEvent->isRename()
+            bool hideRename =
+                memberEvent->isRename()
                 && (!memberEvent->isJoin() && !memberEvent->isLeave())
-                && !Settings().value("UI/show_rename", true).toBool();
-            bool hideAvatarUpdate = memberEvent->isAvatarUpdate()
-                && !Settings().value("UI/show_avatar_update", true).toBool();
+                && !settings.get<bool>("UI/show_rename", true);
+            bool hideAvatarUpdate =
+                memberEvent->isAvatarUpdate()
+                && !settings.get<bool>("UI/show_avatar_update", true);
             if ((hideRename && hideAvatarUpdate)
                     || (hideRename && !memberEvent->isAvatarUpdate())
                     || (hideAvatarUpdate && !memberEvent->isRename())) {
                 return EventStatus::Hidden;
             }
         }
-        if (memberEvent || evt.isRedacted())
-        {
-            if (evt.senderId() != m_currentRoom->localUser()->id() &&
-                    evt.stateKey() != m_currentRoom->localUser()->id() &&
-                    !Settings().value("UI/show_spammy").toBool())
-            {
-    //            QElapsedTimer et; et.start();
+        if (memberEvent || evt.isRedacted()) {
+            if (evt.senderId() != m_currentRoom->localUser()->id()
+                && evt.stateKey() != m_currentRoom->localUser()->id()
+                && !settings.get<bool>("UI/show_spammy")) {
+//                QElapsedTimer et; et.start();
                 auto hide = !isUserActivityNotable(timelineIt);
-    //            qDebug() << "Checked user activity for" << evt.id() << "in" << et;
+//                qDebug() << "Checked user activity for" << evt.id() << "in" << et;
                 if (hide)
                     return EventStatus::Hidden;
             }
         }
 
         if (evt.isRedacted())
-            return Settings().value("UI/show_redacted").toBool()
+            return settings.get<bool>("UI/show_redacted")
                     ? EventStatus::Redacted : EventStatus::Hidden;
 
-        if (evt.isStateEvent() &&
-                static_cast<const StateEventBase&>(evt).repeatsState() &&
-                !Settings().value("UI/show_noop_events").toBool())
+        if (evt.isStateEvent()
+            && static_cast<const StateEventBase&>(evt).repeatsState()
+            && !settings.get<bool>("UI/show_noop_events"))
             return EventStatus::Hidden;
 
         if (!evt.isStateEvent() && !is<RoomMessageEvent>(evt)
-                && !Settings().value("UI/show_unknown_events").toBool())
+            && !settings.get<bool>("UI/show_unknown_events"))
             return EventStatus::Hidden;
 
         return evt.isReplaced() ? EventStatus::Replaced : EventStatus::Normal;
