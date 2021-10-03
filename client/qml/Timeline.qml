@@ -11,7 +11,6 @@ Page {
 
     TimelineSettings {
         id: settings
-        readonly property bool use_shuttle_dial: value("UI/use_shuttle_dial", true)
 
         Component.onCompleted: console.log("Using timeline font: " + font)
     }

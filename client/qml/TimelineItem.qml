@@ -4,22 +4,6 @@ import QtGraphicalEffects 1.0 // For fancy highlighting
 import Quotient 1.0
 
 Item {
-    // Supplementary components
-
-    TimelineSettings {
-        id: settings
-        readonly property bool autoload_images: value("UI/autoload_images", true)
-        readonly property string highlight_mode: value("UI/highlight_mode", "background")
-        readonly property color highlight_color: value("UI/highlight_color", "orange")
-        readonly property color outgoing_color_base: value("UI/outgoing_color", "#4A8780")
-        readonly property color outgoing_color:
-            mixColors(defaultPalette.text, settings.outgoing_color_base, 0.5)
-        readonly property bool show_author_avatars:
-            value("UI/show_author_avatars", timeline_style != "xchat")
-    }
-    SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
-    SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
-
     // Property interface
 
     property var view
