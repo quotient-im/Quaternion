@@ -8,9 +8,10 @@ Item {
     enabled: visible
     height: childrenRect.height * visible
 
-    readonly property bool sectionVisible: section !== aboveSection
+    readonly property bool sectionVisible:
+        eventGrouping === EventGrouping.ShowDateAndAuthor
     readonly property bool authorSectionVisible:
-                            sectionVisible || author !== aboveAuthor
+        eventGrouping >= EventGrouping.ShowAuthor
     readonly property bool replaced: marks === EventStatus.Replaced
     readonly property bool pending: [
                                         EventStatus.Submitted,
@@ -187,7 +188,7 @@ Item {
                 font.pointSize: settings.font.pointSize
                 font.bold: true
                 renderType: settings.render_type
-                text: section
+                text: date
             }
         }
         Loader {

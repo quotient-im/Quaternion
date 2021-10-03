@@ -44,10 +44,9 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
         roles.insert(EventTypeRole, "eventType");
         roles.insert(EventIdRole, "eventId");
         roles.insert(TimeRole, "time");
-        roles.insert(SectionRole, "section");
-        roles.insert(AboveSectionRole, "aboveSection");
+        roles.insert(DateRole, "date");
+        roles.insert(EventGroupingRole, "eventGrouping");
         roles.insert(AuthorRole, "author");
-        roles.insert(AboveAuthorRole, "aboveAuthor");
         roles.insert(ContentRole, "content");
         roles.insert(ContentTypeRole, "contentType");
         roles.insert(HighlightRole, "highlight");
@@ -71,8 +70,11 @@ MessageEventModel::MessageEventModel(QObject* parent)
 #else
     qmlRegisterType<FileTransferInfo>(); qRegisterMetaType<FileTransferInfo>();
 #endif
-    qmlRegisterUncreatableType<EventStatus>("Quotient", 1, 0, "EventStatus",
-        "EventStatus is not a creatable type");
+    qmlRegisterUncreatableType<EventStatus>(
+        "Quotient", 1, 0, "EventStatus", "EventStatus is not a creatable type");
+    qmlRegisterUncreatableMetaObject(EventGrouping::staticMetaObject,
+                                     "Quotient", 1, 0, "EventGrouping",
+                                     "Access to enums only");
     // This could be a single line in changeRoom() but then there's a race
     // condition between the model reset completion and the room property
     // update in QML - connecting the two signals early on overtakes any QML
@@ -117,7 +119,7 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                             m_currentRoom->maxTimelineIndex() - biggest
                             + timelineBaseIndex() - 1;
                         refreshEventRoles(rowBelowInserted,
-                                         {AboveAuthorRole, AboveSectionRole});
+                                          { EventGroupingRole });
                     }
                     for (auto i = m_currentRoom->maxTimelineIndex() - biggest;
                               i <= m_currentRoom->maxTimelineIndex() - lowest;
@@ -152,7 +154,7 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                     refreshLastUserEvents(0);
                     if (timelineBaseIndex() > 0) // Refresh below, see #312
                         refreshEventRoles(timelineBaseIndex() - 1,
-                                          {AboveAuthorRole, AboveSectionRole});
+                                          { EventGroupingRole });
                 });
         connect(m_currentRoom, &Room::pendingEventChanged,
                 this, &MessageEventModel::refreshRow);
@@ -832,21 +834,26 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         return qmlReactions;
     }
 
-    if( role == TimeRole || role == SectionRole)
+    if( role == TimeRole || role == DateRole)
     {
         auto ts = isPending ? pendingIt->lastUpdated()
                             : makeMessageTimestamp(timelineIt);
         return role == TimeRole ? QVariant(ts) : renderDate(ts);
     }
 
-    if( role == AboveSectionRole || role == AboveAuthorRole)
+    if (role == EventGroupingRole) {
         for (auto r = row + 1; r < rowCount(); ++r)
         {
             auto i = index(r);
             if (data(i, SpecialMarksRole) != EventStatus::Hidden)
-                return data(i, role == AboveSectionRole
-                                ? SectionRole : AuthorRole);
+                return data(i, DateRole) != data(idx, DateRole)
+                           ? EventGrouping::ShowDateAndAuthor
+                       : data(i, AuthorRole) != data(idx, AuthorRole)
+                           ? EventGrouping::ShowAuthor
+                           : EventGrouping::KeepPreviousGroup;
         }
+        return EventGrouping::ShowDateAndAuthor; // No events before
+    }
 
     if (role == RefRole)
         return visit(

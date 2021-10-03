@@ -252,7 +252,12 @@ Page {
 //            background: Item { /* TODO: timeline map */ }
         }
 
-        section.property: "section"
+        // We do not actually render sections because section delegates return
+        // -1 for indexAt(), disrupting quite a few things including read marker
+        // logic, saving the current position etc. Besides, ListView sections
+        // cannot be effectively nested. TimelineItem.qml implements
+        // the necessary  logic around eventGrouping without these shortcomings.
+        section.property: "date"
 
         readonly property int bottommostVisibleIndex: count > 0 ?
             atYEnd ? 0 : indexAt(contentX, contentY + height - 1) : -1

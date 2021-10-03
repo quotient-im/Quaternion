@@ -33,10 +33,9 @@ class MessageEventModel: public QAbstractListModel
             EventTypeRole = Qt::UserRole + 1,
             EventIdRole,
             TimeRole,
-            SectionRole,
-            AboveSectionRole,
+            DateRole,
+            EventGroupingRole,
             AuthorRole,
-            AboveAuthorRole,
             ContentRole,
             ContentTypeRole,
             HighlightRole,
@@ -82,3 +81,15 @@ class MessageEventModel: public QAbstractListModel
         void refreshLastUserEvents(int baseTimelineRow);
         void refreshEventRoles(int row, const QVector<int>& roles = {});
 };
+
+namespace EventGrouping {
+Q_NAMESPACE
+
+enum Mark {
+    KeepPreviousGroup = 0,
+    ShowAuthor = 1,
+    ShowDateAndAuthor = 2
+};
+Q_ENUM_NS(Mark)
+
+}
