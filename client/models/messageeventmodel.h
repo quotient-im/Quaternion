@@ -43,7 +43,6 @@ class MessageEventModel: public QAbstractListModel
             SpecialMarksRole,
             LongOperationRole,
             AnnotationRole,
-            UserHueRole,
             RefRole,
             ReactionsRole,
             EventResolvedTypeRole,

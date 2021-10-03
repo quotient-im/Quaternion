@@ -54,7 +54,6 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
         roles.insert(SpecialMarksRole, "marks");
         roles.insert(LongOperationRole, "progressInfo");
         roles.insert(AnnotationRole, "annotation");
-        roles.insert(UserHueRole, "userHue");
         roles.insert(EventResolvedTypeRole, "eventResolvedType");
         roles.insert(RefRole, "refId");
         roles.insert(ReactionsRole, "reactions");
@@ -848,12 +847,6 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                 return data(i, role == AboveSectionRole
                                 ? SectionRole : AuthorRole);
         }
-
-    if (role == UserHueRole) {
-        auto* const user = isPending ? m_currentRoom->localUser()
-                                     : m_currentRoom->user(evt.senderId());
-        return QVariant::fromValue(user ? 0.0 : user->hueF());
-    }
 
     if (role == RefRole)
         return visit(

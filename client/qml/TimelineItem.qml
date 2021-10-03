@@ -59,7 +59,7 @@ Item {
     readonly property string authorName:
         room && author ? room.safeMemberName(author.id) : ""
     // FIXME: boilerplate with models/userlistmodel.cpp:115
-    readonly property string authorColor: Qt.hsla(userHue,
+    readonly property string authorColor: Qt.hsla(author ? author.hueF : 0.0,
                                                   (1-defaultPalette.window.hslSaturation),
                                                   /* contrast but not too heavy: */
                                                   (-0.7*defaultPalette.window.hslLightness + 0.9),
