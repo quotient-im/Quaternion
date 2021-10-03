@@ -4,14 +4,6 @@ import QtGraphicalEffects 1.0 // For fancy highlighting
 import Quotient 1.0
 
 Item {
-    // Property interface
-
-    property var view
-    /** Determines whether the view is moving at the moment */
-    property bool moving: view.moving
-
-    // TimelineItem definition
-
     visible: marks !== EventStatus.Hidden
     enabled: visible
     height: childrenRect.height * visible
@@ -57,14 +49,14 @@ Item {
     /// The bottom event edge is below the top viewport edge and
     /// the top event edge is above the bottom viewport edge
     readonly property bool partiallyShown:
-        room && room.displayed && y + height - 1 > view.contentY
-                               && y < view.contentY + view.height
+        room && room.displayed && y + height - 1 > chatView.contentY
+                               && y < chatView.contentY + chatView.height
 
     /// The bottom event edge is below the top and above the bottom
     /// viewport edge; partiallyShown => bottomEdgeShown but not vice versa
     readonly property bool bottomEdgeShown:
-        room && room.displayed && y + height - 1 > view.contentY
-                               && y + height - 1 < view.contentY + view.height
+        room && room.displayed && y + height - 1 > chatView.contentY
+        && y + height - 1 < chatView.contentY + chatView.height
 
     onBottomEdgeShownChanged: {
         // A message is considered as "read" if its bottom spent long enough

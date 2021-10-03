@@ -232,8 +232,6 @@ Page {
         model: messageModel
         delegate: TimelineItem {
             width: chatView.width - scrollerArea.width
-            view: chatView
-            moving: chatView.moving || shuttleDial.value
             // #737; the solution found in
             // https://bugreports.qt.io/browse/QT3DS-784
             ListView.delayRemove: true
