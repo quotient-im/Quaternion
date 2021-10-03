@@ -21,6 +21,7 @@
 
 #include "chatroomwidget.h"
 #include "htmlfilter.h"
+#include "timelinewidget.h"
 
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QShortcut>
@@ -89,7 +90,18 @@ void ChatEdit::insertFromMimeData(const QMimeData *source)
 
     if (source->hasHtml()) {
         // Before insertion, remove formatting unsupported in Matrix
-        insertHtml(HtmlFilter::fromLocalHtml(source->html()).filteredHtml);
+        const auto [cleanHtml, errorPos, errorString] =
+            HtmlFilter::fromLocalHtml(source->html());
+        if (errorPos != -1) {
+            qWarning() << "HTML insertion failed at pos" << errorPos
+                       << "with error" << errorString;
+            // FIXME: Come on... It should be app->showStatusMessage() or smth
+            emit chatRoomWidget->timelineWidget()->showStatusMessage(
+                tr("Could not insert HTML - it's either invalid or unsupported"),
+                5000);
+            return;
+        }
+        insertHtml(cleanHtml);
         ensureCursorVisible();
     } else if (source->hasImage())
         emit insertImageRequested(source->imageData().value<QImage>());
