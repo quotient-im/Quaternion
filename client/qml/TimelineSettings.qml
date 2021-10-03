@@ -10,6 +10,7 @@ Settings {
     readonly property int fast_animations_duration_ms: animations_duration_ms / 2
 
     readonly property string timeline_style: value("UI/timeline_style", "")
+    readonly property bool timelineStyleIsXChat: timeline_style === "xchat"
 
     readonly property string font_family_impl:
         value("UI/Fonts/timeline_family", "")
@@ -25,6 +26,9 @@ Settings {
     readonly property var font: fontInfo.font
     readonly property real fontHeight: fontInfo.height
     readonly property real lineSpacing: fontInfo.lineSpacing
+    /// 2 text line heights by default; 1 line height for XChat
+    readonly property real minimalTimelineItemHeight:
+        lineSpacing * (2 - timelineStyleIsXChat)
 
     readonly property var render_type_impl: value("UI/Fonts/render_type",
                                                   "NativeRendering")

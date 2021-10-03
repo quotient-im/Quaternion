@@ -41,7 +41,6 @@ Item {
                                                   (-0.7*defaultPalette.window.hslLightness + 0.9),
                                                   defaultPalette.buttonText.a)
 
-    readonly property bool xchatStyle: settings.timeline_style === "xchat"
     readonly property bool actionEvent: eventType == "state" || eventType == "emote"
 
     readonly property bool readMarkerHere: messageModel.readMarkerVisualIndex === index
@@ -225,7 +224,7 @@ Item {
 
             Label {
                 id: timelabel
-                visible: xchatStyle
+                visible: settings.timelineStyleIsXChat
                 width: if (!visible) { 0 }
                 anchors.top: authorAvatar.top
                 anchors.left: parent.left
@@ -241,16 +240,15 @@ Item {
             }
             Image {
                 id: authorAvatar
-                visible: (authorSectionVisible || xchatStyle)
+                visible: (authorSectionVisible || settings.timelineStyleIsXChat)
                          && settings.show_author_avatars && author.avatarMediaId
                 anchors.left: timelabel.right
                 anchors.leftMargin: 3
-                height: visible ? settings.lineSpacing * (2 - xchatStyle)
+                height: visible ? settings.minimalTimelineItemHeight
                                 : authorLabel.height
 
-                // 2 text line heights by default; 1 line height for XChat
                 width: settings.show_author_avatars
-                       * settings.lineSpacing * (2 - xchatStyle)
+                       * settings.minimalTimelineItemHeight
 
                 fillMode: Image.PreserveAspectFit
                 horizontalAlignment: Image.AlignRight
@@ -264,12 +262,14 @@ Item {
             }
             Label {
                 id: authorLabel
-                visible: xchatStyle || (!actionEvent && authorSectionVisible)
+                visible: settings.timelineStyleIsXChat
+                         || (!actionEvent && authorSectionVisible)
                 anchors.left: authorAvatar.right
                 anchors.leftMargin: 2
                 anchors.top: authorAvatar.top
-                width: xchatStyle ? 120 - authorAvatar.width
-                                  : Math.min(textField.width, implicitWidth)
+                width: settings.timelineStyleIsXChat
+                       ? 120 - authorAvatar.width
+                       : Math.min(textField.width, implicitWidth)
                 horizontalAlignment:
                     actionEvent ? Text.AlignRight : Text.AlignLeft
                 elide: Text.ElideRight
@@ -278,7 +278,7 @@ Item {
                 textFormat: Label.PlainText
                 font.family: settings.font.family
                 font.pointSize: settings.font.pointSize
-                font.bold: !xchatStyle
+                font.bold: !settings.timelineStyleIsXChat
                 renderType: settings.render_type
 
                 text: (actionEvent ? "* " : "") + authorName
@@ -290,13 +290,16 @@ Item {
                 id: textField
                 height: textFieldImpl.height
                 anchors.top:
-                    !xchatStyle && authorLabel.visible ? authorLabel.bottom :
-                    height >= authorAvatar.height ? authorLabel.top : undefined
-                anchors.verticalCenter: !xchatStyle && !authorLabel.visible
+                    !settings.timelineStyleIsXChat && authorLabel.visible
+                    ? authorLabel.bottom
+                    : height >= authorAvatar.height ? authorLabel.top : undefined
+                anchors.verticalCenter: !settings.timelineStyleIsXChat
+                                        && !authorLabel.visible
                                         && height < authorAvatar.height
                                         ? authorAvatar.verticalCenter
                                         : undefined
-                anchors.left: (xchatStyle ? authorLabel : authorAvatar).right
+                anchors.left: (settings.timelineStyleIsXChat
+                               ? authorLabel : authorAvatar).right
                 anchors.leftMargin: 2
                 anchors.right: parent.right
                 anchors.rightMargin: 1
@@ -340,7 +343,7 @@ Item {
                     readOnly: true
                     textFormat: TextEdit.RichText
                     // FIXME: The text is clumsy and slows down creation
-                    text: (!xchatStyle
+                    text: (!settings.timelineStyleIsXChat
                            ? ("<table style='
                                 float: right; font-size: small;
                                 color:\"" + mixColors(disabledPalette.text,
@@ -457,7 +460,7 @@ Item {
                                 ? "image://mtx/" + content.thumbnailMediaId
                                 : ""
                     maxHeight: chatView.height - textField.height -
-                               authorLabel.height * !xchatStyle
+                               authorLabel.height * !settings.timelineStyleIsXChat
                     autoload: settings.autoload_images
                 }
             }
