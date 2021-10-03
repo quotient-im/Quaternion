@@ -458,7 +458,8 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         {
             QString result =
                 "<b>" % disambiguatedName.toHtmlEscaped() % "</b><br>"
-                % tr("Main alias: %1").arg(room->canonicalAlias()) % "<br>" %
+                % tr("Main alias: %1").arg(room->canonicalAlias().toHtmlEscaped())
+                % "<br>" %
                 //: The number of joined members
                 tr("Joined: %L1").arg(room->joinedCount());
             if (room->invitedCount() > 0)
@@ -487,7 +488,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
             }
 
             if (const auto unreadCount = room->unreadCount(); unreadCount >= 0) {
-                // TODO for 0.0.96: tr("Messages after fully read: %L1")
+                // TODO for 0.0.96: tr("Messages after fully read marker: %L1")
                 result += "<br/>" % tr("Unread messages: %L1")
                                     .arg(unreadCount);
                 if (room->readMarker() == room->historyEdge())
@@ -501,7 +502,9 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
             if (const auto hlCount = room->highlightCount(); hlCount > 0)
                 result += "<br>" % tr("Unread highlights: %L1").arg(hlCount);
 
-            result += "<br>" % tr("ID: %1").arg(room->id()) % "<br>";
+            // Room ids are pretty safe from rogue HTML; escape it just in case
+            result +=
+                "<br>" % tr("ID: %1").arg(room->id().toHtmlEscaped()) % "<br>";
             switch (room->joinState())
             {
                 case JoinState::Join:
@@ -522,7 +525,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         case JoinStateRole:
             if (!room->successorId().isEmpty())
                 return QStringLiteral("upgraded");
-            return toCString(room->joinState()); // FIXME: better make the enum QVariant-convertible (only possible from Qt 5.8, see Q_ENUM_NS)
+            return toCString(room->joinState()); // TODO: drop toCString once on lib 0.7
         case ObjectRole:
             return QVariant::fromValue(room);
         default:
