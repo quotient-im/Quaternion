@@ -162,6 +162,10 @@ void LoginDialog::setup(const QString& statusMessage)
                 serverEdit->clear();
                 setStatusMessage(message);
             });
+    connect(m_connection.data(), &Connection::connected,
+            this, &Dialog::accept);
+    connect(m_connection.data(), &Connection::loginError,
+            this, &Dialog::applyFailed);
     auto* formLayout = addLayout<QFormLayout>();
     formLayout->addRow(tr("Matrix ID"), userEdit);
     formLayout->addRow(tr("Password"), passwordEdit);
@@ -194,10 +198,6 @@ void LoginDialog::apply()
         url.setScheme("https"); // Qt defaults to http (or even ftp for some)
 
     // Whichever the flow, the two connections are the same
-    connect(m_connection.data(), &Connection::connected,
-            this, &Dialog::accept);
-    connect(m_connection.data(), &Connection::loginError,
-            this, &Dialog::applyFailed);
     if (m_connection->homeserver() == url && !m_connection->loginFlows().empty())
         loginWithBestFlow();
     else if (!url.isValid())
