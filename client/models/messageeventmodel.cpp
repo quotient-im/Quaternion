@@ -20,6 +20,7 @@
 #include "messageeventmodel.h"
 
 #include <QtCore/QDebug>
+#include <QtGui/QPalette>
 #include <QtQml> // for qmlRegisterType()
 
 #include "../quaternionroom.h"
@@ -41,6 +42,8 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
 {
     static const auto roles = [this] {
         auto roles = QAbstractItemModel::roleNames();
+        // Not every Qt standard role has a role name, turns out
+        roles.insert(Qt::ForegroundRole, "foreground");
         roles.insert(EventTypeRole, "eventType");
         roles.insert(EventIdRole, "eventId");
         roles.insert(TimeRole, "time");
@@ -416,6 +419,29 @@ int MessageEventModel::rowCount(const QModelIndex& parent) const
     return m_currentRoom->timelineSize() + m_currentRoom->pendingEvents().size();
 }
 
+inline QColor mixColors(QColor base, QColor tint, qreal mixRatio = 0.5)
+{
+    mixRatio = tint.alphaF() * mixRatio;
+    const auto baseRatio = 1 - mixRatio;
+    return QColor::fromRgbF(tint.redF() * mixRatio + base.redF() * baseRatio,
+                            tint.greenF() * mixRatio + base.greenF() * baseRatio,
+                            tint.blueF() * mixRatio + base.blueF() * baseRatio,
+                            mixRatio + base.alphaF() * baseRatio);
+}
+
+inline QColor fadedTextColor(QColor unfadedColor, qreal fadeRatio = 0.5)
+{
+    return mixColors(QPalette().color(QPalette::Disabled, QPalette::Text),
+                     unfadedColor, fadeRatio);
+}
+
+QColor MessageEventModel::fadedBackColor(QColor unfadedColor,
+                                         qreal fadeRatio) const
+{
+    return mixColors(QPalette().color(QPalette::Disabled, QPalette::Base),
+                     unfadedColor, fadeRatio);
+}
+
 QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
 {
     const auto row = idx.row();
@@ -620,6 +646,43 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
             , tr("Unknown event")
         );
         // clang-format on
+    }
+
+    if (role == Qt::ForegroundRole) {
+        using CG = QPalette::ColorGroup;
+        using CR = QPalette::ColorRole;
+
+        if (evt.isRedacted())
+            return QPalette().color(CG::Disabled, CR::Text);
+
+        if (isPending) {
+            using ES = Quotient::EventStatus;
+            switch (pendingIt->deliveryStatus()) {
+            case ES::Submitted:
+            case ES::SendingFailed:
+                return QPalette().color(CG::Disabled, CR::Text);
+            case ES::Departed:
+                return fadedTextColor(QPalette().color(CG::Active, CR::Text));
+            default:;
+            }
+        }
+        // Background highlighting mode is handled entirely in QML
+        if (m_currentRoom->isEventHighlighted(&evt)
+            && settings.get<QString>(QStringLiteral("UI/highlight_mode"))
+                   == "text")
+            return settings.get(QStringLiteral("UI/highlight_color"),
+                                QStringLiteral("orange"));
+
+        auto textColor = QPalette().color(CG::Active, CR::Text);
+        if (isPending || evt.senderId() == m_currentRoom->localUser()->id())
+            textColor = mixColors(textColor,
+                            settings.get(QStringLiteral("UI/outgoing_color"),
+                                         QStringLiteral("#4A8780")), 0.5);
+
+        const auto* const rme = eventCast<const RoomMessageEvent>(&evt);
+        return rme && rme->msgtype() != MessageEventType::Notice
+                   ? textColor
+                   : fadedTextColor(textColor);
     }
 
     if( role == Qt::ToolTipRole )

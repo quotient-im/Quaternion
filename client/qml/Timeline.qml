@@ -544,7 +544,7 @@ Page {
             opacity: 0.1
 
             radius: readMarkerLine.height
-            color: mixColors(disabledPalette.base, defaultPalette.highlight, 0.5)
+            color: messageModel.fadedBackColor(defaultPalette.highlight)
         }
         Rectangle {
             id: readMarkerLine

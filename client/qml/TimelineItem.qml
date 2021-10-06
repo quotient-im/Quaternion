@@ -16,19 +16,6 @@ Item {
     readonly property bool pending: marks > EventStatus.Normal
                                     && marks < EventStatus.Redacted
     readonly property bool failed: marks === EventStatus.SendingFailed
-    readonly property bool eventWithTextPart:
-        ["message", "emote", "image", "file"].indexOf(eventType) >= 0
-    /* readonly but animated */ property string textColor:
-        marks === EventStatus.Submitted || failed ? disabledPalette.text :
-        marks === EventStatus.Departed ?
-            mixColors(disabledPalette.text, defaultPalette.text, 0.5) :
-        marks === EventStatus.Redacted ? disabledPalette.text :
-        (eventWithTextPart && room && author === room.localUser) ?
-            settings.outgoing_color :
-        highlight && settings.highlight_mode == "text" ? settings.highlight_color :
-        (["state", "notice", "other"].indexOf(eventType) >= 0)
-        ? mixColors(disabledPalette.text, defaultPalette.text, 0.5)
-        : defaultPalette.text
     readonly property string authorName:
         room && author ? room.safeMemberName(author.id) : ""
     // FIXME: boilerplate with models/userlistmodel.cpp:115
@@ -102,10 +89,6 @@ Item {
     Connections {
         target: scrollDelay
         onTargetIndexChanged: maybeBindScrollTarget()
-    }
-
-    AnimationBehavior on textColor {
-        ColorAnimation { duration: settings.animations_duration_ms }
     }
 
     property bool showingDetails
@@ -367,7 +350,7 @@ Item {
                              : "")
                     horizontalAlignment: Text.AlignLeft
                     wrapMode: Text.Wrap
-                    color: textColor
+                    color: foreground
                     font: settings.font
                     renderType: settings.render_type
 
@@ -385,6 +368,10 @@ Item {
                     onLinkActivated: controller.resourceRequested(link)
 
                     TimelineTextEditSelector {}
+
+                    AnimationBehavior on color { ColorAnimation {
+                            duration: settings.animations_duration_ms
+                    } }
                 }
 
                 TimelineMouseArea {

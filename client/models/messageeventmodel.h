@@ -57,6 +57,9 @@ class MessageEventModel: public QAbstractListModel
         QHash<int, QByteArray> roleNames() const override;
         int findRow(const QString& id, bool includePending = false) const;
 
+        Q_INVOKABLE QColor fadedBackColor(QColor unfadedColor,
+                                          qreal fadeRatio = 0.5) const;
+
     signals:
         void roomChanged();
         /// This is different from Room::readMarkerMoved() in that it is also
