@@ -13,12 +13,8 @@ Item {
     readonly property bool authorSectionVisible:
         eventGrouping >= EventGrouping.ShowAuthor
     readonly property bool replaced: marks === EventStatus.Replaced
-    readonly property bool pending: [
-                                        EventStatus.Submitted,
-                                        EventStatus.Departed,
-                                        EventStatus.ReachedServer,
-                                        EventStatus.SendingFailed
-                                    ].indexOf(marks) != -1
+    readonly property bool pending: marks > EventStatus.Normal
+                                    && marks < EventStatus.Redacted
     readonly property bool failed: marks === EventStatus.SendingFailed
     readonly property bool eventWithTextPart:
         ["message", "emote", "image", "file"].indexOf(eventType) >= 0
@@ -42,7 +38,8 @@ Item {
                                                   (-0.7*defaultPalette.window.hslLightness + 0.9),
                                                   defaultPalette.buttonText.a)
 
-    readonly property bool actionEvent: eventType == "state" || eventType == "emote"
+    readonly property bool actionEvent: eventType == "state"
+                                        || eventType == "emote"
 
     readonly property bool readMarkerHere: messageModel.readMarkerVisualIndex === index
 
