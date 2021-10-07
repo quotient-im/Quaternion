@@ -36,21 +36,29 @@
   </provides>
 
   <releases>
+    <release version="0.0.95.1" date="2021-10-07">
+      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.95.1-rc</url>
+      <description><p>
+        This is mostly about bug fixes, including more accurate scrolling back
+        in the timeline (to read marker or previously saved position);
+        actually coloured user names in the timeline; rich text pasting from LibreOffice;
+        and a few limited HTML injections. Also, the "Scroll to read marker" button
+        will load more history if the event with the read marker is not loaded yet
+        (though you'll have to click again to actually scroll after that).
+      </p></description>
+    </release>
     <release version="0.0.95" date="2021-09-24">
       <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.95</url>
       <description>
-        <p>
-          Selected changes (see full release notes for a more complete list):
-          <ul>
-            <li>Revamped read marker and "scroll to read marker" button</li>
-            <li>Initial reactions support</li>
-            <li>Tint for outgoing messages</li>
-            <li>Improvements for the shuttle dial</li>
-            <li>User profile dialog with editable name and avatar</li>
-            <li>Initial Markdown and rich text entry support (still a bit experimental)</li>
-            <li>Different colours for different user ids</li>
-          </ul>
-        </p>
+        <ul>
+          <li>Revamped read marker and "scroll to read marker" button</li>
+          <li>Initial reactions support</li>
+          <li>Tint for outgoing messages</li>
+          <li>Improvements for the shuttle dial</li>
+          <li>User profile dialog with editable name and avatar</li>
+          <li>Initial Markdown and rich text entry support (still a bit experimental)</li>
+          <li>Different colours for different user ids</li>
+        </ul>
       </description>
     </release>
     <release version="0.0.94.99" type="development" date="2021-09-12" />
