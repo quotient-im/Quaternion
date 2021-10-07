@@ -1059,7 +1059,7 @@ void MainWindow::showAboutWindow()
             "<a href='https://www.qt.io/'>Qt 5</a><br/>"
             "<a href='https://www.qt.io/product/development-tools'>Qt Creator</a><br/>"
             "<a href='https://www.jetbrains.com/clion/'>CLion</a><br/>"
-            "<a href='https://lokalise.com'>Lokalise</a>"
+            "<a href='https://lokalise.com'>Lokalise</a><br/>"
             "<a href='https://cloudsmith.io'>Cloudsmith<a>"
         );
         thanksLabel->setTextInteractionFlags(Qt::TextSelectableByKeyboard|
