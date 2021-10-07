@@ -112,7 +112,7 @@ jobs:
         fi
         sudo apt-get -qq install ninja-build $EXTRA_DEPS
         if [[ "$VALIDATE_APPSTREAM" == 'true' ]]; then
-          flatpak install --user -y org.freedesktop.appstream-glib
+          flatpak install --user -y https://flathub.org/repo/appstream/org.freedesktop.appstream-glib.flatpakref
         fi
 
     - name: Install Ninja (macOS/Windows)
