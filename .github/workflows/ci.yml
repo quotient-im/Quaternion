@@ -77,6 +77,8 @@ jobs:
       VCVARS_BAT: |
           C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
       VERSION: ${{ needs.Prepare.outputs.version }}
+      # Use one of faster paths for validation
+      VALIDATE_APPSTREAM: ${{ matrix.compiler == 'Clang' && matrix.composition == 'own-quotient' }}
 
     steps:
     - uses: actions/checkout@v2
@@ -104,7 +106,14 @@ jobs:
         if [[ '${{ matrix.composition }}' == 'package' ]]; then
           EXTRA_DEPS="appstream libgstreamer-plugins-base1.0.0"
         fi
-        sudo apt-get -qq install ninja-build appstream-util $EXTRA_DEPS
+        if [[ "$VALIDATE_APPSTREAM" == 'true' ]]; then
+          echo "AppStream validation enabled"
+          EXTRA_DEPS="flatpak";
+        fi
+        sudo apt-get -qq install ninja-build $EXTRA_DEPS
+        if [[ "$VALIDATE_APPSTREAM" == 'true' ]]; then
+          flatpak install --user -y https://flathub.org/repo/appstream/org.freedesktop.appstream-glib.flatpakref
+        fi
 
     - name: Install Ninja (macOS/Windows)
       if: ${{ !startsWith(matrix.os, 'ubuntu') }}
@@ -203,7 +212,9 @@ jobs:
       run: |
         xvfb-run env LD_LIBRARY_PATH=$DEP_SO_PATH:$Qt5_DIR/lib \
             $DESTDIR$INSTALL_PATH/bin/quaternion --version
-        appstream-util validate $DESTDIR$INSTALL_PATH/share/metainfo/*.appdata.xml
+        if [[ "VALIDATE_APPSTREAM" == 'true' ]]; then
+          flatpak run org.freedesktop.appstream-glib validate $DESTDIR$INSTALL_PATH/share/metainfo/*.appdata.xml
+        fi
 
     - name: Make image (macOS)
       if: startsWith(matrix.os, 'macos') && matrix.composition == 'package'
