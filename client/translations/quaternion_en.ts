@@ -379,22 +379,22 @@
         <translation>Could not connect to the homeserver</translation>
     </message>
     <message>
-        <location filename="../logindialog.cpp" line="166"/>
+        <location filename="../logindialog.cpp" line="170"/>
         <source>Matrix ID</source>
         <translation>Matrix ID</translation>
     </message>
     <message>
-        <location filename="../logindialog.cpp" line="167"/>
+        <location filename="../logindialog.cpp" line="171"/>
         <source>Password</source>
         <translation>Password</translation>
     </message>
     <message>
-        <location filename="../logindialog.cpp" line="168"/>
+        <location filename="../logindialog.cpp" line="172"/>
         <source>Device name</source>
         <translation>Device name</translation>
     </message>
     <message>
-        <location filename="../logindialog.cpp" line="169"/>
+        <location filename="../logindialog.cpp" line="173"/>
         <source>Connect to server</source>
         <translation>Connect to server</translation>
     </message>
@@ -1758,75 +1758,75 @@ or alias (starting with #)</translation>
         <translation>Main alias: %1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="463"/>
+        <location filename="../models/roomlistmodel.cpp" line="464"/>
         <source>Joined: %L1</source>
         <extracomment>The number of joined members</extracomment>
         <translation>Joined: %L1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="466"/>
+        <location filename="../models/roomlistmodel.cpp" line="467"/>
         <source>Invited: %L1</source>
         <extracomment>The number of invited users</extracomment>
         <translation>Invited: %L1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="475"/>
+        <location filename="../models/roomlistmodel.cpp" line="476"/>
         <source>Direct chat with %1</source>
         <translation>Direct chat with %1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="480"/>
+        <location filename="../models/roomlistmodel.cpp" line="481"/>
         <source>The room enforces encryption</source>
         <translation>The room enforces encryption</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="483"/>
+        <location filename="../models/roomlistmodel.cpp" line="484"/>
         <source>This room&apos;s version is unstable!</source>
         <translation>This room&apos;s version is unstable!</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="485"/>
+        <location filename="../models/roomlistmodel.cpp" line="486"/>
         <source>Consider upgrading to a stable version (use room settings for that)</source>
         <translation>Consider upgrading to a stable version (use room settings for that)</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="491"/>
+        <location filename="../models/roomlistmodel.cpp" line="492"/>
         <source>Unread messages: %L1</source>
         <translation>Unread messages: %L1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="494"/>
+        <location filename="../models/roomlistmodel.cpp" line="495"/>
         <source>(maybe more)</source>
         <extracomment>Unread messages</extracomment>
         <translation>(maybe more)</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="502"/>
+        <location filename="../models/roomlistmodel.cpp" line="503"/>
         <source>Unread highlights: %L1</source>
         <translation>Unread highlights: %L1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="499"/>
+        <location filename="../models/roomlistmodel.cpp" line="500"/>
         <source>Unread notifications: %L1</source>
         <translation>Unread notifications: %L1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="504"/>
+        <location filename="../models/roomlistmodel.cpp" line="507"/>
         <source>ID: %1</source>
         <translation>ID: %1</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="508"/>
+        <location filename="../models/roomlistmodel.cpp" line="511"/>
         <source>You joined this room</source>
         <translation>You joined this room</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="511"/>
+        <location filename="../models/roomlistmodel.cpp" line="514"/>
         <source>You left this room</source>
         <translation>You left this room</translation>
     </message>
     <message>
-        <location filename="../models/roomlistmodel.cpp" line="514"/>
+        <location filename="../models/roomlistmodel.cpp" line="517"/>
         <source>You were invited into this room</source>
         <translation>You were invited into this room</translation>
     </message>
