@@ -4,31 +4,15 @@
 
 #include <eventitem.h>
 
+#include <QtQuickWidgets/QQuickWidget>
 #include <QtCore/QBasicTimer>
-
-#ifndef USE_QQUICKWIDGET
-#    define DISABLE_QQUICKWIDGET
-#endif
-
-#ifdef DISABLE_QQUICKWIDGET
-#    include <QtQuick/QQuickView>
-#else
-#    include <QtQuickWidgets/QQuickWidget>
-#endif
 
 class ChatRoomWidget;
 class MessageEventModel;
 class ImageProvider;
 class QuaternionRoom;
 
-using TimelineBaseWidget =
-#ifdef DISABLE_QQUICKWIDGET
-    QQuickView;
-#else
-    QQuickWidget;
-#endif
-
-class TimelineWidget : public TimelineBaseWidget {
+class TimelineWidget : public QQuickWidget {
     Q_OBJECT
 public:
     TimelineWidget(ChatRoomWidget* chatRoomWidget);

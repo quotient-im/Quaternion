@@ -99,9 +99,7 @@ int main( int argc, char* argv[] )
     if (useBreezeStyle) {
         QApplication::setStyle("Breeze");
         QIcon::setThemeName("breeze");
-#    if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
         QIcon::setFallbackThemeName("breeze");
-#    endif
     } else
 #endif
     {

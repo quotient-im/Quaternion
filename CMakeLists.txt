@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.13) # See the comment in lib/CMakeLists.txt
 if (POLICY CMP0092)
 cmake_policy(SET CMP0092 NEW)
 endif()
@@ -6,7 +6,7 @@ endif()
 set(IDENTIFIER "com.github.quaternion")
 set(COPYRIGHT "Copyright © 2016-2021 Quaternion project contributors")
 
-project(quaternion VERSION 0.0.95.1 LANGUAGES CXX)
+project(quaternion VERSION 0.0.95.50 LANGUAGES CXX)
 
 if(UNIX AND NOT APPLE)
     set(LINUX 1)
@@ -48,8 +48,8 @@ else()
 endif()
 
 # Find the libraries
-find_package(Qt5 5.11 REQUIRED Widgets Network Quick Gui LinguistTools
-                              Multimedia DBus QuickControls2)
+find_package(Qt5 5.12 REQUIRED Widgets Network Quick Gui LinguistTools
+                              Multimedia DBus QuickControls2 QuickWidgets)
 # Qt5_Prefix is only used to show Qt path in message()
 # Qt5_BinDir is where all the *deployqt tools reside
 if (QT_QMAKE_EXECUTABLE)
@@ -58,15 +58,6 @@ if (QT_QMAKE_EXECUTABLE)
 else()
     get_filename_component(Qt5_BinDir "${Qt5_DIR}/../../../bin" ABSOLUTE)
     get_filename_component(Qt5_Prefix "${Qt5_DIR}/../../../.." ABSOLUTE)
-endif()
-if (USE_QQUICKWIDGET)
-    find_package(Qt5 5.11 REQUIRED QuickWidgets)
-elseif(NOT DISABLE_QQUICKWIDGET)
-    # QQuickWidget only stopped crashing in Qt 5.12, use it by default if found
-    find_package(Qt5 5.12 QUIET COMPONENTS QuickWidgets)
-    if (Qt5QuickWidgets_FOUND)
-        set(USE_QQUICKWIDGET ON)
-    endif()
 endif()
 
 if(WIN32)
@@ -135,9 +126,6 @@ if (USE_INTREE_LIBQMC)
 else ()
     message( STATUS "Using libQuotient ${Quotient_VERSION} at ${Quotient_DIR}")
 endif ()
-if (USE_QQUICKWIDGET)
-    message( STATUS "Using QQuickWidget to render QML")
-endif(USE_QQUICKWIDGET)
 if (USE_KEYCHAIN)
     message( STATUS "Using Qt Keychain ${Qt5Keychain_VERSION} at ${Qt5Keychain_DIR}")
 endif ()
@@ -240,12 +228,7 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.16.0"
     target_precompile_headers(${PROJECT_NAME} PRIVATE <room.h>)
 endif ()
 target_link_libraries(${PROJECT_NAME} Quotient
-    Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network Qt5::QuickControls2)
-
-if (USE_QQUICKWIDGET)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE USE_QQUICKWIDGET)
-    target_link_libraries(${PROJECT_NAME} Qt5::QuickWidgets)
-endif()
+    Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network Qt5::QuickControls2 Qt5::QuickWidgets)
 
 if(USE_KEYCHAIN)
     target_compile_definitions(${PROJECT_NAME} PRIVATE USE_KEYCHAIN)

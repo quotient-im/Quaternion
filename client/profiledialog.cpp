@@ -124,9 +124,7 @@ ProfileDialog::DeviceTable::DeviceTable()
     auto* headerCtl = horizontalHeader();
     headerCtl->setSectionResizeMode(QHeaderView::Interactive);
     headerCtl->setSectionsMovable(true);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
     headerCtl->setFirstSectionMovable(false);
-#endif
     headerCtl->setSortIndicatorShown(true);
     verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     verticalHeader()->hide();
