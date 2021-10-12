@@ -525,7 +525,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
         case JoinStateRole:
             if (!room->successorId().isEmpty())
                 return QStringLiteral("upgraded");
-            return toCString(room->joinState()); // TODO: drop toCString once on lib 0.7
+            return QVariant::fromValue(room->joinState());
         case ObjectRole:
             return QVariant::fromValue(room);
         default:

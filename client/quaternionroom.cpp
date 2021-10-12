@@ -120,11 +120,12 @@ void QuaternionRoom::checkForHighlights(const Quotient::TimelineItem& ti)
             localUserExpressions[localUserId] = QRegularExpression("(\\W|^)" + localUserId + "(\\W|$)", ReOpt);
         }
 
-        const auto memberName = roomMembername(localUserId);
+        const auto memberName = disambiguatedMemberName(localUserId);
         if (!roomMemberExpressions.contains(memberName)) {
             // FIXME: unravels if the room member name contains characters special
             //        to regexp($, e.g.)
-            roomMemberExpressions[memberName] = QRegularExpression("(\\W|^)" + roomMembername(localUserId) + "(\\W|$)", ReOpt);
+            roomMemberExpressions[memberName] =
+                QRegularExpression("(\\W|^)" + memberName + "(\\W|$)", ReOpt);
         }
 
         const auto& text = e->plainBody();

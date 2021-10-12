@@ -493,11 +493,11 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         if (command == "ban")
             currentRoom()->ban(args.front(), args.back());
         else {
-            auto* const user = currentRoom()->user(args.front());
-            if (currentRoom()->memberJoinState(user) != JoinState::Join)
-                return tr("%1 is not a member of this room")
-                    .arg(user ? user->fullName(currentRoom()) : args.front());
-            currentRoom()->kickMember(user->id(), args.back());
+            const auto& userId = args.front();
+            if (!currentRoom()->isMember(userId))
+                return tr("%1 is not a member of this room").arg(userId);
+
+            currentRoom()->kickMember(userId, args.back());
         }
         return {};
     }

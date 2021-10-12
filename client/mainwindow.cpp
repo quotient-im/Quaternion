@@ -818,7 +818,7 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
         {
             if (job->isBackground())
                 return;
-            auto message = job->error() == BaseJob::UserConsentRequiredError
+            auto message = job->error() == BaseJob::UserConsentRequired
                 ? tr("Before this server can process your information, you have"
                      " to agree with its terms and conditions; please click the"
                      " button below to open the web page where you can do that")
@@ -936,7 +936,6 @@ void MainWindow::showLoginWindow(const QString& statusMessage,
     reloginAccount->setParent(dialog); // => Delete with the dialog box
     doOpenLoginDialog(dialog);
     connect(dialog, &QDialog::rejected, this, [reloginAccount] {
-        reloginAccount->clearAccessToken();
         AccessTokenFile(*reloginAccount).remove();
         // XXX: Maybe even remove the account altogether as below?
         // Quotient::SettingsGroup("Accounts").remove(reloginAccount->userId());
@@ -954,7 +953,6 @@ void MainWindow::doOpenLoginDialog(LoginDialog* dialog)
         auto connection = dialog->releaseConnection();
         AccountSettings account(connection->userId());
         account.setKeepLoggedIn(dialog->keepLoggedIn());
-        account.clearAccessToken(); // Drop the legacy - just in case
         account.setHomeserver(connection->homeserver());
         account.setDeviceId(connection->deviceId());
         account.setDeviceName(dialog->deviceName());
@@ -1085,16 +1083,7 @@ void MainWindow::invokeLogin()
         {
             auto accessToken = loadAccessToken(account);
             if (accessToken.isEmpty())
-            {
-                // Try to look in the legacy location (QSettings) and if found,
-                // migrate it from there to a file.
-                accessToken = account.accessToken().toLatin1();
-                if (accessToken.isEmpty())
-                    continue; // No access token anywhere, no autologin
-
-                saveAccessToken(account, accessToken);
-                account.clearAccessToken(); // Clean the old place
-            }
+                continue; // No autologin for this account
 
             autoLoggedIn = true;
             auto c = new Connection(account.homeserver());

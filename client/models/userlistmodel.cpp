@@ -59,15 +59,11 @@ void UserListModel::setRoom(Quotient::Room* room)
         connect(m_currentRoom, &Room::memberAboutToRename, this, &UserListModel::userRemoved);
         connect(m_currentRoom, &Room::memberRenamed, this, &UserListModel::userAdded);
         connect(m_currentRoom, &Room::memberListChanged, this, &UserListModel::membersChanged);
-
-        filter({});
-
-        for (auto* user: std::as_const(m_users))
-            connect(user, &User::avatarChanged, this,
-                    &UserListModel::avatarChanged);
-
+        connect(m_currentRoom, &Room::memberAvatarChanged, this, &UserListModel::avatarChanged);
         connect(m_currentRoom->connection(), &Connection::loggedOut, this,
                 [=] { setRoom(nullptr); });
+
+        filter({});
         qDebug() << m_users.count() << "user(s) in the room";
     }
     endResetModel();
@@ -153,7 +149,6 @@ void UserListModel::userAdded(Quotient::User* user)
     beginInsertRows(QModelIndex(), pos, pos);
     m_users.insert(pos, user);
     endInsertRows();
-    connect( user, &Quotient::User::avatarChanged, this, &UserListModel::avatarChanged );
 }
 
 void UserListModel::userRemoved(Quotient::User* user)
@@ -203,16 +198,14 @@ void UserListModel::refresh(Quotient::User* user, QVector<int> roles)
         qWarning() << "Trying to access a room member not in the user list";
 }
 
-void UserListModel::avatarChanged(Quotient::User* user,
-                                  const Quotient::Room* context)
+void UserListModel::avatarChanged(Quotient::User* user)
 {
-    if (context == m_currentRoom)
-        refresh(user, {Qt::DecorationRole});
+    refresh(user, {Qt::DecorationRole});
 }
 
 int UserListModel::findUserPos(User* user) const
 {
-    return findUserPos(m_currentRoom->roomMembername(user));
+    return findUserPos(m_currentRoom->disambiguatedMemberName(user->id()));
 }
 
 int UserListModel::findUserPos(const QString& username) const
