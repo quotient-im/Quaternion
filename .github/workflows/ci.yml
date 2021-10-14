@@ -44,17 +44,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-18.04 ]
+        os: [ ubuntu-20.04 ]
         compiler: [ GCC, Clang ]
         platform: [ '' ]
-        qt-version: [ '5.11.3' ]
+        qt-version: [ '5.12.10' ]
         composition: [ own-quotient, static, dynamic ]
         qt-arch: [ '' ]
         exclude:
         - compiler: Clang
           composition: static # Replace with package (see below)
         include:
-        - os: ubuntu-18.04
+        - os: ubuntu-20.04
           compiler: Clang
           qt-version: '5.14.2'
           composition: package
