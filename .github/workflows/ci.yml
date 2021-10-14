@@ -72,7 +72,7 @@ jobs:
     env:
       DEPLOY_VERBOSITY: 1
       QTKEYCHAIN_REF: v0.12.0
-      QUOTIENT_REF: 0.6.x
+      QUOTIENT_REF: dev
       # Use | below to skip on escaping all the backslashes
       VCVARS_BAT: |
           C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
