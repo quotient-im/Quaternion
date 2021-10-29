@@ -162,7 +162,7 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
  * deals with the ampersands; this helper further tries to convert the passed
  * HTML to something more XHTML-like, so that the XML reader doesn't choke on,
  * e.g., unclosed `br` or `img` tags and minimised HTML attributes. It also
- * filters awaytags that are not compliant with Matrix specification, where
+ * filters away tags that are not compliant with Matrix specification, where
  * appropriate.
  */
 [[nodiscard]] Result preprocess(QString html, Mode mode, Options options)
@@ -208,6 +208,10 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
             }
             Q_ASSERT(mode == GenericToQt);
             inHead = html[pos + 1] != '/'; // Track header entry and exit
+            if (!inHead) { // Just exited, </head>
+                pos = gtPos + 1;
+                continue;
+            }
         }
 
         const auto tagEndIt = find_if(uncheckedHtml.cbegin(),

@@ -73,8 +73,9 @@ MessageEventModel::MessageEventModel(QObject* parent)
 #else
     qmlRegisterType<FileTransferInfo>(); qRegisterMetaType<FileTransferInfo>();
 #endif
-    qmlRegisterUncreatableType<EventStatus>(
-        "Quotient", 1, 0, "EventStatus", "EventStatus is not a creatable type");
+    qmlRegisterUncreatableMetaObject(EventStatus::staticMetaObject,
+                                     "Quotient", 1, 0, "EventStatus",
+                                     "Access to EventStatus enums only");
     qmlRegisterUncreatableMetaObject(EventGrouping::staticMetaObject,
                                      "Quotient", 1, 0, "EventGrouping",
                                      "Access to enums only");
@@ -179,8 +180,6 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
         connect(m_currentRoom, &Room::fileTransferCompleted,
                 this, &MessageEventModel::refreshEvent);
         connect(m_currentRoom, &Room::fileTransferFailed,
-                this, &MessageEventModel::refreshEvent);
-        connect(m_currentRoom, &Room::fileTransferCancelled,
                 this, &MessageEventModel::refreshEvent);
         qDebug() << "Event model connected to room" << room->objectName()
                  << "as" << room->localUser()->id();
@@ -375,7 +374,7 @@ bool MessageEventModel::isUserActivityNotable(
         {
             if (e.stateKey() != userId)
                 return true; // An action on another member is notable
-            if (!me->isLeave() && me->membership() != MembershipType::Ban)
+            if (!me->isLeave() && me->membership() != Membership::Ban)
                 continue;
 
             leaveFound = true;
@@ -510,11 +509,11 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                 // The below code assumes senderName output in AuthorRole
                 switch( e.membership() )
                 {
-                    case MembershipType::Invite:
-                    case MembershipType::Join: {
+                    case Membership::Invite:
+                    case Membership::Join: {
                         QString text {};
                         // Part 1: invites and joins
-                        if (e.membership() == MembershipType::Invite)
+                        if (e.membership() == Membership::Invite)
                             text = tr("invited %1 to the room")
                                    .arg(subjectName);
                         else if (e.changesMembership())
@@ -533,11 +532,13 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                         // Part 2: profile changes of joined members
                         if (e.isRename()
                             && settings.get("UI/show_rename", true)) {
-                            if (e.displayName().isEmpty())
+                            const auto& newDisplayName =
+                                e.newDisplayName().value_or(QString());
+                            if (newDisplayName.isEmpty())
                                 text = tr("cleared the display name");
                             else
                                 text = tr("changed the display name to %1")
-                                       .arg(e.displayName().toHtmlEscaped());
+                                           .arg(newDisplayName.toHtmlEscaped());
                         }
                         if (e.isAvatarUpdate()
                             && settings.get("UI/show_avatar_update", true)) {
@@ -545,16 +546,16 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                                 //: Joiner for member profile updates;
                                 //: mind the leading and trailing spaces!
                                 text += tr(" and ");
-                            if (e.avatarUrl().isEmpty())
-                                text += tr("cleared the avatar");
-                            else
-                                text += tr("updated the avatar");
+                            text += !e.newAvatarUrl()
+                                            || e.newAvatarUrl()->isEmpty()
+                                        ? tr("cleared the avatar")
+                                        : tr("updated the avatar");
                         }
                         return text;
                     }
-                    case MembershipType::Leave:
+                    case Membership::Leave:
                         if (e.prevContent() &&
-                            e.prevContent()->membership == MembershipType::Invite)
+                            e.prevContent()->membership == Membership::Invite)
                         {
                             return (e.senderId() != e.userId())
                                     ? tr("withdrew %1's invitation").arg(subjectName)
@@ -562,7 +563,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                         }
 
                         if (e.prevContent() &&
-                                e.prevContent()->membership == MembershipType::Ban)
+                                e.prevContent()->membership == Membership::Ban)
                         {
                             return (e.senderId() != e.userId())
                                     ? tr("unbanned %1").arg(subjectName)
@@ -576,7 +577,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                                     .arg(subjectName,
                                          e.reason().toHtmlEscaped())
                                 : tr("left the room");
-                    case MembershipType::Ban:
+                    case Membership::Ban:
                         return (e.senderId() != e.userId())
                                 ? e.reason().isEmpty()
                                   ? tr("banned %1 from the room")
@@ -585,18 +586,13 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                                     .arg(subjectName,
                                          e.reason().toHtmlEscaped())
                                 : tr("self-banned from the room");
-                    case MembershipType::Knock:
+                    case Membership::Knock:
                         return tr("knocked");
                     default:
                         ;
                 }
                 return tr("made something unknown");
                 // clang-format off
-            }
-            , [] (const RoomAliasesEvent& e) {
-                return tr("has set room aliases on server %1 to: %2")
-                       .arg(e.stateKey(),
-                            QLocale().createSeparatedList(e.aliases()));
             }
             , [] (const RoomCanonicalAliasEvent& e) {
                 return (e.alias().isEmpty())
@@ -772,7 +768,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
             if (!e->replacedEvent().isEmpty())
                 return EventStatus::Hidden;
 
-        if ((is<RoomAliasesEvent>(evt) || is<RoomCanonicalAliasEvent>(evt))
+        if (is<RoomCanonicalAliasEvent>(evt)
             && !settings.get<bool>("UI/show_alias_update", true))
             return EventStatus::Hidden;
 

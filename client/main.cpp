@@ -69,7 +69,7 @@ int main( int argc, char* argv[] )
     QApplication::setOrganizationName(QStringLiteral("Quotient"));
     QApplication::setApplicationName(QStringLiteral("quaternion"));
     QApplication::setApplicationDisplayName(QStringLiteral("Quaternion"));
-    QApplication::setApplicationVersion(QStringLiteral("0.0.95+git"));
+    QApplication::setApplicationVersion(QStringLiteral("0.0.95.1+git"));
     QApplication::setDesktopFileName(
         QStringLiteral("com.github.quaternion.desktop"));
 
@@ -99,9 +99,7 @@ int main( int argc, char* argv[] )
     if (useBreezeStyle) {
         QApplication::setStyle("Breeze");
         QIcon::setThemeName("breeze");
-#    if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
         QIcon::setFallbackThemeName("breeze");
-#    endif
     } else
 #endif
     {

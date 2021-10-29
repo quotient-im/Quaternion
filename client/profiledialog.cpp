@@ -124,9 +124,7 @@ ProfileDialog::DeviceTable::DeviceTable()
     auto* headerCtl = horizontalHeader();
     headerCtl->setSectionResizeMode(QHeaderView::Interactive);
     headerCtl->setSectionsMovable(true);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
     headerCtl->setFirstSectionMovable(false);
-#endif
     headerCtl->setSortIndicatorShown(true);
     verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     verticalHeader()->hide();
@@ -284,18 +282,13 @@ void ProfileDialog::load()
 
     auto* user = m_currentAccount->user();
     updateAvatarButton(user, m_avatar);
-    connect(user, &User::avatarChanged, this, [this](User*, const Room* room) {
-        if (!room)
-            updateAvatarButton(account()->user(), m_avatar);
-    });
+    connect(user, &User::defaultAvatarChanged, this,
+            [this] { updateAvatarButton(account()->user(), m_avatar); });
 
     m_displayName->setText(user->name());
     m_displayName->setFocus();
-    connect(user, &User::nameChanged, this,
-            [this](const QString& newName, auto, const Room* room) {
-                if (!room)
-                    m_displayName->setText(newName);
-            });
+    connect(user, &User::defaultNameChanged, this,
+            [this, user] { m_displayName->setText(user->name()); });
 
     auto accessToken = account()->accessToken();
     if (Q_LIKELY(accessToken.size() > 10))

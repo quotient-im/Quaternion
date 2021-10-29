@@ -46,9 +46,6 @@ TimelineWidget::TimelineWidget(ChatRoomWidget* chatRoomWidget)
     qmlRegisterUncreatableType<RoomMessageEvent>(
         "Quotient", 1, 0, "RoomMessageEvent", "RoomMessageEvent is uncreatable");
 
-    qDebug() << "Rendering QML with"
-             << TimelineBaseWidget::staticMetaObject.className();
-
     setResizeMode(SizeRootObjectToView);
 
     engine()->addImageProvider(QStringLiteral("mtx"), m_imageProvider);
@@ -308,7 +305,7 @@ void TimelineWidget::reStartShownTimer()
 void TimelineWidget::timerEvent(QTimerEvent* qte)
 {
     if (qte->timerId() != maybeReadTimer.timerId()) {
-        TimelineBaseWidget::timerEvent(qte);
+        QQuickWidget::timerEvent(qte);
         return;
     }
     maybeReadTimer.stop();

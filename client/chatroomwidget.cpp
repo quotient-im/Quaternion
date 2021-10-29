@@ -61,22 +61,15 @@ ChatRoomWidget::ChatRoomWidget(MainWindow* parent)
     , m_timelineWidget(new TimelineWidget(this))
     , m_uiSettings("UI")
 {
-    auto* qmlContainer =
-#ifdef DISABLE_QQUICKWIDGET
-            QWidget::createWindowContainer(m_timelineWidget, this);
-#else
-            m_timelineWidget;
-#endif // Use different objects but the same method with the same parameters
-    qmlContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_timelineWidget->setSizePolicy(QSizePolicy::Expanding,
+                                    QSizePolicy::Expanding);
 
-    {
-        m_hudCaption = new QLabel();
-        m_hudCaption->setWordWrap(true);
-        auto f = m_hudCaption->font();
-        f.setItalic(true);
-        m_hudCaption->setFont(f);
-        m_hudCaption->setTextFormat(Qt::RichText);
-    }
+    m_hudCaption = new QLabel();
+    m_hudCaption->setWordWrap(true);
+    auto f = m_hudCaption->font();
+    f.setItalic(true);
+    m_hudCaption->setFont(f);
+    m_hudCaption->setTextFormat(Qt::RichText);
 
     auto attachButton = new QToolButton();
     attachButton->setAutoRaise(true);
@@ -188,7 +181,7 @@ ChatRoomWidget::ChatRoomWidget(MainWindow* parent)
     }
 
     auto* layout = new QVBoxLayout();
-    layout->addWidget(qmlContainer);
+    layout->addWidget(m_timelineWidget);
     layout->addWidget(m_hudCaption);
     {
         auto inputLayout = new QHBoxLayout;
@@ -500,11 +493,11 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         if (command == "ban")
             currentRoom()->ban(args.front(), args.back());
         else {
-            auto* const user = currentRoom()->user(args.front());
-            if (currentRoom()->memberJoinState(user) != JoinState::Join)
-                return tr("%1 is not a member of this room")
-                    .arg(user ? user->fullName(currentRoom()) : args.front());
-            currentRoom()->kickMember(user->id(), args.back());
+            const auto& userId = args.front();
+            if (!currentRoom()->isMember(userId))
+                return tr("%1 is not a member of this room").arg(userId);
+
+            currentRoom()->kickMember(userId, args.back());
         }
         return {};
     }
