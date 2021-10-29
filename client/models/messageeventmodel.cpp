@@ -20,6 +20,7 @@
 #include "messageeventmodel.h"
 
 #include <QtCore/QDebug>
+#include <QtGui/QPalette>
 #include <QtQml> // for qmlRegisterType()
 
 #include "../quaternionroom.h"
@@ -41,13 +42,14 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
 {
     static const auto roles = [this] {
         auto roles = QAbstractItemModel::roleNames();
+        // Not every Qt standard role has a role name, turns out
+        roles.insert(Qt::ForegroundRole, "foreground");
         roles.insert(EventTypeRole, "eventType");
         roles.insert(EventIdRole, "eventId");
         roles.insert(TimeRole, "time");
-        roles.insert(SectionRole, "section");
-        roles.insert(AboveSectionRole, "aboveSection");
+        roles.insert(DateRole, "date");
+        roles.insert(EventGroupingRole, "eventGrouping");
         roles.insert(AuthorRole, "author");
-        roles.insert(AboveAuthorRole, "aboveAuthor");
         roles.insert(ContentRole, "content");
         roles.insert(ContentTypeRole, "contentType");
         roles.insert(HighlightRole, "highlight");
@@ -74,6 +76,9 @@ MessageEventModel::MessageEventModel(QObject* parent)
     qmlRegisterUncreatableMetaObject(EventStatus::staticMetaObject,
                                      "Quotient", 1, 0, "EventStatus",
                                      "Access to EventStatus enums only");
+    qmlRegisterUncreatableMetaObject(EventGrouping::staticMetaObject,
+                                     "Quotient", 1, 0, "EventGrouping",
+                                     "Access to enums only");
     // This could be a single line in changeRoom() but then there's a race
     // condition between the model reset completion and the room property
     // update in QML - connecting the two signals early on overtakes any QML
@@ -118,7 +123,7 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                             m_currentRoom->maxTimelineIndex() - biggest
                             + timelineBaseIndex() - 1;
                         refreshEventRoles(rowBelowInserted,
-                                         {AboveAuthorRole, AboveSectionRole});
+                                          { EventGroupingRole });
                     }
                     for (auto i = m_currentRoom->maxTimelineIndex() - biggest;
                               i <= m_currentRoom->maxTimelineIndex() - lowest;
@@ -153,7 +158,7 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                     refreshLastUserEvents(0);
                     if (timelineBaseIndex() > 0) // Refresh below, see #312
                         refreshEventRoles(timelineBaseIndex() - 1,
-                                          {AboveAuthorRole, AboveSectionRole});
+                                          { EventGroupingRole });
                 });
         connect(m_currentRoom, &Room::pendingEventChanged,
                 this, &MessageEventModel::refreshRow);
@@ -413,6 +418,29 @@ int MessageEventModel::rowCount(const QModelIndex& parent) const
     return m_currentRoom->timelineSize() + m_currentRoom->pendingEvents().size();
 }
 
+inline QColor mixColors(QColor base, QColor tint, qreal mixRatio = 0.5)
+{
+    mixRatio = tint.alphaF() * mixRatio;
+    const auto baseRatio = 1 - mixRatio;
+    return QColor::fromRgbF(tint.redF() * mixRatio + base.redF() * baseRatio,
+                            tint.greenF() * mixRatio + base.greenF() * baseRatio,
+                            tint.blueF() * mixRatio + base.blueF() * baseRatio,
+                            mixRatio + base.alphaF() * baseRatio);
+}
+
+inline QColor fadedTextColor(QColor unfadedColor, qreal fadeRatio = 0.5)
+{
+    return mixColors(QPalette().color(QPalette::Disabled, QPalette::Text),
+                     unfadedColor, fadeRatio);
+}
+
+QColor MessageEventModel::fadedBackColor(QColor unfadedColor,
+                                         qreal fadeRatio) const
+{
+    return mixColors(QPalette().color(QPalette::Disabled, QPalette::Base),
+                     unfadedColor, fadeRatio);
+}
+
 QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
 {
     const auto row = idx.row();
@@ -428,10 +456,9 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
     const auto& evt = isPending ? **pendingIt : **timelineIt;
 
     using namespace Quotient;
-    if( role == Qt::DisplayRole )
-    {
-        if (evt.isRedacted())
-        {
+    static Settings settings;
+    if (role == Qt::DisplayRole) {
+        if (evt.isRedacted()) {
             auto reason = evt.redactedBecause()->reason();
             if (reason.isEmpty())
                 return tr("Redacted");
@@ -455,9 +482,8 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                     // to returning the prettified plain text
                     if (errorPos != -1) {
                         cleanHtml = m_currentRoom->prettyPrint(e.plainBody());
-                        static Settings settings;
                         // A manhole to visualise HTML errors
-                        if (settings.get("Debug/html", false))
+                        if (settings.get<bool>("Debug/html"))
                             cleanHtml +=
                                 QStringLiteral("<br /><font color=\"red\">"
                                                "At pos %1: %2</font>")
@@ -505,7 +531,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
 
                         // Part 2: profile changes of joined members
                         if (e.isRename()
-                            && Settings().get("UI/show_rename", true)) {
+                            && settings.get("UI/show_rename", true)) {
                             const auto& newDisplayName =
                                 e.newDisplayName().value_or(QString());
                             if (newDisplayName.isEmpty())
@@ -515,7 +541,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                                            .arg(newDisplayName.toHtmlEscaped());
                         }
                         if (e.isAvatarUpdate()
-                            && Settings().get("UI/show_avatar_update", true)) {
+                            && settings.get("UI/show_avatar_update", true)) {
                             if (!text.isEmpty())
                                 //: Joiner for member profile updates;
                                 //: mind the leading and trailing spaces!
@@ -618,6 +644,43 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         // clang-format on
     }
 
+    if (role == Qt::ForegroundRole) {
+        using CG = QPalette::ColorGroup;
+        using CR = QPalette::ColorRole;
+
+        if (evt.isRedacted())
+            return QPalette().color(CG::Disabled, CR::Text);
+
+        if (isPending) {
+            using ES = Quotient::EventStatus;
+            switch (pendingIt->deliveryStatus()) {
+            case ES::Submitted:
+            case ES::SendingFailed:
+                return QPalette().color(CG::Disabled, CR::Text);
+            case ES::Departed:
+                return fadedTextColor(QPalette().color(CG::Active, CR::Text));
+            default:;
+            }
+        }
+        // Background highlighting mode is handled entirely in QML
+        if (m_currentRoom->isEventHighlighted(&evt)
+            && settings.get<QString>(QStringLiteral("UI/highlight_mode"))
+                   == "text")
+            return settings.get(QStringLiteral("UI/highlight_color"),
+                                QStringLiteral("orange"));
+
+        auto textColor = QPalette().color(CG::Active, CR::Text);
+        if (isPending || evt.senderId() == m_currentRoom->localUser()->id())
+            textColor = mixColors(textColor,
+                            settings.get(QStringLiteral("UI/outgoing_color"),
+                                         QStringLiteral("#4A8780")), 0.5);
+
+        const auto* const rme = eventCast<const RoomMessageEvent>(&evt);
+        return rme && rme->msgtype() != MessageEventType::Notice
+                   ? textColor
+                   : fadedTextColor(textColor);
+    }
+
     if( role == Qt::ToolTipRole )
     {
         return evt.originalJson();
@@ -697,7 +760,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
             return EventStatus::Hidden; // Never show, even pending
 
         if (isPending)
-            return !Settings().get<bool>("UI/suppress_local_echo")
+            return !settings.get<bool>("UI/suppress_local_echo")
                     ? pendingIt->deliveryStatus() : EventStatus::Hidden;
 
         // isReplacement?
@@ -706,60 +769,59 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                 return EventStatus::Hidden;
 
         if (is<RoomCanonicalAliasEvent>(evt)
-                && !Settings().value("UI/show_alias_update", true).toBool())
+            && !settings.get<bool>("UI/show_alias_update", true))
             return EventStatus::Hidden;
 
         auto* memberEvent = timelineIt->viewAs<RoomMemberEvent>();
-        if (memberEvent)
-        {
-            if ((memberEvent->isJoin() || memberEvent->isLeave()) &&
-                    !Settings().value("UI/show_joinleave", true).toBool())
+        if (memberEvent) {
+            if ((memberEvent->isJoin() || memberEvent->isLeave())
+                && !settings.get<bool>("UI/show_joinleave", true))
                 return EventStatus::Hidden;
 
             if ((memberEvent->isInvite() || memberEvent->isRejectedInvite())
-                    && !Settings().value("UI/show_invite", true).toBool())
+                && !settings.get<bool>("UI/show_invite", true))
                 return EventStatus::Hidden;
 
             if ((memberEvent->isBan() || memberEvent->isUnban())
-                    && !Settings().value("UI/show_ban", true).toBool())
+                && !settings.get<bool>("UI/show_ban", true))
                 return EventStatus::Hidden;
 
-            bool hideRename = memberEvent->isRename()
+            bool hideRename =
+                memberEvent->isRename()
                 && (!memberEvent->isJoin() && !memberEvent->isLeave())
-                && !Settings().value("UI/show_rename", true).toBool();
-            bool hideAvatarUpdate = memberEvent->isAvatarUpdate()
-                && !Settings().value("UI/show_avatar_update", true).toBool();
+                && !settings.get<bool>("UI/show_rename", true);
+            bool hideAvatarUpdate =
+                memberEvent->isAvatarUpdate()
+                && !settings.get<bool>("UI/show_avatar_update", true);
             if ((hideRename && hideAvatarUpdate)
                     || (hideRename && !memberEvent->isAvatarUpdate())
                     || (hideAvatarUpdate && !memberEvent->isRename())) {
                 return EventStatus::Hidden;
             }
         }
-        if (memberEvent || evt.isRedacted())
-        {
-            if (evt.senderId() != m_currentRoom->localUser()->id() &&
-                    evt.stateKey() != m_currentRoom->localUser()->id() &&
-                    !Settings().value("UI/show_spammy").toBool())
-            {
-    //            QElapsedTimer et; et.start();
+        if (memberEvent || evt.isRedacted()) {
+            if (evt.senderId() != m_currentRoom->localUser()->id()
+                && evt.stateKey() != m_currentRoom->localUser()->id()
+                && !settings.get<bool>("UI/show_spammy")) {
+//                QElapsedTimer et; et.start();
                 auto hide = !isUserActivityNotable(timelineIt);
-    //            qDebug() << "Checked user activity for" << evt.id() << "in" << et;
+//                qDebug() << "Checked user activity for" << evt.id() << "in" << et;
                 if (hide)
                     return EventStatus::Hidden;
             }
         }
 
         if (evt.isRedacted())
-            return Settings().value("UI/show_redacted").toBool()
+            return settings.get<bool>("UI/show_redacted")
                     ? EventStatus::Redacted : EventStatus::Hidden;
 
-        if (evt.isStateEvent() &&
-                static_cast<const StateEventBase&>(evt).repeatsState() &&
-                !Settings().value("UI/show_noop_events").toBool())
+        if (evt.isStateEvent()
+            && static_cast<const StateEventBase&>(evt).repeatsState()
+            && !settings.get<bool>("UI/show_noop_events"))
             return EventStatus::Hidden;
 
         if (!evt.isStateEvent() && !is<RoomMessageEvent>(evt)
-                && !Settings().value("UI/show_unknown_events").toBool())
+            && !settings.get<bool>("UI/show_unknown_events"))
             return EventStatus::Hidden;
 
         return evt.isReplaced() ? EventStatus::Replaced : EventStatus::Normal;
@@ -828,21 +890,26 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         return qmlReactions;
     }
 
-    if( role == TimeRole || role == SectionRole)
+    if( role == TimeRole || role == DateRole)
     {
         auto ts = isPending ? pendingIt->lastUpdated()
                             : makeMessageTimestamp(timelineIt);
         return role == TimeRole ? QVariant(ts) : renderDate(ts);
     }
 
-    if( role == AboveSectionRole || role == AboveAuthorRole)
+    if (role == EventGroupingRole) {
         for (auto r = row + 1; r < rowCount(); ++r)
         {
             auto i = index(r);
             if (data(i, SpecialMarksRole) != EventStatus::Hidden)
-                return data(i, role == AboveSectionRole
-                                ? SectionRole : AuthorRole);
+                return data(i, DateRole) != data(idx, DateRole)
+                           ? EventGrouping::ShowDateAndAuthor
+                       : data(i, AuthorRole) != data(idx, AuthorRole)
+                           ? EventGrouping::ShowAuthor
+                           : EventGrouping::KeepPreviousGroup;
         }
+        return EventGrouping::ShowDateAndAuthor; // No events before
+    }
 
     if (role == RefRole)
         return visit(

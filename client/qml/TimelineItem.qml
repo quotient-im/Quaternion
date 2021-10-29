@@ -4,58 +4,18 @@ import QtGraphicalEffects 1.0 // For fancy highlighting
 import Quotient 1.0
 
 Item {
-    // Supplementary components
-
-    TimelineSettings {
-        id: settings
-        readonly property bool autoload_images: value("UI/autoload_images", true)
-        readonly property string highlight_mode: value("UI/highlight_mode", "background")
-        readonly property color highlight_color: value("UI/highlight_color", "orange")
-        readonly property color outgoing_color_base: value("UI/outgoing_color", "#4A8780")
-        readonly property color outgoing_color:
-            mixColors(defaultPalette.text, settings.outgoing_color_base, 0.5)
-        readonly property bool show_author_avatars:
-            value("UI/show_author_avatars", timeline_style != "xchat")
-    }
-    SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
-    SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
-
-    // Property interface
-
-    property var view
-    /** Determines whether the view is moving at the moment */
-    property bool moving: view.moving
-
-    // TimelineItem definition
-
     visible: marks !== EventStatus.Hidden
     enabled: visible
     height: childrenRect.height * visible
 
-    readonly property bool sectionVisible: section !== aboveSection
+    readonly property bool sectionVisible:
+        eventGrouping === EventGrouping.ShowDateAndAuthor
     readonly property bool authorSectionVisible:
-                            sectionVisible || author !== aboveAuthor
+        eventGrouping >= EventGrouping.ShowAuthor
     readonly property bool replaced: marks === EventStatus.Replaced
-    readonly property bool pending: [
-                                        EventStatus.Submitted,
-                                        EventStatus.Departed,
-                                        EventStatus.ReachedServer,
-                                        EventStatus.SendingFailed
-                                    ].indexOf(marks) != -1
+    readonly property bool pending: marks > EventStatus.Normal
+                                    && marks < EventStatus.Redacted
     readonly property bool failed: marks === EventStatus.SendingFailed
-    readonly property bool eventWithTextPart:
-        ["message", "emote", "image", "file"].indexOf(eventType) >= 0
-    /* readonly but animated */ property string textColor:
-        marks === EventStatus.Submitted || failed ? disabledPalette.text :
-        marks === EventStatus.Departed ?
-            mixColors(disabledPalette.text, defaultPalette.text, 0.5) :
-        marks === EventStatus.Redacted ? disabledPalette.text :
-        (eventWithTextPart && room && author === room.localUser) ?
-            settings.outgoing_color :
-        highlight && settings.highlight_mode == "text" ? settings.highlight_color :
-        (["state", "notice", "other"].indexOf(eventType) >= 0)
-        ? mixColors(disabledPalette.text, defaultPalette.text, 0.5)
-        : defaultPalette.text
     readonly property string authorName:
         room && author ? room.safeMemberName(author.id) : ""
     // FIXME: boilerplate with models/userlistmodel.cpp:115
@@ -65,22 +25,22 @@ Item {
                                                   (-0.7*defaultPalette.window.hslLightness + 0.9),
                                                   defaultPalette.buttonText.a)
 
-    readonly property bool xchatStyle: settings.timeline_style === "xchat"
-    readonly property bool actionEvent: eventType == "state" || eventType == "emote"
+    readonly property bool actionEvent: eventType == "state"
+                                        || eventType == "emote"
 
     readonly property bool readMarkerHere: messageModel.readMarkerVisualIndex === index
 
     /// The bottom event edge is below the top viewport edge and
     /// the top event edge is above the bottom viewport edge
     readonly property bool partiallyShown:
-        room && room.displayed && y + height - 1 > view.contentY
-                               && y < view.contentY + view.height
+        room && room.displayed && y + height - 1 > chatView.contentY
+                               && y < chatView.contentY + chatView.height
 
     /// The bottom event edge is below the top and above the bottom
     /// viewport edge; partiallyShown => bottomEdgeShown but not vice versa
     readonly property bool bottomEdgeShown:
-        room && room.displayed && y + height - 1 > view.contentY
-                               && y + height - 1 < view.contentY + view.height
+        room && room.displayed && y + height - 1 > chatView.contentY
+        && y + height - 1 < chatView.contentY + chatView.height
 
     onBottomEdgeShownChanged: {
         // A message is considered as "read" if its bottom spent long enough
@@ -129,10 +89,6 @@ Item {
     Connections {
         target: scrollDelay
         onTargetIndexChanged: maybeBindScrollTarget()
-    }
-
-    AnimationBehavior on textColor {
-        ColorAnimation { duration: settings.animations_duration_ms }
     }
 
     property bool showingDetails
@@ -212,7 +168,7 @@ Item {
                 font.pointSize: settings.font.pointSize
                 font.bold: true
                 renderType: settings.render_type
-                text: section
+                text: date
             }
         }
         Loader {
@@ -249,7 +205,7 @@ Item {
 
             Label {
                 id: timelabel
-                visible: xchatStyle
+                visible: settings.timelineStyleIsXChat
                 width: if (!visible) { 0 }
                 anchors.top: authorAvatar.top
                 anchors.left: parent.left
@@ -265,16 +221,15 @@ Item {
             }
             Image {
                 id: authorAvatar
-                visible: (authorSectionVisible || xchatStyle)
+                visible: (authorSectionVisible || settings.timelineStyleIsXChat)
                          && settings.show_author_avatars && author.avatarMediaId
                 anchors.left: timelabel.right
                 anchors.leftMargin: 3
-                height: visible ? settings.lineSpacing * (2 - xchatStyle)
+                height: visible ? settings.minimalTimelineItemHeight
                                 : authorLabel.height
 
-                // 2 text line heights by default; 1 line height for XChat
                 width: settings.show_author_avatars
-                       * settings.lineSpacing * (2 - xchatStyle)
+                       * settings.minimalTimelineItemHeight
 
                 fillMode: Image.PreserveAspectFit
                 horizontalAlignment: Image.AlignRight
@@ -288,12 +243,14 @@ Item {
             }
             Label {
                 id: authorLabel
-                visible: xchatStyle || (!actionEvent && authorSectionVisible)
+                visible: settings.timelineStyleIsXChat
+                         || (!actionEvent && authorSectionVisible)
                 anchors.left: authorAvatar.right
                 anchors.leftMargin: 2
                 anchors.top: authorAvatar.top
-                width: xchatStyle ? 120 - authorAvatar.width
-                                  : Math.min(textField.width, implicitWidth)
+                width: settings.timelineStyleIsXChat
+                       ? 120 - authorAvatar.width
+                       : Math.min(textField.width, implicitWidth)
                 horizontalAlignment:
                     actionEvent ? Text.AlignRight : Text.AlignLeft
                 elide: Text.ElideRight
@@ -302,7 +259,7 @@ Item {
                 textFormat: Label.PlainText
                 font.family: settings.font.family
                 font.pointSize: settings.font.pointSize
-                font.bold: !xchatStyle
+                font.bold: !settings.timelineStyleIsXChat
                 renderType: settings.render_type
 
                 text: (actionEvent ? "* " : "") + authorName
@@ -314,13 +271,16 @@ Item {
                 id: textField
                 height: textFieldImpl.height
                 anchors.top:
-                    !xchatStyle && authorLabel.visible ? authorLabel.bottom :
-                    height >= authorAvatar.height ? authorLabel.top : undefined
-                anchors.verticalCenter: !xchatStyle && !authorLabel.visible
+                    !settings.timelineStyleIsXChat && authorLabel.visible
+                    ? authorLabel.bottom
+                    : height >= authorAvatar.height ? authorLabel.top : undefined
+                anchors.verticalCenter: !settings.timelineStyleIsXChat
+                                        && !authorLabel.visible
                                         && height < authorAvatar.height
                                         ? authorAvatar.verticalCenter
                                         : undefined
-                anchors.left: (xchatStyle ? authorLabel : authorAvatar).right
+                anchors.left: (settings.timelineStyleIsXChat
+                               ? authorLabel : authorAvatar).right
                 anchors.leftMargin: 2
                 anchors.right: parent.right
                 anchors.rightMargin: 1
@@ -364,7 +324,7 @@ Item {
                     readOnly: true
                     textFormat: TextEdit.RichText
                     // FIXME: The text is clumsy and slows down creation
-                    text: (!xchatStyle
+                    text: (!settings.timelineStyleIsXChat
                            ? ("<table style='
                                 float: right; font-size: small;
                                 color:\"" + mixColors(disabledPalette.text,
@@ -390,7 +350,7 @@ Item {
                              : "")
                     horizontalAlignment: Text.AlignLeft
                     wrapMode: Text.Wrap
-                    color: textColor
+                    color: foreground
                     font: settings.font
                     renderType: settings.render_type
 
@@ -408,6 +368,10 @@ Item {
                     onLinkActivated: controller.resourceRequested(link)
 
                     TimelineTextEditSelector {}
+
+                    AnimationBehavior on color { ColorAnimation {
+                            duration: settings.animations_duration_ms
+                    } }
                 }
 
                 TimelineMouseArea {
@@ -481,7 +445,7 @@ Item {
                                 ? "image://mtx/" + content.thumbnailMediaId
                                 : ""
                     maxHeight: chatView.height - textField.height -
-                               authorLabel.height * !xchatStyle
+                               authorLabel.height * !settings.timelineStyleIsXChat
                     autoload: settings.autoload_images
                 }
             }

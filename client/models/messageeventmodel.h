@@ -33,10 +33,9 @@ class MessageEventModel: public QAbstractListModel
             EventTypeRole = Qt::UserRole + 1,
             EventIdRole,
             TimeRole,
-            SectionRole,
-            AboveSectionRole,
+            DateRole,
+            EventGroupingRole,
             AuthorRole,
-            AboveAuthorRole,
             ContentRole,
             ContentTypeRole,
             HighlightRole,
@@ -57,6 +56,9 @@ class MessageEventModel: public QAbstractListModel
         QVariant data(const QModelIndex& idx, int role = Qt::DisplayRole) const override;
         QHash<int, QByteArray> roleNames() const override;
         int findRow(const QString& id, bool includePending = false) const;
+
+        Q_INVOKABLE QColor fadedBackColor(QColor unfadedColor,
+                                          qreal fadeRatio = 0.5) const;
 
     signals:
         void roomChanged();
@@ -82,3 +84,15 @@ class MessageEventModel: public QAbstractListModel
         void refreshLastUserEvents(int baseTimelineRow);
         void refreshEventRoles(int row, const QVector<int>& roles = {});
 };
+
+namespace EventGrouping {
+Q_NAMESPACE
+
+enum Mark {
+    KeepPreviousGroup = 0,
+    ShowAuthor = 1,
+    ShowDateAndAuthor = 2
+};
+Q_ENUM_NS(Mark)
+
+}
