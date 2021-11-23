@@ -178,7 +178,7 @@ void MainWindow::createMenu()
     connectionMenu = menuBar()->addMenu(tr("&Accounts"));
 
     connectionMenu->addAction(QIcon::fromTheme("im-user"), tr("&Login..."),
-        this, [=]{ showLoginWindow(); } );
+        this, [this]{ showLoginWindow(); } );
 
     connectionMenu->addSeparator();
     connectionMenu->addAction(
@@ -787,15 +787,14 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
         if (++counter % 17 == 2)
             c->saveState();
     } );
-    connect( c, &Connection::loggedOut, this, [=]
-    {
+    connect(c, &Connection::loggedOut, this, [this, c] {
         statusBar()->showMessage(tr("Logged out as %1").arg(c->userId()), 3000);
         accountRegistry.drop(c);
         dropConnection(c);
     });
-    connect( c, &Connection::networkError, this, [=]{ networkError(c); } );
-    connect( c, &Connection::syncError, this,
-        [this,c] (const QString& message, const QString& details) {
+    connect(c, &Connection::networkError, this, [this, c] { networkError(c); });
+    connect(c, &Connection::syncError, this,
+        [this, c](const QString& message, const QString& details) {
             QMessageBox msgBox(QMessageBox::Warning, tr("Sync failed"),
                 accountRegistry.size() > 1
                     ? tr("The last sync of account %1 has failed with error: %2")
@@ -843,25 +842,22 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
             if (msgBox.clickedButton() == openUrlButton)
                 QDesktopServices::openUrl(job->errorUrl());
         });
-    connect( c, &Connection::loginError,
-             this, [=](const QString& msg){ loginError(c, msg); } );
-    connect( c, &Connection::newRoom, systemTrayIcon, &SystemTrayIcon::newRoom );
-    connect( c, &Connection::createdRoom, this, &MainWindow::selectRoom);
-    connect( c, &Connection::joinedRoom, this, [this] (Room* r, Room* prev)
-        {
-            if (currentRoom == prev)
-                selectRoom(r);
-        });
-    connect( c, &Connection::directChatAvailable, this,
-             [this] (Room* r) {
-                 selectRoom(r);
-                 statusBar()->showMessage("Direct chat opened", 2000);
-             });
-    connect( c, &Connection::aboutToDeleteRoom, this,
-             [this] (Room* r) {
-                 if (currentRoom == r)
-                    selectRoom(nullptr);
-             });
+    connect(c, &Connection::loginError, this,
+            [this, c](const QString& msg) { loginError(c, msg); });
+    connect(c, &Connection::newRoom, systemTrayIcon, &SystemTrayIcon::newRoom);
+    connect(c, &Connection::createdRoom, this, &MainWindow::selectRoom);
+    connect(c, &Connection::joinedRoom, this, [this](Room* r, Room* prev) {
+        if (currentRoom == prev)
+            selectRoom(r);
+    });
+    connect(c, &Connection::directChatAvailable, this, [this](Room* r) {
+        selectRoom(r);
+        statusBar()->showMessage("Direct chat opened", 2000);
+    });
+    connect(c, &Connection::aboutToDeleteRoom, this, [this](Room* r) {
+        if (currentRoom == r)
+            selectRoom(nullptr);
+    });
 
     // Update the menu
 
@@ -871,7 +867,8 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     QString menuCaption = accountCaption;
     if (accountRegistry.size() < 10)
         menuCaption.prepend('&' % QString::number(accountRegistry.size()) % ' ');
-    auto logoutAction = logoutMenu->addAction(menuCaption, [=] { logout(c); });
+    auto logoutAction =
+        logoutMenu->addAction(menuCaption, [this, c] { logout(c); });
     connect(c, &Connection::destroyed, logoutMenu,
             std::bind(&QMenu::removeAction, logoutMenu, logoutAction));
     openRoomAction->setEnabled(true);
@@ -1089,11 +1086,10 @@ void MainWindow::invokeLogin()
             auto c = new Connection(account.homeserver());
             firstSyncing.push_back(c);
             auto deviceName = account.deviceName();
-            connect(c, &Connection::connected, this,
-                [=] {
-                    c->loadState();
-                    addConnection(c, deviceName);
-                });
+            connect(c, &Connection::connected, this, [this, c, deviceName] {
+                c->loadState();
+                addConnection(c, deviceName);
+            });
             connect(c, &Connection::resolveError, this, [this, c] {
                 firstSyncOver(c);
                 statusBar()->showMessage(

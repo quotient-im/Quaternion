@@ -194,7 +194,7 @@ RoomSettingsDialog::RoomSettingsDialog(QuaternionRoom* room, MainWindow* parent)
     {
         auto* changeActionButton =
                 new QPushButton(tr("Upgrade", "Upgrade a room version"));
-        connect(changeActionButton, &QAbstractButton::clicked, this, [=] {
+        connect(changeActionButton, &QAbstractButton::clicked, this, [this, room] {
             Dialog chooseVersionDlg(tr("Choose new room version"), this,
                     NoStatusLine, tr("Upgrade", "Upgrade a room version"),
                     NoExtraButtons);
