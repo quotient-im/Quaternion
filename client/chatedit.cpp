@@ -105,7 +105,19 @@ void ChatEdit::insertFromMimeData(const QMimeData *source)
         ensureCursorVisible();
     } else if (source->hasImage())
         emit insertImageRequested(source->imageData().value<QImage>());
-    else
+    else if (source->hasUrls()) {
+        bool hasAnyProcessed = false;
+        for (const QUrl &url : source->urls())
+            if (url.isLocalFile()) {
+                emit attachFileRequested(url.toLocalFile());
+                hasAnyProcessed = true;
+                // Only the first url is processed for now
+                break;
+            }
+        if (!hasAnyProcessed) {
+            KChatEdit::insertFromMimeData(source);
+        }
+    } else
         KChatEdit::insertFromMimeData(source);
 }
 

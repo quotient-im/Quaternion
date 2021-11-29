@@ -52,6 +52,12 @@ static auto DefaultPlaceholderText()
         "Choose a room to send messages or enter a command...");
 }
 
+static auto AttachedPlaceholderText()
+{
+    return ChatRoomWidget::tr(
+        "Add a message to the file or just push Enter");
+}
+
 static constexpr auto MaxNamesToShow = 5;
 static constexpr auto SampleSizeForHud = 3;
 Q_STATIC_ASSERT(MaxNamesToShow > SampleSizeForHud);
@@ -90,8 +96,7 @@ ChatRoomWidget::ChatRoomWidget(MainWindow* parent)
 
         if (!attachedFileName.isEmpty())
         {
-            m_chatEdit->setPlaceholderText(
-                tr("Add a message to the file or just push Enter"));
+            m_chatEdit->setPlaceholderText(AttachedPlaceholderText());
             mainWindow()->showStatusMessage(
                 tr("Attaching %1").arg(attachedFileName));
         } else {
@@ -126,10 +131,20 @@ ChatRoomWidget::ChatRoomWidget(MainWindow* parent)
 
                 attachedFileName = m_fileToAttach->fileName();
                 m_attachAction->setChecked(true);
-                m_chatEdit->setPlaceholderText(
-                    tr("Add a message to the file or just push Enter"));
+                m_chatEdit->setPlaceholderText(AttachedPlaceholderText());
                 mainWindow()->showStatusMessage(
                     tr("Attaching an image from clipboard"));
+            });
+    connect(m_chatEdit, &ChatEdit::attachFileRequested, this,
+            [=](const QString& localPath) {
+                if (currentRoom() == nullptr || !attachedFileName.isEmpty())
+                    return;
+
+                attachedFileName = localPath;
+                m_attachAction->setChecked(true);
+                m_chatEdit->setPlaceholderText(AttachedPlaceholderText());
+                mainWindow()->showStatusMessage(
+                    tr("Attaching a local file as pasted/inserted"));
             });
     connect(m_chatEdit, &ChatEdit::proposedCompletion, this,
             [this](QStringList matches, int pos) {
@@ -768,8 +783,7 @@ void ChatRoomWidget::fileDrop(const QString& url)
 {
     attachedFileName = QUrl(url).path();
     m_attachAction->setChecked(true);
-    m_chatEdit->setPlaceholderText(
-        tr("Add a message to the file or just push Enter"));
+    m_chatEdit->setPlaceholderText(AttachedPlaceholderText());
     mainWindow()->showStatusMessage(tr("Attaching %1").arg(attachedFileName));
 }
 
