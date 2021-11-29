@@ -61,7 +61,7 @@ void UserListModel::setRoom(Quotient::Room* room)
         connect(m_currentRoom, &Room::memberListChanged, this, &UserListModel::membersChanged);
         connect(m_currentRoom, &Room::memberAvatarChanged, this, &UserListModel::avatarChanged);
         connect(m_currentRoom->connection(), &Connection::loggedOut, this,
-                [=] { setRoom(nullptr); });
+                [this] { setRoom(nullptr); });
 
         filter({});
         qDebug() << m_users.count() << "user(s) in the room";

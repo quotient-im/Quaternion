@@ -115,14 +115,14 @@ ChatRoomWidget::ChatRoomWidget(MainWindow* parent)
     m_chatEdit->setMaximumHeight(maximumChatEditHeight());
     connect(m_chatEdit, &KChatEdit::returnPressed, this,
             &ChatRoomWidget::sendInput);
-    connect(m_chatEdit, &KChatEdit::copyRequested, this, [=] {
+    connect(m_chatEdit, &KChatEdit::copyRequested, this, [this] {
         QApplication::clipboard()->setText(
             m_chatEdit->textCursor().hasSelection()
                 ? m_chatEdit->textCursor().selectedText()
                 : m_timelineWidget->selectedText());
     });
     connect(m_chatEdit, &ChatEdit::insertImageRequested, this,
-            [=](const QImage& image) {
+            [this](const QImage& image) {
                 if (currentRoom() == nullptr || m_fileToAttach->isOpen())
                     return;
 

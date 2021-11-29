@@ -92,7 +92,7 @@ void TimelineWidget::setRoom(QuaternionRoom* newRoom)
     m_messageModel->changeRoom(newRoom);
     if (newRoom) {
         connect(newRoom, &Quotient::Room::readMarkerMoved, this, [this] {
-            const auto rm = currentRoom()->readMarker();
+            const auto rm = currentRoom()->fullyReadMarker();
             readMarkerOnScreen = rm != currentRoom()->historyEdge()
                                  && std::lower_bound(indicesOnScreen.cbegin(),
                                                      indicesOnScreen.cend(),
@@ -335,6 +335,6 @@ bool TimelineWidget::pendingMarkRead() const
     if (!readMarkerOnScreen || !currentRoom())
         return false;
 
-    const auto rm = currentRoom()->readMarker();
+    const auto rm = currentRoom()->fullyReadMarker();
     return rm != currentRoom()->historyEdge() && rm->index() < indexToMaybeRead;
 }

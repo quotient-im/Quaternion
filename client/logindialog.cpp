@@ -50,7 +50,7 @@ LoginDialog::LoginDialog(const QString& statusMessage, QWidget* parent,
     setup(statusMessage);
     setPendingApplyMessage(tr("Connecting and logging in, please wait"));
 
-    connect(userEdit, &QLineEdit::editingFinished, m_connection.data(), [=] {
+    connect(userEdit, &QLineEdit::editingFinished, m_connection.data(), [this] {
         auto userId = userEdit->text();
         if (userId.startsWith('@') && userId.indexOf(':') != -1) {
             setStatusMessage(tr("Resolving the homeserver..."));

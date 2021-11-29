@@ -213,7 +213,7 @@ int MessageEventModel::readMarkerVisualIndex() const
 {
     if (!m_currentRoom)
         return -1; // Beyond the bottommost (sync) edge of the timeline
-    if (auto r = findRow(m_currentRoom->readMarkerEventId()); r != -1) {
+    if (auto r = findRow(m_currentRoom->lastFullyReadEventId()); r != -1) {
         // Ensure that the read marker is on a visible event
         // TODO: move this to libQuotient once it allows to customise
         //       event status calculation
@@ -652,7 +652,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
             return QPalette().color(CG::Disabled, CR::Text);
 
         if (isPending) {
-            using ES = Quotient::EventStatus;
+            using ES = Quotient::EventStatus::Code;
             switch (pendingIt->deliveryStatus()) {
             case ES::Submitted:
             case ES::SendingFailed:
@@ -683,7 +683,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
 
     if( role == Qt::ToolTipRole )
     {
-        return evt.originalJson();
+        return QJsonDocument(evt.fullJson()).toJson();
     }
 
     if( role == EventTypeRole )
