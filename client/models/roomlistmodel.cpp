@@ -21,6 +21,7 @@
 
 #include "../quaternionroom.h"
 
+#include <eventstats.h>
 #include <user.h>
 #include <connection.h>
 #include <settings.h>
@@ -236,14 +237,13 @@ void RoomListModel::connectRoomSignals(Room* room)
 {
     connect(room, &Room::beforeDestruction, this, &RoomListModel::deleteRoom);
     m_roomOrder->connectSignals(room);
-    connect(room, &Room::displaynameChanged,
-            this, [this,room] { refresh(room); });
-    connect(room, &Room::unreadMessagesChanged,
-            this, [this,room] { refresh(room); });
-    connect(room, &Room::notificationCountChanged,
-            this, [this,room] { refresh(room); });
-    connect(room, &Room::avatarChanged,
-            this, [this,room] { refresh(room, { Qt::DecorationRole }); });
+    connect(room, &Room::changed, this, [this, room](Room::Changes changes) {
+        using C = Room::Change;
+        if (changes & (C::Name | C::PartiallyReadStats | C::UnreadStats))
+            refresh(room);
+        else if (changes & C::Avatar)
+            refresh(room, { Qt::DecorationRole });
+    });
 }
 
 void RoomListModel::doRemoveRoom(const QModelIndex &idx)
@@ -347,6 +347,12 @@ bool RoomListModel::isValidRoomIndex(const QModelIndex& i) const
             i.row() < m_roomGroups[i.parent().row()].rooms.size();
 }
 
+inline QString toUiString(qsizetype n, const char* prefix = "",
+                          const QLocale& locale = QLocale())
+{
+    return n ? prefix % locale.toString(n) : QString();
+}
+
 QVariant RoomListModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid())
@@ -357,8 +363,8 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
     {
         if (role == Qt::DisplayRole) {
             int unreadRoomsCount = 0;
-            for (auto &r: m_roomGroups[index.row()].rooms)
-                unreadRoomsCount += r->unreadCount() != -1;
+            for (const auto& r: m_roomGroups[index.row()].rooms)
+                unreadRoomsCount += !r->unreadStats().empty();
 
             const auto postfix = unreadRoomsCount
                 ? QStringLiteral(" [%1]").arg(unreadRoomsCount) : QString();
@@ -406,27 +412,40 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
     {
         case Qt::DisplayRole: {
             static Quotient::Settings settings;
-            auto unreadCount = room->unreadCount();
-            auto notifCount = room->notificationCount();
-            auto unreadTilReadReceipt = unreadCount - notifCount;
             QString value =
                 (room->isUnstable() ? "(!)" : "") % disambiguatedName;
-            if (unreadCount >= 0)
-                value += " ["
-                    % (unreadTilReadReceipt > 0
-                           ? QLocale().toString(unreadTilReadReceipt)
+            if (const auto& partiallyReadStats = room->partiallyReadStats();
+                !partiallyReadStats.empty()) //
+            {
+                const auto& [countSinceFullyRead, _1, isPartiallyReadEstimate] =
+                    partiallyReadStats;
+                const auto& [unreadCount, highlightCount, isUnreadEstimate] =
+                    room->unreadStats();
+                const auto partiallyReadCount =
+                    countSinceFullyRead - unreadCount;
+                value +=
+                    " [" % toUiString(unreadCount)
+                    % (!isPartiallyReadEstimate && isUnreadEstimate ? "?" : "")
+                    % (partiallyReadCount > 0
+                           ? QStringLiteral("+%L1").arg(partiallyReadCount)
                            : QString())
-                    % (room->readMarker() == room->historyEdge() ? "?" : "")
-                    % (notifCount > 0 ? QStringLiteral("+%L1").arg(notifCount)
-                                      : QString())
+                    % (isPartiallyReadEstimate ? "?" : "")
+                    % (highlightCount > 0
+                           ? QStringLiteral(", %L1").arg(highlightCount)
+                           : QString())
                     % ']';
-            if (settings.get("Debug/read_receipts", false)) {
-                auto localReadReceipt = room->readMarker(room->localUser());
-                value += " <"
-                    % QString::number(room->historyEdge() - localReadReceipt)
-                    % '|'
-                    % QString::number(room->syncEdge() - localReadReceipt.base())
-                    % '>';
+            }
+            if (settings.get("Debug/read_receipts", false)
+                && room->timelineSize() > 0)
+            {
+                const auto localReadReceipt = room->localReadReceiptMarker();
+                value += " {"
+                         % toUiString(room->historyEdge() - localReadReceipt,
+                                      "", QLocale::C)
+                         % '|'
+                         % toUiString(room->syncEdge() - localReadReceipt.base(),
+                                      "", QLocale::C)
+                         % '}';
             }
             return value;
         }
@@ -487,39 +506,38 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
                                        " (use room settings for that)");
             }
 
-            if (const auto unreadCount = room->unreadCount(); unreadCount >= 0) {
-                // TODO for 0.0.96: tr("Messages after fully read marker: %L1")
-                result += "<br/>" % tr("Unread messages: %L1")
-                                    .arg(unreadCount);
-                if (room->readMarker() == room->historyEdge())
-                    result += ' ' % /*: Unread messages */ tr("(maybe more)");
-            }
+            static const QString MaybeMore = ' ' %
+                /*: Unread messages */ tr("(maybe more)");
+            if (const auto s = room->partiallyReadStats(); !s.empty())
+                result += "<br/>"
+                          % tr("Events after fully read marker: %L1")
+                                .arg(s.notableCount)
+                          % (s.isEstimate ? MaybeMore : QString());
 
-            // TODO for 0.0.96: tr("Unread notifications since read receipt: %L1")
-            if (const auto nfCount = room->notificationCount(); nfCount > 0)
-                result += "<br>" % tr("Unread notifications: %L1").arg(nfCount);
-
-            if (const auto hlCount = room->highlightCount(); hlCount > 0)
-                result += "<br>" % tr("Unread highlights: %L1").arg(hlCount);
+            if (const auto us = room->unreadStats(); !us.empty())
+                result += "<br>"
+                          % (room->highlightCount() > 0
+                                 ? tr("Unread events/highlights since read "
+                                      "receipt: %L1/%L2")
+                                       .arg(us.notableCount)
+                                       .arg(room->highlightCount())
+                                 : tr("Unread events since read receipt: %L1")
+                                       .arg(us.notableCount))
+                          % (us.isEstimate ? MaybeMore : QString());
 
             // Room ids are pretty safe from rogue HTML; escape it just in case
-            result +=
-                "<br>" % tr("ID: %1").arg(room->id().toHtmlEscaped()) % "<br>";
-            switch (room->joinState())
-            {
-                case JoinState::Join:
-                    result += tr("You joined this room");
-                    break;
-                case JoinState::Leave:
-                    result += tr("You left this room");
-                    break;
-                case JoinState::Invite:
-                    result += tr("You were invited into this room");
-            }
+            result += "<br>" % tr("Room id: %1").arg(room->id().toHtmlEscaped())
+                      % "<br>"
+                      % (room->joinState() == JoinState::Join
+                             ? tr("You joined this room as %1")
+                         : room->joinState() == JoinState::Invite
+                             ? tr("You were invited into this room as %1")
+                             : tr("You left this room as %1"))
+                        .arg(room->localUser()->id().toHtmlEscaped());
             return result;
         }
         case HasUnreadRole:
-            return room->unreadCount() > 0;
+            return !room->unreadStats().empty();
         case HighlightCountRole:
             return room->highlightCount();
         case JoinStateRole:

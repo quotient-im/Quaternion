@@ -213,7 +213,7 @@ int MessageEventModel::readMarkerVisualIndex() const
 {
     if (!m_currentRoom)
         return -1; // Beyond the bottommost (sync) edge of the timeline
-    if (auto r = findRow(m_currentRoom->readMarkerEventId()); r != -1) {
+    if (auto r = findRow(m_currentRoom->lastFullyReadEventId()); r != -1) {
         // Ensure that the read marker is on a visible event
         // TODO: move this to libQuotient once it allows to customise
         //       event status calculation
