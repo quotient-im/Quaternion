@@ -54,7 +54,8 @@ void RoomListModel::addConnection(Quotient::Connection* connection)
     connect(connection, &Connection::newRoom, this, &RoomListModel::addRoom);
     m_roomOrder->connectSignals(connection);
 
-    for (auto* r: connection->allRooms())
+    const auto& allRooms = connection->allRooms();
+    for (auto* r: allRooms)
         addRoom(r);
 }
 
