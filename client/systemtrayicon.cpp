@@ -38,6 +38,7 @@ SystemTrayIcon::SystemTrayIcon(MainWindow* parent)
 
 void SystemTrayIcon::newRoom(Quotient::Room* room)
 {
+    highlightCountChanged(room);
     connect(room, &Quotient::Room::highlightCountChanged,
             this, [this,room] { highlightCountChanged(room); });
 }

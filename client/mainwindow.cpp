@@ -591,6 +591,8 @@ void MainWindow::addConnection(Connection* c)
         });
     connect(c, &Connection::loginError, this,
             [this, c](const QString& msg) { reloginNeeded(c, msg); });
+    for (auto* r: c->allRooms())
+        systemTrayIcon->newRoom(r);
     connect(c, &Connection::newRoom, systemTrayIcon, &SystemTrayIcon::newRoom);
     connect(c, &Connection::createdRoom, this, &MainWindow::selectRoom);
     connect(c, &Connection::joinedRoom, this, [this](Room* r, Room* prev) {
