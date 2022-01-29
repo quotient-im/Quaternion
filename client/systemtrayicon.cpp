@@ -38,22 +38,22 @@ SystemTrayIcon::SystemTrayIcon(MainWindow* parent)
 
 void SystemTrayIcon::newRoom(Quotient::Room* room)
 {
-    highlightCountChanged(room);
-    connect(room, &Quotient::Room::highlightCountChanged,
-            this, [this,room] { highlightCountChanged(room); });
+    unreadStatsChanged(room);
+    connect(room, &Quotient::Room::unreadStatsChanged,
+            this, [this,room] { unreadStatsChanged(room); });
 }
 
-void SystemTrayIcon::highlightCountChanged(Quotient::Room* room)
+void SystemTrayIcon::unreadStatsChanged(Quotient::Room* room)
 {
     using namespace Quotient;
     const auto mode = Settings().get<QString>("UI/notifications", "intrusive");
     if (mode == "none")
         return;
-    if( room->highlightCount() > 0 ) {
+    if( room->notificationCount() > 0 ) {
         showMessage(
             //: %1 is the room display name
-            tr("Highlight in %1").arg(room->displayName()),
-            tr("%Ln highlight(s)", "", room->highlightCount()));
+            tr("Notification in %1").arg(room->displayName()),
+            tr("%Ln notification(s)", "", room->notificationCount()));
         if (mode != "non-intrusive")
             m_parent->activateWindow();
         connectSingleShot(this, &SystemTrayIcon::messageClicked, m_parent,
