@@ -49,7 +49,7 @@ void SystemTrayIcon::unreadStatsChanged(Quotient::Room* room)
     const auto mode = Settings().get<QString>("UI/notifications", "intrusive");
     if (mode == "none")
         return;
-    if( room->notificationCount() > 0 ) {
+    if (qApp->activeWindow() != nullptr && room->notificationCount() > 0) {
         showMessage(
             //: %1 is the room display name
             tr("Notification in %1").arg(room->displayName()),
