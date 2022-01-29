@@ -52,6 +52,8 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         void addConnection(Connection* c);
         void dropConnection(Connection* c);
 
+        Quotient::AccountRegistry* registry() { return accountRegistry; }
+
         // For openUserInput()
         enum : bool { NoRoomJoining = false, ForJoining = true };
 
