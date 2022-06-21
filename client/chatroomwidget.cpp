@@ -332,9 +332,7 @@ void ChatRoomWidget::setHudHtml(const QString& htmlCaption,
 void ChatRoomWidget::insertMention(Quotient::User* user)
 {
     Q_ASSERT(currentRoom() != nullptr);
-    m_chatEdit->insertMention(
-        user->displayname(currentRoom()),
-        Quotient::Uri(user->id()).toUrl(Quotient::Uri::MatrixToUri));
+    m_chatEdit->insertRaw(user->id());
     m_chatEdit->setFocus();
 }
 

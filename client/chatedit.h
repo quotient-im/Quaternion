@@ -37,6 +37,7 @@ class ChatEdit : public KChatEdit
         void cancelCompletion();
         bool isCompletionActive();
 
+        void insertRaw(QString text);
         void insertMention(QString author, QUrl url);
 
     public slots:

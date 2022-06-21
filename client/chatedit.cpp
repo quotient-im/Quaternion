@@ -229,6 +229,19 @@ void ChatEdit::cancelCompletion()
 
 bool ChatEdit::isCompletionActive() { return !completionMatches.isEmpty(); }
 
+void ChatEdit::insertRaw(QString text)
+{
+    // Similar in behavior to ChatEdit::insertMention
+    // (see below) except that it inserts
+    // raw text only.
+    // Used to insert uri in @username:homeserver
+    // format
+
+    auto cursor = textCursor();
+    cursor.insertText(text);
+    cursor.insertText(QStringLiteral(" ")); // extra space after name
+}
+
 void ChatEdit::insertMention(QString author, QUrl url)
 {
     // The order of inserting text below is such to be convenient for the user
