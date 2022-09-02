@@ -92,9 +92,9 @@ To enable keyring support, also install QtKeychain by
 ```bash
 sudo apt-get install qt5keychain-dev
 ```
-On Fedora 28, the following command should be enough for building and running:
+On Fedora 36, the following command should be enough for building and running:
 ```bash
-sudo dnf install cmake qt5-qtdeclarative-devel qt5-qtquickcontrols qt5-qtquickcontrols2 qt5-qtmultimedia-devel
+sudo dnf install cmake qt5-qtdeclarative-devel qt5-qtquickcontrols qt5-qtquickcontrols2 qt5-qtmultimedia-devel qt5-qtquickcontrols2-devel qt5-linguist
 ```
 and QtKeychain can be installed with
 ```bash
