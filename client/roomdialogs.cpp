@@ -26,8 +26,9 @@
 
 #include <user.h>
 #include <connection.h>
-#include <csapi/create_room.h>
+#include <qt_connection_util.h>
 #include <logging.h>
+#include <csapi/create_room.h>
 #include <events/roompowerlevelsevent.h>
 
 #include <QtWidgets/QComboBox>

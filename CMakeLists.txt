@@ -47,17 +47,28 @@ else()
     endforeach ()
 endif()
 
-# Find the libraries
-find_package(Qt5 5.12 REQUIRED Widgets Network Quick Gui LinguistTools
-                              Multimedia DBus QuickControls2 QuickWidgets)
-# Qt5_Prefix is only used to show Qt path in message()
-# Qt5_BinDir is where all the *deployqt tools reside
-if (QT_QMAKE_EXECUTABLE)
-    get_filename_component(Qt5_BinDir "${QT_QMAKE_EXECUTABLE}" DIRECTORY)
-    get_filename_component(Qt5_Prefix "${Qt5_BinDir}/.." ABSOLUTE)
+option(BUILD_WITH_QT6 "Build Quotient with Qt 6 (EXPERIMENTAL)" OFF)
+
+if (BUILD_WITH_QT6)
+    set(QtMinVersion "6.2")
 else()
-    get_filename_component(Qt5_BinDir "${Qt5_DIR}/../../../bin" ABSOLUTE)
-    get_filename_component(Qt5_Prefix "${Qt5_DIR}/../../../.." ABSOLUTE)
+    set(QtMinVersion "5.15")
+    set(QtExtraModules "LinguistTools")
+endif()
+string(REGEX REPLACE "^(.).*" "Qt\\1" Qt ${QtMinVersion}) # makes "Qt5" or "Qt6"
+
+# Find the libraries
+find_package(${Qt} ${QtMinVersion} REQUIRED
+    Widgets Network Quick Gui Multimedia DBus QuickControls2 QuickWidgets
+    ${QtExtraModules})
+# ${Qt}_Prefix is only used to show Qt path in message()
+# ${Qt}_BinDir is where all the *deployqt tools reside
+if (QT_QMAKE_EXECUTABLE)
+    get_filename_component(${Qt}_BinDir "${QT_QMAKE_EXECUTABLE}" DIRECTORY)
+    get_filename_component(${Qt}_Prefix "${${Qt}_BinDir}/.." ABSOLUTE)
+else()
+    get_filename_component(${Qt}_BinDir "${${Qt}_DIR}/../../../bin" ABSOLUTE)
+    get_filename_component(${Qt}_Prefix "${${Qt}_DIR}/../../../.." ABSOLUTE)
 endif()
 
 if(WIN32)
@@ -88,8 +99,8 @@ if (NOT USE_INTREE_LIBQMC)
     endif ()
 endif ()
 
-find_package(Qt5Keychain QUIET)
-if (Qt5Keychain_FOUND)
+find_package(${Qt}Keychain QUIET)
+if (${Qt}Keychain_FOUND)
     set(USE_KEYCHAIN ON)
 endif()
 
@@ -112,7 +123,7 @@ if(GIT_FOUND)
     message( STATUS "Git SHA1: ${GIT_SHA1}")
 endif()
 message( STATUS "Using compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}" )
-message( STATUS "Using Qt ${Qt5_VERSION} at ${Qt5_Prefix}" )
+message( STATUS "Using Qt ${${Qt}_VERSION} at ${${Qt}_Prefix}" )
 if (USE_INTREE_LIBQMC)
     message( STATUS "Using in-tree libQuotient")
     if (GIT_FOUND)
@@ -127,7 +138,7 @@ else ()
     message( STATUS "Using libQuotient ${Quotient_VERSION} at ${Quotient_DIR}")
 endif ()
 if (USE_KEYCHAIN)
-    message( STATUS "Using Qt Keychain ${Qt5Keychain_VERSION} at ${Qt5Keychain_DIR}")
+    message( STATUS "Using Qt Keychain ${${Qt}Keychain_VERSION} at ${${Qt}Keychain_DIR}")
 endif ()
 message( STATUS "=============================================================================" )
 message( STATUS )
@@ -165,25 +176,27 @@ set(quaternion_QRC
     client/resources.qrc
     )
 
-# quaternion_en.ts is updated explicitly by building trbase target,
-# while all other translation files are created and updated externally at
-# Lokalise.co
-set(quaternion_en_TS client/translations/quaternion_en.ts)
-QT5_CREATE_TRANSLATION(quaternion_QM ${quaternion_en_TS}
-                       client/ client/qml/ OPTIONS -no-obsolete)
-add_custom_target(trbase DEPENDS ${quaternion_en_TS})
+if (QT_VERSION_MAJOR EQUAL 5)
+    # quaternion_en.ts is updated explicitly by building trbase target,
+    # while all other translation files are created and updated externally at
+    # Lokalise.co
+    set(quaternion_en_TS client/translations/quaternion_en.ts)
+    QT5_CREATE_TRANSLATION(quaternion_QM ${quaternion_en_TS}
+                           client/ client/qml/ OPTIONS -no-obsolete)
+    add_custom_target(trbase DEPENDS ${quaternion_en_TS})
 
-set(quaternion_TS
-    client/translations/quaternion_en_GB.ts
-    client/translations/quaternion_de.ts
-    client/translations/quaternion_pl.ts
-    client/translations/quaternion_ru.ts
-    client/translations/quaternion_es.ts
-    )
-QT5_ADD_TRANSLATION(quaternion_QM ${quaternion_TS})
+    set(quaternion_TS
+        client/translations/quaternion_en_GB.ts
+        client/translations/quaternion_de.ts
+        client/translations/quaternion_pl.ts
+        client/translations/quaternion_ru.ts
+        client/translations/quaternion_es.ts
+        )
+    QT5_ADD_TRANSLATION(quaternion_QM ${quaternion_TS})
 
-QT5_ADD_RESOURCES(quaternion_QRC_SRC ${quaternion_QRC})
-set_property(SOURCE qrc_resources.cpp PROPERTY SKIP_AUTOMOC ON)
+    QT5_ADD_RESOURCES(quaternion_QRC_SRC ${quaternion_QRC})
+    set_property(SOURCE qrc_resources.cpp PROPERTY SKIP_AUTOMOC ON)
+endif()
 
 if(WIN32)
     set(quaternion_WINRC quaternion_win32.rc)
@@ -216,7 +229,7 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
     ${quaternion_SRCS} ${quaternion_QRC_SRC} ${quaternion_QM}
     ${quaternion_WINRC} ${${PROJECT_NAME}_MAC_ICON})
 
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     GIT_SHA1="${GIT_SHA1}" LIB_GIT_SHA1="${LIB_GIT_SHA1}")
@@ -226,7 +239,7 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.16.0"
     target_precompile_headers(${PROJECT_NAME} PRIVATE <room.h>)
 endif ()
 target_link_libraries(${PROJECT_NAME} Quotient
-    Qt5::Widgets Qt5::Quick Qt5::Qml Qt5::Gui Qt5::Network Qt5::QuickControls2 Qt5::QuickWidgets)
+    ${Qt}::Widgets ${Qt}::Quick ${Qt}::Qml ${Qt}::Gui ${Qt}::Network ${Qt}::QuickControls2 ${Qt}::QuickWidgets)
 
 if(USE_KEYCHAIN)
     target_compile_definitions(${PROJECT_NAME} PRIVATE USE_KEYCHAIN)
@@ -273,7 +286,7 @@ if(WIN32)
     install(CODE "
         message(STATUS \"Running windeployqt at \${CMAKE_INSTALL_PREFIX}\${CMAKE_INSTALL_BINDIR}\")
         execute_process(
-            COMMAND \"${Qt5_BinDir}/windeployqt\" --verbose ${DEPLOY_VERBOSITY}
+            COMMAND \"${${Qt}_BinDir}/windeployqt\" --verbose ${DEPLOY_VERBOSITY}
                 --no-multimediaquick --no-declarative --no-test --no-winextras
                 --qmldir \"${QML_DIR}\"
                 \${CMAKE_INSTALL_PREFIX}\${CMAKE_INSTALL_BINDIR}
@@ -295,7 +308,7 @@ endif(WIN32)
 if(APPLE)
     set(MACDEPLOYQT_ARGS ${PROJECT_NAME}.app -dmg -qmldir="${QML_DIR}" -verbose=${DEPLOY_VERBOSITY})
     add_custom_target(image
-        COMMAND "${Qt5_BinDir}/macdeployqt" ${MACDEPLOYQT_ARGS}
+        COMMAND "${${Qt}_BinDir}/macdeployqt" ${MACDEPLOYQT_ARGS}
         DEPENDS ${PROJECT_NAME}
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
         COMMENT "Running ${MACDEPLOYQT} with args: ${MACDEPLOYQT_ARGS}"

@@ -20,6 +20,7 @@
 #include "logindialog.h"
 
 #include <connection.h>
+#include <qt_connection_util.h>
 #include <ssosession.h>
 #include <settings.h>
 
