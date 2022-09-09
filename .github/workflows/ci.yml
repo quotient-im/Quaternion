@@ -44,10 +44,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-20.04 ]
+        os: [ ubuntu-22.04 ]
         compiler: [ GCC, Clang ]
         platform: [ '' ]
-        qt-version: [ '5.12.10' ]
+        qt-version: [ '5.15.2' ]
         composition: [ own-quotient, static, dynamic ]
         qt-arch: [ '' ]
         exclude:
@@ -56,22 +56,19 @@ jobs:
         include:
         - os: ubuntu-20.04
           compiler: Clang
-          qt-version: '5.14.2'
           composition: package
-        - os: macos-10.15
+        - os: macos-11
           compiler: Clang
-          qt-version: '5.15.2'
           composition: package
         - os: windows-2019
           compiler: MSVC
           platform: x64
-          qt-version: '5.15.2'
           composition: package
           qt-arch: win64_msvc2019_64
 
     env:
       DEPLOY_VERBOSITY: 1
-      QTKEYCHAIN_REF: v0.12.0
+      QTKEYCHAIN_REF: v0.13.2
       QUOTIENT_REF: dev
       # Use | below to skip on escaping all the backslashes
       VCVARS_BAT: |
@@ -124,6 +121,11 @@ jobs:
         if [[ '${{ matrix.compiler }}' == 'GCC' ]]; then
             echo "CC=gcc" >>$GITHUB_ENV
             echo "CXX=g++" >>$GITHUB_ENV
+            if [ '${{ startsWith(matrix.qt-version, '5') }}' == 'true' ]; then
+                # Patch Qt to avoid GCC tumbling over QTBUG-90568/QTBUG-91909
+                sed -i 's/ThreadEngineStarter<void>(ThreadEngine<void> \*_threadEngine)/ThreadEngineStarter(ThreadEngine<void> \*_threadEngine)/' \
+                    $Qt5_DIR/include/QtConcurrent/qtconcurrentthreadengine.h
+            fi
         elif [[ '${{ matrix.compiler }}' == 'Clang' ]]; then
             echo "CC=clang" >>$GITHUB_ENV
             echo "CXX=clang++" >>$GITHUB_ENV
@@ -174,7 +176,7 @@ jobs:
 
     - name: Initialize CodeQL tools
       if: env.CODEQL_ANALYSIS
-      uses: github/codeql-action/init@v1
+      uses: github/codeql-action/init@v2
       with:
         languages: cpp
         # If you wish to specify custom queries, you can do so here or in a config file.
@@ -205,7 +207,7 @@ jobs:
 
     - name: Perform CodeQL analysis
       if: env.CODEQL_ANALYSIS
-      uses: github/codeql-action/analyze@v1
+      uses: github/codeql-action/analyze@v2
 
     - name: Validate installation (Linux)
       if: startsWith(matrix.os, 'ubuntu')
