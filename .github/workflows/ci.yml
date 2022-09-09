@@ -215,7 +215,7 @@ jobs:
     - name: Validate installation (Linux)
       if: startsWith(matrix.os, 'ubuntu')
       run: |
-        xvfb-run env LD_LIBRARY_PATH=$DEP_SO_PATH:$Qt5_DIR/lib \
+        QT_QPA_PLATFORM=offscreen LD_LIBRARY_PATH=$DEP_SO_PATH:$Qt5_DIR/lib \
             $DESTDIR$INSTALL_PATH/bin/quaternion --version
         if [[ "VALIDATE_APPSTREAM" == 'true' ]]; then
           flatpak run org.freedesktop.appstream-glib validate $DESTDIR$INSTALL_PATH/share/metainfo/*.appdata.xml
