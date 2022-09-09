@@ -285,12 +285,9 @@ void ChatRoomWidget::encryptionChanged()
 {
     m_chatEdit->setPlaceholderText(
         currentRoom()
-            ? currentRoom()->usesEncryption()
-                ? tr("Send a message (no end-to-end encryption support yet)...")
-                : tr("Send a message (over %1) or enter a command...",
-                     "%1 is the protocol used by the server (usually HTTPS)")
-                  .arg(currentRoom()->connection()->homeserver()
-                       .scheme().toUpper())
+            ? tr("Send a message (over %1) or enter a command...",
+                 "%1 is the protocol used by the server (usually HTTPS)")
+                  .arg(currentRoom()->connection()->homeserver().scheme().toUpper())
             : DefaultPlaceholderText());
 }
 

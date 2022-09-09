@@ -789,7 +789,6 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     } );
     connect(c, &Connection::loggedOut, this, [this, c] {
         statusBar()->showMessage(tr("Logged out as %1").arg(c->userId()), 3000);
-        accountRegistry.drop(c);
         dropConnection(c);
     });
     connect(c, &Connection::networkError, this, [this, c] { networkError(c); });

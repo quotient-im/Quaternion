@@ -125,8 +125,9 @@ void UserListDock::showContextMenu(QPoint pos)
     contextMenu->addSeparator();
 
     const auto* plEvt =
-        m_currentRoom->getCurrentState<Quotient::RoomPowerLevelsEvent>();
-    int userPl = plEvt->powerLevelForUser(m_currentRoom->localUser()->id());
+        m_currentRoom->currentState().get<Quotient::RoomPowerLevelsEvent>();
+    const int userPl =
+        plEvt ? plEvt->powerLevelForUser(m_currentRoom->localUser()->id()) : 0;
 
     if (!plEvt || userPl >= plEvt->kick()) {
         contextMenu->addAction(QIcon::fromTheme("im-ban-kick-user"),

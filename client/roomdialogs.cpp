@@ -242,16 +242,18 @@ RoomSettingsDialog::RoomSettingsDialog(QuaternionRoom* room, MainWindow* parent)
 
 void RoomSettingsDialog::load()
 {
-    const auto* plEvt =
-        room->getCurrentState<Quotient::RoomPowerLevelsEvent>();
-    const int userPl = plEvt->powerLevelForUser(room->localUser()->id());
+    if (const auto* plEvt =
+        room->currentState().get<Quotient::RoomPowerLevelsEvent>()) {
+        const int userPl = plEvt->powerLevelForUser(room->localUser()->id());
 
-    roomName->setText(room->name());
-    roomName->setReadOnly(plEvt && plEvt->powerLevelForState("m.room.name") > userPl);
-    alias->setText(room->canonicalAlias());
-    alias->setReadOnly(plEvt && plEvt->powerLevelForState("m.room.canonical_alias") > userPl);
-    topic->setPlainText(room->topic());
-    topic->setReadOnly(plEvt && plEvt->powerLevelForState("m.room.topic") > userPl);
+        roomName->setText(room->name());
+        roomName->setReadOnly(plEvt->powerLevelForState("m.room.name") > userPl);
+        alias->setText(room->canonicalAlias());
+        alias->setReadOnly(plEvt->powerLevelForState("m.room.canonical_alias")
+                           > userPl);
+        topic->setPlainText(room->topic());
+        topic->setReadOnly(plEvt->powerLevelForState("m.room.topic") > userPl);
+    }
     // QPlainTextEdit may change some characters before any editing occurs;
     // so save this already adjusted topic to compare later.
     previousTopic = topic->toPlainText();

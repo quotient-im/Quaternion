@@ -188,9 +188,9 @@ void TimelineWidget::showMenu(int index, const QString& hoveredLink,
     menu->setAttribute(Qt::WA_DeleteOnClose);
 
     const auto* plEvt =
-        currentRoom()->getCurrentState<Quotient::RoomPowerLevelsEvent>();
+        currentRoom()->currentState().get<Quotient::RoomPowerLevelsEvent>();
     const auto localUserId = currentRoom()->localUser()->id();
-    const int userPl = plEvt->powerLevelForUser(localUserId);
+    const int userPl = plEvt ? plEvt->powerLevelForUser(localUserId) : 0;
     const auto* modelUser =
         modelIndex.data(MessageEventModel::AuthorRole).value<Quotient::User*>();
     if (!plEvt || userPl >= plEvt->redact() || localUserId == modelUser->id())
@@ -268,7 +268,7 @@ void TimelineWidget::reactionButtonClicked(const QString& eventId,
 {
     using namespace Quotient;
     const auto& annotations =
-        currentRoom()->relatedEvents(eventId, EventRelation::Annotation());
+        currentRoom()->relatedEvents(eventId, EventRelation::AnnotationType);
 
     for (const auto& a: annotations)
         if (auto* e = eventCast<const ReactionEvent>(a);
