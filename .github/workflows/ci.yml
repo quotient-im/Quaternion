@@ -56,13 +56,16 @@ jobs:
         include:
         - os: ubuntu-20.04
           compiler: Clang
+          qt-version: 5.15.2
           composition: package
         - os: macos-11
           compiler: Clang
+          qt-version: 5.15.2
           composition: package
         - os: windows-2019
           compiler: MSVC
           platform: x64
+          qt-version: 5.15.2
           composition: package
           qt-arch: win64_msvc2019_64
 
