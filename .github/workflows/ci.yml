@@ -46,28 +46,25 @@ jobs:
       matrix:
         os: [ ubuntu-22.04 ]
         compiler: [ GCC, Clang ]
-        platform: [ '' ]
-        qt-version: [ '5.15.2' ]
+        qt-version: [ 5, 6 ]
         composition: [ own-quotient, static, dynamic ]
-        qt-arch: [ '' ]
         exclude:
         - compiler: Clang
+          qt-version: 5
           composition: static # Replace with package (see below)
         include:
         - os: ubuntu-20.04
           compiler: Clang
-          qt-version: 5.15.2
+          qt-version: 5
           composition: package
         - os: macos-11
           compiler: Clang
-          qt-version: 5.15.2
+          qt-version: 5
           composition: package
         - os: windows-2019
           compiler: MSVC
-          platform: x64
-          qt-version: 5.15.2
+          qt-version: 5
           composition: package
-          qt-arch: win64_msvc2019_64
 
     env:
       DEPLOY_VERBOSITY: 1
@@ -85,20 +82,14 @@ jobs:
       with:
         submodules: ${{ matrix.composition == 'own-quotient' }}
 
-    - name: Cache Qt
-      id: cache-qt
-      uses: actions/cache@v2
-      with:
-        path: ${{ runner.workspace }}/Qt
-        key: ${{ runner.os }}${{ matrix.platform }}-Qt${{ matrix.qt-version }}-cache
-
     - name: Install Qt
-      uses: jurplel/install-qt-action@v2.11.1
+      uses: jurplel/install-qt-action@v3.0.0
       with:
-        version: ${{ matrix.qt-version }}
-        arch: ${{ matrix.qt-arch }}
-        cached: ${{ steps.cache-qt.outputs.cache-hit }}
-        mirror: https://ftp.fau.de/qtproject/
+        version: '${{ matrix.qt-version }}.*'
+        cache: true
+        cache-key-prefix: Qt
+        modules: ${{ matrix.qt-version == 6 && 'qtmultimedia' || '' }}
+
 
     - name: Install Ninja and other deps (Linux)
       if: ${{ startsWith(matrix.os, 'ubuntu') }}
@@ -126,7 +117,7 @@ jobs:
         if [[ '${{ matrix.compiler }}' == 'GCC' ]]; then
             echo "CC=gcc" >>$GITHUB_ENV
             echo "CXX=g++" >>$GITHUB_ENV
-            if [ '${{ startsWith(matrix.qt-version, '5') }}' == 'true' ]; then
+            if [ '${{ matrix.qt-version == 5 }}' == 'true' ]; then
                 # Patch Qt to avoid GCC tumbling over QTBUG-90568/QTBUG-91909
                 sed -i 's/ThreadEngineStarter<void>(ThreadEngine<void> \*_threadEngine)/ThreadEngineStarter(ThreadEngine<void> \*_threadEngine)/' \
                     $Qt5_DIR/include/QtConcurrent/qtconcurrentthreadengine.h
@@ -141,7 +132,8 @@ jobs:
             fi
         fi
         echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-              -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }}" \
+              -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }} \
+              -DBUILD_WITH_QT6=${{ matrix.qt-version == 6 }}" \
             >>$GITHUB_ENV
         if [[ '${{ matrix.composition }}' == 'package' ]]; then
             mkdir package
@@ -151,7 +143,7 @@ jobs:
       uses: ilammy/msvc-dev-cmd@v1
       if: matrix.compiler == 'MSVC'
       with:
-        arch: ${{ matrix.platform }}
+        arch: x64
 
     - name: Get, build and install QtKeychain
       run: |
@@ -161,7 +153,7 @@ jobs:
               -DQTKEYCHAIN_STATIC=${{ matrix.composition != 'dynamic' }}
         cmake --build build --target install
         if [[ '${{ matrix.composition }}' == 'dynamic' ]]; then
-            QTKEYCHAIN_SO_PATH=$(dirname $(find ~/.local/lib* -name libqt5keychain.so))
+            QTKEYCHAIN_SO_PATH=$(dirname $(find ~/.local/lib* -name 'libqt?keychain.so'))
             test -n "$QTKEYCHAIN_SO_PATH"
             echo "DEP_SO_PATH=$QTKEYCHAIN_SO_PATH" >>$GITHUB_ENV
         fi
@@ -217,7 +209,8 @@ jobs:
     - name: Validate installation (Linux)
       if: startsWith(matrix.os, 'ubuntu')
       run: |
-        QT_QPA_PLATFORM=offscreen LD_LIBRARY_PATH=$DEP_SO_PATH:$Qt5_DIR/lib \
+        QT_QPA_PLATFORM=offscreen \
+            LD_LIBRARY_PATH=$DEP_SO_PATH:${Qt${{ matrix.qt-version }}_DIR}/lib \
             $DESTDIR$INSTALL_PATH/bin/quaternion --version
         if [[ "VALIDATE_APPSTREAM" == 'true' ]]; then
           flatpak run org.freedesktop.appstream-glib validate $DESTDIR$INSTALL_PATH/share/metainfo/*.appdata.xml
@@ -242,7 +235,9 @@ jobs:
             chmod +x linuxdeploy/$f-x86_64.AppImage
         done
         PACKAGE_NAME=quaternion-$VERSION.AppImage
-        LD_LIBRARY_PATH=$Qt5_DIR/lib QMAKE=$Qt5_DIR/bin/qmake OUTPUT=package/$PACKAGE_NAME \
+        LD_LIBRARY_PATH=${Qt${{ matrix.qt-version }}_DIR}/lib \
+            QMAKE=${Qt${{ matrix.qt-version }}_DIR}/bin/qmake \
+            OUTPUT=package/$PACKAGE_NAME \
             linuxdeploy/linuxdeploy-x86_64.AppImage --appdir $DESTDIR --plugin qt --output appimage
         find package/$PACKAGE_NAME -size +10M && echo "PACKAGE_NAME=$PACKAGE_NAME" >>$GITHUB_ENV
 
