@@ -38,14 +38,14 @@ Q_DECLARE_FLAGS(Options, Option)
 struct Result {
     Q_GADGET
     Q_PROPERTY(QString filteredHtml MEMBER filteredHtml CONSTANT)
-    Q_PROPERTY(int errorPos MEMBER errorPos CONSTANT)
+    Q_PROPERTY(QString::size_type errorPos MEMBER errorPos CONSTANT)
     Q_PROPERTY(QString errorString MEMBER errorString CONSTANT)
 
 public:
     /// HTML that the filter managed to produce (incomplete in case of error)
     QString filteredHtml {};
     /// The position at which the first error was encountered; -1 if no error
-    int errorPos = -1;
+    QString::size_type errorPos = -1;
     /// The human-readable error message; empty if no error
     QString errorString {};
 };

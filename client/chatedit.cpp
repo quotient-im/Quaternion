@@ -24,7 +24,11 @@
 #include "timelinewidget.h"
 
 #include <QtWidgets/QMenu>
+#if QT_VERSION_MAJOR < 6
 #include <QtWidgets/QShortcut>
+#else
+#include <QtGui/QShortcut>
+#endif
 #include <QtGui/QKeyEvent>
 #include <QtCore/QMimeData>
 #include <QtCore/QStringBuilder>
@@ -165,16 +169,15 @@ bool ChatEdit::initCompletion()
     // just a whitespace for mentions) right away, in preparation for the cycle
     // of rotating completion matches (that are placed before this punctuation).
     auto punct = QStringLiteral(" ");
-    static const auto ColonSpace = QStringLiteral(": ");
+    static const QStringView ColonSpace = u": ";
     auto lookBehindCursor = completionCursor;
     if (lookBehindCursor.atStart())
-        punct = ColonSpace; // Salutation
+        punct = ColonSpace.toString(); // Salutation
     else {
         for (auto i = 1; i <= ColonSpace.size(); ++i) {
             lookBehindCursor.movePosition(QTextCursor::PreviousCharacter,
                                           QTextCursor::KeepAnchor);
-            if (lookBehindCursor.selectedText().startsWith(
-                    ColonSpace.leftRef(i))) {
+            if (lookBehindCursor.selectedText().startsWith(ColonSpace.left(i))) {
                 // Replace the colon (with a following space if any found)
                 // before the place of completion with a comma (with a huge
                 // assumption that this colon ends a salutation).
@@ -186,7 +189,7 @@ bool ChatEdit::initCompletion()
                 // take UI/hyperlink_users into account
                 lookBehindCursor.insertText(QStringLiteral(", "),
                                             completionCursor.charFormat());
-                punct = ColonSpace;
+                punct = ColonSpace.toString();
                 break;
             }
         }

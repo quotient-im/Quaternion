@@ -40,42 +40,44 @@ private:
 
     using rewrite_t = vector<pair<QString, QXmlStreamAttributes>>;
 
-    [[nodiscard]] rewrite_t filterTag(const QStringRef& tag,
+    [[nodiscard]] rewrite_t filterTag(QStringView tag,
                                       QXmlStreamAttributes attributes);
     void filterText(QString& text);
 };
 
-static const QString permittedTags[] = {
-    "font",       "del", "h1",    "h2",     "h3",      "h4",     "h5",   "h6",
-    "blockquote", "p",   "a",     "ul",     "ol",      "sup",    "sub",  "li",
-    "b",          "i",   "u",     "strong", "em",      "strike", "code", "hr",
-    "br",         "div", "table", "thead",  "tbody",   "tr",     "th",   "td",
-    "caption",    "pre", "span",  "img",    "mx-reply"
+static const QStringView permittedTags[] = {
+    u"font",   u"del",        u"h1", u"h2", u"h3",      u"h4",     u"h5",
+    u"h6",     u"blockquote", u"p",  u"a",  u"ul",      u"ol",     u"sup",
+    u"sub",    u"li",         u"b",  u"i",  u"u",       u"strong", u"em",
+    u"strike", u"code",       u"hr", u"br", u"div",     u"table",  u"thead",
+    u"tbody",  u"tr",         u"th", u"td", u"caption", u"pre",    u"span",
+    u"img",    u"mx-reply"
 };
 
 struct PassList {
-    const char* tag;
-    vector<const char*> allowedAttrs;
+    QStringView tag;
+    vector<QStringView> allowedAttrs;
 };
 
 // See filterTag() on special processing of commented out tags/attributes
 static const PassList passLists[] = {
-    { "a", { "name", "target", /* "href" - only from permittedSchemes */ } },
-    { "img", { "width", "height", "alt", "title", "data-mx-emoticon"
+    { u"a", { u"name", u"target", /* "href" - only from permittedSchemes */ } },
+    { u"img", { u"width", u"height", u"alt", u"title", u"data-mx-emoticon"
                /* "src" - only 'mxc:' */ } },
-    { "ol", { "start" } },
-    { "font", { "color", "data-mx-color", "data-mx-bg-color" } },
-    { "span", { "color", "data-mx-color", "data-mx-bg-color" } }
+    { u"ol", { u"start" } },
+    { u"font", { u"color", u"data-mx-color", u"data-mx-bg-color" } },
+    { u"span", { u"color", u"data-mx-color", u"data-mx-bg-color" } }
     //, { "code", { "class" /* must start with 'language-' */ } } // Special case
 };
 
-static const char* const permittedSchemes[] { "http:",   "https:",  "ftp:",
-                                              "mailto:", "magnet:", "matrix:" };
+static QStringView const permittedSchemes[] {
+    u"http:", u"https:", u"ftp:", u"mailto:", u"magnet:", u"matrix:"
+};
 
-static const auto& htmlColorAttr = QStringLiteral("color");
-static const auto& htmlStyleAttr = QStringLiteral("style");
-static const auto& mxColorAttr = QStringLiteral("data-mx-color");
-static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
+static const auto htmlColorAttr = u"color";
+static const auto htmlStyleAttr = u"style";
+static const auto mxColorAttr = u"data-mx-color";
+static const auto mxBgColorAttr = u"data-mx-bg-color";
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
 [[nodiscard]] QString mergeMarkdown(const QString& html)
@@ -91,7 +93,7 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
     QString mdWithHtml;
     QXmlStreamWriter writer(&mdWithHtml);
     while (reader.readNext() != QXmlStreamReader::StartElement
-           || reader.qualifiedName() != "p")
+               || reader.qualifiedName() != u"p")
         if (reader.atEnd()) {
             Q_ASSERT_X(false, __FUNCTION__, "Malformed Qt markup");
             qCritical()
@@ -119,7 +121,7 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
 
         case QXmlStreamReader::StartElement:
             ++depth;
-            if (reader.qualifiedName() != "p")
+            if (reader.qualifiedName() != u"p")
                 break;
             // Convert <p> elements except the first one
             // to Markdown paragraph breaks
@@ -127,7 +129,7 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
             continue;
         case QXmlStreamReader::EndElement:
             --depth;
-            if (reader.qualifiedName() == "p")
+            if (reader.qualifiedName() == u"p")
                 continue; // See above in StartElement
             break;
         case QXmlStreamReader::Comment:
@@ -137,7 +139,7 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
         }
         if (depth < 0) {
             Q_ASSERT(tokenType == QXmlStreamReader::EndElement
-                     && reader.qualifiedName() == "body");
+                     && reader.qualifiedName() == u"body");
             break;
         }
         writer.writeCurrentToken(reader);
@@ -172,7 +174,7 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
     bool inHead = false;
     for (auto pos = html.indexOf('<'); pos != -1; pos = html.indexOf('<', pos)) {
         const auto tagNamePos = pos + 1 + (html[pos + 1] == '/');
-        const auto uncheckedHtml = html.midRef(tagNamePos);
+        const QStringView uncheckedHtml = QStringView(html).mid(tagNamePos);
         static const QLatin1String commentOpen("!--");
         static const QLatin1String commentClose("-->");
         if (uncheckedHtml.startsWith(commentOpen)) { // Skip comments
@@ -191,7 +193,7 @@ static const auto& mxBgColorAttr = QStringLiteral("data-mx-bg-color");
             pos += to.size(); // Put pos after the escaped sequence
             continue;
         }
-        if (uncheckedHtml.startsWith("head>", Qt::CaseInsensitive)) {
+        if (uncheckedHtml.startsWith(u"head>", Qt::CaseInsensitive)) {
             if (mode == MatrixToQt) {
                 // Matrix spec doesn't allow <head>; report if it occurs in
                 // user input (Validate is on) or remove the whole header if
@@ -402,7 +404,7 @@ void Processor::runOn(const QString &html)
         if (inHead) {
             writer.writeCurrentToken(reader);
             if (tokenType == QXmlStreamReader::EndElement
-                && reader.qualifiedName() == "head") {
+                && reader.qualifiedName() == u"head") {
                 inHead = false;
             }
             continue;
@@ -417,9 +419,9 @@ void Processor::runOn(const QString &html)
             if (tagsStack.empty()) {
                 // These tags are invalid anywhere deeper, and we don't even
                 // care to put them to tagsStack
-                if (tagName == "html")
+                if (tagName == u"html")
                     break; // Just ignore, get to the content inside
-                if (tagName == "head") {
+                if (tagName == u"head") {
                     if (mode == GenericToQt) {
                         inHead = true;
                         writer.writeCurrentToken(reader);
@@ -428,7 +430,7 @@ void Processor::runOn(const QString &html)
                     reader.skipCurrentElement(); // Entirely uninteresting
                     break;
                 }
-                if (tagName == "body") { // Skip but note the encounter
+                if (tagName == u"body") { // Skip but note the encounter
                     bodyOffset = -1; // Reuse the variable until the next loop
                     break;
                 }
@@ -437,9 +439,9 @@ void Processor::runOn(const QString &html)
             const auto& attrs = reader.attributes();
             if (find_if(attrs.cbegin(), attrs.cend(),
                         [](const auto& a) {
-                            return a.qualifiedName() == "style"
+                            return a.qualifiedName() == u"style"
                                    && a.value().contains(
-                                       "-qt-paragraph-type:empty");
+                                       u"-qt-paragraph-type:empty");
                         })
                 != attrs.cend()) {
                 reader.skipCurrentElement();
@@ -456,8 +458,8 @@ void Processor::runOn(const QString &html)
             // Since Qt decorates links when importing HTML anyway, we
             // don't lose anything if we just strip away this span tag.
             if (mode != MatrixToQt && inAnchor && textBuffer.isEmpty()
-                && tagName == "span" && attrs.size() == 1
-                && attrs.front().qualifiedName() == "style")
+                && tagName == u"span" && attrs.size() == 1
+                && attrs.front().qualifiedName() == u"style")
                 continue; // inAnchor == true ==> firstElement == false
 
             // Skip the first top-level <p> and replace further top-level
@@ -469,14 +471,14 @@ void Processor::runOn(const QString &html)
             // e.g.). This is also a very special case where a converted tag
             // is immediately closed, unlike the one in the source text;
             // which is why it's checked here rather than in filterTag().
-            if (mode == QtToMatrix && tagName == "p"
+            if (mode == QtToMatrix && tagName == u"p"
                 && tagsStack.size() == 1 /* top-level, just emplaced */) {
                 if (firstElement)
                     continue; // Skip unsetting firstElement at the loop end
                 writer.writeEmptyElement("br");
                 break;
             }
-            if (tagName != "mx-reply"
+            if (tagName != u"mx-reply"
                 || (firstElement && !options.testFlag(Fragment))) {
                 // ^ The spec only allows `<mx-reply>` at the very beginning
                 // and it's not supposed to be in the user input
@@ -514,9 +516,9 @@ void Processor::runOn(const QString &html)
         case QXmlStreamReader::EndElement:
             if (tagsStack.empty()) {
                 const auto& tagName = reader.qualifiedName();
-                if (tagName != "body" && tagName != "html")
+                if (tagName != u"body" && tagName != u"html")
                     qWarning() << "filterHtml(): empty tags stack, skipping"
-                               << ('/' + tagName);
+                               << ('/' + tagName.toString());
                 break;
             }
             // Close as many elements as were opened in case StartElement
@@ -556,34 +558,34 @@ void Processor::runOn(const QString &html)
 }
 
 template <size_t Len>
-inline QStringRef cssValue(const QStringRef& css,
-                           const char (&propertyNameWithColon)[Len])
+inline QStringView cssValue(QStringView css,
+                            const char16_t (&propertyNameWithColon)[Len])
 {
     return css.startsWith(propertyNameWithColon)
                ? css.mid(Len - 1).trimmed()
-               : QStringRef();
+               : QStringView();
 }
 
-Processor::rewrite_t Processor::filterTag(const QStringRef& tag,
+Processor::rewrite_t Processor::filterTag(QStringView tag,
                                           QXmlStreamAttributes attributes)
 {
     if (mode == MatrixToQt) {
-        if (tag == "del" || tag == "strike") { // Qt doesn't support these...
+        if (tag == u"del" || tag == u"strike") { // Qt doesn't support these...
             QXmlStreamAttributes attrs;
             attrs.append("style", "text-decoration:line-through");
             return { { "font", std::move(attrs) } };
         }
-        if (tag == "mx-reply")
+        if (tag == u"mx-reply")
             return { { "div", {} } }; // The spec says that mx-reply is HTML div
         // If `mx-reply` is encountered on the way to the wire, just pass it
     }
 
     rewrite_t rewrite { { tag.toString(), {} } };
-    if (tag == "code" && mode != GenericToQt) { // Special case
+    if (tag == u"code" && mode != GenericToQt) { // Special case
         copy_if(attributes.begin(), attributes.end(),
                 back_inserter(rewrite.back().second), [](const auto& a) {
-                    return a.qualifiedName() == "class"
-                           && a.value().startsWith("language-");
+                    return a.qualifiedName() == u"class"
+                           && a.value().startsWith(u"language-");
                 });
         return rewrite;
     }
@@ -600,8 +602,8 @@ Processor::rewrite_t Processor::filterTag(const QStringRef& tag,
     /// Find the first element in the rewrite that would accept color
     /// attributes (`font` and, only in Matrix HTML, `span`),
     /// and add the passed attribute to it
-    const auto& addColorAttr = [&rewrite, this](const QString& attrName,
-                                                const QStringRef& attrValue) {
+    const auto& addColorAttr = [&rewrite, this](QStringView attrName,
+                                                QStringView attrValue) {
         auto it = find_if(rewrite.begin(), rewrite.end(),
                           [this](const rewrite_t::value_type& element) {
                               return element.first == "font"
@@ -609,8 +611,8 @@ Processor::rewrite_t Processor::filterTag(const QStringRef& tag,
                                          && element.first == "span");
                           });
         if (it == rewrite.end())
-            it = rewrite.insert(rewrite.end(), { "font", {} });
-        it->second.append(attrName, attrValue.toString());
+            it = rewrite.insert(rewrite.end(), { QStringLiteral("font"), {} });
+        it->second.append(attrName.toString(), attrValue.toString());
     };
 
     const auto& passList = it->allowedAttrs;
@@ -621,12 +623,13 @@ Processor::rewrite_t Processor::filterTag(const QStringRef& tag,
         // is treated as possibly-Matrix
         if (mode != QtToMatrix) {
             if (aName == mxColorAttr) {
-                addColorAttr(htmlColorAttr, aValue);
+                addColorAttr(htmlColorAttr, aValue.toString());
                 continue;
             }
             if (aName == mxBgColorAttr) {
-                rewrite.front().second.append(htmlStyleAttr,
-                                              "background-color:" + aValue);
+                rewrite.front().second.append(QString::fromUtf16(htmlStyleAttr),
+                                              "background-color:"
+                                                  + aValue.toString());
                 continue;
             }
         } else {
@@ -638,30 +641,31 @@ Processor::rewrite_t Processor::filterTag(const QStringRef& tag,
                     p = p.trimmed();
                     if (p.isEmpty())
                         continue;
-                    if (const auto& v = cssValue(p, "color:"); !v.isEmpty()) {
+                    if (const auto& v = cssValue(p, u"color:"); !v.isEmpty()) {
                         addColorAttr(mxColorAttr, v);
-                    } else if (const auto& v = cssValue(p, "background-color:");
+                    } else if (const auto& v = cssValue(p, u"background-color:");
                                !v.isEmpty())
                         addColorAttr(mxBgColorAttr, v);
-                    else if (const auto& v = cssValue(p, "font-weight:");
-                             v == "bold" || v == "bolder" || v.toFloat() > 500)
+                    else if (const auto& v = cssValue(p, u"font-weight:");
+                             v == u"bold" || v == u"bolder" || v.toFloat() > 500)
                         rewrite.emplace_back().first = "b";
-                    else if (const auto& v = cssValue(p, "font-style:");
-                             v == "italic" || v.startsWith("oblique"))
+                    else if (const auto& v = cssValue(p, u"font-style:");
+                             v == u"italic" || v.startsWith(u"oblique"))
                         rewrite.emplace_back().first = "i";
-                    else if (const auto& v = cssValue(p, "text-decoration:");
-                             v.contains("line-through"))
-                        rewrite.emplace_back().first = "del";
+                    else if (const auto& v = cssValue(p, u"text-decoration:");
+                             v.contains(u"line-through"))
+                        rewrite.emplace_back().first = QStringLiteral("del");
                     else {
                         const auto& fontFamilies =
-                            cssValue(p, "font-family:").split(',');
+                            cssValue(p, u"font-family:").split(',');
                         for (auto ff: fontFamilies) {
                             ff = ff.trimmed();
                             if (ff.isEmpty())
                                 continue;
                             if (ff[0] == '\'' || ff[0] == '"')
                                 ff = ff.mid(1);
-                            if (ff.startsWith("monospace", Qt::CaseInsensitive)) {
+                            if (ff.startsWith(u"monospace",
+                                              Qt::CaseInsensitive)) {
                                 rewrite.emplace_back().first = "code";
                                 break;
                             }
@@ -676,13 +680,13 @@ Processor::rewrite_t Processor::filterTag(const QStringRef& tag,
 
         // Generic filtering for attributes
         if ((mode == GenericToQt
-             && (aName == htmlStyleAttr || aName == "class" || aName == "id"))
-            || (tag == "a" && aName == "href"
+             && (aName == htmlStyleAttr || aName == u"class" || aName == u"id"))
+            || (tag == u"a" && aName == u"href"
                 && any_of(begin(permittedSchemes), end(permittedSchemes),
-                          [&aValue](const char* s) {
+                          [&aValue](QStringView s) {
                               return aValue.startsWith(s);
                           }))
-            || (tag == "img" && aName == "src" && aValue.startsWith("mxc:"))
+            || (tag == u"img" && aName == u"src" && aValue.startsWith(u"mxc:"))
             || find(passList.begin(), passList.end(), a.qualifiedName())
                    != passList.end())
             rewrite.front().second.push_back(move(a));
