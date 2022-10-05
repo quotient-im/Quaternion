@@ -11,21 +11,22 @@ class AccountRegistry : public QObject, private QVector<Quotient::Connection*> {
     Q_OBJECT
 public:
     using Account = Quotient::Connection;
-    using const_iterator = QVector::const_iterator;
-    using const_reference = QVector::const_reference;
+    using storage_type = QVector<Account*>;
+    using const_iterator = storage_type::const_iterator;
+    using const_reference = storage_type::const_reference;
 
     const QVector<Account*>& accounts() const { return *this; }
     void add(Account* a);
     void drop(Account* a);
     bool isLoggedIn(const QString& userId) const;
-    const_iterator begin() const { return QVector::begin(); }
-    const_iterator end() const { return QVector::end(); }
-    const_reference front() const { return QVector::front(); }
-    const_reference back() const { return QVector::back(); }
-    using QVector::isEmpty, QVector::empty;
-    using QVector::size, QVector::count, QVector::capacity;
-    using QVector::cbegin, QVector::cend;
-    using QVector::contains;
+    const_iterator begin() const { return storage_type::begin(); }
+    const_iterator end() const { return storage_type::end(); }
+    const_reference front() const { return storage_type::front(); }
+    const_reference back() const { return storage_type::back(); }
+    using storage_type::isEmpty, storage_type::empty;
+    using storage_type::size, storage_type::count, storage_type::capacity;
+    using storage_type::cbegin, storage_type::cend;
+    using storage_type::contains;
 
 signals:
     void addedAccount(Account* a);

@@ -22,18 +22,25 @@
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QToolButton>
-#include <QtWidgets/QAction>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QApplication>
 #include <QtGui/QClipboard>
 #include <QtGui/QTextCursor> // for last-minute message fixups before sending
 #include <QtGui/QTextDocumentFragment> // to produce plain text from /html
+#include <QtGui/QImageReader>
+
+#if QT_VERSION_MAJOR < 6
+#include <QtWidgets/QAction>
+#else
+#include <QtGui/QAction>
+#endif
 
 #include <QtCore/QRegularExpression>
 #include <QtCore/QStringBuilder>
 #include <QtCore/QLocale>
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QMimeData>
+#include <QtCore/QMimeDatabase>
 
 #include <events/roommessageevent.h>
 #include <user.h>
@@ -365,14 +372,42 @@ QVector<QString> lazySplitRef(const QString& s, QChar sep, int maxParts)
     return parts;
 }
 
+Quotient::EventContent::TypedBase* contentFromFile(const QFileInfo& file)
+{
+    using namespace Quotient::EventContent;
+    auto filePath = file.absoluteFilePath();
+    auto localUrl = QUrl::fromLocalFile(filePath);
+    auto mimeType = QMimeDatabase().mimeTypeForFile(file);
+
+    auto mimeTypeName = mimeType.name();
+    if (mimeTypeName.startsWith("image/"))
+        return new ImageContent(localUrl, file.size(), mimeType,
+                                QImageReader(filePath).size(), file.fileName());
+
+    if (mimeTypeName.startsWith("audio/"))
+        return new AudioContent(localUrl, file.size(), mimeType,
+                                file.fileName());
+
+    // TODO: video files support
+
+    return new FileContent(localUrl, file.size(), mimeType, file.fileName());
+}
+
 void ChatRoomWidget::sendFile()
 {
     Q_ASSERT(currentRoom() != nullptr);
     const auto& description = m_chatEdit->toPlainText();
+    QFileInfo fileInfo(attachedFileName);
+    if (!fileInfo.isReadable() || !fileInfo.isFile()) {
+        mainWindow()->showStatusMessage(
+            tr("%1 is not readable or not a file").arg(attachedFileName));
+        attachedFileName.clear();
+        return;
+    }
     auto txnId = currentRoom()->postFile(description.isEmpty()
                                              ? QUrl(attachedFileName).fileName()
                                              : description,
-                                         QUrl::fromLocalFile(attachedFileName));
+                                         contentFromFile(fileInfo));
 
     if (m_fileToAttach->isOpen())
         m_fileToAttach->remove();
@@ -420,7 +455,7 @@ static auto NothingToSendMsg()
     return ChatRoomWidget::tr("There's nothing to send");
 }
 
-QString ChatRoomWidget::sendCommand(const QStringRef& command,
+QString ChatRoomWidget::sendCommand(QStringView command,
                                     const QString& argString)
 {
     static const auto ReFlags = QRegularExpression::DotMatchesEverythingOption
@@ -441,14 +476,14 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
     Q_ASSERT(RoomIdRE.isValid() && UserIdRE.isValid());
 
     // Commands available without a current room
-    if (command == "join")
+    if (command == u"join")
     {
         if (!argString.contains(RoomIdRE))
             return tr("/join argument doesn't look like a room ID or alias");
         mainWindow()->openResource(argString, "join");
         return {};
     }
-    if (command == "quit")
+    if (command == u"quit")
     {
         qApp->closeAllWindows();
         return {};
@@ -461,7 +496,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
 
     // Commands available only in the room context
     using namespace Quotient;
-    if (command == "leave" || command == "part")
+    if (command == u"leave" || command == u"part")
     {
         if (!argString.isEmpty())
             return tr("Sending a farewell message is not supported yet."
@@ -471,7 +506,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         currentRoom()->leaveRoom();
         return {};
     }
-    if (command == "forget")
+    if (command == u"forget")
     {
         if (argString.isEmpty())
             return tr("/forget must be followed by the room id/alias,"
@@ -483,7 +518,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         currentRoom()->connection()->forgetRoom(argString);
         return {};
     }
-    if (command == "invite")
+    if (command == u"invite")
     {
         if (argString.isEmpty())
             return tr("/invite <memberId>");
@@ -493,7 +528,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         currentRoom()->inviteToRoom(argString);
         return {};
     }
-    if (command == "kick" || command == "ban")
+    if (command == u"kick" || command == u"ban")
     {
         const auto args = lazySplitRef(argString, ' ', 2);
         if (args.front().isEmpty())
@@ -502,7 +537,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
             return tr("%1 doesn't look like a user id")
                     .arg(args.front());
 
-        if (command == "ban")
+        if (command == u"ban")
             currentRoom()->ban(args.front(), args.back());
         else {
             const auto& userId = args.front();
@@ -513,7 +548,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         }
         return {};
     }
-    if (command == "unban")
+    if (command == u"unban")
     {
         if (argString.isEmpty())
             return tr("/unban <userId>");
@@ -523,7 +558,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         currentRoom()->unban(argString);
         return {};
     }
-    if (command == "ignore" || command == "unignore")
+    if (command == u"ignore" || command == u"unignore")
     {
         if (argString.isEmpty())
             return tr("/ignore <userId>");
@@ -532,7 +567,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
 
         if (auto* user = currentRoom()->user(argString))
         {
-            if (command == "ignore")
+            if (command == u"ignore")
                 user->ignore();
             else
                 user->unmarkIgnore();
@@ -541,52 +576,53 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         return tr("Couldn't find user %1 on the server").arg(argString);
     }
     using MsgType = RoomMessageEvent::MsgType;
-    if (command == "me")
+    if (command == u"me")
     {
         if (argString.isEmpty())
             return tr("/me needs an argument");
         currentRoom()->postMessage(argString, MsgType::Emote);
         return {};
     }
-    if (command == "notice")
+    if (command == u"notice")
     {
         if (argString.isEmpty())
             return tr("/notice needs an argument");
         currentRoom()->postMessage(argString, MsgType::Notice);
         return {};
     }
-    if (command == "shrug") // Peeked at Discord
+    if (command == u"shrug") // Peeked at Discord
     {
         currentRoom()->postPlainText((argString.isEmpty() ? "" : argString + " ") +
                                      "¯\\_(ツ)_/¯");
         return {};
     }
-    if (command == "roomname")
+    if (command == u"roomname")
     {
         currentRoom()->setName(argString);
         return {};
     }
-    if (command == "topic")
+    if (command == u"topic")
     {
         currentRoom()->setTopic(argString);
         return {};
     }
-    if (command == "nick" || command == "mynick")
+    if (command == u"nick" || command == u"mynick")
     {
         currentRoom()->localUser()->rename(argString);
         return {};
     }
-    if (command == "roomnick" || command == "myroomnick")
+    if (command == u"roomnick" || command == u"myroomnick")
     {
         currentRoom()->localUser()->rename(argString, currentRoom());
         return {};
     }
-    if (command == "pm" || command == "msg")
+    if (command == u"pm" || command == u"msg")
     {
         const auto args = lazySplitRef(argString, ' ', 2);
-        if (args.front().isEmpty() || (args.back().isEmpty() && command == "msg"))
+        if (args.front().isEmpty()
+            || (args.back().isEmpty() && command == u"msg"))
             return tr("/%1 <memberId> <message>").arg(command.toString());
-        if (RoomIdRE.match(args.front()).hasMatch() && command == "msg")
+        if (RoomIdRE.match(args.front()).hasMatch() && command == u"msg")
         {
             if (auto* room = currentRoom()->connection()->room(args.front()))
             {
@@ -609,7 +645,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         return tr("%1 doesn't look like a user id or room alias")
                 .arg(args.front());
     }
-    if (command == "plain") {
+    if (command == u"plain") {
         // argString eats away leading spaces, so can't be used here
         static const auto CmdLen = QStringLiteral("/plain ").size();
         const auto& plainMsg = m_chatEdit->toPlainText().mid(CmdLen);
@@ -618,7 +654,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         currentRoom()->postPlainText(plainMsg);
         return {};
     }
-    if (command == "html")
+    if (command == u"html")
     {
         // Assuming Matrix HTML, convert it to Qt and load to a fragment in
         // order to produce a plain text version (maybe introduce
@@ -639,7 +675,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
                                                              currentRoom()));
         return {};
     }
-    if (command == "md") {
+    if (command == u"md") {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
         // Select everything after /md and one whitespace character after it
         // (leading whitespaces have meaning in Markdown)
@@ -652,7 +688,7 @@ QString ChatRoomWidget::sendCommand(const QStringRef& command,
         return tr("Your build of Quaternion doesn't support Markdown");
 #endif
     }
-    if (command == "query" || command == "dc")
+    if (command == u"query" || command == u"dc")
     {
         if (argString.isEmpty())
             return tr("/%1 <memberId>").arg(command.toString());
@@ -676,12 +712,13 @@ void ChatRoomWidget::sendInput()
         QString error;
         if (text.isEmpty())
             error = NothingToSendMsg();
-        else if (text.startsWith('/') && !text.midRef(1).startsWith('/')) {
+        else if (text.startsWith('/')
+                 && !QStringView(text).mid(1).startsWith('/')) {
             QRegularExpression cmdSplit(
                     "(\\w+)(?:\\s+(.*))?",
                     QRegularExpression::DotMatchesEverythingOption);
             const auto& blanksMatch = cmdSplit.match(text, 1);
-            error = sendCommand(blanksMatch.capturedRef(1),
+            error = sendCommand(blanksMatch.capturedView(1),
                                 blanksMatch.captured(2));
         } else if (!currentRoom())
             error = tr("You should select a room to send messages.");

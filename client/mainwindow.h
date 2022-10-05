@@ -21,9 +21,12 @@
 
 #include "accountregistry.h"
 
-#include <uriresolver.h>
-
+// QSslError is used in a signal container parameter and needs to be complete
+// for moc to generate stuff since Qt 6
+#include <QtNetwork/QSslError>
 #include <QtWidgets/QMainWindow>
+
+#include <uriresolver.h>
 
 namespace Quotient {
     class Room;
@@ -47,7 +50,6 @@ class QLabel;
 class QLineEdit;
 
 class QNetworkReply;
-class QSslError;
 class QNetworkProxy;
 class QAuthenticator;
 

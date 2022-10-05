@@ -39,8 +39,10 @@
 #include <logging.h>
 #include <user.h>
 
-#ifdef USE_KEYCHAIN
-#include <qt5keychain/keychain.h>
+#if QT_VERSION_MAJOR >= 6
+#    include <qt6keychain/keychain.h>
+#else
+#    include <qt5keychain/keychain.h>
 #endif
 
 #include <QtCore/QTimer>
@@ -64,6 +66,9 @@
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QCompleter>
+#if QT_VERSION_MAJOR >= 6
+#include <QtGui/QActionGroup>
+#endif
 #include <QtGui/QMovie>
 #include <QtGui/QPixmap>
 #include <QtGui/QCloseEvent>
@@ -194,7 +199,8 @@ void MainWindow::createMenu()
 
     // Augment poor Windows users with a handy Ctrl-Q shortcut.
     static const auto quitShortcut = QSysInfo::productType() == "windows"
-            ? QKeySequence(Qt::CTRL + Qt::Key_Q) : QKeySequence::Quit;
+                                         ? QKeySequence(Qt::CTRL | Qt::Key_Q)
+                                         : QKeySequence::Quit;
     connectionMenu->addAction(QIcon::fromTheme("application-exit"),
         tr("&Quit"), qApp, &QApplication::quit, quitShortcut);
 
@@ -342,7 +348,7 @@ void MainWindow::createMenu()
     joinAction =
         roomMenu->addAction(QIcon::fromTheme("list-add"), tr("&Join room..."),
                             [this] { openUserInput(ForJoining); });
-    joinAction->setShortcut(Qt::CTRL + Qt::Key_J);
+    joinAction->setShortcut(Qt::CTRL | Qt::Key_J);
     joinAction->setDisabled(true);
     roomMenu->addSeparator();
     roomSettingsAction =
@@ -1350,7 +1356,7 @@ MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
     {
         names.push_back(c->userId());
         if (c == connection)
-            defaultIdx = names.size() - 1;
+            defaultIdx = static_cast<int>(names.size() - 1);
     }
     bool ok = false;
     const auto choice = QInputDialog::getItem(this,

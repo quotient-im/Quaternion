@@ -61,9 +61,11 @@ void loadTranslations(
 
 int main( int argc, char* argv[] )
 {
+#if QT_VERSION_MAJOR < 6
     QApplication::setAttribute(Qt::AA_DisableWindowContextHelpButton);
 #if defined(Q_OS_LINUX)
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+#endif
 #endif
 
     QApplication::setOrganizationName(QStringLiteral("Quotient"));
@@ -103,8 +105,10 @@ int main( int argc, char* argv[] )
     } else
 #endif
     {
+#if QT_VERSION_MAJOR < 6
         const auto qqc2styles = QQuickStyle::availableStyles();
         if (qqc2styles.contains("Fusion"))
+#endif
             QQuickStyle::setFallbackStyle("Fusion"); // Looks better on desktops
 //        QQuickStyle::setStyle("Material");
     }
@@ -156,7 +160,7 @@ int main( int argc, char* argv[] )
     const auto overrideLocale = parser.value(locale);
     if (!overrideLocale.isEmpty())
     {
-        QLocale::setDefault(overrideLocale);
+        QLocale::setDefault(QLocale(overrideLocale));
         qInfo() << "Using locale" << QLocale().name();
     }
 
@@ -168,8 +172,6 @@ int main( int argc, char* argv[] )
               "qtkeychain" },
             QLibraryInfo::location(QLibraryInfo::TranslationsPath) },
           { { "qtkeychain" },
-            // Assuming https://github.com/frankosterfeld/qtkeychain/pull/166
-            // is accepted and QtKeychain is installed at a default location
             QStandardPaths::locate(QStandardPaths::GenericDataLocation,
                                    "qt5keychain/translations",
                                    QStandardPaths::LocateDirectory) },

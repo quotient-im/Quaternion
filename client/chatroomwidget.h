@@ -86,7 +86,7 @@ class ChatRoomWidget : public QWidget
 
         void sendFile();
         void sendMessage();
-        [[nodiscard]] QString sendCommand(const QStringRef& command,
+        [[nodiscard]] QString sendCommand(QStringView command,
                                           const QString& argString);
 
         void resizeEvent(QResizeEvent*) override;
