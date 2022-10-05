@@ -105,10 +105,7 @@ if (NOT USE_INTREE_LIBQMC)
     endif ()
 endif ()
 
-find_package(${Qt}Keychain QUIET)
-if (${Qt}Keychain_FOUND)
-    set(USE_KEYCHAIN ON)
-endif()
+find_package(${Qt}Keychain REQUIRED)
 
 message( STATUS )
 message( STATUS "=============================================================================" )
@@ -143,9 +140,7 @@ if (USE_INTREE_LIBQMC)
 else ()
     message( STATUS "Using libQuotient ${Quotient_VERSION} at ${Quotient_DIR}")
 endif ()
-if (USE_KEYCHAIN)
-    message( STATUS "Using Qt Keychain ${${Qt}Keychain_VERSION} at ${${Qt}Keychain_DIR}")
-endif ()
+message( STATUS "Using Qt Keychain ${${Qt}Keychain_VERSION} at ${${Qt}Keychain_DIR}")
 message( STATUS "=============================================================================" )
 message( STATUS )
 
@@ -247,11 +242,9 @@ endif ()
 target_link_libraries(${PROJECT_NAME} Quotient
     ${Qt}::Widgets ${Qt}::Quick ${Qt}::Qml ${Qt}::Gui ${Qt}::Network ${Qt}::QuickControls2 ${Qt}::QuickWidgets)
 
-if(USE_KEYCHAIN)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE USE_KEYCHAIN)
-    target_link_libraries(${PROJECT_NAME} ${QTKEYCHAIN_LIBRARIES})
-    include_directories(${QTKEYCHAIN_INCLUDE_DIR})
-endif()
+target_compile_definitions(${PROJECT_NAME} PRIVATE USE_KEYCHAIN) # Legacy, remove in 0.0.96+
+target_link_libraries(${PROJECT_NAME} ${QTKEYCHAIN_LIBRARIES})
+include_directories(${QTKEYCHAIN_INCLUDE_DIR})
 
 # macOS specific config for bundling
 if (APPLE)
