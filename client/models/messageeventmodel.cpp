@@ -764,9 +764,13 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                     ? pendingIt->deliveryStatus() : EventStatus::Hidden;
 
         // isReplacement?
-        if (auto e = eventCast<const RoomMessageEvent>(&evt))
+        if (auto e = eventCast<const RoomMessageEvent>(&evt)) {
             if (!e->replacedEvent().isEmpty())
                 return EventStatus::Hidden;
+            if (e->isReplaced()) {
+                return EventStatus::Replaced;
+            }
+        }
 
         if (is<RoomCanonicalAliasEvent>(evt)
             && !settings.get<bool>("UI/show_alias_update", true))
@@ -823,8 +827,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         if (!evt.isStateEvent() && !is<RoomMessageEvent>(evt)
             && !settings.get<bool>("UI/show_unknown_events"))
             return EventStatus::Hidden;
-
-        return evt.isReplaced() ? EventStatus::Replaced : EventStatus::Normal;
+        return EventStatus::Normal;
     }
 
     if( role == EventIdRole )
