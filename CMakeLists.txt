@@ -106,8 +106,6 @@ if (NOT USE_INTREE_LIBQMC)
     endif ()
 endif ()
 
-find_package(${Qt}Keychain REQUIRED)
-
 message( STATUS )
 message( STATUS "=============================================================================" )
 message( STATUS "                     Quaternion ${quaternion_VERSION} Build Information" )
@@ -141,13 +139,11 @@ if (USE_INTREE_LIBQMC)
 else ()
     message( STATUS "Using libQuotient ${Quotient_VERSION} at ${Quotient_DIR}")
 endif ()
-message( STATUS "Using Qt Keychain ${${Qt}Keychain_VERSION} at ${${Qt}Keychain_DIR}")
 message( STATUS "=============================================================================" )
 message( STATUS )
 
 # Set up source files
 set(quaternion_SRCS
-    client/accountregistry.cpp
     client/quaternionroom.cpp
     client/htmlfilter.cpp
     client/imageprovider.cpp
@@ -236,10 +232,6 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.16.0"
 endif ()
 target_link_libraries(${PROJECT_NAME} Quotient
     ${Qt}::Widgets ${Qt}::Quick ${Qt}::Qml ${Qt}::Gui ${Qt}::Network ${Qt}::QuickControls2 ${Qt}::QuickWidgets)
-
-target_compile_definitions(${PROJECT_NAME} PRIVATE USE_KEYCHAIN) # Legacy, remove in 0.0.96+
-target_link_libraries(${PROJECT_NAME} ${QTKEYCHAIN_LIBRARIES})
-include_directories(${QTKEYCHAIN_INCLUDE_DIR})
 
 # macOS specific config for bundling
 if (APPLE)

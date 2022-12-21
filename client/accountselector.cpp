@@ -2,34 +2,42 @@
 
 #include <connection.h>
 
-AccountSelector::AccountSelector(const AccountRegistry *registry, QWidget *parent)
+using namespace Quotient;
+
+AccountSelector::AccountSelector(QWidget *parent)
     : QComboBox(parent)
 {
     connect(this, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
             [this] { emit currentAccountChanged(currentAccount()); });
 
-    const auto& accounts = registry->accounts();
+    const auto& accounts = Accounts.accounts();
     for (auto* acc: accounts)
         addItem(acc->userId(), QVariant::fromValue(acc));
 
-    connect(registry, &AccountRegistry::addedAccount, this, [this](Account* acc) {
-        if (const auto idx = indexOfAccount(acc); idx == -1)
-            addItem(acc->userId(), QVariant::fromValue(acc));
-        else
-            qWarning()
-                << "AccountComboBox: refusing to add the same account twice";
+    connect(&Accounts, &AccountRegistry::rowsInserted, this, [this](const QModelIndex&, int first, int last) {
+        for (int i = first; i < last; i++) {
+            auto acc = Accounts.accounts()[i];
+            if (const auto idx = indexOfAccount(acc); idx == -1)
+                addItem(acc->userId(), QVariant::fromValue(acc));
+            else
+                qWarning()
+                    << "AccountComboBox: refusing to add the same account twice";
+            }
     });
-    connect(registry, &AccountRegistry::aboutToDropAccount, this,
-            [this](Account* acc) {
-                if (const auto idx = indexOfAccount(acc); idx != -1)
-                    removeItem(idx);
-                else
-                    qWarning()
-                        << "AccountComboBox: account to drop not found, ignoring";
+    connect(&Accounts, &AccountRegistry::rowsAboutToBeRemoved, this,
+            [this](const QModelIndex&, int first, int last) {
+                for (int i = first; i < last; i++) {
+                    auto acc = Accounts.accounts()[i];
+                    if (const auto idx = indexOfAccount(acc); idx != -1)
+                        removeItem(idx);
+                    else
+                        qWarning()
+                            << "AccountComboBox: account to drop not found, ignoring";
+                }
             });
 }
 
-void AccountSelector::setAccount(Account *newAccount)
+void AccountSelector::setAccount(Connection *newAccount)
 {
     if (!newAccount) {
         setCurrentIndex(-1);
@@ -45,15 +53,15 @@ void AccountSelector::setAccount(Account *newAccount)
                << "wasn't found in the full list of accounts";
 }
 
-AccountSelector::Account* AccountSelector::currentAccount() const
+Connection* AccountSelector::currentAccount() const
 {
-    return currentData().value<Account*>();
+    return currentData().value<Connection*>();
 }
 
-int AccountSelector::indexOfAccount(Account* a) const
+int AccountSelector::indexOfAccount(Connection* a) const
 {
     for (int i = 0; i < count(); ++i)
-        if (itemData(i).value<Account*>() == a)
+        if (itemData(i).value<Connection*>() == a)
             return i;
 
     return -1;

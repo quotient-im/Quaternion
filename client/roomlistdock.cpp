@@ -224,6 +224,11 @@ void RoomListDock::addConnection(Quotient::Connection* connection)
     model->addConnection(connection);
 }
 
+void RoomListDock::deleteConnection(Quotient::Connection* connection)
+{
+    model->deleteConnection(connection);
+}
+
 void RoomListDock::updateSortingMode()
 {
 //    const auto sortMode =

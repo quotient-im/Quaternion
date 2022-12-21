@@ -147,24 +147,23 @@ void updateAvatarButton(Quotient::User* user, QPushButton* btn)
     }
 }
 
-ProfileDialog::ProfileDialog(AccountRegistry* accounts, MainWindow* parent)
+ProfileDialog::ProfileDialog(MainWindow* parent)
     : Dialog(tr("User profiles"), parent)
     , m_settings("UI/ProfileDialog")
     , m_avatar(new QPushButton)
-    , m_accountSelector(new AccountSelector(accounts))
+    , m_accountSelector(new AccountSelector())
     , m_displayName(new QLineEdit)
     , m_accessTokenLabel(new QLabel)
     , m_currentAccount(nullptr)
 {
-    Q_ASSERT(accounts != nullptr);
     auto* accountLayout = addLayout<QFormLayout>();
     accountLayout->addRow(tr("Account"), m_accountSelector);
 
     connect(m_accountSelector, &AccountSelector::currentAccountChanged, this,
             &ProfileDialog::load);
-    connect(accounts, &AccountRegistry::aboutToDropAccount, this,
-            [this, accounts] {
-                if (accounts->size() == 1)
+    connect(&Quotient::Accounts, &Quotient::AccountRegistry::rowsAboutToBeRemoved, this,
+            [this] {
+                if (Quotient::Accounts.size() == 1)
                     close(); // The last account is about to be dropped
             });
 
@@ -206,12 +205,12 @@ ProfileDialog::~ProfileDialog()
     m_settings.sync();
 }
 
-void ProfileDialog::setAccount(Account* newAccount)
+void ProfileDialog::setAccount(Quotient::Connection* newAccount)
 {
     m_accountSelector->setAccount(newAccount);
 }
 
-ProfileDialog::Account* ProfileDialog::account() const
+Quotient::Connection* ProfileDialog::account() const
 {
     return m_currentAccount;
 }

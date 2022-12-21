@@ -39,6 +39,7 @@ class RoomListDock : public QDockWidget
         explicit RoomListDock(MainWindow* parent = nullptr);
 
         void addConnection(Quotient::Connection* connection);
+        void deleteConnection(Quotient::Connection* connection);
 
     public slots:
         void updateSortingMode();
