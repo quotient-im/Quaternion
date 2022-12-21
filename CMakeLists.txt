@@ -22,6 +22,7 @@ endif(NOT WIN32)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
 
 # Set a default build type if none was specified
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -171,9 +172,6 @@ set(quaternion_SRCS
     client/models/abstractroomordering.cpp
     client/models/orderbytag.cpp
     client/main.cpp
-    )
-
-set(quaternion_QRC
     client/resources.qrc
     )
 
@@ -194,9 +192,6 @@ if (QT_VERSION_MAJOR EQUAL 5)
         client/translations/quaternion_es.ts
         )
     QT5_ADD_TRANSLATION(quaternion_QM ${quaternion_TS})
-
-    QT5_ADD_RESOURCES(quaternion_QRC_SRC ${quaternion_QRC})
-    set_property(SOURCE qrc_resources.cpp PROPERTY SKIP_AUTOMOC ON)
 endif()
 
 if(WIN32)
@@ -227,7 +222,7 @@ endif(APPLE)
 
 # Windows, this is a GUI executable; OSX, make a bundle
 add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
-    ${quaternion_SRCS} ${quaternion_QRC_SRC} ${quaternion_QM}
+    ${quaternion_SRCS} ${quaternion_QM}
     ${quaternion_WINRC} ${${PROJECT_NAME}_MAC_ICON})
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
