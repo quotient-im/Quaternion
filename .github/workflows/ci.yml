@@ -89,9 +89,9 @@ jobs:
         cache: true
         cache-key-prefix: Qt
         modules: ${{ matrix.qt-version == 6 && 'qtmultimedia' || '' }}
+        tools: 'tools_ninja'
 
-
-    - name: Install Ninja and other deps (Linux)
+    - name: Install extra deps (Linux)
       if: ${{ startsWith(matrix.os, 'ubuntu') }}
       run: |
         if [[ '${{ matrix.composition }}' == 'package' ]]; then
@@ -103,14 +103,10 @@ jobs:
           echo "AppStream validation enabled"
           EXTRA_DEPS="flatpak";
         fi
-        sudo apt-get -qq install ninja-build $EXTRA_DEPS
+        sudo apt-get -qq install $EXTRA_DEPS
         if [[ "$VALIDATE_APPSTREAM" == 'true' ]]; then
           flatpak install --user -y https://flathub.org/repo/appstream/org.freedesktop.appstream-glib.flatpakref
         fi
-
-    - name: Install Ninja (macOS/Windows)
-      if: ${{ !startsWith(matrix.os, 'ubuntu') }}
-      uses: seanmiddleditch/gha-setup-ninja@v3
 
     - name: Setup environment
       run: |
@@ -132,6 +128,7 @@ jobs:
             fi
         fi
         echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+              -DCMAKE_MAKE_PROGRAM=$IQTA_TOOLS/Ninja/ninja \
               -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }} \
               -DBUILD_WITH_QT6=${{ matrix.qt-version == 6 }}" \
             >>$GITHUB_ENV
