@@ -60,14 +60,13 @@ if (BUILD_WITH_QT6)
     set(QtMinVersion "6.2")
 else()
     set(QtMinVersion "5.15")
-    set(QtExtraModules "LinguistTools")
 endif()
 string(REGEX REPLACE "^(.).*" "Qt\\1" Qt ${QtMinVersion}) # makes "Qt5" or "Qt6"
 
 # Find the libraries
 find_package(${Qt} ${QtMinVersion} REQUIRED
     Widgets Network Quick Gui Multimedia DBus QuickControls2 QuickWidgets
-    ${QtExtraModules})
+    LinguistTools)
 # ${Qt}_Prefix is only used to show Qt path in message()
 # ${Qt}_BinDir is where all the *deployqt tools reside
 if (QT_QMAKE_EXECUTABLE)
@@ -175,24 +174,22 @@ set(quaternion_SRCS
     client/resources.qrc
     )
 
-if (QT_VERSION_MAJOR EQUAL 5)
-    # quaternion_en.ts is updated explicitly by building trbase target,
-    # while all other translation files are created and updated externally at
-    # Lokalise.co
-    set(quaternion_en_TS client/translations/quaternion_en.ts)
-    QT5_CREATE_TRANSLATION(quaternion_QM ${quaternion_en_TS}
-                           client/ client/qml/ OPTIONS -no-obsolete)
-    add_custom_target(trbase DEPENDS ${quaternion_en_TS})
+# quaternion_en.ts is updated explicitly by building trbase target,
+# while all other translation files are created and updated externally at
+# Lokalise.co
+set(quaternion_en_TS client/translations/quaternion_en.ts)
+QT_CREATE_TRANSLATION(quaternion_QM ${quaternion_en_TS}
+                      client/ client/qml/ OPTIONS -no-obsolete)
+add_custom_target(trbase DEPENDS ${quaternion_en_TS})
 
-    set(quaternion_TS
-        client/translations/quaternion_en_GB.ts
-        client/translations/quaternion_de.ts
-        client/translations/quaternion_pl.ts
-        client/translations/quaternion_ru.ts
-        client/translations/quaternion_es.ts
-        )
-    QT5_ADD_TRANSLATION(quaternion_QM ${quaternion_TS})
-endif()
+set(quaternion_TS
+    client/translations/quaternion_en_GB.ts
+    client/translations/quaternion_de.ts
+    client/translations/quaternion_pl.ts
+    client/translations/quaternion_ru.ts
+    client/translations/quaternion_es.ts
+    )
+QT_ADD_TRANSLATION(quaternion_QM ${quaternion_TS})
 
 if(WIN32)
     set(quaternion_WINRC quaternion_win32.rc)
