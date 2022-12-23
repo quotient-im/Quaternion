@@ -209,6 +209,7 @@ jobs:
     - name: Validate installation (Linux)
       if: startsWith(matrix.os, 'ubuntu')
       run: |
+        find $DESTDIR$INSTALL_PATH -name 'quaternion_*.qm'
         QT_QPA_PLATFORM=offscreen \
             LD_LIBRARY_PATH=$DEP_SO_PATH:${Qt${{ matrix.qt-version }}_DIR}/lib \
             $DESTDIR$INSTALL_PATH/bin/quaternion --version
