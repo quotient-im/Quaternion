@@ -58,8 +58,10 @@ option(BUILD_WITH_QT6 "Build Quotient with Qt 6 (EXPERIMENTAL)" OFF)
 
 if (BUILD_WITH_QT6)
     set(QtMinVersion "6.2")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15")
 else()
     set(QtMinVersion "5.15")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13")
 endif()
 string(REGEX REPLACE "^(.).*" "Qt\\1" Qt ${QtMinVersion}) # makes "Qt5" or "Qt6"
 
@@ -199,7 +201,6 @@ if(WIN32)
 endif()
 
 if(APPLE)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13")
     MESSAGE(STATUS "CMAKE_OSX_DEPLOYMENT_TARGET: " ${CMAKE_OSX_DEPLOYMENT_TARGET})
 
     set(MACOSX_BUNDLE_GUI_IDENTIFIER ${IDENTIFIER})
