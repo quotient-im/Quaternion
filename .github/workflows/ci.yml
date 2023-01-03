@@ -69,14 +69,20 @@ jobs:
         - os: ubuntu-20.04
           qt-version: 5
           composition: package
+        - os: ubuntu-22.04
+          qt-version: 6
+          composition: own-quotient
+          check: appstream # Use one of faster paths for validation
+        - os: ubuntu-22.04
+          qt-version: 5        # Use one variation with external libQuotient
+          composition: dynamic # to do CodeQL analysis (libQuotient is analysed
+          check: codeql        # in its own repo)
 
     env:
       DEPLOY_VERBOSITY: 1
       QTKEYCHAIN_REF: v0.13.2
       QUOTIENT_REF: dev
       VERSION: ${{ needs.Prepare.outputs.version }}
-      # Use one of faster paths for validation
-      VALIDATE_APPSTREAM: ${{ startsWith(matrix.os, 'ubuntu') && matrix.composition == 'own-quotient' }}
 
     steps:
     - uses: actions/checkout@v2
@@ -100,12 +106,12 @@ jobs:
           EXTRA_DEPS="appstream libgstreamer-plugins-base1.0.0 \
                       libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-xinerama0"
         fi
-        if [[ "$VALIDATE_APPSTREAM" == 'true' ]]; then
+        if [[ '${{ matrix.check }}' == 'appstream' ]]; then
           echo "AppStream validation enabled"
           EXTRA_DEPS="flatpak";
         fi
         sudo apt-get -qq install $EXTRA_DEPS
-        if [[ "$VALIDATE_APPSTREAM" == 'true' ]]; then
+        if [[ '${{ matrix.check }}' == 'appstream' ]]; then
           flatpak install --user -y https://flathub.org/repo/appstream/org.freedesktop.appstream-glib.flatpakref
         fi
 
@@ -126,11 +132,6 @@ jobs:
         elif [[ '${{ runner.os }}' != 'Windows' ]]; then
             echo "CC=clang" >>$GITHUB_ENV
             echo "CXX=clang++" >>$GITHUB_ENV
-            # Use one of faster variations without own-quotient to do CodeQL analysis
-            # (libQuotient should be analysed in its own repo)
-            if [[ '${{ matrix.composition }}' == 'dynamic' ]]; then
-                echo "CODEQL_ANALYSIS=true" >>$GITHUB_ENV
-            fi
         fi
         echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
               -DCMAKE_MAKE_PROGRAM=$IQTA_TOOLS/Ninja/ninja \
@@ -174,7 +175,7 @@ jobs:
         fi
 
     - name: Initialize CodeQL tools
-      if: env.CODEQL_ANALYSIS
+      if: matrix.check == 'codeql'
       uses: github/codeql-action/init@v2
       with:
         languages: cpp
@@ -205,7 +206,7 @@ jobs:
       run: cmake --build build --target install
 
     - name: Perform CodeQL analysis
-      if: env.CODEQL_ANALYSIS
+      if: matrix.check == 'codeql'
       uses: github/codeql-action/analyze@v2
 
     - name: Validate installation (Linux)
@@ -215,7 +216,7 @@ jobs:
         QT_QPA_PLATFORM=offscreen \
             LD_LIBRARY_PATH=$DEP_SO_PATH:${Qt${{ matrix.qt-version }}_DIR}/lib \
             $DESTDIR$INSTALL_PATH/bin/quaternion --version
-        if [[ "VALIDATE_APPSTREAM" == 'true' ]]; then
+        if [[ '${{ matrix.check }}' == 'appstream' ]]; then
           flatpak run org.freedesktop.appstream-glib validate $DESTDIR$INSTALL_PATH/share/metainfo/*.appdata.xml
         fi
 
