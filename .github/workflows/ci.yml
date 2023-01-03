@@ -44,25 +44,29 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-22.04 ]
-        compiler: [ GCC, Clang ]
+        os: [ ubuntu-22.04, macos-11, windows-2019 ]
         qt-version: [ 5, 6 ]
-        composition: [ own-quotient, static, dynamic ]
+        override-compiler: [ '', GCC ] # Defaults: MSVC on Windows, Clang elsewhere
+        composition: [ own-quotient, static, dynamic, package ]
         exclude:
-        - compiler: Clang
+        - qt-version: 5
+          composition: own-quotient # criss-cross Qt versions with 'package'...
+        - qt-version: 6
+          composition: package # ...as the two are identical in build config
+        - os: ubuntu-22.04
           qt-version: 5
-          composition: static # Replace with package (see below)
+          composition: package # AppImage wants older Ubuntu (see below)
+        # Unsupported combinations
+        - os: windows-2019
+          composition: dynamic
+        - os: macos-11
+          composition: dynamic
+        - os: windows-2019
+          override-compiler: GCC
+        - os: macos-11
+          override-compiler: GCC
         include:
         - os: ubuntu-20.04
-          compiler: Clang
-          qt-version: 5
-          composition: package
-        - os: macos-11
-          compiler: Clang
-          qt-version: 5
-          composition: package
-        - os: windows-2019
-          compiler: MSVC
           qt-version: 5
           composition: package
 
@@ -70,17 +74,14 @@ jobs:
       DEPLOY_VERBOSITY: 1
       QTKEYCHAIN_REF: v0.13.2
       QUOTIENT_REF: dev
-      # Use | below to skip on escaping all the backslashes
-      VCVARS_BAT: |
-          C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
       VERSION: ${{ needs.Prepare.outputs.version }}
       # Use one of faster paths for validation
-      VALIDATE_APPSTREAM: ${{ matrix.compiler == 'Clang' && matrix.composition == 'own-quotient' }}
+      VALIDATE_APPSTREAM: ${{ startsWith(matrix.os, 'ubuntu') && matrix.composition == 'own-quotient' }}
 
     steps:
     - uses: actions/checkout@v2
       with:
-        submodules: ${{ matrix.composition == 'own-quotient' }}
+        submodules: ${{ matrix.composition == 'own-quotient' || matrix.composition == 'package' }}
 
     - name: Install Qt
       uses: jurplel/install-qt-action@v3.0.0
@@ -89,7 +90,7 @@ jobs:
         cache: true
         cache-key-prefix: Qt
         modules: ${{ matrix.qt-version == 6 && 'qtmultimedia' || '' }}
-        tools: 'tools_ninja'
+        tools: "tools_ninja${{ !startsWith(matrix.os, 'macos') && ' tools_openssl_x64' || '' }}"
 
     - name: Install extra deps (Linux)
       if: ${{ startsWith(matrix.os, 'ubuntu') }}
@@ -108,17 +109,21 @@ jobs:
           flatpak install --user -y https://flathub.org/repo/appstream/org.freedesktop.appstream-glib.flatpakref
         fi
 
+    - name: Install other dependencies (macOS)
+      if: startsWith(matrix.os, 'macos')
+      run: brew install openssl
+
     - name: Setup environment
       run: |
-        if [[ '${{ matrix.compiler }}' == 'GCC' ]]; then
+        if [[ '${{ matrix.override-compiler }}' == 'GCC' ]]; then
             echo "CC=gcc" >>$GITHUB_ENV
             echo "CXX=g++" >>$GITHUB_ENV
-            if [ '${{ matrix.qt-version == 5 }}' == 'true' ]; then
+            if [ '${{ matrix.qt-version }}' == '5' ]; then
                 # Patch Qt to avoid GCC tumbling over QTBUG-90568/QTBUG-91909
                 sed -i 's/ThreadEngineStarter<void>(ThreadEngine<void> \*_threadEngine)/ThreadEngineStarter(ThreadEngine<void> \*_threadEngine)/' \
                     $Qt5_DIR/include/QtConcurrent/qtconcurrentthreadengine.h
             fi
-        elif [[ '${{ matrix.compiler }}' == 'Clang' ]]; then
+        elif [[ '${{ runner.os }}' != 'Windows' ]]; then
             echo "CC=clang" >>$GITHUB_ENV
             echo "CXX=clang++" >>$GITHUB_ENV
             # Use one of faster variations without own-quotient to do CodeQL analysis
@@ -138,7 +143,7 @@ jobs:
 
     - name: Setup MSVC environment
       uses: ilammy/msvc-dev-cmd@v1
-      if: matrix.compiler == 'MSVC'
+      if: startsWith(matrix.os, 'windows')
       with:
         arch: x64
 
@@ -156,7 +161,7 @@ jobs:
         fi
 
     - name: Get, build and install libQuotient
-      if: matrix.composition != 'own-quotient'
+      if: matrix.composition == 'static' || matrix.composition == 'dynamic'
       run: |
         git clone --depth=1 -b $QUOTIENT_REF https://github.com/quotient-im/libQuotient
         cd libQuotient
