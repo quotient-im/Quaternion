@@ -163,7 +163,7 @@ jobs:
       run: |
         git clone --depth=1 -b $QUOTIENT_REF https://github.com/quotient-im/libQuotient
         cd libQuotient
-        cmake -S . -B build $CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=~/.local
+        cmake -S . -B build $CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=~/.local -DCMAKE_PREFIX_PATH=~/.local
         cmake --build build --target install
         if [[ '${{ matrix.composition }}' == 'dynamic' ]]; then
             QUOTIENT_SO_PATH=$(dirname $(find ~/.local/lib* -name libQuotient.so))
