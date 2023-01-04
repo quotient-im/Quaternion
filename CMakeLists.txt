@@ -13,10 +13,15 @@ if(UNIX AND NOT APPLE)
 endif(UNIX AND NOT APPLE)
 
 include(CheckCXXCompilerFlag)
-if (NOT WIN32)
+
+if (WIN32)
+    if (NOT CMAKE_INSTALL_BINDIR)
+        set(CMAKE_INSTALL_BINDIR ".")
+    endif()
+else()
     include(GNUInstallDirs)
     include(cmake/ECMInstallIcons.cmake)
-endif(NOT WIN32)
+endif(WIN32)
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -246,10 +251,6 @@ if (APPLE)
 endif()
 
 # Installation
-
-if (NOT CMAKE_INSTALL_BINDIR)
-    set(CMAKE_INSTALL_BINDIR ".")
-endif()
 
 install(TARGETS ${PROJECT_NAME}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
