@@ -34,8 +34,8 @@ jobs:
             *) VERSION='ci{{ github.run_number }}'
         esac
         echo "Version string: $VERSION, ref type $type"
-        echo "::set-output name=version::$VERSION"
-        echo "::set-output name=reftype::$type"
+        echo "version=$VERSION" >>$GITHUB_OUTPUT
+        echo "reftype=$type" >>$GITHUB_OUTPUT
 
 
   Build:
@@ -85,7 +85,7 @@ jobs:
       VERSION: ${{ needs.Prepare.outputs.version }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: ${{ matrix.composition == 'own-quotient' || matrix.composition == 'package' }}
 
@@ -256,7 +256,7 @@ jobs:
 
     - name: Store artefacts
       if: matrix.composition == 'package'
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: '${{ env.PACKAGE_NAME }}'
         path: package/*
@@ -281,7 +281,7 @@ jobs:
 
     steps:
     - name: Retrieve artefacts
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: ${{ env.FILE_NAME}}
 
