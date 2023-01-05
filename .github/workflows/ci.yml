@@ -113,6 +113,9 @@ jobs:
         fi
         echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
               -DCMAKE_MAKE_PROGRAM=$IQTA_TOOLS/Ninja/ninja \
+              -DCMAKE_PREFIX_PATH=~/.local \
+              -DQuotient_ENABLE_E2EE=ON \
+              -DOPENSSL_ROOT_DIR=${{ runner.os == 'macOS' && '`brew --prefix openssl@1.1`' || '$IQTA_TOOLS/OpenSSL/*/' }} \
               -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }} \
               -DBUILD_WITH_QT6=${{ matrix.qt-version == 6 }}" \
             >>$GITHUB_ENV
@@ -128,14 +131,19 @@ jobs:
       run: |
         git clone --depth=1 -b $QTKEYCHAIN_REF https://github.com/frankosterfeld/qtkeychain
         cd qtkeychain
-        cmake -S . -B build $CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=~/.local \
-              -DQTKEYCHAIN_STATIC=${{ matrix.composition != 'dynamic' }}
+        cmake -S . -B build $CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=~/.local
         cmake --build build --target install
         if [[ '${{ matrix.composition }}' == 'dynamic' ]]; then
             QTKEYCHAIN_SO_PATH=$(dirname $(find ~/.local/lib* -name 'libqt?keychain.so'))
             test -n "$QTKEYCHAIN_SO_PATH"
             echo "DEP_SO_PATH=$QTKEYCHAIN_SO_PATH" >>$GITHUB_ENV
         fi
+
+    - name: Get, build and install Olm
+      run: |
+        git clone --depth=1 https://gitlab.matrix.org/matrix-org/olm.git
+        cmake -S olm -B olm/build $CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=~/.local
+        cmake --build olm/build --target install
 
     - name: Get, build and install libQuotient
       if: matrix.composition != 'own-quotient'
@@ -175,7 +183,7 @@ jobs:
             echo "DESTDIR=$DESTDIR" >>$GITHUB_ENV
         fi
         cmake -LA -S $GITHUB_WORKSPACE -B build $CMAKE_ARGS -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY \
-              -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH -DCMAKE_PREFIX_PATH=~/.local
+              -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
         echo "FULL_INSTALL_PATH=$DESTDIR$INSTALL_PATH" >>$GITHUB_ENV
 
     - name: Build and install Quaternion
