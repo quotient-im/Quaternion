@@ -189,9 +189,8 @@ jobs:
       if: startsWith(matrix.os, 'ubuntu')
       run: |
         find $FULL_INSTALL_PATH -name 'quaternion_*.qm'
-        QT_QPA_PLATFORM=offscreen \
-            LD_LIBRARY_PATH=$DEP_SO_PATH:$QT_DIR/lib \
-            $FULL_INSTALL_PATH/bin/quaternion --version
+        LD_LIBRARY_PATH=$DEP_SO_PATH:$QT_DIR/lib \
+            $FULL_INSTALL_PATH/bin/quaternion -platform offscreen --version
         if [[ '${{ matrix.check }}' == 'appstream' ]]; then
           sudo apt-get -qq install flatpak
           flatpak install --user -y https://flathub.org/repo/appstream/org.freedesktop.appstream-glib.flatpakref
