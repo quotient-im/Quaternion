@@ -271,7 +271,7 @@ jobs:
         format: raw
         owner: quotient
         repo: quaternion
-        file: ${{ steps.get-package.outputs.download-path }}/*
+        file: "`find package -name '*.*'`" # Globs don't seem to work: https://github.com/cloudsmith-io/action/issues/21
         name: ${{ matrix.type }}
         summary: CI builds of Quaternion, ${{ matrix.type }}
         description: |
