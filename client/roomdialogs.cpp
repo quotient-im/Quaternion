@@ -356,16 +356,16 @@ class InviteeList : public QListWidget
         }
 };
 
-CreateRoomDialog::CreateRoomDialog(const AccountRegistry* accounts, QWidget* parent)
+CreateRoomDialog::CreateRoomDialog(QWidget* parent)
     : RoomDialogBase(tr("Create room"), tr("Create room"),
                      nullptr, parent, NoExtraButtons)
-    , accountChooser(new AccountSelector(accounts))
+    , accountChooser(new AccountSelector())
     , version(nullptr) // Will be initialized below
     , nextInvitee(new NextInvitee)
     , inviteButton(new QPushButton(tr("Add", "Add a user to the list of invitees")))
     , invitees(new QListWidget)
 {
-    Q_ASSERT(accounts && !accounts->isEmpty());
+    Q_ASSERT(Quotient::Accounts.size() > 0);
 
     auto* versionBox = new QHBoxLayout;
     version = addVersionSelector(versionBox);
@@ -419,7 +419,7 @@ CreateRoomDialog::CreateRoomDialog(const AccountRegistry* accounts, QWidget* par
 
     setPendingApplyMessage(tr("Creating the room, please wait"));
 
-    if (accounts->size() > 1)
+    if (Quotient::Accounts.size() > 1)
         accountChooser->setFocus();
     else
         roomName->setFocus();

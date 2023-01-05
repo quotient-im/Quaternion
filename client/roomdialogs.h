@@ -26,7 +26,6 @@ namespace Quotient {
 
 class MainWindow;
 class QuaternionRoom;
-class AccountRegistry;
 class AccountSelector;
 
 class QComboBox;
@@ -90,8 +89,7 @@ class CreateRoomDialog : public RoomDialogBase
 {
         Q_OBJECT
     public:
-        CreateRoomDialog(const AccountRegistry* accounts,
-                         QWidget* parent = nullptr);
+        CreateRoomDialog(QWidget* parent = nullptr);
 
     public slots:
         void updatePushButtons();

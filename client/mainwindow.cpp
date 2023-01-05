@@ -39,12 +39,6 @@
 #include <logging.h>
 #include <user.h>
 
-#if QT_VERSION_MAJOR >= 6
-#    include <qt6keychain/keychain.h>
-#else
-#    include <qt5keychain/keychain.h>
-#endif
-
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>
 #include <QtCore/QStandardPaths>
@@ -80,6 +74,8 @@ using Quotient::NetworkAccessManager;
 using Quotient::Settings;
 using Quotient::AccountSettings;
 using Quotient::Uri;
+
+using Quotient::Accounts;
 
 MainWindow::MainWindow()
 {
@@ -128,18 +124,17 @@ MainWindow::MainWindow()
 
     busyLabel->show();
     busyIndicator->start();
-    QTimer::singleShot(0, this, &MainWindow::invokeLogin);
+    QMetaObject::invokeMethod(&Accounts, &Quotient::AccountRegistry::invokeLogin);
+    connect(&Accounts, &Quotient::AccountRegistry::rowsInserted, this, [this](const QModelIndex&, int first, int){
+        addConnection(Accounts.accounts()[first]);
+    });
+    connect(&Accounts, &Quotient::AccountRegistry::rowsAboutToBeRemoved, this, [this](const QModelIndex&, int first, int){
+        roomListDock->deleteConnection(Accounts.accounts()[first]);
+    });
 }
 
 MainWindow::~MainWindow()
 {
-    for (auto* acc: accountRegistry)
-    {
-        acc->saveState();
-        acc->stopSync(); // Instead of deleting the connection, merely stop it
-    }
-    for (auto* acc: qAsConst(logoutOnExit))
-        logout(acc);
     saveSettings();
 }
 
@@ -189,7 +184,7 @@ void MainWindow::createMenu()
     connectionMenu->addAction(
         QIcon::fromTheme("user-properties"), tr("User &profiles..."), this,
         [this, dlg = QPointer<ProfileDialog> {}]() mutable {
-            summon(dlg, &accountRegistry, this);
+            summon(dlg, this);
             if (currentRoom)
                 dlg->setAccount(currentRoom->connection());
         });
@@ -341,7 +336,7 @@ void MainWindow::createMenu()
         tr("Create &new room..."), [this]
         {
             static QPointer<CreateRoomDialog> dlg;
-            summon(dlg, &accountRegistry, this);
+            summon(dlg, this);
         });
     createRoomAction->setShortcut(QKeySequence::New);
     createRoomAction->setDisabled(true);
@@ -519,262 +514,13 @@ void MainWindow::saveSettings() const
     sg.sync();
 }
 
-template <class KeySourceT>
-inline QString accessTokenKey(const KeySourceT& source, bool legacyLocation)
-{
-    auto k = source.userId();
-    if (!legacyLocation) {
-        if (source.deviceId().isEmpty())
-            qWarning() << "Device id on the account is not set";
-        else
-            k += '-' % source.deviceId();
-    }
-    return k;
-}
-
-template <class JobT>
-inline std::unique_ptr<JobT> makeKeychainJob(const QString& appName,
-                                             const QString& key,
-                                             bool legacyLocation = false)
-{
-    auto slotName = appName;
-    if (!legacyLocation)
-        slotName += " access token for " % key;
-    auto j = std::make_unique<JobT>(slotName);
-    j->setAutoDelete(false);
-    j->setKey(key);
-    return j;
-}
-
-template <class KeySourceT>
-inline QString accessTokenFileName(const KeySourceT& account,
-                                   bool legacyLocation = false)
-{
-    auto fileName = accessTokenKey(account, legacyLocation);
-    fileName.replace(':', '_');
-    return QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)
-           % '/' % fileName;
-}
-
-class AccessTokenFile : public QFile { // clazy:exclude=missing-qobject-macro
-    bool legacyLocation = false;
-
-public:
-    template <class KeySourceT>
-    explicit AccessTokenFile(const KeySourceT& source, OpenMode mode = ReadOnly)
-    {
-        Q_ASSERT(mode == ReadOnly || mode == WriteOnly);
-        if (mode == WriteOnly) {
-            remove(accessTokenFileName(source, true));
-            setFileName(accessTokenFileName(source, false));
-            remove();
-            const auto fileDir = QFileInfo(*this).dir();
-            if (fileDir.exists() || fileDir.mkpath("."))
-                open(QFile::WriteOnly);
-            return;
-        }
-        for (bool getLegacyLocation: { false, true }) {
-            setFileName(accessTokenFileName(source, getLegacyLocation));
-            if (open(QFile::ReadOnly)) {
-                if (size() < 1024) {
-                    qDebug() << "Found access token file at" << fileName();
-                    legacyLocation = getLegacyLocation;
-                    return;
-                }
-                qWarning() << "File" << fileName() << "is" << size()
-                           << "bytes long - too long for a token, ignoring it.";
-            } else
-                qWarning() << "Could not open access token file" << fileName();
-            close();
-        }
-    }
-    [[nodiscard]] bool isAtLegacyLocation() const { return legacyLocation; }
-};
-
-QByteArray MainWindow::loadAccessToken(const AccountSettings& account)
-{
-#ifdef USE_KEYCHAIN
-    if (Settings().get("UI/use_keychain", true))
-        return loadAccessTokenFromKeyChain(account);
-
-    qDebug() << "Explicit opt-out from keychain by user setting";
-#endif
-    return AccessTokenFile(account).readAll();
-}
-
-#ifdef USE_KEYCHAIN
-QByteArray MainWindow::loadAccessTokenFromKeyChain(const AccountSettings& account)
-{
-    using namespace QKeychain;
-    auto lastError = Error::OtherError;
-    bool legacyLocation = true;
-    do {
-        legacyLocation = !legacyLocation; // Start with non-legacy
-
-        const auto& key = accessTokenKey(account, legacyLocation);
-        qDebug().noquote() << "Reading the access token from the keychain for"
-                           << key;
-        auto job =
-            makeKeychainJob<ReadPasswordJob>(qAppName(), key, legacyLocation);
-        QEventLoop loop;
-        connect(job.get(), &Job::finished, &loop, &QEventLoop::quit);
-        job->start();
-        loop.exec();
-
-        if (job->error() == Error::NoError) {
-            auto token = job->binaryData();
-            if (legacyLocation) {
-                qDebug() << "Migrating the token to the new keychain slot";
-                if (saveAccessTokenToKeyChain(account, token, false)) {
-                    auto* delJob = new DeletePasswordJob(qAppName());
-                    delJob->setAutoDelete(true);
-                    delJob->setKey(accessTokenKey(account, true));
-                    connect(delJob, &Job::finished, this, [delJob] {
-                        if (delJob->error() != Error::NoError)
-                            qWarning().noquote()
-                                << "Cleanup of the old keychain slot failed:"
-                                << delJob->errorString();
-                    });
-                    delJob->start(); // Run async and move on
-                }
-            }
-            return token;
-        }
-
-        qWarning().noquote() << "Could not read" << job->service()
-                             << "from the keychain:" << job->errorString();
-        lastError = job->error();
-    } while (!legacyLocation); // Exit once the legacy round is through
-
-    // Try token file
-    AccessTokenFile atf(account);
-    const auto& accessToken = atf.readAll();
-    // Only offer migration if QtKeychain is usable but doesn't have the entry
-    if (lastError == Error::EntryNotFound && !accessToken.isEmpty()
-        && QMessageBox::warning(
-               this, tr("Access token file found"),
-               tr("Do you want to migrate the access token for %1 "
-                  "from the file to the keychain?")
-                   .arg(account.userId()),
-               QMessageBox::Yes | QMessageBox::No)
-               == QMessageBox::Yes) {
-        qInfo() << "Migrating the access token for" << account.userId()
-                << "from the file to the keychain";
-        if (saveAccessTokenToKeyChain(account, accessToken, false)) {
-            if (!atf.remove())
-                qWarning()
-                    << "Could not remove the access token after migration";
-        } else {
-            qWarning() << "Migration of the access token failed";
-            QMessageBox::warning(this, tr("Couldn't migrate access token"),
-                tr("Quaternion couldn't migrate access token for %1 "
-                   "from the file to the keychain.")
-                    .arg(account.userId()),
-                QMessageBox::Close);
-        }
-    }
-    return accessToken;
-}
-#endif
-
-bool MainWindow::saveAccessToken(const AccountSettings& account,
-                                 const QByteArray& accessToken)
-{
-#ifdef USE_KEYCHAIN
-    if (Settings().get("UI/use_keychain", true))
-        return saveAccessTokenToKeyChain(account, accessToken);
-
-    qDebug() << "Explicit opt-out from keychain by user setting";
-#endif // fall through to non QtKeychain-specific code
-    return saveAccessTokenToFile(account, accessToken);
-}
-
-bool MainWindow::saveAccessTokenToFile(const AccountSettings& account,
-                                       const QByteArray& accessToken)
-{
-    // (Re-)Make a dedicated file for access_token.
-    AccessTokenFile accountTokenFile(account, QFile::WriteOnly);
-    if (!accountTokenFile.isOpen()) {
-        QMessageBox::warning(this,
-            tr("Couldn't open a file to save access token"),
-            tr("Quaternion couldn't open a file to write the"
-               " access token to. You're logged in but will have"
-               " to provide your password again when you restart"
-               " the application."), QMessageBox::Close);
-    } else {
-        // Try to restrict access rights to the file. The below is useless
-        // on Windows: FAT doesn't control access at all and NTFS is
-        // incompatible with the UNIX perms model used by Qt. If the attempt
-        // didn't have the effect, at least ask the user if it's fine to save
-        // the token to a file readable by others.
-        // TODO: use system-specific API to ensure proper access.
-        if ((accountTokenFile.setPermissions(
-                    QFile::ReadOwner|QFile::WriteOwner) &&
-            !(accountTokenFile.permissions() &
-                    (QFile::ReadGroup|QFile::ReadOther)))
-                ||
-            QMessageBox::warning(this,
-                    tr("Couldn't set access token file permissions"),
-                    tr("Quaternion couldn't restrict permissions on the"
-                       " access token file. Do you still want to save"
-                       " the access token to it?"),
-                    QMessageBox::Yes|QMessageBox::No
-                ) == QMessageBox::Yes)
-        {
-            accountTokenFile.write(accessToken);
-            return true;
-        }
-    }
-    return false;
-}
-
-#ifdef USE_KEYCHAIN
-bool MainWindow::saveAccessTokenToKeyChain(const AccountSettings& account,
-                                           const QByteArray& accessToken,
-                                           bool writeToFile)
-{
-    using namespace QKeychain;
-    const auto key = accessTokenKey(account, false);
-    qDebug().noquote() << "Save the access token to the keychain for" << key;
-    auto job = makeKeychainJob<WritePasswordJob>(qAppName(), key);
-    job->setBinaryData(accessToken);
-    QEventLoop loop;
-    connect(job.get(), &Job::finished, &loop, &QEventLoop::quit);
-    job->start();
-    loop.exec();
-
-    if (!job->error())
-        return true;
-
-    qWarning().noquote() << "Could not save access token to the keychain:"
-                         << job->errorString();
-    if (job->error() != Error::NoBackendAvailable
-        && job->error() != Error::NotImplemented
-        && job->error() != Error::OtherError) {
-        if (writeToFile) {
-            const auto button = QMessageBox::warning(
-                this, tr("Couldn't save access token"),
-                tr("Quaternion couldn't save the access token to the keychain."
-                   " Do you want to save the access token to file %1?")
-                    .arg(accessTokenFileName(account)),
-                QMessageBox::Yes | QMessageBox::No);
-            if (button == QMessageBox::Yes)
-                return saveAccessTokenToFile(account, accessToken);
-        }
-        return false;
-    }
-    return saveAccessTokenToFile(account, accessToken);
-}
-#endif
-
-void MainWindow::addConnection(Connection* c, const QString& deviceName)
+void MainWindow::addConnection(Connection* c)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Attempt to add a null connection");
 
     using Room = Quotient::Room;
 
     c->setLazyLoading(true);
-    accountRegistry.add(c);
 
     roomListDock->addConnection(c);
 
@@ -801,7 +547,7 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     connect(c, &Connection::syncError, this,
         [this, c](const QString& message, const QString& details) {
             QMessageBox msgBox(QMessageBox::Warning, tr("Sync failed"),
-                accountRegistry.size() > 1
+                Accounts.size() > 1
                     ? tr("The last sync of account %1 has failed with error: %2")
                         .arg(c->userId(), message)
                     : tr("The last sync has failed with error: %1").arg(message),
@@ -867,13 +613,11 @@ void MainWindow::addConnection(Connection* c, const QString& deviceName)
     // Update the menu
 
     QString accountCaption = c->userId();
-    if (!deviceName.isEmpty())
-        accountCaption += '/' % deviceName;
     QString menuCaption = accountCaption;
-    if (accountRegistry.size() < 10)
-        menuCaption.prepend('&' % QString::number(accountRegistry.size()) % ' ');
+    if (Accounts.size() < 10)
+        menuCaption.prepend('&' % QString::number(Accounts.size()) % ' ');
     auto logoutAction =
-        logoutMenu->addAction(menuCaption, [this, c] { logout(c); });
+        logoutMenu->addAction(menuCaption, [this, c] { c->logout(); });
     connect(c, &Connection::destroyed, logoutMenu,
             std::bind(&QMenu::removeAction, logoutMenu, logoutAction));
     openRoomAction->setEnabled(true);
@@ -887,10 +631,9 @@ void MainWindow::dropConnection(Connection* c)
 
     if (currentRoom && currentRoom->connection() == c)
         selectRoom(nullptr);
-    accountRegistry.drop(c);
 
     logoutOnExit.removeOne(c);
-    const auto noMoreAccounts = accountRegistry.isEmpty();
+    const auto noMoreAccounts = Accounts.isEmpty();
     openRoomAction->setDisabled(noMoreAccounts);
     createRoomAction->setDisabled(noMoreAccounts);
     joinAction->setDisabled(noMoreAccounts);
@@ -924,7 +667,7 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
     QStringList loggedOffAccounts;
     for (const auto& a: allKnownAccounts)
         // Skip already logged in accounts
-        if (!accountRegistry.isLoggedIn(AccountSettings(a).userId()))
+        if (!Accounts.isLoggedIn(AccountSettings(a).userId()))
             loggedOffAccounts.push_back(a);
 
     doOpenLoginDialog(new LoginDialog(statusMessage, this, loggedOffAccounts));
@@ -938,7 +681,6 @@ void MainWindow::showLoginWindow(const QString& statusMessage,
     reloginAccount->setParent(dialog); // => Delete with the dialog box
     doOpenLoginDialog(dialog);
     connect(dialog, &QDialog::rejected, this, [reloginAccount] {
-        AccessTokenFile(*reloginAccount).remove();
         // XXX: Maybe even remove the account altogether as below?
         // Quotient::SettingsGroup("Accounts").remove(reloginAccount->userId());
     });
@@ -959,8 +701,7 @@ void MainWindow::doOpenLoginDialog(LoginDialog* dialog)
         account.setDeviceId(connection->deviceId());
         account.setDeviceName(dialog->deviceName());
         if (dialog->keepLoggedIn()) {
-            if (!saveAccessToken(account, connection->accessToken()))
-                qWarning() << "Couldn't save access token";
+            //TODO implement this in some other way
         } else
             logoutOnExit.push_back(connection);
         account.sync();
@@ -970,19 +711,6 @@ void MainWindow::doOpenLoginDialog(LoginDialog* dialog)
 
         firstSyncing.push_back(connection);
         showFirstSyncIndicator();
-
-        if (accountRegistry.isLoggedIn(connection->userId())) {
-            if (QMessageBox::warning(
-                    this, tr("Logging in into a logged in account"),
-                    tr("You're trying to log in into an account that's "
-                       "already logged in. Do you want to continue?"),
-                    QMessageBox::Yes, QMessageBox::No)
-                != QMessageBox::Yes)
-                return;
-
-            deviceName += "-" + connection->deviceId();
-        }
-        addConnection(connection, deviceName);
     });
     connect(dialog, &QDialog::rejected, dialog, &QObject::deleteLater);
 }
@@ -1073,42 +801,6 @@ void MainWindow::showAboutWindow()
     aboutDialog.exec();
 }
 
-void MainWindow::invokeLogin()
-{
-    using namespace Quotient;
-    const auto accounts = SettingsGroup("Accounts").childGroups();
-    bool autoLoggedIn = false;
-    for(const auto& accountId: accounts)
-    {
-        AccountSettings account { accountId };
-        if (!account.homeserver().isEmpty())
-        {
-            auto accessToken = loadAccessToken(account);
-            if (accessToken.isEmpty())
-                continue; // No autologin for this account
-
-            autoLoggedIn = true;
-            auto c = new Connection(account.homeserver());
-            firstSyncing.push_back(c);
-            auto deviceName = account.deviceName();
-            connect(c, &Connection::connected, this, [this, c, deviceName] {
-                c->loadState();
-                addConnection(c, deviceName);
-            });
-            connect(c, &Connection::resolveError, this, [this, c] {
-                firstSyncOver(c);
-                statusBar()->showMessage(
-                    tr("Failed to resolve server %1").arg(c->domain()), 4000);
-            });
-            c->assumeIdentity(account.userId(), accessToken, account.deviceId());
-        }
-    }
-    if (autoLoggedIn)
-        showFirstSyncIndicator();
-    else
-        showLoginWindow(tr("Welcome to Quaternion"));
-}
-
 void MainWindow::loginError(Connection* c, const QString& message)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Login error on a null connection");
@@ -1117,50 +809,6 @@ void MainWindow::loginError(Connection* c, const QString& message)
     // the connection from the UI
     emit c->loggedOut(); // Short circuit login error to logged-out event
     showLoginWindow(message, c->userId());
-}
-
-void MainWindow::logout(Connection* c)
-{
-    Q_ASSERT_X(c, __FUNCTION__, "Logout on a null connection");
-
-    AccessTokenFile(*c).remove();
-
-#ifdef USE_KEYCHAIN
-    if (Settings().get("UI/use_keychain", true))
-        for (bool legacyLocation: { false, true }) {
-            using namespace QKeychain;
-            auto* job = new DeletePasswordJob(qAppName());
-            job->setAutoDelete(true);
-            job->setKey(accessTokenKey(*c, legacyLocation));
-            connect(job, &Job::finished, this, [this, job] {
-                switch (job->error()) {
-                case Error::EntryNotFound:
-                    qDebug() << "Access token is not in the keychain, nothing "
-                                "to delete";
-                    [[fallthrough]];
-                case Error::NoError:
-                    return;
-                // Actual errors follow
-                case Error::NoBackendAvailable:
-                case Error::NotImplemented:
-                case Error::OtherError:
-                    break;
-                default:
-                    QMessageBox::warning(
-                        this, tr("Couldn't delete access token"),
-                        tr("Quaternion couldn't delete the access "
-                           "token from the keychain."),
-                        QMessageBox::Close);
-                }
-                qWarning()
-                    << "Could not delete access token from the keychain: "
-                    << qUtf8Printable(job->errorString());
-            });
-            job->start();
-        }
-#endif
-
-    c->logout();
 }
 
 Quotient::UriResolveResult MainWindow::visitUser(Quotient::User* user,
@@ -1249,7 +897,7 @@ bool MainWindow::visitNonMatrix(const QUrl& url)
 MainWindow::Connection* MainWindow::getDefaultConnection() const
 {
     return currentRoom ? currentRoom->connection() :
-            accountRegistry.size() == 1 ? accountRegistry.front() : nullptr;
+            Accounts.size() == 1 ? Accounts.front() : nullptr;
 }
 
 void MainWindow::openResource(const QString& idOrUri, const QString& action)
@@ -1346,13 +994,13 @@ void MainWindow::showStatusMessage(const QString& message, int timeout)
 MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
                                                      const QString& prompt)
 {
-    Q_ASSERT(!accountRegistry.isEmpty());
-    if (accountRegistry.size() == 1)
-        return accountRegistry.front();
+    Q_ASSERT(!Accounts.isEmpty());
+    if (Accounts.size() == 1)
+        return Accounts.front();
 
-    QStringList names; names.reserve(accountRegistry.size());
+    QStringList names; names.reserve(Accounts.size());
     int defaultIdx = -1;
-    for (auto c: accountRegistry)
+    for (auto c: Accounts)
     {
         names.push_back(c->userId());
         if (c == connection)
@@ -1364,7 +1012,7 @@ MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
     if (!ok || choice.isEmpty())
         return nullptr;
 
-    for (auto c: accountRegistry)
+    for (auto c: Accounts)
         if (c->userId() == choice)
         {
             connection = c;
@@ -1376,7 +1024,7 @@ MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
 
 void MainWindow::openUserInput(bool forJoining)
 {
-    if (accountRegistry.isEmpty()) {
+    if (Accounts.accounts().isEmpty()) {
         showLoginWindow(tr("Please connect to a server"));
         return;
     }
@@ -1398,14 +1046,14 @@ void MainWindow::openUserInput(bool forJoining)
 
     Dialog dlg(entry.dlgTitle, this, Dialog::NoStatusLine, entry.actionText,
                Dialog::NoExtraButtons);
-    auto* accountChooser = new AccountSelector(&accountRegistry);
+    auto* accountChooser = new AccountSelector();
     auto* identifier = new QLineEdit(&dlg);
     auto* defaultConn = getDefaultConnection();
     accountChooser->setAccount(defaultConn);
 
     // Lay out controls
     auto* layout = dlg.addLayout<QFormLayout>();
-    if (accountRegistry.size() > 1)
+    if (Accounts.size() > 1)
     {
         layout->addRow(tr("Account"), accountChooser);
         accountChooser->setFocus();

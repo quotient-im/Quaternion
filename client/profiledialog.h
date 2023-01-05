@@ -35,19 +35,18 @@ class QLineEdit;
 
 namespace Quotient {
     class GetDevicesJob;
+    class Connection;
 }
 
 class ProfileDialog : public Dialog
 {
     Q_OBJECT
 public:
-    using Account = AccountRegistry::Account;
-
-    explicit ProfileDialog(AccountRegistry* accounts, MainWindow* parent);
+    explicit ProfileDialog(MainWindow* parent);
     ~ProfileDialog() override;
 
-    void setAccount(Account* newAccount);
-    Account* account() const;
+    void setAccount(Quotient::Connection* newAccount);
+    Quotient::Connection* account() const;
 
 private slots:
     void load() override;
@@ -64,7 +63,7 @@ private:
     QLineEdit* m_displayName;
     QLabel* m_accessTokenLabel;
 
-    Account* m_currentAccount;
+    Quotient::Connection* m_currentAccount;
     QString m_newAvatarPath;
     QPointer<Quotient::GetDevicesJob> m_devicesJob;
     QVector<Quotient::Device> m_devices;

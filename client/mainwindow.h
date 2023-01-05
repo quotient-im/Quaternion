@@ -26,6 +26,7 @@
 #include <QtNetwork/QSslError>
 #include <QtWidgets/QMainWindow>
 
+#include <accountregistry.h>
 #include <uriresolver.h>
 
 namespace Quotient {
@@ -61,7 +62,7 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         MainWindow();
         ~MainWindow() override;
 
-        void addConnection(Connection* c, const QString& deviceName);
+        void addConnection(Connection* c);
         void dropConnection(Connection* c);
 
         // For openUserInput()
@@ -78,11 +79,8 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         void openRoomSettings(QuaternionRoom* r = nullptr);
         void selectRoom(Quotient::Room* r);
         void showStatusMessage(const QString& message, int timeout = 0);
-        void logout(Connection* c);
 
     private slots:
-        void invokeLogin();
-
         void loginError(Connection* c, const QString& message = {});
         void networkError(Connection* c);
         void sslErrors(QNetworkReply* reply, const QList<QSslError>& errors);
@@ -104,7 +102,6 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         bool visitNonMatrix(const QUrl& url) override;
 
     private:
-        AccountRegistry accountRegistry;
         QVector<Connection*> logoutOnExit;
         QVector<Connection*> firstSyncing;
 
@@ -139,14 +136,6 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         void loadSettings();
         void saveSettings() const;
         void doOpenLoginDialog(LoginDialog* dialog);
-        QByteArray loadAccessToken(const Quotient::AccountSettings& account);
-        QByteArray loadAccessTokenFromKeyChain(const Quotient::AccountSettings &account);
-        bool saveAccessToken(const Quotient::AccountSettings& account,
-                             const QByteArray& accessToken);
-        bool saveAccessTokenToFile(const Quotient::AccountSettings& account,
-                                   const QByteArray& accessToken);
-        bool saveAccessTokenToKeyChain(const Quotient::AccountSettings& account,
-                                       const QByteArray& accessToken, bool writeToFile = true);
         Connection* chooseConnection(Connection* connection,
                                      const QString& prompt);
         void showMillisToRecon(Connection* c);
