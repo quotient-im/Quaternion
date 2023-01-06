@@ -819,8 +819,8 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
             return settings.get<bool>("UI/show_redacted")
                     ? EventStatus::Redacted : EventStatus::Hidden;
 
-        if (evt.isStateEvent()
-            && static_cast<const StateEventBase&>(evt).repeatsState()
+        if (auto* stateEvt = eventCast<const StateEvent>(&evt);
+            stateEvt && stateEvt->repeatsState()
             && !settings.get<bool>("UI/show_noop_events"))
             return EventStatus::Hidden;
 
@@ -855,15 +855,15 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         std::vector<Reaction> reactions; // using vector to maintain the order
         // XXX: Should the list be ordered by the number of reactions instead?
         const auto& annotations =
-            m_currentRoom->relatedEvents(evt, EventRelation::Annotation());
+            m_currentRoom->relatedEvents(evt, EventRelation::AnnotationType);
         for (const auto& a: annotations)
             if (const auto e = eventCast<const ReactionEvent>(a)) {
                 auto rIt = std::find_if(reactions.begin(), reactions.end(),
                                         [&e] (const Reaction& r) {
-                                            return r.key == e->relation().key;
+                                            return r.key == e->key();
                                        });
                 if (rIt == reactions.end())
-                    rIt = reactions.insert(reactions.end(), {e->relation().key});
+                    rIt = reactions.insert(reactions.end(), { e->key() });
 
                 rIt->authorsList << m_currentRoom->safeMemberName(e->senderId());
                 rIt->includesLocalUser |=

@@ -689,7 +689,7 @@ Processor::rewrite_t Processor::filterTag(QStringView tag,
             || (tag == u"img" && aName == u"src" && aValue.startsWith(u"mxc:"))
             || find(passList.begin(), passList.end(), a.qualifiedName())
                    != passList.end())
-            rewrite.front().second.push_back(move(a));
+            rewrite.front().second.push_back(std::move(a));
     } // for (a: attributes)
 
     // Remove the original <font> or <span> if they end up without attributes

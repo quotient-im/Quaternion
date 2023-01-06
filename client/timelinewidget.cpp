@@ -272,7 +272,7 @@ void TimelineWidget::reactionButtonClicked(const QString& eventId,
 
     for (const auto& a: annotations)
         if (auto* e = eventCast<const ReactionEvent>(a);
-            e != nullptr && e->relation().key == key
+            e != nullptr && e->key() == key
             && a->senderId() == currentRoom()->localUser()->id()) //
         {
             currentRoom()->redactEvent(a->id());
