@@ -34,8 +34,8 @@ jobs:
             *) VERSION='ci{{ github.run_number }}'
         esac
         echo "Version string: $VERSION, ref type $type"
-        echo "::set-output name=version::$VERSION"
-        echo "::set-output name=reftype::$type"
+        echo "version=$VERSION" >>$GITHUB_OUTPUT
+        echo "reftype=$type" >>$GITHUB_OUTPUT
 
 
   Build:
@@ -44,41 +44,43 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-22.04 ]
-        compiler: [ GCC, Clang ]
+        os: [ ubuntu-22.04, macos-11, windows-2019 ]
         qt-version: [ 5, 6 ]
+        override-compiler: [ '', GCC ] # Defaults: MSVC on Windows, Clang elsewhere
         composition: [ own-quotient, static, dynamic ]
         exclude:
-        - compiler: Clang
+        - os: ubuntu-22.04
           qt-version: 5
-          composition: static # Replace with package (see below)
+          composition: own-quotient # AppImage wants older Ubuntu (see below)
+        # Unsupported combinations
+        - os: windows-2019
+          composition: dynamic
+        - os: macos-11
+          composition: dynamic
+        - os: windows-2019
+          override-compiler: GCC
+        - os: macos-11
+          override-compiler: GCC
         include:
         - os: ubuntu-20.04
-          compiler: Clang
           qt-version: 5
-          composition: package
-        - os: macos-11
-          compiler: Clang
-          qt-version: 5
-          composition: package
-        - os: windows-2019
-          compiler: MSVC
-          qt-version: 5
-          composition: package
+          composition: own-quotient
+        - os: ubuntu-22.04
+          qt-version: 6
+          composition: own-quotient
+          check: appstream # Use one of faster paths for validation
+        - os: ubuntu-22.04
+          qt-version: 5        # Use one variation with external libQuotient
+          composition: dynamic # to do CodeQL analysis (libQuotient is analysed
+          check: codeql        # in its own repo)
 
     env:
-      DEPLOY_VERBOSITY: 1
       QTKEYCHAIN_REF: v0.13.2
       QUOTIENT_REF: dev
-      # Use | below to skip on escaping all the backslashes
-      VCVARS_BAT: |
-          C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
       VERSION: ${{ needs.Prepare.outputs.version }}
-      # Use one of faster paths for validation
-      VALIDATE_APPSTREAM: ${{ matrix.compiler == 'Clang' && matrix.composition == 'own-quotient' }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: ${{ matrix.composition == 'own-quotient' }}
 
@@ -89,59 +91,39 @@ jobs:
         cache: true
         cache-key-prefix: Qt
         modules: ${{ matrix.qt-version == 6 && 'qtmultimedia' || '' }}
+        tools: "tools_ninja${{ !startsWith(matrix.os, 'macos') && ' tools_openssl_x64' || '' }}"
 
-
-    - name: Install Ninja and other deps (Linux)
-      if: ${{ startsWith(matrix.os, 'ubuntu') }}
-      run: |
-        if [[ '${{ matrix.composition }}' == 'package' ]]; then
-          # Add things linuxdeploy looks for to make AppImage self-contained
-          EXTRA_DEPS="appstream libgstreamer-plugins-base1.0.0 \
-                      libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-xinerama0"
-        fi
-        if [[ "$VALIDATE_APPSTREAM" == 'true' ]]; then
-          echo "AppStream validation enabled"
-          EXTRA_DEPS="flatpak";
-        fi
-        sudo apt-get -qq install ninja-build $EXTRA_DEPS
-        if [[ "$VALIDATE_APPSTREAM" == 'true' ]]; then
-          flatpak install --user -y https://flathub.org/repo/appstream/org.freedesktop.appstream-glib.flatpakref
-        fi
-
-    - name: Install Ninja (macOS/Windows)
-      if: ${{ !startsWith(matrix.os, 'ubuntu') }}
-      uses: seanmiddleditch/gha-setup-ninja@v3
+    - name: Install other dependencies (macOS)
+      if: startsWith(matrix.os, 'macos')
+      run: brew install openssl
 
     - name: Setup environment
       run: |
-        if [[ '${{ matrix.compiler }}' == 'GCC' ]]; then
+        if [[ '${{ matrix.override-compiler }}' == 'GCC' ]]; then
             echo "CC=gcc" >>$GITHUB_ENV
             echo "CXX=g++" >>$GITHUB_ENV
-            if [ '${{ matrix.qt-version == 5 }}' == 'true' ]; then
+            if [ '${{ matrix.qt-version }}' == '5' ]; then
                 # Patch Qt to avoid GCC tumbling over QTBUG-90568/QTBUG-91909
                 sed -i 's/ThreadEngineStarter<void>(ThreadEngine<void> \*_threadEngine)/ThreadEngineStarter(ThreadEngine<void> \*_threadEngine)/' \
                     $Qt5_DIR/include/QtConcurrent/qtconcurrentthreadengine.h
             fi
-        elif [[ '${{ matrix.compiler }}' == 'Clang' ]]; then
+        elif [[ '${{ runner.os }}' != 'Windows' ]]; then
             echo "CC=clang" >>$GITHUB_ENV
             echo "CXX=clang++" >>$GITHUB_ENV
-            # Use one of faster variations without own-quotient to do CodeQL analysis
-            # (libQuotient should be analysed in its own repo)
-            if [[ '${{ matrix.composition }}' == 'dynamic' ]]; then
-                echo "CODEQL_ANALYSIS=true" >>$GITHUB_ENV
-            fi
         fi
         echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+              -DCMAKE_MAKE_PROGRAM=$IQTA_TOOLS/Ninja/ninja \
+              -DCMAKE_PREFIX_PATH=~/.local \
+              -DQuotient_ENABLE_E2EE=ON \
+              -DOPENSSL_ROOT_DIR=${{ runner.os == 'macOS' && '`brew --prefix openssl@1.1`' || '$IQTA_TOOLS/OpenSSL/*/' }} \
               -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }} \
               -DBUILD_WITH_QT6=${{ matrix.qt-version == 6 }}" \
             >>$GITHUB_ENV
-        if [[ '${{ matrix.composition }}' == 'package' ]]; then
-            mkdir package
-        fi
+        echo "QT_DIR=${Qt${{ matrix.qt-version }}_DIR}" >>$GITHUB_ENV
 
     - name: Setup MSVC environment
       uses: ilammy/msvc-dev-cmd@v1
-      if: matrix.compiler == 'MSVC'
+      if: startsWith(matrix.os, 'windows')
       with:
         arch: x64
 
@@ -149,14 +131,19 @@ jobs:
       run: |
         git clone --depth=1 -b $QTKEYCHAIN_REF https://github.com/frankosterfeld/qtkeychain
         cd qtkeychain
-        cmake -S . -B build $CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=~/.local \
-              -DQTKEYCHAIN_STATIC=${{ matrix.composition != 'dynamic' }}
+        cmake -S . -B build $CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=~/.local
         cmake --build build --target install
         if [[ '${{ matrix.composition }}' == 'dynamic' ]]; then
             QTKEYCHAIN_SO_PATH=$(dirname $(find ~/.local/lib* -name 'libqt?keychain.so'))
             test -n "$QTKEYCHAIN_SO_PATH"
             echo "DEP_SO_PATH=$QTKEYCHAIN_SO_PATH" >>$GITHUB_ENV
         fi
+
+    - name: Get, build and install Olm
+      run: |
+        git clone --depth=1 https://gitlab.matrix.org/matrix-org/olm.git
+        cmake -S olm -B olm/build $CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=~/.local
+        cmake --build olm/build --target install
 
     - name: Get, build and install libQuotient
       if: matrix.composition != 'own-quotient'
@@ -172,7 +159,7 @@ jobs:
         fi
 
     - name: Initialize CodeQL tools
-      if: env.CODEQL_ANALYSIS
+      if: matrix.check == 'codeql'
       uses: github/codeql-action/init@v2
       with:
         languages: cpp
@@ -195,67 +182,75 @@ jobs:
             DESTDIR=$GITHUB_WORKSPACE/install
             echo "DESTDIR=$DESTDIR" >>$GITHUB_ENV
         fi
-        echo "INSTALL_PATH=$INSTALL_PATH" >>$GITHUB_ENV
         cmake -LA -S $GITHUB_WORKSPACE -B build $CMAKE_ARGS -DDEPLOY_VERBOSITY=$DEPLOY_VERBOSITY \
-              -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH -DCMAKE_PREFIX_PATH=~/.local
+              -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
+        echo "FULL_INSTALL_PATH=$DESTDIR$INSTALL_PATH" >>$GITHUB_ENV
 
     - name: Build and install Quaternion
       run: cmake --build build --target install
 
     - name: Perform CodeQL analysis
-      if: env.CODEQL_ANALYSIS
+      if: matrix.check == 'codeql'
       uses: github/codeql-action/analyze@v2
 
     - name: Validate installation (Linux)
       if: startsWith(matrix.os, 'ubuntu')
       run: |
-        QT_QPA_PLATFORM=offscreen \
-            LD_LIBRARY_PATH=$DEP_SO_PATH:${Qt${{ matrix.qt-version }}_DIR}/lib \
-            $DESTDIR$INSTALL_PATH/bin/quaternion --version
-        if [[ "VALIDATE_APPSTREAM" == 'true' ]]; then
-          flatpak run org.freedesktop.appstream-glib validate $DESTDIR$INSTALL_PATH/share/metainfo/*.appdata.xml
+        find $FULL_INSTALL_PATH -name 'quaternion_*.qm'
+        LD_LIBRARY_PATH=$DEP_SO_PATH:$QT_DIR/lib \
+            $FULL_INSTALL_PATH/bin/quaternion -platform offscreen --version
+        if [[ '${{ matrix.check }}' == 'appstream' ]]; then
+          sudo apt-get -qq install flatpak
+          flatpak install --user -y https://flathub.org/repo/appstream/org.freedesktop.appstream-glib.flatpakref
+          flatpak run org.freedesktop.appstream-glib validate $FULL_INSTALL_PATH/share/metainfo/*.appdata.xml
         fi
 
-    - name: Make image (macOS)
-      if: startsWith(matrix.os, 'macos') && matrix.composition == 'package'
-      run: |
-        cmake --build build --target image
-        PACKAGE_NAME=quaternion-$VERSION.dmg
-        mv build/quaternion.dmg package/$PACKAGE_NAME
-        find package/$PACKAGE_NAME -size +10M && echo "PACKAGE_NAME=$PACKAGE_NAME" >>$GITHUB_ENV
-
-    - name: Make AppImage (Linux)
-      if: startsWith(matrix.os, 'ubuntu') && matrix.composition == 'package'
+    - name: Make a package
+      if: matrix.composition == 'own-quotient' && matrix.qt-version == 5 && matrix.override-compiler == ''
+      id: package
       env:
-        QML_SOURCES_PATHS: ${{ github.workspace }}/client/qml
+        DEPLOY_VERBOSITY: 1
       run: |
-        for f in linuxdeploy linuxdeploy-plugin-qt; do
-            wget -c -nv --directory-prefix=linuxdeploy \
-                https://github.com/linuxdeploy/$f/releases/download/continuous/$f-x86_64.AppImage
-            chmod +x linuxdeploy/$f-x86_64.AppImage
-        done
-        PACKAGE_NAME=quaternion-$VERSION.AppImage
-        LD_LIBRARY_PATH=${Qt${{ matrix.qt-version }}_DIR}/lib \
-            QMAKE=${Qt${{ matrix.qt-version }}_DIR}/bin/qmake \
-            OUTPUT=package/$PACKAGE_NAME \
-            linuxdeploy/linuxdeploy-x86_64.AppImage --appdir $DESTDIR --plugin qt --output appimage
-        find package/$PACKAGE_NAME -size +10M && echo "PACKAGE_NAME=$PACKAGE_NAME" >>$GITHUB_ENV
-
-    - name: Archive the install tree (Windows)
-      if: startsWith(matrix.os, 'windows')
-      run: |
-        rm -rf $INSTALL_PATH/{bearer,qmltooling}
-        ls -l $INSTALL_PATH/quaternion.exe # Fail if it's not there
-        PACKAGE_NAME=quaternion-$VERSION-win64.zip
-        7z a package/$PACKAGE_NAME $INSTALL_PATH
-        find package/$PACKAGE_NAME -size +10M && echo "PACKAGE_NAME=$PACKAGE_NAME" >>$GITHUB_ENV
+        PACKAGE_STEM=quaternion-${{ needs.Prepare.outputs.version }}
+        case ${{ runner.os }} in
+            Linux)
+                sudo apt-get -qq install appstream libgstreamer-plugins-base1.0.0 \
+                    libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
+                    libxcb-render-util0 libxcb-shape0 libxcb-xinerama0
+                for f in linuxdeploy linuxdeploy-plugin-qt; do
+                    wget -c -nv --directory-prefix=linuxdeploy \
+                        https://github.com/linuxdeploy/$f/releases/download/continuous/$f-x86_64.AppImage
+                    chmod +x linuxdeploy/$f-x86_64.AppImage
+                done
+                # NB: $OUTPUT is both used in this script further below and
+                # propagated by linuxdeploy to appimagetool as the target path
+                export OUTPUT=$PACKAGE_STEM.AppImage
+                LD_LIBRARY_PATH=$QT_DIR/lib QMAKE=$QT_DIR/bin/qmake \
+                    QML_SOURCES_PATHS=$GITHUB_WORKSPACE/client/qml \
+                    linuxdeploy/linuxdeploy-x86_64.AppImage --appdir $DESTDIR \
+                    --plugin qt --output appimage
+                ;;
+            macOS)
+                OUTPUT=$PACKAGE_STEM.dmg
+                cmake --build build --target image
+                mv build/quaternion.dmg $OUTPUT
+                ;;
+            Windows)
+                rm -rf $FULL_INSTALL_PATH/{bearer,qmltooling}
+                ls -l $FULL_INSTALL_PATH/quaternion.exe # Fail if it's not there
+                OUTPUT=$PACKAGE_STEM.zip
+                7z a $OUTPUT $FULL_INSTALL_PATH
+                ;;
+        esac
+        find $OUTPUT -size +10M
+        echo "path=$OUTPUT" >>$GITHUB_OUTPUT
 
     - name: Store artefacts
-      if: matrix.composition == 'package'
-      uses: actions/upload-artifact@v2
+      if: steps.package.outputs.path != ''
+      uses: actions/upload-artifact@v3
       with:
-        name: '${{ env.PACKAGE_NAME }}'
-        path: package/*
+        name: quaternion-${{ env.VERSION }}-${{ runner.os }}
+        path: ${{ steps.package.outputs.path }}
         retention-days: 7
 
 
@@ -265,21 +260,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-        - package-name: macOS
-          artefact-type: '.dmg'
-        - package-name: Linux
-          artefact-type: '.AppImage'
-        - package-name: Windows
-          artefact-type: '-win64.zip'
-    env:
-      FILE_NAME: quaternion-${{ needs.Prepare.outputs.version }}${{ matrix.artefact-type }}
+        type: [ macOS, Linux, Windows ]
 
     steps:
     - name: Retrieve artefacts
-      uses: actions/download-artifact@v2
+      id: get-package
+      uses: actions/download-artifact@v3
       with:
-        name: ${{ env.FILE_NAME}}
+        name: quaternion-${{ needs.Prepare.outputs.version}}-${{ matrix.type }}
+        path: package
 
     - name: Upload artefacts to Cloudsmith (interim builds)
       if: needs.Prepare.outputs.reftype != 'tags' # Tags will go to GitHub Releases
@@ -289,9 +278,9 @@ jobs:
         format: raw
         owner: quotient
         repo: quaternion
-        file: ${{ env.FILE_NAME }}
-        name: ${{ matrix.package-name }}
-        summary: CI builds of Quaternion, ${{ matrix.package-name }}
+        file: "`find package -name '*.*'`" # Globs don't seem to work: https://github.com/cloudsmith-io/action/issues/21
+        name: ${{ matrix.type }}
+        summary: CI builds of Quaternion, ${{ matrix.type }}
         description: |
           The builds produced by the continuous integration; only intended for testing,
           not for production usage. No workability guarantees whatsoever.
@@ -303,7 +292,7 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        artifacts: ${{ env.FILE_NAME }}
+        artifacts: ${{ steps.get-package.outputs.download-path }}/*
         # It tends to false-prerelease things but that's better than false-release them
         prerelease: ${{ contains(needs.Prepare.outputs.version, '-') }}
         allowUpdates: true

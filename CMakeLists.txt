@@ -13,10 +13,15 @@ if(UNIX AND NOT APPLE)
 endif(UNIX AND NOT APPLE)
 
 include(CheckCXXCompilerFlag)
-if (NOT WIN32)
+
+if (WIN32)
+    if (NOT CMAKE_INSTALL_BINDIR)
+        set(CMAKE_INSTALL_BINDIR ".")
+    endif()
+else()
     include(GNUInstallDirs)
     include(cmake/ECMInstallIcons.cmake)
-endif(NOT WIN32)
+endif(WIN32)
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -58,8 +63,10 @@ option(BUILD_WITH_QT6 "Build Quotient with Qt 6 (EXPERIMENTAL)" OFF)
 
 if (BUILD_WITH_QT6)
     set(QtMinVersion "6.2")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15")
 else()
     set(QtMinVersion "5.15")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13")
 endif()
 string(REGEX REPLACE "^(.).*" "Qt\\1" Qt ${QtMinVersion}) # makes "Qt5" or "Qt6"
 
@@ -195,7 +202,6 @@ if(WIN32)
 endif()
 
 if(APPLE)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13")
     MESSAGE(STATUS "CMAKE_OSX_DEPLOYMENT_TARGET: " ${CMAKE_OSX_DEPLOYMENT_TARGET})
 
     set(MACOSX_BUNDLE_GUI_IDENTIFIER ${IDENTIFIER})
@@ -237,10 +243,6 @@ if (APPLE)
 endif()
 
 # Installation
-
-if (NOT CMAKE_INSTALL_BINDIR)
-    set(CMAKE_INSTALL_BINDIR ".")
-endif()
 
 install(TARGETS ${PROJECT_NAME}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
