@@ -19,6 +19,7 @@ public:
     ~TimelineWidget() override;
     QString selectedText() const;
     QuaternionRoom* currentRoom() const;
+    QModelIndex indexOf(const QString& eventId) const;
     Q_INVOKABLE Qt::KeyboardModifiers getModifierKeys() const;
 
 signals:
@@ -31,6 +32,7 @@ signals:
     void showDetails(int currentIndex);
     void viewPositionRequested(int index);
     void animateMessage(int currentIndex);
+    void setCurrentIndex(int index);
 
 public slots:
     void setRoom(QuaternionRoom* room);

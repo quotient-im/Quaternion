@@ -34,6 +34,9 @@ class MessageEventModel: public QAbstractListModel
             RefRole,
             ReactionsRole,
             EventResolvedTypeRole,
+            NudeRichBodyRole,
+            QuotationRole,
+            HtmlQuotationRole,
         };
 
         explicit MessageEventModel(QObject* parent = nullptr);
