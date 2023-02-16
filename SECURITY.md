@@ -34,5 +34,6 @@ public disclosure (if it hasn't been reported earlier in private) of each vulner
 any other issues. In case of vulnerabilities with [CVSS v2](https://nvd.nist.gov/cvss.cfm) score of 4.0 and higher the commitment is
 to provide a workaround within 30 days and a full fix within 60 days after the specific information on the vulnerability has been
 reported to the project by any means (in private or in public). For vulnerabilities with lower score there is no commitment on the timeline,
-only prioritisation. The full fix doesn't imply that all software functionality remains accessible (in the worst case
+only prioritisation. The full fix doesn't imply that all software functionality rem
+ains accessible (in the worst case
 the vulnerable functionality may be disabled or removed to prevent the attack).
