@@ -49,7 +49,6 @@ class ChatRoomWidget : public QWidget
         TimelineWidget* timelineWidget() const;
 
         completions_t findCompletionMatches(const QString& pattern) const;
-        Q_INVOKABLE Qt::KeyboardModifiers getModifierKeys() const;
 
     public slots:
         void setRoom(QuaternionRoom* newRoom);

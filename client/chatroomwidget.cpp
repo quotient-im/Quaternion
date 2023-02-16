@@ -830,8 +830,3 @@ void ChatRoomWidget::textDrop(const QString& text)
 {
     m_chatEdit->insertPlainText(text);
 }
-
-Qt::KeyboardModifiers ChatRoomWidget::getModifierKeys() const
-{
-    return QGuiApplication::keyboardModifiers();
-}
