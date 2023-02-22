@@ -216,7 +216,7 @@ jobs:
             Linux)
                 sudo apt-get -qq install appstream libgstreamer-plugins-base1.0.0 \
                     libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
-                    libxcb-render-util0 libxcb-shape0 libxcb-xinerama0
+                    libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libxkbcommon-x11-0
                 for f in linuxdeploy linuxdeploy-plugin-qt; do
                     wget -c -nv --directory-prefix=linuxdeploy \
                         https://github.com/linuxdeploy/$f/releases/download/continuous/$f-x86_64.AppImage
