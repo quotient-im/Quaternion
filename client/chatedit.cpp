@@ -37,13 +37,19 @@
 #include <util.h>
 
 static const QKeySequence ResetFormatShortcut("Ctrl+M");
+static const QKeySequence AlternatePasteShortcut("Ctrl+Shift+V");
 
 ChatEdit::ChatEdit(ChatRoomWidget* c)
     : KChatEdit(c), chatRoomWidget(c), matchesListPosition(0)
+    , m_pastePlaintext(pastePlaintextByDefault())
 {
     auto* sh = new QShortcut(this);
     sh->setKey(ResetFormatShortcut);
     connect(sh, &QShortcut::activated, this, &KChatEdit::resetCurrentFormat);
+
+    sh = new QShortcut(this);
+    sh->setKey(AlternatePasteShortcut);
+    connect(sh, &QShortcut::activated, this, &ChatEdit::alternatePaste);
 }
 
 void ChatEdit::keyPressEvent(QKeyEvent* event)
@@ -70,6 +76,22 @@ void ChatEdit::contextMenuEvent(QContextMenuEvent *event)
     connect(action, &QAction::triggered, this, &KChatEdit::resetCurrentFormat);
     menu->addAction(action);
 
+    action = new QAction(QIcon::fromTheme("edit-paste"),
+                         pastePlaintextByDefault() ? tr("Paste as rich text")
+                                                   : tr("Paste as plain text"),
+                         this);
+    action->setShortcut(AlternatePasteShortcut);
+    connect(action, &QAction::triggered, this, &ChatEdit::alternatePaste);
+    bool insert = false;
+    for (QAction* a: menu->actions()) {
+        if (insert) {
+            menu->insertAction(a, action);
+            break;
+        }
+        if (a->objectName() == QStringLiteral("edit-paste"))
+            insert = true;
+    }
+
     menu->setAttribute(Qt::WA_DeleteOnClose);
     menu->popup(event->globalPos());
 }
@@ -85,6 +107,13 @@ bool ChatEdit::canInsertFromMimeData(const QMimeData *source) const
     return source->hasImage() || KChatEdit::canInsertFromMimeData(source);
 }
 
+void ChatEdit::alternatePaste()
+{
+    m_pastePlaintext = !pastePlaintextByDefault();
+    paste();
+    m_pastePlaintext = pastePlaintextByDefault();
+}
+
 void ChatEdit::insertFromMimeData(const QMimeData *source)
 {
     if (!source) {
@@ -93,19 +122,25 @@ void ChatEdit::insertFromMimeData(const QMimeData *source)
     }
 
     if (source->hasHtml()) {
-        // Before insertion, remove formatting unsupported in Matrix
-        const auto [cleanHtml, errorPos, errorString] =
-            HtmlFilter::fromLocalHtml(source->html());
-        if (errorPos != -1) {
-            qWarning() << "HTML insertion failed at pos" << errorPos
-                       << "with error" << errorString;
-            // FIXME: Come on... It should be app->showStatusMessage() or smth
-            emit chatRoomWidget->timelineWidget()->showStatusMessage(
-                tr("Could not insert HTML - it's either invalid or unsupported"),
-                5000);
-            return;
+        if (m_pastePlaintext) {
+            QTextDocument document;
+            document.setHtml(source->html());
+            insertPlainText(document.toPlainText());
+        } else {
+            // Before insertion, remove formatting unsupported in Matrix
+            const auto [cleanHtml, errorPos, errorString] =
+                HtmlFilter::fromLocalHtml(source->html());
+            if (errorPos != -1) {
+                qWarning() << "HTML insertion failed at pos" << errorPos
+                        << "with error" << errorString;
+                // FIXME: Come on... It should be app->showStatusMessage() or smth
+                emit chatRoomWidget->timelineWidget()->showStatusMessage(
+                    tr("Could not insert HTML - it's either invalid or unsupported"),
+                    5000);
+                return;
+            }
+            insertHtml(cleanHtml);
         }
-        insertHtml(cleanHtml);
         ensureCursorVisible();
     } else if (source->hasImage())
         emit insertImageRequested(source->imageData().value<QImage>());
@@ -271,4 +306,9 @@ void ChatEdit::insertMention(QString author, QUrl url)
         editCursor.insertText(postfix, textFormat);
     pickingMentions = true;
     cancelCompletion();
+}
+
+bool ChatEdit::pastePlaintextByDefault()
+{
+    return Quotient::Settings().get("UI/paste_plaintext_by_default", true);
 }
