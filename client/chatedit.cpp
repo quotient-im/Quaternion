@@ -77,8 +77,8 @@ void ChatEdit::contextMenuEvent(QContextMenuEvent *event)
     menu->addAction(action);
 
     action = new QAction(QIcon::fromTheme("edit-paste"),
-                         tr(pastePlaintextByDefault() ? "Paste as rich text"
-                                                      : "Paste as plain text"),
+                         pastePlaintextByDefault() ? tr("Paste as rich text")
+                                                   : tr("Paste as plain text"),
                          this);
     action->setShortcut(AlternatePasteShortcut);
     connect(action, &QAction::triggered, this, &ChatEdit::alternatePaste);
