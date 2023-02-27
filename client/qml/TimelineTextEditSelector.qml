@@ -10,6 +10,7 @@ MouseArea {
 
     anchors.fill: parent
     acceptedButtons: Qt.LeftButton
+    preventStealing: true
 
     onPressed: {
         var x = mouse.x
