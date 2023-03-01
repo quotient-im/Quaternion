@@ -19,6 +19,7 @@ public:
     ~TimelineWidget() override;
     QString selectedText() const;
     QuaternionRoom* currentRoom() const;
+    Q_INVOKABLE Qt::KeyboardModifiers getModifierKeys() const;
 
 signals:
     void resourceRequested(const QString& idOrUri, const QString& action = {});

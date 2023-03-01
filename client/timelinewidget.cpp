@@ -338,3 +338,8 @@ bool TimelineWidget::pendingMarkRead() const
     const auto rm = currentRoom()->fullyReadMarker();
     return rm != currentRoom()->historyEdge() && rm->index() < indexToMaybeRead;
 }
+
+Qt::KeyboardModifiers TimelineWidget::getModifierKeys() const
+{
+    return QGuiApplication::keyboardModifiers();
+}
