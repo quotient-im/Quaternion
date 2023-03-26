@@ -1034,14 +1034,13 @@ void MainWindow::openUserInput(bool forJoining)
         QString dlgText;
         QString actionText;
     };
-    static const D map[] = {
-        { tr("Open room"),
-          tr("Room or user ID, room alias,\nMatrix URI or matrix.to link"),
-          tr("Go to room") },
-        { tr("Join room"),
-          tr("Room ID (starting with !)\nor alias (starting with #)"),
-          tr("Join room") }
-    };
+    static const auto map = std::to_array<D>(
+        { { tr("Open room"),
+            tr("Room or user ID, room alias,\nMatrix URI or matrix.to link"),
+            tr("Go to room") },
+          { tr("Join room"),
+            tr("Room ID (starting with !)\nor alias (starting with #)"),
+            tr("Join room") } });
     const auto& entry = map[forJoining];
 
     Dialog dlg(entry.dlgTitle, this, Dialog::NoStatusLine, entry.actionText,
