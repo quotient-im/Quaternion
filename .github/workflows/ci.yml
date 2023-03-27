@@ -87,7 +87,7 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v3.0.0
       with:
-        version: '${{ matrix.qt-version }}.*'
+        version: "${{ matrix.qt-version == 6 && '6.4' || matrix.qt-version }}.*"
         cache: true
         cache-key-prefix: Qt
         modules: ${{ matrix.qt-version == 6 && 'qtmultimedia' || '' }}
