@@ -75,8 +75,6 @@ using Quotient::Settings;
 using Quotient::AccountSettings;
 using Quotient::Uri;
 
-using Quotient::Accounts;
-
 MainWindow::MainWindow()
 {
     Connection::setRoomType<QuaternionRoom>();
@@ -124,12 +122,12 @@ MainWindow::MainWindow()
 
     busyLabel->show();
     busyIndicator->start();
-    QMetaObject::invokeMethod(&Accounts, &Quotient::AccountRegistry::invokeLogin);
-    connect(&Accounts, &Quotient::AccountRegistry::rowsInserted, this, [this](const QModelIndex&, int first, int){
-        addConnection(Accounts.accounts()[first]);
+    QMetaObject::invokeMethod(accountRegistry, &Quotient::AccountRegistry::invokeLogin);
+    connect(accountRegistry, &Quotient::AccountRegistry::rowsInserted, this, [this](const QModelIndex&, int first, int){
+        addConnection(accountRegistry->accounts()[first]);
     });
-    connect(&Accounts, &Quotient::AccountRegistry::rowsAboutToBeRemoved, this, [this](const QModelIndex&, int first, int){
-        roomListDock->deleteConnection(Accounts.accounts()[first]);
+    connect(accountRegistry, &Quotient::AccountRegistry::rowsAboutToBeRemoved, this, [this](const QModelIndex&, int first, int){
+        roomListDock->deleteConnection(accountRegistry->accounts()[first]);
     });
 }
 
@@ -184,7 +182,7 @@ void MainWindow::createMenu()
     connectionMenu->addAction(
         QIcon::fromTheme("user-properties"), tr("User &profiles..."), this,
         [this, dlg = QPointer<ProfileDialog> {}]() mutable {
-            summon(dlg, this);
+            summon(dlg, accountRegistry, this);
             if (currentRoom)
                 dlg->setAccount(currentRoom->connection());
         });
@@ -336,7 +334,7 @@ void MainWindow::createMenu()
         tr("Create &new room..."), [this]
         {
             static QPointer<CreateRoomDialog> dlg;
-            summon(dlg, this);
+            summon(dlg, accountRegistry, this);
         });
     createRoomAction->setShortcut(QKeySequence::New);
     createRoomAction->setDisabled(true);
@@ -547,7 +545,7 @@ void MainWindow::addConnection(Connection* c)
     connect(c, &Connection::syncError, this,
         [this, c](const QString& message, const QString& details) {
             QMessageBox msgBox(QMessageBox::Warning, tr("Sync failed"),
-                Accounts.size() > 1
+                accountRegistry->size() > 1
                     ? tr("The last sync of account %1 has failed with error: %2")
                         .arg(c->userId(), message)
                     : tr("The last sync has failed with error: %1").arg(message),
@@ -614,8 +612,8 @@ void MainWindow::addConnection(Connection* c)
 
     QString accountCaption = c->userId();
     QString menuCaption = accountCaption;
-    if (Accounts.size() < 10)
-        menuCaption.prepend('&' % QString::number(Accounts.size()) % ' ');
+    if (accountRegistry->size() < 10)
+        menuCaption.prepend('&' % QString::number(accountRegistry->size()) % ' ');
     auto logoutAction =
         logoutMenu->addAction(menuCaption, [this, c] { c->logout(); });
     connect(c, &Connection::destroyed, logoutMenu,
@@ -633,7 +631,7 @@ void MainWindow::dropConnection(Connection* c)
         selectRoom(nullptr);
 
     logoutOnExit.removeOne(c);
-    const auto noMoreAccounts = Accounts.isEmpty();
+    const auto noMoreAccounts = accountRegistry->isEmpty();
     openRoomAction->setDisabled(noMoreAccounts);
     createRoomAction->setDisabled(noMoreAccounts);
     joinAction->setDisabled(noMoreAccounts);
@@ -667,10 +665,10 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
     QStringList loggedOffAccounts;
     for (const auto& a: allKnownAccounts)
         // Skip already logged in accounts
-        if (!Accounts.isLoggedIn(AccountSettings(a).userId()))
+        if (!accountRegistry->isLoggedIn(AccountSettings(a).userId()))
             loggedOffAccounts.push_back(a);
 
-    doOpenLoginDialog(new LoginDialog(statusMessage, &Accounts, this,
+    doOpenLoginDialog(new LoginDialog(statusMessage, accountRegistry, this,
                                       loggedOffAccounts));
 }
 
@@ -891,8 +889,9 @@ bool MainWindow::visitNonMatrix(const QUrl& url)
 
 MainWindow::Connection* MainWindow::getDefaultConnection() const
 {
-    return currentRoom ? currentRoom->connection() :
-            Accounts.size() == 1 ? Accounts.front() : nullptr;
+    return currentRoom                    ? currentRoom->connection()
+           : accountRegistry->size() == 1 ? accountRegistry->front()
+                                          : nullptr;
 }
 
 void MainWindow::openResource(const QString& idOrUri, const QString& action)
@@ -989,13 +988,13 @@ void MainWindow::showStatusMessage(const QString& message, int timeout)
 MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
                                                      const QString& prompt)
 {
-    Q_ASSERT(!Accounts.isEmpty());
-    if (Accounts.size() == 1)
-        return Accounts.front();
+    Q_ASSERT(!accountRegistry->isEmpty());
+    if (accountRegistry->size() == 1)
+        return accountRegistry->front();
 
-    QStringList names; names.reserve(Accounts.size());
+    QStringList names; names.reserve(accountRegistry->size());
     int defaultIdx = -1;
-    for (auto c: Accounts)
+    for (auto c: *accountRegistry)
     {
         names.push_back(c->userId());
         if (c == connection)
@@ -1007,7 +1006,7 @@ MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
     if (!ok || choice.isEmpty())
         return nullptr;
 
-    for (auto c: Accounts)
+    for (auto c: *accountRegistry)
         if (c->userId() == choice)
         {
             connection = c;
@@ -1019,7 +1018,7 @@ MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
 
 void MainWindow::openUserInput(bool forJoining)
 {
-    if (Accounts.accounts().isEmpty()) {
+    if (accountRegistry->isEmpty()) {
         showLoginWindow(tr("Please connect to a server"));
         return;
     }
@@ -1040,14 +1039,14 @@ void MainWindow::openUserInput(bool forJoining)
 
     Dialog dlg(entry.dlgTitle, this, Dialog::NoStatusLine, entry.actionText,
                Dialog::NoExtraButtons);
-    auto* accountChooser = new AccountSelector();
+    auto* accountChooser = new AccountSelector(accountRegistry);
     auto* identifier = new QLineEdit(&dlg);
     auto* defaultConn = getDefaultConnection();
     accountChooser->setAccount(defaultConn);
 
     // Lay out controls
     auto* layout = dlg.addLayout<QFormLayout>();
-    if (Accounts.size() > 1)
+    if (accountRegistry->size() > 1)
     {
         layout->addRow(tr("Account"), accountChooser);
         accountChooser->setFocus();

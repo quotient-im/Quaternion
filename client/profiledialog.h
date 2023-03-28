@@ -20,7 +20,6 @@
 #pragma once
 
 #include "dialog.h"
-#include "accountregistry.h"
 
 #include <settings.h>
 #include <csapi/definitions/client_device.h>
@@ -34,15 +33,17 @@ class QComboBox;
 class QLineEdit;
 
 namespace Quotient {
-    class GetDevicesJob;
-    class Connection;
+class AccountRegistry;
+class GetDevicesJob;
+class Connection;
 }
 
 class ProfileDialog : public Dialog
 {
     Q_OBJECT
 public:
-    explicit ProfileDialog(MainWindow* parent);
+    explicit ProfileDialog(Quotient::AccountRegistry* accounts,
+                           MainWindow* parent);
     ~ProfileDialog() override;
 
     void setAccount(Quotient::Connection* newAccount);

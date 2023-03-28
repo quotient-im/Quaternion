@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include "accountregistry.h"
-
 // QSslError is used in a signal container parameter and needs to be complete
 // for moc to generate stuff since Qt 6
 #include <QtNetwork/QSslError>
@@ -102,6 +100,9 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         bool visitNonMatrix(const QUrl& url) override;
 
     private:
+        // TODO: switch to a MainWindow-owned instance instead of using
+        // the library's singleton, starting from libQuotient 0.8
+        Quotient::AccountRegistry* accountRegistry = &Quotient::Accounts;
         QVector<Connection*> logoutOnExit;
         QVector<Connection*> firstSyncing;
 

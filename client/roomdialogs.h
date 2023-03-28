@@ -21,7 +21,8 @@
 #include "dialog.h"
 
 namespace Quotient {
-    class Connection;
+class AccountRegistry;
+class Connection;
 }
 
 class MainWindow;
@@ -89,7 +90,8 @@ class CreateRoomDialog : public RoomDialogBase
 {
         Q_OBJECT
     public:
-        CreateRoomDialog(QWidget* parent = nullptr);
+        CreateRoomDialog(Quotient::AccountRegistry* accounts,
+                         QWidget* parent = nullptr);
 
     public slots:
         void updatePushButtons();
