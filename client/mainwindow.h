@@ -79,7 +79,7 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         void showStatusMessage(const QString& message, int timeout = 0);
 
     private slots:
-        void loginError(Connection* c, const QString& message = {});
+        void reloginNeeded(Connection* c, const QString& message = {});
         void networkError(Connection* c);
         void sslErrors(QNetworkReply* reply, const QList<QSslError>& errors);
         void proxyAuthenticationRequired(const QNetworkProxy& /* unused */,

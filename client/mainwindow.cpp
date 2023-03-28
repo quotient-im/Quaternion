@@ -70,10 +70,7 @@
 
 #include <set>
 
-using Quotient::NetworkAccessManager;
-using Quotient::Settings;
 using Quotient::AccountSettings;
-using Quotient::Uri;
 
 MainWindow::MainWindow()
 {
@@ -81,7 +78,7 @@ MainWindow::MainWindow()
 
     // Bind callbacks to signals from NetworkAccessManager
 
-    auto nam = NetworkAccessManager::instance();
+    auto nam = Quotient::NetworkAccessManager::instance();
     connect(nam, &QNetworkAccessManager::proxyAuthenticationRequired,
         this, &MainWindow::proxyAuthenticationRequired);
     connect(nam, &QNetworkAccessManager::sslErrors,
@@ -370,6 +367,7 @@ void MainWindow::createMenu()
     helpMenu->addAction(QIcon::fromTheme("help-about-qt"), tr("About &Qt"),
                         [this] { QMessageBox::aboutQt(this); });
 
+    using Quotient::Settings;
     {
         auto notifGroup = new QActionGroup(this);
         connect(notifGroup, &QActionGroup::triggered, this,
@@ -592,7 +590,7 @@ void MainWindow::addConnection(Connection* c)
                 QDesktopServices::openUrl(job->errorUrl());
         });
     connect(c, &Connection::loginError, this,
-            [this, c](const QString& msg) { loginError(c, msg); });
+            [this, c](const QString& msg) { reloginNeeded(c, msg); });
     connect(c, &Connection::newRoom, systemTrayIcon, &SystemTrayIcon::newRoom);
     connect(c, &Connection::createdRoom, this, &MainWindow::selectRoom);
     connect(c, &Connection::joinedRoom, this, [this](Room* r, Room* prev) {
@@ -615,9 +613,9 @@ void MainWindow::addConnection(Connection* c)
     if (accountRegistry->size() < 10)
         menuCaption.prepend('&' % QString::number(accountRegistry->size()) % ' ');
     auto logoutAction =
-        logoutMenu->addAction(menuCaption, [this, c] { c->logout(); });
+        logoutMenu->addAction(menuCaption, c, &Connection::logout);
     connect(c, &Connection::destroyed, logoutMenu,
-            std::bind(&QMenu::removeAction, logoutMenu, logoutAction));
+            [this, logoutAction] { logoutMenu->removeAction(logoutAction); });
     openRoomAction->setEnabled(true);
     createRoomAction->setEnabled(true);
     joinAction->setEnabled(true);
@@ -693,10 +691,9 @@ void MainWindow::doOpenLoginDialog(LoginDialog* dialog)
         account.setHomeserver(connection->homeserver());
         account.setDeviceId(connection->deviceId());
         account.setDeviceName(dialog->deviceName());
-        if (dialog->keepLoggedIn()) {
-            //TODO implement this in some other way
-        } else
+        if (!dialog->keepLoggedIn()) {
             logoutOnExit.push_back(connection);
+        }
         account.sync();
 
         auto deviceName = dialog->deviceName();
@@ -777,7 +774,7 @@ void MainWindow::showAboutWindow()
             .arg("<a href='mailto:nep-quaternion@packageloss.eu'>nephele</a>") %
             "<br/><br/>" %
             tr("Made with:") % "<br/>" %
-            "<a href='https://www.qt.io/'>Qt 5</a><br/>"
+            "<a href='https://www.qt.io/'>Qt</a><br/>"
             "<a href='https://www.qt.io/product/development-tools'>Qt Creator</a><br/>"
             "<a href='https://www.jetbrains.com/clion/'>CLion</a><br/>"
             "<a href='https://lokalise.com'>Lokalise</a><br/>"
@@ -794,7 +791,7 @@ void MainWindow::showAboutWindow()
     aboutDialog.exec();
 }
 
-void MainWindow::loginError(Connection* c, const QString& message)
+void MainWindow::reloginNeeded(Connection* c, const QString& message)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Login error on a null connection");
     c->stopSync();
@@ -896,6 +893,7 @@ MainWindow::Connection* MainWindow::getDefaultConnection() const
 
 void MainWindow::openResource(const QString& idOrUri, const QString& action)
 {
+    using Quotient::Uri;
     Uri uri { idOrUri };
     if (!uri.isValid()) {
         QMessageBox::warning(
@@ -1093,6 +1091,7 @@ void MainWindow::openUserInput(bool forJoining)
                 identifier, setCompleter);
     }
 
+    using Quotient::Uri;
     const auto getUri = [identifier]() -> Uri {
         return identifier->text().trimmed();
     };
@@ -1209,7 +1208,7 @@ void MainWindow::sslErrors(QNetworkReply* reply, const QList<QSslError>& errors)
             msgBox.setDetailedText(error.certificate().toText());
         if (msgBox.exec() == QMessageBox::Abort)
             return;
-        NetworkAccessManager::instance()->addIgnoredSslError(error);
+        Quotient::NetworkAccessManager::instance()->addIgnoredSslError(error);
     }
     reply->ignoreSslErrors(errors);
 }
