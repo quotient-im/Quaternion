@@ -38,6 +38,7 @@
 #include <settings.h>
 #include <logging.h>
 #include <user.h>
+#include <qt_connection_util.h>
 
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>
@@ -69,8 +70,6 @@
 #include <QtGui/QDesktopServices>
 
 #include <set>
-
-using Quotient::AccountSettings;
 
 MainWindow::MainWindow()
 {
@@ -119,18 +118,40 @@ MainWindow::MainWindow()
 
     busyLabel->show();
     busyIndicator->start();
-    QMetaObject::invokeMethod(accountRegistry, &Quotient::AccountRegistry::invokeLogin);
-    connect(accountRegistry, &Quotient::AccountRegistry::rowsInserted, this, [this](const QModelIndex&, int first, int){
-        addConnection(accountRegistry->accounts()[first]);
-    });
-    connect(accountRegistry, &Quotient::AccountRegistry::rowsAboutToBeRemoved, this, [this](const QModelIndex&, int first, int){
-        roomListDock->deleteConnection(accountRegistry->accounts()[first]);
-    });
+    connect(accountRegistry, &Quotient::AccountRegistry::rowsAboutToBeInserted,
+            this, [this](const QModelIndex&, int first, int last) {
+                for (int i = first; i < last; ++i) {
+                    const auto* a = accountRegistry->accounts()[i];
+                    connectSingleShot(a, &Connection::syncDone, this, [a] {
+                        qDebug() << "First sync done for" << a->objectName();
+                    });
+                }
+            });
+    connect(accountRegistry, &Quotient::AccountRegistry::rowsAboutToBeRemoved,
+            this, [this](const QModelIndex&, int first, int last) {
+                const auto& accounts = accountRegistry->accounts();
+                for (int i = first; i < last; ++i)
+                    roomListDock->deleteConnection(accounts[i]);
+            });
+    connect(accountRegistry, &Quotient::AccountRegistry::rowsRemoved, this,
+            [this] {
+                const auto noMoreAccounts = accountRegistry->isEmpty();
+                openRoomAction->setDisabled(noMoreAccounts);
+                createRoomAction->setDisabled(noMoreAccounts);
+                joinAction->setDisabled(noMoreAccounts);
+                if (noMoreAccounts)
+                    showLoginWindow();
+            });
+    QMetaObject::invokeMethod(this, &MainWindow::invokeLogin,
+                              Qt::QueuedConnection);
 }
 
 MainWindow::~MainWindow()
 {
     saveSettings();
+    for (auto* acc: qAsConst(logoutOnExit))
+        logout(acc);
+    accountRegistry->disconnect(this);
 }
 
 template <typename DialogT, typename... DialogArgTs>
@@ -516,19 +537,15 @@ void MainWindow::addConnection(Connection* c)
 
     using Room = Quotient::Room;
 
+    c->loadState();
     c->setLazyLoading(true);
 
     roomListDock->addConnection(c);
 
     c->syncLoop();
     connect(c, &Connection::syncDone, this, [this, c, counter = 0]() mutable {
-        if (counter == 0) {
+        if (counter == 0)
             firstSyncOver(c);
-            statusBar()->showMessage(
-                tr("First sync completed for %1", "%1 is user id")
-                    .arg(c->userId()),
-                3000);
-        }
 
         // Borrowed the logic from Quiark's code in Tensor to cache not too
         // aggressively and not on the first sync.
@@ -629,31 +646,50 @@ void MainWindow::dropConnection(Connection* c)
         selectRoom(nullptr);
 
     logoutOnExit.removeOne(c);
-    const auto noMoreAccounts = accountRegistry->isEmpty();
-    openRoomAction->setDisabled(noMoreAccounts);
-    createRoomAction->setDisabled(noMoreAccounts);
-    joinAction->setDisabled(noMoreAccounts);
-
     Q_ASSERT(!logoutOnExit.contains(c) && !c->syncJob());
+
+    accountRegistry->drop(c);
     c->deleteLater();
 }
 
-void MainWindow::showFirstSyncIndicator()
+void MainWindow::showInitialLoadIndicator()
 {
     busyLabel->show();
     busyIndicator->start();
-    statusBar()->showMessage("Syncing, please wait");
+    updateLoadingStatus(accountRegistry->size());
 }
 
-void MainWindow::firstSyncOver(Connection *c)
+void MainWindow::updateLoadingStatus(int accountsStillLoading)
+{
+    statusBar()->showMessage(tr("Loading %Ln accounts, please wait", "",
+                                accountsStillLoading));
+}
+
+void MainWindow::firstSyncOver(const Connection *c)
 {
     Q_ASSERT(c != nullptr);
-    firstSyncing.removeOne(c);
-    if (firstSyncing.empty()) {
+    statusBar()->showMessage(
+        tr("First sync completed for %1", "%1 is user id").arg(c->userId()),
+        3000);
+    const auto& accountsNotSynced =
+        std::count_if(accountRegistry->cbegin(), accountRegistry->cend(),
+                      [](const Connection* cc) {
+                          return cc->nextBatchToken().isEmpty();
+                      });
+    qDebug() << "Connections still not synced: " << accountsNotSynced;
+    if (accountsNotSynced == 0) {
         busyLabel->hide();
         busyIndicator->stop();
+        statusBar()->showMessage(
+            accountRegistry->size() == 1
+                ? tr("Account %1 is synchronised, have a good chat")
+                      .arg(accountRegistry->front()->userId())
+                : tr("All %Ln accounts synchronised, have a good chat", "",
+                     accountRegistry->size()),
+            5000);
+    } else {
+        updateLoadingStatus(static_cast<int>(accountsNotSynced));
     }
-    qDebug() << "Connections still in first sync: " << firstSyncing.size();
 }
 
 void MainWindow::showLoginWindow(const QString& statusMessage)
@@ -662,9 +698,8 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
         Quotient::SettingsGroup("Accounts").childGroups();
     QStringList loggedOffAccounts;
     for (const auto& a: allKnownAccounts)
-        // Skip already logged in accounts
-        if (!accountRegistry->isLoggedIn(AccountSettings(a).userId()))
-            loggedOffAccounts.push_back(a);
+        if (!accountRegistry->get(Quotient::AccountSettings(a).userId()))
+            loggedOffAccounts.push_back(a); // Skip already logged in accounts
 
     doOpenLoginDialog(new LoginDialog(statusMessage, accountRegistry, this,
                                       loggedOffAccounts));
@@ -686,7 +721,7 @@ void MainWindow::doOpenLoginDialog(LoginDialog* dialog)
     // using WA_DeleteOnClose automagic.
     connect(dialog, &QDialog::accepted, this, [this, dialog] {
         auto connection = dialog->releaseConnection();
-        AccountSettings account(connection->userId());
+        Quotient::AccountSettings account(connection->userId());
         account.setKeepLoggedIn(dialog->keepLoggedIn());
         account.setHomeserver(connection->homeserver());
         account.setDeviceId(connection->deviceId());
@@ -695,12 +730,11 @@ void MainWindow::doOpenLoginDialog(LoginDialog* dialog)
             logoutOnExit.push_back(connection);
         }
         account.sync();
-
-        auto deviceName = dialog->deviceName();
         dialog->deleteLater();
 
-        firstSyncing.push_back(connection);
-        showFirstSyncIndicator();
+        accountRegistry->add(connection);
+        addConnection(connection);
+        showInitialLoadIndicator();
     });
     connect(dialog, &QDialog::rejected, dialog, &QObject::deleteLater);
 }
@@ -791,14 +825,189 @@ void MainWindow::showAboutWindow()
     aboutDialog.exec();
 }
 
+class ConnectionInitiator : public QObject {
+    // Q_OBJECT - the only thing needed from QObject here is connect()ability,
+    // without things generated by moc
+public:
+    ConnectionInitiator(const Quotient::AccountSettings& account,
+                        const QString& accessToken, QObject* parent)
+        : QObject(parent)
+        , connection(new Quotient::Connection(account.homeserver(), parent))
+        , userId(account.userId())
+        , deviceId(account.deviceId())
+        , accessToken(accessToken)
+    {
+        connect(connection, &Quotient::Connection::networkError, this,
+                &ConnectionInitiator::onNetworkError);
+        tryConnection();
+    }
+    Quotient::Connection* getConnection() const { return connection; }
+
+    void tryConnection()
+    {
+        connection->assumeIdentity(userId, accessToken, deviceId);
+    }
+    void onNetworkError(const QString& error)
+    {
+        using namespace std::chrono_literals;
+        qWarning() << "Network error at initial connection:" << error;
+        QTimer::singleShot(10s, this, &ConnectionInitiator::tryConnection);
+    }
+
+private:
+    Quotient::Connection* const connection;
+    const QString userId;
+    const QString deviceId;
+    const QString accessToken;
+};
+
+Quotient::Connection* MainWindow::setupConnection(
+    const Quotient::AccountSettings& account, const QString& accessToken)
+{
+    auto ci = new ConnectionInitiator(account, accessToken, this);
+    auto conn = ci->getConnection();
+    // NB: ConnectionInitiator is intended to only handle errors until
+    // Connection::connected() arrives; upon this, ConnectionInitiator deletes
+    // itself along with its QMetaObject::Connections, and a new lineup
+    // of error handlers is set up in addConnection()
+    connect(conn, &Quotient::Connection::connected, ci, [this, ci] {
+        addConnection(ci->getConnection());
+        ci->deleteLater();
+    });
+    connect(conn, &Connection::loginError, ci,
+            [this, ci](const QString& error, const QString& details) {
+                // Double-check that the error is not due to the network,
+                // older libQuotient does not distinguish between the two
+                if (details.startsWith(u'{'))
+                    reloginNeeded(ci->getConnection(), error);
+                else
+                    ci->onNetworkError(error);
+            });
+    accountRegistry->add(conn);
+    return conn;
+}
+
+template <class KeySourceT>
+inline QString accessTokenKey(const KeySourceT& source, bool legacyLocation)
+{
+    auto k = source.userId();
+    if (legacyLocation) {
+        if (source.deviceId().isEmpty())
+            qWarning() << "Device id on the account is not set";
+        else
+            k += '-' % source.deviceId();
+    }
+    return k;
+}
+
+void MainWindow::invokeLogin()
+{
+    const auto accounts = Quotient::SettingsGroup("Accounts").childGroups();
+    for (const auto& accountId: accounts) {
+        Quotient::AccountSettings account { accountId };
+
+        if (account.homeserver().isEmpty())
+            continue; // Not even the homeserver filled in, skipping
+
+        const auto& [token, legacyLocation] = loadAccessToken(account);
+        if (token.isEmpty()) // The account is saved but not logged-in
+            continue;
+
+        qDebug().noquote().nospace()
+            << "Found an access token for " << account.userId() << '/'
+            << account.deviceId() << ", trying to connect";
+        auto c = setupConnection(account, token);
+        if (legacyLocation) {
+            connect(c, &Connection::connected, this, [this, c] {
+                qInfo()
+                    << "Removing the access token from the oldkeychain slot";
+                using namespace QKeychain;
+                auto* delJob = new DeletePasswordJob(qAppName(), this);
+                delJob->setKey(accessTokenKey(*c, true));
+                connect(delJob, &Job::finished, this, [delJob] {
+                    if (delJob->error() != Error::NoError)
+                        qWarning().noquote()
+                            << "Cleanup of the old keychain slot failed:"
+                            << delJob->errorString();
+                });
+                delJob->start(); // Run async and move on
+            });
+        }
+    }
+    // By now, either no accounts were found or whichever were found are
+    // retrieving their access tokens (or resolving their homeservers at least)
+    if (accountRegistry->empty())
+        showLoginWindow(tr("Welcome to Quaternion"));
+    else
+        showInitialLoadIndicator();
+}
+
+std::pair<QByteArray, bool> MainWindow::loadAccessToken(
+    const Quotient::AccountSettings& account)
+{
+    using namespace QKeychain;
+    for (auto legacyLocation : { false, true }) {
+        const auto& key = accessTokenKey(account, legacyLocation);
+        qDebug().noquote() << "Reading the access token from the keychain for"
+                           << key;
+        auto slotName = qAppName();
+        if (legacyLocation)
+            slotName += " access token for " % key;
+        auto job = std::make_unique<ReadPasswordJob>(slotName, this);
+        job->setAutoDelete(false);
+        job->setKey(key);
+        QEventLoop loop;
+        connect(job.get(), &Job::finished, &loop, &QEventLoop::quit);
+        job->start();
+        loop.exec();
+
+        if (job->error() == Error::NoError)
+            return { job->binaryData(), legacyLocation };
+
+        qInfo().noquote() << "Could not read the access token for" << job->key()
+                          << "from the keychain:" << job->errorString();
+    }
+    return {};
+}
+
 void MainWindow::reloginNeeded(Connection* c, const QString& message)
 {
     Q_ASSERT_X(c, __FUNCTION__, "Login error on a null connection");
     c->stopSync();
     // Security over convenience: before allowing back in, remove
     // the connection from the UI
-    emit c->loggedOut(); // Short circuit login error to logged-out event
+    dropConnection(c); // NB: waiting for libQuotient to support soft logout
     showLoginWindow(message, c->userId());
+}
+
+void MainWindow::logout(Connection* c)
+{
+    Q_ASSERT_X(c, __FUNCTION__, "Logout on a null connection");
+
+    // libQuotient takes care about the new location but not the old one
+    using namespace QKeychain;
+    auto* job = new DeletePasswordJob(qAppName(), this);
+    job->setKey(accessTokenKey(*c, true));
+    connect(job, &Job::finished, this, [this, job] {
+        switch (job->error()) {
+        case Error::EntryNotFound:
+        case Error::NoError: return;
+        // Actual errors follow
+        case Error::NoBackendAvailable:
+        case Error::NotImplemented:
+        case Error::OtherError: break;
+        default:
+            QMessageBox::warning(this, tr("Couldn't delete access token"),
+                                 tr("Quaternion couldn't delete the access "
+                                    "token from the keychain."),
+                                 QMessageBox::Close);
+        }
+        qWarning() << "Could not delete access token from the keychain: "
+                   << qUtf8Printable(job->errorString());
+    });
+    job->start();
+
+    c->logout();
 }
 
 Quotient::UriResolveResult MainWindow::visitUser(Quotient::User* user,
