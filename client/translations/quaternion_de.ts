@@ -819,7 +819,7 @@ oder Alias (beginnend mit #)</translation>
 Is that right?</source>
         <translation>Eine externe Anwendung wird geöffnet, um einen Nicht-Matrix-Link zu besuchen: 
 
- % 1 
+%1 
 
  Ist das richtig?</translation>
     </message>
@@ -1129,10 +1129,6 @@ Matrix URI oder matrix.to Link</translation>
     <message>
         <source>created the room, version %1</source>
         <translation>erstellte den Raum, Version %1</translation>
-    </message>
-    <message>
-        <source>has set room aliases on server %1 to: %2</source>
-        <translation>hat Raum-Aliase auf dem Server %1 auf %2 gesetzt</translation>
     </message>
     <message>
         <source>banned %1 from the room: %2</source>
@@ -1624,7 +1620,7 @@ neuem Raum</translation>
     </message>
     <message>
         <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
-        <translation>Die Medien-ID &apos;% 1&apos; folgt nicht dem Server/Medien-ID-Muster</translation>
+        <translation>Die Medien-ID &apos;%1&apos; folgt nicht dem Server/Medien-ID-Muster</translation>
     </message>
     <message>
         <source>No connection to perform image request</source>

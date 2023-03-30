@@ -1056,10 +1056,6 @@ Matrix URI lub link matrix.to</translation>
         <translation>stworzył(a) pokój, wersja %1</translation>
     </message>
     <message>
-        <source>has set room aliases on server %1 to: %2</source>
-        <translation>ustawił(a) alias pokoju na serwerze %1 na: %2</translation>
-    </message>
-    <message>
         <source>banned %1 from the room: %2</source>
         <translation>zbanował(a) %1 z pokoju: %2</translation>
     </message>
