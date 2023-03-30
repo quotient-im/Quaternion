@@ -1131,10 +1131,6 @@ Matrix URI or matrix.to link</translation>
         <translation>created the room, version %1</translation>
     </message>
     <message>
-        <source>has set room aliases on server %1 to: %2</source>
-        <translation>has set room aliases on server %1 to: %2</translation>
-    </message>
-    <message>
         <source>banned %1 from the room: %2</source>
         <translation>banned %1 from the room: %2</translation>
     </message>
