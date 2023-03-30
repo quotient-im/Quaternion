@@ -887,10 +887,6 @@ Matrix URI o enlace matriz.to</translation>
         <translation>creada la sala, versión %1</translation>
     </message>
     <message>
-        <source>has set room aliases on server %1 to: %2</source>
-        <translation>ha establecido alias de sala en el servidor %1 a: %2</translation>
-    </message>
-    <message>
         <source>banned %1 from the room: %2</source>
         <translation>suspendido %1 de la sala: %2</translation>
     </message>

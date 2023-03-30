@@ -1135,10 +1135,6 @@ Matrix URI или ссылка на сервис matrix.to</translation>
         <translation>создал комнату, версия %1</translation>
     </message>
     <message>
-        <source>has set room aliases on server %1 to: %2</source>
-        <translation>установил псевдоним комнаты на сервере %1: %2</translation>
-    </message>
-    <message>
         <source>banned %1 from the room: %2</source>
         <translation>заблокировал %1 в комнате: %2</translation>
     </message>
