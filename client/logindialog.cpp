@@ -20,6 +20,7 @@
 #include "logindialog.h"
 
 #include <connection.h>
+#include <accountregistry.h>
 #include <qt_connection_util.h>
 #include <ssosession.h>
 #include <settings.h>
@@ -37,13 +38,15 @@ using Quotient::Connection;
 static const auto MalformedServerUrl =
         LoginDialog::tr("The server URL doesn't look valid");
 
-LoginDialog::LoginDialog(const QString& statusMessage, QWidget* parent,
-                         const QStringList& knownAccounts)
+LoginDialog::LoginDialog(const QString& statusMessage,
+                         Quotient::AccountRegistry* loggedInAccounts,
+                         QWidget* parent, const QStringList& knownAccounts)
     : Dialog(tr("Login"), parent, Dialog::StatusLine, tr("Login"),
              Dialog::NoExtraButtons)
     , userEdit(new QLineEdit(this))
     , passwordEdit(new QLineEdit(this))
     , initialDeviceName(new QLineEdit(this))
+    , deviceId(new QLineEdit(this))
     , serverEdit(new QLineEdit(QStringLiteral("https://matrix.org"), this))
     , saveTokenCheck(new QCheckBox(tr("Stay logged in"), this))
     , m_connection(new Connection)
@@ -51,25 +54,41 @@ LoginDialog::LoginDialog(const QString& statusMessage, QWidget* parent,
     setup(statusMessage);
     setPendingApplyMessage(tr("Connecting and logging in, please wait"));
 
-    connect(userEdit, &QLineEdit::editingFinished, m_connection.data(), [this] {
-        auto userId = userEdit->text();
-        if (userId.startsWith('@') && userId.indexOf(':') != -1) {
-            setStatusMessage(tr("Resolving the homeserver..."));
-            serverEdit->clear();
-            button(QDialogButtonBox::Ok)->setEnabled(false);
-            m_connection->resolveServer(userId);
-        }
-    });
+    connect(userEdit, &QLineEdit::editingFinished, m_connection.data(),
+            [this, loggedInAccounts, knownAccounts] {
+                auto userId = userEdit->text();
+                if (!userId.startsWith('@') || !userId.contains(':'))
+                    return;
 
-    connect(serverEdit, &QLineEdit::editingFinished, m_connection.data(), [this] {
-        if (QUrl hsUrl { serverEdit->text() }; hsUrl.isValid()) {
-            m_connection->setHomeserver(serverEdit->text());
-            button(QDialogButtonBox::Ok)->setEnabled(true);
-        } else {
-            setStatusMessage(MalformedServerUrl);
-            button(QDialogButtonBox::Ok)->setEnabled(false);
-        }
-    });
+                button(QDialogButtonBox::Ok)->setEnabled(false);
+                if (loggedInAccounts->get(userId)) {
+                    setStatusMessage(
+                        tr("This account is logged in already"));
+                    return;
+                }
+                if (knownAccounts.contains(userId)) {
+                    Quotient::AccountSettings acct{ userId };
+                    initialDeviceName->setText(acct.deviceName());
+                    deviceId->setText(acct.deviceId());
+                } else {
+                    initialDeviceName->clear();
+                    deviceId->clear();
+                }
+                setStatusMessage(tr("Resolving the homeserver..."));
+                serverEdit->clear();
+                m_connection->resolveServer(userId);
+            });
+
+    connect(serverEdit, &QLineEdit::editingFinished, m_connection.data(),
+            [this, knownAccounts] {
+                if (QUrl hsUrl{ serverEdit->text() }; hsUrl.isValid()) {
+                    m_connection->setHomeserver(hsUrl);
+                    button(QDialogButtonBox::Ok)->setEnabled(true);
+                } else {
+                    setStatusMessage(MalformedServerUrl);
+                    button(QDialogButtonBox::Ok)->setEnabled(false);
+                }
+            });
 
     // This button is only shown when BOTH password auth and SSO are available
     // If only one flow is there, the "Login" button text is changed instead
@@ -104,6 +123,7 @@ LoginDialog::LoginDialog(const QString& statusMessage, QWidget* parent,
                 m_connection->setHomeserver(homeserver);
 
             initialDeviceName->setText(account.deviceName());
+            deviceId->setText(account.deviceId());
             saveTokenCheck->setChecked(account.keepLoggedIn());
             passwordEdit->setFocus();
         }
@@ -115,20 +135,24 @@ LoginDialog::LoginDialog(const QString& statusMessage, QWidget* parent,
     }
 }
 
-LoginDialog::LoginDialog(const QString &statusMessage, QWidget* parent,
-                         const Quotient::AccountSettings& reloginData)
+LoginDialog::LoginDialog(const QString& statusMessage,
+                         const Quotient::AccountSettings& reloginAccount,
+                         QWidget* parent)
     : Dialog(tr("Re-login"), parent, Dialog::StatusLine, tr("Re-login"),
              Dialog::NoExtraButtons)
-    , userEdit(new QLineEdit(reloginData.userId(), this))
+    , userEdit(new QLineEdit(reloginAccount.userId(), this))
     , passwordEdit(new QLineEdit(this))
-    , initialDeviceName(new QLineEdit(reloginData.deviceName(), this))
-    , serverEdit(new QLineEdit(reloginData.homeserver().toString(), this))
+    , initialDeviceName(new QLineEdit(reloginAccount.deviceName(), this))
+    , deviceId(new QLineEdit(reloginAccount.deviceId(), this))
+    , serverEdit(new QLineEdit(reloginAccount.homeserver().toString(), this))
     , saveTokenCheck(new QCheckBox(tr("Stay logged in"), this))
     , m_connection(new Connection)
 {
     setup(statusMessage);
     userEdit->setReadOnly(true);
     userEdit->setFrame(false);
+    initialDeviceName->setReadOnly(true);
+    initialDeviceName->setFrame(false);
     setPendingApplyMessage(tr("Restoring access, please wait"));
 }
 
@@ -163,6 +187,13 @@ void LoginDialog::setup(const QString& statusMessage)
                 serverEdit->clear();
                 setStatusMessage(message);
             });
+    deviceId->setReadOnly(true);
+    deviceId->setFrame(false);
+    deviceId->setPlaceholderText(tr(
+        "(none)", "The device id label text when there's no saved device id"));
+    connect(initialDeviceName, &QLineEdit::textChanged, deviceId,
+            &QLineEdit::clear);
+
     connect(m_connection.data(), &Connection::connected,
             this, &Dialog::accept);
     connect(m_connection.data(), &Connection::loginError,
@@ -171,6 +202,7 @@ void LoginDialog::setup(const QString& statusMessage)
     formLayout->addRow(tr("Matrix ID"), userEdit);
     formLayout->addRow(tr("Password"), passwordEdit);
     formLayout->addRow(tr("Device name"), initialDeviceName);
+    formLayout->addRow(tr("Saved device id"), deviceId);
     formLayout->addRow(tr("Connect to server"), serverEdit);
     formLayout->addRow(saveTokenCheck);
 }
@@ -230,12 +262,13 @@ void LoginDialog::loginWithBestFlow()
 void LoginDialog::loginWithPassword()
 {
     m_connection->loginWithPassword(userEdit->text(), passwordEdit->text(),
-                                  initialDeviceName->text());
+                                    initialDeviceName->text(), deviceId->text());
 }
 
 void LoginDialog::loginWithSso()
 {
-    auto* ssoSession = m_connection->prepareForSso(initialDeviceName->text());
+    auto* ssoSession = m_connection->prepareForSso(initialDeviceName->text(),
+                                                   deviceId->text());
     if (!QDesktopServices::openUrl(ssoSession->ssoUrl())) {
         auto* instructionsBox =
             new Dialog(tr("Single sign-on"), QDialogButtonBox::NoButton, this);

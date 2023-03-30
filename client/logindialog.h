@@ -26,6 +26,7 @@ class QCheckBox;
 
 namespace Quotient {
     class AccountSettings;
+    class AccountRegistry;
     class Connection;
 }
 
@@ -33,11 +34,14 @@ class LoginDialog : public Dialog
 {
         Q_OBJECT
     public:
-        explicit LoginDialog(const QString& statusMessage,
-                             QWidget* parent = nullptr,
-                             const QStringList& knownAccounts = {});
-        explicit LoginDialog(const QString& statusMessage, QWidget* parent,
-                             const Quotient::AccountSettings& reloginData);
+        // FIXME: make loggedInAccounts pointer to const once we get to
+        // libQuotient 0.8
+        LoginDialog(const QString& statusMessage,
+                    Quotient::AccountRegistry* loggedInAccounts,
+                    QWidget* parent, const QStringList& knownAccounts = {});
+        LoginDialog(const QString& statusMessage,
+                    const Quotient::AccountSettings& reloginAccount,
+                    QWidget* parent);
         void setup(const QString &statusMessage);
         ~LoginDialog() override;
 
@@ -55,6 +59,7 @@ class LoginDialog : public Dialog
         QLineEdit* userEdit;
         QLineEdit* passwordEdit;
         QLineEdit* initialDeviceName;
+        QLineEdit* deviceId;
         QLineEdit* serverEdit;
         QCheckBox* saveTokenCheck;
 

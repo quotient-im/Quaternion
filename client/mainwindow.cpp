@@ -670,20 +670,15 @@ void MainWindow::showLoginWindow(const QString& statusMessage)
         if (!Accounts.isLoggedIn(AccountSettings(a).userId()))
             loggedOffAccounts.push_back(a);
 
-    doOpenLoginDialog(new LoginDialog(statusMessage, this, loggedOffAccounts));
+    doOpenLoginDialog(new LoginDialog(statusMessage, &Accounts, this,
+                                      loggedOffAccounts));
 }
 
 void MainWindow::showLoginWindow(const QString& statusMessage,
                                  const QString& userId)
 {
-    auto* reloginAccount = new AccountSettings(userId);
-    auto* dialog = new LoginDialog(statusMessage, this, *reloginAccount);
-    reloginAccount->setParent(dialog); // => Delete with the dialog box
-    doOpenLoginDialog(dialog);
-    connect(dialog, &QDialog::rejected, this, [reloginAccount] {
-        // XXX: Maybe even remove the account altogether as below?
-        // Quotient::SettingsGroup("Accounts").remove(reloginAccount->userId());
-    });
+    doOpenLoginDialog(new LoginDialog(statusMessage,
+                                      Quotient::AccountSettings(userId), this));
 }
 
 void MainWindow::doOpenLoginDialog(LoginDialog* dialog)
