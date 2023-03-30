@@ -1,19 +1,18 @@
 #pragma once
 
-#include <accountregistry.h>
-
 #include <QtWidgets/QComboBox>
 
-namespace Quotient
-{
-    class Connection;
+namespace Quotient {
+class AccountRegistry;
+class Connection;
 }
 
 class AccountSelector : public QComboBox
 {
     Q_OBJECT
 public:
-    AccountSelector(QWidget* parent = nullptr);
+    AccountSelector(Quotient::AccountRegistry *registry,
+                    QWidget* parent = nullptr);
 
     void setAccount(Quotient::Connection* newAccount);
     Quotient::Connection* currentAccount() const;

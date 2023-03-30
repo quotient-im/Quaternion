@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include "accountregistry.h"
-
 // QSslError is used in a signal container parameter and needs to be complete
 // for moc to generate stuff since Qt 6
 #include <QtNetwork/QSslError>
@@ -79,9 +77,12 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         void openRoomSettings(QuaternionRoom* r = nullptr);
         void selectRoom(Quotient::Room* r);
         void showStatusMessage(const QString& message, int timeout = 0);
+        void logout(Connection* c);
 
     private slots:
-        void loginError(Connection* c, const QString& message = {});
+        void invokeLogin();
+
+        void reloginNeeded(Connection* c, const QString& message = {});
         void networkError(Connection* c);
         void sslErrors(QNetworkReply* reply, const QList<QSslError>& errors);
         void proxyAuthenticationRequired(const QNetworkProxy& /* unused */,
@@ -102,8 +103,10 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         bool visitNonMatrix(const QUrl& url) override;
 
     private:
+        // TODO: switch to a MainWindow-owned instance instead of using
+        // the library's singleton, starting from libQuotient 0.8
+        Quotient::AccountRegistry* accountRegistry = &Quotient::Accounts;
         QVector<Connection*> logoutOnExit;
-        QVector<Connection*> firstSyncing;
 
         RoomListDock* roomListDock = nullptr;
         UserListDock* userListDock = nullptr;
@@ -131,14 +134,20 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         QAction* addUiOptionCheckbox(QMenu* parent, const QString& text,
             const QString& statusTip, const QString& settingsKey,
             bool defaultValue = false);
-        void showFirstSyncIndicator();
-        void firstSyncOver(Connection* c);
+        void showInitialLoadIndicator();
+        void updateLoadingStatus(int accountsStillLoading);
+        void firstSyncOver(const Connection *c);
         void loadSettings();
         void saveSettings() const;
         void doOpenLoginDialog(LoginDialog* dialog);
         Connection* chooseConnection(Connection* connection,
                                      const QString& prompt);
         void showMillisToRecon(Connection* c);
+
+        std::pair<QByteArray, bool> loadAccessToken(
+            const Quotient::AccountSettings& account);
+        Connection* setupConnection(const Quotient::AccountSettings& account,
+                                    const QString& accessToken);
 
         /// Get the default connection to perform actions
         /*!
