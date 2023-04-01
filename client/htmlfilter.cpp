@@ -79,7 +79,6 @@ static const auto htmlStyleAttr = u"style";
 static const auto mxColorAttr = u"data-mx-color";
 static const auto mxBgColorAttr = u"data-mx-bg-color";
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
 [[nodiscard]] QString mergeMarkdown(const QString& html)
 {
     // This code intends to merge user-entered Markdown+HTML markup
@@ -149,7 +148,6 @@ static const auto mxBgColorAttr = u"data-mx-bg-color";
     doc.setMarkdown(mdWithHtml);
     return doc.toHtml();
 }
-#endif
 
 [[nodiscard]] inline bool isTagNameTerminator(QChar c)
 {
@@ -318,20 +316,18 @@ Result Processor::process(QString html, Mode mode, QuaternionRoom* context,
                  "&amp;");
 
     if (mode == QtToMatrix) {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
         if (options.testFlag(ConvertMarkdown)) {
             // The processor handles Markdown in chunks between HTML tags;
             // <br /> breaks character sequences that are otherwise valid
             // Markdown, leading to issues with, e.g., lists.
             html.replace("<br />", QStringLiteral("\n"));
-#    if 0
-        html = mergeMarkdown(html);
-        if (html.isEmpty())
-            return { "", 0, "This markup doesn't seem to be sourced from Qt" };
-        options &= ~ConvertMarkdown;
-#    endif
-        }
+#if 0
+            html = mergeMarkdown(html);
+            if (html.isEmpty())
+                return { "", 0, "This markup doesn't seem to be sourced from Qt" };
+            options &= ~ConvertMarkdown;
 #endif
+        }
     } else {
         auto r = preprocess(html, mode, options);
         if (r.errorPos != -1)
@@ -361,10 +357,8 @@ QString toMatrixHtml(const QString& qtMarkup, QuaternionRoom* context,
 Result fromMatrixHtml(const QString& matrixHtml, QuaternionRoom* context,
                       Options options)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     // Matrix HTML body should never be treated as Markdown
     Q_ASSERT(!options.testFlag(ConvertMarkdown));
-#endif
     auto result = Processor::process(matrixHtml, MatrixToQt, context, options);
     if (result.errorPos == -1) {
         // Make sure to preserve whitespace sequences
@@ -707,7 +701,6 @@ void Processor::filterText(QString& text)
     if (text.isEmpty())
         return;
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     if (options.testFlag(ConvertMarkdown)) {
         // Protect leading/trailing whitespaces (Markdown disregards them);
         // specific string doesn't matter as long as it isn't whitespace itself,
@@ -755,9 +748,7 @@ void Processor::filterText(QString& text)
             text.remove(text.indexOf(Marker), Marker.size());
         if (hasTrailingWhitespace)
             text.remove(text.lastIndexOf(Marker), Marker.size());
-    } else
-#endif
-    {
+    } else {
         text = text.toHtmlEscaped(); // The reader unescaped it
         Quotient::linkifyUrls(text);
         text = "<body>" % text % "</body>";

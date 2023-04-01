@@ -416,27 +416,23 @@ void ChatRoomWidget::sendFile()
     m_chatEdit->setPlaceholderText(DefaultPlaceholderText());
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
 void sendMarkdown(QuaternionRoom* room, const QTextDocumentFragment& text)
 {
     room->postHtmlText(text.toPlainText(),
                        HtmlFilter::toMatrixHtml(text.toHtml(), room,
                                                 HtmlFilter::ConvertMarkdown));
 }
-#endif
 
 void ChatRoomWidget::sendMessage()
 {
     if (m_chatEdit->toPlainText().startsWith("//"))
         QTextCursor(m_chatEdit->document()).deleteChar();
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     if (m_uiSettings.get("auto_markdown", false)) {
         sendMarkdown(currentRoom(),
                      QTextDocumentFragment(m_chatEdit->document()));
         return;
     }
-#endif
     const auto& plainText = m_chatEdit->toPlainText();
     const auto& htmlText =
         HtmlFilter::toMatrixHtml(m_chatEdit->toHtml(), currentRoom());
@@ -676,7 +672,6 @@ QString ChatRoomWidget::sendCommand(QStringView command,
         return {};
     }
     if (command == u"md") {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
         // Select everything after /md and one whitespace character after it
         // (leading whitespaces have meaning in Markdown)
         QTextCursor c(m_chatEdit->document());
@@ -684,9 +679,6 @@ QString ChatRoomWidget::sendCommand(QStringView command,
         c.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
         sendMarkdown(currentRoom(), c.selection());
         return {};
-#else
-        return tr("Your build of Quaternion doesn't support Markdown");
-#endif
     }
     if (command == u"query" || command == u"dc")
     {

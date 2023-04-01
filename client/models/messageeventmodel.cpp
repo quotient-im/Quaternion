@@ -68,11 +68,7 @@ MessageEventModel::MessageEventModel(QObject* parent)
     : QAbstractListModel(parent)
 {
     using namespace Quotient;
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
     qmlRegisterAnonymousType<FileTransferInfo>("Quotient", 1);
-#else
-    qmlRegisterType<FileTransferInfo>(); qRegisterMetaType<FileTransferInfo>();
-#endif
     qmlRegisterUncreatableMetaObject(EventStatus::staticMetaObject,
                                      "Quotient", 1, 0, "EventStatus",
                                      "Access to EventStatus enums only");

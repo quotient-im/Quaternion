@@ -10,10 +10,8 @@ Q_NAMESPACE
 
 enum Option : unsigned char {
     Default = 0x0,
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     /// Treat `<body>` contents as Markdown (toMatrixHtml() only)
     ConvertMarkdown = 0x1,
-#endif
     /// Treat `<body>` contents as a fragment in a bigger HTML payload
     /// (suppresses markup processing inside HTML elements and `<mx-reply>`
     /// conversion - toMatrixHtml() only)

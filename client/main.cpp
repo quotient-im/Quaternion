@@ -41,12 +41,7 @@ void loadTranslations(
             // Check the current directory then configPath
             if (translator->load(QLocale(), configName, "_")
                 || translator->load(QLocale(), configName, "_", configPath)) {
-                auto path =
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
-                    translator->filePath();
-#else
-                    configPath;
-#endif
+                auto path = translator->filePath();
                 if ((loaded = QApplication::installTranslator(translator)))
                     qDebug().noquote() << "Loaded translations from" << path;
                 else
