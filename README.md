@@ -30,9 +30,9 @@ for major platforms can also be found at the
 Make sure to read the notes below depending to your environment.
 
 ### Requirements
-Quaternion 0.0.95 packages on Linux need Qt version 5.11 or higher; for major
-distros, that means Debian 10 (Buster), Ubuntu 18.10 (Cosmic), Fedora 29 and
-OpenSUSE 15.2 or newer releases. The packages published by the project
+Quaternion 0.0.96 packages on Linux need Qt version 5.15.x; for major
+distros, that means Debian 11 (Bullseye), Ubuntu 22.04 (jammy), Fedora 35 and
+OpenSUSE Leap 15.4 or newer releases. The packages published by the project
 at GitHub (see below) come with Qt libraries bundled; Linux packages, including
 those from Flathub, use respective package managers to pull necessary libraries
 automatically.
@@ -47,11 +47,8 @@ together with Quaternion - except OpenSSL, because of export restrictions.
 Unless you already have OpenSSL around (e.g., it is a part of any
 Qt development installation), you should install it yourself.
 [OpenSSL's Wiki](https://wiki.openssl.org/index.php/Binaries) lists a few links
-to OpenSSL installers. They come in different build configurations; Quaternion
-archives provided at GitHub need OpenSSL made with/for Visual Studio (not MinGW).
-Normally you should install OpenSSL 1.1.x. Older releases (0.0.9.4 and before)
-used OpenSSL 1.0.x but neither that version of OpenSSL nor those Quaternion
-releases are supported; don't use them unless you really know what you're doing.
+to OpenSSL installers. They come in different build configurations; currently,
+Quaternion builds need OpenSSL 1.1.x made with/for Visual Studio (not MinGW).
 
 ### macOS
 You can download the latest release from
@@ -73,20 +70,17 @@ Flatpaks for Quaternion are available from Flathub. To install, use:
 flatpak install https://flathub.org/repo/appstream/com.github.quaternion.flatpakref
 ```
 Please file issues at https://github.com/flathub/com.github.quaternion
-if you believe there's a problem specific to Flatpak.
+if you believe there's a problem specific to the Flatpak package of Quaternion.
 
 The GitHub Releases page offers AppImage binaries for Linux; however, it's
 recommended to only use AppImage binaries if Quaternion is not available
 from your distribution's repos and Flatpak doesn't work for you.
 Distribution-specific packages better integrate into the system (particularly,
 the desktop environment) and include all relevant customisations (e.g. themes)
-and fixes (e.g. security). If you wish to use features depending on newer Qt
-(such as Markdown) than your distribution provides, consider installing
-Quaternion as a [Flatpak](https://flathub.org/apps/details/com.github.quaternion).
-Both Flatpak packages and distribution-specific packages are built in a more
-reproducible and controlled way than AppImages assembled within this project;
-unlike AppImages, they are also (usually) signed by the repo which gives
-certain protection from tampering.
+and fixes (e.g. security). Both Flatpak packages and distribution-specific
+packages are built in a more reproducible and controlled way than AppImages
+assembled within this project; unlike AppImages, they are also (usually) signed
+by the repo which gives certain protection from tampering.
 
 ### Development builds
 
@@ -97,8 +91,7 @@ continuous integration (CI) in the
 [Quaternion repo there](https://cloudsmith.io/~quotient/repos/quaternion/groups/).
 
 A few important notes on these packages in case you're new to them:
-- All these builds come bundled with recent Qt (5.14 on Linux and 5.15 on other
-  platforms, as of this writing).
+- All these builds come bundled with recent Qt (5.15.x, as of this writing).
 - They are only provided for testing; feedback on _any_ release is welcome
   as long as you know which build you run; but do not expect the developers
   to address issues in any but the latest snapshot.
@@ -111,10 +104,11 @@ A few important notes on these packages in case you're new to them:
   builds if you're not prepared to deal with the problems.
 - If you understand the above, have your backups in order and are still willing
   to try things out or just generally help with the project - make sure to
-  `/join #quotient:matrix.org` and have the URL you downloaded handy. In case
-  of trouble, ~~show this label to your doctor~~ send the URL to the binary you
-  used in the chat room (you may need to use another client or Quaternion
-  version for that), describe what happened and we'll try to pull you out of it.
+  `/join #quotient:matrix.org` and have the URL you downloaded Quaternion from
+  handy. In case of trouble, ~~show this label to your doctor~~ send the URL
+  to the binary you used in the chat room (you may need to use another client
+  or Quaternion version for that), describe what happened and we'll try to pull
+  you out of it.
 
 If you want to build Quaternion from sources, see [BUILDING.md](./BUILDING.md).
 
@@ -135,7 +129,7 @@ longing for contributors.
 ## Configuration
 The only non-trivial command-line option available so far is `--locale` - it
 allows you to override the locale Quaternion uses (an equivalent of setting
-`LC_ALL` variable on UNIX-based systems). Version 0.0.95 comes with German,
+`LC_ALL` variable on UNIX-based systems). Version 0.0.96 comes with German,
 Russian, Polish, and Spanish translations.
 
 Quaternion stores its configuration in a way standard for Qt applications, as
@@ -185,7 +179,8 @@ Some settings exposed in the user interface (Settings and View menus) are:
 - `autoload_images` - whether full-size images should be loaded immediately
   once the message is shown on the screen. The default is to automatically load
   full-size images; set this to false (or 0) to disable that and only load
-  a thumbnail initially.
+  a thumbnail initially. Check out
+  https://github.com/quotient-im/Quaternion/issues/601 for the caveat.
 - `show_noop_events` - set this to 1 to show state events that do not alter
   the state (you'll see "(repeated)" next to most of those).
 - `RoomsDock/tags_order` - allows to alter the order of tags in the room
@@ -250,39 +245,26 @@ Settings not exposed in UI:
   in the timeline. If not specified, the application-wide point size is used.
 - `maybe_read_timer` - threshold time interval in milliseconds for a displayed
   message to be considered as read.
-- `use_keychain` - set this to false (or 0) if you explicitly do NOT want to
-  use keychain but prefer to store access token in a dedicated file instead (see
-  the next paragraph); the default is true.
 - `hyperlink_users` - set this to false (or 0) if you do NOT want to
   hyperlink matrix user IDs in messages. By default it's true.
-- `auto_markdown` (EXPERIMENTAL) - since version 0.0.95, and only if built with
-  Qt 5.14 or newer (that pertains to all binaries at GitHub Releases as well as
-  to Flatpaks), Quaternion has experimental support for Markdown when entering
-  messages. Quaternion only treats the message as Markdown if the message starts
-  with `/md` command (the command itself is removed from the message before
-  sending). Setting `auto_markdown` to `true` enables Markdown parsing in all
-  messages that _do not_ start with `/plain` instead. By default, this setting
-  is `false` since the current support of Markdown by Qt is buggy, and the whole
-  functionality in Quaternion is, again, experimental. If you have it enabled
+- `auto_markdown` (EXPERIMENTAL) - since version 0.0.95 Quaternion has
+  experimental support for Markdown when entering messages. Quaternion only
+  treats the message as Markdown if the message starts with `/md` command (the
+  command itself is removed from the message before sending). Setting
+  `auto_markdown` to `true` enables Markdown parsing in all messages that
+  _do not_ start with `/plain` instead. By default, this setting is `false`
+  since the current support of Markdown by Qt is buggy, and the implementation
+  in Quaternion has its own quirks on top of that. If you have it enabled
   (or use `/md` command) feel free to submit bug reports at the usual place.
 - `paste_plaintext_by_default` - set this to false (or 0) if you want to paste
   formatted text by default.
 
-Since version 0.0.95, all Quaternion binaries at GitHub Releases are compiled
-with Qt Keychain support. It means that Quaternion will try to store your access
-token(s) in a secure storage configured for your platform. If the storage or
-Qt Keychain are not available, Quaternion will try to store your access token(s)
-in a dedicated file with restricted access rights so that only the owner can
-access them (this doesn't really work on Windows - see below), with the name
-made from your user id and Matrix device id, in the following directory:
-
-- Linux: `$HOME/.local/share/Quotient/quaternion`
-- macOS: `$HOME/Library/Application Support/Quotient/quaternion`
-- Windows: `%LOCALAPPDATA%/Quotient/quaternion`
-
-Unfortunately, Quaternion cannot enforce proper access rights on Windows;
-you'll see a warning about it and will be able to either refuse saving your
-access token in that case or agree and setup file permissions outside Quaternion.
+Quaternion uses Qt Keychain to store access tokens and (if libQuotient is
+built with E2EE support) database pickles. If the secure storage supported by
+Qt Keychain is not available, Quaternion will NOT store your access token(s) and
+pickles; do NOT proceed if E2EE is switched on, unless you are fine to end up
+with unrecoverable encrypted messages sent during that session. The fallback
+file used by Quaternion 0.0.9.5/0.0.95 is no more used.
 
 Quaternion caches the rooms state and user/room avatars on the file system
 in a conventional location for your platform, as follows:
@@ -296,11 +278,10 @@ when starting up and overwrites them regularly while running; so it only
 makes sense to delete cache files when Quaternion is not running. If Quaternion
 doesn't find or cannot fully load cache files at startup it downloads
 the whole state from Matrix servers. It tries to optimise this process by
-lazy-loading if the server supports it; in an unlucky case when the server
-cannot do lazy-loading, initial sync can take much time (up to a minute and
-even more, depending on the number of rooms and the number of users in them);
-in the worst case, a larger user account without lazy-loading may crash
-Quaternion when using Qt older than 5.15.
+lazy-loading room members if the server supports that; in an unlucky case when
+the server cannot do lazy-loading, initial sync can take much time (up to
+a minute and even more, depending on the number of rooms and the number of users
+in them).
 
 Deleting cache files may help with problems such as missing avatars,
 rooms stuck in a wrong state etc.
@@ -311,61 +292,28 @@ Quaternion uses libQuotient under the hood; some Quaternion problems are
 actually problems of libQuotient. If you haven't found your case below, check
 also the troubleshooting section in libQuotient README.md.
 
-#### Continuously reconnecting though the network is fine
-If Quaternion starts displaying the message that it couldn't connect to
-the server and retries more than a couple of times without success, while
-you're sure you have the network connection - double-check that you don't have
-Qt bearer management libraries around, as they cause issues with some WiFi
-networks. To do that, try to find "bearer" directory where your Qt is installed
-(on Windows it's next to Quaternion executable; on Linux it's a part of
-Qt installation, usually in `/usr/lib/qt5/plugins`). Then delete or rename it
-(on Windows) or delete the package that this directory is in (on Linux).
-
-Bearer management functionality is officially deprecated and does nothing since
-Qt 5.15; if you face connectivity problems with Qt 5.15, file an issue at
-[libQuotient repo](https://github.com/quotient-im/libQuotient/issues).
-
 #### No messages in the timeline
 If Quaternion runs but you can't see any messages in the chat (though you can
-type them in) - you have either of two problems with Qt Quick (if you are
-extremely unlucky, both):
-
-- You might not have Qt Quick libraries and/or plugins installed. On Linux,
-  this may be a case when you are not using the official packages for your
-  distro. Check the stdout/stderr logs, they are quite clear in such cases.
-  On Windows, Mac, and when using Flatpak, just open an issue (see "Contacts"
-  in the beginning of this README), because most likely not all necessary Qt
-  parts were installed along with Quaternion (which is a packaging bug).
-- If the logs confirm that QML is up and running but there's still nothing
-  for the timeline, you might have hit an issue with QML view stacking order,
-  such as #355/#356. If you use Qt 5.12 or newer, please file a bug: it
-  should not happen with recent Qt at all. If you are on Linux and have to use
-  older Qt, you have to build Quaternion from sources, passing
-  `-DUSE_QQUICKWIDGET=ON` to CMake. Note that it's prone to crashing on some
-  platforms so it's best to still find a way to run Quaternion with Qt 5.12
-  (using AppImage, e.g.).
+type them in) - you might not have Qt Quick libraries and/or plugins installed.
+On Linux, this may be a case when you are not using the official packages for
+your distro. Check the stdout/stderr logs, they are quite clear in such cases.
+On Windows, Mac, and when using Flatpak, just open an issue (see "Contacts"
+in the beginning of this file) because most likely not all necessary Qt parts
+were packaged along with Quaternion.
 
 #### SSL problems
 Especially on Windows, if Quaternion starts up but upon an attempt to connect
 returns a message like "Failed to make SSL context" - correct SSL libraries
 are not reachable by the Quaternion binary. Re-read the chapter "Requirements",
 section "Windows" in the beginning of this file and do as it advises (make sure
-in particular that you use the correct version of OpenSSL).
-
-#### DLL hell
-If you have troubles with dynamic libraries on Windows,
-[the Dependencies Walker tool aka depends.exe](http://www.dependencywalker.com/)
-helps a lot in navigating the DLL hell - especially when you have a mixed
-32/64-bit environment or have different versions of the same library scattered
-around. OpenSSL, in particular, is very often dragged along by all kinds
-of software; and you may have other copies of Qt around which you didn't even
-know about - e.g., with CMake GUI. Entries in PATH for such programs may lead
-to the operating system choosing those bundled libraries instead of those you
-intend to use.
+in particular that you use the correct version of OpenSSL - it should be 1.1.*,
+not 3.* or 1.0.*).
 
 #### Logging
-If you run Quaternion from a console on Windows and want to see log messages,
-set `QT_LOGGING_TO_CONSOLE=1` so that the output is redirected to the console.
+If you want to see log messages in the command-line console rather than
+the system log (a case with Windows and some but not all Linux systems with
+journald), set `QT_ASSUME_STDERR_HAS_CONSOLE=1` to force the output to be
+redirected to the console.
 
 When chasing bugs and investigating crashes, it helps to increase the debug
 level. Thanks to [@eang:matrix.org](https://matrix.to/#/@eang:matrix.org]),
