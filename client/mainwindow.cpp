@@ -684,7 +684,8 @@ void MainWindow::firstSyncOver(const Connection *c)
             accountRegistry->size() == 1
                 ? tr("Account %1 is synchronised, have a good chat")
                       .arg(accountRegistry->front()->userId())
-                : tr("All %Ln accounts synchronised, have a good chat", "",
+                : tr("All %Ln accounts synchronised, have a good chat",
+                     "Only shown with 2 or more accounts",
                      accountRegistry->size()),
             5000);
     } else {
