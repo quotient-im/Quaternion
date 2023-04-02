@@ -66,7 +66,7 @@ int main( int argc, char* argv[] )
     QApplication::setOrganizationName(QStringLiteral("Quotient"));
     QApplication::setApplicationName(QStringLiteral("quaternion"));
     QApplication::setApplicationDisplayName(QStringLiteral("Quaternion"));
-    QApplication::setApplicationVersion(QStringLiteral("0.0.95.1+git"));
+    QApplication::setApplicationVersion(QStringLiteral("0.0.96 beta"));
     QApplication::setDesktopFileName(
         QStringLiteral("com.github.quaternion.desktop"));
 

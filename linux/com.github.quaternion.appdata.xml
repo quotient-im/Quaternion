@@ -36,8 +36,16 @@
   </provides>
 
   <releases>
+    <release version="0.0.96.81" type="development" date="2023-04-02">
+      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96-beta</url>
+      <description><p>
+        Switch to libQuotient 0.7, with its new read receipts/fully read markers
+        API and experimental support of E2EE; fix a few bugs. More to come
+        before the final release!
+      </p></description>
+    </release>
     <release version="0.0.95.1" date="2021-10-07">
-      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.95.1-rc</url>
+      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.95.1</url>
       <description><p>
         This is mostly about bug fixes, including more accurate scrolling back
         in the timeline (to read marker or previously saved position);

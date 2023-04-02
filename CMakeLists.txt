@@ -4,9 +4,9 @@ cmake_policy(SET CMP0092 NEW)
 endif()
 
 set(IDENTIFIER "com.github.quaternion")
-set(COPYRIGHT "Copyright © 2016-2021 Quaternion project contributors")
+set(COPYRIGHT "Copyright © 2016-2023 Quaternion project contributors")
 
-project(quaternion VERSION 0.0.95.50 LANGUAGES CXX)
+project(quaternion VERSION 0.0.95.81 LANGUAGES CXX)
 
 if(UNIX AND NOT APPLE)
     set(LINUX 1)
