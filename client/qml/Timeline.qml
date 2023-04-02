@@ -457,15 +457,17 @@ Page {
 
         Connections {
             target: controller
-            onPageUpPressed:
+            function onPageUpPressed() {
                 chatView.scrollUp(chatView.height
                                   - sectionBanner.childrenRect.height)
-
-            onPageDownPressed:
+            }
+            function onPageDownPressed() {
                 chatView.scrollDown(chatView.height
                                     - sectionBanner.childrenRect.height)
-            onViewPositionRequested:
+            }
+            function onViewPositionRequested(index) {
                 chatView.scrollViewTo(index, ListView.Contain, true)
+            }
         }
 
         Component.onCompleted: {

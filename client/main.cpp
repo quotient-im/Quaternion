@@ -75,14 +75,6 @@ int main( int argc, char* argv[] )
                              QStringLiteral("quaternion"));
     Settings settings;
 
-    // Qt 5.15 introduces a new way to handle connections in QML and at
-    // the same time deprecates the old way. Rather than go to pains of
-    // making two different versions of QML code, just disable
-    // the deprecation warning as it doesn't help neither users nor developers.
-    if (QLibraryInfo::version() >= QVersionNumber(5,15))
-        QLoggingCategory::setFilterRules(
-            QStringLiteral("qt.qml.connections=false"));
-
     QApplication app(argc, argv);
 #if defined Q_OS_UNIX && !defined Q_OS_MAC
     // #681: When in Flatpak and unless overridden by configuration, set

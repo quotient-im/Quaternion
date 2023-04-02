@@ -44,6 +44,9 @@ Item {
 
     Connections {
         target: controller
-        onOpenExternally: if (currentIndex === index) openExternally()
+        function onOpenExternally(currentIndex) {
+            if (currentIndex === index)
+                openExternally()
+        }
     }
 }
