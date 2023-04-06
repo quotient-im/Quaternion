@@ -102,14 +102,14 @@ On Debian/Ubuntu, the following line should get you everything necessary
 to build and run Quaternion (you don't need libolm-dev and libssl-dev if you
 don't plan to switch E2EE on):
 ```bash
-sudo apt-get install cmake qtdeclarative5-dev qttools5-dev qml-module-qtquick-controls qml-module-qtquick-controls2 qtmultimedia5-dev qt5keychain-dev libolm-dev libssl-dev
+sudo apt-get install cmake qtdeclarative5-dev qttools5-dev qml-module-qtquick-controls qml-module-qtquick-controls2 qml-module-qtgraphicaleffects qtmultimedia5-dev qt5keychain-dev libolm-dev libssl-dev
 ```
 
 On Fedora 36/37, the following command should be enough for building and running
 (similar to Debian family - you don't need libolm-devel and openssl-devel if
 you don't plan to switch E2EE on):
 ```bash
-sudo dnf install cmake qt5-qtdeclarative-devel qt5-qtquickcontrols qt5-qtquickcontrols2 qt5-qtmultimedia-devel qt5-qtquickcontrols2-devel qt5-linguist qtkeychain-qt5-devel libolm-devel openssl-devel
+sudo dnf install cmake qt5-qtdeclarative-devel qt5-qtquickcontrols qt5-qtquickcontrols2 qt5-qtgraphicaleffects qt5-qtmultimedia-devel qt5-qtquickcontrols2-devel qt5-linguist qtkeychain-qt5-devel libolm-devel openssl-devel
 ```
 
 #### macOS
