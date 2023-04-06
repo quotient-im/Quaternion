@@ -1,7 +1,6 @@
 import QtQuick 2.10 // Qt 5.10
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.1
-import QtGraphicalEffects 1.0 // For fancy highlighting
 import Quotient 1.0
 
 Page {
