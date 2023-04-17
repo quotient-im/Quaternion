@@ -49,7 +49,7 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
         roles.insert(EventResolvedTypeRole, "eventResolvedType");
         roles.insert(RefRole, "refId");
         roles.insert(ReactionsRole, "reactions");
-        roles.insert(NudeRichBodyRole, "nudeRichBody");
+        roles.insert(BareRichBodyRole, "bareRichBody");
         roles.insert(QuotationRole, "quotation");
         roles.insert(HtmlQuotationRole, "htmlQuotation");
         return roles;
@@ -908,7 +908,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
             evt, [](const RoomCreateEvent& e) { return e.predecessor().roomId; },
             [](const RoomTombstoneEvent& e) { return e.successorRoomId(); });
 
-    if (role == NudeRichBodyRole)
+    if (role == BareRichBodyRole)
     {
         auto e = eventCast<const Quotient::RoomMessageEvent>(&evt);
         if (!e || !e->hasTextContent())
@@ -919,7 +919,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
             QRegularExpression::DotMatchesEverythingOption
         };
         static const QRegularExpression quoteLines("> .*(?:\n|$)");
-        QString nudeBody;
+        QString bareBody;
         if (e->mimeType().name() != "text/plain") {
             // Naïvely assume that it's HTML
             auto htmlBody =
@@ -927,13 +927,13 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
             auto [cleanHtml, errorPos, errorString] =
                 HtmlFilter::fromMatrixHtml(htmlBody.remove(quoteBlock), m_currentRoom);
             if (errorPos == -1) {
-                nudeBody = cleanHtml;
+                bareBody = cleanHtml;
             }
         }
-        if (nudeBody.isEmpty()) {
-            nudeBody = m_currentRoom->prettyPrint(e->plainBody().remove(quoteLines));
+        if (bareBody.isEmpty()) {
+            bareBody = m_currentRoom->prettyPrint(e->plainBody().remove(quoteLines));
         }
-        return nudeBody;
+        return bareBody;
     }
 
     if (role == QuotationRole)
@@ -959,7 +959,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
     {
         if (isPending)
             return QString();   // Cannot construct event link with unknown eventId
-        QString quotation = data(idx, NudeRichBodyRole).toString();
+        QString quotation = data(idx, BareRichBodyRole).toString();
         if (quotation.isEmpty())
             return QString();
         const auto authorUser = m_currentRoom->user(evt.senderId());

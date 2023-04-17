@@ -426,7 +426,7 @@ void ChatRoomWidget::sendMessage()
 }
 
 void ChatRoomWidget::sendMessageFromFragment(const QTextDocumentFragment& text,
-                                             enum TextFormat textFormat)
+                                             TextFormat textFormat)
 {
     const auto& plainText = text.toPlainText();
     const auto& htmlText =
@@ -450,14 +450,12 @@ void ChatRoomWidget::sendMessageFromFragment(const QTextDocumentFragment& text,
                 auto eventRelation = EventRelation::replace(
                     referencedEventIndex().data(MessageEventModel::EventIdRole).toString()
                 );
-                EventContent::TextContent* textContent;
-                if (htmlText.contains(MarkupRE)) {
-                    textContent = new EventContent::TextContent(htmlText,
-                            QStringLiteral("text/html"), eventRelation);
-                } else {
-                    textContent = new EventContent::TextContent("",
-                            QStringLiteral("text/plain"), eventRelation);
-                }
+                auto* textContent =
+                    htmlText.contains(MarkupRE)
+                        ? new EventContent::TextContent(htmlText,
+                                QStringLiteral("text/html"), eventRelation)
+                        : new EventContent::TextContent(QString(),
+                                QStringLiteral("text/plain"), eventRelation);
                 auto roomMessageEvent = new RoomMessageEvent(plainText,
                         MessageEventType::Text, textContent);
                 currentRoom()->postEvent(roomMessageEvent);
@@ -778,7 +776,7 @@ bool ChatRoomWidget::setReferringMode(const int newMode, const QString& eventId,
                                       const char* icon_name)
 {
     Q_ASSERT( newMode == Replying || newMode == Editing );
-    // Actually, we could let the user to refer to pending events too but in
+    // Actually, we could let the user refer to pending events too but in
     // this case we would need a universal pointer instead of event id. Now the
     // user cannot start to edit a pending message which might be annoying if
     // transactions are acknowledged slowly.
@@ -876,7 +874,7 @@ void ChatRoomWidget::edit(const QString& eventId)
     }
 
     auto htmlText = referencedEventIndex()
-                        .data(MessageEventModel::NudeRichBodyRole)
+                        .data(MessageEventModel::BareRichBodyRole)
                         .toString();
     m_chatEdit->clear();
     // We can never be sure which input format was used to build this message.

@@ -34,7 +34,7 @@ class MessageEventModel: public QAbstractListModel
             RefRole,
             ReactionsRole,
             EventResolvedTypeRole,
-            NudeRichBodyRole,
+            BareRichBodyRole,
             QuotationRole,
             HtmlQuotationRole,
         };
