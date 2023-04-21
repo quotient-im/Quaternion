@@ -452,7 +452,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         }
 
         // clang-format off
-        return visit(evt
+        return switchOnType(evt
             , [this] (const RoomMessageEvent& e) {
                 // clang-format on
                 using namespace MessageEventContent;
@@ -613,7 +613,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                 return tr("upgraded the room: %1")
                        .arg(e.serverMessage().toHtmlEscaped());
             }
-            , [] (const StateEventBase& e) {
+            , [] (const StateEvent& e) {
                 // A small hack for state events from TWIM bot
                 return e.stateKey() == "twim"
                     ? tr("updated the database", "TWIM bot updated the database")
@@ -900,7 +900,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
     }
 
     if (role == RefRole)
-        return visit(
+        return switchOnType(
             evt, [](const RoomCreateEvent& e) { return e.predecessor().roomId; },
             [](const RoomTombstoneEvent& e) { return e.successorRoomId(); });
 
