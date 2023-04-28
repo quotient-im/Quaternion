@@ -95,7 +95,8 @@ if(WIN32)
 endif()
 
 if ((NOT DEFINED USE_INTREE_LIBQMC OR USE_INTREE_LIBQMC)
-        AND EXISTS ${PROJECT_SOURCE_DIR}/lib/lib/util.h)
+        AND (EXISTS ${PROJECT_SOURCE_DIR}/lib/Quotient/util.h
+            OR EXISTS ${PROJECT_SOURCE_DIR}/lib/lib/util.h)) # lib pre-0.7.2
     add_subdirectory(lib)
     include_directories(lib)
     if (NOT DEFINED USE_INTREE_LIBQMC)
