@@ -17,6 +17,7 @@
 #include <connection.h>
 #include <user.h>
 #include <settings.h>
+#include <uri.h>
 #include <events/encryptionevent.h>
 #include <events/roommemberevent.h>
 #include <events/simplestateevents.h>
@@ -48,6 +49,9 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
         roles.insert(EventResolvedTypeRole, "eventResolvedType");
         roles.insert(RefRole, "refId");
         roles.insert(ReactionsRole, "reactions");
+        roles.insert(BareRichBodyRole, "bareRichBody");
+        roles.insert(QuotationRole, "quotation");
+        roles.insert(HtmlQuotationRole, "htmlQuotation");
         return roles;
     }();
     return roles;
@@ -903,6 +907,72 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         return switchOnType(
             evt, [](const RoomCreateEvent& e) { return e.predecessor().roomId; },
             [](const RoomTombstoneEvent& e) { return e.successorRoomId(); });
+
+    if (role == BareRichBodyRole)
+    {
+        auto e = eventCast<const Quotient::RoomMessageEvent>(&evt);
+        if (!e || !e->hasTextContent())
+            return QString();
+
+        static const QRegularExpression quoteBlock {
+            "<mx-reply>.*</mx-reply>",
+            QRegularExpression::DotMatchesEverythingOption
+        };
+        static const QRegularExpression quoteLines("> .*(?:\n|$)");
+        QString bareBody;
+        if (e->mimeType().name() != "text/plain") {
+            // Naïvely assume that it's HTML
+            auto htmlBody =
+                static_cast<const MessageEventContent::TextContent*>(e->content())->body;
+            auto [cleanHtml, errorPos, errorString] =
+                HtmlFilter::fromMatrixHtml(htmlBody.remove(quoteBlock), m_currentRoom);
+            if (errorPos == -1) {
+                bareBody = cleanHtml;
+            }
+        }
+        if (bareBody.isEmpty()) {
+            bareBody = m_currentRoom->prettyPrint(e->plainBody().remove(quoteLines));
+        }
+        return bareBody;
+    }
+
+    if (role == QuotationRole)
+    {
+        auto e = eventCast<const Quotient::RoomMessageEvent>(&evt);
+        if (!e || !e->hasTextContent())
+            return QString();
+
+        static const QRegularExpression quoteLines("> .*(?:\n|$)");
+        static const QRegularExpression eachLine("(.+)(?:\n|$)");
+        const auto quotePrefix = QStringLiteral("> \\1\n");
+        const auto authorUser = isPending
+                                    ? m_currentRoom->localUser()
+                                    : m_currentRoom->user(evt.senderId());
+        const auto authorId = authorUser->id();
+
+        QString quotation = e->plainBody().remove(quoteLines);
+        return QStringLiteral("<%1> %2").arg(authorId, quotation).
+                replace(eachLine, quotePrefix);
+    }
+
+    if (role == HtmlQuotationRole)
+    {
+        if (isPending)
+            return QString();   // Cannot construct event link with unknown eventId
+        QString quotation = data(idx, BareRichBodyRole).toString();
+        if (quotation.isEmpty())
+            return QString();
+        const auto authorUser = m_currentRoom->user(evt.senderId());
+        const QString evtLink =
+            "https://matrix.to/#/" + m_currentRoom->id() + "/" + evt.id();
+        const QString authorName = authorUser->displayname(m_currentRoom);
+        const QString authorLink =
+            Uri(authorUser->id()).toUrl(Uri::MatrixToUri).toString();
+
+        return QStringLiteral(
+            "<mx-reply><blockquote><a href=\"%1\">In reply to</a> <a href=\"%2\">%3</a><br />%4</blockquote></mx-reply>"
+        ).arg(evtLink, authorLink, authorName, quotation);
+    }
 
     return {};
 }

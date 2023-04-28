@@ -241,6 +241,19 @@ Page {
         boundsMovement: Flickable.StopAtBounds
 //        pixelAligned: true // Causes false-negatives in atYEnd
         cacheBuffer: 200
+        highlight: Component {
+            Rectangle {
+                color: defaultPalette.highlight
+                radius: 5
+                Behavior on y {
+                    SpringAnimation {
+                        spring: 3
+                        damping: 0.2
+                    }
+                }
+            }
+        }
+        highlightFollowsCurrentItem: true
 
         clip: true
         ScrollBar.vertical: ScrollBar {
@@ -466,6 +479,9 @@ Page {
             }
             function onViewPositionRequested(index) {
                 chatView.scrollViewTo(index, ListView.Contain, true)
+            }
+            function onSetCurrentIndex(index) {
+                chatView.currentIndex = index
             }
         }
 

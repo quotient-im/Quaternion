@@ -41,6 +41,7 @@
 #include "quaternionroom.h"
 #include "chatedit.h"
 #include "htmlfilter.h"
+#include "models/messageeventmodel.h"
 
 static auto DefaultPlaceholderText()
 {
@@ -72,6 +73,13 @@ ChatRoomWidget::ChatRoomWidget(MainWindow* parent)
     f.setItalic(true);
     m_hudCaption->setFont(f);
     m_hudCaption->setTextFormat(Qt::RichText);
+
+    m_modeIndicator = new QToolButton();
+    m_modeIndicator->setAutoRaise(true);
+    m_modeIndicator->hide();
+    connect(m_modeIndicator, &QToolButton::clicked, this, [this] {
+        setDefaultMode();
+    });
 
     auto attachButton = new QToolButton();
     attachButton->setAutoRaise(true);
@@ -196,6 +204,7 @@ ChatRoomWidget::ChatRoomWidget(MainWindow* parent)
     layout->addWidget(m_hudCaption);
     {
         auto inputLayout = new QHBoxLayout;
+        inputLayout->addWidget(m_modeIndicator);
         inputLayout->addWidget(attachButton);
         inputLayout->addWidget(m_chatEdit);
         layout->addLayout(inputLayout);
@@ -251,6 +260,7 @@ void ChatRoomWidget::setRoom(QuaternionRoom* newRoom)
     }
     typingChanged();
     encryptionChanged();
+    setDefaultMode();
 }
 
 void ChatRoomWidget::typingChanged()
@@ -405,34 +415,74 @@ void ChatRoomWidget::sendFile()
     m_chatEdit->setPlaceholderText(DefaultPlaceholderText());
 }
 
-void sendMarkdown(QuaternionRoom* room, const QTextDocumentFragment& text)
-{
-    room->postHtmlText(text.toPlainText(),
-                       HtmlFilter::toMatrixHtml(text.toHtml(), room,
-                                                HtmlFilter::ConvertMarkdown));
-}
-
 void ChatRoomWidget::sendMessage()
 {
     if (m_chatEdit->toPlainText().startsWith("//"))
         QTextCursor(m_chatEdit->document()).deleteChar();
 
-    if (m_uiSettings.get("auto_markdown", false)) {
-        sendMarkdown(currentRoom(),
-                     QTextDocumentFragment(m_chatEdit->document()));
-        return;
-    }
-    const auto& plainText = m_chatEdit->toPlainText();
+    QTextCursor c(m_chatEdit->document());
+    c.select(QTextCursor::Document);
+    sendMessageFromFragment(c.selection());
+}
+
+void ChatRoomWidget::sendMessageFromFragment(const QTextDocumentFragment& text,
+                                             TextFormat textFormat)
+{
+    const auto& plainText = text.toPlainText();
     const auto& htmlText =
-        HtmlFilter::toMatrixHtml(m_chatEdit->toHtml(), currentRoom());
+        HtmlFilter::toMatrixHtml(text.toHtml(), currentRoom(),
+                                 ((textFormat == Unspecified
+                                   && m_uiSettings.get("auto_markdown", false))
+                                  || textFormat == Markdown)
+                                     ? HtmlFilter::ConvertMarkdown
+                                     : HtmlFilter::Default);
     Q_ASSERT(!plainText.isEmpty() && !htmlText.isEmpty());
     // Send plain text if htmlText has no markup or just <br/> elements
     // (those are easily represented as line breaks in plain text)
     static const QRegularExpression MarkupRE { "<(?![Bb][Rr])" };
-    if (htmlText.contains(MarkupRE))
-        currentRoom()->postHtmlText(plainText, htmlText);
-    else
-        currentRoom()->postPlainText(plainText);
+
+    using namespace Quotient;
+    switch (mode) {
+        case Editing:
+            // Any quotation is ignored intentionally, see
+            // https://spec.matrix.org/latest/client-server-api/#edits-of-replies
+            {
+                auto eventRelation = EventRelation::replace(
+                    referencedEventIndex().data(MessageEventModel::EventIdRole).toString()
+                );
+                auto* textContent =
+                    htmlText.contains(MarkupRE)
+                        ? new EventContent::TextContent(htmlText,
+                                QStringLiteral("text/html"), eventRelation)
+                        : new EventContent::TextContent(QString(),
+                                QStringLiteral("text/plain"), eventRelation);
+                auto roomMessageEvent = new RoomMessageEvent(plainText,
+                        MessageEventType::Text, textContent);
+                currentRoom()->postEvent(roomMessageEvent);
+            }
+            break;
+        case Replying:
+            {
+                QString htmlQuotation, plainTextQuotation;
+                auto reference = referencedEventIndex();
+                htmlQuotation = reference.data(MessageEventModel::HtmlQuotationRole).toString();
+                plainTextQuotation = reference.data(MessageEventModel::QuotationRole).toString();
+                auto textContent = new EventContent::TextContent(htmlQuotation + htmlText,
+                        QStringLiteral("text/html"),
+                        EventRelation::replyTo(
+                            reference.data(MessageEventModel::EventIdRole).toString()
+                        ));
+                auto roomMessageEvent = new RoomMessageEvent(plainTextQuotation + plainText,
+                        MessageEventType::Text, textContent);
+                currentRoom()->postEvent(roomMessageEvent);
+            }
+            break;
+        default:
+            if (htmlText.contains(MarkupRE))
+                currentRoom()->postHtmlText(plainText, htmlText);
+            else
+                currentRoom()->postPlainText(plainText);
+    }
 }
 
 static auto NothingToSendMsg()
@@ -636,7 +686,8 @@ QString ChatRoomWidget::sendCommand(QStringView command,
         const auto& plainMsg = m_chatEdit->toPlainText().mid(CmdLen);
         if (plainMsg.isEmpty())
             return NothingToSendMsg();
-        currentRoom()->postPlainText(plainMsg);
+        const auto& fragment = QTextDocumentFragment::fromPlainText(plainMsg);
+        sendMessageFromFragment(fragment, Plaintext);
         return {};
     }
     if (command == u"html")
@@ -655,9 +706,7 @@ QString ChatRoomWidget::sendCommand(QStringView command,
                    .arg(errorPos).arg(errorString);
 
         const auto& fragment = QTextDocumentFragment::fromHtml(cleanQtHtml);
-        currentRoom()->postHtmlText(fragment.toPlainText(),
-                                    HtmlFilter::toMatrixHtml(fragment.toHtml(),
-                                                             currentRoom()));
+        sendMessageFromFragment(fragment, Html);
         return {};
     }
     if (command == u"md") {
@@ -666,7 +715,7 @@ QString ChatRoomWidget::sendCommand(QStringView command,
         QTextCursor c(m_chatEdit->document());
         c.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, 4);
         c.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-        sendMarkdown(currentRoom(), c.selection());
+        sendMessageFromFragment(c.selection(), Markdown);
         return {};
     }
     if (command == u"query" || command == u"dc")
@@ -712,6 +761,44 @@ void ChatRoomWidget::sendInput()
     }
 
     m_chatEdit->saveInput();
+    setDefaultMode();
+}
+
+void ChatRoomWidget::setDefaultMode()
+{
+    mode = Default;
+    emit m_timelineWidget->setCurrentIndex(-1);
+    referencedEventId = "";
+    m_modeIndicator->hide();
+}
+
+bool ChatRoomWidget::setReferringMode(const int newMode, const QString& eventId,
+                                      const char* icon_name)
+{
+    Q_ASSERT( newMode == Replying || newMode == Editing );
+    // Actually, we could let the user refer to pending events too but in
+    // this case we would need a universal pointer instead of event id. Now the
+    // user cannot start to edit a pending message which might be annoying if
+    // transactions are acknowledged slowly.
+    auto idx = m_timelineWidget->indexOf(eventId);
+    if (!idx.isValid())
+        return false;
+    mode = newMode;
+    referencedEventId = eventId;
+    emit m_timelineWidget->setCurrentIndex(idx.row());
+
+    m_modeIndicator->setIcon(QIcon::fromTheme(icon_name));
+
+    m_modeIndicator->show();
+    return true;
+}
+
+QModelIndex ChatRoomWidget::referencedEventIndex()
+{
+    Q_ASSERT(!referencedEventId.isEmpty());
+    auto idx = m_timelineWidget->indexOf(referencedEventId);
+    Q_ASSERT(idx.isValid());
+    return idx;
 }
 
 ChatRoomWidget::completions_t
@@ -768,6 +855,36 @@ void ChatRoomWidget::quote(const QString& htmlText)
     }
 
     m_chatEdit->insertPlainText(sendString);
+}
+
+void ChatRoomWidget::reply(const QString& eventId)
+{
+    if (!setReferringMode(Replying, eventId, "mail-reply-sender")) {
+        setHudHtml(tr("Referenced message not suitable for replying (yet)"));
+        return;
+    }
+    setHudHtml(tr("Reply message"));
+}
+
+void ChatRoomWidget::edit(const QString& eventId)
+{
+    if (!setReferringMode(Editing, eventId, "edit-entry")) {
+        setHudHtml(tr("Referenced message not suitable for editing (yet)"));
+        return;
+    }
+
+    auto htmlText = referencedEventIndex()
+                        .data(MessageEventModel::BareRichBodyRole)
+                        .toString();
+    m_chatEdit->clear();
+    // We can never be sure which input format was used to build this message.
+    // It can be markdown, matrixhtml (`/html`), rich text paste or a mixture of
+    // these. Perhaps the best solution is to introduce a generic format
+    // converter into ChatEdit's contextmenu which can be used any time by the
+    // user. By using it, the user could convert this rich text to the desired
+    // format.
+    m_chatEdit->insertHtml(htmlText);
+    setHudHtml(tr("Edit message"));
 }
 
 void ChatRoomWidget::resizeEvent(QResizeEvent*)

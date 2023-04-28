@@ -13,6 +13,8 @@
 #include <settings.h>
 
 #include <QtWidgets/QWidget>
+#include <QtWidgets/QToolButton>
+#include <QtCore/QModelIndex>
 
 class TimelineWidget;
 class QuaternionRoom;
@@ -30,6 +32,18 @@ class User;
 
 class ChatRoomWidget : public QWidget
 {
+        enum Modes {
+            Default,
+            Replying,
+            Editing,
+        };
+        enum TextFormat {
+            Unspecified,
+            Markdown,
+            Plaintext,
+            Html,
+        };
+
         Q_OBJECT
     public:
         using completions_t = ChatEdit::completions_t;
@@ -51,6 +65,8 @@ class ChatRoomWidget : public QWidget
 
         void typingChanged();
         void quote(const QString& htmlText);
+        void edit(const QString& eventId);
+        void reply(const QString& eventId);
         void fileDrop(const QString& url);
         void htmlDrop(const QString& html);
         void textDrop(const QString& text);
@@ -62,8 +78,12 @@ class ChatRoomWidget : public QWidget
     private:
         TimelineWidget* m_timelineWidget;
         QLabel* m_hudCaption; //< For typing and completion notifications
+        QToolButton* m_modeIndicator;
         QAction* m_attachAction;
         ChatEdit* m_chatEdit;
+
+        int mode;
+        QString referencedEventId;
 
         QString attachedFileName;
         QTemporaryFile* m_fileToAttach;
@@ -72,10 +92,17 @@ class ChatRoomWidget : public QWidget
         MainWindow* mainWindow() const;
         QuaternionRoom* currentRoom() const;
 
+        void setDefaultMode();
+        bool setReferringMode(const int newMode, const QString& eventId,
+                              const char* icon_name);
+        QModelIndex referencedEventIndex();
+
         void sendFile();
         void sendMessage();
         [[nodiscard]] QString sendCommand(QStringView command,
                                           const QString& argString);
+        void sendMessageFromFragment(const QTextDocumentFragment& text,
+                                     enum TextFormat textFormat = Unspecified);
 
         void resizeEvent(QResizeEvent*) override;
         void keyPressEvent(QKeyEvent* event) override;

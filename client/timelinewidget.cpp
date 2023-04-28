@@ -68,6 +68,15 @@ QuaternionRoom* TimelineWidget::currentRoom() const
     return m_messageModel->room();
 }
 
+QModelIndex TimelineWidget::indexOf(const QString& eventId) const
+{
+    auto row = m_messageModel->findRow(eventId);
+    if (row >= 0)
+        return m_messageModel->index(row);
+    else
+        return QModelIndex();
+}
+
 void TimelineWidget::setRoom(QuaternionRoom* newRoom)
 {
     if (currentRoom() == newRoom)
@@ -188,6 +197,18 @@ void TimelineWidget::showMenu(int index, const QString& hoveredLink,
     const int userPl = plEvt ? plEvt->powerLevelForUser(localUserId) : 0;
     const auto* modelUser =
         modelIndex.data(MessageEventModel::AuthorRole).value<Quotient::User*>();
+    menu->addAction(QIcon::fromTheme("mail-reply-sender"),
+                    tr("Reply"),
+                    [this, eventId] {
+                        roomWidget->reply(eventId);
+                    });
+    if (localUserId == modelUser->id()) {
+        menu->addAction(QIcon::fromTheme("edit-entry"),
+                        tr("Edit"),
+                        [this, eventId] {
+                            roomWidget->edit(eventId);
+                        });
+    }
     if (!plEvt || userPl >= plEvt->redact() || localUserId == modelUser->id())
         menu->addAction(QIcon::fromTheme("edit-delete"), tr("Redact"), this,
                         [this, eventId] { currentRoom()->redactEvent(eventId); });
