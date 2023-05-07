@@ -1,6 +1,6 @@
 #include "htmlfilter.h"
 
-#include <util.h>
+#include <Quotient/util.h>
 
 #include <QtGui/QTextDocument>
 

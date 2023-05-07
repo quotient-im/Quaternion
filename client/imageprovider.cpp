@@ -8,8 +8,8 @@
 
 #include "imageprovider.h"
 
-#include <connection.h>
-#include <jobs/mediathumbnailjob.h>
+#include <Quotient/connection.h>
+#include <Quotient/jobs/mediathumbnailjob.h>
 
 #include <QtCore/QReadWriteLock>
 #include <QtCore/QThread>

@@ -8,7 +8,7 @@
 
 #include "roomlistmodel.h"
 
-#include <settings.h>
+#include <Quotient/settings.h>
 
 static const auto Invite = RoomGroup::SystemPrefix + "invite";
 static const auto DirectChat = RoomGroup::SystemPrefix + "direct";

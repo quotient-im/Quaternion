@@ -20,8 +20,9 @@
 #include "models/orderbytag.h"
 #include "quaternionroom.h"
 #include "roomdialogs.h"
-#include <connection.h>
-#include <settings.h>
+
+#include <Quotient/connection.h>
+#include <Quotient/settings.h>
 
 using Quotient::SettingsGroup;
 

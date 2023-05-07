@@ -6,7 +6,7 @@
 
 #include "networkconfigdialog.h"
 
-#include <networksettings.h>
+#include <Quotient/networksettings.h>
 
 #include <QtGui/QIntValidator>
 #include <QtWidgets/QGroupBox>

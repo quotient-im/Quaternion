@@ -11,9 +11,9 @@
 #include "abstractroomordering.h"
 #include "../quaternionroom.h"
 
-#include <connection.h>
-#include <util.h>
-#include <qt_connection_util.h>
+#include <Quotient/connection.h>
+#include <Quotient/util.h>
+#include <Quotient/qt_connection_util.h>
 
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QMultiHash>

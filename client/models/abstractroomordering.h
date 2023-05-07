@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <room.h>
+#include <Quotient/room.h>
 #include <QtCore/QVariantList>
 
 struct RoomGroup

@@ -8,16 +8,16 @@
 
 #include "mainwindow.h"
 #include "quaternionroom.h"
-#include "accountregistry.h"
 #include "accountselector.h"
 #include "models/orderbytag.h" // For tagToCaption()
 
-#include <user.h>
-#include <connection.h>
-#include <qt_connection_util.h>
-#include <logging.h>
-#include <csapi/create_room.h>
-#include <events/roompowerlevelsevent.h>
+#include <Quotient/accountregistry.h>
+#include <Quotient/user.h>
+#include <Quotient/connection.h>
+#include <Quotient/qt_connection_util.h>
+#include <Quotient/logging.h>
+#include <Quotient/csapi/create_room.h>
+#include <Quotient/events/roompowerlevelsevent.h>
 
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QLineEdit>

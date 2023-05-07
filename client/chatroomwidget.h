@@ -10,7 +10,7 @@
 
 #include "chatedit.h"
 
-#include <settings.h>
+#include <Quotient/settings.h>
 
 #include <QtWidgets/QWidget>
 

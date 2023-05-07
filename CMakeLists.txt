@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.13) # See the comment in lib/CMakeLists.txt
+CMAKE_MINIMUM_REQUIRED(VERSION 3.16)
 if (POLICY CMP0092)
 cmake_policy(SET CMP0092 NEW)
 endif()
@@ -64,9 +64,11 @@ option(BUILD_WITH_QT6 "Build Quotient with Qt 6 (EXPERIMENTAL)" OFF)
 if (BUILD_WITH_QT6)
     set(QtMinVersion "6.2")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15")
+    set(QUOTIENT "QuotientQt6")
 else()
     set(QtMinVersion "5.15")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13")
+    set(QUOTIENT "Quotient")
 endif()
 string(REGEX REPLACE "^(.).*" "Qt\\1" Qt ${QtMinVersion}) # makes "Qt5" or "Qt6"
 
@@ -95,8 +97,7 @@ if(WIN32)
 endif()
 
 if ((NOT DEFINED USE_INTREE_LIBQMC OR USE_INTREE_LIBQMC)
-        AND (EXISTS ${PROJECT_SOURCE_DIR}/lib/Quotient/util.h
-            OR EXISTS ${PROJECT_SOURCE_DIR}/lib/lib/util.h)) # lib pre-0.7.2
+        AND EXISTS ${PROJECT_SOURCE_DIR}/lib/Quotient/util.h)
     add_subdirectory(lib)
     include_directories(lib)
     if (NOT DEFINED USE_INTREE_LIBQMC)
@@ -104,8 +105,8 @@ if ((NOT DEFINED USE_INTREE_LIBQMC OR USE_INTREE_LIBQMC)
     endif ()
 endif ()
 if (NOT USE_INTREE_LIBQMC)
-    find_package(Quotient 0.7 REQUIRED)
-    if (NOT Quotient_FOUND)
+    find_package(${QUOTIENT} 0.8 REQUIRED)
+    if (NOT ${QUOTIENT}_FOUND)
         message( WARNING "libQuotient not found; configuration will most likely fail.")
         message( WARNING "Make sure you have installed libQuotient development files")
         message( WARNING "as a package or checked out the library sources in lib/.")
@@ -144,7 +145,7 @@ if (USE_INTREE_LIBQMC)
         message( STATUS "  Library git SHA1: ${LIB_GIT_SHA1}")
     endif (GIT_FOUND)
 else ()
-    message( STATUS "Using libQuotient ${Quotient_VERSION} at ${Quotient_DIR}")
+    message( STATUS "Using libQuotient ${${QUOTIENT}_VERSION} at ${${QUOTIENT}_DIR}")
 endif ()
 message( STATUS "=============================================================================" )
 message( STATUS )
@@ -230,11 +231,10 @@ target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     GIT_SHA1="${GIT_SHA1}" LIB_GIT_SHA1="${LIB_GIT_SHA1}")
 target_compile_definitions(${PROJECT_NAME} PRIVATE QT_NO_JAVA_STYLE_ITERATORS)
-if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.16.0"
-        AND NOT CMAKE_CXX_COMPILER_ID STREQUAL GNU) # https://bugzilla.redhat.com/show_bug.cgi?id=1721553
-    target_precompile_headers(${PROJECT_NAME} PRIVATE <room.h>)
+if (NOT CMAKE_CXX_COMPILER_ID STREQUAL GNU) # https://bugzilla.redhat.com/show_bug.cgi?id=1721553
+    target_precompile_headers(${PROJECT_NAME} PRIVATE <Quotient/room.h>)
 endif ()
-target_link_libraries(${PROJECT_NAME} Quotient
+target_link_libraries(${PROJECT_NAME} ${QUOTIENT}
     ${Qt}::Widgets ${Qt}::Quick ${Qt}::Qml ${Qt}::Gui ${Qt}::Network ${Qt}::QuickControls2 ${Qt}::QuickWidgets)
 
 # macOS specific config for bundling

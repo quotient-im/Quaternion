@@ -15,10 +15,10 @@
 #include <QtWidgets/QStyleFactory>
 #include <QtQuickControls2/QQuickStyle>
 
-#include "networksettings.h"
 #include "mainwindow.h"
 #include "linuxutils.h"
-#include <settings.h>
+
+#include <Quotient/networksettings.h>
 
 void loadTranslations(
         std::initializer_list<std::pair<QStringList, QString>> translationConfigs)

@@ -15,10 +15,11 @@
 #include <QtWidgets/QInputDialog>
 #include <QtGui/QGuiApplication>
 
-#include <connection.h>
-#include <events/roompowerlevelsevent.h>
-#include <room.h>
-#include <user.h>
+#include <Quotient/connection.h>
+#include <Quotient/events/roompowerlevelsevent.h>
+#include <Quotient/room.h>
+#include <Quotient/user.h>
+
 #include "models/userlistmodel.h"
 #include "quaternionroom.h"
 

@@ -17,9 +17,9 @@
 // provides avatar decorations depends on the delegate size
 #include <QtWidgets/QAbstractItemView>
 
-#include <connection.h>
-#include <room.h>
-#include <user.h>
+#include <Quotient/connection.h>
+#include <Quotient/room.h>
+#include <Quotient/user.h>
 
 UserListModel::UserListModel(QAbstractItemView* parent)
     : QAbstractListModel(parent), m_currentRoom(nullptr)

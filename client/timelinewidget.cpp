@@ -4,11 +4,11 @@
 #include "models/messageeventmodel.h"
 #include "imageprovider.h"
 
-#include <settings.h>
-#include <events/roompowerlevelsevent.h>
-#include <events/reactionevent.h>
-#include <csapi/message_pagination.h>
-#include <user.h>
+#include <Quotient/settings.h>
+#include <Quotient/events/roompowerlevelsevent.h>
+#include <Quotient/events/reactionevent.h>
+#include <Quotient/csapi/message_pagination.h>
+#include <Quotient/user.h>
 
 #include <QtQml/QQmlContext>
 #include <QtQml/QQmlEngine>
@@ -86,7 +86,7 @@ void TimelineWidget::setRoom(QuaternionRoom* newRoom)
     m_imageProvider->setConnection(newRoom ? newRoom->connection() : nullptr);
     m_messageModel->changeRoom(newRoom);
     if (newRoom) {
-        connect(newRoom, &Quotient::Room::readMarkerMoved, this, [this] {
+        connect(newRoom, &Quotient::Room::fullyReadMarkerMoved, this, [this] {
             const auto rm = currentRoom()->fullyReadMarker();
             readMarkerOnScreen = rm != currentRoom()->historyEdge()
                                  && std::lower_bound(indicesOnScreen.cbegin(),

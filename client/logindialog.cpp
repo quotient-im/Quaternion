@@ -8,11 +8,11 @@
 
 #include "logindialog.h"
 
-#include <connection.h>
-#include <accountregistry.h>
-#include <qt_connection_util.h>
-#include <ssosession.h>
-#include <settings.h>
+#include <Quotient/connection.h>
+#include <Quotient/accountregistry.h>
+#include <Quotient/qt_connection_util.h>
+#include <Quotient/ssosession.h>
+#include <Quotient/settings.h>
 
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>

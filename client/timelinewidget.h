@@ -2,7 +2,7 @@
 
 #include "activitydetector.h"
 
-#include <eventitem.h>
+#include <Quotient/eventitem.h>
 
 #include <QtQuickWidgets/QQuickWidget>
 #include <QtCore/QBasicTimer>

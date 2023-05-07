@@ -31,10 +31,10 @@
 #include <QtCore/QMimeData>
 #include <QtCore/QMimeDatabase>
 
-#include <events/roommessageevent.h>
-#include <user.h>
-#include <uri.h>
-#include <settings.h>
+#include <Quotient/events/roommessageevent.h>
+#include <Quotient/user.h>
+#include <Quotient/uri.h>
+#include <Quotient/settings.h>
 
 #include "mainwindow.h"
 #include "timelinewidget.h"

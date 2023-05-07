@@ -11,10 +11,10 @@
 #include "accountselector.h"
 #include "mainwindow.h"
 
-#include <connection.h>
-#include <user.h>
-#include <room.h>
-#include <csapi/device_management.h>
+#include <Quotient/connection.h>
+#include <Quotient/user.h>
+#include <Quotient/room.h>
+#include <Quotient/csapi/device_management.h>
 
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QFormLayout>

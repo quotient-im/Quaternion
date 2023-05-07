@@ -23,7 +23,7 @@
 #include <QtCore/QStringBuilder>
 #include <QtCore/QDebug>
 
-#include <util.h>
+#include <Quotient/util.h>
 
 static const QKeySequence ResetFormatShortcut("Ctrl+M");
 static const QKeySequence AlternatePasteShortcut("Ctrl+Shift+V");

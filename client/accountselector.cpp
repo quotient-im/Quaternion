@@ -1,7 +1,7 @@
 #include "accountselector.h"
 
-#include <accountregistry.h>
-#include <connection.h>
+#include <Quotient/accountregistry.h>
+#include <Quotient/connection.h>
 
 using namespace Quotient;
 

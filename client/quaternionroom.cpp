@@ -8,8 +8,8 @@
 
 #include "quaternionroom.h"
 
-#include <user.h>
-#include <events/roommessageevent.h>
+#include <Quotient/user.h>
+#include <Quotient/events/roommessageevent.h>
 #include <QtCore/QRegularExpression>
 
 using namespace Quotient;

@@ -13,8 +13,8 @@
 #include <QtNetwork/QSslError>
 #include <QtWidgets/QMainWindow>
 
-#include <accountregistry.h>
-#include <uriresolver.h>
+#include <Quotient/accountregistry.h>
+#include <Quotient/uriresolver.h>
 
 namespace Quotient {
     class Room;

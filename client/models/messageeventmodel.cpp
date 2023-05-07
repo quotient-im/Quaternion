@@ -14,18 +14,18 @@
 
 #include "../quaternionroom.h"
 #include "../htmlfilter.h"
-#include <connection.h>
-#include <user.h>
-#include <settings.h>
-#include <events/encryptionevent.h>
-#include <events/roommemberevent.h>
-#include <events/simplestateevents.h>
-#include <events/redactionevent.h>
-#include <events/roomavatarevent.h>
-#include <events/roomcreateevent.h>
-#include <events/roomtombstoneevent.h>
-#include <events/roomcanonicalaliasevent.h>
-#include <events/reactionevent.h>
+#include <Quotient/connection.h>
+#include <Quotient/user.h>
+#include <Quotient/settings.h>
+#include <Quotient/events/encryptionevent.h>
+#include <Quotient/events/roommemberevent.h>
+#include <Quotient/events/simplestateevents.h>
+#include <Quotient/events/redactionevent.h>
+#include <Quotient/events/roomavatarevent.h>
+#include <Quotient/events/roomcreateevent.h>
+#include <Quotient/events/roomtombstoneevent.h>
+#include <Quotient/events/roomcanonicalaliasevent.h>
+#include <Quotient/events/reactionevent.h>
 
 QHash<int, QByteArray> MessageEventModel::roleNames() const
 {
@@ -151,7 +151,7 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                 this, [this] (int i) { beginRemoveRows({}, i, i); });
         connect(m_currentRoom, &Room::pendingEventDiscarded,
                 this, &MessageEventModel::endRemoveRows);
-        connect(m_currentRoom, &Room::readMarkerMoved,
+        connect(m_currentRoom, &Room::fullyReadMarkerMoved,
                 this, &MessageEventModel::readMarkerUpdated);
         connect(m_currentRoom, &Room::replacedEvent, this,
                 [this] (const RoomEvent* newEvent) {
@@ -694,7 +694,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
     }
 
     if (role == EventResolvedTypeRole)
-        return EventTypeRegistry::getMatrixType(evt.type());
+        return evt.type();
 
     if( role == AuthorRole )
     {

@@ -10,8 +10,8 @@
 
 #include "dialog.h"
 
-#include <settings.h>
-#include <csapi/definitions/client_device.h>
+#include <Quotient/settings.h>
+#include <Quotient/csapi/definitions/client_device.h>
 
 #include <QtCore/QPointer>
 

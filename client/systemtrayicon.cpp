@@ -15,8 +15,9 @@
 #include "mainwindow.h"
 #include "quaternionroom.h"
 #include "linuxutils.h"
-#include <settings.h>
-#include <qt_connection_util.h>
+
+#include <Quotient/settings.h>
+#include <Quotient/qt_connection_util.h>
 
 SystemTrayIcon::SystemTrayIcon(MainWindow* parent)
     : QSystemTrayIcon(parent)

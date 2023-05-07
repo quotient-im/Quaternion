@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <room.h>
+#include <Quotient/room.h>
 
 class QuaternionRoom: public Quotient::Room
 {
