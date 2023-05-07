@@ -196,8 +196,6 @@ void LoginDialog::setup(const QString& statusMessage)
     formLayout->addRow(saveTokenCheck);
 }
 
-LoginDialog::~LoginDialog() = default;
-
 Connection* LoginDialog::releaseConnection()
 {
     return m_connection.release();

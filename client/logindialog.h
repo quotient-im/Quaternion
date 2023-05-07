@@ -10,14 +10,27 @@
 
 #include "dialog.h"
 
+#include <Quotient/connection.h>
+
 class QLineEdit;
 class QCheckBox;
 
 namespace Quotient {
 class AccountSettings;
 class AccountRegistry;
-class Connection;
 }
+
+#if QT_VERSION_MAJOR > 5
+using DeleteLater = QScopedPointerDeleteLater;
+#else
+struct DeleteLater {
+    void operator()(Quotient::Connection* ptr)
+    {
+        if (ptr)
+            ptr->deleteLater();
+    }
+};
+#endif
 
 class LoginDialog : public Dialog {
     Q_OBJECT
@@ -31,7 +44,6 @@ public:
                 const Quotient::AccountSettings& reloginAccount,
                 QWidget* parent);
     void setup(const QString& statusMessage);
-    ~LoginDialog() override;
 
     Quotient::Connection* releaseConnection();
     QString deviceName() const;
@@ -51,13 +63,5 @@ private:
     QLineEdit* serverEdit;
     QCheckBox* saveTokenCheck;
 
-    // TODO: Replace with plain QScopedPointerDeleteLater once we're on Qt 6
-    using ConnectionDeleter = std::conditional_t<
-        std::is_invocable_v<QScopedPointerDeleteLater, Quotient::Connection*>,
-        QScopedPointerDeleteLater, decltype([](Quotient::Connection* ptr) {
-            if (ptr)
-                ptr->deleteLater();
-        })>;
-
-    std::unique_ptr<Quotient::Connection, ConnectionDeleter> m_connection;
+    std::unique_ptr<Quotient::Connection, DeleteLater> m_connection;
 };
