@@ -110,7 +110,9 @@ void ChatEdit::insertFromMimeData(const QMimeData *source)
         return;
     }
 
-    if (source->hasHtml()) {
+    if (source->hasImage())
+        emit insertImageRequested(source->imageData().value<QImage>());
+    else if (source->hasHtml()) {
         if (m_pastePlaintext) {
             QTextDocument document;
             document.setHtml(source->html());
@@ -131,9 +133,7 @@ void ChatEdit::insertFromMimeData(const QMimeData *source)
             insertHtml(cleanHtml);
         }
         ensureCursorVisible();
-    } else if (source->hasImage())
-        emit insertImageRequested(source->imageData().value<QImage>());
-    else if (source->hasUrls()) {
+    } else if (source->hasUrls()) {
         bool hasAnyProcessed = false;
         for (const QUrl &url : source->urls())
             if (url.isLocalFile()) {
