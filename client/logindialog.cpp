@@ -43,7 +43,7 @@ LoginDialog::LoginDialog(const QString& statusMessage,
     setup(statusMessage);
     setPendingApplyMessage(tr("Connecting and logging in, please wait"));
 
-    connect(userEdit, &QLineEdit::editingFinished, m_connection.data(),
+    connect(userEdit, &QLineEdit::editingFinished, m_connection.get(),
             [this, loggedInAccounts, knownAccounts] {
                 auto userId = userEdit->text();
                 if (!userId.startsWith('@') || !userId.contains(':'))
@@ -68,7 +68,7 @@ LoginDialog::LoginDialog(const QString& statusMessage,
                 m_connection->resolveServer(userId);
             });
 
-    connect(serverEdit, &QLineEdit::editingFinished, m_connection.data(),
+    connect(serverEdit, &QLineEdit::editingFinished, m_connection.get(),
             [this, knownAccounts] {
                 if (QUrl hsUrl{ serverEdit->text() }; hsUrl.isValid()) {
                     m_connection->setHomeserver(hsUrl);
@@ -85,7 +85,7 @@ LoginDialog::LoginDialog(const QString& statusMessage,
                                              QDialogButtonBox::AcceptRole);
     connect(ssoButton, &QPushButton::clicked, this, &LoginDialog::loginWithSso);
     ssoButton->setHidden(true);
-    connect(m_connection.data(), &Connection::loginFlowsChanged, this,
+    connect(m_connection.get(), &Connection::loginFlowsChanged, this,
             [this, ssoButton] {
                 // There may be more ways to login but Quaternion only supports
                 // SSO and password for now; in the worst case of no known
@@ -151,7 +151,7 @@ void LoginDialog::setup(const QString& statusMessage)
     passwordEdit->setEchoMode( QLineEdit::Password );
 
     // This is triggered whenever the server URL has been changed
-    connect(m_connection.data(), &Connection::homeserverChanged, serverEdit,
+    connect(m_connection.get(), &Connection::homeserverChanged, serverEdit,
             [this](const QUrl& hsUrl) {
         serverEdit->setText(hsUrl.toString());
         if (hsUrl.isValid())
@@ -161,7 +161,7 @@ void LoginDialog::setup(const QString& statusMessage)
         // do LoginDialog::loginWithBestFlow() as soon as flows arrive
         button(QDialogButtonBox::Ok)->setEnabled(hsUrl.isValid());
     });
-    connect(m_connection.data(), &Connection::loginFlowsChanged, this, [this] {
+    connect(m_connection.get(), &Connection::loginFlowsChanged, this, [this] {
         serverEdit->setText(m_connection->homeserver().toString());
         setStatusMessage(m_connection->isUsable()
                              ? tr("The homeserver is available")
@@ -170,7 +170,7 @@ void LoginDialog::setup(const QString& statusMessage)
     });
     // This overrides the above in case of an unsuccessful attempt to resolve
     // the server URL from a changed MXID
-    connect(m_connection.data(), &Connection::resolveError, this,
+    connect(m_connection.get(), &Connection::resolveError, this,
             [this](const QString& message) {
                 qDebug() << "Resolve error";
                 serverEdit->clear();
@@ -183,9 +183,9 @@ void LoginDialog::setup(const QString& statusMessage)
     connect(initialDeviceName, &QLineEdit::textChanged, deviceId,
             &QLineEdit::clear);
 
-    connect(m_connection.data(), &Connection::connected,
+    connect(m_connection.get(), &Connection::connected,
             this, &Dialog::accept);
-    connect(m_connection.data(), &Connection::loginError,
+    connect(m_connection.get(), &Connection::loginError,
             this, &Dialog::applyFailed);
     auto* formLayout = addLayout<QFormLayout>();
     formLayout->addRow(tr("Matrix ID"), userEdit);
@@ -200,7 +200,7 @@ LoginDialog::~LoginDialog() = default;
 
 Connection* LoginDialog::releaseConnection()
 {
-    return m_connection.take();
+    return m_connection.release();
 }
 
 QString LoginDialog::deviceName() const
@@ -228,7 +228,7 @@ void LoginDialog::apply()
         m_connection->setHomeserver(url);
 
         // Wait for new flows and check them
-        connectSingleShot(m_connection.data(), &Connection::loginFlowsChanged,
+        connectSingleShot(m_connection.get(), &Connection::loginFlowsChanged,
                           this, [this] {
                               qDebug()
                                   << "Received login flows, trying to login";

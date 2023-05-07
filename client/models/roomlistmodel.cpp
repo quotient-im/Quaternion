@@ -210,8 +210,8 @@ void RoomListModel::addRoomToGroups(Room* room, QVariantList groups)
                        << "is already listed under group" << g.toString();
             continue;
         }
-        const auto rPos = int(rIt - gIt->rooms.cbegin());
-        const auto gIdx = index(int(gIt - m_roomGroups.cbegin()), 0);
+        const auto rPos = int(rIt - gIt->rooms.begin());
+        const auto gIdx = index(int(gIt - m_roomGroups.begin()), 0);
         beginInsertRows(gIdx, rPos, rPos);
         gIt->rooms.insert(rIt, room);
         endInsertRows();
