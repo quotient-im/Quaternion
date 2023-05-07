@@ -153,7 +153,7 @@ jobs:
         cmake -S . -B build $CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=~/.local -DCMAKE_PREFIX_PATH=~/.local
         cmake --build build --target install
         if [[ '${{ matrix.composition }}' == 'dynamic' ]]; then
-            QUOTIENT_SO_PATH=$(dirname $(find ~/.local/lib* -name libQuotient.so))
+            QUOTIENT_SO_PATH=$(dirname $(find ~/.local/lib* -name libQuotient*.so))
             test -n "$QUOTIENT_SO_PATH"
             echo "DEP_SO_PATH=$DEP_SO_PATH:$QUOTIENT_SO_PATH" >>$GITHUB_ENV
         fi
