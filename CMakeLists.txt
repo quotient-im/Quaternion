@@ -73,9 +73,15 @@ endif()
 string(REGEX REPLACE "^(.).*" "Qt\\1" Qt ${QtMinVersion}) # makes "Qt5" or "Qt6"
 
 # Find the libraries
+if (NOT HAIKU)
 find_package(${Qt} ${QtMinVersion} REQUIRED
     Widgets Network Quick Gui Multimedia DBus QuickControls2 QuickWidgets
     LinguistTools)
+else()
+find_package(${Qt} ${QtMinVersion} REQUIRED
+    Widgets Network Quick Gui Multimedia QuickControls2 QuickWidgets
+    LinguistTools)
+endif()
 # ${Qt}_Prefix is only used to show Qt path in message()
 # ${Qt}_BinDir is where all the *deployqt tools reside
 if (QT_QMAKE_EXECUTABLE)
