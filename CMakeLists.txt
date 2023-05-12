@@ -74,7 +74,7 @@ string(REGEX REPLACE "^(.).*" "Qt\\1" Qt ${QtMinVersion}) # makes "Qt5" or "Qt6"
 
 # Find the libraries
 find_package(${Qt} ${QtMinVersion} REQUIRED
-    Widgets Network Quick Gui Multimedia DBus QuickControls2 QuickWidgets
+    Widgets Network Quick Gui Multimedia QuickControls2 QuickWidgets
     LinguistTools)
 # ${Qt}_Prefix is only used to show Qt path in message()
 # ${Qt}_BinDir is where all the *deployqt tools reside
