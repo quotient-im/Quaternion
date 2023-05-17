@@ -1362,6 +1362,92 @@ void MainWindow::openRoomUserInput(bool forJoining)
 
 void MainWindow::openPMUserInput()
 {
+    if (accountRegistry->isEmpty()) {
+        showLoginWindow(tr("Please connect to a server"));
+        return;
+    }
+
+    struct D {
+        QString dlgTitle;
+        QString dlgText;
+        QString actionText;
+    };
+
+    Dialog dlg(tr("Private Message"), this, Dialog::NoStatusLine, tr("message"),
+               Dialog::NoExtraButtons);
+
+    auto* accountChooser = new AccountSelector(accountRegistry);
+    auto* identifier = new QLineEdit(&dlg);
+    auto* defaultConn = getDefaultConnection();
+    accountChooser->setAccount(defaultConn);
+
+    // Lay out controls
+    auto* layout = dlg.addLayout<QFormLayout>();
+    if (accountRegistry->size() > 1)
+    {
+        layout->addRow(tr("Account"), accountChooser);
+        accountChooser->setFocus();
+    } else {
+        accountChooser->setCurrentIndex(0); // The only available
+        accountChooser->hide(); // #523
+        identifier->setFocus();
+    }
+    layout->addRow("user ID (@user:example.org)", identifier);
+
+    using Quotient::Uri;
+    const auto getUri = [identifier]() -> Uri {
+        return identifier->text().trimmed();
+    };
+    auto* okButton = dlg.button(QDialogButtonBox::Ok);
+    okButton->setDisabled(true);
+
+    connect(identifier, &QLineEdit::textChanged, &dlg,
+            [getUri, okButton] {
+                switch (getUri().type()) {
+                case Uri::UserId:
+                    okButton->setEnabled(true);
+                    okButton->setText(tr("Chat with user",
+                                         "On a button in 'Open room' dialog"
+                                         " when a user identifier is entered"));
+                    break;
+                default:
+                    okButton->setDisabled(true);
+                    okButton->setText(
+                        tr("Can't open",
+                           "On a disabled button in 'Open room' dialog when"
+                           " an invalid/unsupported URI is entered"));
+                }
+            });
+
+    if (dlg.exec() != QDialog::Accepted)
+        return;
+
+    auto uri = getUri();
+    uri.setAction("chat");
+
+    // TODO: get rid of extra message
+    switch (visitResource(accountChooser->currentAccount(), uri))
+    {
+    case Quotient::UriResolved:
+        break;
+    case Quotient::CouldNotResolve:
+        QMessageBox::warning(
+            this, tr("Could not resolve id"),
+            (uri.type() == Uri::NonMatrix
+                 ? tr("Could not find an external application to open the URI:")
+                 : tr("Could not resolve Matrix identifier"))
+                + "\n\n" + uri.toDisplayString());
+        break;
+    case Quotient::IncorrectAction:
+        QMessageBox::warning(
+            this, tr("Incorrect action on a Matrix resource"),
+            tr("The URI contains an action '%1' that cannot be applied"
+               " to Matrix resource %2")
+                .arg(uri.action(), uri.toDisplayString(QUrl::RemoveQuery)));
+        break;
+    default:
+        Q_ASSERT(false); // No other values should occur
+    }
 }
 
 
