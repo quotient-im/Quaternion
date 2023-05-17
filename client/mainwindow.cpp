@@ -127,6 +127,7 @@ MainWindow::MainWindow()
                 const auto noMoreAccounts = accountRegistry->isEmpty();
                 openRoomAction->setDisabled(noMoreAccounts);
                 createRoomAction->setDisabled(noMoreAccounts);
+                createPMAction->setDisabled(noMoreAccounts);
                 joinAction->setDisabled(noMoreAccounts);
                 if (noMoreAccounts)
                     showLoginWindow();
@@ -345,9 +346,14 @@ void MainWindow::createMenu()
         });
     createRoomAction->setShortcut(QKeySequence::New);
     createRoomAction->setDisabled(true);
+    createPMAction =
+        roomMenu->addAction(QIcon::fromTheme("people"), tr("Create new &private message room..."),
+                            [this] { openPMUserInput(); });
+    createPMAction->setShortcut(Qt::CTRL | Qt::Key_P);
+    createPMAction->setDisabled(true);
     joinAction =
         roomMenu->addAction(QIcon::fromTheme("list-add"), tr("&Join room..."),
-                            [this] { openUserInput(ForJoining); });
+                            [this] { openRoomUserInput(ForJoining); });
     joinAction->setShortcut(Qt::CTRL | Qt::Key_J);
     joinAction->setDisabled(true);
     roomMenu->addSeparator();
@@ -359,7 +365,7 @@ void MainWindow::createMenu()
     roomMenu->addSeparator();
     openRoomAction = roomMenu->addAction(QIcon::fromTheme("document-open"),
                                          tr("Open room..."),
-                                         [this] { openUserInput(); });
+                                         [this] { openRoomUserInput(NoRoomJoining); });
     openRoomAction->setStatusTip(tr("Open a room from the room list"));
     openRoomAction->setShortcut(QKeySequence::Open);
     openRoomAction->setDisabled(true);
@@ -624,6 +630,7 @@ void MainWindow::addConnection(Connection* c)
             [this, logoutAction] { logoutMenu->removeAction(logoutAction); });
     openRoomAction->setEnabled(true);
     createRoomAction->setEnabled(true);
+    createPMAction->setEnabled(true);
     joinAction->setEnabled(true);
 }
 
@@ -1006,7 +1013,7 @@ Quotient::UriResolveResult MainWindow::visitUser(Quotient::User* user,
     if (action == "mention" || action.isEmpty())
         chatRoomWidget->insertMention(user);
     // action=_interactive is checked in openResource() and
-    // converted to "chat" in openUserInput()
+    // converted to "chat" in openRoomUserInput()
     else if (action == "_interactive"
              || (action == "chat"
                  && QMessageBox::question(this, tr("Open direct chat?"),
@@ -1213,7 +1220,7 @@ MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
     return connection;
 }
 
-void MainWindow::openUserInput(bool forJoining)
+void MainWindow::openRoomUserInput(bool forJoining)
 {
     if (accountRegistry->isEmpty()) {
         showLoginWindow(tr("Please connect to a server"));
@@ -1352,6 +1359,11 @@ void MainWindow::openUserInput(bool forJoining)
         Q_ASSERT(false); // No other values should occur
     }
 }
+
+void MainWindow::openPMUserInput()
+{
+}
+
 
 void MainWindow::showMillisToRecon(Connection* c)
 {
