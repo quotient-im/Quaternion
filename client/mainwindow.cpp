@@ -347,7 +347,7 @@ void MainWindow::createMenu()
     createRoomAction->setShortcut(QKeySequence::New);
     createRoomAction->setDisabled(true);
     createPMAction =
-        roomMenu->addAction(QIcon::fromTheme("people"), tr("Create new &private message room..."),
+        roomMenu->addAction(QIcon::fromTheme("contact-new"), tr("Create new &private message room..."),
                             [this] { openPMUserInput(); });
     createPMAction->setShortcut(Qt::CTRL | Qt::Key_P);
     createPMAction->setDisabled(true);
@@ -1425,7 +1425,6 @@ void MainWindow::openPMUserInput()
     auto uri = getUri();
     uri.setAction("_interactive");
 
-    // TODO: get rid of extra message
     switch (visitResource(accountChooser->currentAccount(), uri))
     {
     case Quotient::UriResolved:
