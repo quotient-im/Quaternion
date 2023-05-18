@@ -1423,7 +1423,7 @@ void MainWindow::openPMUserInput()
         return;
 
     auto uri = getUri();
-    uri.setAction("chat");
+    uri.setAction("_interactive");
 
     // TODO: get rid of extra message
     switch (visitResource(accountChooser->currentAccount(), uri))
@@ -1449,7 +1449,6 @@ void MainWindow::openPMUserInput()
         Q_ASSERT(false); // No other values should occur
     }
 }
-
 
 void MainWindow::showMillisToRecon(Connection* c)
 {
