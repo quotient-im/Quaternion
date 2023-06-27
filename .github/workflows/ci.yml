@@ -44,27 +44,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-22.04, macos-11, windows-2019 ]
+        os: [ ubuntu-22.04, macos-latest, windows-latest ]
         qt-version: [ 5, 6 ]
         override-compiler: [ '', GCC ] # Defaults: MSVC on Windows, Clang elsewhere
         composition: [ own-quotient, static, dynamic ]
         exclude:
-        - os: ubuntu-22.04
-          qt-version: 5
-          composition: own-quotient # AppImage wants older Ubuntu (see below)
         # Unsupported combinations
-        - os: windows-2019
+        - os: windows-latest
           composition: dynamic
-        - os: macos-11
+        - os: macos-latest
           composition: dynamic
-        - os: windows-2019
+        - os: windows-latest
           override-compiler: GCC
-        - os: macos-11
+        - os: macos-latest
           override-compiler: GCC
         include:
-        - os: ubuntu-20.04
-          qt-version: 5
-          composition: own-quotient
         - os: ubuntu-22.04
           qt-version: 6
           composition: own-quotient
@@ -216,7 +210,8 @@ jobs:
             Linux)
                 sudo apt-get -qq install appstream libgstreamer-plugins-base1.0.0 \
                     libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
-                    libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libxkbcommon-x11-0
+                    libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libxkbcommon-x11-0 \
+                    libfuse2
                 for f in linuxdeploy linuxdeploy-plugin-qt; do
                     wget -c -nv --directory-prefix=linuxdeploy \
                         https://github.com/linuxdeploy/$f/releases/download/continuous/$f-x86_64.AppImage
