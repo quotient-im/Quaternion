@@ -535,8 +535,8 @@ Item {
                 id: buttonAreaLoader
                 active: failed || // resendButton
                         (pending && marks !== EventStatus.ReachedServer && marks !== EventStatus.Departed) || // discardButton
-                        (!pending && eventResolvedType == "m.room.create" && refId) || // goToPredecessorButton
-                        (!pending && eventResolvedType == "m.room.tombstone") // goToSuccessorButton
+                        (!pending && eventClassName === "RoomCreateEvent" && refId) || // goToPredecessorButton
+                        (!pending && eventClassName === "RoomTombstoneEvent") // goToSuccessorButton
 
                 anchors.top: textField.top
                 anchors.right: parent.right
@@ -579,7 +579,7 @@ Item {
             }
             EventActionButton {
                 id: goToPredecessorButton
-                visible: !pending && eventResolvedType == "m.room.create" && refId
+                visible: !pending && eventClassName === "RoomCreateEvent" && refId
                 anchors.right: parent.right
                 text: qsTr("Go to\nolder room")
 
@@ -588,7 +588,7 @@ Item {
             }
             EventActionButton {
                 id: goToSuccessorButton
-                visible: !pending && eventResolvedType == "m.room.tombstone"
+                visible: !pending && eventClassName === "RoomTombstoneEvent"
                 anchors.right: parent.right
                 text: qsTr("Go to\nnew room")
 
@@ -656,7 +656,7 @@ Item {
                     }
                 }
                 TextEdit {
-                    text: eventResolvedType
+                    text: eventClassName
                     textFormat: Text.PlainText
                     font.bold: true
                     font.family: settings.font.family

@@ -45,7 +45,7 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
         roles.insert(SpecialMarksRole, "marks");
         roles.insert(LongOperationRole, "progressInfo");
         roles.insert(AnnotationRole, "annotation");
-        roles.insert(EventResolvedTypeRole, "eventResolvedType");
+        roles.insert(EventClassNameRole, "eventClassName");
         roles.insert(RefRole, "refId");
         roles.insert(ReactionsRole, "reactions");
         return roles;
@@ -693,8 +693,8 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         return "other";
     }
 
-    if (role == EventResolvedTypeRole)
-        return evt.type();
+    if (role == EventClassNameRole)
+        return evt.metaType().className;
 
     if( role == AuthorRole )
     {

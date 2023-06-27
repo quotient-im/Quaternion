@@ -33,7 +33,7 @@ class MessageEventModel: public QAbstractListModel
             AnnotationRole,
             RefRole,
             ReactionsRole,
-            EventResolvedTypeRole,
+            EventClassNameRole,
         };
 
         explicit MessageEventModel(QObject* parent = nullptr);
