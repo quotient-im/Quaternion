@@ -1,8 +1,10 @@
 import QtQuick 2.0
-import QtQuick.Controls 1.4
+import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.1
 
 Attachment {
+    openOnFinished: openButton.checked
+
     TextEdit {
         id: fileTransferInfo
         width: parent.width
@@ -10,7 +12,7 @@ Attachment {
         selectByMouse: true;
         readOnly: true;
         font: timelabel.font
-        color: textColor
+        color: foreground
         renderType: settings.render_type
         text: qsTr("Size: %1, declared type: %2")
               .arg(content.info ? humanSize(content.info.size) : "")
@@ -59,35 +61,31 @@ Attachment {
         width: parent.width
         spacing: 2
 
-        CheckBox {
-            id: openOnFinishedFlag
-            text: qsTr("Open after downloading")
-            visible: progressInfo &&
-                     !progressInfo.isUpload && transferProgress.visible
-            checked: openOnFinished
+        TimelineItemToolButton {
+            id: openButton
+            text: progressInfo &&
+                  !progressInfo.isUpload && transferProgress.visible
+                  ? qsTr("Open after downloading") : qsTr("Open")
+            checkable: !downloaded && !(progressInfo && progressInfo.isUpload)
+            onClicked: { if (checked) openExternally() }
         }
-        Button {
+        TimelineItemToolButton {
             text: qsTr("Cancel")
             visible: progressInfo && progressInfo.started
             onClicked: room.cancelFileTransfer(eventId)
         }
-        Button {
+        TimelineItemToolButton {
             text: qsTr("Save as...")
             visible: !progressInfo ||
                      (!progressInfo.isUpload && !progressInfo.started)
             onClicked: controller.saveFileAs(eventId)
         }
-
-        Button {
-            text: qsTr("Open")
-            visible: !openOnFinishedFlag.visible
-            onClicked: openExternally()
-        }
-        Button {
+        TimelineItemToolButton {
             text: qsTr("Open folder")
             visible: progressInfo && progressInfo.localDir
             onClicked:
                 Qt.openUrlExternally(progressInfo.localDir)
         }
     }
+    onOpened: openButton.checked = false
 }

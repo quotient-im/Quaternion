@@ -2,10 +2,11 @@ import QtQuick 2.0
 import QtQuick.Layouts 1.1
 
 Attachment {
-    property var sourceSize
-    property url source
-    property var maxHeight
-    property bool autoload
+    required property var sourceSize
+    required property url source
+    required property var maxHeight
+    required property bool autoload
+    openOnFinished: false
 
     Image {
         id: imageContent
@@ -27,7 +28,10 @@ Attachment {
             onContainsMouseChanged:
                 controller.showStatusMessage(containsMouse
                                              ? room.fileSource(eventId) : "")
-            onClicked: openExternally()
+            onClicked: {
+                openOnFinished = true
+                openExternally()
+            }
         }
 
         TimelineMouseArea {

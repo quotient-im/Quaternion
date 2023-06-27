@@ -5,9 +5,10 @@ Item {
     width: parent.width
     height: visible ? childrenRect.height : 0
 
-    property bool openOnFinished: false
+    required property bool openOnFinished
     readonly property bool downloaded: progressInfo &&
                 !progressInfo.isUpload && progressInfo.completed
+    signal opened
 
     onDownloadedChanged: {
         if (downloaded && openOnFinished)
@@ -19,27 +20,24 @@ Item {
         if (progressInfo.localPath.toString() || downloaded)
             openLocalFile()
         else
-        {
-            openOnFinished = true
             room.downloadFile(eventId)
-        }
     }
 
     function openLocalFile()
     {
-        if (Qt.openUrlExternally(progressInfo.localPath))
-            return;
+        if (!Qt.openUrlExternally(progressInfo.localPath)) {
+            controller.showStatusMessage(
+                "Couldn't determine how to open the file, " +
+                "opening its folder instead", 5000)
 
-        controller.showStatusMessage(
-            "Couldn't determine how to open the file, " +
-            "opening its folder instead", 5000)
-
-        if (Qt.openUrlExternally(progressInfo.localDir))
-            return;
-
-        controller.showStatusMessage(
-            "Couldn't determine how to open the file or its folder.",
-            5000)
+            if (!Qt.openUrlExternally(progressInfo.localDir)) {
+                controller.showStatusMessage(
+                    "Couldn't determine how to open the file or its folder.",
+                    5000)
+                return;
+            }
+        }
+        opened()
     }
 
     Connections {

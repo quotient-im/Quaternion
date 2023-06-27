@@ -24,8 +24,8 @@ Item {
                                                   (-0.7*defaultPalette.window.hslLightness + 0.9),
                                                   defaultPalette.buttonText.a)
 
-    readonly property bool actionEvent: eventType == "state"
-                                        || eventType == "emote"
+    readonly property bool actionEvent: eventType === "state"
+                                        || eventType === "emote"
 
     readonly property bool readMarkerHere: messageModel.readMarkerVisualIndex === index
 
@@ -367,7 +367,8 @@ Item {
                     onHoveredLinkChanged:
                         controller.showStatusMessage(hoveredLink)
 
-                    onLinkActivated: controller.resourceRequested(link)
+                    onLinkActivated:
+                        (link) => { controller.resourceRequested(link) }
 
                     TimelineTextEditSelector {}
 
@@ -382,7 +383,7 @@ Item {
                                  ? Qt.PointingHandCursor : Qt.IBeamCursor
                     acceptedButtons: Qt.MiddleButton | Qt.RightButton
 
-                    onClicked: {
+                    onClicked: (mouse) => {
                         if (mouse.button === Qt.MiddleButton) {
                             if (textFieldImpl.hoveredLink)
                                 controller.resourceRequested(
@@ -393,11 +394,11 @@ Item {
                         }
                     }
 
-                    onWheel: {
-                        if (wheel.angleDelta.x != 0 &&
+                    onWheel: (wheel) => {
+                        if (wheel.angleDelta.x !== 0 &&
                                 textFieldImpl.width < textFieldImpl.contentWidth)
                         {
-                            if (wheel.pixelDelta.x != 0)
+                            if (wheel.pixelDelta.x !== 0)
                                 textScrollBar.position -=
                                             wheel.pixelDelta.x / width
                             else
@@ -425,7 +426,7 @@ Item {
 
             Loader {
                 id: imageLoader
-                active: eventType == "image"
+                active: eventType === "image"
 
                 anchors.top: textField.bottom
                 anchors.left: textField.left
@@ -453,7 +454,7 @@ Item {
             }
             Loader {
                 id: fileLoader
-                active: eventType == "file"
+                active: eventType === "file"
 
                 anchors.top: textField.bottom
                 anchors.left: textField.left
@@ -552,7 +553,14 @@ Item {
         id: buttonArea
 
         Item {
-            TimelineItemToolButton {
+            component EventActionButton: TimelineItemToolButton {
+                anchors.top: parent.top
+                anchors.rightMargin: 2
+                width: visible * implicitWidth
+                height: visible * parent.height
+            }
+
+            EventActionButton {
                 id: resendButton
                 visible: failed
                 anchors.right: discardButton.left
@@ -560,7 +568,7 @@ Item {
 
                 onClicked: room.retryMessage(eventId)
             }
-            TimelineItemToolButton {
+            EventActionButton {
                 id: discardButton
                 visible: pending && marks !== EventStatus.ReachedServer
                          && marks !== EventStatus.Departed
@@ -569,7 +577,7 @@ Item {
 
                 onClicked: room.discardMessage(eventId)
             }
-            TimelineItemToolButton {
+            EventActionButton {
                 id: goToPredecessorButton
                 visible: !pending && eventResolvedType == "m.room.create" && refId
                 anchors.right: parent.right
@@ -578,7 +586,7 @@ Item {
                 // TODO: Treat unjoined invite-only rooms specially
                 onClicked: controller.resourceRequested(refId, "join")
             }
-            TimelineItemToolButton {
+            EventActionButton {
                 id: goToSuccessorButton
                 visible: !pending && eventResolvedType == "m.room.tombstone"
                 anchors.right: parent.right
@@ -637,7 +645,7 @@ Item {
 
                     width: parent.width
 
-                    onLinkActivated: Qt.openUrlExternally(link)
+                    onLinkActivated: (link) => { Qt.openUrlExternally(link) }
 
                     MouseArea {
                         anchors.fill: parent

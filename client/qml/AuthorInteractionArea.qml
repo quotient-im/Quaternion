@@ -1,5 +1,5 @@
 TimelineMouseArea {
-    property var authorId
+    required property var authorId
 
     enabled: parent.visible
     anchors.fill: parent
@@ -8,8 +8,9 @@ TimelineMouseArea {
     hoverEnabled: true
     onEntered: controller.showStatusMessage(authorId)
     onExited: controller.showStatusMessage("")
-    onClicked:
+    onClicked: (mouse) => {
         controller.resourceRequested(authorId,
                                      mouse.button === Qt.LeftButton
                                      ? "mention" : "_interactive")
+    }
 }

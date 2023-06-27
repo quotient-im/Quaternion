@@ -1,6 +1,6 @@
 import QtQuick 2.2
 
 MouseArea {
-    onWheel: chatView.onWheel(wheel)
+    onWheel: (wheel) => { chatView.onWheel(wheel) }
     onReleased: controller.focusInput()
 }

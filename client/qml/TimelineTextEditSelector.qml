@@ -6,13 +6,13 @@ import QtQuick 2.2
  */
 MouseArea {
     property var textEdit: parent
-    property var selectionMode: TextEdit.SelectCharacters
+    property int selectionMode: TextEdit.SelectCharacters
 
     anchors.fill: parent
     acceptedButtons: Qt.LeftButton
     preventStealing: true
 
-    onPressed: {
+    onPressed: (mouse) => {
         var x = mouse.x
         var y = mouse.y
         if (textEdit.flickableItem) {
@@ -43,7 +43,7 @@ MouseArea {
 
         controller.focusInput()
     }
-    onPositionChanged: {
+    onPositionChanged: (mouse) => {
         var x = mouse.x
         var y = mouse.y
         if (textEdit.flickableItem) {

@@ -23,6 +23,5 @@
         <file>qml/AnimationBehavior.qml</file>
         <file>qml/AnimatedTransition.qml</file>
         <file>qml/AuthorInteractionArea.qml</file>
-        <file>qml/ScrollToButton.qml</file>
     </qresource>
 </RCC>

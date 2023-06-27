@@ -1,6 +1,5 @@
 import QtQuick 2.10 // Qt 5.10
 import QtQuick.Controls 2.2
-import QtQuick.Layouts 1.1
 import Quotient 1.0
 
 Page {
@@ -181,7 +180,8 @@ Page {
                     onHoveredLinkChanged:
                         controller.showStatusMessage(hoveredLink)
 
-                    onLinkActivated: controller.resourceRequested(link)
+                    onLinkActivated:
+                        (link) => { controller.resourceRequested(link) }
                 }
             }
         }
@@ -191,7 +191,7 @@ Page {
             cursorShape: topicText.hoveredLink
                          ? Qt.PointingHandCursor : Qt.IBeamCursor
 
-            onClicked: {
+            onClicked: (mouse) => {
                 if (topicText.hoveredLink)
                     controller.resourceRequested(topicText.hoveredLink,
                                                  "_interactive")
@@ -780,11 +780,32 @@ Page {
         }
     }
 
+    component ScrollToButton:  RoundButton {
+        anchors.right: scrollerArea.left
+        anchors.rightMargin: 2
+        height: settings.fontHeight * 2
+        width: height
+        hoverEnabled: true
+        opacity: visible * (0.7 + hovered * 0.2)
+
+        display: Button.IconOnly
+        icon.color: defaultPalette.buttonText
+
+        AnimationBehavior on opacity {
+            NormalNumberAnimation {
+                easing.type: Easing.OutQuad
+            }
+        }
+        AnimationBehavior on anchors.bottomMargin {
+            NormalNumberAnimation {
+                easing.type: Easing.OutQuad
+            }
+        }
+    }
+
     ScrollToButton {
         id: scrollToBottomButton
 
-        anchors.right: scrollerArea.left
-        anchors.rightMargin: 2
         anchors.bottom: parent.bottom
         anchors.bottomMargin: visible ? 0.5 * height : -height
 
@@ -804,8 +825,6 @@ Page {
     ScrollToButton {
         id: scrollToReaderMarkerButton
 
-        anchors.right: scrollerArea.left
-        anchors.rightMargin: 2
         anchors.bottom: scrollToBottomButton.top
         anchors.bottomMargin: visible ? 0.5 * height : -3 * height
 
