@@ -80,7 +80,7 @@ Item {
 
     Component.onCompleted: {
         if (bottomEdgeShown)
-            bottomEdgeShownChanged(true)
+            bottomEdgeShownChanged()
         readMarkerHereChanged()
         maybeBindScrollTarget()
     }
