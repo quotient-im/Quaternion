@@ -58,6 +58,10 @@ jobs:
           override-compiler: GCC
         - os: macos-latest
           override-compiler: GCC
+        - os: macos-latest
+          qt-version: 5 # Gradually stop supporting Qt 5
+        - os: windows-latest
+          qt-version: 5
         include:
         - os: ubuntu-22.04
           qt-version: 5
