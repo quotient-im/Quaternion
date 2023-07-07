@@ -134,8 +134,6 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
 
         std::pair<QByteArray, bool> loadAccessToken(
             const Quotient::AccountSettings& account);
-        Connection* setupConnection(const Quotient::AccountSettings& account,
-                                    const QString& accessToken);
 
         /// Get the default connection to perform actions
         /*!
