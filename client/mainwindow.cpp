@@ -526,6 +526,7 @@ void MainWindow::addConnection(Connection* c)
 
     using Room = Quotient::Room;
 
+    accountRegistry->add(c);
     c->loadState();
     c->setLazyLoading(true);
 
@@ -723,7 +724,6 @@ void MainWindow::doOpenLoginDialog(LoginDialog* dialog)
         account.sync();
         dialog->deleteLater();
 
-        accountRegistry->add(connection);
         addConnection(connection);
         showInitialLoadIndicator();
     });
@@ -901,7 +901,6 @@ void MainWindow::invokeLogin()
                     else
                         ci->onNetworkError(error);
                 });
-        accountRegistry->add(c);
         if (legacyLocation) {
             connect(c, &Connection::connected, this, [this, c] {
                 qInfo()
