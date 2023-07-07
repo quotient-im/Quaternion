@@ -1401,7 +1401,7 @@ void MainWindow::sslErrors(QNetworkReply* reply, const QList<QSslError>& errors)
             msgBox.setDetailedText(error.certificate().toText());
         if (msgBox.exec() == QMessageBox::Abort)
             return;
-        Quotient::NetworkAccessManager::instance()->addIgnoredSslError(error);
+        Quotient::NetworkAccessManager::addIgnoredSslError(error);
     }
     reply->ignoreSslErrors(errors);
 }
