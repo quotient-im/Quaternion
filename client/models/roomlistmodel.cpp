@@ -227,7 +227,10 @@ void RoomListModel::connectRoomSignals(Room* room)
     m_roomOrder->connectSignals(room);
     connect(room, &Room::changed, this, [this, room](Room::Changes changes) {
         using C = Room::Change;
-        if (changes & (C::Name | C::PartiallyReadStats | C::UnreadStats | C::Highlights))
+        if ((changes
+             & (C::RoomNames | C::PartiallyReadStats | C::UnreadStats
+                | C::Highlights))
+            > 0)
             refresh(room);
         else if (changes & C::Avatar)
             refresh(room, { Qt::DecorationRole });
