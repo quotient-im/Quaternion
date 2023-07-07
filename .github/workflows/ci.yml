@@ -89,11 +89,7 @@ jobs:
         cache: true
         cache-key-prefix: Qt
         modules: ${{ matrix.qt-version == 6 && 'qtmultimedia' || '' }}
-        tools: "tools_ninja${{ !startsWith(matrix.os, 'macos') && ' tools_openssl_x64' || '' }}"
-
-    - name: Install other dependencies (macOS)
-      if: startsWith(matrix.os, 'macos')
-      run: brew install openssl
+        tools: tools_ninja
 
     - name: Setup environment
       run: |
@@ -113,7 +109,7 @@ jobs:
               -DCMAKE_MAKE_PROGRAM=$IQTA_TOOLS/Ninja/ninja \
               -DCMAKE_PREFIX_PATH=~/.local \
               -DQuotient_ENABLE_E2EE=ON \
-              -DOPENSSL_ROOT_DIR=${{ runner.os == 'macOS' && '`brew --prefix openssl@1.1`' || '$IQTA_TOOLS/OpenSSL/*/' }} \
+              ${{ runner.os == 'macOS' && '-DOPENSSL_ROOT_DIR=`brew --prefix openssl`' || '' }} \
               -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }} \
               -DBUILD_WITH_QT6=${{ matrix.qt-version == 6 }}" \
             >>$GITHUB_ENV
