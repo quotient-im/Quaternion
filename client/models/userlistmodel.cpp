@@ -8,7 +8,6 @@
 
 #include "userlistmodel.h"
 
-#include <QElapsedTimer>
 #include <QtCore/QDebug>
 #include <QtGui/QPixmap>
 #include <QtGui/QPalette>

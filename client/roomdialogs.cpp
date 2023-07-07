@@ -15,7 +15,6 @@
 #include <Quotient/user.h>
 #include <Quotient/connection.h>
 #include <Quotient/qt_connection_util.h>
-#include <Quotient/logging.h>
 #include <Quotient/csapi/create_room.h>
 #include <Quotient/events/roompowerlevelsevent.h>
 

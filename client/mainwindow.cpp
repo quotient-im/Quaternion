@@ -25,7 +25,6 @@
 #include <Quotient/connection.h>
 #include <Quotient/networkaccessmanager.h>
 #include <Quotient/settings.h>
-#include <Quotient/logging.h>
 #include <Quotient/user.h>
 #include <Quotient/qt_connection_util.h>
 
