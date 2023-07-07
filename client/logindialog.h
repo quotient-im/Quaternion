@@ -32,6 +32,8 @@ struct DeleteLater {
 };
 #endif
 
+static const auto E2eeEnabledSetting = QStringLiteral("enable_e2ee");
+
 class LoginDialog : public Dialog {
     Q_OBJECT
 public:
@@ -60,6 +62,7 @@ private:
     QLineEdit* passwordEdit;
     QLineEdit* initialDeviceName;
     QLineEdit* deviceId;
+    QCheckBox* enableEncryption;
     QLineEdit* serverEdit;
     QCheckBox* saveTokenCheck;
 

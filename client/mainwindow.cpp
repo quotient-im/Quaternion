@@ -62,6 +62,7 @@
 MainWindow::MainWindow()
 {
     Connection::setRoomType<QuaternionRoom>();
+    Connection::setEncryptionDefault(true);
 
     // Bind callbacks to signals from NetworkAccessManager
 
@@ -715,6 +716,7 @@ void MainWindow::doOpenLoginDialog(LoginDialog* dialog)
         account.setHomeserver(connection->homeserver());
         account.setDeviceId(connection->deviceId());
         account.setDeviceName(dialog->deviceName());
+        account.setValue(E2eeEnabledSetting, connection->encryptionEnabled());
         if (!dialog->keepLoggedIn()) {
             logoutOnExit.push_back(connection);
         }

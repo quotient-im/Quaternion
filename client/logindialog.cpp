@@ -36,6 +36,7 @@ LoginDialog::LoginDialog(const QString& statusMessage,
     , passwordEdit(new QLineEdit(this))
     , initialDeviceName(new QLineEdit(this))
     , deviceId(new QLineEdit(this))
+    , enableEncryption(new QCheckBox(tr("Enable E2EE (BETA)"), this))
     , serverEdit(new QLineEdit(QStringLiteral("https://matrix.org"), this))
     , saveTokenCheck(new QCheckBox(tr("Stay logged in"), this))
     , m_connection(new Connection)
@@ -113,11 +114,13 @@ LoginDialog::LoginDialog(const QString& statusMessage,
 
             initialDeviceName->setText(account.deviceName());
             deviceId->setText(account.deviceId());
+            enableEncryption->setChecked(account.get<bool>(E2eeEnabledSetting));
             saveTokenCheck->setChecked(account.keepLoggedIn());
             passwordEdit->setFocus();
         }
         else
         {
+            enableEncryption->setChecked(false);
             saveTokenCheck->setChecked(false);
             userEdit->setFocus();
         }
@@ -133,6 +136,7 @@ LoginDialog::LoginDialog(const QString& statusMessage,
     , passwordEdit(new QLineEdit(this))
     , initialDeviceName(new QLineEdit(reloginAccount.deviceName(), this))
     , deviceId(new QLineEdit(reloginAccount.deviceId(), this))
+    , enableEncryption(new QCheckBox(tr("Enable E2EE (BETA)"), this))
     , serverEdit(new QLineEdit(reloginAccount.homeserver().toString(), this))
     , saveTokenCheck(new QCheckBox(tr("Stay logged in"), this))
     , m_connection(new Connection)
@@ -142,6 +146,7 @@ LoginDialog::LoginDialog(const QString& statusMessage,
     userEdit->setFrame(false);
     initialDeviceName->setReadOnly(true);
     initialDeviceName->setFrame(false);
+    enableEncryption->setChecked(reloginAccount.get<bool>(E2eeEnabledSetting));
     setPendingApplyMessage(tr("Restoring access, please wait"));
 }
 
@@ -183,6 +188,8 @@ void LoginDialog::setup(const QString& statusMessage)
     connect(initialDeviceName, &QLineEdit::textChanged, deviceId,
             &QLineEdit::clear);
 
+    connect(enableEncryption, &QCheckBox::stateChanged, m_connection.get(),
+            &Connection::enableEncryption);
     connect(m_connection.get(), &Connection::connected,
             this, &Dialog::accept);
     connect(m_connection.get(), &Connection::loginError,
@@ -193,6 +200,7 @@ void LoginDialog::setup(const QString& statusMessage)
     formLayout->addRow(tr("Device name"), initialDeviceName);
     formLayout->addRow(tr("Saved device id"), deviceId);
     formLayout->addRow(tr("Connect to server"), serverEdit);
+    formLayout->addRow(enableEncryption);
     formLayout->addRow(saveTokenCheck);
 }
 
