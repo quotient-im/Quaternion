@@ -73,9 +73,9 @@ using the old name.)
     and Visual Studio 2019 (Windows) are the oldest officially supported.
 - Any build system that works with CMake should be fine:
   GNU Make, ninja (any platform), NMake, jom (Windows) are known to work.
-- optionally, libQuotient 0.7.x development files (from your package management
+- optionally, libQuotient 0.8.x development files (from your package management
   system), or prebuilt libQuotient (see "Getting the source code" above);
-  libQuotient 0.6.x is _not_ compatible with Quaternion 0.0.96.
+  libQuotient 0.7.x is _not_ compatible with Quaternion 0.0.96 beta 2 and later.
 - libQuotient dependendencies (see lib/README.md):
   - [Qt Keychain](https://github.com/frankosterfeld/qtkeychain) - either from
     your package management or built from source
