@@ -60,7 +60,7 @@ jobs:
           override-compiler: GCC
         include:
         - os: ubuntu-22.04
-          qt-version: 6
+          qt-version: 5
           composition: own-quotient
           check: appstream # Use one of faster paths for validation
         - os: ubuntu-22.04
@@ -200,7 +200,7 @@ jobs:
         fi
 
     - name: Make a package
-      if: matrix.composition == 'own-quotient' && matrix.qt-version == 5 && matrix.override-compiler == ''
+      if: matrix.composition == 'own-quotient' && matrix.qt-version == 6 && matrix.override-compiler == ''
       id: package
       env:
         DEPLOY_VERBOSITY: 1
