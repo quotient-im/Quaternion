@@ -8,6 +8,8 @@
 
 #include "dialog.h"
 
+#include <QtCore/QHash>
+
 namespace Quotient {
 class AccountRegistry;
 class Connection;
