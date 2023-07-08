@@ -45,7 +45,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-22.04, macos-latest, windows-latest ]
-        qt-version: [ 5, 6 ]
+        qt-version: [ 6 ]
         override-compiler: [ '', GCC ] # Defaults: MSVC on Windows, Clang elsewhere
         composition: [ own-quotient, static, dynamic ]
         exclude:
@@ -58,15 +58,14 @@ jobs:
           override-compiler: GCC
         - os: macos-latest
           override-compiler: GCC
-        - os: macos-latest
-          qt-version: 5 # Gradually stop supporting Qt 5
-        - os: windows-latest
-          qt-version: 5
         include:
         - os: ubuntu-22.04
           qt-version: 5
           composition: own-quotient
           check: appstream # Use one of faster paths for validation
+        - os: ubuntu-22.04
+          qt-version: 5
+          composition: static
         - os: ubuntu-22.04
           qt-version: 5        # Use one variation with external libQuotient
           composition: dynamic # to do CodeQL analysis (libQuotient is analysed
@@ -96,11 +95,6 @@ jobs:
         if [[ '${{ matrix.override-compiler }}' == 'GCC' ]]; then
             echo "CC=gcc" >>$GITHUB_ENV
             echo "CXX=g++" >>$GITHUB_ENV
-            if [ '${{ matrix.qt-version }}' == '5' ]; then
-                # Patch Qt to avoid GCC tumbling over QTBUG-90568/QTBUG-91909
-                sed -i 's/ThreadEngineStarter<void>(ThreadEngine<void> \*_threadEngine)/ThreadEngineStarter(ThreadEngine<void> \*_threadEngine)/' \
-                    $Qt5_DIR/include/QtConcurrent/qtconcurrentthreadengine.h
-            fi
         elif [[ '${{ runner.os }}' != 'Windows' ]]; then
             echo "CC=clang" >>$GITHUB_ENV
             echo "CXX=clang++" >>$GITHUB_ENV
