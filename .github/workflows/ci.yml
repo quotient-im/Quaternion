@@ -81,7 +81,8 @@ jobs:
       with:
         submodules: ${{ matrix.composition == 'own-quotient' }}
 
-    - name: Install Qt
+    - name: Install Qt (non-Linux)
+      if: "!startsWith(matrix.os, 'ubuntu')"
       uses: jurplel/install-qt-action@v3.0.0
       with:
         version: "${{ matrix.qt-version == 6 && '6.4' || matrix.qt-version }}.*"
@@ -89,6 +90,18 @@ jobs:
         cache-key-prefix: Qt
         modules: ${{ matrix.qt-version == 6 && 'qtmultimedia' || '' }}
         tools: tools_ninja
+
+    # Install on Linux via apt to get Qt built with OpenSSL 3
+    - name: Install Qt (Linux)
+      if: startsWith(matrix.os, 'ubuntu')
+      run: |
+        COMMON_PKGS="libolm-dev ninja-build"
+        sudo apt-get -qq update
+        sudo apt-get -qq install $COMMON_PKGS \
+            ${{ matrix.qt-version == 5
+                && 'qtdeclarative5-dev qttools5-dev qml-module-qtquick-controls2 qtquickcontrols2-5-dev qtmultimedia5-dev qt5keychain-dev'
+                || 'libgl1-mesa-dev qt6-declarative-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools qml6-module-qtquick-controls qt6-multimedia-dev qtkeychain-qt6-dev'
+            }}
 
     - name: Setup environment
       run: |
@@ -100,14 +113,13 @@ jobs:
             echo "CXX=clang++" >>$GITHUB_ENV
         fi
         echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-              -DCMAKE_MAKE_PROGRAM=$IQTA_TOOLS/Ninja/ninja \
+              ${{ runner.os != 'Linux' && '-DCMAKE_MAKE_PROGRAM=$IQTA_TOOLS/Ninja/ninja' || '' }} \
               -DCMAKE_PREFIX_PATH=~/.local \
               -DQuotient_ENABLE_E2EE=ON \
               ${{ runner.os == 'macOS' && '-DOPENSSL_ROOT_DIR=`brew --prefix openssl`' || '' }} \
               -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }} \
               -DBUILD_WITH_QT6=${{ matrix.qt-version == 6 }}" \
             >>$GITHUB_ENV
-        echo "QT_DIR=${Qt${{ matrix.qt-version }}_DIR}" >>$GITHUB_ENV
 
     - name: Setup MSVC environment
       uses: ilammy/msvc-dev-cmd@v1
@@ -116,6 +128,7 @@ jobs:
         arch: x64
 
     - name: Get, build and install QtKeychain
+      if: "!startsWith(matrix.os, 'ubuntu')"
       run: |
         git clone --depth=1 -b $QTKEYCHAIN_REF https://github.com/frankosterfeld/qtkeychain
         cd qtkeychain
@@ -185,7 +198,7 @@ jobs:
       if: startsWith(matrix.os, 'ubuntu')
       run: |
         find $FULL_INSTALL_PATH -name 'quaternion_*.qm'
-        LD_LIBRARY_PATH=$DEP_SO_PATH:$QT_DIR/lib \
+        LD_LIBRARY_PATH=$DEP_SO_PATH \
             $FULL_INSTALL_PATH/bin/quaternion -platform offscreen --version
         if [[ '${{ matrix.check }}' == 'appstream' ]]; then
           sudo apt-get -qq install flatpak
@@ -214,7 +227,7 @@ jobs:
                 # NB: $OUTPUT is both used in this script further below and
                 # propagated by linuxdeploy to appimagetool as the target path
                 export OUTPUT=$PACKAGE_STEM.AppImage
-                LD_LIBRARY_PATH=$QT_DIR/lib QMAKE=$QT_DIR/bin/qmake \
+                QMAKE=/usr/bin/qmake${{ matrix.qt-version }} \
                     QML_SOURCES_PATHS=$GITHUB_WORKSPACE/client/qml \
                     linuxdeploy/linuxdeploy-x86_64.AppImage --appdir $DESTDIR \
                     --plugin qt --output appimage
