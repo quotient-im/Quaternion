@@ -137,10 +137,10 @@ jobs:
         if [[ '${{ matrix.composition }}' == 'dynamic' ]]; then
             QTKEYCHAIN_SO_PATH=$(dirname $(find ~/.local/lib* -name 'libqt?keychain.so'))
             test -n "$QTKEYCHAIN_SO_PATH"
-            echo "DEP_SO_PATH=$QTKEYCHAIN_SO_PATH" >>$GITHUB_ENV
         fi
 
     - name: Get, build and install Olm
+      if: "!startsWith(matrix.os, 'ubuntu')"
       run: |
         git clone --depth=1 https://gitlab.matrix.org/matrix-org/olm.git
         cmake -S olm -B olm/build $CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=~/.local
@@ -241,7 +241,6 @@ jobs:
                 mv build/quaternion.dmg $OUTPUT
                 ;;
             Windows)
-                rm -rf $FULL_INSTALL_PATH/{bearer,qmltooling}
                 ls -l $FULL_INSTALL_PATH/quaternion.exe # Fail if it's not there
                 OUTPUT=$PACKAGE_STEM.zip
                 7z a $OUTPUT $FULL_INSTALL_PATH
