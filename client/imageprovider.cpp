@@ -103,7 +103,7 @@ class ThumbnailResponse : public QQuickImageResponse
         Connection* c;
         const QString mediaId;
         const QSize requestedSize;
-        Quotient::MediaThumbnailJob* job = nullptr;
+        QPointer<Quotient::MediaThumbnailJob> job = nullptr;
 
         QImage image;
         QString errorStr;
