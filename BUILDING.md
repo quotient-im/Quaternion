@@ -62,10 +62,10 @@ using the old name.)
 ### Pre-requisites
 - a recent Linux, macOS or Windows system (desktop versions tried; mobile
   platforms might work too but never tried)
-  - Recent enough Linux examples: Debian Buster; Fedora 28; OpenSUSE Leap 15;
-    Ubuntu Bionic Beaver.
-- Qt 5 (either Open Source or Commercial), version 5.15.x. As of 0.0.96 beta,
-  Quaternion builds with Qt 6 but the timeline doesn't show up.
+  - Recent enough Linux examples: Debian Bookworm; Fedora 36 or CentOS Stream 9;
+    OpenSUSE Leap 15.4; Ubuntu Jammy Jellyfish.
+- Qt 5 (either Open Source or Commercial), version 5.15.x or newer (Qt 6.4
+  recommended as of this writing)
 - CMake 3.16 or newer (from your package management system or
   [the official website](https://cmake.org/download/))
 - A C++ toolchain with C++20 support:
@@ -77,13 +77,12 @@ using the old name.)
   system), or prebuilt libQuotient (see "Getting the source code" above);
   libQuotient 0.7.x is _not_ compatible with Quaternion 0.0.96 beta 2 and later.
 - libQuotient dependendencies (see lib/README.md):
-  - [Qt Keychain](https://github.com/frankosterfeld/qtkeychain) - either from
-    your package management or built from source
+  - [Qt Keychain](https://github.com/frankosterfeld/qtkeychain)
   - If using E2EE (experimental):
     - libolm 3.2.5 or newer (the latest 3.x strongly recommended)
     - OpenSSL (both 1.1.x and 3.x are known to work; the version Quaternion runs
-      with must be the same it - or libQuotient, if libQuotient is
-      built/installed separately - is built with).
+      with must be the same as the version used to build Quaternion - or
+      libQuotient, if libQuotient is built/installed separately).
 
 Note that in case of using externally built (i.e. not in-tree) libQuotient
 you cannot choose whether or not E2EE is enabled; this is defined by your
@@ -102,45 +101,45 @@ On Debian/Ubuntu, the following line should get you everything necessary
 to build and run Quaternion (you don't need libolm-dev and libssl-dev if you
 don't plan to switch E2EE on):
 ```bash
-sudo apt-get install cmake qtdeclarative5-dev qttools5-dev qml-module-qtquick-controls qml-module-qtquick-controls2 qml-module-qtgraphicaleffects qtmultimedia5-dev qt5keychain-dev libolm-dev libssl-dev
+sudo apt-get install cmake qtdeclarative5-dev qttools5-dev qml-module-qtquick-controls2 qtquickcontrols2-5-dev qtmultimedia5-dev qt5keychain-dev libolm-dev libssl-dev
+sudo apt-get install cmake libgl1-mesa-dev qt6-declarative-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools qml6-module-qtquick-controls qt6-multimedia-dev qtkeychain-qt6-dev libolm-dev libssl-dev
 ```
 
-On Fedora 36/37, the following command should be enough for building and running
+On Fedora, the following command should be enough for building and running
 (similar to Debian family - you don't need libolm-devel and openssl-devel if
 you don't plan to switch E2EE on):
 ```bash
-sudo dnf install cmake qt5-qtdeclarative-devel qt5-qtquickcontrols qt5-qtquickcontrols2 qt5-qtgraphicaleffects qt5-qtmultimedia-devel qt5-qtquickcontrols2-devel qt5-linguist qtkeychain-qt5-devel libolm-devel openssl-devel
+sudo dnf install cmake qt5-qtdeclarative-devel qt5-qtmultimedia-devel qt5-qtquickcontrols2-devel qt5-linguist qtkeychain-qt5-devel libolm-devel openssl-devel
+sudo dnf install cmake qt6-qtdeclarative-devel qt6-qtmultimedia-devel qt6-qttools-devel qtkeychain-qt6-devel libolm-devel openssl-devel
 ```
 
 #### macOS
-`brew install qt5` should get you Qt 5; and if you plan to use E2EE,
-`brew install libolm openssl@1.1` will get you the needed dependencies for that.
-Unfortunately, you can't use Qt Keychain from Homebrew at the moment, as it is
-only available there in Qt 6 build configuration, and Quaternion doesn't work
-with Qt 6 yet.
+`brew install qt qtkeychain` should get you Qt 6 and the matching build of
+QtKeychain; if you want E2EE, use `brew install qt qtkeychain libolm openssl`
+instead.
 
 You have to point CMake at the installation locations for your libraries; for
-those coming from Homebrew you can put `$(brew --prefix qt5)` (this line
-literally) into the first cmake invocation. For example:
+those coming from Homebrew you can put `$(brew --prefix qt)` and similar for
+other libraries into the first cmake invocation, as follows:
 ```bash
 # if using in-tree libQuotient:
-cmake .. -DCMAKE_PREFIX_PATH="$(brew --prefix qt5);/path/to/qtkeychain"
+cmake .. -DCMAKE_PREFIX_PATH="$(brew --prefix qt);$(brew --prefix qtkeychain)"
 # or otherwise:
-cmake .. -DCMAKE_PREFIX_PATH="/path/to/libQuotient;$(brew --prefix qt5);/path/to/qtkeychain"
-# and if you also want experimental(!) E2EE support:
-cmake .. -DQuotient_ENABLE_E2EE=1 -DCMAKE_PREFIX_PATH="$(brew --prefix qt5);/path/to/qtkeychain;$(brew --prefix libolm);$(brew --prefix openssl)"
+cmake .. -DCMAKE_PREFIX_PATH="/path/to/libQuotient;$(brew --prefix qt);$(brew --prefix qtkeychain)"
+# and if you also want E2EE support (still in beta!):
+cmake .. -DQuotient_ENABLE_E2EE=1 -DCMAKE_PREFIX_PATH="$(brew --prefix qt5);$(brew --prefix qtkeychain);$(brew --prefix libolm);$(brew --prefix openssl)"
 ```
 
 #### Windows
 1. Install CMake. The commands in further sections imply that cmake is in your
    PATH - otherwise you have to prepend them with actual paths.
-1. Install Qt5, using their official installer.
+1. Install Qt 6, using their official installer.
 1. Make sure CMake knows about Qt and the toolchain - the easiest way is to run
-   `qtenv2.bat` script that can be found in `C:\Qt\<Qt version>\<toolchain>\bin`
+   `qtenv*.bat` script that can be found in `C:\Qt\<Qt version>\<toolchain>\bin`
    (assuming you installed Qt to `C:\Qt`). The only thing it does is adding
    necessary paths to `PATH` - you might not want to run it on system startup
    but it's very handy to setup environment before building.
-   Setting `CMAKE_PREFIX_PATH`, the same way as for macOS (see above), also helps.
+   Setting `CMAKE_PREFIX_PATH` also helps.
 1. Get and build [Qt Keychain](https://github.com/frankosterfeld/qtkeychain).
 1. If you plan to use E2EE and haven't built libQuotient yet, follow
    the instructions on installing E2EE dependencies in lib/README.md, section

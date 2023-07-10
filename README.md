@@ -71,6 +71,7 @@ flatpak install https://flathub.org/repo/appstream/com.github.quaternion.flatpak
 Please file issues at https://github.com/flathub/com.github.quaternion
 if you believe there's a problem specific to the Flatpak package of Quaternion.
 
+<!-- TOREMOVE: AppImages are broken, see #876.
 The GitHub Releases page offers AppImage binaries for Linux; however, it's
 recommended to only use AppImage binaries if Quaternion is not available
 from your distribution's repos and Flatpak doesn't work for you.
@@ -80,6 +81,7 @@ and fixes (e.g. security). Both Flatpak packages and distribution-specific
 packages are built in a more reproducible and controlled way than AppImages
 assembled within this project; unlike AppImages, they are also (usually) signed
 by the repo which gives certain protection from tampering.
+-->
 
 ### Development builds
 
