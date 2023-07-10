@@ -29,7 +29,7 @@ for major platforms can also be found at the
 Make sure to read the notes below depending to your environment.
 
 ### Requirements
-Quaternion 0.0.96 packages on Linux need Qt version 5.15.x; for major
+Quaternion 0.0.96 packages on Linux need Qt version 5.15.x (or 6.x); for major
 distros, that means Debian 11 (Bullseye), Ubuntu 22.04 (jammy), Fedora 35 and
 OpenSUSE Leap 15.4 or newer releases. The packages published by the project
 at GitHub (see below) come with Qt libraries bundled; Linux packages, including
@@ -90,7 +90,7 @@ continuous integration (CI) in the
 [Quaternion repo there](https://cloudsmith.io/~quotient/repos/quaternion/groups/).
 
 A few important notes on these packages in case you're new to them:
-- All these builds come bundled with recent Qt (5.15.x, as of this writing).
+- All of them come bundled with fairly recent (not necessarily latest) Qt 6.
 - They are only provided for testing; feedback on _any_ release is welcome
   as long as you know which build you run; but do not expect the developers
   to address issues in any but the latest snapshot.

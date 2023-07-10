@@ -44,31 +44,28 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-22.04, macos-11, windows-2019 ]
-        qt-version: [ 5, 6 ]
+        os: [ ubuntu-22.04, macos-latest, windows-latest ]
+        qt-version: [ 6 ]
         override-compiler: [ '', GCC ] # Defaults: MSVC on Windows, Clang elsewhere
         composition: [ own-quotient, static, dynamic ]
         exclude:
-        - os: ubuntu-22.04
-          qt-version: 5
-          composition: own-quotient # AppImage wants older Ubuntu (see below)
         # Unsupported combinations
-        - os: windows-2019
+        - os: windows-latest
           composition: dynamic
-        - os: macos-11
+        - os: macos-latest
           composition: dynamic
-        - os: windows-2019
+        - os: windows-latest
           override-compiler: GCC
-        - os: macos-11
+        - os: macos-latest
           override-compiler: GCC
         include:
-        - os: ubuntu-20.04
+        - os: ubuntu-22.04
           qt-version: 5
           composition: own-quotient
-        - os: ubuntu-22.04
-          qt-version: 6
-          composition: own-quotient
           check: appstream # Use one of faster paths for validation
+        - os: ubuntu-22.04
+          qt-version: 5
+          composition: static
         - os: ubuntu-22.04
           qt-version: 5        # Use one variation with external libQuotient
           composition: dynamic # to do CodeQL analysis (libQuotient is analysed
@@ -84,42 +81,45 @@ jobs:
       with:
         submodules: ${{ matrix.composition == 'own-quotient' }}
 
-    - name: Install Qt
+    - name: Install Qt (non-Linux)
+      if: "!startsWith(matrix.os, 'ubuntu')"
       uses: jurplel/install-qt-action@v3.0.0
       with:
         version: "${{ matrix.qt-version == 6 && '6.4' || matrix.qt-version }}.*"
         cache: true
         cache-key-prefix: Qt
         modules: ${{ matrix.qt-version == 6 && 'qtmultimedia' || '' }}
-        tools: "tools_ninja${{ !startsWith(matrix.os, 'macos') && ' tools_openssl_x64' || '' }}"
+        tools: tools_ninja
 
-    - name: Install other dependencies (macOS)
-      if: startsWith(matrix.os, 'macos')
-      run: brew install openssl
+    # Install on Linux via apt to get Qt built with OpenSSL 3
+    - name: Install Qt (Linux)
+      if: startsWith(matrix.os, 'ubuntu')
+      run: |
+        COMMON_PKGS="libolm-dev ninja-build"
+        sudo apt-get -qq update
+        sudo apt-get -qq install $COMMON_PKGS \
+            ${{ matrix.qt-version == 5
+                && 'qtdeclarative5-dev qttools5-dev qml-module-qtquick-controls2 qtquickcontrols2-5-dev qtmultimedia5-dev qt5keychain-dev'
+                || 'libgl1-mesa-dev qt6-declarative-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools qml6-module-qtquick-controls qt6-multimedia-dev qtkeychain-qt6-dev'
+            }}
 
     - name: Setup environment
       run: |
         if [[ '${{ matrix.override-compiler }}' == 'GCC' ]]; then
             echo "CC=gcc" >>$GITHUB_ENV
             echo "CXX=g++" >>$GITHUB_ENV
-            if [ '${{ matrix.qt-version }}' == '5' ]; then
-                # Patch Qt to avoid GCC tumbling over QTBUG-90568/QTBUG-91909
-                sed -i 's/ThreadEngineStarter<void>(ThreadEngine<void> \*_threadEngine)/ThreadEngineStarter(ThreadEngine<void> \*_threadEngine)/' \
-                    $Qt5_DIR/include/QtConcurrent/qtconcurrentthreadengine.h
-            fi
         elif [[ '${{ runner.os }}' != 'Windows' ]]; then
             echo "CC=clang" >>$GITHUB_ENV
             echo "CXX=clang++" >>$GITHUB_ENV
         fi
         echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-              -DCMAKE_MAKE_PROGRAM=$IQTA_TOOLS/Ninja/ninja \
+              ${{ runner.os != 'Linux' && '-DCMAKE_MAKE_PROGRAM=$IQTA_TOOLS/Ninja/ninja' || '' }} \
               -DCMAKE_PREFIX_PATH=~/.local \
               -DQuotient_ENABLE_E2EE=ON \
-              -DOPENSSL_ROOT_DIR=${{ runner.os == 'macOS' && '`brew --prefix openssl@1.1`' || '$IQTA_TOOLS/OpenSSL/*/' }} \
+              ${{ runner.os == 'macOS' && '-DOPENSSL_ROOT_DIR=`brew --prefix openssl`' || '' }} \
               -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }} \
               -DBUILD_WITH_QT6=${{ matrix.qt-version == 6 }}" \
             >>$GITHUB_ENV
-        echo "QT_DIR=${Qt${{ matrix.qt-version }}_DIR}" >>$GITHUB_ENV
 
     - name: Setup MSVC environment
       uses: ilammy/msvc-dev-cmd@v1
@@ -128,6 +128,7 @@ jobs:
         arch: x64
 
     - name: Get, build and install QtKeychain
+      if: "!startsWith(matrix.os, 'ubuntu')"
       run: |
         git clone --depth=1 -b $QTKEYCHAIN_REF https://github.com/frankosterfeld/qtkeychain
         cd qtkeychain
@@ -136,10 +137,10 @@ jobs:
         if [[ '${{ matrix.composition }}' == 'dynamic' ]]; then
             QTKEYCHAIN_SO_PATH=$(dirname $(find ~/.local/lib* -name 'libqt?keychain.so'))
             test -n "$QTKEYCHAIN_SO_PATH"
-            echo "DEP_SO_PATH=$QTKEYCHAIN_SO_PATH" >>$GITHUB_ENV
         fi
 
     - name: Get, build and install Olm
+      if: "!startsWith(matrix.os, 'ubuntu')"
       run: |
         git clone --depth=1 https://gitlab.matrix.org/matrix-org/olm.git
         cmake -S olm -B olm/build $CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=~/.local
@@ -197,7 +198,7 @@ jobs:
       if: startsWith(matrix.os, 'ubuntu')
       run: |
         find $FULL_INSTALL_PATH -name 'quaternion_*.qm'
-        LD_LIBRARY_PATH=$DEP_SO_PATH:$QT_DIR/lib \
+        LD_LIBRARY_PATH=$DEP_SO_PATH \
             $FULL_INSTALL_PATH/bin/quaternion -platform offscreen --version
         if [[ '${{ matrix.check }}' == 'appstream' ]]; then
           sudo apt-get -qq install flatpak
@@ -206,7 +207,7 @@ jobs:
         fi
 
     - name: Make a package
-      if: matrix.composition == 'own-quotient' && matrix.qt-version == 5 && matrix.override-compiler == ''
+      if: matrix.composition == 'own-quotient' && matrix.qt-version == 6 && matrix.override-compiler == ''
       id: package
       env:
         DEPLOY_VERBOSITY: 1
@@ -216,7 +217,11 @@ jobs:
             Linux)
                 sudo apt-get -qq install appstream libgstreamer-plugins-base1.0.0 \
                     libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
-                    libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libxkbcommon-x11-0
+                    libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libxkbcommon-x11-0 \
+                    libfuse2
+                # Make sure OpenSSL ends up in AppImage - linuxdeploy doesn't
+                # copy it automatically
+                cp /usr/lib/*/libssl.so.* $DESTDIR/usr/lib/
                 for f in linuxdeploy linuxdeploy-plugin-qt; do
                     wget -c -nv --directory-prefix=linuxdeploy \
                         https://github.com/linuxdeploy/$f/releases/download/continuous/$f-x86_64.AppImage
@@ -225,7 +230,7 @@ jobs:
                 # NB: $OUTPUT is both used in this script further below and
                 # propagated by linuxdeploy to appimagetool as the target path
                 export OUTPUT=$PACKAGE_STEM.AppImage
-                LD_LIBRARY_PATH=$QT_DIR/lib QMAKE=$QT_DIR/bin/qmake \
+                QMAKE=/usr/bin/qmake${{ matrix.qt-version }} \
                     QML_SOURCES_PATHS=$GITHUB_WORKSPACE/client/qml \
                     linuxdeploy/linuxdeploy-x86_64.AppImage --appdir $DESTDIR \
                     --plugin qt --output appimage
@@ -236,7 +241,6 @@ jobs:
                 mv build/quaternion.dmg $OUTPUT
                 ;;
             Windows)
-                rm -rf $FULL_INSTALL_PATH/{bearer,qmltooling}
                 ls -l $FULL_INSTALL_PATH/quaternion.exe # Fail if it's not there
                 OUTPUT=$PACKAGE_STEM.zip
                 7z a $OUTPUT $FULL_INSTALL_PATH
