@@ -101,7 +101,9 @@ On Debian/Ubuntu, the following line should get you everything necessary
 to build and run Quaternion (you don't need libolm-dev and libssl-dev if you
 don't plan to switch E2EE on):
 ```bash
+# With Qt 5
 sudo apt-get install cmake qtdeclarative5-dev qttools5-dev qml-module-qtquick-controls2 qtquickcontrols2-5-dev qtmultimedia5-dev qt5keychain-dev libolm-dev libssl-dev
+# With Qt 6
 sudo apt-get install cmake libgl1-mesa-dev qt6-declarative-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools qml6-module-qtquick-controls qt6-multimedia-dev qtkeychain-qt6-dev libolm-dev libssl-dev
 ```
 
@@ -109,7 +111,9 @@ On Fedora, the following command should be enough for building and running
 (similar to Debian family - you don't need libolm-devel and openssl-devel if
 you don't plan to switch E2EE on):
 ```bash
+# With Qt 5
 sudo dnf install cmake qt5-qtdeclarative-devel qt5-qtmultimedia-devel qt5-qtquickcontrols2-devel qt5-linguist qtkeychain-qt5-devel libolm-devel openssl-devel
+# With Qt 6
 sudo dnf install cmake qt6-qtdeclarative-devel qt6-qtmultimedia-devel qt6-qttools-devel qtkeychain-qt6-devel libolm-devel openssl-devel
 ```
 
@@ -195,7 +199,10 @@ CMake Warning at CMakeLists.txt:11 (find_package):
   "Qt5Widgets", but CMake did not find one.
 ```
 ...or a similar error referring to Qt5Something - make sure that your
-`CMAKE_PREFIX_PATH` actually points to the location where Qt 5 is installed.
+`CMAKE_PREFIX_PATH` actually points to the location where Qt is installed
+and that the respective development package is installed (hint: check which
+package provides `cmake(Qt5Widgets)`, replacing `Qt5Widgets` with what your
+error says).
 
 If `cmake` fails with...
 ```
@@ -213,10 +220,12 @@ libQuotient development files elsewhere - also, see the beginning of this file.
 If you have made sure that your toolchain is in order (versions of compilers
 and Qt are among supported ones, `PATH` is set correctly etc.) but building
 fails with strange Qt-related errors such as not found symbols or undefined
-references, double-check that you don't have Qt 4.x (or Qt 6.x) packages around
-([here is a typical example](https://github.com/quotient-im/Quaternion/issues/185)).
-If you need those packages reinstalling them may help; but if you use Qt4/6
-by default you have to explicitly pass Qt5 location to CMake (see notes about
-`CMAKE_PREFIX_PATH` in "Building").
+references
+([like in this issue, e.g.](https://github.com/quotient-im/Quaternion/issues/185)),
+double-check that you don't mix different versions of Qt. If you need those
+packages reinstalling them may help; but if you use that other Qt version by
+default to build other projects, you have to explicitly pass the location of
+the non-default Qt installation to CMake (see notes about `CMAKE_PREFIX_PATH`
+in "Building").
 
 See also the Troubleshooting section in [README.md](./README.md)
