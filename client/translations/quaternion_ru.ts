@@ -130,14 +130,6 @@
         <translation>Добавление изображения из буфера обмена</translation>
     </message>
     <message>
-        <source>Send a message (no end-to-end encryption support yet)...</source>
-        <translation>Отправить сообщение (сквозное шифрование пока не поддерживается)...</translation>
-    </message>
-    <message>
-        <source>Your build of Quaternion doesn&apos;t support Markdown</source>
-        <translation>Ваша сборка Quaternion не поддерживает Markdown</translation>
-    </message>
-    <message>
         <source>No completions</source>
         <translation>Подсказок нет</translation>
     </message>
@@ -504,22 +496,6 @@ settings</source>
         <translation>Настроить &amp;прокси-сервер...</translation>
     </message>
     <message>
-        <source>Couldn&apos;t open a file to save access token</source>
-        <translation>Не удалось открыть файл, чтобы сохранить ключ доступа</translation>
-    </message>
-    <message>
-        <source>Quaternion couldn&apos;t open a file to write the access token to. You&apos;re logged in but will have to provide your password again when you restart the application.</source>
-        <translation>Quaternion не смог открыть файл для записи ключа доступа. Учётная запись подключена, но при повторном запуске приложения вам придется снова ввести свой пароль.</translation>
-    </message>
-    <message>
-        <source>Couldn&apos;t set access token file permissions</source>
-        <translation>Не удалось установить права на обращение к файлу с ключом доступа</translation>
-    </message>
-    <message>
-        <source>Quaternion couldn&apos;t restrict permissions on the access token file. Do you still want to save the access token to it?</source>
-        <translation>Quaternion не смог ограничить права на обращение к файлу с ключом доступа. Вы все еще хотите сохранить ключ доступа?</translation>
-    </message>
-    <message>
         <source>Logged out as %1</source>
         <translation>Учётная запись %1 отключена</translation>
     </message>
@@ -690,26 +666,6 @@ Response:
         <translation>Показать/скрыть панель «Пользователи»</translation>
     </message>
     <message>
-        <source>Access token file found</source>
-        <translation>Найден файл с ключом доступа</translation>
-    </message>
-    <message>
-        <source>Couldn&apos;t migrate access token</source>
-        <translation>Не удалось переместить ключ доступа</translation>
-    </message>
-    <message>
-        <source>Couldn&apos;t save access token</source>
-        <translation>Не удалось сохранить ключ доступа</translation>
-    </message>
-    <message>
-        <source>Logging in into a logged in account</source>
-        <translation>Подключение к уже подключённой учётной записи</translation>
-    </message>
-    <message>
-        <source>You&apos;re trying to log in into an account that&apos;s already logged in. Do you want to continue?</source>
-        <translation>Вы пытаетесь войти в учётную запись, в которую уже вошли. Хотите продолжить?</translation>
-    </message>
-    <message>
         <source>Couldn&apos;t delete access token</source>
         <translation>Не удалось удалить ключ доступа</translation>
     </message>
@@ -782,18 +738,6 @@ or alias (starting with #)</source>
     <message>
         <source>libQuotient contributors @ GitHub</source>
         <translation>Разработчики libQuotient @ GitHub</translation>
-    </message>
-    <message>
-        <source>Do you want to migrate the access token for %1 from the file to the keychain?</source>
-        <translation>Вы хотите перенести ключ доступа для пользователя %1 из файла в хранилище ключей?</translation>
-    </message>
-    <message>
-        <source>Quaternion couldn&apos;t migrate access token for %1 from the file to the keychain.</source>
-        <translation>Quaternion не смог переместить ключ доступа для пользователя %1 из файла в хранилище ключей.</translation>
-    </message>
-    <message>
-        <source>Quaternion couldn&apos;t save the access token to the keychain. Do you want to save the access token to file %1?</source>
-        <translation>Quaternion не смог сохранить ключ доступа в хранилище ключей. Вы хотите сохранить ключ в файл %1?</translation>
     </message>
     <message>
         <source>First sync completed for %1</source>
@@ -956,10 +900,6 @@ User-defined tags should start with &quot;u.&quot;</source>
     <message>
         <source>The URI contains an action &apos;%1&apos; that cannot be applied to Matrix resource %2</source>
         <translation>URI содержит действие &apos;%1&apos;, которое не может быть применено к ресурсу Matrix %2</translation>
-    </message>
-    <message>
-        <source>Failed to resolve server %1</source>
-        <translation>Не удалось определить сервер %1</translation>
     </message>
     <message>
         <source>Room or user ID, room alias,
@@ -1133,10 +1073,6 @@ Matrix URI или ссылка на сервис matrix.to</translation>
     <message>
         <source>created the room, version %1</source>
         <translation>создал комнату, версия %1</translation>
-    </message>
-    <message>
-        <source>has set room aliases on server %1 to: %2</source>
-        <translation>установил псевдоним комнаты на сервере %1: %2</translation>
     </message>
     <message>
         <source>banned %1 from the room: %2</source>
@@ -1351,18 +1287,6 @@ Matrix URI или ссылка на сервис matrix.to</translation>
         <translation>%1 (как %2)</translation>
     </message>
     <message>
-        <source>You joined this room</source>
-        <translation>Вы присоединились к этой комнате</translation>
-    </message>
-    <message>
-        <source>You left this room</source>
-        <translation>Вы покинули эту комнату</translation>
-    </message>
-    <message>
-        <source>You were invited into this room</source>
-        <translation>Вас пригласили в эту комнату</translation>
-    </message>
-    <message>
         <source>Main alias: %1</source>
         <translation>Основной псевдоним: %1</translation>
     </message>
@@ -1373,10 +1297,6 @@ Matrix URI или ссылка на сервис matrix.to</translation>
     <message>
         <source>The room enforces encryption</source>
         <translation>В комнате включено шифрование</translation>
-    </message>
-    <message>
-        <source>ID: %1</source>
-        <translation>Идентификатор: %1</translation>
     </message>
     <message>
         <source>Favourites</source>
@@ -1401,18 +1321,6 @@ Matrix URI или ссылка на сервис matrix.to</translation>
     <message>
         <source>Invited: %L1</source>
         <translation>Приглашены: %L1</translation>
-    </message>
-    <message>
-        <source>Unread messages: %L1</source>
-        <translation>Непрочитанных сообщений: %L1</translation>
-    </message>
-    <message>
-        <source>Unread highlights: %L1</source>
-        <translation>Непрочитанных упоминаний: %L1</translation>
-    </message>
-    <message>
-        <source>Unread notifications: %L1</source>
-        <translation>Непрочитанных уведомлений: %L1</translation>
     </message>
     <message>
         <source>(maybe more)</source>

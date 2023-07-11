@@ -130,14 +130,6 @@
         <translation>Anhängen eines Bildes aus der Zwischenablage</translation>
     </message>
     <message>
-        <source>Send a message (no end-to-end encryption support yet)...</source>
-        <translation>Eine Nachricht senden (noch keine Unterstützung für Ende-zu-Ende-Verschlüsselung) …</translation>
-    </message>
-    <message>
-        <source>Your build of Quaternion doesn&apos;t support Markdown</source>
-        <translation>Ihr Build von Quaternion unterstützt Markdown nicht</translation>
-    </message>
-    <message>
         <source>No completions</source>
         <translation>Keine Vervollständigungen</translation>
     </message>
@@ -500,22 +492,6 @@ Einstellungen</translation>
         <translation>Konfiguriere &amp;Netzwerk-Proxy …</translation>
     </message>
     <message>
-        <source>Couldn&apos;t open a file to save access token</source>
-        <translation>Konnte keine Datei öffnen, um den Zugriffstoken zu speichern</translation>
-    </message>
-    <message>
-        <source>Quaternion couldn&apos;t open a file to write the access token to. You&apos;re logged in but will have to provide your password again when you restart the application.</source>
-        <translation>Quaternion konnte keine Datei öffnen, um den Zugangs-Token darin zu speichern. Sie wurden angemeldet, werden aber erneut ein Passwort eingeben müssen, wenn Sie die Anwendung neu starten.</translation>
-    </message>
-    <message>
-        <source>Couldn&apos;t set access token file permissions</source>
-        <translation>Konnte Berechtigungen der Zugriffstokendatei nicht setzen</translation>
-    </message>
-    <message>
-        <source>Quaternion couldn&apos;t restrict permissions on the access token file. Do you still want to save the access token to it?</source>
-        <translation>Quaternion konnte die Berechtigungen zur Zugangstoken-Datei nicht einschränken. Soll der Zugangstoken trotzdem darin gespeichert werden?</translation>
-    </message>
-    <message>
         <source>Logged out as %1</source>
         <translation>Als %1 abgemeldet</translation>
     </message>
@@ -686,26 +662,6 @@ Antwort:
         <translation>Benutzer-Dock-Panel ein-/ausblenden</translation>
     </message>
     <message>
-        <source>Access token file found</source>
-        <translation>Zugriffstokendatei gefunden</translation>
-    </message>
-    <message>
-        <source>Couldn&apos;t migrate access token</source>
-        <translation>Zugriffstoken konnte nicht migriert werden</translation>
-    </message>
-    <message>
-        <source>Couldn&apos;t save access token</source>
-        <translation>Zugriffstoken konnte nicht gespeichert werden.</translation>
-    </message>
-    <message>
-        <source>Logging in into a logged in account</source>
-        <translation>Einloggen in ein angemeldetes Konto</translation>
-    </message>
-    <message>
-        <source>You&apos;re trying to log in into an account that&apos;s already logged in. Do you want to continue?</source>
-        <translation>Sie versuchen, sich bei einem bereits angemeldeten Konto anzumelden. Möchten Sie fortfahren?</translation>
-    </message>
-    <message>
         <source>Couldn&apos;t delete access token</source>
         <translation>Zugriffstoken konnte nicht gelöscht werden.</translation>
     </message>
@@ -780,18 +736,6 @@ oder Alias (beginnend mit #)</translation>
         <translation>libQuotient Mitwirkende @ GitHub</translation>
     </message>
     <message>
-        <source>Do you want to migrate the access token for %1 from the file to the keychain?</source>
-        <translation>Möchten Sie das Zugriffstoken für %1 aus der Datei in den Schlüsselbund migrieren?</translation>
-    </message>
-    <message>
-        <source>Quaternion couldn&apos;t migrate access token for %1 from the file to the keychain.</source>
-        <translation>Quaternion konnte das Zugriffstoken %1 aus der Datei nicht in den Schlüsselbund migrieren.</translation>
-    </message>
-    <message>
-        <source>Quaternion couldn&apos;t save the access token to the keychain. Do you want to save the access token to file %1?</source>
-        <translation>Quaternion konnte das Zugriffstoken nicht im Schlüsselbund speichern. Möchten Sie das Zugriffstoken in der Datei %1 speichern?</translation>
-    </message>
-    <message>
         <source>First sync completed for %1</source>
         <translation>Erste Synchronisierung für %1 abgeschlossen</translation>
     </message>
@@ -819,7 +763,7 @@ oder Alias (beginnend mit #)</translation>
 Is that right?</source>
         <translation>Eine externe Anwendung wird geöffnet, um einen Nicht-Matrix-Link zu besuchen: 
 
- % 1 
+%1 
 
  Ist das richtig?</translation>
     </message>
@@ -952,10 +896,6 @@ Benutzerdefinierte Etiketten sollten mit „u.“ beginnen.</translation>
     <message>
         <source>The URI contains an action &apos;%1&apos; that cannot be applied to Matrix resource %2</source>
         <translation>Der URI enthält eine Aktion &apos;%1&apos;, die nicht auf die Matrix-Ressource %2 angewendet werden kann</translation>
-    </message>
-    <message>
-        <source>Failed to resolve server %1</source>
-        <translation>Server %1 konnte nicht aufgelöst werden</translation>
     </message>
     <message>
         <source>Room or user ID, room alias,
@@ -1129,10 +1069,6 @@ Matrix URI oder matrix.to Link</translation>
     <message>
         <source>created the room, version %1</source>
         <translation>erstellte den Raum, Version %1</translation>
-    </message>
-    <message>
-        <source>has set room aliases on server %1 to: %2</source>
-        <translation>hat Raum-Aliase auf dem Server %1 auf %2 gesetzt</translation>
     </message>
     <message>
         <source>banned %1 from the room: %2</source>
@@ -1345,18 +1281,6 @@ Matrix URI oder matrix.to Link</translation>
         <translation>%1 (als %2)</translation>
     </message>
     <message>
-        <source>You joined this room</source>
-        <translation>Sie sind diesem Raum beigetreten</translation>
-    </message>
-    <message>
-        <source>You left this room</source>
-        <translation>Sie haben diesen Raum verlassen</translation>
-    </message>
-    <message>
-        <source>You were invited into this room</source>
-        <translation>Sie wurden in diesen Raum eingeladen</translation>
-    </message>
-    <message>
         <source>Main alias: %1</source>
         <translation>Hauptalias: %1</translation>
     </message>
@@ -1367,10 +1291,6 @@ Matrix URI oder matrix.to Link</translation>
     <message>
         <source>The room enforces encryption</source>
         <translation>Der Raum erzwingt Verschlüsselung</translation>
-    </message>
-    <message>
-        <source>ID: %1</source>
-        <translation>ID: %1</translation>
     </message>
     <message>
         <source>Favourites</source>
@@ -1395,18 +1315,6 @@ Matrix URI oder matrix.to Link</translation>
     <message>
         <source>Invited: %L1</source>
         <translation>Eingeladen: %L1</translation>
-    </message>
-    <message>
-        <source>Unread messages: %L1</source>
-        <translation>Ungelesene Nachrichten: %L1</translation>
-    </message>
-    <message>
-        <source>Unread highlights: %L1</source>
-        <translation>Ungelesene Hervorhebungen: %L1</translation>
-    </message>
-    <message>
-        <source>Unread notifications: %L1</source>
-        <translation>Ungelesene Benachrichtigungen: %L1</translation>
     </message>
     <message>
         <source>(maybe more)</source>
@@ -1624,7 +1532,7 @@ neuem Raum</translation>
     </message>
     <message>
         <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
-        <translation>Die Medien-ID &apos;% 1&apos; folgt nicht dem Server/Medien-ID-Muster</translation>
+        <translation>Die Medien-ID &apos;%1&apos; folgt nicht dem Server/Medien-ID-Muster</translation>
     </message>
     <message>
         <source>No connection to perform image request</source>
