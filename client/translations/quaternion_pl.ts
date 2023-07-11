@@ -130,14 +130,6 @@
         <translation>Załączanie obrazu ze schowka</translation>
     </message>
     <message>
-        <source>Send a message (no end-to-end encryption support yet)...</source>
-        <translation>Wyślij wiadomość (brak obsługi szyfrowania typu end-to-end)…</translation>
-    </message>
-    <message>
-        <source>Your build of Quaternion doesn&apos;t support Markdown</source>
-        <translation>Twoja wersja Quaterniona nie wspiera składni Markdown</translation>
-    </message>
-    <message>
         <source>No completions</source>
         <translation>Brak dokończeń</translation>
     </message>
@@ -465,22 +457,6 @@ pokoju</translation>
         <translation>&amp;Konfiguruj proxy sieciowe…</translation>
     </message>
     <message>
-        <source>Couldn&apos;t open a file to save access token</source>
-        <translation>Nie można otworzyć pliku, aby zapisać token dostępu</translation>
-    </message>
-    <message>
-        <source>Quaternion couldn&apos;t open a file to write the access token to. You&apos;re logged in but will have to provide your password again when you restart the application.</source>
-        <translation>Quaternion nie mógł otworzyć pliku, aby zapisać token dostępu. Jesteś zalogowany, ale będziesz musiał podać hasło ponownie po ponownym uruchomieniu aplikacji.</translation>
-    </message>
-    <message>
-        <source>Couldn&apos;t set access token file permissions</source>
-        <translation>Nie można ustawić uprawnień do pliku tokenu dostępu</translation>
-    </message>
-    <message>
-        <source>Quaternion couldn&apos;t restrict permissions on the access token file. Do you still want to save the access token to it?</source>
-        <translation>Quaternion nie mógł ograniczyć uprawnień do pliku z tokenem dostępu. Czy nadal chcesz tam zapisać token dostępu?</translation>
-    </message>
-    <message>
         <source>Logged out as %1</source>
         <translation>Wylogowano jako %1</translation>
     </message>
@@ -643,26 +619,6 @@ Odpowiedź:
         <translation>Pokazuje/ukrywa panel dock użytkowników</translation>
     </message>
     <message>
-        <source>Access token file found</source>
-        <translation>Znaleziono plik tokena dostępu</translation>
-    </message>
-    <message>
-        <source>Couldn&apos;t migrate access token</source>
-        <translation>Nie można migrować tokena dostępu</translation>
-    </message>
-    <message>
-        <source>Couldn&apos;t save access token</source>
-        <translation>Nie można zapisać tokena dostępu</translation>
-    </message>
-    <message>
-        <source>Logging in into a logged in account</source>
-        <translation>Logowanie do zalogowanego konta</translation>
-    </message>
-    <message>
-        <source>You&apos;re trying to log in into an account that&apos;s already logged in. Do you want to continue?</source>
-        <translation>Próbujesz się zalogować na konto, które jest już zalogowane. Chcesz kontynuować?</translation>
-    </message>
-    <message>
         <source>Couldn&apos;t delete access token</source>
         <translation>Nie można usunąć tokena dostępu</translation>
     </message>
@@ -735,18 +691,6 @@ lub alias (zaczynający się od #)</translation>
     <message>
         <source>libQuotient contributors @ GitHub</source>
         <translation>Współautorzy libQuotient na GitHubie</translation>
-    </message>
-    <message>
-        <source>Do you want to migrate the access token for %1 from the file to the keychain?</source>
-        <translation>Czy chcesz migrować token dostępu dla %1 z pliku do pęku kluczy?</translation>
-    </message>
-    <message>
-        <source>Quaternion couldn&apos;t migrate access token for %1 from the file to the keychain.</source>
-        <translation>Quaternion nie mógł migrować tokena dostępu %1 z pliku do pęku kluczy.</translation>
-    </message>
-    <message>
-        <source>Quaternion couldn&apos;t save the access token to the keychain. Do you want to save the access token to file %1?</source>
-        <translation>Quaternion nie mógł zapisać tokena dostępu do pęku kluczy. Czy chcesz zapisać token dostępu do pliku %1?</translation>
     </message>
     <message>
         <source>First sync completed for %1</source>
@@ -885,10 +829,6 @@ Tagi zdefiniowane przez użytkownika powinny zaczynać się od „u.”</transla
     <message>
         <source>Could not resolve Matrix identifier</source>
         <translation>Nie można ustalić identyfikatora Matrix</translation>
-    </message>
-    <message>
-        <source>Failed to resolve server %1</source>
-        <translation>Nie udało się ustalić serwera %1</translation>
     </message>
     <message>
         <source>Room or user ID, room alias,
@@ -1270,18 +1210,6 @@ Matrix URI lub link matrix.to</translation>
         <translation>%1 (jako %2)</translation>
     </message>
     <message>
-        <source>You joined this room</source>
-        <translation>Dołączyłeś(-aś) do pokoju</translation>
-    </message>
-    <message>
-        <source>You left this room</source>
-        <translation>Opuściłeś(-aś) pokój</translation>
-    </message>
-    <message>
-        <source>You were invited into this room</source>
-        <translation>Zostałeś(-aś) zaproszony(-a) do tego pokoju</translation>
-    </message>
-    <message>
         <source>Main alias: %1</source>
         <translation>Główny alias: %1</translation>
     </message>
@@ -1292,10 +1220,6 @@ Matrix URI lub link matrix.to</translation>
     <message>
         <source>The room enforces encryption</source>
         <translation>Ten pokój wymusza szyfrowanie</translation>
-    </message>
-    <message>
-        <source>ID: %1</source>
-        <translation>ID: %1</translation>
     </message>
     <message>
         <source>Favourites</source>
@@ -1316,18 +1240,6 @@ Matrix URI lub link matrix.to</translation>
     <message>
         <source>Invited: %L1</source>
         <translation>Zaproszone: %L1</translation>
-    </message>
-    <message>
-        <source>Unread messages: %L1</source>
-        <translation>Nieprzeczytane wiadomości: %L1</translation>
-    </message>
-    <message>
-        <source>Unread highlights: %L1</source>
-        <translation>Nieprzeczytane wyróżnienia: %L1</translation>
-    </message>
-    <message>
-        <source>Unread notifications: %L1</source>
-        <translation>Nieprzeczytane powiadomienia: %L1</translation>
     </message>
     <message>
         <source>(maybe more)</source>
