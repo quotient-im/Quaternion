@@ -879,6 +879,7 @@ inline QString accessTokenKey(const KeySourceT& source, bool legacyLocation)
 void MainWindow::invokeLogin()
 {
     const auto accounts = Quotient::SettingsGroup("Accounts").childGroups();
+    bool showLoginDialog = true;
     for (const auto& accountId: accounts) {
         Quotient::AccountSettings account { accountId };
 
@@ -889,6 +890,7 @@ void MainWindow::invokeLogin()
         if (token.isEmpty()) // The account is saved but not logged-in
             continue;
 
+        showLoginDialog = false;
         qDebug().noquote().nospace()
             << "Found an access token for " << account.userId() << '/'
             << account.deviceId() << ", trying to connect";
@@ -922,7 +924,7 @@ void MainWindow::invokeLogin()
     }
     // By now, either no accounts were found or whichever were found are
     // retrieving their access tokens (or resolving their homeservers at least)
-    if (accountRegistry->empty())
+    if (showLoginDialog)
         showLoginWindow(tr("Welcome to Quaternion"));
     else
         showInitialLoadIndicator();
