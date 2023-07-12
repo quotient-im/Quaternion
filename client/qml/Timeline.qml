@@ -1,5 +1,5 @@
 import QtQuick 2.10 // Qt 5.10
-import QtQuick.Controls 2.2
+import QtQuick.Controls 2.3
 import Quotient 1.0
 
 Page {
@@ -12,14 +12,10 @@ Page {
 
         Component.onCompleted: console.log("Using timeline font: " + font)
     }
-    SystemPalette { id: defaultPalette; colorGroup: SystemPalette.Active }
-    SystemPalette { id: disabledPalette; colorGroup: SystemPalette.Disabled }
 
-    background: Rectangle {
-        color: defaultPalette.base
-        radius: 2
-    }
+    background: Rectangle { color: palette.base }
     contentWidth: width
+    font: settings.font
 
     function humanSize(bytes)
     {
@@ -36,20 +32,11 @@ Page {
         return qsTr("%L1 GB").arg(Math.round(bytes / 100) / 10)
     }
 
-    function mixColors(baseColor, mixedColor, mixRatio)
-    {
-        return Qt.tint(baseColor,
-                Qt.rgba(mixedColor.r, mixedColor.g, mixedColor.b, mixRatio))
-    }
-
-    header: Rectangle {
+    header: Frame {
         id: roomHeader
 
-        height: headerText.height + 5
-
-        color: defaultPalette.window
-        border.color: disabledPalette.windowText
-        radius: 2
+        height: headerText.height + 11
+        padding: 3
         visible: !!room
 
         property bool showTopic: true
@@ -102,11 +89,9 @@ Page {
                 }
 
                 text: roomNameMetrics.elidedText
-                color: (hasName ? defaultPalette : disabledPalette).windowText
+                color: (hasName ? palette : settings.disabledPalette).windowText
 
                 font.bold: true
-                font.family: settings.font.family
-                font.pointSize: settings.font.pointSize
                 renderType: settings.render_type
                 readOnly: true
                 selectByKeyboard: true
@@ -131,8 +116,6 @@ Page {
                     room.isUnstable ? qsTr("Unstable room version!") : ""
                 elide: Text.ElideRight
                 font.italic: true
-                font.family: settings.font.family
-                font.pointSize: settings.font.pointSize
                 renderType: settings.render_type
                 ToolTipArea {
                     enabled: parent.truncated
@@ -168,9 +151,8 @@ Page {
                     text: hasTopic
                           ? room.prettyPrint(room.topic) : qsTr("(no topic)")
                     color:
-                        (hasTopic ? defaultPalette : disabledPalette).windowText
+                        (hasTopic ? palette : settings.disabledPalette).windowText
                     textFormat: TextEdit.RichText
-                    font: settings.font
                     renderType: settings.render_type
                     readOnly: true
                     selectByKeyboard: true;
@@ -525,6 +507,8 @@ Page {
             onReleased: controller.focusInput()
         }
 
+        readonly property color readMarkerColor: palette.highlight
+
         Rectangle {
             id: readShade
 
@@ -545,7 +529,7 @@ Page {
             opacity: 0.1
 
             radius: readMarkerLine.height
-            color: messageModel.fadedBackColor(defaultPalette.highlight)
+            color: messageModel.fadedBackColor(chatView.readMarkerColor)
         }
         Rectangle {
             id: readMarkerLine
@@ -558,7 +542,7 @@ Page {
 
             gradient: Gradient {
                 GradientStop { position: 0; color: "transparent" }
-                GradientStop { position: 1; color: defaultPalette.highlight }
+                GradientStop { position: 1; color: chatView.readMarkerColor }
             }
         }
 
@@ -578,12 +562,10 @@ Page {
             width: childrenRect.width + 2
             height: childrenRect.height + 2
             visible: chatView.sectionBannerVisible
-            color: defaultPalette.window
+            color: palette.window
             opacity: 0.8
             Label {
                 font.bold: true
-                font.family: settings.font.family
-                font.pointSize: settings.font.pointSize
                 opacity: 0.8
                 renderType: settings.render_type
                 text: chatView.underlayingItem ?
@@ -624,7 +606,7 @@ Page {
             * (chatView.count - chatView.bottommostVisibleIndex)
         visible: shuttleDial.visible
 
-        color: defaultPalette.mid
+        color: palette.mid
     }
     Rectangle {
         // Loading history events bar, stacked above
@@ -636,7 +618,7 @@ Page {
         visible: shuttleDial.visible
 
         opacity: 0.4
-        color: defaultPalette.mid
+        color: palette.mid
     }
 
     // === Scrolling extensions ===
@@ -672,7 +654,7 @@ Page {
                 height: Math.abs(shuttleDial.deviation)
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: 2
-                color: defaultPalette.highlight
+                color: palette.highlight
             }
         }
         opacity: scrollerArea.containsMouse ? 1 : 0.7
@@ -737,7 +719,7 @@ Page {
         anchors.top: chatView.top
         width: childrenRect.width + 3
         height: childrenRect.height + 3
-        color: defaultPalette.alternateBase
+        color: palette.alternateBase
         property bool shown:
             (chatView.bottommostVisibleIndex >= 0
                   && (scrollerArea.containsMouse || scrollAnimation.running))
@@ -760,8 +742,6 @@ Page {
 
         Label {
             font.bold: true
-            font.family: settings.font.family
-            font.pointSize: settings.font.pointSize
             opacity: 0.8
             renderType: settings.render_type
             text: (chatView.count > 0
@@ -789,7 +769,7 @@ Page {
         opacity: visible * (0.7 + hovered * 0.2)
 
         display: Button.IconOnly
-        icon.color: defaultPalette.buttonText
+        icon.color: palette.buttonText
 
         AnimationBehavior on opacity {
             NormalNumberAnimation {

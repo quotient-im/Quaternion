@@ -37,8 +37,21 @@ Settings {
         ? Text.NativeRendering : Text.QtRendering
     readonly property bool use_shuttle_dial: value("UI/use_shuttle_dial", true)
     readonly property bool autoload_images: value("UI/autoload_images", true)
+
+    readonly property var disabledPalette:
+        SystemPalette { colorGroup: SystemPalette.Disabled }
+
+    function mixColors(baseColor, mixedColor, mixRatio)
+    {
+        return Qt.tint(baseColor,
+                Qt.rgba(mixedColor.r, mixedColor.g, mixedColor.b, mixRatio))
+    }
+
     readonly property string highlight_mode: value("UI/highlight_mode", "background")
     readonly property color highlight_color: value("UI/highlight_color", "orange")
+
+    readonly property color lowlight_color: mixColors(disabledPalette.text,
+                                                      palette.text, 0.3)
     readonly property bool show_author_avatars:
         value("UI/show_author_avatars", !timelineStyleIsXChat)
 }

@@ -5,7 +5,6 @@ Button {
     id: tButton
     contentItem: Text {
         text: tButton.text
-        font: settings.font
         fontSizeMode: Text.VerticalFit
         minimumPointSize: settings.font.pointSize - 3
         color: foreground

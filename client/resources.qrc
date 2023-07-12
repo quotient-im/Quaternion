@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>qml/Timeline.qml</file>
-        <file>qml/MyToolTip.qml</file>
         <file>qml/ToolTipArea.qml</file>
         <file alias="icon.png">../icons/quaternion/128-apps-quaternion.png</file>
         <file alias="irc-channel-joined.svg">../icons/breeze/irc-channel-joined.svg</file>

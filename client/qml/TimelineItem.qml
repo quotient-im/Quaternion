@@ -1,5 +1,5 @@
 import QtQuick 2.6
-import QtQuick.Controls 2.2
+import QtQuick.Controls 2.3
 import Quotient 1.0
 
 Item {
@@ -18,11 +18,9 @@ Item {
     readonly property string authorName:
         room && author ? room.safeMemberName(author.id) : ""
     // FIXME: boilerplate with models/userlistmodel.cpp:115
-    readonly property string authorColor: Qt.hsla(author ? author.hueF : 0.0,
-                                                  (1-defaultPalette.window.hslSaturation),
-                                                  /* contrast but not too heavy: */
-                                                  (-0.7*defaultPalette.window.hslLightness + 0.9),
-                                                  defaultPalette.buttonText.a)
+    readonly property string authorColor: // contrast but not too heavy
+        Qt.hsla(author ? author.hueF : 0.0, (1-palette.window.hslSaturation),
+                (-0.7*palette.window.hslLightness + 0.9), palette.buttonText.a)
 
     readonly property bool actionEvent: eventType === "state"
                                         || eventType === "emote"
@@ -161,10 +159,8 @@ Item {
             width: parent.width
             height: childrenRect.height + 2
             visible: sectionVisible
-            color: defaultPalette.window
+            color: palette.alternateBase
             Label {
-                font.family: settings.font.family
-                font.pointSize: settings.font.pointSize
                 font.bold: true
                 renderType: settings.render_type
                 text: date
@@ -209,10 +205,8 @@ Item {
                 anchors.top: authorAvatar.top
                 anchors.left: parent.left
 
-                opacity: 0.8
+                color: settings.lowlight_color
                 renderType: settings.render_type
-                font.family: settings.font.family
-                font.pointSize: settings.font.pointSize
                 font.italic: pending
 
                 text: "<" + time.toLocaleTimeString(Qt.locale(),
@@ -256,8 +250,6 @@ Item {
 
                 color: authorColor
                 textFormat: Label.PlainText
-                font.family: settings.font.family
-                font.pointSize: settings.font.pointSize
                 font.bold: !settings.timelineStyleIsXChat
                 renderType: settings.render_type
 
@@ -329,8 +321,7 @@ Item {
                     text: (!settings.timelineStyleIsXChat
                            ? ("<table style='
                                 float: right; font-size: small;
-                                color:\"" + mixColors(disabledPalette.text,
-                                                      defaultPalette.text, 0.3)
+                                color:\"" + settings.lowlight_color
                               + "\"'><tr><td>"
                               + (time
                                  ? toHtmlEscaped(time.toLocaleTimeString(
@@ -346,14 +337,12 @@ Item {
                            : "")
                           + display
                           + (replaced
-                             ? "<small style='color:\""
-                               + mixColors(disabledPalette.text, defaultPalette.text, 0.3)
-                               + "\"'>" + " (" + qsTr("edited") + ")</small>"
+                             ? "<small style='color:\"" + settings.lowlight_color
+                               + "\"'> (" + qsTr("edited") + ")</small>"
                              : "")
                     horizontalAlignment: Text.AlignLeft
                     wrapMode: Text.Wrap
                     color: foreground
-                    font: settings.font
                     renderType: settings.render_type
 
                     // TODO: In the code below, links should be resolved
@@ -473,8 +462,6 @@ Item {
                 height: annotation ? implicitHeight : 0
                 visible: annotation
 
-                font.family: settings.font.family
-                font.pointSize: settings.font.pointSize
                 font.italic: true
                 leftPadding: 2
                 rightPadding: 2
@@ -498,31 +485,31 @@ Item {
                             text: modelData.key + " \u00d7" /* Math "multiply" */
                                   + modelData.authorsCount
                             textFormat: Text.PlainText
-                            font.family: settings.font.family
-                            font.pointSize: settings.font.pointSize
                             color: modelData.includesLocalUser
-                                       ? defaultPalette.highlight
-                                       : defaultPalette.buttonText
+                                       ? palette.highlight
+                                       : palette.buttonText
                         }
 
                         background: Rectangle {
                             radius: 4
-                            color: reactionButton.down
-                                   ? defaultPalette.button : "transparent"
+                            color: reactionButton.down ? palette.button
+                                                       : "transparent"
                             border.color: modelData.includesLocalUser
-                                              ? defaultPalette.highlight
-                                              : disabledPalette.buttonText
+                                              ? palette.highlight
+                                              : settings.disabledPalette.buttonText
                             border.width: 1
                         }
 
                         hoverEnabled: true
-                        MyToolTip {
+                        ToolTip {
                             visible: hovered
                             contentItem: Text {
                                 //: %2 is the list of users
                                 text: qsTr("Reaction '%1' from %2")
                                       .arg(modelData.key).arg(modelData.authors)
                                 textFormat: Text.PlainText
+                                wrapMode: Text.Wrap
+                                color: palette.toolTipText
                             }
                         }
 
@@ -605,8 +592,8 @@ Item {
             height: childrenRect.height
             radius: 5
 
-            color: defaultPalette.button
-            border.color: defaultPalette.mid
+            color: palette.button
+            border.color: palette.mid
 
             readonly property url evtLink:
                 "https://matrix.to/#/" + room.id + "/" + eventId
@@ -620,8 +607,6 @@ Item {
                 TextEdit {
                     text: "<" + time.toLocaleString(Qt.locale(), Locale.ShortFormat) + ">"
                     font.bold: true
-                    font.family: settings.font.family
-                    font.pointSize: settings.font.pointSize
                     renderType: settings.render_type
                     readOnly: true
                     selectByKeyboard: true; selectByMouse: true
@@ -636,8 +621,6 @@ Item {
                     text: "<a href=\"" + evtLink + "\">"+ eventId + "</a>"
                     textFormat: Text.RichText
                     font.bold: true
-                    font.family: settings.font.family
-                    font.pointSize: settings.font.pointSize
                     renderType: settings.render_type
                     horizontalAlignment: Text.AlignHCenter
                     readOnly: true
@@ -659,8 +642,6 @@ Item {
                     text: eventClassName
                     textFormat: Text.PlainText
                     font.bold: true
-                    font.family: settings.font.family
-                    font.pointSize: settings.font.pointSize
                     renderType: settings.render_type
 
                     anchors.top: eventTitle.bottom
@@ -671,7 +652,6 @@ Item {
                 TextEdit {
                     id: permalink
                     text: evtLink
-                    font: settings.font
                     renderType: settings.render_type
                     width: 0; height: 0; visible: false
                 }
@@ -690,7 +670,6 @@ Item {
                     textFormat: Text.PlainText
                     readOnly: true;
                     font.family: "Monospace"
-                    font.pointSize: settings.font.pointSize
                     renderType: settings.render_type
                     selectByKeyboard: true; selectByMouse: true
                 }
