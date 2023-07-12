@@ -7,11 +7,9 @@ Item {
     enabled: visible
     height: childrenRect.height * visible
 
-    readonly property bool sectionVisible:
-        eventGrouping === EventGrouping.ShowDateAndAuthor
     readonly property bool authorSectionVisible:
         eventGrouping >= EventGrouping.ShowAuthor
-    readonly property bool replaced: marks === EventStatus.Replaced
+
     readonly property bool pending: marks > EventStatus.Normal
                                     && marks < EventStatus.Redacted
     readonly property bool failed: marks === EventStatus.SendingFailed
@@ -158,7 +156,7 @@ Item {
         Rectangle {
             width: parent.width
             height: childrenRect.height + 2
-            visible: sectionVisible
+            visible: eventGrouping === EventGrouping.ShowDateAndAuthor
             color: palette.alternateBase
             Label {
                 font.bold: true
@@ -336,7 +334,7 @@ Item {
                                  : ""))
                            : "")
                           + display
-                          + (replaced
+                          + (marks === EventStatus.Replaced
                              ? "<small style='color:\"" + settings.lowlight_color
                                + "\"'> (" + qsTr("edited") + ")</small>"
                              : "")
