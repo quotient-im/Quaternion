@@ -31,9 +31,9 @@ Settings {
         lineSpacing * (2 - timelineStyleIsXChat)
 
     readonly property var render_type_impl: value("UI/Fonts/render_type",
-                                                  "NativeRendering")
+                                                  "native")
     readonly property int render_type:
-        ["NativeRendering", "Native", "native"].indexOf(render_type_impl) != -1
+        ["native", "Native", "NativeRendering"].indexOf(render_type_impl) != -1
         ? Text.NativeRendering : Text.QtRendering
     readonly property bool use_shuttle_dial: value("UI/use_shuttle_dial", true)
     readonly property bool autoload_images: value("UI/autoload_images", true)
