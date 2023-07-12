@@ -62,7 +62,9 @@
 MainWindow::MainWindow()
 {
     Connection::setRoomType<QuaternionRoom>();
+#if Quotient_E2EE_ENABLED
     Connection::setEncryptionDefault(true);
+#endif
 
     // Bind callbacks to signals from NetworkAccessManager
 
