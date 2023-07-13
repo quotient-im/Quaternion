@@ -36,6 +36,16 @@
   </provides>
 
   <releases>
+    <release version="0.0.96.82" type="development" date="2023-07-13">
+      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96-beta2</url>
+      <description><p>0.0.96 beta2</p>
+        <ul>
+          <li>Switch to libQuotient 0.8 to make E2EE opt-in at runtime</li>
+          <li>Complete transition to Qt 6</li>
+          <li>Other minor tweaks and fixes</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.0.96.81" type="development" date="2023-04-02">
       <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96-beta1</url>
       <description><p>
@@ -57,7 +67,7 @@
     </release>
     <release version="0.0.95" date="2021-09-24">
       <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.95</url>
-      <description>
+      <description><p>0.0.95 final release</p>
         <ul>
           <li>Revamped read marker and "scroll to read marker" button</li>
           <li>Initial reactions support</li>
