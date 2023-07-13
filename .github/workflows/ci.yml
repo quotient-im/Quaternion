@@ -292,7 +292,7 @@ jobs:
         republish: true
 
     - name: Upload artefact to GitHub Releases (tag builds)
-      if: needs.Prepare.outputs.reftype == 'tags'
+      if: needs.Prepare.outputs.reftype == 'tags' && matrix.type != 'Linux'
       uses: ncipollo/release-action@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
