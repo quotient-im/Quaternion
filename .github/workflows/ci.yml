@@ -300,6 +300,6 @@ jobs:
         # It tends to false-prerelease things but that's better than false-release them
         prerelease: ${{ contains(needs.Prepare.outputs.version, '-') }}
         allowUpdates: true
-        omitDraftWhenUpdating: true
+        omitDraftDuringUpdate: true
         omitName: true
         omitBody: true
