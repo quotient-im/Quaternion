@@ -173,9 +173,12 @@ In the root directory of the project sources: `cmake --build build_dir --target 
 If you use GNU Make, `make install` (with `sudo` if needed) will work equally well.
 
 ### Building as Flatpak
-If you run Linux and your distribution supports flatpak, you can easily build and install Quaternion as a flatpak package:
+If you run Linux and your distribution supports flatpak, you can easily build
+and install Quaternion as a flatpak package. Make sure to have flatpak-builder
+installed and then do the following:
 
 ```bash
+# Optionally, get the source code if not yet
 git clone https://github.com/quotient-im/Quaternion.git --recursive
 cd Quaternion/flatpak
 ./setup_runtime.sh
