@@ -36,9 +36,9 @@
   </provides>
 
   <releases>
-    <release version="0.0.96.82" type="development" date="2023-07-13">
-      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96-beta2</url>
-      <description><p>0.0.96 beta2</p>
+    <release version="0.0.96.83" type="development" date="2023-07-13">
+      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96-beta3</url>
+      <description><p>0.0.96 beta3</p>
         <ul>
           <li>Switch to libQuotient 0.8 to make E2EE opt-in at runtime</li>
           <li>Complete transition to Qt 6</li>
