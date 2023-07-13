@@ -300,6 +300,9 @@ jobs:
         # It tends to false-prerelease things but that's better than false-release them
         prerelease: ${{ contains(needs.Prepare.outputs.version, '-') }}
         allowUpdates: true
+        # Create as a draft, update without touching the draft flag
+        draft: true
         omitDraftDuringUpdate: true
+        # Never write name and body - this action is to upload files only
         omitName: true
         omitBody: true
