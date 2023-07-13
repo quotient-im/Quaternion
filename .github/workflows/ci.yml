@@ -304,5 +304,7 @@ jobs:
         draft: true
         omitDraftDuringUpdate: true
         # Never write name and body - this action is to upload files only
-        omitName: true
-        omitBody: true
+        name: ""
+        omitNameDuringUpdate: true
+        body: ""
+        omitBodyDuringUpdate: true
