@@ -59,7 +59,7 @@ else()
     endforeach ()
 endif()
 
-option(BUILD_WITH_QT6 "Build Quotient with Qt 6 (EXPERIMENTAL)" OFF)
+option(BUILD_WITH_QT6 "Build with Qt 6 (instead of Qt 5)" ON)
 
 if (BUILD_WITH_QT6)
     set(QtMinVersion "6.2")
