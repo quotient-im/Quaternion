@@ -329,7 +329,7 @@ Item {
                                     + toHtmlEscaped(authorName) + "</a> ")
                                  : ""))
                            : "")
-                          + display
+                          + (actionEvent ? "<i>" + display + "</i>" : display)
                           + (marks === EventStatus.Replaced
                              ? "<small style='color:\"" + settings.lowlight_color
                                + "\"'> (" + qsTr("edited") + ")</small>"

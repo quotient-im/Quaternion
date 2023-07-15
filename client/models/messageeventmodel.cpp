@@ -636,14 +636,14 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         if (evt.isRedacted())
             return QPalette().color(CG::Disabled, CR::Text);
 
+        auto normalTextColor = QPalette().color(CG::Active, CR::Text);
         if (isPending) {
             using ES = Quotient::EventStatus::Code;
             switch (pendingIt->deliveryStatus()) {
             case ES::Submitted:
             case ES::SendingFailed:
-                return QPalette().color(CG::Disabled, CR::Text);
             case ES::Departed:
-                return fadedTextColor(QPalette().color(CG::Active, CR::Text));
+                return fadedTextColor(normalTextColor);
             default:;
             }
         }
@@ -654,16 +654,15 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
             return settings.get(QStringLiteral("UI/highlight_color"),
                                 QStringLiteral("orange"));
 
-        auto textColor = QPalette().color(CG::Active, CR::Text);
         if (isPending || evt.senderId() == m_currentRoom->localUser()->id())
-            textColor = mixColors(textColor,
+            normalTextColor = mixColors(normalTextColor,
                             settings.get(QStringLiteral("UI/outgoing_color"),
                                          QStringLiteral("#4A8780")), 0.5);
 
         const auto* const rme = eventCast<const RoomMessageEvent>(&evt);
         return rme && rme->msgtype() != MessageEventType::Notice
-                   ? textColor
-                   : fadedTextColor(textColor);
+                   ? normalTextColor
+                   : fadedTextColor(normalTextColor);
     }
 
     if( role == Qt::ToolTipRole )
