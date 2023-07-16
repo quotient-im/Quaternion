@@ -339,14 +339,6 @@ Item {
                     color: foreground
                     renderType: settings.render_type
 
-                    // TODO: In the code below, links should be resolved
-                    // with Qt.resolvedLink, once we figure out what
-                    // to do with relative URLs (note: www.google.com
-                    // is a relative URL, https://www.google.com is not).
-                    // Instead of Qt.resolvedUrl (and, most likely,
-                    // QQmlAbstractUrlInterceptor to convert URLs)
-                    // we might just prefer to do the whole resolving
-                    // in C++.
                     onHoveredLinkChanged:
                         controller.showStatusMessage(hoveredLink)
 
