@@ -269,7 +269,7 @@ QDateTime MessageEventModel::makeMessageTimestamp(
 
 QString MessageEventModel::renderDate(const QDateTime& timestamp)
 {
-    auto date = timestamp.toLocalTime().date();
+    auto date = timestamp.date();
     static Quotient::SettingsGroup sg { "UI" };
     if (sg.get("use_human_friendly_dates",
                sg.get("banner_human_friendly_date", true)))
@@ -880,9 +880,11 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
 
     if( role == TimeRole || role == DateRole)
     {
-        auto ts = isPending ? pendingIt->lastUpdated()
-                            : makeMessageTimestamp(timelineIt);
-        return role == TimeRole ? QVariant(ts) : renderDate(ts);
+        auto ts = (isPending ? pendingIt->lastUpdated()
+                             : makeMessageTimestamp(timelineIt)).toLocalTime();
+        return role == TimeRole
+                   ? QLocale().toString(ts.time(), QLocale::ShortFormat)
+                   : renderDate(ts);
     }
 
     if (role == EventGroupingRole) {

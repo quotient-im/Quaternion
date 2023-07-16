@@ -207,8 +207,7 @@ Item {
                 renderType: settings.render_type
                 font.italic: pending
 
-                text: "<" + time.toLocaleTimeString(Qt.locale(),
-                                                    Locale.ShortFormat) + ">"
+                text: "<" + time + ">"
             }
             Image {
                 id: authorAvatar
@@ -321,10 +320,7 @@ Item {
                                 float: right; font-size: small;
                                 color:\"" + settings.lowlight_color
                               + "\"'><tr><td>"
-                              + (time
-                                 ? toHtmlEscaped(time.toLocaleTimeString(
-                                                     Qt.locale(), Locale.ShortFormat))
-                                 : "")
+                              + (time ? toHtmlEscaped(time) : "")
                               + "</td></tr></table>"
                               + (actionEvent
                                  ? ("<a href='" + (author ? author.id : "")
@@ -603,7 +599,7 @@ Item {
                 height: childrenRect.height
 
                 TextEdit {
-                    text: "<" + time.toLocaleString(Qt.locale(), Locale.ShortFormat) + ">"
+                    text: "<" + time + ">"
                     font.bold: true
                     renderType: settings.render_type
                     readOnly: true
