@@ -1,4 +1,4 @@
-import QtQuick 2.10 // Qt 5.10
+import QtQuick 2.15
 import QtQuick.Controls 2.3
 import Quotient 1.0
 
@@ -73,36 +73,33 @@ Page {
 
             spacing: 2
 
-            TextEdit {
+            TextArea {
                 id: roomName
                 width: roomNameMetrics.advanceWidth
                 height: roomNameMetrics.height
                 clip: true
+                padding: 0
 
-                readonly property bool hasName: !!room && room.displayName !== ""
                 TextMetrics {
                     id: roomNameMetrics
                     font: roomName.font
                     elide: Text.ElideRight
                     elideWidth: headerText.width
-                    text: roomName.hasName ? room.displayName : qsTr("(no name)")
+                    text: room ? room.displayName : ""
                 }
 
                 text: roomNameMetrics.elidedText
-                color: (hasName ? palette : settings.disabledPalette).windowText
+                placeholderText: qsTr("(no name)")
 
                 font.bold: true
                 renderType: settings.render_type
                 readOnly: true
-                selectByKeyboard: true
-                selectByMouse: true
 
-                ToolTipArea {
-                    enabled: roomName.hasName &&
-                             (roomNameMetrics.text != roomNameMetrics.elidedText
-                             || roomName.lineCount > 1)
-                    text: room ? room.htmlSafeDisplayName : ""
-                }
+                hoverEnabled: text !== "" &&
+                              (roomNameMetrics.text != roomNameMetrics.elidedText
+                               || roomName.lineCount > 1)
+                ToolTip.visible: hovered
+                ToolTip.text: room ? room.htmlSafeDisplayName : ""
             }
 
             Label {
@@ -117,10 +114,13 @@ Page {
                 elide: Text.ElideRight
                 font.italic: true
                 renderType: settings.render_type
-                ToolTipArea {
+
+                HoverHandler {
+                    id: versionHoverHandler
                     enabled: parent.truncated
-                    text: parent.text
                 }
+                ToolTip.text: text
+                ToolTip.visible: versionHoverHandler.hovered
             }
 
             ScrollView {
@@ -143,20 +143,16 @@ Page {
                 // FIXME: The below TextEdit+MouseArea is a massive copy-paste
                 // from TimelineItem.qml. We need to make a separate component
                 // for these (RichTextField?).
-                TextEdit {
+                TextArea {
                     id: topicText
                     width: topicField.width
+                    padding: 0
 
-                    readonly property bool hasTopic: !!room && room.topic !== ""
-                    text: hasTopic
-                          ? room.prettyPrint(room.topic) : qsTr("(no topic)")
-                    color:
-                        (hasTopic ? palette : settings.disabledPalette).windowText
+                    text: room ? room.prettyPrint(room.topic) : ""
+                    placeholderText: qsTr("(no topic)")
                     textFormat: TextEdit.RichText
                     renderType: settings.render_type
                     readOnly: true
-                    selectByKeyboard: true;
-                    selectByMouse: true;
                     wrapMode: TextEdit.Wrap
 
                     onHoveredLinkChanged:
@@ -178,12 +174,13 @@ Page {
                     controller.resourceRequested(topicText.hoveredLink,
                                                  "_interactive")
                 else if (mouse.button === Qt.RightButton)
-                    contextMenu.popup()
+                    headerContextMenu.popup()
             }
             Menu {
-                id: contextMenu
+                id: headerContextMenu
                 MenuItem {
-                    text: roomHeader.showTopic ? qsTr("Hide topic") : qsTr("Show topic")
+                    text: roomHeader.showTopic ? qsTr("Hide topic")
+                                               : qsTr("Show topic")
                     onTriggered: roomHeader.showTopic = !roomHeader.showTopic
                 }
             }
