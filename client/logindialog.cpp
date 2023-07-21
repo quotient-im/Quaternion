@@ -188,6 +188,7 @@ void LoginDialog::setup(const QString& statusMessage)
     connect(initialDeviceName, &QLineEdit::textChanged, deviceId,
             &QLineEdit::clear);
 
+    m_connection->enableEncryption(enableEncryption->isChecked());
     connect(enableEncryption, &QCheckBox::stateChanged, m_connection.get(),
             &Connection::enableEncryption);
     connect(m_connection.get(), &Connection::connected,
