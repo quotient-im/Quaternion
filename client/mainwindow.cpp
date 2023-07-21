@@ -109,19 +109,10 @@ MainWindow::MainWindow()
 
     busyLabel->show();
     busyIndicator->start();
-    connect(accountRegistry, &Quotient::AccountRegistry::rowsAboutToBeInserted,
-            this, [this](const QModelIndex&, int first, int last) {
-                for (int i = first; i < last; ++i) {
-                    const auto* a = accountRegistry->accounts()[i];
-                    connectSingleShot(a, &Connection::syncDone, this, [a] {
-                        qDebug() << "First sync done for" << a->objectName();
-                    });
-                }
-            });
     connect(accountRegistry, &Quotient::AccountRegistry::rowsAboutToBeRemoved,
             this, [this](const QModelIndex&, int first, int last) {
                 const auto& accounts = accountRegistry->accounts();
-                for (int i = first; i < last; ++i)
+                for (int i = first; i <= last; ++i)
                     roomListDock->deleteConnection(accounts[i]);
             });
     connect(accountRegistry, &Quotient::AccountRegistry::rowsRemoved, this,
