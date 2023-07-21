@@ -292,13 +292,6 @@ Page {
                                   bottommostVisibleIndex, force)
         }
 
-        function beforeModelReset() {
-            parkReadMarker()
-            console.log("Read marker parked at index",
-                        messageModel.readMarkerVisualIndex)
-            saveViewport(true)
-        }
-
         // Qt is not fabulous at positioning the list view when the delegate
         // sizes vary too much; this function runs scrollDelay timer to adjust
         // the position as needed shortly after the list was positioned.
@@ -402,14 +395,6 @@ Page {
             property int round: 0
         }
 
-        function onModelReset() {
-            if (room) {
-                // Load events if there are not enough of them
-                ensurePreviousContent()
-                scrollViewTo(room.savedTopVisibleIndex(), ListView.End, false)
-            }
-        }
-
         function scrollUp(dy) {
             if (contentHeight > height)
                 contentY -= dy
@@ -448,11 +433,26 @@ Page {
             }
         }
 
-        Component.onCompleted: {
-            console.log("QML view loaded")
-            model.modelAboutToBeReset.connect(beforeModelReset)
-            model.modelReset.connect(onModelReset)
+        Connections {
+            target: messageModel
+            function onModelAboutToBeReset() {
+                chatView.parkReadMarker()
+                console.log(settings.logCat, "Read marker parked at index",
+                            messageModel.readMarkerVisualIndex)
+                chatView.saveViewport(true)
+            }
+            function onModelReset() {
+                if (messageModel.room) {
+                    // Load events if there are not enough of them
+                    chatView.ensurePreviousContent()
+                    chatView.scrollViewTo(
+                                 messageModel.room.savedTopVisibleIndex(),
+                                 ListView.End, false)
+                }
+            }
         }
+
+        Component.onCompleted: console.log(settings.logCat, "QML view loaded")
 
         onMovementEnded: saveViewport(false)
 
