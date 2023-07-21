@@ -19,8 +19,11 @@
 #include <QtGui/QClipboard>
 #include <QtCore/QStringBuilder>
 
+using Quotient::operator""_ls;
+
 TimelineWidget::TimelineWidget(ChatRoomWidget* chatRoomWidget)
-    : m_messageModel(new MessageEventModel(this))
+    : QQuickWidget(chatRoomWidget)
+    , m_messageModel(new MessageEventModel(this))
     , m_imageProvider(new ImageProvider())
     , indexToMaybeRead(-1)
     , readMarkerOnScreen(false)
@@ -43,13 +46,13 @@ TimelineWidget::TimelineWidget(ChatRoomWidget* chatRoomWidget)
 
     setResizeMode(SizeRootObjectToView);
 
-    engine()->addImageProvider(QStringLiteral("mtx"), m_imageProvider);
+    engine()->addImageProvider("mtx"_ls, m_imageProvider);
 
     auto* ctxt = rootContext();
-    ctxt->setContextProperty(QStringLiteral("messageModel"), m_messageModel);
-    ctxt->setContextProperty(QStringLiteral("controller"), this);
+    ctxt->setContextProperty("messageModel"_ls, m_messageModel);
+    ctxt->setContextProperty("controller"_ls, this);
 
-    setSource(QUrl("qrc:///qml/Timeline.qml"));
+    setSource(QUrl("qrc:///qml/Timeline.qml"_ls));
 
     connect(&activityDetector, &ActivityDetector::triggered, this,
             &TimelineWidget::markShownAsRead);
@@ -120,10 +123,8 @@ void TimelineWidget::saveFileAs(const QString& eventId)
             << "ChatRoomWidget::saveFileAs without an active room ignored";
         return;
     }
-    // TODO: Once Qt 5.11 is dropped, use `this` instead of roomWidget
-    const auto fileName =
-        QFileDialog::getSaveFileName(roomWidget, tr("Save file as"),
-                                     currentRoom()->fileNameToDownload(eventId));
+    const auto fileName = QFileDialog::getSaveFileName(
+        this, tr("Save file as"), currentRoom()->fileNameToDownload(eventId));
     if (!fileName.isEmpty())
         currentRoom()->downloadFile(eventId, QUrl::fromLocalFile(fileName));
 }
@@ -178,8 +179,7 @@ void TimelineWidget::showMenu(int index, const QString& hoveredLink,
     const auto eventId =
         modelIndex.data(MessageEventModel::EventIdRole).toString();
 
-    // TODO: Once Qt 5.11 is dropped, use `this` instead of roomWidget
-    auto menu = new QMenu(roomWidget);
+    auto menu = new QMenu(this);
     menu->setAttribute(Qt::WA_DeleteOnClose);
 
     const auto* plEvt =
