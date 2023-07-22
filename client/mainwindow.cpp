@@ -1370,7 +1370,8 @@ void MainWindow::networkError(Connection* c)
     });
 }
 
-void MainWindow::sslErrors(QNetworkReply* reply, const QList<QSslError>& errors)
+void MainWindow::sslErrors(const QPointer<QNetworkReply>& reply,
+                           const QList<QSslError>& errors)
 {
     for (const auto& error: errors)
     {
@@ -1398,7 +1399,10 @@ void MainWindow::sslErrors(QNetworkReply* reply, const QList<QSslError>& errors)
             return;
         Quotient::NetworkAccessManager::addIgnoredSslError(error);
     }
-    reply->ignoreSslErrors(errors);
+    // If a message box above is left open for too long, the reply may timeout
+    // and self-delete (#688) - double-check that it's still alive
+    if (reply)
+        reply->ignoreSslErrors(errors);
 }
 
 void MainWindow::proxyAuthenticationRequired(const QNetworkProxy&,

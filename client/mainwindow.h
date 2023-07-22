@@ -73,7 +73,8 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
 
         void reloginNeeded(Connection* c, const QString& message = {});
         void networkError(Connection* c);
-        void sslErrors(QNetworkReply* reply, const QList<QSslError>& errors);
+        void sslErrors(const QPointer<QNetworkReply>& reply,
+                       const QList<QSslError>& errors);
         void proxyAuthenticationRequired(const QNetworkProxy& /* unused */,
                                          QAuthenticator* auth);
 
