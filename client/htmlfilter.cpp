@@ -169,7 +169,7 @@ static const auto mxBgColorAttr = u"data-mx-bg-color";
 [[nodiscard]] Result preprocess(QString html, Mode mode, Options options)
 {
     Q_ASSERT(mode != QtToMatrix);
-    bool isFragment = mode == MatrixToQt;
+    bool isFragment = options.testFlag(Fragment) || mode == MatrixToQt;
     bool inHead = false;
     for (auto pos = html.indexOf('<'); pos != -1; pos = html.indexOf('<', pos)) {
         const auto tagNamePos = pos + 1 + (html[pos + 1] == '/');
@@ -288,6 +288,8 @@ static const auto mxBgColorAttr = u"data-mx-bg-color";
     // possibly with generic HTML).
     if (isFragment)
         html = "<span>" % html % "</span>";
+    // Discard characters behind the last tag (LibreOffice attaches \n\0, e.g.)
+    html.truncate(html.lastIndexOf('>') + 1);
     return { html };
 }
 
@@ -341,7 +343,7 @@ Result Processor::process(QString html, Mode mode, QuaternionRoom* context,
     writer.setAutoFormatting(false);
     Processor p { mode, options, context, writer };
     p.runOn(html);
-    return { resultHtml, p.errorPos, p.errorString };
+    return { resultHtml.trimmed(), p.errorPos, p.errorString };
 }
 
 QString toMatrixHtml(const QString& qtMarkup, QuaternionRoom* context,
@@ -414,8 +416,11 @@ void Processor::runOn(const QString &html)
             if (tagsStack.empty()) {
                 // These tags are invalid anywhere deeper, and we don't even
                 // care to put them to tagsStack
-                if (tagName == u"html")
-                    break; // Just ignore, get to the content inside
+                if (tagName == u"html") {
+                    if (mode == GenericToQt)
+                        writer.writeCurrentToken(reader);
+                    break; // Otherwise, just ignore, get to the content inside
+                }
                 if (tagName == u"head") {
                     if (mode == GenericToQt) {
                         inHead = true;
@@ -425,8 +430,14 @@ void Processor::runOn(const QString &html)
                     reader.skipCurrentElement(); // Entirely uninteresting
                     break;
                 }
-                if (tagName == u"body") { // Skip but note the encounter
-                    bodyOffset = -1; // Reuse the variable until the next loop
+                if (tagName == u"body") {
+                    if (mode == GenericToQt)
+                        writer.writeCurrentToken(reader);
+                    // Except importing HTML into QTextDocument, skip just like
+                    // <html> but record the position for error reporting
+                    // (FIXME: this position is still not exactly related to
+                    // the original text...)
+                    bodyOffset = -1; // See the end of the while loop
                     break;
                 }
             }
@@ -528,6 +539,8 @@ void Processor::runOn(const QString &html)
             if (!tagsStack.empty())
                 qWarning().noquote().nospace()
                     << __FUNCTION__ << ": Not all HTML tags closed";
+            if (mode == GenericToQt)
+                writer.writeEndDocument(); // </body></html>
             break;
         case QXmlStreamReader::NoToken:
             Q_ASSERT(reader.tokenType() != QXmlStreamReader::NoToken /*false*/);
@@ -751,7 +764,7 @@ void Processor::filterText(QString& text)
     } else {
         text = text.toHtmlEscaped(); // The reader unescaped it
         Quotient::linkifyUrls(text);
-        text = "<body>" % text % "</body>";
+        text = "<span>" % text % "</span>";
     }
     // Re-process this piece of text as HTML but dump text snippets as they are,
     // without recursing into filterText() again
