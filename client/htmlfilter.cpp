@@ -3,6 +3,7 @@
 #include <Quotient/util.h>
 
 #include <QtGui/QTextDocument>
+#include <QtGui/QFontDatabase>
 
 #include <QtCore/QRegularExpression>
 #include <QtCore/QXmlStreamReader>
@@ -657,9 +658,8 @@ Processor::rewrite_t Processor::filterTag(QStringView tag,
                             if (ff.isEmpty())
                                 continue;
                             if (ff[0] == '\'' || ff[0] == '"')
-                                ff = ff.mid(1);
-                            if (ff.startsWith(u"monospace",
-                                              Qt::CaseInsensitive)) {
+                                ff = ff.mid(1, ff.length() - 2);
+                            if (QFontDatabase().isFixedPitch(ff.toString())) {
                                 rewrite.emplace_back().first = "code";
                                 break;
                             }
