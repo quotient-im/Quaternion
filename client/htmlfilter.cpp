@@ -392,20 +392,12 @@ void Processor::runOn(const QString &html)
     /// text parts.
     QString textBuffer;
     int bodyOffset = 0;
-    bool firstElement = true, inAnchor = false, inHead = false;
+    bool firstElement = true, inAnchor = false;
     while (!reader.atEnd()) {
         const auto tokenType = reader.readNext();
         if (bodyOffset == -1) // See below in 'case StartElement:'
             bodyOffset = reader.characterOffset();
 
-        if (inHead) {
-            writer.writeCurrentToken(reader);
-            if (tokenType == QXmlStreamReader::EndElement
-                && reader.qualifiedName() == u"head") {
-                inHead = false;
-            }
-            continue;
-        }
         if (!textBuffer.isEmpty() && !reader.isCharacters()
             && !reader.isEntityReference())
             filterText(textBuffer);
@@ -422,13 +414,23 @@ void Processor::runOn(const QString &html)
                     break; // Otherwise, just ignore, get to the content inside
                 }
                 if (tagName == u"head") {
-                    if (mode == GenericToQt) {
-                        inHead = true;
-                        writer.writeCurrentToken(reader);
-                        continue;
+                    // <head> is only needed for Qt to import HTML more
+                    // accurately, and entirely uninteresting in other modes
+                    if (mode != GenericToQt) {
+                        reader.skipCurrentElement();
+                        break;
                     }
-                    reader.skipCurrentElement(); // Entirely uninteresting
-                    break;
+                    // Copy through the whole <head> element - having
+                    // QXmlStreamWriter::writeCurrentElement() would help
+                    // but there's none such
+                    do {
+                        writer.writeCurrentToken(reader);
+                        const auto nextTokenType = reader.readNext();
+                        if (nextTokenType == QXmlStreamReader::EndElement
+                            && reader.qualifiedName() == u"head")
+                            break;
+                    } while (!reader.atEnd());
+                    continue;
                 }
                 if (tagName == u"body") {
                     if (mode == GenericToQt)
@@ -489,11 +491,11 @@ void Processor::runOn(const QString &html)
                 // ^ The spec only allows `<mx-reply>` at the very beginning
                 // and it's not supposed to be in the user input
                 const auto& rewrite = filterTag(tagName, attrs);
-                for (const auto& [tag, attrs]: rewrite) {
-                    tagsStack.top().push(tag);
-                    writer.writeStartElement(tag);
-                    writer.writeAttributes(attrs);
-                    if (tag == "a")
+                for (const auto& [rewrittenTag, rewrittenAttrs]: rewrite) {
+                    tagsStack.top().push(rewrittenTag);
+                    writer.writeStartElement(rewrittenTag);
+                    writer.writeAttributes(rewrittenAttrs);
+                    if (rewrittenTag == "a")
                         inAnchor = true;
                 }
             }
@@ -545,15 +547,19 @@ void Processor::runOn(const QString &html)
         case QXmlStreamReader::NoToken:
             Q_ASSERT(reader.tokenType() != QXmlStreamReader::NoToken /*false*/);
             break;
-        case QXmlStreamReader::Invalid:
+        case QXmlStreamReader::Invalid: {
             errorPos = reader.characterOffset() - bodyOffset;
             errorString = reader.errorString();
-            qCritical().noquote() << "Invalid XHTML:" << html;
+            qCritical() << "Invalid XHTML:" << html;
             qCritical().nospace()
                 << "Error at char " << errorPos << ": " << errorString;
-            qCritical().noquote()
-                << "Buffer at error:" << html.mid(reader.characterOffset());
+            const auto remainder =
+                QStringView(html).mid(reader.characterOffset());
+            qCritical().nospace() << "Buffer at error: " << remainder << ", "
+                                  << html.size() - reader.characterOffset()
+                                  << " character(s) remaining";
             break;
+        }
         case QXmlStreamReader::Comment:
         case QXmlStreamReader::StartDocument:
         case QXmlStreamReader::DTD:
