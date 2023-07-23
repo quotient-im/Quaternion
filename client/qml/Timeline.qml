@@ -13,7 +13,7 @@ Page {
         Component.onCompleted: console.log("Using timeline font: " + font)
     }
 
-    background: Rectangle { color: palette.base }
+    background: Rectangle { color: palette.base; border.color: palette.mid }
     contentWidth: width
     font: settings.font
 
@@ -159,7 +159,7 @@ Page {
                         controller.showStatusMessage(hoveredLink)
 
                     onLinkActivated:
-                        (link) => { controller.resourceRequested(link) }
+                        (link) => controller.resourceRequested(link)
                 }
             }
         }

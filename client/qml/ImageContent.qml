@@ -1,4 +1,5 @@
-import QtQuick 2.0
+import QtQuick 2.15
+import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.1
 
 Attachment {
@@ -20,26 +21,25 @@ Attachment {
         source: parent.source
         sourceSize: parent.sourceSize
 
-        TimelineMouseArea {
-            anchors.fill: parent
-            acceptedButtons: Qt.LeftButton
-            hoverEnabled: true
+        HoverHandler {
+            id: imageHoverHandler
+            cursorShape: Qt.PointingHandCursor
+        }
+        ToolTip.visible: imageHoverHandler.hovered
+        ToolTip.text: room.fileSource(eventId)
 
-            onContainsMouseChanged:
-                controller.showStatusMessage(containsMouse
-                                             ? room.fileSource(eventId) : "")
-            onClicked: {
+        TapHandler {
+            acceptedButtons: Qt.LeftButton
+            onTapped: {
                 openOnFinished = true
                 openExternally()
             }
         }
-
-        TimelineMouseArea {
-            anchors.fill: parent
+        TapHandler {
             acceptedButtons: Qt.RightButton
-            cursorShape: Qt.PointingHandCursor
-            onClicked: controller.showMenu(index, textFieldImpl.hoveredLink,
-                textFieldImpl.selectedText, showingDetails)
+            onTapped: controller.showMenu(index, textFieldImpl.hoveredLink,
+                                          textFieldImpl.selectedText,
+                                          showingDetails)
         }
 
         Component.onCompleted:

@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.1
 
@@ -29,23 +29,18 @@ Attachment {
         textFormat: TextEdit.PlainText
         wrapMode: Text.Wrap;
 
-        TimelineMouseArea {
-            anchors.fill: parent
-            acceptedButtons: Qt.NoButton
-            hoverEnabled: true
-
-            onContainsMouseChanged:
-                controller.showStatusMessage(containsMouse
-                                             ? room.fileSource(eventId) : "")
-        }
-
-        TimelineMouseArea {
-            anchors.fill: parent
-            acceptedButtons: Qt.RightButton
+        HoverHandler {
+            id: fileContentHoverHandler
             cursorShape: Qt.IBeamCursor
+        }
+        ToolTip.visible: fileContentHoverHandler.hovered
+        ToolTip.text: room.fileSource(eventId)
 
-            onClicked: controller.showMenu(index, textFieldImpl.hoveredLink,
-                textFieldImpl.selectedText, showingDetails)
+        TapHandler {
+            acceptedButtons: Qt.RightButton
+            onTapped: controller.showMenu(index, textFieldImpl.hoveredLink,
+                                          textFieldImpl.selectedText,
+                                          showingDetails)
         }
     }
     ProgressBar {

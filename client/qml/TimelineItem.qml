@@ -1,4 +1,4 @@
-import QtQuick 2.6
+import QtQuick 2.15
 import QtQuick.Controls 2.3
 import Quotient 1.0
 
@@ -180,6 +180,25 @@ Item {
             width: parent.width
             height: childrenRect.height
 
+            component AuthorInteractionArea: Item {
+                anchors.fill: parent
+                HoverHandler {
+                    id: authorInteractionHoverHandler
+                    cursorShape: Qt.PointingHandCursor
+                }
+                ToolTip.visible: authorInteractionHoverHandler.hovered
+                ToolTip.text: author.id
+
+                TapHandler {
+                    acceptedButtons: Qt.LeftButton|Qt.MiddleButton
+                    onTapped: (mouse) => {
+                        controller.resourceRequested(
+                            author.id, mouse.button === Qt.LeftButton
+                                       ? "mention" : "_interactive")
+                    }
+                }
+            }
+
             // There are several layout styles (av - author avatar,
             // al - author label, ts - timestamp, c - content
             // default (when "timeline_style" is not "xchat"):
@@ -228,7 +247,7 @@ Item {
                         ? "image://mtx/" + author.avatarMediaId : ""
                 sourceSize: Qt.size(width, -1)
 
-                AuthorInteractionArea { authorId: author.id }
+                AuthorInteractionArea { }
                 AnimationBehavior on height { FastNumberAnimation { } }
             }
             Label {
@@ -252,7 +271,7 @@ Item {
 
                 text: (actionEvent ? "* " : "") + authorName
 
-                AuthorInteractionArea { authorId: author.id }
+                AuthorInteractionArea { }
             }
 
             Item {
