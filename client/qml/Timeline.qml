@@ -7,7 +7,7 @@ Page {
 
     property var room: messageModel ? messageModel.room : undefined
 
-    Logger { id: lc }
+    readonly property Logger lc: Logger { }
     TimelineSettings {
         id: settings
 
@@ -293,109 +293,7 @@ Page {
                                   bottommostVisibleIndex, force)
         }
 
-        // Qt is not fabulous at positioning the list view when the delegate
-        // sizes vary too much; this function runs scrollDelay timer to adjust
-        // the position as needed shortly after the list was positioned.
-        // Nothing good in that, just a workaround.
-        function scrollViewTo(targetIndex, positionMode, saveViewportAfter) {
-            console.log(lc, "Scrolling to position", targetIndex)
-            positionViewAtIndex(targetIndex, positionMode)
-            scrollDelay.targetIndex = targetIndex
-            scrollDelay.positionMode = positionMode
-            scrollDelay.saveViewport = saveViewportAfter
-            scrollDelay.round = 1
-            scrollDelay.start()
-        }
-
-        /** @return true if no further action is needed;
-         *          false if scrollDelay has to be restarted. */
-        function fixupPosition(newIndex, newPos, positionMode) {
-            if (newIndex === 0) {
-                if (bottommostVisibleIndex === 0)
-                    return true // Positioning is correct
-
-                // This normally shouldn't happen even with the current
-                // imperfect positioning code in Qt
-                console.warn(lc, "Fixing up the viewport to be at sync edge")
-                positionViewAtBeginning()
-            } else {
-                // The viewport is divided into thirds; ListView.End should
-                // place newIndex at the top third, Center corresponds
-                // to the middle third; Beginning is not used for now.
-                var nameForLog, topContentY, bottomContentY
-                switch (positionMode) {
-                case ListView.Contain:
-                    nameForLog = "fully visible"
-                    topContentY = contentY
-                    bottomContentY = contentY + height
-                    if (newPos)
-                        newPos = Math.max(newPos,
-                                          Math.min(contentY, newPos + height))
-                    break
-                case ListView.Center:
-                    nameForLog = "in the centre"
-                    topContentY = contentY + height / 3
-                    bottomContentY = contentY + 2 * height / 3
-                    if (newPos)
-                        newPos -= height / 2
-                    break
-                case ListView.End:
-                    nameForLog = "at the top"
-                    topContentY = contentY
-                    bottomContentY = contentY + height / 3
-                    break
-                default:
-                    console.warn(lc,
-                                 "fixupPosition: Unsupported positioning mode:",
-                                 positionMode)
-                    return true // Refuse to do anything with it
-                }
-
-                var topShownIndex = indexAt(contentX, topContentY)
-                var bottomShownIndex = indexAt(contentX, bottomContentY)
-                if (bottomShownIndex !== -1 && newIndex <= topShownIndex
-                        && newIndex >= bottomShownIndex)
-                    return true // The item is within the expected range
-
-                console.log(lc, "Fixing up item", newIndex, "to be", nameForLog,
-                            "- round", scrollDelay.round,
-                            "(" + topShownIndex + "-" + bottomShownIndex,
-                            "range is shown now)")
-                // If the target item moved away too far and got destroyed,
-                // repeat positioning; otherwise, position the canvas exactly
-                // where it should be
-                if (newPos)
-                    contentY = newPos
-                else
-                    positionViewAtIndex(newIndex, positionMode)
-            }
-            return false
-        }
-
-        Timer {
-            id: scrollDelay
-            interval: 120 // small enough to avoid visual stutter
-            onTriggered: {
-                if (chatView.count === 0 || !targetPos)
-                    return
-
-                if (chatView.fixupPosition(targetIndex, targetPos,
-                                           positionMode)
-                    || ++round > 3) // Give up after 3 rounds
-                {
-                    targetPos = undefined
-                    if (saveViewport)
-                        chatView.saveViewport(true)
-                } else // Positioning is still in flux, might need another round
-                    start()
-            }
-
-            property int targetIndex: -1
-            property var targetPos
-            property int positionMode: ListView.End
-            property bool saveViewport: false
-            property int round: 0
-        }
+        ScrollFinisher { id: scrollFinisher }
 
         function scrollUp(dy) {
             if (contentHeight > height && dy !== 0) {
@@ -427,7 +325,7 @@ Page {
                                     - sectionBanner.childrenRect.height)
             }
             function onViewPositionRequested(index) {
-                chatView.scrollViewTo(index, ListView.Contain, true)
+                scrollFinisher.scrollViewTo(index, ListView.Contain)
             }
         }
 
@@ -443,9 +341,7 @@ Page {
                 if (messageModel.room) {
                     // Load events if there are not enough of them
                     chatView.ensurePreviousContent()
-                    chatView.scrollViewTo(
-                                 messageModel.room.savedTopVisibleIndex(),
-                                 ListView.End, false)
+                    chatView.positionViewAtBeginning()
                 }
             }
         }
@@ -796,7 +692,7 @@ Page {
     }
 
     ScrollToButton {
-        id: scrollToReaderMarkerButton
+        id: scrollToReadMarkerButton
 
         anchors.bottom: scrollToBottomButton.top
         anchors.bottomMargin: visible ? 0.5 * height : -3 * height
@@ -813,8 +709,8 @@ Page {
 
         onClicked: {
             if (messageModel.readMarkerVisualIndex < chatView.count)
-                chatView.scrollViewTo(messageModel.readMarkerVisualIndex,
-                                      ListView.Center, true)
+                scrollFinisher.scrollViewTo(messageModel.readMarkerVisualIndex,
+                                            ListView.Center)
             else
                 room.getPreviousContent(chatView.count / 2) // FIXME, #799
         }

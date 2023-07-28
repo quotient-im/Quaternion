@@ -67,24 +67,11 @@ Item {
 
     onPartiallyShownChanged: readMarkerHereChanged()
 
-    function maybeBindScrollTarget() {
-        if (scrollDelay.targetIndex === index) {
-            scrollDelay.targetPos = Qt.binding(function() { return y })
-            console.log(root.lc, "Scroll target bound, current pos:",
-                        scrollDelay.targetPos)
-        }
-    }
-
     Component.onCompleted: {
         if (bottomEdgeShown)
             bottomEdgeShownChanged()
         readMarkerHereChanged()
-        maybeBindScrollTarget()
-    }
-
-    Connections {
-        target: scrollDelay
-        function onTargetIndexChanged() { maybeBindScrollTarget() }
+        scrollFinisher.maybeBindScrollTarget(this)
     }
 
     property bool showingDetails

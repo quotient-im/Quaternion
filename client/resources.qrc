@@ -20,6 +20,7 @@
         <file>qml/FastNumberAnimation.qml</file>
         <file>qml/AnimationBehavior.qml</file>
         <file>qml/AnimatedTransition.qml</file>
+        <file>qml/ScrollFinisher.qml</file>
         <file>qml/Logger.qml</file>
     </qresource>
 </RCC>
