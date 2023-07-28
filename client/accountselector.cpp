@@ -1,5 +1,7 @@
 #include "accountselector.h"
 
+#include "logging_categories.h"
+
 #include <Quotient/accountregistry.h>
 #include <Quotient/connection.h>
 
@@ -23,8 +25,8 @@ AccountSelector::AccountSelector(AccountRegistry* registry, QWidget* parent)
                     if (const auto idx = indexOfAccount(acc); idx == -1)
                         addItem(acc->userId(), QVariant::fromValue(acc));
                     else
-                        qWarning() << "AccountSelector: refusing to add "
-                                      "the same account twice";
+                        qCWarning(ACCOUNTSELECTOR)
+                            << "Refusing to add the same account twice";
                 }
             });
     connect(registry, &AccountRegistry::rowsAboutToBeRemoved, this,
@@ -35,9 +37,8 @@ AccountSelector::AccountSelector(AccountRegistry* registry, QWidget* parent)
                     if (const auto idx = indexOfAccount(acc); idx != -1)
                         removeItem(idx);
                     else
-                        qWarning()
-                            << "AccountSelector: account to drop not found, "
-                               "ignoring";
+                        qCWarning(ACCOUNTSELECTOR)
+                            << "Account to drop not found, ignoring";
                 }
             });
 }
@@ -53,9 +54,9 @@ void AccountSelector::setAccount(Connection *newAccount)
         return;
     }
     Q_ASSERT(false);
-    qWarning() << "AccountComboBox: account for"
-               << newAccount->userId() + '/' + newAccount->deviceId()
-               << "wasn't found in the full list of accounts";
+    qCWarning(ACCOUNTSELECTOR)
+        << "Account for" << newAccount->userId() + '/' + newAccount->deviceId()
+        << "wasn't found in the full list of accounts";
 }
 
 Connection* AccountSelector::currentAccount() const

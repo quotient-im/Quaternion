@@ -8,6 +8,8 @@
 
 #include "imageprovider.h"
 
+#include "logging_categories.h"
+
 #include <Quotient/connection.h>
 #include <Quotient/jobs/mediathumbnailjob.h>
 
@@ -32,8 +34,9 @@ class ThumbnailResponse : public QQuickImageResponse
                     tr("Media id '%1' doesn't follow server/mediaId pattern")
                         .arg(mediaId);
             else if (requestedSize.isEmpty()) {
-                qDebug() << "ThumbnailResponse: returning an empty image for"
-                         << mediaId << "due to empty" << requestedSize;
+                qCDebug(IMAGEPROVIDER)
+                    << "Returning an empty image for" << mediaId
+                    << "due to empty" << requestedSize;
                 image = {requestedSize, QImage::Format_Invalid};
             }
             if (!errorStr.isEmpty() || requestedSize.isEmpty()) {
@@ -41,8 +44,8 @@ class ThumbnailResponse : public QQuickImageResponse
                 return;
             }
             // We are good to go
-            qDebug().nospace() << "ThumbnailResponse: requesting " << mediaId
-                               << ", " << size;
+            qCDebug(IMAGEPROVIDER).nospace()
+                << "Requesting " << mediaId << ", " << size;
             errorStr = tr("Image request is pending");
 
             // Execute a request on the main thread asynchronously
@@ -75,15 +78,17 @@ class ThumbnailResponse : public QQuickImageResponse
                 {
                     image = job->thumbnail();
                     errorStr.clear();
-                    qDebug().nospace() << "ThumbnailResponse: image ready for "
-                                       << mediaId << ", " << image.size();
+                    qCDebug(IMAGEPROVIDER).nospace()
+                        << "Image ready for " << mediaId << ", "
+                        << image.size();
                 } else if (job->error() == BaseJob::Abandoned) {
                     errorStr = tr("Image request has been cancelled");
-                    qDebug() << "ThumbnailResponse: cancelled for" << mediaId;
+                    qCDebug(IMAGEPROVIDER)
+                        << "Request cancelled for" << mediaId;
                 } else {
                     errorStr = job->errorString();
-                    qWarning() << "ThumbnailResponse: no valid image for"
-                               << mediaId << "-" << errorStr;
+                    qCWarning(IMAGEPROVIDER).nospace()
+                        << "No valid image for" << mediaId << ": " << errorStr;
                 }
             }
             job = nullptr;

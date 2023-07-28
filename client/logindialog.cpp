@@ -8,6 +8,8 @@
 
 #include "logindialog.h"
 
+#include "logging_categories.h"
+
 #include <Quotient/connection.h>
 #include <Quotient/accountregistry.h>
 #include <Quotient/qt_connection_util.h>
@@ -177,7 +179,7 @@ void LoginDialog::setup(const QString& statusMessage)
     // the server URL from a changed MXID
     connect(m_connection.get(), &Connection::resolveError, this,
             [this](const QString& message) {
-                qDebug() << "Resolve error";
+                qCDebug(MAIN) << "Failed to resolve the homeserver:" << message;
                 serverEdit->clear();
                 setStatusMessage(message);
             });
@@ -237,7 +239,7 @@ void LoginDialog::apply()
         // Wait for new flows and check them
         connectSingleShot(m_connection.get(), &Connection::loginFlowsChanged,
                           this, [this] {
-                              qDebug()
+                              qCDebug(MAIN)
                                   << "Received login flows, trying to login";
                               loginWithBestFlow();
                           });

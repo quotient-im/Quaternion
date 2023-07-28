@@ -6,7 +6,7 @@ import QtQuick 2.15
 // if you only need log/warn/error kind of things you can save a few keystrokes
 // by writing logger.warn(...) instead of console.warn(logger, ...)
 LoggingCategory {
-    name: 'quaternion.qml'
+    name: 'quaternion.timeline.qml'
     defaultLogLevel: LoggingCategory.Info
 
     function debug() { return console.log(this, arguments) }

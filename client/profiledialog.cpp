@@ -10,6 +10,7 @@
 
 #include "accountselector.h"
 #include "mainwindow.h"
+#include "logging_categories.h"
 
 #include <Quotient/connection.h>
 #include <Quotient/user.h>
@@ -305,7 +306,8 @@ void ProfileDialog::load()
 void ProfileDialog::apply()
 {
     if (!m_currentAccount) {
-        qWarning() << "ProfileDialog: no account chosen, can't apply changes";
+        qCWarning(MAIN)
+            << "ProfileDialog: no account chosen, can't apply changes";
         return;
     }
     auto* user = m_currentAccount->user();

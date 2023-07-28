@@ -11,6 +11,7 @@
 #include "chatroomwidget.h"
 #include "htmlfilter.h"
 #include "timelinewidget.h"
+#include "logging_categories.h"
 
 #include <QtWidgets/QMenu>
 #if QT_VERSION_MAJOR < 6
@@ -106,7 +107,7 @@ void ChatEdit::alternatePaste()
 void ChatEdit::insertFromMimeData(const QMimeData *source)
 {
     if (!source) {
-        qWarning() << "Nothing to insert";
+        qCWarning(MSGINPUT) << "Nothing to insert";
         return;
     }
 
@@ -122,8 +123,8 @@ void ChatEdit::insertFromMimeData(const QMimeData *source)
             const auto [cleanHtml, errorPos, errorString] =
                 HtmlFilter::fromLocalHtml(source->html());
             if (errorPos != -1) {
-                qWarning() << "HTML insertion failed at pos" << errorPos
-                        << "with error" << errorString;
+                qCWarning(MSGINPUT) << "HTML insertion failed at pos"
+                                    << errorPos << "with error" << errorString;
                 // FIXME: Come on... It should be app->showStatusMessage() or smth
                 emit chatRoomWidget->timelineWidget()->showStatusMessage(
                     tr("Could not insert HTML - it's either invalid or unsupported"),

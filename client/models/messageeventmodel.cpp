@@ -14,6 +14,8 @@
 
 #include "../quaternionroom.h"
 #include "../htmlfilter.h"
+#include "../logging_categories.h"
+
 #include <Quotient/connection.h>
 #include <Quotient/user.h>
 #include <Quotient/settings.h>
@@ -82,8 +84,8 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
         return;
 
     if (m_currentRoom)
-        qDebug() << "Disconnecting event model from"
-                 << m_currentRoom->objectName();
+        qCDebug(EVENTMODEL)
+            << "Disconnecting event model from" << m_currentRoom->objectName();
     beginResetModel();
     if (m_currentRoom)
         m_currentRoom->disconnect(this);
@@ -166,8 +168,9 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
                 this, &MessageEventModel::refreshEvent);
         connect(m_currentRoom, &Room::fileTransferFailed,
                 this, &MessageEventModel::refreshEvent);
-        qDebug() << "Event model connected to room" << room->objectName()
-                 << "as" << room->localUser()->id();
+        qCDebug(EVENTMODEL)
+            << "Event model connected to room" << room->objectName() //
+            << "as" << room->localUser()->id();
     }
     endResetModel();
     emit readMarkerUpdated();
@@ -179,7 +182,8 @@ int MessageEventModel::refreshEvent(const QString& eventId)
     if (row >= 0)
         refreshEventRoles(row);
     else
-        qWarning() << "Trying to refresh inexistent event:" << eventId;
+        qCWarning(EVENTMODEL)
+            << "Trying to refresh inexistent event:" << eventId;
     return row;
 }
 
@@ -263,7 +267,7 @@ QDateTime MessageEventModel::makeMessageTimestamp(
         return { it->event()->originTimestamp().date(), {0,0}, Qt::LocalTime };
 
     // What kind of room is that?..
-    qCritical() << "No valid timestamps in the room timeline!";
+    qCCritical(EVENTMODEL) << "No valid timestamps in the room timeline!";
     return {};
 }
 
@@ -793,7 +797,8 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                 && !settings.get<bool>("UI/show_spammy")) {
 //                QElapsedTimer et; et.start();
                 auto hide = !isUserActivityNotable(timelineIt);
-//                qDebug() << "Checked user activity for" << evt.id() << "in" << et;
+//                qCDebug(EVENTMODEL)
+//                    << "Checked user activity for" << evt.id() << "in" << et;
                 if (hide)
                     return EventStatus::Hidden;
             }

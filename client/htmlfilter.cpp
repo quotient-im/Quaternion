@@ -1,5 +1,7 @@
 #include "htmlfilter.h"
 
+#include "logging_categories.h"
+
 #include <Quotient/util.h>
 
 #include <QtGui/QTextDocument>
@@ -96,7 +98,7 @@ static const auto mxBgColorAttr = u"data-mx-bg-color";
                || reader.qualifiedName() != u"p")
         if (reader.atEnd()) {
             Q_ASSERT_X(false, __FUNCTION__, "Malformed Qt markup");
-            qCritical()
+            qCCritical(HTMLFILTER)
                 << "The passed text doesn't seem to come from QTextDocument";
             return {};
         }
@@ -135,7 +137,7 @@ static const auto mxBgColorAttr = u"data-mx-bg-color";
         case QXmlStreamReader::Comment:
             continue; // Just drop comments
         default:
-            qWarning() << "Unexpected token, type" << tokenType;
+            qCWarning(HTMLFILTER) << "Unexpected token, type" << tokenType;
         }
         if (depth < 0) {
             Q_ASSERT(tokenType == QXmlStreamReader::EndElement
@@ -458,7 +460,8 @@ void Processor::runOn(const QString &html)
 
             tagsStack.emplace();
             if (tagsStack.size() > 100)
-                qCritical() << "CS API spec limits HTML tags depth at 100";
+                qCCritical(HTMLFILTER)
+                    << "CS API spec limits HTML tags depth at 100";
 
             // Qt hardcodes the link style in a `<span>` under `<a>`.
             // This breaks the looks on the receiving side if the sender
@@ -525,8 +528,9 @@ void Processor::runOn(const QString &html)
             if (tagsStack.empty()) {
                 const auto& tagName = reader.qualifiedName();
                 if (tagName != u"body" && tagName != u"html")
-                    qWarning() << "filterHtml(): empty tags stack, skipping"
-                               << ('/' + tagName.toString());
+                    qCWarning(HTMLFILTER)
+                        << "filterHtml(): empty tags stack, skipping"
+                        << ('/' + tagName.toString());
                 break;
             }
             // Close as many elements as were opened in case StartElement
@@ -539,8 +543,8 @@ void Processor::runOn(const QString &html)
             break;
         case QXmlStreamReader::EndDocument:
             if (!tagsStack.empty())
-                qWarning().noquote().nospace()
-                    << __FUNCTION__ << ": Not all HTML tags closed";
+                qCWarning(HTMLFILTER).noquote().nospace()
+                    << ": Not all HTML tags closed";
             if (mode == GenericToQt)
                 writer.writeEndDocument(); // </body></html>
             break;
@@ -550,14 +554,15 @@ void Processor::runOn(const QString &html)
         case QXmlStreamReader::Invalid: {
             errorPos = reader.characterOffset() - bodyOffset;
             errorString = reader.errorString();
-            qCritical() << "Invalid XHTML:" << html;
-            qCritical().nospace()
+            qCCritical(HTMLFILTER) << "Invalid XHTML:" << html;
+            qCCritical(HTMLFILTER).nospace()
                 << "Error at char " << errorPos << ": " << errorString;
             const auto remainder =
                 QStringView(html).mid(reader.characterOffset());
-            qCritical().nospace() << "Buffer at error: " << remainder << ", "
-                                  << html.size() - reader.characterOffset()
-                                  << " character(s) remaining";
+            qCCritical(HTMLFILTER).nospace()
+                << "Buffer at error: " << remainder << ", "
+                << html.size() - reader.characterOffset()
+                << " character(s) remaining";
             break;
         }
         case QXmlStreamReader::Comment:

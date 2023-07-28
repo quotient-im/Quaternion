@@ -3,6 +3,7 @@
 #include "chatroomwidget.h"
 #include "models/messageeventmodel.h"
 #include "imageprovider.h"
+#include "logging_categories.h"
 
 #include <Quotient/settings.h>
 #include <Quotient/events/roompowerlevelsevent.h>
@@ -119,7 +120,7 @@ void TimelineWidget::spotlightEvent(const QString& eventId)
 void TimelineWidget::saveFileAs(const QString& eventId)
 {
     if (!currentRoom()) {
-        qWarning()
+        qCWarning(TIMELINE)
             << "ChatRoomWidget::saveFileAs without an active room ignored";
         return;
     }
@@ -293,8 +294,8 @@ void TimelineWidget::reStartShownTimer()
 
     static Quotient::Settings settings;
     maybeReadTimer.start(settings.get<int>("UI/maybe_read_timer", 1000), this);
-    qDebug() << "Scheduled maybe-read message update:" << indexToMaybeRead
-             << "->" << indicesOnScreen.back();
+    qCDebug(TIMELINE) << "Scheduled maybe-read message update:"
+                      << indexToMaybeRead << "->" << indicesOnScreen.back();
 }
 
 void TimelineWidget::timerEvent(QTimerEvent* qte)
@@ -308,8 +309,8 @@ void TimelineWidget::timerEvent(QTimerEvent* qte)
     if (readMarkerOnScreen && !indicesOnScreen.empty()
         && indexToMaybeRead < indicesOnScreen.back()) //
     {
-        qDebug() << "Maybe-read message update:" << indexToMaybeRead << "->"
-                 << indicesOnScreen.back();
+        qCDebug(TIMELINE) << "Maybe-read message update:" << indexToMaybeRead
+                          << "->" << indicesOnScreen.back();
         indexToMaybeRead = indicesOnScreen.back();
         activityDetector.setEnabled(pendingMarkRead());
     }

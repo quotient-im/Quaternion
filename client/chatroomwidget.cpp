@@ -41,6 +41,7 @@
 #include "quaternionroom.h"
 #include "chatedit.h"
 #include "htmlfilter.h"
+#include "logging_categories.h"
 
 static auto DefaultPlaceholderText()
 {
@@ -245,7 +246,7 @@ void ChatRoomWidget::setRoom(QuaternionRoom* newRoom)
         connect(newRoom, &Room::encryption, //
                 this, &ChatRoomWidget::encryptionChanged);
         connect(newRoom->connection(), &Connection::loggedOut, this, [this] {
-            qWarning() << "Logged out, escaping the room";
+            qCWarning(MSGINPUT) << "Logged out, escaping the room";
             setRoom(nullptr);
         });
     }
@@ -680,7 +681,7 @@ QString ChatRoomWidget::sendCommand(QStringView command,
         return {};
     }
     // --- Add more room commands here
-    qDebug() << "Unknown command:" << command;
+    qCDebug(MSGINPUT) << "Unknown command:" << command;
     return tr("Unknown /command. Use // to send this line literally");
 }
 

@@ -19,6 +19,7 @@
 #include "roomdialogs.h"
 #include "accountselector.h"
 #include "systemtrayicon.h"
+#include "logging_categories.h"
 #include "linuxutils.h"
 
 #include <Quotient/csapi/joining.h>
@@ -659,7 +660,7 @@ void MainWindow::firstSyncOver(const Connection *c)
                       [](const Connection* cc) {
                           return cc->nextBatchToken().isEmpty();
                       });
-    qDebug() << "Connections still not synced: " << accountsNotSynced;
+    qCDebug(MAIN) << "Connections still not synced: " << accountsNotSynced;
     if (accountsNotSynced == 0) {
         busyLabel->hide();
         busyIndicator->stop();
@@ -843,7 +844,7 @@ public:
     void onNetworkError(const QString& error)
     {
         using namespace std::chrono_literals;
-        qWarning() << "Network error at initial connection:" << error;
+        qCWarning(MAIN) << "Network error at initial connection:" << error;
         QTimer::singleShot(10s, this, &ConnectionInitiator::tryConnection);
     }
 
@@ -860,7 +861,8 @@ inline QString accessTokenKey(const KeySourceT& source, bool legacyLocation)
     auto k = source.userId();
     if (legacyLocation) {
         if (source.deviceId().isEmpty())
-            qWarning() << "Device id on the account is not set";
+            qCWarning(MAIN) << "Device id on the account" << source.userId()
+                            << "is not set";
         else
             k += '-' % source.deviceId();
     }
@@ -882,7 +884,7 @@ void MainWindow::invokeLogin()
             continue;
 
         showLoginDialog = false;
-        qDebug().noquote().nospace()
+        qCDebug(MAIN).noquote().nospace()
             << "Found an access token for " << account.userId() << '/'
             << account.deviceId() << ", trying to connect";
         auto ci = new ConnectionInitiator(account, token, this);
@@ -898,14 +900,14 @@ void MainWindow::invokeLogin()
                 });
         if (legacyLocation) {
             connect(c, &Connection::connected, this, [this, c] {
-                qInfo()
+                qCInfo(MAIN)
                     << "Removing the access token from the oldkeychain slot";
                 using namespace QKeychain;
                 auto* delJob = new DeletePasswordJob(qAppName(), this);
                 delJob->setKey(accessTokenKey(*c, true));
                 connect(delJob, &Job::finished, this, [delJob] {
                     if (delJob->error() != Error::NoError)
-                        qWarning().noquote()
+                        qCWarning(MAIN).noquote()
                             << "Cleanup of the old keychain slot failed:"
                             << delJob->errorString();
                 });
@@ -927,8 +929,8 @@ std::pair<QByteArray, bool> MainWindow::loadAccessToken(
     using namespace QKeychain;
     for (auto legacyLocation : { false, true }) {
         const auto& key = accessTokenKey(account, legacyLocation);
-        qDebug().noquote() << "Reading the access token from the keychain for"
-                           << key;
+        qCDebug(MAIN).noquote()
+            << "Reading the access token from the keychain for" << key;
         auto slotName = qAppName();
         if (legacyLocation)
             slotName += " access token for " % key;
@@ -943,8 +945,9 @@ std::pair<QByteArray, bool> MainWindow::loadAccessToken(
         if (job->error() == Error::NoError)
             return { job->binaryData(), legacyLocation };
 
-        qInfo().noquote() << "Could not read the access token for" << job->key()
-                          << "from the keychain:" << job->errorString();
+        qCInfo(MAIN).noquote()
+            << "Could not read the access token for" << job->key()
+            << "from the keychain:" << job->errorString();
     }
     return {};
 }
@@ -981,8 +984,9 @@ void MainWindow::logout(Connection* c)
                                     "token from the keychain."),
                                  QMessageBox::Close);
         }
-        qWarning() << "Could not delete access token from the keychain: "
-                   << qUtf8Printable(job->errorString());
+        qCWarning(MAIN).noquote()
+            << "Could not delete access token from the keychain: "
+            << qUtf8Printable(job->errorString());
     });
     job->start();
 
@@ -1140,9 +1144,9 @@ void MainWindow::openRoomSettings(QuaternionRoom* r)
 void MainWindow::selectRoom(Quotient::Room* r)
 {
     if (r)
-        qDebug() << "Opening room" << r->objectName();
+        qCDebug(MAIN) << "Opening room" << r->objectName();
     else if (currentRoom)
-        qDebug() << "Closing room" << currentRoom->objectName();
+        qCDebug(MAIN) << "Closing room" << currentRoom->objectName();
     QElapsedTimer et; et.start();
     if (currentRoom)
         disconnect(currentRoom, &QuaternionRoom::displaynameChanged,
@@ -1161,9 +1165,9 @@ void MainWindow::selectRoom(Quotient::Room* r)
         show();
         activateWindow();
     }
-    qDebug().noquote() << et << "to"
-                       << (r ? "select room " + r->canonicalAlias()
-                             : "close the room");
+    qCDebug(MAIN).noquote()
+        << et << "to"
+        << (r ? "select room " + r->canonicalAlias() : "close the room");
 }
 
 void MainWindow::showStatusMessage(const QString& message, int timeout)

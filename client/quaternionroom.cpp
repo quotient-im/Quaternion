@@ -8,6 +8,8 @@
 
 #include "quaternionroom.h"
 
+#include "logging_categories.h"
+
 #include <Quotient/user.h>
 #include <Quotient/events/roommessageevent.h>
 #include <QtCore/QRegularExpression>
@@ -63,12 +65,12 @@ void QuaternionRoom::saveViewport(int topIndex, int bottomIndex, bool force)
             && (bottomIndex == 0 || topIndex == savedTopVisibleIndex())))
         return;
     if (bottomIndex == 0) {
-        qDebug() << "Saving viewport as the latest available";
+        qCDebug(MAIN) << "Saving viewport as the latest available";
         setFirstDisplayedEventId({});
         setLastDisplayedEventId({});
         return;
     }
-    qDebug() << "Saving viewport:" << topIndex << "thru" << bottomIndex;
+    qCDebug(MAIN) << "Saving viewport:" << topIndex << "thru" << bottomIndex;
     setFirstDisplayedEvent(maxTimelineIndex() - topIndex);
     setLastDisplayedEvent(maxTimelineIndex() - bottomIndex);
 }

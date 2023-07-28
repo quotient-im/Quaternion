@@ -8,6 +8,8 @@
 
 #include "roomlistdock.h"
 
+#include "logging_categories.h"
+
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QStyledItemDelegate>
 #include <QtWidgets/QLabel>
@@ -125,7 +127,8 @@ RoomListDock::RoomListDock(MainWindow* parent)
         const auto& i = model->index(groupPos, 0);
         const auto groupKey = model->roomGroupAt(i).toString();
         if (groupKey.startsWith("org.qmatrixclient"))
-            qCritical() << groupKey << "is deprecated!"; // Fighting the legacy
+            qCCritical(MAIN)
+                << groupKey << "is deprecated!"; // Fighting the legacy
         auto groupState = dockSettings.value(groupKey);
         if (!groupState.isValid()) {
             if (groupKey.startsWith(RoomGroup::SystemPrefix)) {

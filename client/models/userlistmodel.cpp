@@ -8,6 +8,8 @@
 
 #include "userlistmodel.h"
 
+#include "../logging_categories.h"
+
 #include <QtCore/QDebug>
 #include <QtGui/QPixmap>
 #include <QtGui/QPalette>
@@ -52,7 +54,7 @@ void UserListModel::setRoom(Quotient::Room* room)
                 [this] { setRoom(nullptr); });
 
         filter({});
-        qDebug() << m_users.count() << "user(s) in the room";
+        qCDebug(MODELS) << m_users.count() << "user(s) in the room";
     }
     endResetModel();
 }
@@ -71,7 +73,8 @@ QVariant UserListModel::data(const QModelIndex& index, int role) const
 
     if( index.row() >= m_users.count() )
     {
-        qDebug() << "UserListModel, something's wrong: index.row() >= m_users.count()";
+        qCWarning(MODELS) << "UserListModel, something's wrong: index.row() >= "
+                             "m_users.count()";
         return QVariant();
     }
     auto user = m_users.at(index.row());
@@ -130,8 +133,8 @@ void UserListModel::userAdded(Quotient::User* user)
     auto pos = findUserPos(user);
     if (pos != m_users.size() && m_users[pos] == user)
     {
-        qWarning() << "Trying to add the user" << user->id()
-                   << "but it's already in the user list";
+        qCWarning(MODELS) << "Trying to add the user" << user->id()
+                          << "but it's already in the user list";
         return;
     }
     beginInsertRows(QModelIndex(), pos, pos);
@@ -144,8 +147,9 @@ void UserListModel::userRemoved(Quotient::User* user)
     auto pos = findUserPos(user);
     if (pos == m_users.size())
     {
-        qWarning() << "Trying to remove a room member not in the user list:"
-                   << user->id();
+        qCWarning(MODELS)
+            << "Trying to remove a room member not in the user list:"
+            << user->id();
         return;
     }
 
@@ -173,8 +177,8 @@ void UserListModel::filter(const QString& filterString)
     std::sort(m_users.begin(), m_users.end(), m_currentRoom->memberSorter());
     endResetModel();
 
-    qDebug() << "Filtering" << m_users.size() << "user(s) in"
-                << m_currentRoom->displayName() << "took" << et;
+    qCDebug(MODELS) << "Filtering" << m_users.size() << "user(s) in"
+                    << m_currentRoom->displayName() << "took" << et;
 }
 
 void UserListModel::refresh(Quotient::User* user, QVector<int> roles)
@@ -183,7 +187,8 @@ void UserListModel::refresh(Quotient::User* user, QVector<int> roles)
     if ( pos != m_users.size() )
         emit dataChanged(index(pos), index(pos), roles);
     else
-        qWarning() << "Trying to access a room member not in the user list";
+        qCWarning(MODELS)
+            << "Trying to access a room member not in the user list";
 }
 
 void UserListModel::avatarChanged(Quotient::User* user)

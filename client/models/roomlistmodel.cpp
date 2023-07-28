@@ -9,6 +9,7 @@
 #include "roomlistmodel.h"
 
 #include "../quaternionroom.h"
+#include "../logging_categories.h"
 
 #include <eventstats.h>
 #include <user.h>
@@ -71,13 +72,15 @@ void RoomListModel::deleteTag(QModelIndex index)
     const auto tag = m_roomGroups[index.row()].key.toString();
     if (tag.isEmpty())
     {
-        qCritical() << "RoomListModel: Invalid tag at position" << index.row();
+        qCCritical(MODELS) << "RoomListModel: Invalid tag at position"
+                           << index.row();
         return;
     }
     if (tag.startsWith(RoomGroup::SystemPrefix))
     {
-        qWarning() << "RoomListModel: System groups cannot be deleted "
-                      "(tried to delete" << tag << "group)";
+        qCWarning(MODELS) << "RoomListModel: System groups cannot be deleted "
+                             "(tried to delete"
+                          << tag << "group)";
         return;
     }
     // After the below loop, the respective group will magically disappear from
@@ -100,8 +103,9 @@ void RoomListModel::visitRoom(const Room& room,
         if (roomAt(idx) == &room)
             visitor(idx);
         else {
-            qCritical() << "Room at" << idx << "is" << roomAt(idx)->objectName()
-                        << "instead of" << room.objectName();
+            qCCritical(MODELS)
+                << "Room at" << idx << "is" << roomAt(idx)->objectName()
+                << "instead of" << room.objectName();
             Q_ASSERT(false);
         }
     }
@@ -206,8 +210,9 @@ void RoomListModel::addRoomToGroups(Room* room, QVariantList groups)
         const auto rIt = lowerBoundRoom(*gIt, room);
         if (rIt != gIt->rooms.cend() && *rIt == room)
         {
-            qWarning() << "RoomListModel:" << room->objectName()
-                       << "is already listed under group" << g.toString();
+            qCWarning(MODELS)
+                << "RoomListModel:" << room->objectName()
+                << "is already listed under group" << g.toString();
             continue;
         }
         const auto rPos = int(rIt - gIt->rooms.begin());
@@ -216,8 +221,8 @@ void RoomListModel::addRoomToGroups(Room* room, QVariantList groups)
         gIt->rooms.insert(rIt, room);
         endInsertRows();
         m_roomIndices.insert(room, index(rPos, 0, gIdx));
-        qDebug() << "RoomListModel: Added" << room->objectName()
-                 << "to group" << gIt->key.toString();
+        qCDebug(MODELS) << "RoomListModel: Added" << room->objectName()
+                        << "to group" << gIt->key.toString();
     }
 }
 
@@ -241,7 +246,8 @@ void RoomListModel::doRemoveRoom(const QModelIndex &idx)
 {
     if (!isValidRoomIndex(idx))
     {
-        qCritical() << "Attempt to remove a room at invalid index" << idx;
+        qCCritical(MODELS) << "Attempt to remove a room at invalid index"
+                           << idx;
         Q_ASSERT(false);
         return;
     }
@@ -249,12 +255,13 @@ void RoomListModel::doRemoveRoom(const QModelIndex &idx)
     auto& group = m_roomGroups[gPos]; // clazy:exclude=detaching-member
     const auto rIt =
         group.rooms.begin() + idx.row(); // clazy:exclude=detaching-member
-    qDebug() << "RoomListModel: Removing room" << (*rIt)->objectName()
-             << "from group" << group.key.toString();
+    qCDebug(MODELS) << "RoomListModel: Removing room" << (*rIt)->objectName()
+                    << "from group" << group.key.toString();
     if (m_roomIndices.remove(*rIt, idx) != 1)
     {
-        qCritical() << "Index" << idx << "for room" << (*rIt)->objectName()
-                    << "not found in the index registry";
+        qCCritical(MODELS) << "Index" << idx << "for room"
+                           << (*rIt)->objectName()
+                           << "not found in the index registry";
         Q_ASSERT(false);
     }
     beginRemoveRows(idx.parent(), idx.row(), idx.row());
@@ -578,7 +585,8 @@ void RoomListModel::updateGroups(Room* room)
     }
     if (!groups.empty())
         addRoomToGroups(room, groups); // Groups the room wasn't before
-    qDebug() << "RoomListModel: groups for" << room->objectName() << "updated";
+    qCDebug(MODELS) << "RoomListModel: groups for" << room->objectName()
+                    << "updated";
 }
 
 void RoomListModel::refresh(Room* room, const QVector<int>& roles)

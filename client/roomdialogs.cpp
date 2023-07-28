@@ -10,6 +10,7 @@
 #include "quaternionroom.h"
 #include "accountselector.h"
 #include "models/orderbytag.h" // For tagToCaption()
+#include "logging_categories.h"
 
 #include <Quotient/accountregistry.h>
 #include <Quotient/user.h>
@@ -425,7 +426,6 @@ void CreateRoomDialog::updatePushButtons()
 
 void CreateRoomDialog::load()
 {
-    qDebug() << "Loading the dialog";
     roomName->clear();
     alias->clear();
     topic->clear();
@@ -500,9 +500,9 @@ void CreateRoomDialog::accountSwitched()
                 model->appendRow(item);
             }
         }
-        qDebug() << "Completion candidates:" << model->rowCount()
-                 << "out of" << connection->users().size()
-                 << "filled in" << et;
+        qCDebug(MAIN) << "Completion candidates:" << model->rowCount()
+                      << "out of" << connection->users().size() << "filled in"
+                      << et;
 //    }
     }
     nextInvitee->setModel(model);

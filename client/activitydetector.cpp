@@ -8,6 +8,8 @@
 
 #include "activitydetector.h"
 
+#include "logging_categories.h"
+
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QWidget>
 #include <QtCore/QDebug>
@@ -26,7 +28,7 @@ void ActivityDetector::setEnabled(bool enabled)
         qApp->installEventFilter(this);
     else
         qApp->removeEventFilter(this);
-    qDebug() << "Activity Detector enabled:" << enabled;
+    qCDebug(MAIN) << "Activity Detector enabled:" << enabled;
 }
 
 bool ActivityDetector::eventFilter(QObject* obj, QEvent* ev)

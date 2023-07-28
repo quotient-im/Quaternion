@@ -16,6 +16,7 @@
 #include <QtQuickControls2/QQuickStyle>
 
 #include "mainwindow.h"
+#include "logging_categories.h"
 #include "linuxutils.h"
 
 #include <Quotient/networksettings.h>
@@ -32,12 +33,14 @@ void loadTranslations(
                 || translator->load(QLocale(), configName, "_", configPath)) {
                 auto path = translator->filePath();
                 if ((loaded = QApplication::installTranslator(translator)))
-                    qDebug().noquote() << "Loaded translations from" << path;
+                    qCDebug(MAIN).noquote()
+                        << "Loaded translations from" << path;
                 else
-                    qWarning().noquote()
+                    qCWarning(MAIN).noquote()
                         << "Failed to load translations from" << path;
             } else
-                qDebug() << "No translations for" << configName << "at" << configPath;
+                qCDebug(MAIN) << "No translations for" << configName << "at"
+                              << configPath;
             if (!loaded)
                 delete translator;
         }
@@ -100,7 +103,7 @@ int main( int argc, char* argv[] )
             fontPointSize > 0)
             font.setPointSizeF(fontPointSize);
 
-        qDebug() << "Using application font:" << font.toString();
+        qCInfo(MAIN) << "Using application font:" << font.toString();
         QApplication::setFont(font);
     }
 
@@ -108,7 +111,7 @@ int main( int argc, char* argv[] )
     // set to "true" by default; might be a bug, see
     // https://forum.qt.io/topic/71112/application-does-not-quit
     QObject::connect(&app, &QApplication::lastWindowClosed, &app, [&app]{
-        qDebug() << "Last window closed!";
+        qCDebug(MAIN) << "Last window closed!";
         QApplication::postEvent(&app, new QEvent(QEvent::Quit));
     });
 
@@ -137,7 +140,7 @@ int main( int argc, char* argv[] )
     if (!overrideLocale.isEmpty())
     {
         QLocale::setDefault(QLocale(overrideLocale));
-        qInfo() << "Using locale" << QLocale().name();
+        qCInfo(MAIN) << "Using locale" << QLocale().name();
     }
 
     loadTranslations(
@@ -160,11 +163,11 @@ int main( int argc, char* argv[] )
 
     MainWindow window;
     if (parser.isSet(hideMainWindow)) {
-        qDebug() << "--- Hide time!";
+        qCDebug(MAIN) << "--- Hide time!";
         window.hide();
     }
     else {
-        qDebug() << "--- Show time!";
+        qCDebug(MAIN) << "--- Show time!";
         window.show();
     }
 
