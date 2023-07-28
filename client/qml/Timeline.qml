@@ -398,22 +398,18 @@ Page {
         }
 
         function scrollUp(dy) {
-            if (contentHeight > height)
+            if (contentHeight > height && dy !== 0) {
+                animateNextScroll = true
                 contentY -= dy
+            }
         }
-        function scrollDown(dy) {
-            if (contentHeight > height)
-                contentY += dy
-        }
+        function scrollDown(dy) { scrollUp(-dy) }
 
         function onWheel(wheel) {
             if (wheel.angleDelta.x === 0) {
-                var yDelta = wheel.angleDelta.y * 10 / 36
-
-                if (yDelta > 0)
-                    scrollUp(yDelta)
-                else
-                    scrollDown(-yDelta)
+                // NB: Scrolling up yields positive angleDelta.y
+                if (contentHeight > height && wheel.angleDelta.y !== 0)
+                    contentY -= wheel.angleDelta.y * settings.lineSpacing / 40
                 wheel.accepted = true
             } else {
                 wheel.accepted = false
@@ -479,17 +475,15 @@ Page {
             FastNumberAnimation { property: "opacity"; to: 1 }
         }
 
+        property bool animateNextScroll: false
         Behavior on contentY {
-            enabled: settings.enable_animations && !chatView.moving
-                     && !cruisingAnimation.running
-            SmoothedAnimation {
+            enabled: settings.enable_animations && chatView.animateNextScroll
+            animation: FastNumberAnimation {
                 id: scrollAnimation
                 duration: settings.fast_animations_duration_ms / 3
-                maximumEasingTime: settings.fast_animations_duration_ms
-
-                onRunningChanged: {
-                    if (!running)
-                        chatView.saveViewport(false)
+                onStopped: {
+                    chatView.animateNextScroll = false
+                    chatView.saveViewport(false)
                 }
         }}
 
