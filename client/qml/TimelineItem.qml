@@ -52,11 +52,12 @@ Item {
             if (partiallyShown) {
                 chatView.readMarkerContentPos =
                     Qt.binding(function() { return y + height })
-                console.log("Read marker line bound at index", index)
+                console.log(root.lc, "Read marker line bound at index", index)
             } else {
                 chatView.parkReadMarker()
-                console.log("Read marker parked at index", index
-                            + ", content pos", chatView.readMarkerContentPos,
+                console.log(root.lc, "Read marker parked at index",
+                            index + ", content pos",
+                            chatView.readMarkerContentPos,
                             "(full range is", chatView.originY, "-",
                             chatView.originY + chatView.contentHeight,
                             "as of now)")
@@ -69,7 +70,7 @@ Item {
     function maybeBindScrollTarget() {
         if (scrollDelay.targetIndex === index) {
             scrollDelay.targetPos = Qt.binding(function() { return y })
-            console.log("Scroll target bound, current pos:",
+            console.log(root.lc, "Scroll target bound, current pos:",
                         scrollDelay.targetPos)
         }
     }

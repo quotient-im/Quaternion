@@ -7,10 +7,11 @@ Page {
 
     property var room: messageModel ? messageModel.room : undefined
 
+    Logger { id: lc }
     TimelineSettings {
         id: settings
 
-        Component.onCompleted: console.log("Using timeline font: " + font)
+        Component.onCompleted: console.log(lc, "Using timeline font: " + font)
     }
 
     background: Rectangle { color: palette.base; border.color: palette.mid }
@@ -297,7 +298,7 @@ Page {
         // the position as needed shortly after the list was positioned.
         // Nothing good in that, just a workaround.
         function scrollViewTo(targetIndex, positionMode, saveViewportAfter) {
-            console.log("Scrolling to position", targetIndex)
+            console.log(lc, "Scrolling to position", targetIndex)
             positionViewAtIndex(targetIndex, positionMode)
             scrollDelay.targetIndex = targetIndex
             scrollDelay.positionMode = positionMode
@@ -315,7 +316,7 @@ Page {
 
                 // This normally shouldn't happen even with the current
                 // imperfect positioning code in Qt
-                console.warn("Fixing up the viewport to be at sync edge")
+                console.warn(lc, "Fixing up the viewport to be at sync edge")
                 positionViewAtBeginning()
             } else {
                 // The viewport is divided into thirds; ListView.End should
@@ -344,7 +345,8 @@ Page {
                     bottomContentY = contentY + height / 3
                     break
                 default:
-                    console.warn("fixupPosition: Unsupported positioning mode:",
+                    console.warn(lc,
+                                 "fixupPosition: Unsupported positioning mode:",
                                  positionMode)
                     return true // Refuse to do anything with it
                 }
@@ -355,7 +357,7 @@ Page {
                         && newIndex >= bottomShownIndex)
                     return true // The item is within the expected range
 
-                console.log("Fixing up item", newIndex, "to be", nameForLog,
+                console.log(lc, "Fixing up item", newIndex, "to be", nameForLog,
                             "- round", scrollDelay.round,
                             "(" + topShownIndex + "-" + bottomShownIndex,
                             "range is shown now)")
@@ -437,7 +439,7 @@ Page {
             target: messageModel
             function onModelAboutToBeReset() {
                 chatView.parkReadMarker()
-                console.log(settings.logCat, "Read marker parked at index",
+                console.log(lc, "Read marker parked at index",
                             messageModel.readMarkerVisualIndex)
                 chatView.saveViewport(true)
             }
@@ -452,7 +454,7 @@ Page {
             }
         }
 
-        Component.onCompleted: console.log(settings.logCat, "QML view loaded")
+        Component.onCompleted: console.log(lc, "QML view loaded")
 
         onMovementEnded: saveViewport(false)
 
