@@ -83,7 +83,7 @@
     </message>
     <message>
         <source>Unknown /command. Use // to send this line literally</source>
-        <translation>Unknown /command. Use // to send this line literally</translation>
+        <translation>Unknown /command. Use // to send this line literally.</translation>
     </message>
     <message>
         <source>Attach</source>
@@ -130,14 +130,6 @@
         <translation>Attaching an image from clipboard</translation>
     </message>
     <message>
-        <source>Send a message (no end-to-end encryption support yet)...</source>
-        <translation>Send a message (no end-to-end encryption support yet)...</translation>
-    </message>
-    <message>
-        <source>Your build of Quaternion doesn&apos;t support Markdown</source>
-        <translation>Your build of Quaternion doesn&apos;t support Markdown</translation>
-    </message>
-    <message>
         <source>No completions</source>
         <translation>No completions</translation>
     </message>
@@ -163,6 +155,14 @@
     <message>
         <source>%L1 more</source>
         <translation>%L1 more</translation>
+    </message>
+    <message>
+        <source>Attaching a local file as pasted/inserted</source>
+        <translation>Attaching a local file as pasted/inserted</translation>
+    </message>
+    <message>
+        <source>%1 is not readable or not a file</source>
+        <translation>%1 is not readable or not a file</translation>
     </message>
 </context>
 <context>
@@ -360,6 +360,22 @@ settings</translation>
         <source>Getting supported login flows...</source>
         <translation>Getting supported login flows...</translation>
     </message>
+    <message>
+        <source>This account is logged in already</source>
+        <translation>This account is logged in already</translation>
+    </message>
+    <message>
+        <source>(none)</source>
+        <translation>(none)</translation>
+    </message>
+    <message>
+        <source>Saved device id</source>
+        <translation>Saved device id</translation>
+    </message>
+    <message>
+        <source>Enable E2EE (BETA)</source>
+        <translation>Enable E2EE (BETA)</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -498,22 +514,6 @@ settings</translation>
     <message>
         <source>Configure &amp;network proxy...</source>
         <translation>Configure &amp;network proxy...</translation>
-    </message>
-    <message>
-        <source>Couldn&apos;t open a file to save access token</source>
-        <translation>Couldn&apos;t open a file to save access token</translation>
-    </message>
-    <message>
-        <source>Quaternion couldn&apos;t open a file to write the access token to. You&apos;re logged in but will have to provide your password again when you restart the application.</source>
-        <translation>Quaternion couldn&apos;t open a file to write the access token to. You&apos;re logged in but will have to provide your password again when you restart the application.</translation>
-    </message>
-    <message>
-        <source>Couldn&apos;t set access token file permissions</source>
-        <translation>Couldn&apos;t set access token file permissions</translation>
-    </message>
-    <message>
-        <source>Quaternion couldn&apos;t restrict permissions on the access token file. Do you still want to save the access token to it?</source>
-        <translation>Quaternion couldn&apos;t restrict permissions on the access token file. Do you still want to save the access token to it?</translation>
     </message>
     <message>
         <source>Logged out as %1</source>
@@ -686,26 +686,6 @@ Response:
         <translation>Show/hide Users dock panel</translation>
     </message>
     <message>
-        <source>Access token file found</source>
-        <translation>Access token file found</translation>
-    </message>
-    <message>
-        <source>Couldn&apos;t migrate access token</source>
-        <translation>Couldn&apos;t migrate access token</translation>
-    </message>
-    <message>
-        <source>Couldn&apos;t save access token</source>
-        <translation>Couldn&apos;t save access token</translation>
-    </message>
-    <message>
-        <source>Logging in into a logged in account</source>
-        <translation>Logging in into a logged in account</translation>
-    </message>
-    <message>
-        <source>You&apos;re trying to log in into an account that&apos;s already logged in. Do you want to continue?</source>
-        <translation>You&apos;re trying to log in into an account that&apos;s already logged in. Do you want to continue?</translation>
-    </message>
-    <message>
         <source>Couldn&apos;t delete access token</source>
         <translation>Couldn&apos;t delete access token</translation>
     </message>
@@ -778,18 +758,6 @@ or alias (starting with #)</translation>
     <message>
         <source>libQuotient contributors @ GitHub</source>
         <translation>libQuotient contributors @ GitHub</translation>
-    </message>
-    <message>
-        <source>Do you want to migrate the access token for %1 from the file to the keychain?</source>
-        <translation>Do you want to migrate the access token for %1 from the file to the keychain?</translation>
-    </message>
-    <message>
-        <source>Quaternion couldn&apos;t migrate access token for %1 from the file to the keychain.</source>
-        <translation>Quaternion couldn&apos;t migrate access token for %1 from the file to the keychain.</translation>
-    </message>
-    <message>
-        <source>Quaternion couldn&apos;t save the access token to the keychain. Do you want to save the access token to file %1?</source>
-        <translation>Quaternion couldn&apos;t save the access token to the keychain. Do you want to save the access token to file %1?</translation>
     </message>
     <message>
         <source>First sync completed for %1</source>
@@ -954,10 +922,6 @@ User-defined tags should start with &quot;u.&quot;</translation>
         <translation>The URI contains an action &apos;%1&apos; that cannot be applied to Matrix resource %2</translation>
     </message>
     <message>
-        <source>Failed to resolve server %1</source>
-        <translation>Failed to resolve server %1</translation>
-    </message>
-    <message>
         <source>Room or user ID, room alias,
 Matrix URI or matrix.to link</source>
         <translation>Room or user ID, room alias,
@@ -990,6 +954,24 @@ Matrix URI or matrix.to link</translation>
     <message>
         <source>Show a confirmation box before opening non-Matrix links in an external application</source>
         <translation>Show a confirmation box before opening non-Matrix links in an external application</translation>
+    </message>
+    <message numerus="yes">
+        <source>Loading %Ln accounts, please wait</source>
+        <translation>
+            <numerusform>Loading %Ln account, please wait</numerusform>
+            <numerusform>Loading %Ln accounts, please wait</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Account %1 is synchronised, have a good chat</source>
+        <translation>Account %1 is synchronised, have a good chat</translation>
+    </message>
+    <message numerus="yes">
+        <source>All %Ln accounts synchronised, have a good chat</source>
+        <translation>
+            <numerusform>%Ln account synchronised, have a good chat</numerusform>
+            <numerusform>All %Ln accounts synchronised, have a good chat</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -1129,10 +1111,6 @@ Matrix URI or matrix.to link</translation>
     <message>
         <source>created the room, version %1</source>
         <translation>created the room, version %1</translation>
-    </message>
-    <message>
-        <source>has set room aliases on server %1 to: %2</source>
-        <translation>has set room aliases on server %1 to: %2</translation>
     </message>
     <message>
         <source>banned %1 from the room: %2</source>
@@ -1345,18 +1323,6 @@ Matrix URI or matrix.to link</translation>
         <translation>%1 (as %2)</translation>
     </message>
     <message>
-        <source>You joined this room</source>
-        <translation>You joined this room</translation>
-    </message>
-    <message>
-        <source>You left this room</source>
-        <translation>You left this room</translation>
-    </message>
-    <message>
-        <source>You were invited into this room</source>
-        <translation>You were invited into this room</translation>
-    </message>
-    <message>
         <source>Main alias: %1</source>
         <translation>Main alias: %1</translation>
     </message>
@@ -1367,10 +1333,6 @@ Matrix URI or matrix.to link</translation>
     <message>
         <source>The room enforces encryption</source>
         <translation>The room enforces encryption</translation>
-    </message>
-    <message>
-        <source>ID: %1</source>
-        <translation>ID: %1</translation>
     </message>
     <message>
         <source>Favourites</source>
@@ -1397,20 +1359,36 @@ Matrix URI or matrix.to link</translation>
         <translation>Invited: %L1</translation>
     </message>
     <message>
-        <source>Unread messages: %L1</source>
-        <translation>Unread messages: %L1</translation>
-    </message>
-    <message>
-        <source>Unread highlights: %L1</source>
-        <translation>Unread highlights: %L1</translation>
-    </message>
-    <message>
-        <source>Unread notifications: %L1</source>
-        <translation>Unread notifications: %L1</translation>
-    </message>
-    <message>
         <source>(maybe more)</source>
         <translation>(maybe more)</translation>
+    </message>
+    <message>
+        <source>Events after fully read marker: %L1</source>
+        <translation>Events after fully read marker: %L1</translation>
+    </message>
+    <message>
+        <source>Unread events/highlights since read receipt: %L1/%L2</source>
+        <translation>Unread events/highlights since read receipt: %L1/%L2</translation>
+    </message>
+    <message>
+        <source>Unread events since read receipt: %L1</source>
+        <translation>Unread events since read receipt: %L1</translation>
+    </message>
+    <message>
+        <source>Room id: %1</source>
+        <translation>Room id: %1</translation>
+    </message>
+    <message>
+        <source>You joined this room as %1</source>
+        <translation>You joined this room as %1</translation>
+    </message>
+    <message>
+        <source>You were invited into this room as %1</source>
+        <translation>You were invited into this room as %1</translation>
+    </message>
+    <message>
+        <source>You left this room as %1</source>
+        <translation>You left this room as %1</translation>
     </message>
 </context>
 <context>
@@ -1758,6 +1736,18 @@ new room</translation>
     <message>
         <source>Reset the current character formatting to the default</source>
         <translation>Reset the current character formatting to the default</translation>
+    </message>
+    <message>
+        <source>Could not insert HTML - it&apos;s either invalid or unsupported</source>
+        <translation>Could not insert HTML - it&apos;s either invalid or unsupported</translation>
+    </message>
+    <message>
+        <source>Paste as rich text</source>
+        <translation>Paste as rich text</translation>
+    </message>
+    <message>
+        <source>Paste as plain text</source>
+        <translation>Paste as plain text</translation>
     </message>
 </context>
 </TS>

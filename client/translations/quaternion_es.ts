@@ -404,22 +404,6 @@ de sala</translation>
         <translation>Configurar el proxy de la &amp;red...</translation>
     </message>
     <message>
-        <source>Couldn&apos;t open a file to save access token</source>
-        <translation>No se pudo abrir un archivo para guardar el token de acceso</translation>
-    </message>
-    <message>
-        <source>Quaternion couldn&apos;t open a file to write the access token to. You&apos;re logged in but will have to provide your password again when you restart the application.</source>
-        <translation>Quaternion no pudo abrir un archivo para escribir el token de acceso. Ha iniciado sesión pero tendrá que proporcionar su contraseña nuevamente cuando reinicie la aplicación.</translation>
-    </message>
-    <message>
-        <source>Couldn&apos;t set access token file permissions</source>
-        <translation>No se pudieron establecer los permisos del archivo de token de acceso</translation>
-    </message>
-    <message>
-        <source>Quaternion couldn&apos;t restrict permissions on the access token file. Do you still want to save the access token to it?</source>
-        <translation>Quaternion no pudo restringir los permisos en el archivo de token de acceso. ¿Todavía quieres guardar el token de acceso?</translation>
-    </message>
-    <message>
         <source>Logged out as %1</source>
         <translation>Se ha cerrado la sesión como %1</translation>
     </message>
@@ -590,26 +574,6 @@ Response:
         <translation>Mostrar/ocultar el panel de acoplamiento Usuarios</translation>
     </message>
     <message>
-        <source>Access token file found</source>
-        <translation>Se encontró el archivo de token de acceso</translation>
-    </message>
-    <message>
-        <source>Couldn&apos;t migrate access token</source>
-        <translation>No se pudo migrar el token de acceso</translation>
-    </message>
-    <message>
-        <source>Couldn&apos;t save access token</source>
-        <translation>No se pudo guardar el token de acceso</translation>
-    </message>
-    <message>
-        <source>Logging in into a logged in account</source>
-        <translation>Iniciar sesión en una cuenta iniciada</translation>
-    </message>
-    <message>
-        <source>You&apos;re trying to log in into an account that&apos;s already logged in. Do you want to continue?</source>
-        <translation>Está intentando iniciar sesión en una cuenta que ya ha iniciado sesión. ¿Desea continuar?</translation>
-    </message>
-    <message>
         <source>Couldn&apos;t delete access token</source>
         <translation>No se pudo eliminar el token de acceso</translation>
     </message>
@@ -682,18 +646,6 @@ o alias (comenzando con #)</translation>
     <message>
         <source>libQuotient contributors @ GitHub</source>
         <translation>Colaboradores de libQuotient en @ GitHub</translation>
-    </message>
-    <message>
-        <source>Do you want to migrate the access token for %1 from the file to the keychain?</source>
-        <translation>¿Desea migrar el token de acceso para %1 del archivo al llavero?</translation>
-    </message>
-    <message>
-        <source>Quaternion couldn&apos;t migrate access token for %1 from the file to the keychain.</source>
-        <translation>Quaternion no pudo migrar el token de acceso %1 del archivo al llavero.</translation>
-    </message>
-    <message>
-        <source>Quaternion couldn&apos;t save the access token to the keychain. Do you want to save the access token to file %1?</source>
-        <translation>Quaternion no pudo guardar el token de acceso en el llavero. ¿Desea guardar el token de acceso en un archivo %1?</translation>
     </message>
     <message>
         <source>First sync completed for %1</source>
@@ -885,10 +837,6 @@ Matrix URI o enlace matriz.to</translation>
     <message>
         <source>created the room, version %1</source>
         <translation>creada la sala, versión %1</translation>
-    </message>
-    <message>
-        <source>has set room aliases on server %1 to: %2</source>
-        <translation>ha establecido alias de sala en el servidor %1 a: %2</translation>
     </message>
     <message>
         <source>banned %1 from the room: %2</source>
@@ -1086,18 +1034,6 @@ Matrix URI o enlace matriz.to</translation>
         <translation>%1 (como %2)</translation>
     </message>
     <message>
-        <source>You joined this room</source>
-        <translation>Te uniste a esta sala</translation>
-    </message>
-    <message>
-        <source>You left this room</source>
-        <translation>Saliste de esta sala.</translation>
-    </message>
-    <message>
-        <source>You were invited into this room</source>
-        <translation>Fuiste invitado a esta sala</translation>
-    </message>
-    <message>
         <source>Main alias: %1</source>
         <translation>Alias principal: %1</translation>
     </message>
@@ -1108,10 +1044,6 @@ Matrix URI o enlace matriz.to</translation>
     <message>
         <source>The room enforces encryption</source>
         <translation>La sala impone el cifrado</translation>
-    </message>
-    <message>
-        <source>ID: %1</source>
-        <translation>ID: %1</translation>
     </message>
     <message>
         <source>Favourites</source>
