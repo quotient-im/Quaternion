@@ -126,10 +126,6 @@
         <translation>Отправить сообщение (через %1) или ввести команду...</translation>
     </message>
     <message>
-        <source>Attaching an image from clipboard</source>
-        <translation>Добавление изображения из буфера обмена</translation>
-    </message>
-    <message>
         <source>No completions</source>
         <translation>Подсказок нет</translation>
     </message>
@@ -156,6 +152,18 @@
     <message>
         <source>%L1 more</source>
         <translation>еще %L1</translation>
+    </message>
+    <message>
+        <source>%1 is not readable or not a file</source>
+        <translation>%1 недоступен для чтения или не является файлом</translation>
+    </message>
+    <message>
+        <source>Attaching the pasted image</source>
+        <translation>Вставленное изображение будет добавлено к сообщению</translation>
+    </message>
+    <message>
+        <source>Attaching the pasted fragment</source>
+        <translation>Вставленный фрагмент будет добавлен к сообщению как файл</translation>
     </message>
 </context>
 <context>
@@ -355,6 +363,22 @@ settings</source>
     <message>
         <source>Getting supported login flows...</source>
         <translation>Запрашиваются поддерживаемые процедуры входа</translation>
+    </message>
+    <message>
+        <source>This account is logged in already</source>
+        <translation>Эта учетная запись уже подключена</translation>
+    </message>
+    <message>
+        <source>(none)</source>
+        <translation>(нет)</translation>
+    </message>
+    <message>
+        <source>Saved device id</source>
+        <translation>Сохраненный идентификатор устройства</translation>
+    </message>
+    <message>
+        <source>Enable E2EE (BETA)</source>
+        <translation>Включить E2EE (ТЕСТОВЫЙ РЕЖИМ)</translation>
     </message>
 </context>
 <context>
@@ -935,6 +959,26 @@ Matrix URI или ссылка на сервис matrix.to</translation>
         <source>Show a confirmation box before opening non-Matrix links in an external application</source>
         <translation>Показывать окно подтверждения перед открытием ссылок вне Matrix во внешнем приложении</translation>
     </message>
+    <message numerus="yes">
+        <source>Loading %Ln accounts, please wait</source>
+        <translation>
+            <numerusform>Загрузка %Ln учетной записи; подождите, пожалуйста</numerusform>
+            <numerusform>Загрузка %Ln учетных записей; подождите, пожалуйста</numerusform>
+            <numerusform>Загрузка %Ln учетных записей; подождите, пожалуйста</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Account %1 is synchronised, have a good chat</source>
+        <translation>Учетная запись %1 синхронизирована, приятного общения</translation>
+    </message>
+    <message numerus="yes">
+        <source>All %Ln accounts synchronised, have a good chat</source>
+        <translation>
+            <numerusform></numerusform>
+            <numerusform>Все %Ln учетных записи синхронизированы, приятного общения</numerusform>
+            <numerusform>Все %Ln учетных записей синхронизированы, приятного общения</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>MessageEventModel</name>
@@ -1326,6 +1370,34 @@ Matrix URI или ссылка на сервис matrix.to</translation>
         <source>(maybe more)</source>
         <translation>(возможно больше)</translation>
     </message>
+    <message>
+        <source>Events after fully read marker: %L1</source>
+        <translation>Событий после отметки о полном прочтении: %L1</translation>
+    </message>
+    <message>
+        <source>Unread events/highlights since read receipt: %L1/%L2</source>
+        <translation>Полностью непрочитанных сообщений/уведомлений: %L1/%L2</translation>
+    </message>
+    <message>
+        <source>Unread events since read receipt: %L1</source>
+        <translation>Полностью непрочитанных сообщений: %L1</translation>
+    </message>
+    <message>
+        <source>Room id: %1</source>
+        <translation>Идентификатор комнаты: %1</translation>
+    </message>
+    <message>
+        <source>You joined this room as %1</source>
+        <translation>Вы присоединились к этой комнате под учетной записью %1</translation>
+    </message>
+    <message>
+        <source>You were invited into this room as %1</source>
+        <translation>Вас пригласили в эту комнату как %1</translation>
+    </message>
+    <message>
+        <source>You left this room as %1</source>
+        <translation>Вы покинули эту комнату как %1</translation>
+    </message>
 </context>
 <context>
     <name>RoomSettingsDialog</name>
@@ -1671,6 +1743,18 @@ new room</source>
     <message>
         <source>Reset the current character formatting to the default</source>
         <translation>Сбросить текущее форматирование символов на значение по умолчанию</translation>
+    </message>
+    <message>
+        <source>Could not insert HTML - it&apos;s either invalid or unsupported</source>
+        <translation>Не удалось вставить HTML - разметка некорректна или не поддерживается</translation>
+    </message>
+    <message>
+        <source>Paste as rich text</source>
+        <translation>Вставить как форматированный текст</translation>
+    </message>
+    <message>
+        <source>Paste as plain text</source>
+        <translation>Вставить как текст без разметки</translation>
     </message>
 </context>
 </TS>
