@@ -126,10 +126,6 @@
         <translation>Sende eine Nachricht (über %1) oder gebe einen Befehl ein …</translation>
     </message>
     <message>
-        <source>Attaching an image from clipboard</source>
-        <translation>Anhängen eines Bildes aus der Zwischenablage</translation>
-    </message>
-    <message>
         <source>No completions</source>
         <translation>Keine Vervollständigungen</translation>
     </message>
@@ -155,6 +151,10 @@
     <message>
         <source>%L1 more</source>
         <translation>%L1 weitere</translation>
+    </message>
+    <message>
+        <source>%1 is not readable or not a file</source>
+        <translation>%1 ist nicht lesbar oder keine Datei</translation>
     </message>
 </context>
 <context>
@@ -351,6 +351,14 @@ Einstellungen</translation>
     <message>
         <source>Getting supported login flows...</source>
         <translation>Lade unterstützte Anmeldemethoden …</translation>
+    </message>
+    <message>
+        <source>(none)</source>
+        <translation>(keiner)</translation>
+    </message>
+    <message>
+        <source>Enable E2EE (BETA)</source>
+        <translation>E2EE einschalten (BETA)</translation>
     </message>
 </context>
 <context>
@@ -1666,6 +1674,14 @@ neuem Raum</translation>
     <message>
         <source>Reset the current character formatting to the default</source>
         <translation>Zurücksetzen der aktuellen Zeichenformatierung auf die Standardeinstellung</translation>
+    </message>
+    <message>
+        <source>Could not insert HTML - it&apos;s either invalid or unsupported</source>
+        <translation>HTML konnte nicht eingefügt werden – es ist entweder ungültig oder wird nicht unterstützt</translation>
+    </message>
+    <message>
+        <source>Paste as rich text</source>
+        <translation>Als Rich-Text einfügen</translation>
     </message>
 </context>
 </TS>

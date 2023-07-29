@@ -126,10 +126,6 @@
         <translation>Wyślij wiadomość (poprzez %1) lub wprowadź polecenie…</translation>
     </message>
     <message>
-        <source>Attaching an image from clipboard</source>
-        <translation>Załączanie obrazu ze schowka</translation>
-    </message>
-    <message>
         <source>No completions</source>
         <translation>Brak dokończeń</translation>
     </message>

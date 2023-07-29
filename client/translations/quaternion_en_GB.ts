@@ -83,7 +83,7 @@
     </message>
     <message>
         <source>Unknown /command. Use // to send this line literally</source>
-        <translation>Unknown /command. Use // to send this line literally</translation>
+        <translation>Unknown /command. Use // to send this line literally.</translation>
     </message>
     <message>
         <source>Attach</source>
@@ -126,10 +126,6 @@
         <translation>Send a message (over %1) or enter a command...</translation>
     </message>
     <message>
-        <source>Attaching an image from clipboard</source>
-        <translation>Attaching an image from clipboard</translation>
-    </message>
-    <message>
         <source>No completions</source>
         <translation>No completions</translation>
     </message>
@@ -155,6 +151,18 @@
     <message>
         <source>%L1 more</source>
         <translation>%L1 more</translation>
+    </message>
+    <message>
+        <source>%1 is not readable or not a file</source>
+        <translation>%1 is not readable or not a file</translation>
+    </message>
+    <message>
+        <source>Attaching the pasted image</source>
+        <translation>Attaching the pasted image</translation>
+    </message>
+    <message>
+        <source>Attaching the pasted fragment</source>
+        <translation>Attaching the pasted fragment</translation>
     </message>
 </context>
 <context>
@@ -351,6 +359,22 @@ settings</translation>
     <message>
         <source>Getting supported login flows...</source>
         <translation>Getting supported login flows...</translation>
+    </message>
+    <message>
+        <source>This account is logged in already</source>
+        <translation>This account is logged in already</translation>
+    </message>
+    <message>
+        <source>(none)</source>
+        <translation>(none)</translation>
+    </message>
+    <message>
+        <source>Saved device id</source>
+        <translation>Saved device id</translation>
+    </message>
+    <message>
+        <source>Enable E2EE (BETA)</source>
+        <translation>Enable E2EE (BETA)</translation>
     </message>
 </context>
 <context>
@@ -931,6 +955,24 @@ Matrix URI or matrix.to link</translation>
         <source>Show a confirmation box before opening non-Matrix links in an external application</source>
         <translation>Show a confirmation box before opening non-Matrix links in an external application</translation>
     </message>
+    <message numerus="yes">
+        <source>Loading %Ln accounts, please wait</source>
+        <translation>
+            <numerusform>Loading %Ln account, please wait</numerusform>
+            <numerusform>Loading %Ln accounts, please wait</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Account %1 is synchronised, have a good chat</source>
+        <translation>Account %1 is synchronised, have a good chat</translation>
+    </message>
+    <message numerus="yes">
+        <source>All %Ln accounts synchronised, have a good chat</source>
+        <translation>
+            <numerusform>%Ln account synchronised, have a good chat</numerusform>
+            <numerusform>All %Ln accounts synchronised, have a good chat</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>MessageEventModel</name>
@@ -1320,6 +1362,34 @@ Matrix URI or matrix.to link</translation>
         <source>(maybe more)</source>
         <translation>(maybe more)</translation>
     </message>
+    <message>
+        <source>Events after fully read marker: %L1</source>
+        <translation>Events after fully read marker: %L1</translation>
+    </message>
+    <message>
+        <source>Unread events/highlights since read receipt: %L1/%L2</source>
+        <translation>Unread events/highlights since read receipt: %L1/%L2</translation>
+    </message>
+    <message>
+        <source>Unread events since read receipt: %L1</source>
+        <translation>Unread events since read receipt: %L1</translation>
+    </message>
+    <message>
+        <source>Room id: %1</source>
+        <translation>Room id: %1</translation>
+    </message>
+    <message>
+        <source>You joined this room as %1</source>
+        <translation>You joined this room as %1</translation>
+    </message>
+    <message>
+        <source>You were invited into this room as %1</source>
+        <translation>You were invited into this room as %1</translation>
+    </message>
+    <message>
+        <source>You left this room as %1</source>
+        <translation>You left this room as %1</translation>
+    </message>
 </context>
 <context>
     <name>RoomSettingsDialog</name>
@@ -1670,6 +1740,14 @@ new room</translation>
     <message>
         <source>Could not insert HTML - it&apos;s either invalid or unsupported</source>
         <translation>Could not insert HTML - it&apos;s either invalid or unsupported</translation>
+    </message>
+    <message>
+        <source>Paste as rich text</source>
+        <translation>Paste as rich text</translation>
+    </message>
+    <message>
+        <source>Paste as plain text</source>
+        <translation>Paste as plain text</translation>
     </message>
 </context>
 </TS>
