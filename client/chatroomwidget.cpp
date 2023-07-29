@@ -130,7 +130,7 @@ ChatRoomWidget::ChatRoomWidget(MainWindow* parent)
                 m_attachAction->setChecked(true);
                 m_chatEdit->setPlaceholderText(AttachedPlaceholderText());
                 mainWindow()->showStatusMessage(
-                    tr("Attaching an image from clipboard"));
+                    tr("Attaching the pasted image"));
             });
     connect(m_chatEdit, &ChatEdit::attachFileRequested, this,
             [=](const QString& localPath) {
@@ -141,7 +141,7 @@ ChatRoomWidget::ChatRoomWidget(MainWindow* parent)
                 m_attachAction->setChecked(true);
                 m_chatEdit->setPlaceholderText(AttachedPlaceholderText());
                 mainWindow()->showStatusMessage(
-                    tr("Attaching a local file as pasted/inserted"));
+                    tr("Attaching the pasted fragment"));
             });
     connect(m_chatEdit, &ChatEdit::proposedCompletion, this,
             [this](QStringList matches, int pos) {
