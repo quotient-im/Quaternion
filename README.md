@@ -316,14 +316,49 @@ the system log (a case with Windows and some but not all Linux systems with
 journald), set `QT_ASSUME_STDERR_HAS_CONSOLE=1` to force the output to be
 redirected to the console.
 
-When chasing bugs and investigating crashes, it helps to increase the debug
-level. Thanks to [@eang:matrix.org](https://matrix.to/#/@eang:matrix.org]),
-libQuotient uses Qt logging categories - the "Troubleshooting" section of
-the library's `README.md` elaborates on how to setup logging. Note that
-Quaternion itself doesn't use Qt logging categories yet, only the library does.
+When chasing bugs and investigating crashes, it helps to run Quaternion from
+the command line with increased logging level. Both libQuotient and (since
+0.0.96 beta 4) Quaternion use
+[logging categories](https://doc.qt.io/qt-6/qloggingcategory.html#configuring-categories)
+to allow fine-grained switching of logs for a given part of the code. Quaternion
+and libQuotient use different categories; this text only describes those for
+Quaternion, make sure to also check [lib/README.md](lib/README.md) for
+libQuotient logging categories. The most practical way to configure logging in
+order to debug a problem is via the `QT_LOGGING_RULES` environment variable;
+the Qt documentation (see the link above) lists a few other methods. In all
+cases, you need to provide one or several clauses that look as follows:
+```
+quaternion.<category>.<level>=<flag>
+```
+where
+- `<category>` is one of (see also `client/logging_categories.h`):
+  - `main`
+  - `accountselector`
+  - `models` (Quaternion backend for user and room lists)
+  - `models.events` (same for events)
+  - `timeline` (C++ code for timeline visuals - very few log lines and not very
+    informative unless you know what to look for)
+  - `timeline.qml` (QML code for timeline visuals - this is what you likely
+    need to figure out why the timeline looks wrong)
+  - `htmlfilter` (conversions between Qt and Matrix subsets of HTML as well
+    as HTML import from other applications)
+  - `messageinput` (message entry box)
+  - `imageprovider` (the code to supply images for avatars in the timeline)
+- `<level>` is one of `debug`, `info`, and `warning`;
+- `<flag>` is either `true` or `false`.
+
+Bear in mind that all logging categories for Quaternion start with `quaternion`
+while logging categories for libQuotient always start with `quotient`.
+
+You can use `*` (asterisk) as a wildcard for any part between two dots, and
+semicolon is used for a separator. Latter statements override former ones, so
+if you want to switch on all debug logs except `timeline.qml` you can set
+```shell script
+QT_LOGGING_RULES="quaternion.*.debug=true;quaternion.timeline.qml.debug=false"
+```
 
 You may also want to set `QT_MESSAGE_PATTERN` to make logs slightly more
-informative (see https://doc.qt.io/qt-5/qtglobal.html#qSetMessagePattern
+informative (see https://doc.qt.io/qt-6/qtlogging.html#qSetMessagePattern
 for the format description). My (@kitsune's) `QT_MESSAGE_PATTERN` looks as
 follows:
 ```
