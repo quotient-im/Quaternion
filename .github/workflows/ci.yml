@@ -296,6 +296,7 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
+        commit: dev
         artifacts: ${{ steps.get-package.outputs.download-path }}/*
         # It tends to false-prerelease things but that's better than false-release them
         prerelease: ${{ contains(needs.Prepare.outputs.version, '-') }}
