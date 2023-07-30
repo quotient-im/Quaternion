@@ -4,7 +4,7 @@
   <metadata_license>CC-BY-4.0</metadata_license>
   <project_license>GPL-3.0+</project_license>
   <name>Quaternion</name>
-  <summary>Qt5-based client for Matrix networks</summary>
+  <summary>Qt-based client for Matrix networks</summary>
 
   <description>
     <p>
@@ -36,6 +36,17 @@
   </provides>
 
   <releases>
+    <release version="0.0.96.84" type="development" date="2023-07-30">
+      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96-beta4</url>
+      <description><p>0.0.96 beta4</p>
+        <ul>
+          <li>Restored workability with Qt 5 (but only until the final release; after that, only Qt 6 will be supported)</li>
+          <li>Timeline scrolling with mouse wheels and touchpads is (should be) no more sluggish</li>
+          <li>Pasting HTML from web pages and other applications works in much more cases</li>
+          <li>More discernible text colours for state events and emotes</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.0.96.83" type="development" date="2023-07-13">
       <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96-beta3</url>
       <description><p>0.0.96 beta3</p>
