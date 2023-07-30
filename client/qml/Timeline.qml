@@ -155,6 +155,7 @@ Page {
                     renderType: settings.render_type
                     readOnly: true
                     wrapMode: TextEdit.Wrap
+                    selectByMouse: true
 
                     onHoveredLinkChanged:
                         controller.showStatusMessage(hoveredLink)
