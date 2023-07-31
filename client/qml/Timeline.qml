@@ -156,9 +156,7 @@ Page {
                     readOnly: true
                     wrapMode: TextEdit.Wrap
                     selectByMouse: true
-
-                    onHoveredLinkChanged:
-                        controller.showStatusMessage(hoveredLink)
+                    hoverEnabled: true
 
                     onLinkActivated:
                         (link) => controller.resourceRequested(link)
