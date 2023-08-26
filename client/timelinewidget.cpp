@@ -42,8 +42,6 @@ TimelineWidget::TimelineWidget(ChatRoomWidget* chatRoomWidget)
     qRegisterMetaType<GetRoomEventsJob*>("GetRoomEventsJob*");
     qRegisterMetaType<User*>("User*");
     qmlRegisterType<Settings>("Quotient", 1, 0, "Settings");
-    qmlRegisterUncreatableType<RoomMessageEvent>(
-        "Quotient", 1, 0, "roomMessageEvent", "roomMessageEvent is uncreatable");
 
     setResizeMode(SizeRootObjectToView);
 
