@@ -11,11 +11,13 @@ defaults:
 
 # A note on bash code style (specifically if's)
 # - No attempt to be POSIX-compliant, it's Bash (4.x+) here
-# - In if's, use [[ instead of [; BUT quote strings around and next to ${{ }}
-#   expansions because inside those expansions strings must always be quoted
-# - Quotes: use "" only where shell "$VARIABLES" should be expanded;
-#   ${{ }} is expanded before feeding the script to Bash, therefore single
-#   quotes or even absense of any are enough '${{ }}' (but see above re if's)
+# - In if's, use [[ ... ]] instead of [ ... ]; BUT quote strings around and next
+#   to ${{ }} expansions to make it clear those are strings and not,
+#   accidentally, numbers
+# - Quotes: use "" only where shell "$VARIABLES" should be expanded, everywhere
+#   else '' is the way to go; ${{ }} is expanded before even feeding the script
+#   to Bash, so always use single quotes (or no quotes - except if's, see above)
+#   around them
 
 jobs:
   Prepare:
