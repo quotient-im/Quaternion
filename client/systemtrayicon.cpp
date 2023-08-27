@@ -24,8 +24,10 @@ SystemTrayIcon::SystemTrayIcon(MainWindow* parent)
     , m_parent(parent)
 {
     auto contextMenu = new QMenu(parent);
-    auto showHideAction = contextMenu->addAction(tr("Hide"), this, &SystemTrayIcon::showHide);
+    auto showHideAction =
+        contextMenu->addAction(tr("Hide"), this, &SystemTrayIcon::showHide);
     contextMenu->addAction(tr("Quit"), this, QApplication::quit);
+    m_parent->winId(); // To make sure m_parent->windowHandle() is initialised
     connect(m_parent->windowHandle(), &QWindow::visibleChanged, [showHideAction](bool visible) {
         showHideAction->setText(visible ? tr("Hide") : tr("Show"));
     });

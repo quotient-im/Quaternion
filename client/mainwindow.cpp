@@ -98,7 +98,6 @@ MainWindow::MainWindow()
 
     loadSettings(); // Only GUI, account settings will be loaded in invokeLogin
     createMenu(); // Assumes loadSettings() is done, to set flags on menu items
-    createWinId(); // TODO: check that it's actually needed
     systemTrayIcon = new SystemTrayIcon(this);
     systemTrayIcon->show();
 
