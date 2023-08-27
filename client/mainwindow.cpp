@@ -10,6 +10,7 @@
 
 #include "roomlistdock.h"
 #include "userlistdock.h"
+#include "dockmodemenu.h"
 #include "chatroomwidget.h"
 #include "timelinewidget.h"
 #include "quaternionroom.h"
@@ -95,7 +96,8 @@ MainWindow::MainWindow()
     connect(userListDock, &UserListDock::userMentionRequested,
             chatRoomWidget, &ChatRoomWidget::insertMention);
 
-    createMenu();
+    loadSettings(); // Only GUI, account settings will be loaded in invokeLogin
+    createMenu(); // Assumes loadSettings() is done, to set flags on menu items
     createWinId(); // TODO: check that it's actually needed
     systemTrayIcon = new SystemTrayIcon(this);
     systemTrayIcon->show();
@@ -106,7 +108,6 @@ MainWindow::MainWindow()
     statusBar()->setSizeGripEnabled(false);
     statusBar()->addPermanentWidget(busyLabel);
     statusBar()->showMessage(tr("Loading..."));
-    loadSettings(); // Only GUI, account settings will be loaded in invokeLogin
 
     busyLabel->show();
     busyIndicator->start();
@@ -200,19 +201,6 @@ void MainWindow::createMenu()
 
     // View menu
     auto viewMenu = menuBar()->addMenu(tr("&View"));
-
-    viewMenu->addSeparator();
-    auto dockPanesMenu = viewMenu->addMenu(
-        QIcon::fromTheme("labplot-editvlayout"),
-        tr("Dock &panels", "Panels of the dock, not 'to dock the panels'"));
-    roomListDock->toggleViewAction()
-            ->setStatusTip(tr("Show/hide Rooms dock panel"));
-    dockPanesMenu->addAction(roomListDock->toggleViewAction());
-    userListDock->toggleViewAction()
-        ->setStatusTip(tr("Show/hide Users dock panel"));
-    dockPanesMenu->addAction(userListDock->toggleViewAction());
-
-    viewMenu->addSeparator();
 
     auto showEventsMenu = viewMenu->addMenu(tr("&Display in timeline"));
     addUiOptionCheckbox(
@@ -326,6 +314,11 @@ void MainWindow::createMenu()
         if (ok)
             sg.setValue("quote_type", list.indexOf(newType));
     });
+
+    viewMenu->addSection(
+        tr("Dock &panels", "Panels of the dock, not 'to dock the panels'"));
+    viewMenu->addMenu(new DockModeMenu(tr("&Room list"), roomListDock));
+    viewMenu->addMenu(new DockModeMenu(tr("&Member list"), userListDock));
 
     // Room menu
     auto roomMenu = menuBar()->addMenu(tr("&Room"));
