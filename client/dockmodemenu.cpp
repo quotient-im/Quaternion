@@ -1,6 +1,9 @@
 #include "dockmodemenu.h"
 
 #include <QtWidgets/QDockWidget>
+#if QT_VERSION_MAJOR >= 6
+#    include <QtGui/QActionGroup>
+#endif
 
 DockModeMenu::DockModeMenu(QString name, QDockWidget* w)
     : QMenu(name)
