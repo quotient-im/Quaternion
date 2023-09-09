@@ -150,6 +150,8 @@ Page {
                     id: topicText
                     width: topicField.width
                     padding: 0
+                    rightPadding: topicField.ScrollBar.vertical.visible
+                                  ? topicField.ScrollBar.vertical.width : 0
 
                     text: room ? room.prettyPrint(room.topic) : ""
                     placeholderText: qsTr("(no topic)")
