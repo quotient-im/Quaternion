@@ -104,8 +104,10 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
         connect(m_currentRoom, &Room::addedMessages, this,
                 [this] (int lowest, int biggest) {
                     endInsertRows();
-                    if (biggest < m_currentRoom->maxTimelineIndex())
-                    {
+                    if (biggest < m_currentRoom->maxTimelineIndex()) {
+                        // When historical events arrive, make sure to update
+                        // the previously-oldest event (e.g. to move author mark
+                        // to an older event)
                         const auto rowBelowInserted =
                             m_currentRoom->maxTimelineIndex() - biggest
                             + timelineBaseIndex() - 1;

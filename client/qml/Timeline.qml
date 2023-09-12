@@ -128,8 +128,9 @@ Page {
                 id: topicField
                 visible: roomHeader.showTopic
                 width: parent.width
-                // Allow 6 lines of the topic (or 20% of the vertical space);
-                // if there are more than 6 lines, show half-line as a hint
+                // Allow 6 lines of the topic but not more than 20% of the
+                // timeline vertical space; if there are more than 6 lines
+                // show half-line as a hint
                 height: Math.min(topicText.contentHeight, root.height / 5,
                                  settings.lineSpacing * 6.5)
                 clip: true
@@ -141,9 +142,10 @@ Page {
                     NormalNumberAnimation { easing.type: Easing.OutQuad }
                 }
 
-                // FIXME: The below TextEdit+MouseArea is a massive copy-paste
-                // from TimelineItem.qml. We need to make a separate component
-                // for these (RichTextField?).
+                // FIXME: The below TextArea+MouseArea is a massive copy-paste
+                // from textFieldImpl and its respective MouseArea in
+                // TimelineItem.qml. Maybe make a separate component for these
+                // (RichTextField?).
                 TextArea {
                     id: topicText
                     width: topicField.width

@@ -156,7 +156,7 @@ Item {
             id: detailsAreaLoader
 //            asynchronous: true // https://bugreports.qt.io/browse/QTBUG-50992
             active: visible
-            visible: false // Controlled by showDetailsButton
+            visible: false // Managed by onShowDetails()
             opacity: 0
             width: parent.width
 
@@ -303,7 +303,7 @@ Item {
                 anchors.rightMargin: 1
                 clip: true
 
-                TextEdit {
+                TextEdit { // TextArea clips the offscreen part
                     id: textFieldImpl
                     anchors.top: textField.top
                     width: parent.width
