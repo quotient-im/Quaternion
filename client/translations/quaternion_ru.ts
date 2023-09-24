@@ -682,14 +682,6 @@ Response:
         <translation>Открыть комнату из списка комнат</translation>
     </message>
     <message>
-        <source>Show/hide Rooms dock panel</source>
-        <translation>Показать/скрыть панель «Комнаты»</translation>
-    </message>
-    <message>
-        <source>Show/hide Users dock panel</source>
-        <translation>Показать/скрыть панель «Пользователи»</translation>
-    </message>
-    <message>
         <source>Couldn&apos;t delete access token</source>
         <translation>Не удалось удалить ключ доступа</translation>
     </message>

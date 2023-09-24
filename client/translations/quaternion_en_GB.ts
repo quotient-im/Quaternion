@@ -678,14 +678,6 @@ Response:
         <translation>Open a room from the room list</translation>
     </message>
     <message>
-        <source>Show/hide Rooms dock panel</source>
-        <translation>Show/hide Rooms dock panel</translation>
-    </message>
-    <message>
-        <source>Show/hide Users dock panel</source>
-        <translation>Show/hide Users dock panel</translation>
-    </message>
-    <message>
         <source>Couldn&apos;t delete access token</source>
         <translation>Couldn&apos;t delete access token</translation>
     </message>
