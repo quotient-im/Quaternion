@@ -87,10 +87,10 @@ jobs:
       if: "!startsWith(matrix.os, 'ubuntu')"
       uses: jurplel/install-qt-action@v3.0.0
       with:
-        version: "${{ matrix.qt-version == 6 && '6.4' || matrix.qt-version }}.*"
+        version: '6.5' # CI doesn't use Qt 5 on non-Linux any more
         cache: true
         cache-key-prefix: Qt
-        modules: ${{ matrix.qt-version == 6 && 'qtmultimedia' || '' }}
+        modules: 'qtmultimedia'
         tools: "tools_ninja${{ startsWith(matrix.os, 'windows') && ' tools_opensslv3_x64' || '' }}"
 
     # Install on Linux via apt to get Qt built with OpenSSL 3
