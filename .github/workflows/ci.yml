@@ -119,7 +119,7 @@ jobs:
               -DCMAKE_PREFIX_PATH=~/.local \
               -DQuotient_ENABLE_E2EE=ON \
               ${{ runner.os == 'macOS' && '-DOPENSSL_ROOT_DIR=`brew --prefix openssl`' ||
-                  runner.os == 'Windows' && '-DOPENSSL_ROOT_DIR=$IQTA_TOOLS/OpenSSL/*/' || '' }} \
+                  runner.os == 'Windows' && '-DOPENSSL_ROOT_DIR=$IQTA_TOOLS/OpenSSL*/*/' || '' }} \
               -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }} \
               -DBUILD_WITH_QT6=${{ matrix.qt-version == 6 }}" \
             >>$GITHUB_ENV
