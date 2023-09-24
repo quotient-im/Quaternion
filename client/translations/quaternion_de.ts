@@ -662,14 +662,6 @@ Antwort:
         <translation>Einen Raum aus der Raumliste öffnen</translation>
     </message>
     <message>
-        <source>Show/hide Rooms dock panel</source>
-        <translation>Dock-Panel der Räume ein-/ausblenden</translation>
-    </message>
-    <message>
-        <source>Show/hide Users dock panel</source>
-        <translation>Benutzer-Dock-Panel ein-/ausblenden</translation>
-    </message>
-    <message>
         <source>Couldn&apos;t delete access token</source>
         <translation>Zugriffstoken konnte nicht gelöscht werden.</translation>
     </message>

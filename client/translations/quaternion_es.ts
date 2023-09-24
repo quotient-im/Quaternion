@@ -566,14 +566,6 @@ Response:
         <translation>Abrir una sala de la lista de salas</translation>
     </message>
     <message>
-        <source>Show/hide Rooms dock panel</source>
-        <translation>Mostrar / ocultar panel de acoplamiento de salas</translation>
-    </message>
-    <message>
-        <source>Show/hide Users dock panel</source>
-        <translation>Mostrar/ocultar el panel de acoplamiento Usuarios</translation>
-    </message>
-    <message>
         <source>Couldn&apos;t delete access token</source>
         <translation>No se pudo eliminar el token de acceso</translation>
     </message>

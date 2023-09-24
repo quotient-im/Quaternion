@@ -607,14 +607,6 @@ Odpowiedź:
         <translation>Otwórz pokój z listy pokoi</translation>
     </message>
     <message>
-        <source>Show/hide Rooms dock panel</source>
-        <translation>Pokazuje/ukrywa panel dock pokojów</translation>
-    </message>
-    <message>
-        <source>Show/hide Users dock panel</source>
-        <translation>Pokazuje/ukrywa panel dock użytkowników</translation>
-    </message>
-    <message>
         <source>Couldn&apos;t delete access token</source>
         <translation>Nie można usunąć tokena dostępu</translation>
     </message>
