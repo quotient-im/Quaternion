@@ -91,7 +91,7 @@ jobs:
         cache: true
         cache-key-prefix: Qt
         modules: ${{ matrix.qt-version == 6 && 'qtmultimedia' || '' }}
-        tools: "tools_ninja${{ startsWith(matrix.os, 'windows') && ' tools_openssl_x64' || '' }}"
+        tools: "tools_ninja${{ startsWith(matrix.os, 'windows') && ' tools_opensslv3_x64' || '' }}"
 
     # Install on Linux via apt to get Qt built with OpenSSL 3
     - name: Install Qt (Linux)
