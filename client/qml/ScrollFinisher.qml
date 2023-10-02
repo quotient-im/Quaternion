@@ -114,8 +114,9 @@ Timer {
             // repeat positioning; otherwise, position the canvas exactly
             // where it should be
             if (targetPos) {
-                // this.contentY is readonly
+                // NB: this.contentY is a readonly alias
                 parent.contentY = targetPos
+                targetPos = undefined
                 return true
             }
             parent.positionViewAtIndex(targetIndex, positionMode)
