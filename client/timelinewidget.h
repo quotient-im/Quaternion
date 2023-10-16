@@ -9,7 +9,7 @@
 
 class ChatRoomWidget;
 class MessageEventModel;
-class ImageProvider;
+class ThumbnailProvider;
 class QuaternionRoom;
 
 class TimelineWidget : public QQuickWidget {
@@ -46,7 +46,7 @@ public slots:
 
 private:
     MessageEventModel* m_messageModel;
-    ImageProvider* m_imageProvider;
+    ThumbnailProvider* m_thumbnailProvider;
     QString m_selectedText;
 
     using timeline_index_t = Quotient::TimelineItem::index_t;

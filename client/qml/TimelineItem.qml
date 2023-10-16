@@ -216,10 +216,10 @@ Item {
 
                 text: "<" + time + ">"
             }
-            Image {
+            Avatar {
                 id: authorAvatar
                 visible: (authorSectionVisible || settings.timelineStyleIsXChat)
-                         && settings.show_author_avatars && author.avatarMediaId
+                         && settings.show_author_avatars && paintedHeight > 0
                 anchors.left: timelabel.right
                 anchors.leftMargin: 3
                 height: visible ? settings.minimalTimelineItemHeight
@@ -228,11 +228,9 @@ Item {
                 width: settings.show_author_avatars
                        * settings.minimalTimelineItemHeight
 
-                fillMode: Image.PreserveAspectFit
                 horizontalAlignment: Image.AlignRight
 
-                source: author.avatarMediaId
-                        ? "image://mtx/" + author.avatarMediaId : ""
+                forMember: author
                 sourceSize: Qt.size(width, -1)
 
                 AuthorInteractionArea { }
@@ -427,7 +425,7 @@ Item {
                               ? ""
                               : content.info && content.info.thumbnail_info
                                 && !autoload
-                                ? "image://mtx/" + content.thumbnailMediaId
+                                ? "image://thumbnail/" + content.thumbnailMediaId
                                 : ""
                     maxHeight: chatView.height - textField.height -
                                authorLabel.height * !settings.timelineStyleIsXChat

@@ -42,7 +42,7 @@ Page {
 
         property bool showTopic: true
 
-        Image {
+        Avatar {
             id: roomAvatar
             anchors.verticalCenter: headerText.verticalCenter
             anchors.left: parent.left
@@ -53,12 +53,8 @@ Page {
             width: Math.min(headerText.height / implicitHeight * implicitWidth,
                             parent.width / 2.618) // Golden ratio - just for fun
 
-            source: room && room.avatarMediaId
-                    ? "image://mtx/" + room.avatarMediaId : ""
             // Safe upper limit (see also topicField)
             sourceSize: Qt.size(-1, settings.lineSpacing * 9)
-
-            fillMode: Image.PreserveAspectFit
 
             AnimationBehavior on width {
                 NormalNumberAnimation { easing.type: Easing.OutQuad }

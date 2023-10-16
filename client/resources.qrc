@@ -22,5 +22,6 @@
         <file>qml/AnimatedTransition.qml</file>
         <file>qml/ScrollFinisher.qml</file>
         <file>qml/Logger.qml</file>
+        <file>qml/Avatar.qml</file>
     </qresource>
 </RCC>

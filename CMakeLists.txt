@@ -155,7 +155,7 @@ message( STATUS )
 set(quaternion_SRCS
     client/quaternionroom.cpp
     client/htmlfilter.cpp
-    client/imageprovider.cpp
+    client/thumbnailprovider.cpp
     client/activitydetector.cpp
     client/dialog.cpp
     client/logindialog.cpp

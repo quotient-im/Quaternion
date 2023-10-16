@@ -16,7 +16,7 @@ QUO_LOGGING_CATEGORY(EVENTMODEL, "quaternion.models.events")
 QUO_LOGGING_CATEGORY(TIMELINE, "quaternion.timeline")
 QUO_LOGGING_CATEGORY(HTMLFILTER, "quaternion.htmlfilter")
 QUO_LOGGING_CATEGORY(MSGINPUT, "quaternion.messageinput")
-QUO_LOGGING_CATEGORY(IMAGEPROVIDER, "quaternion.imageprovider")
+QUO_LOGGING_CATEGORY(THUMBNAILS, "quaternion.thumbnails")
 
 // Only to be used in QML; shows up here for documentation purpose only
 [[maybe_unused]] QUO_LOGGING_CATEGORY(TIMELINEQML, "quaternion.timeline.qml")
