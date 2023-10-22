@@ -72,10 +72,11 @@ Page {
 
             TextArea {
                 id: roomName
-                width: roomNameMetrics.advanceWidth
+                width: roomNameMetrics.advanceWidth + leftPadding
                 height: roomNameMetrics.height
                 clip: true
                 padding: 0
+                leftPadding: 2
 
                 TextMetrics {
                     id: roomNameMetrics
