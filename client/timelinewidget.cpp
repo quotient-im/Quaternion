@@ -82,6 +82,7 @@ void TimelineWidget::setRoom(QuaternionRoom* newRoom)
     readMarkerOnScreen = false;
     maybeReadTimer.stop();
     indicesOnScreen.clear();
+    indexToMaybeRead = -1;
 
     // Update the image provider upfront to allow image requests from
     // QML bindings to MessageEventModel::roomChanged
