@@ -11,6 +11,7 @@
 #include "logging_categories.h"
 
 #include <Quotient/connection.h>
+#include <Quotient/room.h>
 #include <Quotient/user.h>
 #include <Quotient/jobs/mediathumbnailjob.h>
 
