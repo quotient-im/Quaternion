@@ -315,7 +315,7 @@ void MainWindow::createMenu()
     });
 
     viewMenu->addSection(
-        tr("Dock &panels", "Panels of the dock, not 'to dock the panels'"));
+        tr("Dock panels", "Panels of the dock, not 'to dock the panels'"));
     viewMenu->addMenu(new DockModeMenu(tr("&Room list"), roomListDock));
     viewMenu->addMenu(new DockModeMenu(tr("&Member list"), userListDock));
 
