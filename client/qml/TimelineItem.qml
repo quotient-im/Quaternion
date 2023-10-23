@@ -179,10 +179,14 @@ Item {
 
                 TapHandler {
                     acceptedButtons: Qt.LeftButton|Qt.MiddleButton
-                    onTapped: (mouse) => {
+                    onTapped: (mouse, button) => {
+                        // Qt 5 passes the pressed button inside mouse.event;
+                        // Qt 6 passes it as a separate parameter
+                        if (!button && mouse.event)
+                            button = mouse.event.button
                         controller.resourceRequested(
-                            author.id, mouse.button === Qt.LeftButton
-                                       ? "mention" : "_interactive")
+                                    author.id, button === Qt.LeftButton
+                                    ? "mention" : "_interactive")
                     }
                 }
             }
