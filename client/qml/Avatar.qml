@@ -1,6 +1,7 @@
 import QtQuick 2.15
 
 Image {
+    id: avatar
     readonly property var forRoom: root.room
     /* readonly */ property var forMember
 
@@ -18,10 +19,10 @@ Image {
 
     Connections {
         target: forRoom
-        function onAvatarChanged() { parent.reload() }
+        function onAvatarChanged() { avatar.reload() }
         function onMemberAvatarChanged(member) {
-            if (member === parent.forMember)
-                parent.reload()
+            if (member === avatar.forMember)
+                avatar.reload()
         }
     }
 }
