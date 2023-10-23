@@ -50,7 +50,9 @@ Page {
             height: headerText.height
             // implicitWidth on its own doesn't respect the scale down of
             // the received image (that almost always happens)
-            width: Math.min(headerText.height / implicitHeight * implicitWidth,
+            width: Math.min(implicitHeight > 0
+                            ? headerText.height / implicitHeight * implicitWidth
+                            : 0,
                             parent.width / 2.618) // Golden ratio - just for fun
 
             // Safe upper limit (see also topicField)
