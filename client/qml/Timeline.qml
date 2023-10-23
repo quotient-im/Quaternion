@@ -72,13 +72,15 @@ Page {
 
             spacing: 2
 
+            readonly property int innerLeftPadding: 4
+
             TextArea {
                 id: roomName
                 width: roomNameMetrics.advanceWidth + leftPadding
                 height: roomNameMetrics.height
                 clip: true
                 padding: 0
-                leftPadding: 2
+                leftPadding: headerText.innerLeftPadding
 
                 TextMetrics {
                     id: roomNameMetrics
@@ -106,6 +108,7 @@ Page {
                 id: versionNotice
                 visible: !!room && (room.isUnstable || room.successorId !== "")
                 width: parent.width
+                leftPadding: headerText.innerLeftPadding
 
                 text: !room ? "" :
                     room.successorId !== ""
@@ -129,9 +132,12 @@ Page {
                 width: parent.width
                 // Allow 6 lines of the topic but not more than 20% of the
                 // timeline vertical space; if there are more than 6 lines
-                // show half-line as a hint
-                height: Math.min(topicText.contentHeight, root.height / 5,
-                                 settings.lineSpacing * 6.5)
+                // reveal the top of the 7th line as a hint
+                height: Math.min(
+                            topicText.contentHeight,
+                            root.height / 5,
+                            settings.lineSpacing * 6.6)
+                        + topicText.topPadding + topicText.bottomPadding
                 clip: true
 
                 ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
@@ -147,10 +153,10 @@ Page {
                 // (RichTextField?).
                 TextArea {
                     id: topicText
-                    width: topicField.width
-                    padding: 0
+                    padding: 2
+                    leftPadding: headerText.innerLeftPadding
                     rightPadding: topicField.ScrollBar.vertical.visible
-                                  ? topicField.ScrollBar.vertical.width : 0
+                                  ? topicField.ScrollBar.vertical.width : padding
 
                     text: room ? room.prettyPrint(room.topic) : ""
                     placeholderText: qsTr("(no topic)")
