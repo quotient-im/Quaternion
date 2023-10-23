@@ -469,8 +469,7 @@ Item {
                     ToolButton {
                         id: reactionButton
 
-                        topPadding: 2
-                        bottomPadding: 2
+                        padding: 3
 
                         contentItem: Text {
                             text: modelData.key + " \u00d7" /* Math "multiply" */
