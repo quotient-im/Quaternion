@@ -1,15 +1,18 @@
 # Quaternion
 
-<a href='https://matrix.org'><img src='https://matrix.org/docs/projects/images/made-for-matrix.png' alt='Made for Matrix' height=64 target=_blank /></a>
+<!--<a href='https://matrix.org'><img src='https://matrix.org/docs/projects/images/made-for-matrix.png' alt='Made for Matrix' height=64 target=_blank /></a>-->
 
-[![license](https://img.shields.io/github/license/quotient-im/quaternion.svg)](https://github.com/quotient-im/Quaternion/blob/master/COPYING)
+[![license](https://img.shields.io/github/license/quotient-im/quaternion.svg)](https://github.com/quotient-im/Quaternion/blob/master/LICENSES/GPL-3.0-or-later.txt)
 ![status](https://img.shields.io/badge/status-beta-yellow.svg)
 [![release](https://img.shields.io/github/release/quotient-im/quaternion/all.svg)](https://github.com/quotient-im/Quaternion/releases/latest)
 [![](https://img.shields.io/matrix/quotient:matrix.org.svg)](https://matrix.to/#/#quotient:matrix.org)
-[![](https://img.shields.io/cii/percentage/1663.svg?label=CII%20best%20practices)](https://bestpractices.coreinfrastructure.org/projects/1663/badge)
+[![](https://bestpractices.dev/projects/1663/badge)](https://bestpractices.dev/projects/1663)
 [![CI builds hosted by: Cloudsmith](https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&style=flat-square)](https://cloudsmith.com)
 
-Quaternion is a cross-platform desktop IM client for the [Matrix](https://matrix.org) protocol. This file contains general information about application usage and settings. See [BUILDING.md](./BUILDING.md) for building instructions.
+Quaternion is a cross-platform desktop IM client for the
+[Matrix](https://matrix.org) protocol. You can find general information about
+application usage and settings here. See [BUILDING.md](./BUILDING.md) for
+building instructions.
 
 ## Contacts
 Most of talking around Quaternion happens in the room of its parent project,
@@ -21,57 +24,62 @@ If you find what looks like a security issue, please follow
 
 ## Download and install
 
-For GNU/Linux, the recommended way to install Quaternion is via your
-distribution's package manager. Users of macOS can use a Homebrew
-package. The source code for the latest release as well as binaries
-for major platforms can also be found at the
-[GitHub Releases page](https://github.com/quotient-im/Quaternion/releases).
-Make sure to read the notes below depending to your environment.
+The recommended way to install Quaternion is as follows (make sure to read
+the notes below depending to your environment):
+
+- on GNU/Linux - using your distribution's package manager;
+- on macOS - from Homebrew;
+- on Windows - from an archive at the project's
+  [GitHub Releases page](https://github.com/quotient-im/Quaternion/releases).
+
+The source code is [hosted at GitHub](https://github.com/quotient-im/Quaternion).
 
 ### Requirements
-Quaternion 0.0.96 packages on Linux need Qt version 5.15.x (or 6.x); for major
-distros, that means Debian 11 (Bullseye), Ubuntu 22.04 (jammy), Fedora 35 and
-OpenSUSE Leap 15.4 or newer releases. The packages published by the project
-at GitHub (see below) come with Qt libraries bundled; Linux packages, including
-those from Flathub, use respective package managers to pull necessary libraries
-automatically.
+
+Quaternion 0.0.96 needs Qt version 6.2 or higher, with 5.15
+provided as interim for compatibility (6.0, 6.1 are not supported).
+
+### Linux
+For major Linux distributions, the mentioned Qt requirement  You should not normally need to install
+anything in addition; if something is not working due to a missing dependency,
+it's a bug - please report it.
 
 ### Windows
-You can download the latest release from
-[GitHub](https://github.com/quotient-im/Quaternion/releases/latest).
-
 Since there's no established package management on Windows to resolve
 dependencies, all needed libraries and a C++ runtime are packaged/installed
-together with Quaternion - except OpenSSL, because of export restrictions.
-Unless you already have OpenSSL around (e.g., it is a part of any
-Qt development installation), you should install it yourself.
+together with Quaternion - except OpenSSL. Unless you already have OpenSSL
+around (e.g., it is a part of any Qt development installation), you should
+install it yourself.
 [OpenSSL's Wiki](https://wiki.openssl.org/index.php/Binaries) lists a few links
-to OpenSSL installers. They come in different build configurations; currently,
-Quaternion builds need OpenSSL 1.1.x made with/for Visual Studio (not MinGW).
+to OpenSSL installers. They come in different build configurations; Quaternion
+builds need OpenSSL 3.x made with/for Visual Studio (not MinGW).
 
 ### macOS
-You can download the latest release from
-[GitHub](https://github.com/quotient-im/Quaternion/releases/latest).
+If you use Homebrew (you should!), `brew install quaternion` installs Quaternion
+along with its dependencies. Packages published at
+[GitHub Releases](https://github.com/quotient-im/Quaternion/releases/latest)
+come with everything necessary already bundled.
 
-Alternatively, you can install Quaternion with [Homebrew Cask](https://brew.sh)
-```
-brew install quaternion
-```
 
 ### Linux and others
 Quaternion is packaged for many distributions, including various versions of
 Debian, Ubuntu and OpenSUSE, as well as Arch Linux, NixOS and FreeBSD.
 A pretty comprehensive list can be found at
-[Repology](https://repology.org/project/quaternion/versions).
+[Repology](https://repology.org/project/quaternion/versions). Popular
+distributions satisfying the mentioned Qt requirement are Debian 11 (Bullseye),
+Ubuntu 22.04 (jammy), Fedora 35, OpenSUSE Leap 15.4 - or newer.
 
 Flatpaks for Quaternion are available from Flathub. To install, use:
 ```
 flatpak install https://flathub.org/repo/appstream/com.github.quaternion.flatpakref
 ```
+These packages are built with a suitable KDE runtime. You can install them on
+any distribution that has Flatpak - even if it's older than mentioned above.
+
 Please file issues at https://github.com/flathub/com.github.quaternion
 if you believe there's a problem specific to the Flatpak package of Quaternion.
 
-<!-- TOREMOVE: AppImages are broken, see #876.
+<!-- REMOVE after 0.0.96: AppImages are broken, see #876.
 The GitHub Releases page offers AppImage binaries for Linux; however, it's
 recommended to only use AppImage binaries if Quaternion is not available
 from your distribution's repos and Flatpak doesn't work for you.
@@ -180,7 +188,8 @@ Some settings exposed in the user interface (Settings and View menus) are:
 - `autoload_images` - whether full-size images should be loaded immediately
   once the message is shown on the screen. The default is to automatically load
   full-size images; set this to false (or 0) to disable that and only load
-  a thumbnail initially. Check out
+  a thumbnail in the timeline (with the full image downloaded after you click
+  "Save as" or "Open" in the context menu). Check out
   https://github.com/quotient-im/Quaternion/issues/601 for the caveat.
 - `show_noop_events` - set this to 1 to show state events that do not alter
   the state (you'll see "(repeated)" next to most of those).
@@ -260,12 +269,11 @@ Settings not exposed in UI:
 - `paste_plaintext_by_default` - set this to false (or 0) if you want to paste
   formatted text by default.
 
-Quaternion uses Qt Keychain to store access tokens and (if libQuotient is
-built with E2EE support) database pickles. If the secure storage supported by
-Qt Keychain is not available, Quaternion will NOT store your access token(s) and
-pickles; do NOT proceed if E2EE is switched on, unless you are fine to end up
-with unrecoverable encrypted messages sent during that session. The fallback
-file used by Quaternion 0.0.9.5/0.0.95 is no more used.
+Quaternion uses Qt Keychain to store access tokens and database pickles. If
+the secure storage supported by Qt Keychain is not available, Quaternion
+will not be able to store your access token(s) and pickles and will
+automatically disable E2EE to avoid unrecoverable encrypted messages.
+The fallback file used by Quaternion pre-0.0.96 is no more used.
 
 Quaternion caches the rooms state and user/room avatars on the file system
 in a conventional location for your platform, as follows:
@@ -307,8 +315,8 @@ Especially on Windows, if Quaternion starts up but upon an attempt to connect
 returns a message like "Failed to make SSL context" - correct SSL libraries
 are not reachable by the Quaternion binary. Re-read the chapter "Requirements",
 section "Windows" in the beginning of this file and do as it advises (make sure
-in particular that you use the correct version of OpenSSL - it should be 1.1.*,
-not 3.* or 1.0.*).
+in particular that you use the correct version of OpenSSL - it should be 3.x,
+not 1.x).
 
 #### Logging
 If you want to see log messages in the command-line console rather than
@@ -343,7 +351,7 @@ where
   - `htmlfilter` (conversions between Qt and Matrix subsets of HTML as well
     as HTML import from other applications)
   - `messageinput` (message entry box)
-  - `imageprovider` (the code to supply images for avatars in the timeline)
+  - `thumbnails` (the code to supply images for the timeline)
 - `<level>` is one of `debug`, `info`, and `warning`;
 - `<flag>` is either `true` or `false`.
 
