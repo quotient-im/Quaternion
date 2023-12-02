@@ -59,8 +59,6 @@
 #include <QtGui/QCloseEvent>
 #include <QtGui/QDesktopServices>
 
-#include <set>
-
 MainWindow::MainWindow()
 {
     Connection::setRoomType<QuaternionRoom>();
