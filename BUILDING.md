@@ -1,9 +1,9 @@
 # Building and Packaging Quaternion
 
-[![Quaternion-master@Travis](https://img.shields.io/travis/quotient-im/Quaternion/master.svg)](https://travis-ci.org/quotient-im/Quaternion/branches)
-[![Quaternion-master@AppVeyor](https://img.shields.io/appveyor/ci/quotient/quaternion/master.svg?logo=appveyor)](https://ci.appveyor.com/project/quotient/quaternion)
-[![license](https://img.shields.io/github/license/quotient-im/quaternion.svg)](https://github.com/quotient-im/Quaternion/blob/master/COPYING)
-[![Chat](https://img.shields.io/badge/chat-%23quaternion-blue.svg)](https://matrix.to/#/#quaternion:matrix.org)
+[![license](https://img.shields.io/github/license/quotient-im/quaternion.svg)](https://github.com/quotient-im/Quaternion/blob/dev/LICENSES/GPL-3.0-or-later.txt)
+![CI Status](https://img.shields.io/github/actions/workflow/status/quotient-im/Quaternion/ci.yml)
+![](https://img.shields.io/github/commit-activity/y/quotient-im/libQuotient.svg)
+[![](https://img.shields.io/matrix/quaternion:matrix.org.svg)](https://matrix.to/#/#quaternion:matrix.org)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 
@@ -78,16 +78,17 @@ using the old name.)
   libQuotient 0.7.x is _not_ compatible with Quaternion 0.0.96 beta 2 and later.
 - libQuotient dependendencies (see lib/README.md):
   - [Qt Keychain](https://github.com/frankosterfeld/qtkeychain)
-  - If using E2EE (experimental):
-    - libolm 3.2.5 or newer (the latest 3.x strongly recommended)
-    - OpenSSL (both 1.1.x and 3.x are known to work; the version Quaternion runs
-      with must be the same as the version used to build Quaternion - or
-      libQuotient, if libQuotient is built/installed separately).
+  - libolm 3.2.5 or newer (the latest 3.x strongly recommended)
+  - OpenSSL (both 1.1.x and 3.x are known to work; the version Quaternion runs
+    with must be the same as the version used to build Quaternion - or
+    libQuotient, if libQuotient is built/installed separately).
 
 Note that in case of using externally built (i.e. not in-tree) libQuotient
 you cannot choose whether or not E2EE is enabled; this is defined by your
-libQuotient build configuration. If you build libQuotient from within Quaternion
-build process then you get to define how libQuotient is built.
+libQuotient build configuration. Since 0.8, it is strongly recommended to build
+libQuotient with E2EE switched on, and manage E2EE via the library API (which
+Quaternion already does, by now). If you build libQuotient from within
+Quaternion build process then you're in full control how libQuotient is built.
 
 #### Linux
 Just install things from the list above using your preferred package manager.
@@ -98,8 +99,7 @@ several Qt Quick plugins for Quaternion to work (without them, it will compile
 and run but won't show the messages timeline).
 
 On Debian/Ubuntu, the following line should get you everything necessary
-to build and run Quaternion (you don't need libolm-dev and libssl-dev if you
-don't plan to switch E2EE on):
+to build and run Quaternion:
 ```bash
 # With Qt 5
 sudo apt-get install cmake qtdeclarative5-dev qttools5-dev qml-module-qtquick-controls2 qtquickcontrols2-5-dev qtmultimedia5-dev qt5keychain-dev libolm-dev libssl-dev
@@ -107,9 +107,7 @@ sudo apt-get install cmake qtdeclarative5-dev qttools5-dev qml-module-qtquick-co
 sudo apt-get install cmake libgl1-mesa-dev qt6-declarative-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools qml6-module-qtquick-controls qt6-multimedia-dev qtkeychain-qt6-dev libolm-dev libssl-dev
 ```
 
-On Fedora, the following command should be enough for building and running
-(similar to Debian family - you don't need libolm-devel and openssl-devel if
-you don't plan to switch E2EE on):
+On Fedora, the following command should be enough for building and running:
 ```bash
 # With Qt 5
 sudo dnf install cmake qt5-qtdeclarative-devel qt5-qtmultimedia-devel qt5-qtquickcontrols2-devel qt5-linguist qtkeychain-qt5-devel libolm-devel openssl-devel
@@ -118,20 +116,16 @@ sudo dnf install cmake qt6-qtdeclarative-devel qt6-qtmultimedia-devel qt6-qttool
 ```
 
 #### macOS
-`brew install qt qtkeychain` should get you Qt 6 and the matching build of
-QtKeychain; if you want E2EE, use `brew install qt qtkeychain libolm openssl`
-instead.
-
-You have to point CMake at the installation locations for your libraries; for
-those coming from Homebrew you can put `$(brew --prefix qt)` and similar for
-other libraries into the first cmake invocation, as follows:
+`brew install qt qtkeychain libolm openssl` should get you Qt 6, the matching
+build of QtKeychain, and good versions of E2EE dependencies. You have to point
+CMake at the installation locations for your libraries, e.g. by adding
+`$(brew --prefix qt)` and similar for other libraries to the first cmake
+invocation, as follows:
 ```bash
 # if using in-tree libQuotient:
-cmake .. -DCMAKE_PREFIX_PATH="$(brew --prefix qt);$(brew --prefix qtkeychain)"
+cmake .. -DQuotient_ENABLE_E2EE=1 -DCMAKE_PREFIX_PATH="$(brew --prefix qt);$(brew --prefix qtkeychain)$(brew --prefix libolm);$(brew --prefix openssl)"
 # or otherwise:
-cmake .. -DCMAKE_PREFIX_PATH="/path/to/libQuotient;$(brew --prefix qt);$(brew --prefix qtkeychain)"
-# and if you also want E2EE support (still in beta!):
-cmake .. -DQuotient_ENABLE_E2EE=1 -DCMAKE_PREFIX_PATH="$(brew --prefix qt5);$(brew --prefix qtkeychain);$(brew --prefix libolm);$(brew --prefix openssl)"
+cmake .. -DCMAKE_PREFIX_PATH="/path/to/libQuotient;$(brew --prefix qt);$(brew --prefix qtkeychain)$(brew --prefix libolm);$(brew --prefix openssl)"
 ```
 
 #### Windows
@@ -145,9 +139,8 @@ cmake .. -DQuotient_ENABLE_E2EE=1 -DCMAKE_PREFIX_PATH="$(brew --prefix qt5);$(br
    but it's very handy to setup environment before building.
    Setting `CMAKE_PREFIX_PATH` also helps.
 1. Get and build [Qt Keychain](https://github.com/frankosterfeld/qtkeychain).
-1. If you plan to use E2EE and haven't built libQuotient yet, follow
-   the instructions on installing E2EE dependencies in lib/README.md, section
-   "Building the library".
+1. Install E2EE dependencies as described in [lib/README.md](lib/README.md),
+   section "Building the library".
 
 ### Build
 In the root directory of the project sources:
@@ -169,8 +162,6 @@ Noteworthy CMake variables that you can use:
 
 ### Install
 In the root directory of the project sources: `cmake --build build_dir --target install`.
-
-If you use GNU Make, `make install` (with `sudo` if needed) will work equally well.
 
 ### Building as Flatpak
 If you run Linux and your distribution supports flatpak, you can easily build
