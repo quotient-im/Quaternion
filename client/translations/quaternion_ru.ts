@@ -971,6 +971,18 @@ Matrix URI или ссылка на сервис matrix.to</translation>
             <numerusform>Все %Ln учетных записей синхронизированы, приятного общения</numerusform>
         </translation>
     </message>
+    <message>
+        <source>&amp;Room list</source>
+        <translation>&amp;Список комнат</translation>
+    </message>
+    <message>
+        <source>&amp;Member list</source>
+        <translation>&amp;Список участников</translation>
+    </message>
+    <message>
+        <source>Dock panels</source>
+        <translation>Пристыковываемые панели</translation>
+    </message>
 </context>
 <context>
     <name>MessageEventModel</name>
@@ -1747,6 +1759,48 @@ new room</source>
     <message>
         <source>Paste as plain text</source>
         <translation>Вставить как текст без разметки</translation>
+    </message>
+</context>
+<context>
+    <name>DockModeMenu</name>
+    <message>
+        <source>&amp;Off</source>
+        <translation>&amp;Скрыт</translation>
+    </message>
+    <message>
+        <source>&amp;Docked</source>
+        <translation>При&amp;стыкованная</translation>
+    </message>
+    <message>
+        <source>&amp;Floating</source>
+        <translation>&amp;Плавающая</translation>
+    </message>
+    <message>
+        <source>Completely hide this list</source>
+        <translation>Полностью скрыть этот список</translation>
+    </message>
+    <message>
+        <source>The list is shown within the main window</source>
+        <translation>Показывать список внутри главного окна</translation>
+    </message>
+    <message>
+        <source>The list is shown separately from the main window</source>
+        <translation>Показывать список отдельно от главного окна</translation>
+    </message>
+</context>
+<context>
+    <name>AbstractThumbnailResponse</name>
+    <message>
+        <source>No connection to perform image request</source>
+        <translation>Нет соединения для выполнения запроса изображения</translation>
+    </message>
+    <message>
+        <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
+        <translation>Идентификатор файла &quot;%1&quot; не соответствует шаблону server/mediaId</translation>
+    </message>
+    <message>
+        <source>Image request is pending</source>
+        <translation>Запрос на изображение в процессе обработки</translation>
     </message>
 </context>
 </TS>

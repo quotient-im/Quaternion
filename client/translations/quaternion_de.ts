@@ -931,6 +931,10 @@ Matrix URI oder matrix.to Link</translation>
         <source>Show a confirmation box before opening non-Matrix links in an external application</source>
         <translation>Zeige ein Bestätigungsfeld vor dem Öffnen von Nicht-Matrix-Links in einer externen Anwendung an</translation>
     </message>
+    <message>
+        <source>&amp;Room list</source>
+        <translation>&amp;Raumliste</translation>
+    </message>
 </context>
 <context>
     <name>MessageEventModel</name>
@@ -1674,6 +1678,48 @@ neuem Raum</translation>
     <message>
         <source>Paste as rich text</source>
         <translation>Als Rich-Text einfügen</translation>
+    </message>
+</context>
+<context>
+    <name>DockModeMenu</name>
+    <message>
+        <source>&amp;Off</source>
+        <translation>&amp;Aus</translation>
+    </message>
+    <message>
+        <source>&amp;Docked</source>
+        <translation>Ange&amp;dockt</translation>
+    </message>
+    <message>
+        <source>&amp;Floating</source>
+        <translation>&amp;Schwebend</translation>
+    </message>
+    <message>
+        <source>Completely hide this list</source>
+        <translation>Diese Liste vollständig ausblenden</translation>
+    </message>
+    <message>
+        <source>The list is shown within the main window</source>
+        <translation>Die Liste wird im Hauptfenster angezeigt</translation>
+    </message>
+    <message>
+        <source>The list is shown separately from the main window</source>
+        <translation>Die Liste wird getrennt vom Hauptfenster angezeigt</translation>
+    </message>
+</context>
+<context>
+    <name>AbstractThumbnailResponse</name>
+    <message>
+        <source>No connection to perform image request</source>
+        <translation>Keine Verbindung zum Durchführen einer Bildanforderung</translation>
+    </message>
+    <message>
+        <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
+        <translation>Die Medien-ID &apos;%1&apos; folgt nicht dem Server/Medien-ID-Muster</translation>
+    </message>
+    <message>
+        <source>Image request is pending</source>
+        <translation>Bildanforderung ist ausstehend</translation>
     </message>
 </context>
 </TS>
