@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS version="2.1" language="en_GB">
+<!DOCTYPE TS><TS version="2.1" language="en_US">
 <context>
     <name>ChatRoomWidget</name>
     <message>
@@ -221,7 +221,7 @@ settings</translation>
     <message numerus="yes">
         <source>%Ln events back from now</source>
         <translation>
-            <numerusform>%Ln events back from now</numerusform>
+            <numerusform>%Ln event back from now</numerusform>
             <numerusform>%Ln events back from now</numerusform>
         </translation>
     </message>
@@ -534,8 +534,8 @@ settings</translation>
     <message>
         <source>Clicking &apos;Retry&apos; will attempt to resume synchronisation;
 Clicking &apos;Cancel&apos; will stop further synchronisation of this account until logout or Quaternion restart.</source>
-        <translation>Clicking &apos;Retry&apos; will attempt to resume synchronization;
-Clicking &apos;Cancel&apos; will stop further synchronization of this account until logout or Quaternion restart.</translation>
+        <translation>Clicking &apos;Retry&apos; will attempt to resume synchronisation;
+Clicking &apos;Cancel&apos; will stop further synchronisation of this account until logout or Quaternion restart.</translation>
     </message>
     <message>
         <source>Before this server can process your information, you have to agree with its terms and conditions; please click the button below to open the web page where you can do that</source>
@@ -1340,7 +1340,7 @@ Matrix URI or matrix.to link</translation>
     </message>
     <message>
         <source>Favourites</source>
-        <translation>Favourites</translation>
+        <translation>Favorites</translation>
     </message>
     <message>
         <source>This room&apos;s version is unstable!</source>
