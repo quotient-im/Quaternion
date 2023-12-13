@@ -36,7 +36,13 @@
   </provides>
 
   <releases>
-    <release version="0.0.96.84" type="development" date="2023-07-30">
+    <release version="0.0.95.91 type="development" date="2023-12-14">
+      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96-rc1</url>
+      <description><p>0.0.96 RC</p>
+        <p>Minor tweaks and fixes</p>
+      </description>
+    </release>
+    <release version="0.0.95.84" type="development" date="2023-07-30">
       <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96-beta4</url>
       <description><p>0.0.96 beta4</p>
         <ul>
@@ -47,7 +53,7 @@
         </ul>
       </description>
     </release>
-    <release version="0.0.96.83" type="development" date="2023-07-13">
+    <release version="0.0.95.83" type="development" date="2023-07-13">
       <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96-beta3</url>
       <description><p>0.0.96 beta3</p>
         <ul>
@@ -57,7 +63,7 @@
         </ul>
       </description>
     </release>
-    <release version="0.0.96.81" type="development" date="2023-04-02">
+    <release version="0.0.95.81" type="development" date="2023-04-02">
       <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96-beta1</url>
       <description><p>
         Switch to libQuotient 0.7, with its new read receipts/fully read markers
