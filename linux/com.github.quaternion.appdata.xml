@@ -36,7 +36,7 @@
   </provides>
 
   <releases>
-    <release version="0.0.95.91 type="development" date="2023-12-14">
+    <release version="0.0.95.91" type="development" date="2023-12-14">
       <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96-rc1</url>
       <description><p>0.0.96 RC</p>
         <p>Minor tweaks and fixes</p>
