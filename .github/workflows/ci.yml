@@ -94,10 +94,14 @@ jobs:
         tools: "tools_ninja${{ startsWith(matrix.os, 'windows') && ' tools_opensslv3_x64' || '' }}"
 
     # Install on Linux via apt to get Qt built with OpenSSL 3
-    - name: Install Qt (Linux)
+    - name: Install dependencies (Linux)
       if: startsWith(matrix.os, 'ubuntu')
       run: |
         COMMON_PKGS="libolm-dev ninja-build"
+        # Workaround for https://github.com/actions/runner-images/issues/8659
+        sudo rm -f /etc/apt/sources.list.d/ubuntu-toolchain-r-ubuntu-test-jammy.list
+        COMMON_PKGS="--allow-downgrades libc6=2.35-0ubuntu3.5 libc6-dev=2.35-0ubuntu3.5 libstdc++6=12.3.0-1ubuntu1~22.04 libgcc-s1=12.3.0-1ubuntu1~22.04 $COMMON_PKGS"
+        # End of workaround
         sudo apt-get -qq update
         sudo apt-get -qq install $COMMON_PKGS \
             ${{ matrix.qt-version == 5
