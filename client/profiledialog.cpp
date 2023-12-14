@@ -82,8 +82,8 @@ public:
 
     using QTableWidget::setItem;
     template <Columns ColumnN, typename DataT>
-    inline auto setItem(int row, const DataT& data)
-        -> std::enable_if_t<std::is_constructible_v<ItemType<ColumnN>, DataT>>
+        requires std::is_constructible_v<ItemType<ColumnN>, DataT>
+    void setItem(int row, const DataT& data)
     {
         auto* item = new ItemType<ColumnN>(data);
         item->setFlags(itemFlags<ColumnN>);
