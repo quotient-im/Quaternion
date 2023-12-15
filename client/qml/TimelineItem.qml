@@ -238,7 +238,7 @@ Item {
                 sourceSize: Qt.size(width, -1)
 
                 AuthorInteractionArea { }
-                AnimationBehavior on height { FastNumberAnimation { } }
+                // AnimationBehavior on height { FastNumberAnimation { } }
             }
             Label {
                 id: authorLabel
