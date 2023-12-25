@@ -5,9 +5,8 @@ Image {
     readonly property var forRoom: root.room
     /* readonly */ property var forMember
 
-    property string sourceId: forRoom ? "image://thumbnail/" + forRoom.id
-                                     + (forMember ? '/' + forMember.id : "")
-                                   : ""
+    property string sourceId:
+        forRoom ? "image://avatar/" + (forMember ? forMember : forRoom).id : ""
     source: sourceId
     cache: false // Quotient::Avatar takes care of caching
     fillMode: Image.PreserveAspectFit

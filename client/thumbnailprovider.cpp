@@ -8,19 +8,25 @@
 
 #include "thumbnailprovider.h"
 
+#include "timelinewidget.h"
+#include "quaternionroom.h"
 #include "logging_categories.h"
 
-#include <Quotient/connection.h>
-#include <Quotient/room.h>
 #include <Quotient/user.h>
 #include <Quotient/jobs/mediathumbnailjob.h>
 
+#include <QtCore/QCoreApplication> // for qApp
 #include <QtCore/QReadWriteLock>
 #include <QtCore/QThread>
-#include <QtCore/QDebug>
 
-using Quotient::Connection;
 using Quotient::BaseJob;
+
+inline int checkDimension(int d)
+{
+    // Emulate ushort overflow if the value is -1 - may cause issues when
+    // screen resolution becomes 100K+ each dimension :-D
+    return d >= 0 ? d : std::numeric_limits<ushort>::max();
+}
 
 inline QDebug operator<<(QDebug dbg, const auto&& size)
     requires std::is_same_v<std::decay_t<decltype(size)>, QSize>
@@ -32,31 +38,28 @@ inline QDebug operator<<(QDebug dbg, const auto&& size)
 class AbstractThumbnailResponse : public QQuickImageResponse {
     Q_OBJECT
 public:
-    AbstractThumbnailResponse(Connection* c, QString id, QSize size)
-        : connection(c), mediaId(std::move(id)), requestedSize(size)
+    AbstractThumbnailResponse(const TimelineWidget* timeline, QString id,
+                              QSize size)
+        : timeline(timeline)
+        , mediaId(std::move(id))
+        , requestedSize(
+              { checkDimension(size.width()), checkDimension(size.height()) })
     {
         qCDebug(THUMBNAILS).noquote()
             << mediaId << '@' << requestedSize << "requested";
-        if (!c)
-            errorStr = tr("No connection to perform image request");
-        else if (mediaId.isEmpty() || size.isEmpty()) {
+        if (mediaId.isEmpty() || requestedSize.isEmpty()) {
             qCDebug(THUMBNAILS) << "Returning an empty thumbnail";
             image = { requestedSize, QImage::Format_Invalid };
-        } else if (!mediaId.startsWith('!') && mediaId.count('/') != 1)
-            errorStr =
-                tr("Media id '%1' doesn't follow server/mediaId pattern")
-                        .arg(mediaId);
-        else {
-            errorStr = tr("Image request is pending");
-            // Start a request on the main thread, concluding the initialisation
-            moveToThread(connection->thread());
-            QMetaObject::invokeMethod(this,
-                                      &AbstractThumbnailResponse::startRequest);
-            // From this point, access to `image` and `errorStr` must be guarded
-            // by `lock`
+            emit finished();
             return;
         }
-        emit finished();
+        errorStr = tr("Image request is pending");
+        // Start a request on the main thread, concluding the initialisation
+        moveToThread(qApp->thread());
+        QMetaObject::invokeMethod(this,
+                                  &AbstractThumbnailResponse::startRequest);
+        // From this point, access to `image` and `errorStr` must be guarded
+        // by `lock`
     }
 
 protected:
@@ -74,7 +77,7 @@ protected:
         emit finished();
     }
 
-    Connection* const connection = nullptr;
+    const TimelineWidget* const timeline;
     const QString mediaId{};
     const QSize requestedSize{};
 
@@ -104,19 +107,30 @@ private:
     }
 };
 
+namespace {
+const auto NoConnectionError =
+    AbstractThumbnailResponse::tr("No connection to perform image request");
+}
+
 class ThumbnailResponse : public AbstractThumbnailResponse {
     Q_OBJECT
 public:
     using AbstractThumbnailResponse::AbstractThumbnailResponse;
-
     ~ThumbnailResponse() override = default;
 
 private slots:
     void startRequest() override
     {
-        Q_ASSERT(QThread::currentThread() == connection->thread());
+        Q_ASSERT(QThread::currentThread() == qApp->thread());
 
-        job = connection->getThumbnail(mediaId, requestedSize);
+        const auto* currentRoom = timeline->currentRoom();
+        if (!currentRoom) {
+            finish({}, NoConnectionError);
+            return;
+        }
+
+        job = currentRoom->connection()->getThumbnail(mediaId, requestedSize);
+
         // Connect to any possible outcome including abandonment
         // to make sure the QML thread is not left stuck forever.
         connect(job, &BaseJob::finished, this, [this] {
@@ -157,19 +171,15 @@ public:
     using AbstractThumbnailResponse::AbstractThumbnailResponse;
 
 private:
-    Quotient::Room* room = nullptr;
-
     void startRequest() override
     {
-        Q_ASSERT(QThread::currentThread() == connection->thread());
-        const auto parts = mediaId.split(u'/');
-        if (parts.size() > 2) { // Not tr() because it's internal error
-            qCCritical(THUMBNAILS) << "Avatar reference '" << mediaId
-                                   << "' must look like 'roomid[/userid]'";
-            Q_ASSERT(parts.size() <= 2);
+        Q_ASSERT(QThread::currentThread() == qApp->thread());
+
+        Quotient::Room* currentRoom = timeline->currentRoom();
+        if (!currentRoom) {
+            finish({}, NoConnectionError);
+            return;
         }
-        room = connection->room(parts.front());
-        Q_ASSERT(room != nullptr);
 
         // NB: both Room:avatar() and User::avatar() invocations return an image
         // available right now and, if needed, request one with the better
@@ -179,17 +189,21 @@ private:
         // respectively.
         const auto& w = requestedSize.width();
         const auto& h = requestedSize.height();
-        if (parts.size() == 1) {
+        if (mediaId.startsWith(u'!')) {
+            if (mediaId != currentRoom->id()) {
+                currentRoom = currentRoom->connection()->room(mediaId);
+                Q_ASSERT(currentRoom != nullptr);
+            }
             // As of libQuotient 0.8, Room::avatar() is the only call in the
             // Room::avatar*() family that substitutes the counterpart's
             // avatar for a direct chat avatar.
-            prepareResult(room->avatar(w, h));
+            prepareResult(currentRoom->avatar(w, h));
             return;
         }
 
-        auto* user = room->user(parts.back());
+        auto* user = currentRoom->user(mediaId);
         Q_ASSERT(user != nullptr);
-        prepareResult(user->avatar(w, h, room));
+        prepareResult(user->avatar(w, h, currentRoom));
     }
 
     void prepareResult(const QImage& avatar)
@@ -202,18 +216,16 @@ private:
 
 #include "thumbnailprovider.moc" // Because we define a Q_OBJECT in the cpp file
 
-QQuickImageResponse* ThumbnailProvider::requestImageResponse(
-        const QString& id, const QSize& requestedSize)
+template <>
+QQuickImageResponse* AvatarProvider::requestImageResponse(
+    const QString& id, const QSize& requestedSize)
 {
-    auto size = requestedSize;
-    // Force integer overflow if the value is -1 - may cause issues when
-    // screens resolution becomes 100K+ each dimension :-D
-    if (size.width() == -1)
-        size.setWidth(ushort(-1));
-    if (size.height() == -1)
-        size.setHeight(ushort(-1));
-    auto* const c = m_connection.loadRelaxed();
-    if (id.startsWith(u'!'))
-        return new AvatarResponse(c, id, size);
-    return new ThumbnailResponse(c, id, size);
+    return new AvatarResponse(timeline, id, requestedSize);
+}
+
+template <>
+QQuickImageResponse* ThumbnailProvider::requestImageResponse(
+    const QString& id, const QSize& requestedSize)
+{
+    return new ThumbnailResponse(timeline, id, requestedSize);
 }

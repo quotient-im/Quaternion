@@ -25,7 +25,6 @@ using Quotient::operator""_ls;
 TimelineWidget::TimelineWidget(ChatRoomWidget* chatRoomWidget)
     : QQuickWidget(chatRoomWidget)
     , m_messageModel(new MessageEventModel(this))
-    , m_thumbnailProvider(new ThumbnailProvider())
     , indexToMaybeRead(-1)
     , readMarkerOnScreen(false)
     , roomWidget(chatRoomWidget)
@@ -45,7 +44,8 @@ TimelineWidget::TimelineWidget(ChatRoomWidget* chatRoomWidget)
 
     setResizeMode(SizeRootObjectToView);
 
-    engine()->addImageProvider("thumbnail"_ls, m_thumbnailProvider);
+    engine()->addImageProvider("avatar"_ls, new AvatarProvider(this));
+    engine()->addImageProvider("thumbnail"_ls, new ThumbnailProvider(this));
 
     auto* ctxt = rootContext();
     ctxt->setContextProperty("messageModel"_ls, m_messageModel);
@@ -84,9 +84,6 @@ void TimelineWidget::setRoom(QuaternionRoom* newRoom)
     indicesOnScreen.clear();
     indexToMaybeRead = -1;
 
-    // Update the image provider upfront to allow image requests from
-    // QML bindings to MessageEventModel::roomChanged
-    m_thumbnailProvider->setConnection(newRoom ? newRoom->connection() : nullptr);
     m_messageModel->changeRoom(newRoom);
     if (newRoom) {
         connect(newRoom, &Quotient::Room::fullyReadMarkerMoved, this, [this] {

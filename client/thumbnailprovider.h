@@ -9,27 +9,21 @@
 #pragma once
 
 #include <QtQuick/QQuickAsyncImageProvider>
-#include <QtCore/QAtomicPointer>
 
-namespace Quotient {
-    class Connection;
-}
+class TimelineWidget;
 
-class ThumbnailProvider : public QQuickAsyncImageProvider {
+template <bool Avatar>
+class ImageProviderTemplate : public QQuickAsyncImageProvider {
 public:
-    explicit ThumbnailProvider(Quotient::Connection* connection = nullptr)
-        : m_connection(connection)
-    { }
+    explicit ImageProviderTemplate(TimelineWidget* parent) : timeline(parent) {}
 
     QQuickImageResponse* requestImageResponse(
         const QString& id, const QSize& requestedSize) override;
 
-    void setConnection(Quotient::Connection* connection)
-    {
-        m_connection.storeRelaxed(connection);
-    }
-
 private:
-    QAtomicPointer<Quotient::Connection> m_connection;
-    Q_DISABLE_COPY(ThumbnailProvider)
+    const TimelineWidget* const timeline;
+    Q_DISABLE_COPY(ImageProviderTemplate)
 };
+
+using AvatarProvider = ImageProviderTemplate<true>;
+using ThumbnailProvider = ImageProviderTemplate<false>;
