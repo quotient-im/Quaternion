@@ -72,6 +72,8 @@ MessageEventModel::MessageEventModel(QObject* parent)
     // connection to modelReset. Ideally the room property could use modelReset
     // for its NOTIFY signal - unfortunately, moc doesn't support using
     // parent's signals with parameters in NOTIFY
+    // NB: this makes all roomChanged connections order before modelReset
+    // connections
     connect(this, &MessageEventModel::modelReset, //
             this, &MessageEventModel::roomChanged);
 }
@@ -83,13 +85,18 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
     if (room == m_currentRoom)
         return;
 
-    if (m_currentRoom)
+    if (m_currentRoom) {
         qCDebug(EVENTMODEL)
             << "Disconnecting event model from" << m_currentRoom->objectName();
-    beginResetModel();
-    if (m_currentRoom)
+        // Reset the model to a null room first to make sure QML dismantles
+        // last room's objects before the room is actually changed
+        beginResetModel();
         m_currentRoom->disconnect(this);
+        m_currentRoom = nullptr;
+        endResetModel();
+    }
 
+    beginResetModel();
     m_currentRoom = room;
     if (m_currentRoom) {
         using namespace Quotient;
