@@ -4,17 +4,12 @@
 <context>
     <name>AbstractThumbnailResponse</name>
     <message>
-        <location filename="../thumbnailprovider.cpp" line="41"/>
+        <location filename="../thumbnailprovider.cpp" line="112"/>
         <source>No connection to perform image request</source>
         <translation>No connection to perform image request</translation>
     </message>
     <message>
-        <location filename="../thumbnailprovider.cpp" line="47"/>
-        <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
-        <translation>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</translation>
-    </message>
-    <message>
-        <location filename="../thumbnailprovider.cpp" line="50"/>
+        <location filename="../thumbnailprovider.cpp" line="56"/>
         <source>Image request is pending</source>
         <translation>Image request is pending</translation>
     </message>
@@ -1254,218 +1249,218 @@ or alias (starting with #)</translation>
 <context>
     <name>MessageEventModel</name>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="284"/>
+        <location filename="../models/messageeventmodel.cpp" line="292"/>
         <source>Today</source>
         <translation>Today</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="286"/>
+        <location filename="../models/messageeventmodel.cpp" line="294"/>
         <source>Yesterday</source>
         <translation>Yesterday</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="288"/>
+        <location filename="../models/messageeventmodel.cpp" line="296"/>
         <source>The day before yesterday</source>
         <translation>The day before yesterday</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="455"/>
-        <location filename="../models/messageeventmodel.cpp" line="729"/>
+        <location filename="../models/messageeventmodel.cpp" line="463"/>
+        <location filename="../models/messageeventmodel.cpp" line="741"/>
         <source>Redacted</source>
         <translation>Redacted</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="457"/>
-        <location filename="../models/messageeventmodel.cpp" line="730"/>
+        <location filename="../models/messageeventmodel.cpp" line="465"/>
+        <location filename="../models/messageeventmodel.cpp" line="742"/>
         <source>Redacted: %1</source>
         <translation>Redacted: %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="490"/>
+        <location filename="../models/messageeventmodel.cpp" line="498"/>
         <source>a file</source>
         <translation>a file</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="508"/>
+        <location filename="../models/messageeventmodel.cpp" line="516"/>
         <source>invited %1 to the room</source>
         <translation>invited %1 to the room</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="511"/>
+        <location filename="../models/messageeventmodel.cpp" line="519"/>
         <source>joined the room</source>
         <translation>joined the room</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="517"/>
+        <location filename="../models/messageeventmodel.cpp" line="525"/>
         <source>(repeated)</source>
         <extracomment>State event that doesn&apos;t change the state</extracomment>
         <translation>(repeated)</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="529"/>
+        <location filename="../models/messageeventmodel.cpp" line="537"/>
         <source>cleared the display name</source>
         <translation>cleared the display name</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="531"/>
+        <location filename="../models/messageeventmodel.cpp" line="539"/>
         <source>changed the display name to %1</source>
         <translation>changed the display name to %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="539"/>
+        <location filename="../models/messageeventmodel.cpp" line="547"/>
         <source> and </source>
         <translation> and </translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="542"/>
+        <location filename="../models/messageeventmodel.cpp" line="550"/>
         <source>cleared the avatar</source>
         <translation>cleared the avatar</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="543"/>
+        <location filename="../models/messageeventmodel.cpp" line="551"/>
         <source>updated the avatar</source>
         <translation>updated the avatar</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="552"/>
+        <location filename="../models/messageeventmodel.cpp" line="560"/>
         <source>withdrew %1&apos;s invitation</source>
         <translation>withdrew %1&apos;s invitation</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="553"/>
+        <location filename="../models/messageeventmodel.cpp" line="561"/>
         <source>rejected the invitation</source>
         <translation>rejected the invitation</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="560"/>
+        <location filename="../models/messageeventmodel.cpp" line="568"/>
         <source>unbanned %1</source>
         <translation>unbanned %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="561"/>
+        <location filename="../models/messageeventmodel.cpp" line="569"/>
         <source>self-unbanned</source>
         <translation>self-unbanned</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="565"/>
+        <location filename="../models/messageeventmodel.cpp" line="573"/>
         <source>kicked %1 from the room</source>
         <translation>kicked %1 from the room</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="567"/>
+        <location filename="../models/messageeventmodel.cpp" line="575"/>
         <source>kicked %1 from the room: %2</source>
         <translation>kicked %1 from the room: %2</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="570"/>
+        <location filename="../models/messageeventmodel.cpp" line="578"/>
         <source>left the room</source>
         <translation>left the room</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="574"/>
+        <location filename="../models/messageeventmodel.cpp" line="582"/>
         <source>banned %1 from the room</source>
         <translation>banned %1 from the room</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="576"/>
+        <location filename="../models/messageeventmodel.cpp" line="584"/>
         <source>banned %1 from the room: %2</source>
         <translation>banned %1 from the room: %2</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="579"/>
+        <location filename="../models/messageeventmodel.cpp" line="587"/>
         <source>self-banned from the room</source>
         <translation>self-banned from the room</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="581"/>
+        <location filename="../models/messageeventmodel.cpp" line="589"/>
         <source>knocked</source>
         <translation>knocked</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="585"/>
+        <location filename="../models/messageeventmodel.cpp" line="593"/>
         <source>made something unknown</source>
         <translation>made something unknown</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="590"/>
+        <location filename="../models/messageeventmodel.cpp" line="598"/>
         <source>cleared the room main alias</source>
         <translation>cleared the room main alias</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="591"/>
+        <location filename="../models/messageeventmodel.cpp" line="599"/>
         <source>set the room main alias to: %1</source>
         <translation>set the room main alias to: %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="595"/>
+        <location filename="../models/messageeventmodel.cpp" line="603"/>
         <source>cleared the room name</source>
         <translation>cleared the room name</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="596"/>
+        <location filename="../models/messageeventmodel.cpp" line="604"/>
         <source>set the room name to: %1</source>
         <translation>set the room name to: %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="601"/>
+        <location filename="../models/messageeventmodel.cpp" line="609"/>
         <source>cleared the topic</source>
         <translation>cleared the topic</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="602"/>
+        <location filename="../models/messageeventmodel.cpp" line="610"/>
         <source>set the topic to: %1</source>
         <translation>set the topic to: %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="606"/>
+        <location filename="../models/messageeventmodel.cpp" line="614"/>
         <source>changed the room avatar</source>
         <translation>changed the room avatar</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="609"/>
+        <location filename="../models/messageeventmodel.cpp" line="617"/>
         <source>activated End-to-End Encryption</source>
         <translation>activated End-to-End Encryption</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="613"/>
+        <location filename="../models/messageeventmodel.cpp" line="621"/>
         <source>upgraded the room to version %1</source>
         <translation>upgraded the room to version %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="614"/>
+        <location filename="../models/messageeventmodel.cpp" line="622"/>
         <source>created the room, version %1</source>
         <translation>created the room, version %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="619"/>
+        <location filename="../models/messageeventmodel.cpp" line="627"/>
         <source>upgraded the room: %1</source>
         <translation>upgraded the room: %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="625"/>
+        <location filename="../models/messageeventmodel.cpp" line="633"/>
         <source>updated the database</source>
         <comment>TWIM bot updated the database</comment>
         <translation>updated the database</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="627"/>
+        <location filename="../models/messageeventmodel.cpp" line="635"/>
         <source>updated %1 state</source>
         <comment>%1 - Matrix event type</comment>
         <translation>updated %1 state</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="629"/>
+        <location filename="../models/messageeventmodel.cpp" line="637"/>
         <source>updated %1 state for %2</source>
         <comment>%1 - Matrix event type, %2 - state key</comment>
         <translation>updated %1 state for %2</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="633"/>
+        <location filename="../models/messageeventmodel.cpp" line="641"/>
         <source>Unknown event</source>
         <translation>Unknown event</translation>
     </message>
     <message numerus="yes">
-        <location filename="../models/messageeventmodel.cpp" line="871"/>
+        <location filename="../models/messageeventmodel.cpp" line="883"/>
         <source>%Ln more member(s)</source>
         <extracomment>When the reaction comes from too many members</extracomment>
         <translation>
@@ -1954,7 +1949,7 @@ This operation cannot be reverted.</translation>
 <context>
     <name>ThumbnailResponse</name>
     <message>
-        <location filename="../thumbnailprovider.cpp" line="131"/>
+        <location filename="../thumbnailprovider.cpp" line="145"/>
         <source>Image request has been cancelled</source>
         <translation>Image request has been cancelled</translation>
     </message>
@@ -2067,35 +2062,35 @@ settings</translation>
 <context>
     <name>TimelineItem</name>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="344"/>
+        <location filename="../qml/TimelineItem.qml" line="340"/>
         <source>edited</source>
         <translation>edited</translation>
     </message>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="502"/>
+        <location filename="../qml/TimelineItem.qml" line="498"/>
         <source>Reaction &apos;%1&apos; from %2</source>
         <extracomment>%2 is the list of users</extracomment>
         <translation>Reaction &apos;%1&apos; from %2</translation>
     </message>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="548"/>
+        <location filename="../qml/TimelineItem.qml" line="544"/>
         <source>Resend</source>
         <translation>Resend</translation>
     </message>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="557"/>
+        <location filename="../qml/TimelineItem.qml" line="553"/>
         <source>Discard</source>
         <translation>Discard</translation>
     </message>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="565"/>
+        <location filename="../qml/TimelineItem.qml" line="561"/>
         <source>Go to
 older room</source>
         <translation>Go to
 older room</translation>
     </message>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="574"/>
+        <location filename="../qml/TimelineItem.qml" line="570"/>
         <source>Go to
 new room</source>
         <translation>Go to
@@ -2105,68 +2100,68 @@ new room</translation>
 <context>
     <name>TimelineWidget</name>
     <message>
-        <location filename="../timelinewidget.cpp" line="116"/>
+        <location filename="../timelinewidget.cpp" line="113"/>
         <source>Referenced message not found</source>
         <translation>Referenced message not found</translation>
     </message>
     <message>
-        <location filename="../timelinewidget.cpp" line="127"/>
+        <location filename="../timelinewidget.cpp" line="124"/>
         <source>Save file as</source>
         <translation>Save file as</translation>
     </message>
     <message>
-        <location filename="../timelinewidget.cpp" line="192"/>
+        <location filename="../timelinewidget.cpp" line="189"/>
         <source>Redact</source>
         <translation>Redact</translation>
     </message>
     <message>
-        <location filename="../timelinewidget.cpp" line="196"/>
+        <location filename="../timelinewidget.cpp" line="193"/>
         <source>Copy selected text to clipboard</source>
         <translation>Copy selected text to clipboard</translation>
     </message>
     <message>
-        <location filename="../timelinewidget.cpp" line="202"/>
+        <location filename="../timelinewidget.cpp" line="199"/>
         <source>Copy link to clipboard</source>
         <translation>Copy link to clipboard</translation>
     </message>
     <message>
-        <location filename="../timelinewidget.cpp" line="206"/>
+        <location filename="../timelinewidget.cpp" line="203"/>
         <source>Copy permalink to clipboard</source>
         <translation>Copy permalink to clipboard</translation>
     </message>
     <message>
-        <location filename="../timelinewidget.cpp" line="213"/>
+        <location filename="../timelinewidget.cpp" line="210"/>
         <source>Quote</source>
         <comment>a verb (do quote), not a noun (a quote)</comment>
         <translation>Quote</translation>
     </message>
     <message>
-        <location filename="../timelinewidget.cpp" line="219"/>
+        <location filename="../timelinewidget.cpp" line="216"/>
         <source>Show details</source>
         <translation>Show details</translation>
     </message>
     <message>
-        <location filename="../timelinewidget.cpp" line="234"/>
+        <location filename="../timelinewidget.cpp" line="231"/>
         <source>Open externally</source>
         <translation>Open externally</translation>
     </message>
     <message>
-        <location filename="../timelinewidget.cpp" line="237"/>
+        <location filename="../timelinewidget.cpp" line="234"/>
         <source>Open Folder</source>
         <translation>Open Folder</translation>
     </message>
     <message>
-        <location filename="../timelinewidget.cpp" line="242"/>
+        <location filename="../timelinewidget.cpp" line="239"/>
         <source>Copy image to clipboard</source>
         <translation>Copy image to clipboard</translation>
     </message>
     <message>
-        <location filename="../timelinewidget.cpp" line="249"/>
+        <location filename="../timelinewidget.cpp" line="246"/>
         <source>Download</source>
         <translation>Download</translation>
     </message>
     <message>
-        <location filename="../timelinewidget.cpp" line="255"/>
+        <location filename="../timelinewidget.cpp" line="252"/>
         <source>Save file as...</source>
         <translation>Save file as...</translation>
     </message>
