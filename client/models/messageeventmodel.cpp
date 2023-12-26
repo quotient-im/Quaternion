@@ -41,6 +41,7 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
         roles.insert(DateRole, "date");
         roles.insert(EventGroupingRole, "eventGrouping");
         roles.insert(AuthorRole, "author");
+        roles.insert(AuthorHasAvatarRole, "authorHasAvatar");
         roles.insert(ContentRole, "content");
         roles.insert(ContentTypeRole, "contentType");
         roles.insert(HighlightRole, "highlight");
@@ -714,6 +715,10 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         return QVariant::fromValue(isPending
                                    ? m_currentRoom->localUser()
                                    : m_currentRoom->user(evt.senderId()));
+    }
+
+    if (role == AuthorHasAvatarRole) {
+        return m_currentRoom->memberAvatarUrl(evt.senderId()).isValid();
     }
 
     if (role == ContentTypeRole)

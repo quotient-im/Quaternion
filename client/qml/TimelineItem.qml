@@ -223,11 +223,9 @@ Item {
             Avatar {
                 id: authorAvatar
                 visible: (authorSectionVisible || settings.timelineStyleIsXChat)
-                         && settings.show_author_avatars && paintedHeight > 0
+                         && settings.show_author_avatars
                 anchors.left: timelabel.right
                 anchors.leftMargin: 3
-                height: visible ? settings.minimalTimelineItemHeight
-                                : authorLabel.height
 
                 width: settings.show_author_avatars
                        * settings.minimalTimelineItemHeight
@@ -235,15 +233,16 @@ Item {
                 horizontalAlignment: Image.AlignRight
 
                 forMember: author
-                sourceSize: Qt.size(width, -1)
+                sourceSize: Qt.size(width,
+                                    visible ? settings.minimalTimelineItemHeight
+                                            : 0)
 
                 AuthorInteractionArea { }
-                // AnimationBehavior on height { FastNumberAnimation { } }
             }
             Label {
                 id: authorLabel
                 visible: settings.timelineStyleIsXChat
-                         || (!actionEvent && authorSectionVisible)
+                         || (authorSectionVisible && authorHasAvatar) // Doesn't exist yet
                 anchors.left: authorAvatar.right
                 anchors.leftMargin: 2
                 anchors.top: authorAvatar.top
@@ -259,7 +258,8 @@ Item {
                 font.bold: !settings.timelineStyleIsXChat
                 renderType: settings.render_type
 
-                text: (actionEvent ? "* " : "") + authorName
+                text: (actionEvent && settings.timelineStyleIsXChat ? "* " : "")
+                      + authorName
 
                 AuthorInteractionArea { }
             }
@@ -291,13 +291,7 @@ Item {
                 height: textFieldImpl.height
                 anchors.top:
                     !settings.timelineStyleIsXChat && authorLabel.visible
-                    ? authorLabel.bottom
-                    : height >= authorAvatar.height ? authorLabel.top : undefined
-                anchors.verticalCenter: !settings.timelineStyleIsXChat
-                                        && !authorLabel.visible
-                                        && height < authorAvatar.height
-                                        ? authorAvatar.verticalCenter
-                                        : undefined
+                    ? authorLabel.bottom : authorLabel.top
                 anchors.left: (settings.timelineStyleIsXChat
                                ? authorLabel : authorAvatar).right
                 anchors.leftMargin: 2
@@ -305,7 +299,9 @@ Item {
                 anchors.rightMargin: 1
                 clip: true
 
-                TextEdit { // TextArea clips the offscreen part
+                // TextArea clips the offscreen part thereby breaking horizontal
+                // scrolling, hence using TextEdit here
+                TextEdit {
                     id: textFieldImpl
                     anchors.top: textField.top
                     width: parent.width
@@ -331,7 +327,7 @@ Item {
                               + "\"'><tr><td>"
                               + (time ? toHtmlEscaped(time) : "")
                               + "</td></tr></table>"
-                              + (actionEvent
+                              + (actionEvent && !authorLabel.visible
                                  ? ("<a href='" + (author ? author.id : "")
                                     + "' style='text-decoration:none;color:\""
                                     + authorColor + "\";font-weight:bold'>"

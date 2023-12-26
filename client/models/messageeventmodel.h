@@ -25,6 +25,7 @@ class MessageEventModel: public QAbstractListModel
             DateRole,
             EventGroupingRole,
             AuthorRole,
+            AuthorHasAvatarRole,
             ContentRole,
             ContentTypeRole,
             HighlightRole,
