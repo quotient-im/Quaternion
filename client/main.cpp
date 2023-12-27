@@ -142,6 +142,9 @@ int main( int argc, char* argv[] )
         qCInfo(MAIN) << "Using locale" << QLocale().name();
     }
 
+// Extract a number from another macro and turn it to a const char[]
+#define ITOA(i) #i
+
     loadTranslations(
         { { { "qt", "qtbase", "qtnetwork", "qtdeclarative", "qtmultimedia",
               "qtquickcontrols", "qtquickcontrols2",
@@ -151,12 +154,14 @@ int main( int argc, char* argv[] )
             QLibraryInfo::location(QLibraryInfo::TranslationsPath) },
           { { "qtkeychain" },
             QStandardPaths::locate(QStandardPaths::GenericDataLocation,
-                                   "qt5keychain/translations",
+                                   "qt" ITOA(QT_VERSION_MAJOR) "keychain/translations",
                                    QStandardPaths::LocateDirectory) },
           { { "qt", "qtkeychain", "quotient", "quaternion" },
             QStandardPaths::locate(QStandardPaths::AppLocalDataLocation,
                                    "translations",
                                    QStandardPaths::LocateDirectory) } });
+
+#undef ITOA
 
     Quotient::NetworkSettings().setupApplicationProxy();
 
