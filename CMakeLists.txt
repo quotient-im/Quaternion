@@ -255,7 +255,8 @@ endif()
 
 install(TARGETS ${PROJECT_NAME}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR})
+        BUNDLE DESTINATION .
+)
 if(LINUX)
     install(FILES linux/${IDENTIFIER}.desktop
             DESTINATION  ${CMAKE_INSTALL_DATADIR}/applications
@@ -300,8 +301,19 @@ endif(WIN32)
 # Packaging
 
 if(APPLE)
+    execute_process(
+        COMMAND "${${Qt}_BinDir}/qmake" -query QT_INSTALL_TRANSLATIONS
+        OUTPUT_VARIABLE _qt_translations_dir
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        COMMAND_ERROR_IS_FATAL ANY
+    )
     set(MACDEPLOYQT_ARGS ${PROJECT_NAME}.app -dmg -qmldir="${QML_DIR}" -verbose=${DEPLOY_VERBOSITY})
     add_custom_target(image
+        COMMAND mkdir ${PROJECT_NAME}.app/Contents/Translations
+        COMMAND install "${_qt_translations_dir}/qtbase_*.qm"
+                        "${_qt_translations_dir}/qtdeclarative_*.qm"
+                        "${_qt_translations_dir}/qtmultimedia_*.qm"
+                        ${PROJECT_NAME}.app/Contents/Translations
         COMMAND "${${Qt}_BinDir}/macdeployqt" ${MACDEPLOYQT_ARGS}
         DEPENDS ${PROJECT_NAME}
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
