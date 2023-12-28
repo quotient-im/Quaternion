@@ -84,10 +84,9 @@ ChatRoomWidget::ChatRoomWidget(MainWindow* parent)
         if (checked)
         {
             attachedFileName =
-                    QFileDialog::getOpenFileName(this, tr("Attach file"));
+                QFileDialog::getOpenFileName(this, tr("Attach file"));
         } else {
-            if (m_fileToAttach->isOpen())
-                m_fileToAttach->remove();
+            m_fileToAttach.reset();
             attachedFileName.clear();
         }
 
@@ -104,8 +103,6 @@ ChatRoomWidget::ChatRoomWidget(MainWindow* parent)
     });
     attachButton->setDefaultAction(m_attachAction);
 
-    m_fileToAttach = new QTemporaryFile(this);
-
     m_chatEdit = new ChatEdit(this);
     m_chatEdit->setPlaceholderText(DefaultPlaceholderText());
     m_chatEdit->setAcceptRichText(true); // m_uiSettings.get("rich_text_editor", false);
@@ -120,20 +117,21 @@ ChatRoomWidget::ChatRoomWidget(MainWindow* parent)
     });
     connect(m_chatEdit, &ChatEdit::insertImageRequested, this,
             [this](const QImage& image) {
-                if (currentRoom() == nullptr || m_fileToAttach->isOpen())
+                if (currentRoom() == nullptr)
                     return;
 
-                m_fileToAttach->open();
-                image.save(m_fileToAttach, "PNG");
+                attachedFileName = QStringLiteral("image.XXXXXX.png");
+                m_fileToAttach =
+                    std::make_unique<QTemporaryFile>(attachedFileName);
+                image.save(m_fileToAttach.get(), "png");
 
-                attachedFileName = m_fileToAttach->fileName();
                 m_attachAction->setChecked(true);
                 m_chatEdit->setPlaceholderText(AttachedPlaceholderText());
                 mainWindow()->showStatusMessage(
                     tr("Attaching the pasted image"));
             });
     connect(m_chatEdit, &ChatEdit::attachFileRequested, this,
-            [=](const QString& localPath) {
+            [this](const QString& localPath) {
                 if (currentRoom() == nullptr || !attachedFileName.isEmpty())
                     return;
 
@@ -232,8 +230,7 @@ void ChatRoomWidget::setRoom(QuaternionRoom* newRoom)
     }
     attachedFileName.clear();
     m_attachAction->setChecked(false);
-    if (m_fileToAttach->isOpen())
-        m_fileToAttach->remove();
+    m_fileToAttach.reset();
 
     m_timelineWidget->setRoom(newRoom);
     m_attachAction->setEnabled(newRoom != nullptr);
@@ -399,8 +396,7 @@ void ChatRoomWidget::sendFile()
                                              : description,
                                          contentFromFile(fileInfo));
 
-    if (m_fileToAttach->isOpen())
-        m_fileToAttach->remove();
+    m_fileToAttach.reset();
     attachedFileName.clear();
     m_attachAction->setChecked(false);
     m_chatEdit->setPlaceholderText(DefaultPlaceholderText());

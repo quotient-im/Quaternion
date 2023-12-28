@@ -12,6 +12,7 @@
 
 #include <Quotient/settings.h>
 
+#include <QtCore/QTemporaryFile>
 #include <QtWidgets/QWidget>
 
 class TimelineWidget;
@@ -20,9 +21,6 @@ class MainWindow;
 
 class QLabel;
 class QAction;
-class QTextDocument;
-class QMimeData;
-class QTemporaryFile;
 
 namespace Quotient {
 class User;
@@ -66,7 +64,7 @@ class ChatRoomWidget : public QWidget
         ChatEdit* m_chatEdit;
 
         QString attachedFileName;
-        QTemporaryFile* m_fileToAttach;
+        std::unique_ptr<QTemporaryFile> m_fileToAttach;
         Quotient::SettingsGroup m_uiSettings;
 
         MainWindow* mainWindow() const;
