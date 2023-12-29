@@ -216,16 +216,28 @@ private:
 
 #include "thumbnailprovider.moc" // Because we define a Q_OBJECT in the cpp file
 
-template <>
-QQuickImageResponse* AvatarProvider::requestImageResponse(
-    const QString& id, const QSize& requestedSize)
+template <class ResponseT>
+class ImageProviderTemplate : public QQuickAsyncImageProvider {
+public:
+    explicit ImageProviderTemplate(TimelineWidget* parent) : timeline(parent) {}
+
+private:
+    QQuickImageResponse* requestImageResponse(const QString& id,
+                                              const QSize& requestedSize) override
+    {
+        return new ResponseT(timeline, id, requestedSize);
+    }
+
+    const TimelineWidget* const timeline;
+    Q_DISABLE_COPY(ImageProviderTemplate)
+};
+
+QQuickAsyncImageProvider* makeAvatarProvider(TimelineWidget* parent)
 {
-    return new AvatarResponse(timeline, id, requestedSize);
+    return new ImageProviderTemplate<AvatarResponse>(parent);
 }
 
-template <>
-QQuickImageResponse* ThumbnailProvider::requestImageResponse(
-    const QString& id, const QSize& requestedSize)
+QQuickAsyncImageProvider* makeThumbnailProvider(TimelineWidget* parent)
 {
-    return new ThumbnailResponse(timeline, id, requestedSize);
+    return new ImageProviderTemplate<ThumbnailResponse>(parent);
 }

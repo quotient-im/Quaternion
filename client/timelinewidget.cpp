@@ -44,8 +44,8 @@ TimelineWidget::TimelineWidget(ChatRoomWidget* chatRoomWidget)
 
     setResizeMode(SizeRootObjectToView);
 
-    engine()->addImageProvider("avatar"_ls, new AvatarProvider(this));
-    engine()->addImageProvider("thumbnail"_ls, new ThumbnailProvider(this));
+    engine()->addImageProvider("avatar"_ls, makeAvatarProvider(this));
+    engine()->addImageProvider("thumbnail"_ls, makeThumbnailProvider(this));
 
     auto* ctxt = rootContext();
     ctxt->setContextProperty("messageModel"_ls, m_messageModel);
