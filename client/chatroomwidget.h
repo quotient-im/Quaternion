@@ -49,9 +49,6 @@ class ChatRoomWidget : public QWidget
 
         void typingChanged();
         void quote(const QString& htmlText);
-        void fileDrop(const QString& url);
-        void htmlDrop(const QString& html);
-        void textDrop(const QString& text);
 
     private slots:
         void sendInput();

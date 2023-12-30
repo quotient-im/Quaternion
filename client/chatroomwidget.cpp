@@ -790,21 +790,3 @@ int ChatRoomWidget::maximumChatEditHeight() const
 {
     return height() / 3;
 }
-
-void ChatRoomWidget::fileDrop(const QString& url)
-{
-    attachedFileName = QUrl(url).path();
-    m_attachAction->setChecked(true);
-    m_chatEdit->setPlaceholderText(AttachedPlaceholderText());
-    mainWindow()->showStatusMessage(tr("Attaching %1").arg(attachedFileName));
-}
-
-void ChatRoomWidget::htmlDrop(const QString &html)
-{
-    m_chatEdit->insertHtml(html);
-}
-
-void ChatRoomWidget::textDrop(const QString& text)
-{
-    m_chatEdit->insertPlainText(text);
-}
