@@ -59,7 +59,7 @@ class ChatRoomWidget : public QWidget
 
     private:
         TimelineWidget* m_timelineWidget;
-        QLabel* m_hudCaption; //< For typing and completion notifications
+        QLabel* m_hudCaption; //!< For typing and completion notifications
         QAction* m_attachAction;
         ChatEdit* m_chatEdit;
 
