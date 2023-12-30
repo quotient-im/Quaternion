@@ -40,6 +40,9 @@ class ChatRoomWidget : public QWidget
     public slots:
         void setRoom(QuaternionRoom* newRoom);
         void insertMention(Quotient::User* user);
+        void attachImage(const QImage& img, const QList<QUrl>& sources);
+        void attachFile(const QString& localPath);
+        void cancelAttaching();
         void focusInput();
 
         /// Set a line just above the message input, with optional list of
@@ -60,14 +63,13 @@ class ChatRoomWidget : public QWidget
         QAction* m_attachAction;
         ChatEdit* m_chatEdit;
 
-        QString attachedFileName;
-        std::unique_ptr<QTemporaryFile> m_fileToAttach;
+        std::unique_ptr<QFile> m_fileToAttach;
         Quotient::SettingsGroup m_uiSettings;
 
         MainWindow* mainWindow() const;
         QuaternionRoom* currentRoom() const;
 
-        void sendFile();
+        QString sendFile();
         void sendMessage();
         [[nodiscard]] QString sendCommand(QStringView command,
                                           const QString& argString);

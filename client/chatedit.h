@@ -35,8 +35,6 @@ class ChatEdit : public KChatEdit
     signals:
         void proposedCompletion(const QStringList& allCompletions, int curIndex);
         void cancelledCompletion();
-        void insertImageRequested(const QImage& image);
-        void attachFileRequested(const QString& localPath);
 
     protected:
         bool canInsertFromMimeData(const QMimeData* source) const override;

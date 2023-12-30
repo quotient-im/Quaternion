@@ -112,7 +112,8 @@ void ChatEdit::insertFromMimeData(const QMimeData *source)
     }
 
     if (source->hasImage())
-        emit insertImageRequested(source->imageData().value<QImage>());
+        chatRoomWidget->attachImage(source->imageData().value<QImage>(),
+                                    source->urls());
     else if (source->hasHtml()) {
         if (m_pastePlaintext) {
             QTextDocument document;
@@ -138,7 +139,7 @@ void ChatEdit::insertFromMimeData(const QMimeData *source)
         bool hasAnyProcessed = false;
         for (const QUrl &url : source->urls())
             if (url.isLocalFile()) {
-                emit attachFileRequested(url.toLocalFile());
+                chatRoomWidget->attachFile(url.toLocalFile());
                 hasAnyProcessed = true;
                 // Only the first url is processed for now
                 break;
