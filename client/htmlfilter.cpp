@@ -314,18 +314,16 @@ Result Processor::process(QString html, Mode mode, QuaternionRoom* context,
     // characters.
 
     // 1. Escape ampersands outside of character entities
-    html.replace(QRegularExpression("&(?!(#[0-9]+" // clang-format off
-                                        "|#x[0-9a-fA-F]+"
-                                        "|[[:alpha:]_][-[:alnum:]_:.]*"
-                                    ");)"), // clang-format on
-                 "&amp;");
+    static const QRegularExpression freestandingAmps{ QStringLiteral(
+        "&(?!(#[0-9]+|#x[0-9a-fA-F]+|[[:alpha:]_][-[:alnum:]_:.]*);)") };
+    html.replace(freestandingAmps, QStringLiteral("&amp;"));
 
     if (mode == QtToMatrix) {
         if (options.testFlag(ConvertMarkdown)) {
             // The processor handles Markdown in chunks between HTML tags;
             // <br /> breaks character sequences that are otherwise valid
             // Markdown, leading to issues with, e.g., lists.
-            html.replace("<br />", QStringLiteral("\n"));
+            html.replace(QStringLiteral("<br />"), QStringLiteral("\n"));
 #if 0
             html = mergeMarkdown(html);
             if (html.isEmpty())
@@ -588,6 +586,7 @@ void Processor::runOn(const QString &html)
             continue; // All these should not affect firstElement state
         }
         // Unset first element once encountered non-whitespace under `<body>`
+        // NB: all `continue` statements above intentionally bypass this
         firstElement &= (bodyOffset <= 0 || reader.isWhitespace());
     }
 }
