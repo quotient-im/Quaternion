@@ -379,9 +379,25 @@ Result fromLocalHtml(const QString& html,
     return Processor::process(html, GenericToQt, context, options);
 }
 
+namespace {
+    class EntityResolver : public QXmlStreamEntityResolver {
+    public:
+        using QXmlStreamEntityResolver::QXmlStreamEntityResolver;
+        Q_DISABLE_COPY_MOVE(EntityResolver)
+
+    private:
+        QString resolveUndeclaredEntity(const QString& name) override
+        {
+            return name == u"nbsp" ? QStringLiteral("\xa0") : QString();
+        }
+    };
+    EntityResolver entityResolver;
+}
+
 void Processor::runOn(const QString &html)
 {
     QXmlStreamReader reader(html);
+    reader.setEntityResolver(&entityResolver);
 
     /// The entry in the (outer) stack corresponds to each level in the source
     /// document; the (inner) stack in each entry records open elements in the
