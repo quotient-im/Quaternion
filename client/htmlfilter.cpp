@@ -227,8 +227,8 @@ static const auto mxBgColorAttr = u"data-mx-bg-color";
         // neither `head` nor tags inside of it are in permittedTags;
         // however, minimised attributes still have to be handled everywhere
         // and <meta> tags should be closed
-        if (mode == GenericToQt && tag == "html") {
-            // Only in generic mode, allow <html> element
+        if (mode == GenericToQt && (tag == u"html" || tag == u"body")) {
+            // Only in generic mode, allow <html> and <body>
             pos += tagNamePos + tag.size() + 1;
             isFragment = false;
             continue;
