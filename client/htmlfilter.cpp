@@ -443,8 +443,10 @@ void Processor::runOn(const QString &html)
                         writer.writeCurrentToken(reader);
                         const auto nextTokenType = reader.readNext();
                         if (nextTokenType == QXmlStreamReader::EndElement
-                            && reader.qualifiedName() == u"head")
+                            && reader.qualifiedName() == u"head") {
+                            writer.writeCurrentToken(reader);
                             break;
+                        }
                     } while (!reader.atEnd());
                     continue;
                 }
