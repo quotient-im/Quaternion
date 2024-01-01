@@ -966,7 +966,7 @@ Matrix URI или ссылка на сервис matrix.to</translation>
     <message numerus="yes">
         <source>All %Ln accounts synchronised, have a good chat</source>
         <translation>
-            <numerusform></numerusform>
+            <numerusform>%Ln учетная запись синхронизирована, приятного общения</numerusform>
             <numerusform>Все %Ln учетных записи синхронизированы, приятного общения</numerusform>
             <numerusform>Все %Ln учетных записей синхронизированы, приятного общения</numerusform>
         </translation>

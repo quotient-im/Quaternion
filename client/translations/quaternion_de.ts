@@ -156,6 +156,14 @@
         <source>%1 is not readable or not a file</source>
         <translation>%1 ist nicht lesbar oder keine Datei</translation>
     </message>
+    <message>
+        <source>Attaching the pasted image</source>
+        <translation>Anhängen des eingefügten Bildes</translation>
+    </message>
+    <message>
+        <source>Attaching the pasted fragment</source>
+        <translation>Anhängen des eingefügten Fragments</translation>
+    </message>
 </context>
 <context>
     <name>Timeline</name>
@@ -353,8 +361,16 @@ Einstellungen</translation>
         <translation>Lade unterstützte Anmeldemethoden …</translation>
     </message>
     <message>
+        <source>This account is logged in already</source>
+        <translation>Dieses Konto ist bereits angemeldet</translation>
+    </message>
+    <message>
         <source>(none)</source>
         <translation>(keiner)</translation>
+    </message>
+    <message>
+        <source>Saved device id</source>
+        <translation>Gespeicherte Geräte-ID</translation>
     </message>
     <message>
         <source>Enable E2EE (BETA)</source>
@@ -932,8 +948,27 @@ Matrix URI oder matrix.to Link</translation>
         <translation>Zeige ein Bestätigungsfeld vor dem Öffnen von Nicht-Matrix-Links in einer externen Anwendung an</translation>
     </message>
     <message>
+        <source>Account %1 is synchronised, have a good chat</source>
+        <translation>Konto %1 ist synchronisiert, viel Spaß beim Chatten</translation>
+    </message>
+    <message numerus="yes">
+        <source>All %Ln accounts synchronised, have a good chat</source>
+        <translation>
+            <numerusform>%Ln Konto ist synchronisiert, viel Spaß beim Chatten</numerusform>
+            <numerusform>Alle %Ln Kontos sind synchronisiert, viel Spaß beim Chatten</numerusform>
+        </translation>
+    </message>
+    <message>
         <source>&amp;Room list</source>
         <translation>&amp;Raumliste</translation>
+    </message>
+    <message>
+        <source>&amp;Member list</source>
+        <translation>&amp;Mitgliederliste</translation>
+    </message>
+    <message>
+        <source>Dock panels</source>
+        <translation>Dock-Paneele</translation>
     </message>
 </context>
 <context>
@@ -1324,6 +1359,26 @@ Matrix URI oder matrix.to Link</translation>
         <source>(maybe more)</source>
         <translation>(vielleicht mehr)</translation>
     </message>
+    <message>
+        <source>Events after fully read marker: %L1</source>
+        <translation>Ereignisse nach vollständig gelesenem Marker: %L1</translation>
+    </message>
+    <message>
+        <source>Room id: %1</source>
+        <translation>Raum-ID: %1</translation>
+    </message>
+    <message>
+        <source>You joined this room as %1</source>
+        <translation>Sie sind diesem Raum als %1 beigetreten</translation>
+    </message>
+    <message>
+        <source>You were invited into this room as %1</source>
+        <translation>Sie wurden als %1 in diesen Raum eingeladen</translation>
+    </message>
+    <message>
+        <source>You left this room as %1</source>
+        <translation>Sie haben diesen Raum als %1 verlassen</translation>
+    </message>
 </context>
 <context>
     <name>RoomSettingsDialog</name>
@@ -1678,6 +1733,10 @@ neuem Raum</translation>
     <message>
         <source>Paste as rich text</source>
         <translation>Als Rich-Text einfügen</translation>
+    </message>
+    <message>
+        <source>Paste as plain text</source>
+        <translation>Als Klartext einfügen</translation>
     </message>
 </context>
 <context>
