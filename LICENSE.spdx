@@ -10,5 +10,5 @@ PackageLicenseInfoFromFiles: GPL-3.0-or-later
 PackageLicenseInfoFromFiles: LGPL-2.1-only
 PackageLicenseInfoFromFiles: LGPL-2.1-or-later
 PackageLicenseInfoFromFiles: BSD-3-Clause
-PackageLicenseDeclared: GPL-3.0-or-later
+PackageLicenseDeclared: GPL-3.0
 PackageCopyrightText: Copyright The Quotient project contributors
