@@ -83,7 +83,7 @@
     </message>
     <message>
         <source>Unknown /command. Use // to send this line literally</source>
-        <translation>Unknown /command. Use // to send this line literally.</translation>
+        <translation>Unknown /command. Use // to send this line literally</translation>
     </message>
     <message>
         <source>Attach</source>
@@ -956,7 +956,7 @@ Matrix URI or matrix.to link</translation>
     </message>
     <message>
         <source>Account %1 is synchronised, have a good chat</source>
-        <translation>Account %1 is synchronised, have a good chat</translation>
+        <translation>Account %1 is synchronized, have a good chat</translation>
     </message>
     <message numerus="yes">
         <source>All %Ln accounts synchronised, have a good chat</source>
