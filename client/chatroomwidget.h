@@ -12,6 +12,7 @@
 
 #include <Quotient/settings.h>
 
+#include <QtCore/QTemporaryFile>
 #include <QtWidgets/QWidget>
 
 class TimelineWidget;
@@ -20,9 +21,6 @@ class MainWindow;
 
 class QLabel;
 class QAction;
-class QTextDocument;
-class QMimeData;
-class QTemporaryFile;
 
 namespace Quotient {
 class User;
@@ -42,6 +40,9 @@ class ChatRoomWidget : public QWidget
     public slots:
         void setRoom(QuaternionRoom* newRoom);
         void insertMention(Quotient::User* user);
+        void attachImage(const QImage& img, const QList<QUrl>& sources);
+        void attachFile(const QString& localPath);
+        void cancelAttaching();
         void focusInput();
 
         /// Set a line just above the message input, with optional list of
@@ -51,9 +52,6 @@ class ChatRoomWidget : public QWidget
 
         void typingChanged();
         void quote(const QString& htmlText);
-        void fileDrop(const QString& url);
-        void htmlDrop(const QString& html);
-        void textDrop(const QString& text);
 
     private slots:
         void sendInput();
@@ -61,18 +59,17 @@ class ChatRoomWidget : public QWidget
 
     private:
         TimelineWidget* m_timelineWidget;
-        QLabel* m_hudCaption; //< For typing and completion notifications
+        QLabel* m_hudCaption; //!< For typing and completion notifications
         QAction* m_attachAction;
         ChatEdit* m_chatEdit;
 
-        QString attachedFileName;
-        QTemporaryFile* m_fileToAttach;
+        std::unique_ptr<QFile> m_fileToAttach;
         Quotient::SettingsGroup m_uiSettings;
 
         MainWindow* mainWindow() const;
         QuaternionRoom* currentRoom() const;
 
-        void sendFile();
+        QString sendFile();
         void sendMessage();
         [[nodiscard]] QString sendCommand(QStringView command,
                                           const QString& argString);

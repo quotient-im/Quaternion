@@ -37,7 +37,7 @@
         <translation>Paste as plain text</translation>
     </message>
     <message>
-        <location filename="../chatedit.cpp" line="130"/>
+        <location filename="../chatedit.cpp" line="131"/>
         <source>Could not insert HTML - it&apos;s either invalid or unsupported</source>
         <translation>Could not insert HTML - it&apos;s either invalid or unsupported</translation>
     </message>
@@ -55,7 +55,7 @@
         <translation>Attach</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="87"/>
+        <location filename="../chatroomwidget.cpp" line="86"/>
         <source>Attach file</source>
         <translation>Attach file</translation>
     </message>
@@ -65,23 +65,22 @@
         <translation>Add a message to the file or just push Enter</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="98"/>
-        <location filename="../chatroomwidget.cpp" line="803"/>
+        <location filename="../chatroomwidget.cpp" line="92"/>
         <source>Attaching %1</source>
         <translation>Attaching %1</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="102"/>
+        <location filename="../chatroomwidget.cpp" line="100"/>
         <source>Attaching cancelled</source>
         <translation>Attaching cancelled</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="157"/>
+        <location filename="../chatroomwidget.cpp" line="127"/>
         <source>No completions</source>
         <translation>No completions</translation>
     </message>
     <message numerus="yes">
-        <location filename="../chatroomwidget.cpp" line="171"/>
+        <location filename="../chatroomwidget.cpp" line="141"/>
         <source>%Ln more completions</source>
         <translation>
             <numerusform>%Ln more completion</numerusform>
@@ -89,17 +88,17 @@
         </translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="175"/>
+        <location filename="../chatroomwidget.cpp" line="145"/>
         <source>Next completion:</source>
         <translation>Next completion:</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="278"/>
+        <location filename="../chatroomwidget.cpp" line="245"/>
         <source>Currently typing:</source>
         <translation>Currently typing:</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="285"/>
+        <location filename="../chatroomwidget.cpp" line="252"/>
         <source>Send a message (over %1) or enter a command...</source>
         <comment>%1 is the protocol used by the server (usually HTTPS)</comment>
         <translation>Send a message (over %1) or enter a command...</translation>
@@ -136,23 +135,23 @@
         <translation>Sending a farewell message is not supported yet. If you intended to leave another room, switch to it and type /leave there.</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="133"/>
+        <location filename="../chatroomwidget.cpp" line="320"/>
         <source>Attaching the pasted image</source>
         <translation>Attaching the pasted image</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="144"/>
+        <location filename="../chatroomwidget.cpp" line="332"/>
         <source>Attaching the pasted fragment</source>
         <translation>Attaching the pasted fragment</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="276"/>
+        <location filename="../chatroomwidget.cpp" line="243"/>
         <source>%L1 more</source>
         <extracomment>The number of users in the typing or completion list</extracomment>
         <translation>%L1 more</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="393"/>
+        <location filename="../chatroomwidget.cpp" line="399"/>
         <source>%1 is not readable or not a file</source>
         <translation>%1 is not readable or not a file</translation>
     </message>

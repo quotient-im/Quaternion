@@ -227,8 +227,8 @@ static const auto mxBgColorAttr = u"data-mx-bg-color";
         // neither `head` nor tags inside of it are in permittedTags;
         // however, minimised attributes still have to be handled everywhere
         // and <meta> tags should be closed
-        if (mode == GenericToQt && tag == "html") {
-            // Only in generic mode, allow <html> element
+        if (mode == GenericToQt && (tag == u"html" || tag == u"body")) {
+            // Only in generic mode, allow <html> and <body>
             pos += tagNamePos + tag.size() + 1;
             isFragment = false;
             continue;
@@ -314,18 +314,16 @@ Result Processor::process(QString html, Mode mode, QuaternionRoom* context,
     // characters.
 
     // 1. Escape ampersands outside of character entities
-    html.replace(QRegularExpression("&(?!(#[0-9]+" // clang-format off
-                                        "|#x[0-9a-fA-F]+"
-                                        "|[[:alpha:]_][-[:alnum:]_:.]*"
-                                    ");)"), // clang-format on
-                 "&amp;");
+    static const QRegularExpression freestandingAmps{ QStringLiteral(
+        "&(?!(#[0-9]+|#x[0-9a-fA-F]+|[[:alpha:]_][-[:alnum:]_:.]*);)") };
+    html.replace(freestandingAmps, QStringLiteral("&amp;"));
 
     if (mode == QtToMatrix) {
         if (options.testFlag(ConvertMarkdown)) {
             // The processor handles Markdown in chunks between HTML tags;
             // <br /> breaks character sequences that are otherwise valid
             // Markdown, leading to issues with, e.g., lists.
-            html.replace("<br />", QStringLiteral("\n"));
+            html.replace(QStringLiteral("<br />"), QStringLiteral("\n"));
 #if 0
             html = mergeMarkdown(html);
             if (html.isEmpty())
@@ -379,9 +377,25 @@ Result fromLocalHtml(const QString& html,
     return Processor::process(html, GenericToQt, context, options);
 }
 
+namespace {
+    class EntityResolver : public QXmlStreamEntityResolver {
+    public:
+        using QXmlStreamEntityResolver::QXmlStreamEntityResolver;
+        Q_DISABLE_COPY_MOVE(EntityResolver)
+
+    private:
+        QString resolveUndeclaredEntity(const QString& name) override
+        {
+            return name == u"nbsp" ? QStringLiteral("\xa0") : QString();
+        }
+    };
+    EntityResolver entityResolver;
+}
+
 void Processor::runOn(const QString &html)
 {
     QXmlStreamReader reader(html);
+    reader.setEntityResolver(&entityResolver);
 
     /// The entry in the (outer) stack corresponds to each level in the source
     /// document; the (inner) stack in each entry records open elements in the
@@ -429,8 +443,10 @@ void Processor::runOn(const QString &html)
                         writer.writeCurrentToken(reader);
                         const auto nextTokenType = reader.readNext();
                         if (nextTokenType == QXmlStreamReader::EndElement
-                            && reader.qualifiedName() == u"head")
+                            && reader.qualifiedName() == u"head") {
+                            writer.writeCurrentToken(reader);
                             break;
+                        }
                     } while (!reader.atEnd());
                     continue;
                 }
@@ -572,6 +588,7 @@ void Processor::runOn(const QString &html)
             continue; // All these should not affect firstElement state
         }
         // Unset first element once encountered non-whitespace under `<body>`
+        // NB: all `continue` statements above intentionally bypass this
         firstElement &= (bodyOffset <= 0 || reader.isWhitespace());
     }
 }
