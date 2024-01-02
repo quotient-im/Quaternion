@@ -41,7 +41,9 @@ class ChatRoomWidget : public QWidget
         void setRoom(QuaternionRoom* newRoom);
         void insertMention(Quotient::User* user);
         void attachImage(const QImage& img, const QList<QUrl>& sources);
-        void attachFile(const QString& localPath);
+        QString attachFile(const QString& localPath);
+        void dropFile(const QString& localPath);
+        QString checkAttachment();
         void cancelAttaching();
         void focusInput();
 

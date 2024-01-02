@@ -81,23 +81,17 @@ ChatRoomWidget::ChatRoomWidget(MainWindow* parent)
     m_attachAction->setCheckable(true);
     m_attachAction->setDisabled(true);
     connect(m_attachAction, &QAction::triggered, this, [this](bool checked) {
+        auto statusMessage = tr("Attaching cancelled");
         if (checked) {
             if (const auto filePath =
                     QFileDialog::getOpenFileName(this, tr("Attach file"));
-                !filePath.isEmpty()) {
-                m_fileToAttach = std::make_unique<QFile>(filePath);
-                if (m_fileToAttach->isReadable()) {
-                    m_chatEdit->setPlaceholderText(AttachedPlaceholderText());
-                    mainWindow()->showStatusMessage(
-                        tr("Attaching %1").arg(m_fileToAttach->fileName()));
-                    return;
-                }
-            }
+                !filePath.isEmpty()
+                && (statusMessage  = attachFile(filePath)).isEmpty())
+                return;
         }
-        // Attaching cancelled at any point (!checked, no valid file...)
         cancelAttaching();
         m_chatEdit->setPlaceholderText(DefaultPlaceholderText());
-        mainWindow()->showStatusMessage(tr("Attaching cancelled"), 3000);
+        mainWindow()->showStatusMessage(statusMessage , 3000);
     });
     attachButton->setDefaultAction(m_attachAction);
 
@@ -321,16 +315,37 @@ void ChatRoomWidget::attachImage(const QImage& img, const QList<QUrl>& sources)
     // TODO, 0.0.97: tr("... from %1").arg(localPath)
 }
 
-void ChatRoomWidget::attachFile(const QString& localPath)
+QString ChatRoomWidget::attachFile(const QString& localPath)
 {
-    if (currentRoom() == nullptr)
-        return;
+    Q_ASSERT(currentRoom() != nullptr);
 
+    qCDebug(MSGINPUT) << "Trying to attach" << localPath;
     m_fileToAttach = std::make_unique<QFile>(localPath);
-    m_attachAction->setChecked(true);
+    if (const auto error = checkAttachment(); !error.isEmpty())
+        return error;
+
     m_chatEdit->setPlaceholderText(AttachedPlaceholderText());
-    mainWindow()->showStatusMessage(tr("Attaching the pasted fragment"));
-    // TODO, 0.0.97: tr("... from %1").arg(localPath)
+    mainWindow()->showStatusMessage(
+        tr("Attaching %1").arg(m_fileToAttach->fileName()));
+    return {};
+}
+
+void ChatRoomWidget::dropFile(const QString& localPath)
+{
+    if (const auto error = attachFile(localPath); !error.isEmpty())
+        mainWindow()->showStatusMessage(error, 3000);
+    else
+        m_attachAction->setChecked(true);
+}
+
+QString ChatRoomWidget::checkAttachment()
+{
+    Q_ASSERT(m_fileToAttach != nullptr);
+    if (m_fileToAttach->open(QIODevice::ReadOnly))
+        return {};
+
+    cancelAttaching();
+    return tr("%1 is not readable or not a file").arg(m_fileToAttach->fileName());
 }
 
 void ChatRoomWidget::cancelAttaching()
@@ -394,11 +409,14 @@ QString ChatRoomWidget::sendFile()
 {
     Q_ASSERT(currentRoom() != nullptr);
     const auto& description = m_chatEdit->toPlainText();
-    QFileInfo fileInfo(*m_fileToAttach);
-    if (!fileInfo.isReadable() || !fileInfo.isFile())
+    if (const auto error = checkAttachment(); !error.isEmpty())
+        return error;
+
+    if (!m_fileToAttach->open(QIODevice::ReadOnly))
         return tr("%1 is not readable or not a file")
             .arg(m_fileToAttach->fileName());
 
+    QFileInfo fileInfo(*m_fileToAttach);
     currentRoom()->postFile(description.isEmpty() ? fileInfo.fileName()
                                                   : description,
                             contentFromFile(fileInfo));

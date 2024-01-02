@@ -139,7 +139,7 @@ void ChatEdit::insertFromMimeData(const QMimeData *source)
         bool hasAnyProcessed = false;
         for (const QUrl &url : source->urls())
             if (url.isLocalFile()) {
-                chatRoomWidget->attachFile(url.toLocalFile());
+                chatRoomWidget->dropFile(url.toLocalFile());
                 hasAnyProcessed = true;
                 // Only the first url is processed for now
                 break;
