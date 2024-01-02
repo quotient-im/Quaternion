@@ -375,4 +375,5 @@ follows:
 (the scary `%{if}`s are just encoding the logging level into its initial letter).
 
 ## Screenshot
-![Screenshot, thanks to nep-quaternion@packageloss.eu](quaternion.png)
+![Screenshot1](Screenshot1.png)
+![Screenshot2](Screenshot2.png)
