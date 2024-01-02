@@ -475,6 +475,7 @@ Item {
                             text: modelData.key + " \u00d7" /* Math "multiply" */
                                   + modelData.authorsCount
                             textFormat: Text.PlainText
+                            font.pointSize: settings.font.pointSize - 1
                             color: modelData.includesLocalUser
                                        ? palette.highlight
                                        : palette.buttonText
