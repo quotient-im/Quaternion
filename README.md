@@ -2,11 +2,10 @@
 
 <!--<a href='https://matrix.org'><img src='https://matrix.org/docs/projects/images/made-for-matrix.png' alt='Made for Matrix' height=64 target=_blank /></a>-->
 
-[![license](https://img.shields.io/github/license/quotient-im/quaternion.svg)](https://github.com/quotient-im/Quaternion/blob/master/LICENSES/GPL-3.0-or-later.txt)
 ![status](https://img.shields.io/badge/status-beta-yellow.svg)
 [![release](https://img.shields.io/github/release/quotient-im/quaternion/all.svg)](https://github.com/quotient-im/Quaternion/releases/latest)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/1663/badge)](https://www.bestpractices.dev/projects/1663)
 [![](https://img.shields.io/matrix/quotient:matrix.org.svg)](https://matrix.to/#/#quotient:matrix.org)
-[![](https://bestpractices.dev/projects/1663/badge)](https://bestpractices.dev/projects/1663)
 [![CI builds hosted by: Cloudsmith](https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&style=flat-square)](https://cloudsmith.com)
 
 Quaternion is a cross-platform desktop IM client for the
@@ -22,7 +21,8 @@ You can file issues at
 If you find what looks like a security issue, please follow
 [special instructions](./SECURITY.md).
 
-## Download and install
+
+## Downloading and installing
 
 The recommended way to install Quaternion is as follows (make sure to read
 the notes below depending to your environment):
@@ -40,42 +40,22 @@ Quaternion 0.0.96 needs Qt version 6.2 or higher, with 5.15
 provided as interim for compatibility (6.0, 6.1 are not supported).
 
 ### Linux
-For major Linux distributions, the mentioned Qt requirement  You should not normally need to install
-anything in addition; if something is not working due to a missing dependency,
-it's a bug - please report it.
-
-### Windows
-Since there's no established package management on Windows to resolve
-dependencies, all needed libraries and a C++ runtime are packaged/installed
-together with Quaternion - except OpenSSL. Unless you already have OpenSSL
-around (e.g., it is a part of any Qt development installation), you should
-install it yourself.
-[OpenSSL's Wiki](https://wiki.openssl.org/index.php/Binaries) lists a few links
-to OpenSSL installers. They come in different build configurations; Quaternion
-builds need OpenSSL 3.x made with/for Visual Studio (not MinGW).
-
-### macOS
-If you use Homebrew (you should!), `brew install quaternion` installs Quaternion
-along with its dependencies. Packages published at
-[GitHub Releases](https://github.com/quotient-im/Quaternion/releases/latest)
-come with everything necessary already bundled.
-
-
-### Linux and others
 Quaternion is packaged for many distributions, including various versions of
 Debian, Ubuntu and OpenSUSE, as well as Arch Linux, NixOS and FreeBSD.
 A pretty comprehensive list can be found at
 [Repology](https://repology.org/project/quaternion/versions). Popular
 distributions satisfying the mentioned Qt requirement are Debian 11 (Bullseye),
-Ubuntu 22.04 (jammy), Fedora 35, OpenSUSE Leap 15.4 - or newer.
+Ubuntu 22.04 (jammy), Fedora 35, OpenSUSE Leap 15.4, anything newer than that
+should be fine, too.
 
-Flatpaks for Quaternion are available from Flathub. To install, use:
+There are also flatpaks for Quaternion available from Flathub. To install, use:
+
 ```
 flatpak install https://flathub.org/repo/appstream/com.github.quaternion.flatpakref
 ```
+
 These packages are built with a suitable KDE runtime. You can install them on
 any distribution that has Flatpak - even if it's older than mentioned above.
-
 Please file issues at https://github.com/flathub/com.github.quaternion
 if you believe there's a problem specific to the Flatpak package of Quaternion.
 
@@ -90,6 +70,25 @@ packages are built in a more reproducible and controlled way than AppImages
 assembled within this project; unlike AppImages, they are also (usually) signed
 by the repo which gives certain protection from tampering.
 -->
+
+You should not normally need to install anything in addition; if something
+is not working due to a missing dependency, it's a bug - please report it.
+
+### Windows
+Since there's no established package management on Windows to resolve
+dependencies, all needed libraries and a C++ runtime are packaged/installed
+together with Quaternion - except OpenSSL. Unless you already have OpenSSL
+around (e.g., it is a part of any Qt development installation), you should
+install it yourself.
+[OpenSSL's Wiki](https://wiki.openssl.org/index.php/Binaries) lists a few links
+to OpenSSL installers. They come in different build configurations; current
+Quaternion builds need OpenSSL 3.x made with/for Visual Studio (not MinGW).
+
+### macOS
+If you use Homebrew (you should!), `brew install quaternion` installs Quaternion
+along with its dependencies. Otherwise, packages published at
+[GitHub Releases](https://github.com/quotient-im/Quaternion/releases/latest)
+come with everything necessary already bundled.
 
 ### Development builds
 
@@ -121,19 +120,23 @@ A few important notes on these packages in case you're new to them:
 
 If you want to build Quaternion from sources, see [BUILDING.md](./BUILDING.md).
 
+
 ## Running
 Just start the executable in your most preferred way - either from the build
 directory or from the installed location. If you're interested in tweaking
 configuration beyond what's available in the UI, read the "Configuration"
 section further below.
 
+
 ## Translation
 Quaternion uses [Lokalise.co](https://lokalise.co) for the translation effort.
 It's easy to participate:
 [join the project at Lokalise.co](https://lokalise.co/public/730769035bbc328c31e863.62506391/),
-ask to add your language (either in #quotient:matrix.org or in
+ask to add your language (either in
+[#quotient:matrix.org](https://matrix.to/#/#quotient:matrix.org) or in
 the Lokalise project chat) and start translating! Many languages are still
 longing for contributors.
+
 
 ## Configuration
 The only non-trivial command-line option available so far is `--locale` - it
@@ -295,6 +298,7 @@ in them).
 Deleting cache files may help with problems such as missing avatars,
 rooms stuck in a wrong state etc.
 
+
 ## Troubleshooting
 
 Quaternion uses libQuotient under the hood; some Quaternion problems are
@@ -319,8 +323,8 @@ in particular that you use the correct version of OpenSSL - it should be 3.x,
 not 1.x).
 
 #### Logging
-If you want to see log messages in the command-line console rather than
-the system log (a case with Windows and some but not all Linux systems with
+If you want to see log messages in the command-line console (by default,
+they are sent to system log on Windows and some but not all Linux systems with
 journald), set `QT_ASSUME_STDERR_HAS_CONSOLE=1` to force the output to be
 redirected to the console.
 
@@ -359,7 +363,7 @@ Bear in mind that all logging categories for Quaternion start with `quaternion`
 while logging categories for libQuotient always start with `quotient`.
 
 You can use `*` (asterisk) as a wildcard for any part between two dots, and
-semicolon is used for a separator. Latter statements override former ones, so
+a semicolon is used for a separator. Latter statements override former ones, so
 if you want to switch on all debug logs except `timeline.qml` you can set
 ```shell script
 QT_LOGGING_RULES="quaternion.*.debug=true;quaternion.timeline.qml.debug=false"
