@@ -305,6 +305,18 @@ Quaternion uses libQuotient under the hood; some Quaternion problems are
 actually problems of libQuotient. If you haven't found your case below, check
 also the troubleshooting section in libQuotient README.md.
 
+#### No E2EE support
+If you don't see "Enable E2EE (BETA)" box in the login window, it means that
+your Quaternion build does not support E2EE at all. Work with the packager if
+you use a package, or build Quaternion with E2EE support (see
+[BUILDING.md](./BUILDING.md)) to make it possible.
+
+#### Older messages don't get decrypted in E2EE rooms
+Unfortunately, this is a limitation in the current libQuotient code: it doesn't
+request older keys and therefore cannot decrypt older messages. Check
+[issue 608](https://github.com/quotient-im/libQuotient/issues/608) for
+the progress on this.
+
 #### No messages in the timeline
 If Quaternion runs but you can't see any messages in the chat (though you can
 type them in) - you might not have Qt Quick libraries and/or plugins installed.

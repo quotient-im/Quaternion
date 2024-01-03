@@ -64,7 +64,7 @@ using the old name.)
   platforms might work too but never tried)
   - Recent enough Linux examples: Debian Bookworm; Fedora 36 or CentOS Stream 9;
     OpenSUSE Leap 15.4; Ubuntu Jammy Jellyfish.
-- Qt 5 (either Open Source or Commercial), version 5.15.x or newer (Qt 6.4
+- Qt 5 (either Open Source or Commercial), version 5.15.x or newer (Qt 6.6
   recommended as of this writing)
 - CMake 3.16 or newer (from your package management system or
   [the official website](https://cmake.org/download/))
@@ -79,16 +79,16 @@ using the old name.)
 - libQuotient dependendencies (see lib/README.md):
   - [Qt Keychain](https://github.com/frankosterfeld/qtkeychain)
   - libolm 3.2.5 or newer (the latest 3.x strongly recommended)
-  - OpenSSL (both 1.1.x and 3.x are known to work; the version Quaternion runs
-    with must be the same as the version used to build Quaternion - or
-    libQuotient, if libQuotient is built/installed separately).
+  - OpenSSL 3.x (the version Quaternion runs with must be the same as
+    the version used to build Quaternion - or libQuotient, if libQuotient is
+    built/installed separately).
 
 Note that in case of using externally built (i.e. not in-tree) libQuotient
 you cannot choose whether or not E2EE is enabled; this is defined by your
 libQuotient build configuration. Since 0.8, it is strongly recommended to build
 libQuotient with E2EE switched on, and manage E2EE via the library API (which
-Quaternion already does, by now). If you build libQuotient from within
-Quaternion build process then you're in full control how libQuotient is built.
+Quaternion already does). If you build libQuotient from within Quaternion build
+process then you're in full control how libQuotient is built.
 
 #### Linux
 Just install things from the list above using your preferred package manager.
@@ -123,7 +123,7 @@ CMake at the installation locations for your libraries, e.g. by adding
 invocation, as follows:
 ```bash
 # if using in-tree libQuotient:
-cmake .. -DQuotient_ENABLE_E2EE=1 -DCMAKE_PREFIX_PATH="$(brew --prefix qt);$(brew --prefix qtkeychain)$(brew --prefix libolm);$(brew --prefix openssl)"
+cmake .. -DCMAKE_PREFIX_PATH="$(brew --prefix qt);$(brew --prefix qtkeychain)$(brew --prefix libolm);$(brew --prefix openssl)"
 # or otherwise:
 cmake .. -DCMAKE_PREFIX_PATH="/path/to/libQuotient;$(brew --prefix qt);$(brew --prefix qtkeychain)$(brew --prefix libolm);$(brew --prefix openssl)"
 ```
@@ -159,6 +159,17 @@ Noteworthy CMake variables that you can use:
   (see below on installing from sources).
 - `-DUSE_INTREE_LIBQMC=<ON|OFF>` - force using/not-using the in-tree copy of
   libQuotient sources (see "Getting the source code" above).
+- `-DBUILD_WITH_QT6=<ON|OFF>` - selects the target Qt major version. By default
+  it's `ON` (Qt 6 is preferred); set it to `OFF` to build with Qt 5 (which is
+  generally discouraged; Quaternion 0.0.96 is the last release to support it).
+- `-DQuotient_ENABLE_E2EE=<ON|OFF>` - for compiling with/without E2EE support.
+  Normally you don't need to touch this variable; setting it has no effect when
+  you compile with external libQuotient, and it is `ON` by default when building
+  Quaternion with in-tree libQuotient. The only reason you would want to turn it
+  off is when you can't provide the dependencies needed for E2EE: libolm and
+  OpenSSL. Even if E2EE support is switched on, you still have to explicitly
+  tick the E2EE box whenever you log in to each account; when E2EE support is
+  off there will be no E2EE box at all.
 
 ### Install
 In the root directory of the project sources: `cmake --build build_dir --target install`.
