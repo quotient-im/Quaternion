@@ -100,6 +100,7 @@ endif()
 
 if ((NOT DEFINED USE_INTREE_LIBQMC OR USE_INTREE_LIBQMC)
         AND EXISTS ${PROJECT_SOURCE_DIR}/lib/Quotient/util.h)
+    option(Quotient_ENABLE_E2EE "end-to-end-encryption (E2EE) support (BETA)" ON)
     add_subdirectory(lib)
     if (NOT DEFINED USE_INTREE_LIBQMC)
         set (USE_INTREE_LIBQMC 1)
