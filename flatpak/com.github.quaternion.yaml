@@ -1,7 +1,7 @@
 id: com.github.quaternion
 rename-icon: quaternion
 runtime: org.kde.Platform
-runtime-version: '6.4'
+runtime-version: '6.6'
 sdk: org.kde.Sdk
 command: quaternion
 finish-args:
