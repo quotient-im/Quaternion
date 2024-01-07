@@ -194,8 +194,9 @@ Some settings exposed in the user interface (Settings and View menus) are:
   a thumbnail in the timeline (with the full image downloaded after you click
   "Save as" or "Open" in the context menu). Check out
   https://github.com/quotient-im/Quaternion/issues/601 for the caveat.
-- `show_noop_events` - set this to 1 to show state events that do not alter
-  the state (you'll see "(repeated)" next to most of those).
+- `show_spammy` ("Show no-effect activity" in the menu) - when set to `false`,
+  this setting tries to clean up the timeline from events that don't contribute
+  to conversation in any reasonable way.
 - `RoomsDock/tags_order` - allows to alter the order of tags in the room
   list. This is a comma-separated list of tags/namespaces;
   a few characters have special meaning as described below. If a tag is
@@ -241,6 +242,8 @@ Settings not exposed in UI:
 - `use_human_friendly_dates` - set this to false (or 0) if you do NOT want
   usage of human-friendly dates ("Today", "Monday" instead of the standard
   day-month-year triad) in the UI; the default is true.
+- `show_noop_events` - set this to 1 to show state events that do not alter
+  the state (you'll see "(repeated)" next to most of those).
 - `quote_style` - the quote template. The `\\1` means the quoted string.
   By default it's `> \\1\n`.
 - `quote_regex` - set to `^([\\s\\S]*)` to add `UI/quote_style` only at
