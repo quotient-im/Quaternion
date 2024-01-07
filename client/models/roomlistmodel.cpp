@@ -11,10 +11,10 @@
 #include "../quaternionroom.h"
 #include "../logging_categories.h"
 
-#include <eventstats.h>
-#include <user.h>
-#include <connection.h>
-#include <settings.h>
+#include <Quotient/eventstats.h>
+#include <Quotient/user.h>
+#include <Quotient/connection.h>
+#include <Quotient/settings.h>
 
 // See a comment in the same place at userlistmodel.cpp
 #include <QtWidgets/QAbstractItemView>
