@@ -98,6 +98,7 @@ if(WIN32)
     endif()
 endif()
 
+set(QUOTIENT_FORCE_NAMESPACED_INCLUDES 1)
 if ((NOT DEFINED USE_INTREE_LIBQMC OR USE_INTREE_LIBQMC)
         AND EXISTS ${PROJECT_SOURCE_DIR}/lib/Quotient/util.h)
     option(Quotient_ENABLE_E2EE "end-to-end-encryption (E2EE) support (BETA)" ON)
