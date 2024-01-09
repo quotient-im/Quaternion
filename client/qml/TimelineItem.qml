@@ -242,7 +242,8 @@ Item {
             Label {
                 id: authorLabel
                 visible: settings.timelineStyleIsXChat
-                         || (authorSectionVisible && authorHasAvatar) // Doesn't exist yet
+                         || (authorSectionVisible
+                             && (!actionEvent || authorHasAvatar))
                 anchors.left: authorAvatar.right
                 anchors.leftMargin: 2
                 anchors.top: authorAvatar.top
