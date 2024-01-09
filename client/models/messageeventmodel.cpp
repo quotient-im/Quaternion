@@ -37,7 +37,7 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
         roles.insert(Qt::ForegroundRole, "foreground");
         roles.insert(EventTypeRole, "eventType");
         roles.insert(EventIdRole, "eventId");
-        roles.insert(TimeRole, "time");
+        roles.insert(DateTimeRole, "dateTime");
         roles.insert(DateRole, "date");
         roles.insert(EventGroupingRole, "eventGrouping");
         roles.insert(AuthorRole, "author");
@@ -896,13 +896,11 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         return qmlReactions;
     }
 
-    if( role == TimeRole || role == DateRole)
+    if( role == DateTimeRole || role == DateRole)
     {
         auto ts = (isPending ? pendingIt->lastUpdated()
                              : makeMessageTimestamp(timelineIt)).toLocalTime();
-        return role == TimeRole
-                   ? QLocale().toString(ts.time(), QLocale::ShortFormat)
-                   : renderDate(ts);
+        return role == DateTimeRole ? QVariant(ts) : renderDate(ts);
     }
 
     if (role == EventGroupingRole) {

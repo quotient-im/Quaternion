@@ -10,6 +10,9 @@ Item {
     readonly property bool authorSectionVisible:
         eventGrouping >= EventGrouping.ShowAuthor
 
+    readonly property var time:
+        dateTime.toLocaleTimeString(Qt.locale(), Locale.ShortFormat)
+
     readonly property bool pending: marks > EventStatus.Normal
                                     && marks < EventStatus.Redacted
     readonly property bool failed: marks === EventStatus.SendingFailed
@@ -597,7 +600,7 @@ Item {
                 height: childrenRect.height
 
                 TextEdit {
-                    text: "<" + time + ">"
+                    text: "<" + dateTime.toLocaleString(Qt.locale(), Locale.ShortFormat) + ">"
                     font.bold: true
                     renderType: settings.render_type
                     readOnly: true
