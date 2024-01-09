@@ -65,7 +65,7 @@
         <translation>Add a message to the file or just push Enter</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="328"/>
+        <location filename="../chatroomwidget.cpp" line="329"/>
         <source>Attaching %1</source>
         <translation>Attaching %1</translation>
     </message>
@@ -75,12 +75,12 @@
         <translation>Attaching cancelled</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="120"/>
+        <location filename="../chatroomwidget.cpp" line="121"/>
         <source>No completions</source>
         <translation>No completions</translation>
     </message>
     <message numerus="yes">
-        <location filename="../chatroomwidget.cpp" line="134"/>
+        <location filename="../chatroomwidget.cpp" line="135"/>
         <source>%Ln more completions</source>
         <translation>
             <numerusform>%Ln more completion</numerusform>
@@ -88,162 +88,162 @@
         </translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="138"/>
+        <location filename="../chatroomwidget.cpp" line="139"/>
         <source>Next completion:</source>
         <translation>Next completion:</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="238"/>
+        <location filename="../chatroomwidget.cpp" line="239"/>
         <source>Currently typing:</source>
         <translation>Currently typing:</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="245"/>
+        <location filename="../chatroomwidget.cpp" line="246"/>
         <source>Send a message (over %1) or enter a command...</source>
         <comment>%1 is the protocol used by the server (usually HTTPS)</comment>
         <translation>Send a message (over %1) or enter a command...</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="458"/>
+        <location filename="../chatroomwidget.cpp" line="459"/>
         <source>There&apos;s nothing to send</source>
         <translation>There&apos;s nothing to send</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="485"/>
+        <location filename="../chatroomwidget.cpp" line="486"/>
         <source>/join argument doesn&apos;t look like a room ID or alias</source>
         <translation>/join argument doesn&apos;t look like a room ID or alias</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="497"/>
+        <location filename="../chatroomwidget.cpp" line="498"/>
         <source>There&apos;s no such /command outside of room.</source>
         <translation>There&apos;s no such /command outside of room.</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="671"/>
+        <location filename="../chatroomwidget.cpp" line="672"/>
         <source>At pos %1: %2</source>
         <comment>%1 is a position of the error; %2 is the error message</comment>
         <translation>At pos %1: %2</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="723"/>
+        <location filename="../chatroomwidget.cpp" line="724"/>
         <source>You should select a room to send messages.</source>
         <translation>You should select a room to send messages.</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="505"/>
+        <location filename="../chatroomwidget.cpp" line="506"/>
         <source>Sending a farewell message is not supported yet. If you intended to leave another room, switch to it and type /leave there.</source>
         <translation>Sending a farewell message is not supported yet. If you intended to leave another room, switch to it and type /leave there.</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="313"/>
+        <location filename="../chatroomwidget.cpp" line="314"/>
         <source>Attaching the pasted image</source>
         <translation>Attaching the pasted image</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="236"/>
+        <location filename="../chatroomwidget.cpp" line="237"/>
         <source>%L1 more</source>
         <extracomment>The number of users in the typing or completion list</extracomment>
         <translation>%L1 more</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="347"/>
-        <location filename="../chatroomwidget.cpp" line="415"/>
+        <location filename="../chatroomwidget.cpp" line="348"/>
+        <location filename="../chatroomwidget.cpp" line="416"/>
         <source>%1 is not readable or not a file</source>
         <translation>%1 is not readable or not a file</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="515"/>
+        <location filename="../chatroomwidget.cpp" line="516"/>
         <source>/forget must be followed by the room id/alias, even for the current room</source>
         <translation>/forget must be followed by the room id/alias, even for the current room</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="518"/>
+        <location filename="../chatroomwidget.cpp" line="519"/>
         <source>%1 doesn&apos;t look like a room id or alias</source>
         <translation>%1 doesn&apos;t look like a room id or alias</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="527"/>
+        <location filename="../chatroomwidget.cpp" line="528"/>
         <source>/invite &lt;memberId&gt;</source>
         <translation>/invite &lt;memberId&gt;</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="529"/>
+        <location filename="../chatroomwidget.cpp" line="530"/>
         <source>%1 doesn&apos;t look like a user ID</source>
         <translation>%1 doesn&apos;t look like a user ID</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="538"/>
+        <location filename="../chatroomwidget.cpp" line="539"/>
         <source>/%1 &lt;userId&gt; &lt;reason&gt;</source>
         <translation>/%1 &lt;userId&gt; &lt;reason&gt;</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="540"/>
-        <location filename="../chatroomwidget.cpp" line="695"/>
+        <location filename="../chatroomwidget.cpp" line="541"/>
+        <location filename="../chatroomwidget.cpp" line="696"/>
         <source>%1 doesn&apos;t look like a user id</source>
         <translation>%1 doesn&apos;t look like a user id</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="548"/>
+        <location filename="../chatroomwidget.cpp" line="549"/>
         <source>%1 is not a member of this room</source>
         <translation>%1 is not a member of this room</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="557"/>
+        <location filename="../chatroomwidget.cpp" line="558"/>
         <source>/unban &lt;userId&gt;</source>
         <translation>/unban &lt;userId&gt;</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="559"/>
+        <location filename="../chatroomwidget.cpp" line="560"/>
         <source>/unban argument doesn&apos;t look like a user ID</source>
         <translation>/unban argument doesn&apos;t look like a user ID</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="567"/>
+        <location filename="../chatroomwidget.cpp" line="568"/>
         <source>/ignore &lt;userId&gt;</source>
         <translation>/ignore &lt;userId&gt;</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="569"/>
+        <location filename="../chatroomwidget.cpp" line="570"/>
         <source>/ignore argument doesn&apos;t look like a user ID</source>
         <translation>/ignore argument doesn&apos;t look like a user ID</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="579"/>
+        <location filename="../chatroomwidget.cpp" line="580"/>
         <source>Couldn&apos;t find user %1 on the server</source>
         <translation>Couldn&apos;t find user %1 on the server</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="585"/>
+        <location filename="../chatroomwidget.cpp" line="586"/>
         <source>/me needs an argument</source>
         <translation>/me needs an argument</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="592"/>
+        <location filename="../chatroomwidget.cpp" line="593"/>
         <source>/notice needs an argument</source>
         <translation>/notice needs an argument</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="627"/>
+        <location filename="../chatroomwidget.cpp" line="628"/>
         <source>/%1 &lt;memberId&gt; &lt;message&gt;</source>
         <translation>/%1 &lt;memberId&gt; &lt;message&gt;</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="635"/>
+        <location filename="../chatroomwidget.cpp" line="636"/>
         <source>%1 doesn&apos;t seem to have joined room %2</source>
         <translation>%1 doesn&apos;t seem to have joined room %2</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="648"/>
+        <location filename="../chatroomwidget.cpp" line="649"/>
         <source>%1 doesn&apos;t look like a user id or room alias</source>
         <translation>%1 doesn&apos;t look like a user id or room alias</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="693"/>
+        <location filename="../chatroomwidget.cpp" line="694"/>
         <source>/%1 &lt;memberId&gt;</source>
         <translation>/%1 &lt;memberId&gt;</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="702"/>
+        <location filename="../chatroomwidget.cpp" line="703"/>
         <source>Unknown /command. Use // to send this line literally</source>
         <translation>Unknown /command. Use // to send this line literally</translation>
     </message>
@@ -2057,35 +2057,35 @@ settings</translation>
 <context>
     <name>TimelineItem</name>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="340"/>
+        <location filename="../qml/TimelineItem.qml" line="346"/>
         <source>edited</source>
         <translation>edited</translation>
     </message>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="499"/>
+        <location filename="../qml/TimelineItem.qml" line="505"/>
         <source>Reaction &apos;%1&apos; from %2</source>
         <extracomment>%2 is the list of users</extracomment>
         <translation>Reaction &apos;%1&apos; from %2</translation>
     </message>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="545"/>
+        <location filename="../qml/TimelineItem.qml" line="551"/>
         <source>Resend</source>
         <translation>Resend</translation>
     </message>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="554"/>
+        <location filename="../qml/TimelineItem.qml" line="560"/>
         <source>Discard</source>
         <translation>Discard</translation>
     </message>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="562"/>
+        <location filename="../qml/TimelineItem.qml" line="568"/>
         <source>Go to
 older room</source>
         <translation>Go to
 older room</translation>
     </message>
     <message>
-        <location filename="../qml/TimelineItem.qml" line="571"/>
+        <location filename="../qml/TimelineItem.qml" line="577"/>
         <source>Go to
 new room</source>
         <translation>Go to
