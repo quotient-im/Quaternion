@@ -269,6 +269,8 @@ Item {
             }
 
             Item {
+                // 0.0.97: it used to be RectangularGlow, maybe bring
+                //         MultiEffect once we are both legs in Qt 6?
                 id: highlighter
                 anchors.fill: textField
                 visible: highlight && settings.highlight_mode != "text"
