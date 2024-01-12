@@ -36,6 +36,23 @@
   </provides>
 
   <releases>
+    <release version="0.0.96" date="2024-01-12">
+      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96</url>
+      <description><p>0.0.96</p>
+        <p>Changes since 0.0.95.1:</p>
+        <ul>
+          <li>Qt 6 support</li>
+          <li>Beta-quality support of end-to-end encryption (E2EE)</li>
+          <li>Fixes and improvements in the timeline display and text selection</li>
+          <li>Ctrl-Shift-V to paste content as plain text</li>
+          <li>Fixed problems around drag-n-dropping/pasting some content</li>
+          <li>It's now possible to re-dock floating panels from the menu (especially relevant on Wayland)</li>
+          <li>Using room-specific member avatars in the timeline, not just in the user list</li>
+          <li>Performance and stability improvements</li>
+        </ul>
+      </description>
+
+    </release>
     <release version="0.0.95.91" type="development" date="2023-12-14">
       <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96-rc1</url>
       <description><p>0.0.96 RC</p>
