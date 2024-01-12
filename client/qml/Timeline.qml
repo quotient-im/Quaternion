@@ -256,10 +256,6 @@ Page {
             contentHeight > 0 && count > 0 ? count / contentHeight : 0.03
             // 0.03 is just an arbitrary reasonable number
 
-        property int lastRequestedEvents: 0
-        readonly property int currentRequestedEvents:
-            room && room.eventsHistoryJob ? lastRequestedEvents : 0
-
         property var textEditWithSelection
         property real readMarkerContentPos: originY
         readonly property real readMarkerViewportPos:
@@ -287,10 +283,8 @@ Page {
             // Check if we're about to bump into the ceiling in
             // 2 seconds and if yes, request the amount of messages
             // enough to scroll at this rate for 3 more seconds
-            if (velocity > 0 && contentY - velocity*2 < originY) {
-                lastRequestedEvents = velocity * eventDensity * 3
-                room.getPreviousContent(lastRequestedEvents)
-            }
+            if (velocity > 0 && contentY - velocity*2 < originY)
+                room.getHistory(velocity * eventDensity * 3)
         }
         onContentYChanged: ensurePreviousContent()
         onContentHeightChanged: ensurePreviousContent()
@@ -346,11 +340,9 @@ Page {
                 chatView.saveViewport(true)
             }
             function onModelReset() {
-                if (messageModel.room) {
-                    // Load events if there are not enough of them
-                    chatView.ensurePreviousContent()
-                    chatView.positionViewAtBeginning()
-                }
+                // NB: at this point, the actual delegates are not instantiated
+                //     yet, so defer all actions to when at least some are
+                scrollFinisher.scrollViewTo(0, ListView.Contain)
             }
         }
 
@@ -479,7 +471,7 @@ Page {
 
         // A proxy property for animation
         property int requestedHistoryEventsCount:
-            chatView.currentRequestedEvents
+            room ? room.requestedEventsCount : 0
         AnimationBehavior on requestedHistoryEventsCount {
             NormalNumberAnimation { }
         }
@@ -619,8 +611,8 @@ Page {
         color: palette.alternateBase
         property bool shown:
             (chatView.bottommostVisibleIndex >= 0
-                  && (scrollerArea.containsMouse || scrollAnimation.running))
-                 || chatView.currentRequestedEvents > 0
+                && (scrollerArea.containsMouse || scrollAnimation.running))
+            || (room && room.requestedEventsCount > 0)
 
         onShownChanged: {
             if (shown) {
@@ -648,10 +640,10 @@ Page {
                             chatView.bottommostVisibleIndex))
                        + "\n" + qsTr("%Ln events cached", "", chatView.count)
                    : "")
-                  + (chatView.currentRequestedEvents > 0
+                  + (room && room.requestedEventsCount > 0
                      ? (chatView.count > 0 ? "\n" : "")
                        + qsTr("%Ln events requested from the server",
-                              "", chatView.currentRequestedEvents)
+                              "", room.requestedEventsCount)
                      : "")
             horizontalAlignment: Label.AlignRight
         }
@@ -720,7 +712,7 @@ Page {
                 scrollFinisher.scrollViewTo(messageModel.readMarkerVisualIndex,
                                             ListView.Center)
             else
-                room.getPreviousContent(chatView.count / 2) // FIXME, #799
+                room.getHistory(chatView.count / 2) // FIXME, #799
         }
     }
 }

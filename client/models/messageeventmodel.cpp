@@ -181,6 +181,9 @@ void MessageEventModel::changeRoom(QuaternionRoom* room)
         qCDebug(EVENTMODEL)
             << "Event model connected to room" << room->objectName() //
             << "as" << room->localUser()->id();
+        // If the timeline isn't loaded, ask for at least something right away
+        if (room->timelineSize() == 0)
+            room->getHistory(30);
     }
     endResetModel();
     emit readMarkerUpdated();

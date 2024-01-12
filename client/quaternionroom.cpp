@@ -22,6 +22,8 @@ QuaternionRoom::QuaternionRoom(Connection* connection, QString roomId,
 {
     connect(this, &Room::namesChanged,
             this, &QuaternionRoom::htmlSafeDisplayNameChanged);
+    connect(this, &Room::eventsHistoryJobChanged,
+            this, &QuaternionRoom::requestedEventsCountChanged);
 }
 
 const QString& QuaternionRoom::cachedUserFilter() const
@@ -78,6 +80,17 @@ void QuaternionRoom::saveViewport(int topIndex, int bottomIndex, bool force)
 QString QuaternionRoom::htmlSafeDisplayName() const
 {
     return displayName().toHtmlEscaped();
+}
+
+int QuaternionRoom::requestedEventsCount() const
+{
+    return eventsHistoryJob() != nullptr ? m_requestedEventsCount : 0;
+}
+
+void QuaternionRoom::getHistory(int limit)
+{
+    m_requestedEventsCount = limit;
+    getPreviousContent(m_requestedEventsCount);
 }
 
 void QuaternionRoom::onAddNewTimelineEvents(timeline_iter_t from)
