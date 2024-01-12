@@ -6,7 +6,7 @@ Timer {
     property int positionMode: ListView.End
     property int round: 1
 
-    readonly property var lc: parent.lc
+    readonly property var lc: root.lc
     readonly property real contentX: parent.contentX
     readonly property real contentY: parent.contentY
     readonly property real height: parent.height
