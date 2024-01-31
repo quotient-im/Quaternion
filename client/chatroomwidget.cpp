@@ -344,8 +344,11 @@ QString ChatRoomWidget::checkAttachment()
     if (m_fileToAttach->open(QIODevice::ReadOnly))
         return {};
 
+    // Form the message in advance while the file name is still there
+    const auto msg =
+        tr("%1 is not readable or not a file").arg(m_fileToAttach->fileName());
     cancelAttaching();
-    return tr("%1 is not readable or not a file").arg(m_fileToAttach->fileName());
+    return msg;
 }
 
 void ChatRoomWidget::cancelAttaching()
