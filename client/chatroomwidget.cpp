@@ -342,7 +342,10 @@ QString ChatRoomWidget::checkAttachment()
 {
     Q_ASSERT(m_fileToAttach != nullptr);
     if (m_fileToAttach->open(QIODevice::ReadOnly))
+    {
+        m_fileToAttach->close();
         return {};
+    }
 
     // Form the message in advance while the file name is still there
     const auto msg =
