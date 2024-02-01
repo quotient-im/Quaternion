@@ -341,7 +341,8 @@ void ChatRoomWidget::dropFile(const QString& localPath)
 QString ChatRoomWidget::checkAttachment()
 {
     Q_ASSERT(m_fileToAttach != nullptr);
-    if (m_fileToAttach->open(QIODevice::ReadOnly))
+    if (m_fileToAttach->isReadable()
+        || m_fileToAttach->open(QIODevice::ReadOnly))
         return {};
 
     // Form the message in advance while the file name is still there
@@ -414,10 +415,6 @@ QString ChatRoomWidget::sendFile()
     const auto& description = m_chatEdit->toPlainText();
     if (const auto error = checkAttachment(); !error.isEmpty())
         return error;
-
-    if (!m_fileToAttach->open(QIODevice::ReadOnly))
-        return tr("%1 is not readable or not a file")
-            .arg(m_fileToAttach->fileName());
 
     QFileInfo fileInfo(*m_fileToAttach);
     currentRoom()->postFile(description.isEmpty() ? fileInfo.fileName()
