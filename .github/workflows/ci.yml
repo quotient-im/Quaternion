@@ -166,7 +166,7 @@ jobs:
 
     - name: Initialize CodeQL tools
       if: matrix.check == 'codeql'
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@v3
       with:
         languages: cpp
         # If you wish to specify custom queries, you can do so here or in a config file.
@@ -197,7 +197,7 @@ jobs:
 
     - name: Perform CodeQL analysis
       if: matrix.check == 'codeql'
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@v3
 
     - name: Validate installation (Linux)
       if: startsWith(matrix.os, 'ubuntu')
@@ -256,7 +256,7 @@ jobs:
 
     - name: Store artefacts
       if: steps.package.outputs.path != ''
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: quaternion-${{ env.VERSION }}-${{ runner.os }}
         path: ${{ steps.package.outputs.path }}
