@@ -79,7 +79,7 @@ jobs:
       VERSION: ${{ needs.Prepare.outputs.version }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: ${{ matrix.composition == 'own-quotient' }}
 
@@ -98,10 +98,7 @@ jobs:
       if: startsWith(matrix.os, 'ubuntu')
       run: |
         COMMON_PKGS="libolm-dev ninja-build"
-        # Workaround for https://github.com/actions/runner-images/issues/8659
-        sudo rm -f /etc/apt/sources.list.d/ubuntu-toolchain-r-ubuntu-test-jammy.list
-        COMMON_PKGS="--allow-downgrades libc6=2.35-0ubuntu3.5 libc6-dev=2.35-0ubuntu3.5 libstdc++6=12.3.0-1ubuntu1~22.04 libgcc-s1=12.3.0-1ubuntu1~22.04 $COMMON_PKGS"
-        # End of workaround
+        COMMON_PKGS="$COMMON_PKGS clang-15" # Workaround for https://github.com/actions/runner-images/issues/8659
         sudo apt-get -qq update
         sudo apt-get -qq install $COMMON_PKGS \
             ${{ matrix.qt-version == 5
@@ -114,9 +111,10 @@ jobs:
         if [[ '${{ matrix.override-compiler }}' == 'GCC' ]]; then
             echo "CC=gcc" >>$GITHUB_ENV
             echo "CXX=g++" >>$GITHUB_ENV
-        elif [[ '${{ runner.os }}' != 'Windows' ]]; then
-            echo "CC=clang" >>$GITHUB_ENV
-            echo "CXX=clang++" >>$GITHUB_ENV
+        elif [[ '${{ runner.os }}' == 'Linux' ]]; then
+            # Workaround for https://github.com/actions/runner-images/issues/8659
+            echo "CC=clang-15" >>$GITHUB_ENV
+            echo "CXX=clang++-15" >>$GITHUB_ENV
         fi
         echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
               ${{ runner.os != 'Linux' && '-DCMAKE_MAKE_PROGRAM=$IQTA_TOOLS/Ninja/ninja' || '' }} \
