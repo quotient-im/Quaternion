@@ -87,7 +87,7 @@ jobs:
       if: "!startsWith(matrix.os, 'ubuntu')"
       uses: jurplel/install-qt-action@v3.0.0
       with:
-        version: "${{ startsWith(matrix.os, 'windows') && '6.5' || '6.4' }}" # CI doesn't use Qt 5 on non-Linux any more
+        version: "6.6" # "${{ startsWith(matrix.os, 'windows') && '6.5' || '6.4' }}" # CI doesn't use Qt 5 on non-Linux any more
         cache: true
         cache-key-prefix: Qt
         modules: 'qtmultimedia'
