@@ -282,7 +282,7 @@ if(WIN32)
         message(STATUS \"Running windeployqt at \${CMAKE_INSTALL_PREFIX}\${CMAKE_INSTALL_BINDIR}\")
         execute_process(
             COMMAND \"${${Qt}_BinDir}/windeployqt\" --verbose ${DEPLOY_VERBOSITY}
-                --no-multimediaquick --no-test
+                --no-multimediaquick --no-test --no-qml-tooling
                 --qmldir \"${QML_DIR}\"
                 \${CMAKE_INSTALL_PREFIX}\${CMAKE_INSTALL_BINDIR}
             RESULT_VARIABLE WDQ_RETVAL

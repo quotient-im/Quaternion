@@ -247,6 +247,7 @@ jobs:
                 ;;
             Windows)
                 ls -l $FULL_INSTALL_PATH/quaternion.exe # Fail if it's not there
+                rm -rf $FULL_INSTALL_PATH/{include,lib/cmake,share}
                 OUTPUT=$PACKAGE_STEM.zip
                 7z a $OUTPUT $FULL_INSTALL_PATH
                 ;;
