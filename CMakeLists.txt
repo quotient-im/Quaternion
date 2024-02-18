@@ -282,13 +282,13 @@ if(WIN32)
         message(STATUS \"Running windeployqt at \${CMAKE_INSTALL_PREFIX}\${CMAKE_INSTALL_BINDIR}\")
         execute_process(
             COMMAND \"${${Qt}_BinDir}/windeployqt\" --verbose ${DEPLOY_VERBOSITY}
-                --no-multimediaquick --no-declarative --no-test --no-winextras
+                --no-multimediaquick --no-test
                 --qmldir \"${QML_DIR}\"
                 \${CMAKE_INSTALL_PREFIX}\${CMAKE_INSTALL_BINDIR}
             RESULT_VARIABLE WDQ_RETVAL
         )
         if (WDQ_RETVAL)
-            message(WARNING \"windeployqt returned \${WDQ_RETVAL} - check messages above\")
+            message(FATAL_ERROR \"windeployqt returned \${WDQ_RETVAL} - check messages above\")
         else()
             message(STATUS \"Quaternion and its dependencies have been deployed to \${CMAKE_INSTALL_PREFIX}.\")
         endif()
