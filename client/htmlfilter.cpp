@@ -73,8 +73,9 @@ static const PassList passLists[] = {
     //, { "code", { "class" /* must start with 'language-' */ } } // Special case
 };
 
-static QStringView const permittedSchemes[] {
-    u"http:", u"https:", u"ftp:", u"mailto:", u"magnet:", u"matrix:"
+static QStringView const permittedSchemes[]{
+    u"http:",   u"https:",  u"ftp:", u"mailto:",
+    u"magnet:", u"matrix:", u"mxc:" /* MSC2398 */
 };
 
 static const auto htmlColorAttr = u"color";
