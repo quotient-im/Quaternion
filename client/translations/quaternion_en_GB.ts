@@ -160,10 +160,6 @@
         <source>Attaching the pasted image</source>
         <translation>Attaching the pasted image</translation>
     </message>
-    <message>
-        <source>Attaching the pasted fragment</source>
-        <translation>Attaching the pasted fragment</translation>
-    </message>
 </context>
 <context>
     <name>Timeline</name>
@@ -398,10 +394,6 @@ settings</translation>
     <message>
         <source>&amp;View</source>
         <translation>&amp;View</translation>
-    </message>
-    <message>
-        <source>Dock &amp;panels</source>
-        <translation>Dock &amp;panels</translation>
     </message>
     <message>
         <source>&amp;Display in timeline</source>
@@ -1604,18 +1596,6 @@ new room</translation>
         <source>Image request has been cancelled</source>
         <translation>Image request has been cancelled</translation>
     </message>
-    <message>
-        <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
-        <translation>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</translation>
-    </message>
-    <message>
-        <source>No connection to perform image request</source>
-        <translation>No connection to perform image request</translation>
-    </message>
-    <message>
-        <source>Image request is pending</source>
-        <translation>Image request is pending</translation>
-    </message>
 </context>
 <context>
     <name>TimelineWidget</name>
@@ -1786,10 +1766,6 @@ new room</translation>
     <message>
         <source>No connection to perform image request</source>
         <translation>No connection to perform image request</translation>
-    </message>
-    <message>
-        <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
-        <translation>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</translation>
     </message>
     <message>
         <source>Image request is pending</source>

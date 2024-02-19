@@ -160,10 +160,6 @@
         <source>Attaching the pasted image</source>
         <translation>Anhängen des eingefügten Bildes</translation>
     </message>
-    <message>
-        <source>Attaching the pasted fragment</source>
-        <translation>Anhängen des eingefügten Fragments</translation>
-    </message>
 </context>
 <context>
     <name>Timeline</name>
@@ -398,10 +394,6 @@ Einstellungen</translation>
     <message>
         <source>&amp;View</source>
         <translation>&amp;Oberfläche</translation>
-    </message>
-    <message>
-        <source>Dock &amp;panels</source>
-        <translation>&amp;Panel anheften</translation>
     </message>
     <message>
         <source>&amp;Display in timeline</source>
@@ -1589,18 +1581,6 @@ neuem Raum</translation>
         <source>Image request has been cancelled</source>
         <translation>Bildanfrage wurde abgebrochen</translation>
     </message>
-    <message>
-        <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
-        <translation>Die Medien-ID &apos;%1&apos; folgt nicht dem Server/Medien-ID-Muster</translation>
-    </message>
-    <message>
-        <source>No connection to perform image request</source>
-        <translation>Keine Verbindung zum Durchführen einer Bildanforderung</translation>
-    </message>
-    <message>
-        <source>Image request is pending</source>
-        <translation>Bildanforderung ist ausstehend</translation>
-    </message>
 </context>
 <context>
     <name>TimelineWidget</name>
@@ -1771,10 +1751,6 @@ neuem Raum</translation>
     <message>
         <source>No connection to perform image request</source>
         <translation>Keine Verbindung zum Durchführen einer Bildanforderung</translation>
-    </message>
-    <message>
-        <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
-        <translation>Die Medien-ID &apos;%1&apos; folgt nicht dem Server/Medien-ID-Muster</translation>
     </message>
     <message>
         <source>Image request is pending</source>
