@@ -288,10 +288,6 @@ de sala</translation>
         <translation>&amp;Ver</translation>
     </message>
     <message>
-        <source>Dock &amp;panels</source>
-        <translation>Dock &amp;paneles</translation>
-    </message>
-    <message>
         <source>&amp;Display in timeline</source>
         <translation>&amp;Mostrar en la línea de tiempo</translation>
     </message>
@@ -1234,14 +1230,6 @@ Esta operación no se puede revertir.</translation>
     <message>
         <source>Image request has been cancelled</source>
         <translation>La solicitud de imagen ha sido cancelada</translation>
-    </message>
-    <message>
-        <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
-        <translation>El id de medios &apos;%1&apos; no sigue el patrón server/mediaId</translation>
-    </message>
-    <message>
-        <source>No connection to perform image request</source>
-        <translation>No hay conexión para realizar una solicitud de imagen</translation>
     </message>
 </context>
 <context>

@@ -161,10 +161,6 @@
         <source>Attaching the pasted image</source>
         <translation>Вставленное изображение будет добавлено к сообщению</translation>
     </message>
-    <message>
-        <source>Attaching the pasted fragment</source>
-        <translation>Вставленный фрагмент будет добавлен к сообщению как файл</translation>
-    </message>
 </context>
 <context>
     <name>Timeline</name>
@@ -402,10 +398,6 @@ settings</source>
     <message>
         <source>&amp;View</source>
         <translation>&amp;Вид</translation>
-    </message>
-    <message>
-        <source>Dock &amp;panels</source>
-        <translation>&amp;Док-панели</translation>
     </message>
     <message>
         <source>&amp;Display in timeline</source>
@@ -1611,18 +1603,6 @@ new room</source>
         <source>Image request has been cancelled</source>
         <translation>Запрос на изображение отменен</translation>
     </message>
-    <message>
-        <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
-        <translation>Идентификатор файла &quot;%1&quot; не соответствует шаблону server/mediaId</translation>
-    </message>
-    <message>
-        <source>No connection to perform image request</source>
-        <translation>Нет соединения для выполнения запроса изображения</translation>
-    </message>
-    <message>
-        <source>Image request is pending</source>
-        <translation>Запрос на изображение в процессе обработки</translation>
-    </message>
 </context>
 <context>
     <name>TimelineWidget</name>
@@ -1793,10 +1773,6 @@ new room</source>
     <message>
         <source>No connection to perform image request</source>
         <translation>Нет соединения для выполнения запроса изображения</translation>
-    </message>
-    <message>
-        <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
-        <translation>Идентификатор файла &quot;%1&quot; не соответствует шаблону server/mediaId</translation>
     </message>
     <message>
         <source>Image request is pending</source>

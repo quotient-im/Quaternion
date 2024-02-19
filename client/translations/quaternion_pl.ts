@@ -337,10 +337,6 @@ pokoju</translation>
         <translation>&amp;Widok</translation>
     </message>
     <message>
-        <source>Dock &amp;panels</source>
-        <translation>Łącz &amp;panele</translation>
-    </message>
-    <message>
         <source>&amp;Display in timeline</source>
         <translation>&amp;Pokaż na osi czasu</translation>
     </message>
@@ -1440,14 +1436,6 @@ nowego pokoju</translation>
     <message>
         <source>Image request has been cancelled</source>
         <translation>Żądanie obrazu zostało anulowane</translation>
-    </message>
-    <message>
-        <source>No connection to perform image request</source>
-        <translation>Brak połączeń do wykonania żądania obrazu</translation>
-    </message>
-    <message>
-        <source>Image request is pending</source>
-        <translation>Oczekiwanie na obraz</translation>
     </message>
 </context>
 <context>

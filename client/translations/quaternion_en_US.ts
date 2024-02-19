@@ -160,10 +160,6 @@
         <source>Attaching the pasted image</source>
         <translation>Attaching the pasted image</translation>
     </message>
-    <message>
-        <source>Attaching the pasted fragment</source>
-        <translation>Attaching the pasted fragment</translation>
-    </message>
 </context>
 <context>
     <name>Timeline</name>
@@ -398,10 +394,6 @@ settings</translation>
     <message>
         <source>&amp;View</source>
         <translation>&amp;View</translation>
-    </message>
-    <message>
-        <source>Dock &amp;panels</source>
-        <translation>Dock &amp;panels</translation>
     </message>
     <message>
         <source>&amp;Display in timeline</source>
@@ -956,7 +948,7 @@ Matrix URI or matrix.to link</translation>
     </message>
     <message>
         <source>Account %1 is synchronised, have a good chat</source>
-        <translation>Account %1 is synchronized, have a good chat</translation>
+        <translation>Account %1 is synchronised, have a good chat</translation>
     </message>
     <message numerus="yes">
         <source>All %Ln accounts synchronised, have a good chat</source>
@@ -1340,7 +1332,7 @@ Matrix URI or matrix.to link</translation>
     </message>
     <message>
         <source>Favourites</source>
-        <translation>Favorites</translation>
+        <translation>Favourites</translation>
     </message>
     <message>
         <source>This room&apos;s version is unstable!</source>
@@ -1604,18 +1596,6 @@ new room</translation>
         <source>Image request has been cancelled</source>
         <translation>Image request has been cancelled</translation>
     </message>
-    <message>
-        <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
-        <translation>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</translation>
-    </message>
-    <message>
-        <source>No connection to perform image request</source>
-        <translation>No connection to perform image request</translation>
-    </message>
-    <message>
-        <source>Image request is pending</source>
-        <translation>Image request is pending</translation>
-    </message>
 </context>
 <context>
     <name>TimelineWidget</name>
@@ -1786,10 +1766,6 @@ new room</translation>
     <message>
         <source>No connection to perform image request</source>
         <translation>No connection to perform image request</translation>
-    </message>
-    <message>
-        <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
-        <translation>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</translation>
     </message>
     <message>
         <source>Image request is pending</source>
