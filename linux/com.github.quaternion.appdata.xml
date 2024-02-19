@@ -36,6 +36,15 @@
   </provides>
 
   <releases>
+    <release version="0.0.96.1" date="2024-02-19">
+      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96.1</url>
+      <description><p>Changes since 0.0.96:</p>
+        <ul>
+          <li>Fix regressions in attaching files</li>
+          <li>Allow `mxc` scheme in hyperlinks (MSC2398)</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.0.96" date="2024-01-12">
       <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96</url>
       <description><p>0.0.96</p>
@@ -51,8 +60,8 @@
           <li>Performance and stability improvements</li>
         </ul>
       </description>
-
     </release>
+
     <release version="0.0.95.91" type="development" date="2023-12-14">
       <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96-rc1</url>
       <description><p>0.0.96 RC</p>
