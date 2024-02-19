@@ -737,14 +737,14 @@ void MainWindow::showAboutWindow()
         layout->addWidget(labelString);
 
         auto* linkLabel =
-                new QLabel("<a href=\"https://matrix.org/docs/projects/client/quaternion.html\">"
+                new QLabel("<a href=\"https://matrix.org/ecosystem/clients/quaternion\">"
                            % tr("Web page") % "</a>");
         linkLabel->setAlignment(Qt::AlignHCenter);
         linkLabel->setOpenExternalLinks(true);
         layout->addWidget(linkLabel);
 
         layout->addWidget(
-                    new QLabel("Copyright (C) 2016-2021 "
+                    new QLabel("Copyright (C) 2016-2024 "
                                % tr("Quaternion project contributors")));
 
 #ifdef GIT_SHA1
