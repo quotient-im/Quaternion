@@ -73,7 +73,7 @@ BreakBeforeBraces: Custom
 #BreakConstructorInitializersBeforeComma: false # deprecated?
 #BreakConstructorInitializers: BeforeComma
 #BreakStringLiterals: true
-ColumnLimit: 80
+ColumnLimit: 100
 #QualifierAlignment: Leave # ClangFormat 14 - except 'Leave', updates whole files
 #CompactNamespaces: false
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
