@@ -49,12 +49,11 @@ private:
 };
 
 static const QStringView permittedTags[] = {
-    u"font",   u"del",        u"h1", u"h2", u"h3",      u"h4",     u"h5",
-    u"h6",     u"blockquote", u"p",  u"a",  u"ul",      u"ol",     u"sup",
-    u"sub",    u"li",         u"b",  u"i",  u"u",       u"strong", u"em",
-    u"strike", u"code",       u"hr", u"br", u"div",     u"table",  u"thead",
-    u"tbody",  u"tr",         u"th", u"td", u"caption", u"pre",    u"span",
-    u"img",    u"mx-reply"
+    u"font",       u"del", u"h1",    u"h2",     u"h3",      u"h4",  u"h5",   u"h6",
+    u"blockquote", u"p",   u"a",     u"ul",     u"ol",      u"sup", u"sub",  u"li",
+    u"b",          u"i",   u"u",     u"strong", u"em",      u"s",   u"code", u"hr",
+    u"br",         u"div", u"table", u"thead",  u"tbody",   u"tr",  u"th",   u"td",
+    u"caption",    u"pre", u"span",  u"img",    u"mx-reply"
 };
 
 struct PassList {
