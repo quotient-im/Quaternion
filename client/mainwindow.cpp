@@ -119,6 +119,7 @@ MainWindow::MainWindow()
                 const auto noMoreAccounts = accountRegistry->isEmpty();
                 openRoomAction->setDisabled(noMoreAccounts);
                 createRoomAction->setDisabled(noMoreAccounts);
+                createPMAction->setDisabled(noMoreAccounts);
                 joinAction->setDisabled(noMoreAccounts);
                 if (noMoreAccounts)
                     showLoginWindow();
@@ -329,9 +330,14 @@ void MainWindow::createMenu()
         });
     createRoomAction->setShortcut(QKeySequence::New);
     createRoomAction->setDisabled(true);
+    createPMAction =
+        roomMenu->addAction(QIcon::fromTheme("contact-new"), tr("Create new &private message room..."),
+                            [this] { openPMUserInput(); });
+    createPMAction->setShortcut(Qt::CTRL | Qt::Key_P);
+    createPMAction->setDisabled(true);
     joinAction =
         roomMenu->addAction(QIcon::fromTheme("list-add"), tr("&Join room..."),
-                            [this] { openUserInput(ForJoining); });
+                            [this] { openRoomUserInput(ForJoining); });
     joinAction->setShortcut(Qt::CTRL | Qt::Key_J);
     joinAction->setDisabled(true);
     roomMenu->addSeparator();
@@ -343,7 +349,7 @@ void MainWindow::createMenu()
     roomMenu->addSeparator();
     openRoomAction = roomMenu->addAction(QIcon::fromTheme("document-open"),
                                          tr("Open room..."),
-                                         [this] { openUserInput(); });
+                                         [this] { openRoomUserInput(NoRoomJoining); });
     openRoomAction->setStatusTip(tr("Open a room from the room list"));
     openRoomAction->setShortcut(QKeySequence::Open);
     openRoomAction->setDisabled(true);
@@ -609,6 +615,7 @@ void MainWindow::addConnection(Connection* c)
             [this, logoutAction] { logoutMenu->removeAction(logoutAction); });
     openRoomAction->setEnabled(true);
     createRoomAction->setEnabled(true);
+    createPMAction->setEnabled(true);
     joinAction->setEnabled(true);
 }
 
@@ -989,7 +996,7 @@ Quotient::UriResolveResult MainWindow::visitUser(Quotient::User* user,
     if (action == "mention" || action.isEmpty())
         chatRoomWidget->insertMention(user);
     // action=_interactive is checked in openResource() and
-    // converted to "chat" in openUserInput()
+    // converted to "chat" in openRoomUserInput()
     else if (action == "_interactive"
              || (action == "chat"
                  && QMessageBox::question(this, tr("Open direct chat?"),
@@ -1195,7 +1202,7 @@ MainWindow::Connection* MainWindow::chooseConnection(Connection* connection,
     return connection;
 }
 
-void MainWindow::openUserInput(bool forJoining)
+void MainWindow::openRoomUserInput(bool forJoining)
 {
     if (accountRegistry->isEmpty()) {
         showLoginWindow(tr("Please connect to a server"));
@@ -1310,6 +1317,95 @@ void MainWindow::openUserInput(bool forJoining)
     else if (uri.type() == Uri::UserId
              && (uri.action().isEmpty() || uri.action() == "_interactive"))
         uri.setAction("chat"); // The default action for users is "mention"
+
+    switch (visitResource(accountChooser->currentAccount(), uri))
+    {
+    case Quotient::UriResolved:
+        break;
+    case Quotient::CouldNotResolve:
+        QMessageBox::warning(
+            this, tr("Could not resolve id"),
+            (uri.type() == Uri::NonMatrix
+                 ? tr("Could not find an external application to open the URI:")
+                 : tr("Could not resolve Matrix identifier"))
+                + "\n\n" + uri.toDisplayString());
+        break;
+    case Quotient::IncorrectAction:
+        QMessageBox::warning(
+            this, tr("Incorrect action on a Matrix resource"),
+            tr("The URI contains an action '%1' that cannot be applied"
+               " to Matrix resource %2")
+                .arg(uri.action(), uri.toDisplayString(QUrl::RemoveQuery)));
+        break;
+    default:
+        Q_ASSERT(false); // No other values should occur
+    }
+}
+
+void MainWindow::openPMUserInput()
+{
+    if (accountRegistry->isEmpty()) {
+        showLoginWindow(tr("Please connect to a server"));
+        return;
+    }
+
+    struct D {
+        QString dlgTitle;
+        QString dlgText;
+        QString actionText;
+    };
+
+    Dialog dlg(tr("Private Message"), this, Dialog::NoStatusLine, tr("message"),
+               Dialog::NoExtraButtons);
+
+    auto* accountChooser = new AccountSelector(accountRegistry);
+    auto* identifier = new QLineEdit(&dlg);
+    auto* defaultConn = getDefaultConnection();
+    accountChooser->setAccount(defaultConn);
+
+    // Lay out controls
+    auto* layout = dlg.addLayout<QFormLayout>();
+    if (accountRegistry->size() > 1)
+    {
+        layout->addRow(tr("Account"), accountChooser);
+        accountChooser->setFocus();
+    } else {
+        accountChooser->setCurrentIndex(0); // The only available
+        accountChooser->hide(); // #523
+        identifier->setFocus();
+    }
+    layout->addRow("user ID (@user:example.org)", identifier);
+
+    using Quotient::Uri;
+    const auto getUri = [identifier]() -> Uri {
+        return identifier->text().trimmed();
+    };
+    auto* okButton = dlg.button(QDialogButtonBox::Ok);
+    okButton->setDisabled(true);
+
+    connect(identifier, &QLineEdit::textChanged, &dlg,
+            [getUri, okButton] {
+                switch (getUri().type()) {
+                case Uri::UserId:
+                    okButton->setEnabled(true);
+                    okButton->setText(tr("Chat with user",
+                                         "On a button in 'Open room' dialog"
+                                         " when a user identifier is entered"));
+                    break;
+                default:
+                    okButton->setDisabled(true);
+                    okButton->setText(
+                        tr("Can't open",
+                           "On a disabled button in 'Open room' dialog when"
+                           " an invalid/unsupported URI is entered"));
+                }
+            });
+
+    if (dlg.exec() != QDialog::Accepted)
+        return;
+
+    auto uri = getUri();
+    uri.setAction("_interactive");
 
     switch (visitResource(accountChooser->currentAccount(), uri))
     {
