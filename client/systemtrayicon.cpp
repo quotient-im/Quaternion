@@ -32,29 +32,47 @@ SystemTrayIcon::SystemTrayIcon(MainWindow* parent)
         showHideAction->setText(visible ? tr("Hide") : tr("Show"));
     });
 
-    setIcon(QIcon::fromTheme(appIconName(), QIcon(":/icon.png")));
+    m_appIcon = QIcon::fromTheme(appIconName(), QIcon(":/icon.png"));
+    m_unreadIcon = QIcon::fromTheme("mail-unread", m_appIcon);
+    m_notified = false;
+    setIcon(m_appIcon);
     setToolTip("Quaternion");
     setContextMenu(contextMenu);
     connect( this, &SystemTrayIcon::activated, this, &SystemTrayIcon::systemTrayIconAction);
+    connect(qApp, &QApplication::focusChanged, this, &SystemTrayIcon::focusChanged);
 }
 
 void SystemTrayIcon::newRoom(Quotient::Room* room)
 {
-    connect(room, &Quotient::Room::highlightCountChanged,
-            this, [this,room] { highlightCountChanged(room); });
+    unreadStatsChanged(room);
+    connect(room, &Quotient::Room::unreadStatsChanged,
+            this, [this,room] { unreadStatsChanged(room); });
 }
 
-void SystemTrayIcon::highlightCountChanged(Quotient::Room* room)
+void SystemTrayIcon::unreadStatsChanged(Quotient::Room* room)
 {
     using namespace Quotient;
     const auto mode = Settings().get<QString>("UI/notifications", "intrusive");
-    if (mode == "none")
+    int nNotifs = 0;
+
+    if (qApp->activeWindow() != nullptr || room->notificationCount() == 0)
         return;
-    if( room->highlightCount() > 0 ) {
+
+    for (auto* c: m_parent->registry()->accounts())
+        for (auto* r: c->allRooms())
+            nNotifs += r->notificationCount();
+    setToolTip(tr("%Ln notification(s)", "", nNotifs));
+
+    if (!m_notified) {
+        setIcon(m_unreadIcon);
+        m_notified = true;
+        if (mode == "none")
+            return;
+
         showMessage(
             //: %1 is the room display name
-            tr("Highlight in %1").arg(room->displayName()),
-            tr("%Ln highlight(s)", "", room->highlightCount()));
+            tr("Notification in %1").arg(room->displayName()),
+            tr("%Ln notification(s)", "", room->notificationCount()));
         if (mode != "non-intrusive")
             m_parent->activateWindow();
         connectSingleShot(this, &SystemTrayIcon::messageClicked, m_parent,
@@ -79,5 +97,14 @@ void SystemTrayIcon::showHide()
         m_parent->activateWindow();
         m_parent->raise();
         m_parent->setFocus();
+    }
+}
+
+void SystemTrayIcon::focusChanged(QWidget* old)
+{
+    if (m_notified && old == nullptr && qApp->activeWindow() != nullptr) {
+        setIcon(m_appIcon);
+        setToolTip("Quaternion");
+        m_notified = false;
     }
 }
