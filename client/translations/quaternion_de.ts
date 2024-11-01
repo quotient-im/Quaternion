@@ -160,6 +160,14 @@
         <source>Attaching the pasted image</source>
         <translation>Anhängen des eingefügten Bildes</translation>
     </message>
+    <message>
+        <source>Can&apos;t attach a file without a selected room</source>
+        <translation>Kann keine Datei ohne einen ausgewählten Raum anhängen</translation>
+    </message>
+    <message>
+        <source>Cannot insert HTML - it&apos;s either invalid or unsupported</source>
+        <translation>HTML kann nicht eingefügt werden – es ist entweder ungültig oder wird nicht unterstützt</translation>
+    </message>
 </context>
 <context>
     <name>Timeline</name>
@@ -1221,6 +1229,10 @@ Matrix URI oder matrix.to Link</translation>
     <message>
         <source>You are using an UNSTABLE room version (%1). The server may stop supporting it at any moment. Do you still want to use this version?</source>
         <translation>Sie verwenden eine INSTABILE Raumversion (%1). Der Server kann die Unterstützung jederzeit einstellen. Möchten Sie diese Version noch verwenden?</translation>
+    </message>
+    <message>
+        <source>(no available room versions)</source>
+        <translation>(keine verfügbaren Raumversionen)</translation>
     </message>
 </context>
 <context>

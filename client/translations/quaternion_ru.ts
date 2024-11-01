@@ -161,6 +161,14 @@
         <source>Attaching the pasted image</source>
         <translation>Вставленное изображение будет добавлено к сообщению</translation>
     </message>
+    <message>
+        <source>Can&apos;t attach a file without a selected room</source>
+        <translation>Невозможно прикрепить файл без выбранной комнаты</translation>
+    </message>
+    <message>
+        <source>Cannot insert HTML - it&apos;s either invalid or unsupported</source>
+        <translation>Невозможно вставить HTML - разметка некорректна или не поддерживается</translation>
+    </message>
 </context>
 <context>
     <name>Timeline</name>
@@ -1235,6 +1243,10 @@ Matrix URI или ссылка на сервис matrix.to</translation>
     <message>
         <source>You are using an UNSTABLE room version (%1). The server may stop supporting it at any moment. Do you still want to use this version?</source>
         <translation>Вы используете НЕСТАБИЛЬНУЮ версию комнаты (%1). Сервер может перестать поддерживать её в любой момент. Вы все еще хотите использовать эту версию?</translation>
+    </message>
+    <message>
+        <source>(no available room versions)</source>
+        <translation>(доступных версий комнат нет)</translation>
     </message>
 </context>
 <context>

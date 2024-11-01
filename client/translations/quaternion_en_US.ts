@@ -160,6 +160,14 @@
         <source>Attaching the pasted image</source>
         <translation>Attaching the pasted image</translation>
     </message>
+    <message>
+        <source>Can&apos;t attach a file without a selected room</source>
+        <translation>Can&apos;t attach a file without a selected room</translation>
+    </message>
+    <message>
+        <source>Cannot insert HTML - it&apos;s either invalid or unsupported</source>
+        <translation>Cannot insert HTML - it&apos;s either invalid or unsupported</translation>
+    </message>
 </context>
 <context>
     <name>Timeline</name>
@@ -1228,6 +1236,10 @@ Matrix URI or matrix.to link</translation>
     <message>
         <source>You are using an UNSTABLE room version (%1). The server may stop supporting it at any moment. Do you still want to use this version?</source>
         <translation>You are using an UNSTABLE room version (%1). The server may stop supporting it at any moment. Do you still want to use this version?</translation>
+    </message>
+    <message>
+        <source>(no available room versions)</source>
+        <translation>(no available room versions)</translation>
     </message>
 </context>
 <context>
