@@ -1734,10 +1734,6 @@ new room</translation>
         <translation>Reset the current character formatting to the default</translation>
     </message>
     <message>
-        <source>Could not insert HTML - it&apos;s either invalid or unsupported</source>
-        <translation>Could not insert HTML - it&apos;s either invalid or unsupported</translation>
-    </message>
-    <message>
         <source>Paste as rich text</source>
         <translation>Paste as rich text</translation>
     </message>

@@ -1734,10 +1734,6 @@ neuem Raum</translation>
         <translation>Zurücksetzen der aktuellen Zeichenformatierung auf die Standardeinstellung</translation>
     </message>
     <message>
-        <source>Could not insert HTML - it&apos;s either invalid or unsupported</source>
-        <translation>HTML konnte nicht eingefügt werden – es ist entweder ungültig oder wird nicht unterstützt</translation>
-    </message>
-    <message>
         <source>Paste as rich text</source>
         <translation>Als Rich-Text einfügen</translation>
     </message>

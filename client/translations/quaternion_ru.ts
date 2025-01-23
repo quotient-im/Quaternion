@@ -1741,10 +1741,6 @@ new room</source>
         <translation>Сбросить текущее форматирование символов на значение по умолчанию</translation>
     </message>
     <message>
-        <source>Could not insert HTML - it&apos;s either invalid or unsupported</source>
-        <translation>Не удалось вставить HTML - разметка некорректна или не поддерживается</translation>
-    </message>
-    <message>
         <source>Paste as rich text</source>
         <translation>Вставить как форматированный текст</translation>
     </message>
