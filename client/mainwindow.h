@@ -52,7 +52,7 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         void addConnection(Connection* c);
         void dropConnection(Connection* c);
 
-        // For openUserInput()
+        // For openRoomUserInput()
         enum : bool { NoRoomJoining = false, ForJoining = true };
 
     public slots:
@@ -60,7 +60,8 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         /*! Asks the user to choose the connection if necessary */
         void openResource(const QString& idOrUri, const QString& action = {});
         /// Open a dialog to enter the resource id/URI and then navigate to it
-        void openUserInput(bool forJoining = NoRoomJoining);
+        void openRoomUserInput(bool forJoining = NoRoomJoining);
+        void openPMUserInput();
         /// Open/focus the room settings dialog
         /*! If \p r is empty, the currently open room is used */
         void openRoomSettings(QuaternionRoom* r = nullptr);
@@ -110,6 +111,7 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         QAction* roomSettingsAction = nullptr;
         QAction* createRoomAction = nullptr;
         QAction* dcAction = nullptr;
+        QAction* createPMAction = nullptr;
         QAction* joinAction = nullptr;
         QAction* confirmLinksAction = nullptr;
 
