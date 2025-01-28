@@ -28,7 +28,6 @@ Dialog::Dialog(const QString& title, QWidget *parent,
 Dialog::Dialog(const QString& title, QDialogButtonBox::StandardButtons setButtons,
     QWidget *parent, UseStatusLine useStatusLine)
     : QDialog(parent)
-    , applyLatency(useStatusLine)
     , pendingApplyMessage(tr("Applying changes, please wait"))
     , statusLabel(useStatusLine == NoStatusLine ? nullptr : new QLabel)
     , buttons(new QDialogButtonBox(setButtons))

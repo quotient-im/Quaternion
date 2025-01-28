@@ -92,7 +92,6 @@ protected:
     void setPendingApplyMessage(const QString& msg) { pendingApplyMessage = msg; }
 
 private:
-    UseStatusLine applyLatency;
     QString pendingApplyMessage;
 
     QLabel* statusLabel;
