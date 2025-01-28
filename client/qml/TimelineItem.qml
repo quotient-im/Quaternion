@@ -472,33 +472,38 @@ Item {
                 anchors.right: textField.right
 
                 Repeater {
+                    id: reactionsView
                     model: reactions
                     ToolButton {
                         id: reactionButton
 
                         padding: 3
+                        leftPadding: 4
+                        rightPadding: 4
+
+                        readonly property color fgColor:
+                            modelData.includesLocalUser ? palette.highlightedText
+                                                        : foreground
 
                         contentItem: Text {
                             text: modelData.key + " \u00d7" /* Math "multiply" */
                                   + modelData.authorsCount
                             textFormat: Text.PlainText
                             font.pointSize: settings.font.pointSize - 1
-                            color: modelData.includesLocalUser ? palette.highlight
-                                                               : palette.buttonText
+                            color: fgColor
                         }
 
                         background: Rectangle {
                             radius: 4
-                            color: reactionButton.down ? palette.button : "transparent"
-                            border.color: modelData.includesLocalUser
-                                              ? palette.highlight
-                                              : settings.disabledPalette.buttonText
+                            color: reactionButton.down ? palette.button
+                                   : modelData.includesLocalUser ? palette.highlight : "transparent"
+                            border.color: fgColor
                             border.width: 1
                         }
 
                         hoverEnabled: true
                         ToolTip {
-                            visible: hovered
+                            visible: reactionButton.hovered
                             contentItem: Text {
                                 //: %2 is the list of users
                                 text: qsTr("Reaction '%1' from %2")
