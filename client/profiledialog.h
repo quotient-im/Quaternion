@@ -57,4 +57,6 @@ private:
     QString m_newAvatarPath;
     QPointer<Quotient::GetDevicesJob> m_devicesJob;
     QVector<Quotient::Device> m_devices;
+
+    void setVerifiedItem(int row, const QString& deviceId);
 };

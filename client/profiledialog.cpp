@@ -11,6 +11,7 @@
 #include "accountselector.h"
 #include "mainwindow.h"
 #include "logging_categories.h"
+#include "verificationdialog.h"
 
 #include <Quotient/connection.h>
 #include <Quotient/user.h>
@@ -24,6 +25,7 @@
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QTableWidgetItem>
+#include <QtWidgets/QToolButton>
 #include <QtGui/QClipboard>
 #include <QtGui/QGuiApplication>
 
@@ -74,6 +76,7 @@ public:
 class ProfileDialog::DeviceTable : public QTableWidget {
 public:
     enum Columns : int {
+        Verified = 0,
         DeviceName,
         DeviceId,
         LastTimeSeen,
@@ -88,7 +91,11 @@ public:
                                         TimestampTableItem, QTableWidgetItem>;
 
     template <Columns ColumnN>
-    static inline constexpr auto itemFlags =
+    static constexpr auto itemAlignment =
+        ColumnN == Verified ? Qt::AlignCenter : (Qt::AlignLeft | Qt::AlignVCenter);
+
+    template <Columns ColumnN>
+    static constexpr auto itemFlags =
         Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled
         | Qt::ItemFlag((ColumnN == DeviceName) & Qt::ItemIsEditable);
 
@@ -97,6 +104,7 @@ public:
     auto emplaceItem(auto row, const DataT&... data)
     {
         auto* item = new ItemType<ColumnN>(data...);
+        item->setTextAlignment(itemAlignment<ColumnN>);
         item->setFlags(itemFlags<ColumnN>);
         QTableWidget::setItem(clamp<int>(row, 0), ColumnN, item);
         return item;
@@ -110,15 +118,14 @@ public:
     }
 
     void fillPendingData(const QString& currentDeviceId);
-    void refresh(const QVector<Quotient::Device>& devices, const QString &currentDeviceId);
+    void refresh(const QVector<Quotient::Device>& devices, ProfileDialog* profileDialog);
 };
 
 ProfileDialog::DeviceTable::DeviceTable()
 {
     // Must be synchronised with DeviceTable::Columns
     static const QStringList Headers{
-        tr("Device display name"), tr("Device ID"),
-        tr("Last time seen"), tr("Last IP address")
+        {}, tr("Device display name"), tr("Device ID"), tr("Last time seen"), tr("Last IP address")
     };
     QUO_CHECK(Headers.size() == ColumnsCount);
 
@@ -219,6 +226,29 @@ Quotient::Connection* ProfileDialog::account() const
     return m_currentAccount;
 }
 
+void ProfileDialog::setVerifiedItem(int row, const QString& deviceId)
+{
+    if (m_currentAccount->deviceId() == deviceId)
+        m_deviceTable->emplaceItem<DeviceTable::Verified>(row, tr("This device"));
+    else if (m_currentAccount->isVerifiedDevice(m_currentAccount->userId(), deviceId)) {
+        m_deviceTable->emplaceItem<DeviceTable::Verified>(row, QIcon::fromTheme(u"security-high"_s),
+                                                          tr("Verified"));
+    } else {
+        auto* verifyAction =
+            new QAction(QIcon::fromTheme(u"security-medium"_s), tr("Verify..."), this);
+        connect(verifyAction, &QAction::triggered, this, [this, deviceId] {
+            // auto verificationDialog = new VerificationDialog(account(), deviceId, this);
+            // TODO: connect accepted/rejected signals
+            // verificationDialog->show();
+        });
+        auto* verifyButton = new QToolButton();
+        verifyButton->setToolButtonStyle(Qt::ToolButtonFollowStyle);
+        verifyButton->setAutoRaise(true);
+        verifyButton->setDefaultAction(verifyAction);
+        m_deviceTable->setCellWidget(clamp<int>(row, 0), DeviceTable::Verified, verifyButton);
+    }
+}
+
 void ProfileDialog::DeviceTable::markupRow(int row, void (QFont::*fontFn)(bool),
                                            const QString& rowToolTip,
                                            bool flagValue)
@@ -246,7 +276,7 @@ void ProfileDialog::DeviceTable::fillPendingData(const QString& currentDeviceId)
 }
 
 void ProfileDialog::DeviceTable::refresh(const QVector<Quotient::Device>& devices,
-                                         const QString& currentDeviceId)
+                                         ProfileDialog* profileDialog)
 {
     if (!std::in_range<int>(devices.size()))
         qCCritical(MAIN) << "The number of devices on the account is out of bounds, only the first"
@@ -254,14 +284,16 @@ void ProfileDialog::DeviceTable::refresh(const QVector<Quotient::Device>& device
     clearContents();
     setRowCount(clamp<int>(devices.size(), 0));
 
+    const auto* currentAccount = profileDialog->account();
     for (int i = 0; i < rowCount(); ++i) {
         const auto& device = devices[i];
+        profileDialog->setVerifiedItem(i, device.deviceId);
         emplaceItem<DeviceName>(i, device.displayName);
         emplaceItem<DeviceId>(i, device.deviceId);
         if (device.lastSeenTs)
             emplaceItem<LastTimeSeen>(i, QDateTime::fromMSecsSinceEpoch(*device.lastSeenTs));
         emplaceItem<LastIpAddr>(i, device.lastSeenIp);
-        if (device.deviceId == currentDeviceId)
+        if (device.deviceId == currentAccount->deviceId())
             markCurrentDevice(i);
     }
 
@@ -307,7 +339,7 @@ void ProfileDialog::load()
     m_devicesJob = m_currentAccount->callApi<Quotient::GetDevicesJob>();
     connect(m_devicesJob, &BaseJob::success, m_deviceTable, [this] {
         m_devices = m_devicesJob->devices();
-        m_deviceTable->refresh(m_devices, m_currentAccount->deviceId());
+        m_deviceTable->refresh(m_devices, this);
         if (m_settings.contains("device_table_state"))
             m_deviceTable->horizontalHeader()->restoreState(
                 m_settings.value("device_table_state").toByteArray());
