@@ -33,6 +33,7 @@ using Quotient::BaseJob, Quotient::User, Quotient::Room;
 using namespace Qt::StringLiterals;
 
 namespace {
+// TODO: move to libQuotient
 //! Like std::clamp but admits a different (usually larger) type for the value
 template <typename T>
 inline constexpr T clamp(const auto& v, const T& lo = std::numeric_limits<T>::min(),
