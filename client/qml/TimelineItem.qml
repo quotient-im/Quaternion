@@ -330,7 +330,11 @@ Item {
                     text: (!settings.timelineStyleIsXChat
                            ? ("<table style='float: right; font-size: small; color:\""
                                 + settings.lowlight_color
-                              + "\"'><tr><td>" + (time ? toHtmlEscaped(time) : "")
+                              + "\"'><tr>"
+                              + (verificationState === VerificationState.Unverified
+                                 ? "<td style='font-family:emoji;color:orange'>⚠️</td>"
+                                 : "")
+                              + "<td>" + (time ? toHtmlEscaped(time) : "")
                               + "</td></tr></table>"
                               + (actionEvent && !authorLabel.visible
                                  ? inlineAuthorLabel(author) : ""))

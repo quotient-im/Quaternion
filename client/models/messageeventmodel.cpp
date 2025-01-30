@@ -60,9 +60,10 @@ QHash<int, QByteArray> MessageEventModel::roleNames() const
         rolesInit.insert(SpecialMarksRole, "marks");
         rolesInit.insert(LongOperationRole, "progressInfo");
         rolesInit.insert(AnnotationRole, "annotation");
-        rolesInit.insert(EventClassNameRole, "eventClassName");
         rolesInit.insert(RefRole, "refId");
         rolesInit.insert(ReactionsRole, "reactions");
+        rolesInit.insert(EventClassNameRole, "eventClassName");
+        rolesInit.insert(VerificationStateRole, "verificationState");
         return rolesInit;
     }();
     return roles;
@@ -79,6 +80,9 @@ MessageEventModel::MessageEventModel(QObject* parent)
                                      "Access to EventStatus enums only");
     qmlRegisterUncreatableMetaObject(EventGrouping::staticMetaObject,
                                      "Quotient", 1, 0, "EventGrouping",
+                                     "Access to enums only");
+    qmlRegisterUncreatableMetaObject(VerificationState::staticMetaObject,
+                                     "Quotient", 1, 0, "VerificationState",
                                      "Access to enums only");
     // This could be a single line in changeRoom() but then there's a race
     // condition between the model reset completion and the room property
@@ -597,6 +601,7 @@ QString MessageEventModel::visualiseEvent(const Quotient::RoomEvent& evt, bool a
         [](const RoomTombstoneEvent& e) {
             return tr("upgraded the room: %1").arg(e.serverMessage().toHtmlEscaped());
         },
+        [](const EncryptedEvent&) { return tr("Could not decrypt the event"); },
         [](const StateEvent& e) {
             // A small hack for state events from TWIM bot
             return e.stateKey() == "twim"
@@ -868,8 +873,7 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         {
             auto i = index(r);
             if (data(i, SpecialMarksRole) != EventStatus::Hidden)
-                return data(i, DateRole) != data(idx, DateRole)
-                           ? EventGrouping::ShowDateAndAuthor
+                return data(i, DateRole) != data(idx, DateRole) ? EventGrouping::ShowDateAndAuthor
                        : data(i, AuthorRole) != data(idx, AuthorRole)
                            ? EventGrouping::ShowAuthor
                            : EventGrouping::KeepPreviousGroup;
@@ -880,6 +884,16 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         return switchOnType(
             evt, [](const RoomCreateEvent& e) { return e.predecessor().roomId; },
             [](const RoomTombstoneEvent& e) { return e.successorRoomId(); });
+
+    case VerificationStateRole: {
+        // If evt is EncryptedEvent (i.e. it wasn't decrypted) originalEvent() will return nullptr
+        const auto* const encryptedEvent = evt.originalEvent();
+        return encryptedEvent ? m_currentRoom->connection()->isVerifiedSession(
+                                    encryptedEvent->sessionId().toLatin1())
+                                    ? VerificationState::Verified
+                                    : VerificationState::Unverified
+                              : VerificationState::NotRelevant;
+    }
     } // switch(role)
 
     return {};
