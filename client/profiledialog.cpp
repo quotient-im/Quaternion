@@ -110,12 +110,8 @@ public:
         return item;
     }
 
-    void markupRow(int row, void (QFont::*fontFn)(bool), const QString& rowToolTip = {},
-                   bool flagValue = true);
-
-    void markCurrentDevice(int row) {
-        markupRow(row, &QFont::setBold, tr("This is the current device"));
-    }
+    void markupRow(int row, void (QFont::*fontFn)(bool), bool flagValue = true);
+    void markCurrentDevice(int row) { markupRow(row, &QFont::setBold); }
 
     void fillPendingData(const QString& currentDeviceId);
     void refresh(const QVector<Quotient::Device>& devices, ProfileDialog* profileDialog);
@@ -157,9 +153,9 @@ void updateAvatarButton(Quotient::User* user, QPushButton* btn)
     }
 }
 
-ProfileDialog::ProfileDialog(Quotient::AccountRegistry* accounts,
-                             MainWindow* parent)
-    : Dialog(tr("User profiles"), parent)
+ProfileDialog::ProfileDialog(Quotient::AccountRegistry* accounts, MainWindow* parent)
+    : Dialog(tr("User profiles"), QDialogButtonBox::Reset | QDialogButtonBox::Close, parent,
+             Dialog::StatusLine)
     , m_settings("UI/ProfileDialog")
     , m_avatar(new QPushButton)
     , m_accountSelector(new AccountSelector(accounts))
@@ -202,7 +198,8 @@ ProfileDialog::ProfileDialog(Quotient::AccountRegistry* accounts,
     m_deviceTable = new DeviceTable();
     addWidget(m_deviceTable);
 
-    button(QDialogButtonBox::Ok)->setText(tr("Apply and close"));
+    // TODO: connect the title change to any changes in the dialog data
+    // button(QDialogButtonBox::Close)->setText(tr("Apply and close"));
 
     if (m_settings.contains("normal_geometry"))
         setGeometry(m_settings.value("normal_geometry").toRect());
@@ -236,27 +233,44 @@ void ProfileDialog::setVerifiedItem(int row, const QString& deviceId)
     } else {
         auto* verifyAction =
             new QAction(QIcon::fromTheme(u"security-medium"_s), tr("Verify..."), this);
-        connect(verifyAction, &QAction::triggered, this, [this, deviceId] {
-            // auto verificationDialog = new VerificationDialog(account(), deviceId, this);
-            // TODO: connect accepted/rejected signals
-            // verificationDialog->show();
+        using KVSession = Quotient::KeyVerificationSession;
+        connect(verifyAction, &QAction::triggered, this, [this, deviceId, verifyAction] {
+            if (auto session = verifyAction->data().value<KVSession*>()) {
+                if (session->state() != KVSession::CANCELED)
+                    session->cancelVerification(KVSession::USER);
+            } else
+                initiateVerification(deviceId, verifyAction);
         });
+
         auto* verifyButton = new QToolButton();
         verifyButton->setToolButtonStyle(Qt::ToolButtonFollowStyle);
         verifyButton->setAutoRaise(true);
         verifyButton->setDefaultAction(verifyAction);
+        verifyButton->setEnabled(m_currentAccount->encryptionEnabled());
         m_deviceTable->setCellWidget(clamp<int>(row, 0), DeviceTable::Verified, verifyButton);
     }
 }
 
-void ProfileDialog::DeviceTable::markupRow(int row, void (QFont::*fontFn)(bool),
-                                           const QString& rowToolTip,
-                                           bool flagValue)
+void ProfileDialog::refreshDevices()
+{
+    m_devicesJob = m_currentAccount->callApi<Quotient::GetDevicesJob>();
+    connect(m_devicesJob, &BaseJob::success, m_deviceTable, [this] {
+        m_devices = m_devicesJob->devices();
+        m_deviceTable->refresh(m_devices, this);
+        if (m_settings.contains("device_table_state"))
+            m_deviceTable->horizontalHeader()->restoreState(
+                m_settings.value("device_table_state").toByteArray());
+        else
+            m_deviceTable->sortByColumn(DeviceTable::LastTimeSeen,
+                                        Qt::DescendingOrder);
+    });
+}
+
+void ProfileDialog::DeviceTable::markupRow(int row, void (QFont::*fontFn)(bool), bool flagValue)
 {
     Q_ASSERT(row < rowCount());
     for (int c = 0; c < columnCount(); ++c)
         if (auto* it = item(row, c)) {
-            it->setToolTip(rowToolTip);
             auto font = it->font();
             (font.*fontFn)(flagValue);
             it->setFont(font);
@@ -336,17 +350,7 @@ void ProfileDialog::load()
     if (!m_settings.contains("device_table_state"))
         m_deviceTable->resizeColumnsToContents();
 
-    m_devicesJob = m_currentAccount->callApi<Quotient::GetDevicesJob>();
-    connect(m_devicesJob, &BaseJob::success, m_deviceTable, [this] {
-        m_devices = m_devicesJob->devices();
-        m_deviceTable->refresh(m_devices, this);
-        if (m_settings.contains("device_table_state"))
-            m_deviceTable->horizontalHeader()->restoreState(
-                m_settings.value("device_table_state").toByteArray());
-        else
-            m_deviceTable->sortByColumn(DeviceTable::LastTimeSeen,
-                                        Qt::DescendingOrder);
-    });
+    refreshDevices();
 }
 
 void ProfileDialog::apply()
@@ -395,4 +399,62 @@ void ProfileDialog::uploadAvatar()
                     m_avatar->setIcon(QPixmap(m_newAvatarPath));
                 }
             });
+}
+
+inline QString errorToMessage(Quotient::KeyVerificationSession::Error e)
+{
+    switch (e) {
+        using enum Quotient::KeyVerificationSession::Error;
+    case TIMEOUT:
+    case REMOTE_TIMEOUT: return ProfileDialog::tr("Verification timed out");
+    case USER:           return ProfileDialog::tr("Verification was cancelled");
+    case REMOTE_USER:    return ProfileDialog::tr("Verification was cancelled on the other device");
+    case MISMATCHED_SAS:
+    case REMOTE_MISMATCHED_SAS:
+        return ProfileDialog::tr("Verification failed: emojis did not match");
+    default:             return ProfileDialog::tr("Verification did not succeed");
+    }
+}
+
+Quotient::KeyVerificationSession* ProfileDialog::initiateVerification(const QString& deviceId,
+                                                                      QAction* verifyAction)
+{
+    using namespace Quotient;
+    auto* session = account()->startKeyVerificationSession(account()->userId(), deviceId);
+    verifyAction->setData(QVariant::fromValue(session));
+    verifyAction->setText(tr("Cancel"));
+    setStatusMessage(tr("Please accept the verification request on the device you want to verify"));
+    connect(session, &KeyVerificationSession::finished, this, [this, session, verifyAction] {
+        if (session->state() == KeyVerificationSession::DONE)
+            refreshDevices();
+        else {
+            setStatusMessage(errorToMessage(session->error()));
+            verifyAction->setText(tr("Verify..."));
+            verifyAction->setData(QVariant::fromValue(nullptr));
+        }
+    });
+    // TODO: when the library supports other methods, ask to choose instead of opting
+    //       for SAS straight away
+    QtFuture::connect(session, &KeyVerificationSession::stateChanged).then([this, session] {
+        using enum KeyVerificationSession::State;
+        if (auto s = session->state(); s == READY) {
+            setStatusMessage({});
+            session->sendStartSas();
+        } else if (s != WAITINGFORACCEPT && s != ACCEPTED && s != CANCELED && s != DONE) {
+            qCritical(MAIN) << "Unexpected state of key verification session:" << terse << s;
+            session->cancelVerification(KeyVerificationSession::UNEXPECTED_MESSAGE);
+        }
+    });
+    QtFuture::connect(session, &KeyVerificationSession::sasEmojisChanged)
+      .then([this, session] {
+          QUO_ALARM_X(session->sasEmojis().empty(),
+                      "Empty SAS emoji sequence, the session seems to be broken");
+          auto dialog = new VerificationDialog(session, this);
+          dialog->setModal(true);
+          dialog->setAttribute(Qt::WA_DeleteOnClose);
+          dialog->show();
+      });
+    connect(this, &QDialog::finished, session,
+            [session] { session->cancelVerification(KeyVerificationSession::USER); });
+    return session;
 }
