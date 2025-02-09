@@ -472,7 +472,7 @@ Page {
         anchors.bottom: chatView.bottom
         anchors.bottomMargin:
             averageEvtHeight * chatView.bottommostVisibleIndex
-        width: shuttleDial.backgroundWidth / 2
+        width: shuttleDial.width
         height: chatView.bottommostVisibleIndex < 0
                 ? 0 : averageEvtHeight * (chatView.count - chatView.bottommostVisibleIndex)
         visible: shuttleDial.visible
@@ -498,41 +498,43 @@ Page {
         id: shuttleDial
         orientation: Qt.Vertical
         height: chatView.height * 0.7
-        width: chatView.ScrollBar.vertical.width
+        width: settings.lineSpacing
         padding: 2
         anchors.right: parent.right
-        anchors.rightMargin: (background.width - width) / 2
         anchors.verticalCenter: chatView.verticalCenter
         enabled: settings.use_shuttle_dial
         visible: enabled && chatView.count > 0
 
-        readonly property real backgroundWidth:
-            handle.width + leftPadding + rightPadding
         // Npages/sec = value^2 => maxNpages/sec = 9
         readonly property real maxValue: 3.0
-        readonly property real deviation:
-            value / (maxValue * 2) * availableHeight
-
-        background: Item {
-            x: shuttleDial.handle.x - shuttleDial.leftPadding
-            width: shuttleDial.backgroundWidth
-            Rectangle {
-                id: springLine
-                // Rectangles (normally) have (x,y) as their top-left corner.
-                // To draw the "spring" line up from the middle point, its `y`
-                // should still be the top edge, not the middle point.
-                y: shuttleDial.height / 2 - Math.max(shuttleDial.deviation, 0)
-                height: Math.abs(shuttleDial.deviation)
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: 2
-                color: palette.highlight
-            }
-        }
-        opacity: scrollerArea.containsMouse ? 1 : 0.7
-        AnimationBehavior on opacity { FastNumberAnimation { } }
+        readonly property real handlePos:
+            topPadding + visualPosition * (availableHeight - handle.height)
 
         from: -maxValue
         to: maxValue
+
+        background: Rectangle {
+            // Draw a "spring" line between the shuttle and the center of the control
+            anchors.top: (shuttleDial.value > 0 ? shuttleHandle : shuttleDial).verticalCenter
+            anchors.bottom: (shuttleDial.value > 0 ? shuttleDial : shuttleHandle).verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: shuttleDial.availableWidth
+            radius: 2
+            color: palette.highlight
+        }
+
+        handle: Rectangle {
+            id: shuttleHandle
+            y: shuttleDial.handlePos
+            width: shuttleDial.availableWidth
+            anchors.horizontalCenter: shuttleDial.horizontalCenter
+            height: width * 1.618
+            radius: width
+            color: scrollerArea.containsMouse ? palette.highlight : palette.button
+        }
+
+        opacity: scrollerArea.containsMouse ? 1 : 0.7
+        AnimationBehavior on opacity { FastNumberAnimation { } }
 
         activeFocusOnTab: false
 
@@ -576,8 +578,7 @@ Page {
         anchors.top: chatView.top
         anchors.bottom: chatView.bottom
         anchors.right: parent.right
-        width: settings.use_shuttle_dial ? shuttleDial.backgroundWidth
-                                         : chatView.ScrollBar.vertical.width
+        width: (settings.use_shuttle_dial ? shuttleDial : chatView.ScrollBar.vertical).width
         acceptedButtons: Qt.NoButton
 
         hoverEnabled: true
