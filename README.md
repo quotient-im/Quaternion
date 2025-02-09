@@ -378,7 +378,4 @@ follows:
 (the scary `%{if}`s are just encoding the logging level into its initial letter).
 
 ## Screenshot
-<!-- TO BE UPDATED
-![Screenshot1](Screenshot1.png)
-![Screenshot2](Screenshot2.png)
--->
+![Screenshot](Screenshot.png)
