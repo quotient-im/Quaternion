@@ -406,10 +406,10 @@ Page {
             anchors.left: parent.left
             width: readMarkerLine.width
             z: -1
-            opacity: 0.1
+            opacity: 0.05
 
             radius: readMarkerLine.height
-            color: messageModel.fadedBackColor(chatView.readMarkerColor)
+            color: chatView.readMarkerColor
         }
         Rectangle {
             id: readMarkerLine
@@ -587,13 +587,13 @@ Page {
         id: timelineStats
         anchors.right: scrollerArea.left
         anchors.top: chatView.top
-        width: childrenRect.width + 3
-        height: childrenRect.height + 3
+        width: childrenRect.width
+        height: childrenRect.height
         color: palette.alternateBase
+        opacity: 0 // Nothing to show at the start
         property bool shown: (chatView.bottommostVisibleIndex >= 0
                               && (scrollerArea.containsMouse || scrollAnimation.running))
                              || room?.requestedHistorySize > 0
-
         onShownChanged: {
             if (shown) {
                 fadeOutDelay.stop()
@@ -610,6 +610,7 @@ Page {
         AnimationBehavior on opacity { FastNumberAnimation { } }
 
         Label {
+            padding: 2
             font.bold: true
             opacity: 0.8
             renderType: settings.render_type

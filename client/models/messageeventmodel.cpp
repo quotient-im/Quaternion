@@ -29,6 +29,17 @@
 #include <Quotient/events/roomcanonicalaliasevent.h>
 #include <Quotient/events/reactionevent.h>
 
+namespace {
+// TODO: move to libQuotient; duplicate in profiledialog.cpp
+//! Like std::clamp but admits a different (usually larger) type for the value
+template <typename T>
+inline constexpr T clamp(const auto& v, const T& lo = std::numeric_limits<T>::min(),
+                         const T& hi = std::numeric_limits<T>::max())
+{
+    return v < lo ? lo : hi < v ? hi : static_cast<T>(v);
+}
+}
+
 QHash<int, QByteArray> MessageEventModel::roleNames() const
 {
     static const auto roles = [this] {
@@ -442,11 +453,9 @@ inline QColor fadedTextColor(QColor unfadedColor, qreal fadeRatio = 0.5)
                      unfadedColor, fadeRatio);
 }
 
-QColor MessageEventModel::fadedBackColor(QColor unfadedColor,
-                                         qreal fadeRatio) const
+QColor MessageEventModel::fadedBackColor(QColor unfadedColor, qreal fadeRatio) const
 {
-    return mixColors(QPalette().color(QPalette::Disabled, QPalette::Base),
-                     unfadedColor, fadeRatio);
+    return mixColors(QPalette().color(QPalette::Disabled, QPalette::Base), unfadedColor, fadeRatio);
 }
 
 QString MessageEventModel::visualiseEvent(const Quotient::RoomEvent& evt, bool abbreviate) const
@@ -608,18 +617,24 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         return {};
 
     bool isPending = row < timelineBaseIndex();
-    const auto timelineIt = m_currentRoom->messageEvents().crbegin() +
-                                std::max(0, row - timelineBaseIndex());
-    const auto pendingIt = m_currentRoom->pendingEvents().crbegin() +
-                                std::min(row, timelineBaseIndex());
+    const auto timelineIt =
+        m_currentRoom->messageEvents().crbegin() + std::max(0, row - timelineBaseIndex());
+    const auto pendingIt =
+        m_currentRoom->pendingEvents().crbegin() + std::min(row, timelineBaseIndex());
     const auto& evt = isPending ? **pendingIt : **timelineIt;
 
     using namespace Quotient;
     static Settings settings;
-    if (role == Qt::DisplayRole)
-        return visualiseEvent(evt);
+    switch (role) {
+    case Qt::DisplayRole: return visualiseEvent(evt);
+    case Qt::ToolTipRole: return QJsonDocument(evt.fullJson()).toJson();
+    case EventIdRole: return !evt.id().isEmpty() ? evt.id() : evt.transactionId();
+    case EventClassNameRole: return evt.metaType().className;
+    case AnnotationRole: return isPending ? pendingIt->annotation() : QString();
+    case AuthorHasAvatarRole: return m_currentRoom->member(evt.senderId()).avatarUrl().isValid();
+    case HighlightRole: return m_currentRoom->isEventHighlighted(&evt);
 
-    if (role == Qt::ForegroundRole) {
+    case Qt::ForegroundRole: {
         using CG = QPalette::ColorGroup;
         using CR = QPalette::ColorRole;
 
@@ -629,20 +644,14 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         auto normalTextColor = QPalette().color(CG::Active, CR::Text);
         if (isPending) {
             using ES = Quotient::EventStatus::Code;
-            switch (pendingIt->deliveryStatus()) {
-            case ES::Submitted:
-            case ES::SendingFailed:
-            case ES::Departed:
+            if (auto s = pendingIt->deliveryStatus();
+                s == ES::Submitted || s == ES::SendingFailed || s == ES::Departed)
                 return fadedTextColor(normalTextColor);
-            default:;
-            }
         }
         // Background highlighting mode is handled entirely in QML
         if (m_currentRoom->isEventHighlighted(&evt)
-            && settings.get<QString>(QStringLiteral("UI/highlight_mode"))
-                   == "text")
-            return settings.get(QStringLiteral("UI/highlight_color"),
-                                QStringLiteral("orange"));
+            && settings.get<QString>(u"UI/highlight_mode"_s) == u"text")
+            return settings.get(u"UI/highlight_color"_s, u"orange"_s);
 
         if (isPending || evt.senderId() == m_currentRoom->localMember().id())
             normalTextColor = mixColors(normalTextColor,
@@ -655,25 +664,13 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                    : fadedTextColor(normalTextColor);
     }
 
-    if( role == Qt::ToolTipRole )
-    {
-        return QJsonDocument(evt.fullJson()).toJson();
-    }
-
-    if( role == EventTypeRole )
-    {
-        if (auto e = eventCast<const RoomMessageEvent>(&evt))
-        {
-            switch (e->msgtype())
-            {
-                case MessageEventType::Emote:
-                    return "emote";
-                case MessageEventType::Notice:
-                    return "notice";
-                case MessageEventType::Image:
-                    return "image";
-                default:
-                    return e->has<EventContent::FileContentBase>() ? "file" : "message";
+    case EventTypeRole: {
+        if (auto e = eventCast<const RoomMessageEvent>(&evt)) {
+            switch (e->msgtype()) {
+            case MessageEventType::Emote: return "emote";
+            case MessageEventType::Notice: return "notice";
+            case MessageEventType::Image: return "image";
+            default: return e->has<EventContent::FileContentBase>() ? "file" : "message";
             }
         }
         if (evt.isStateEvent())
@@ -682,39 +679,27 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         return "other";
     }
 
-    if (role == EventClassNameRole)
-        return evt.metaType().className;
-
-    if( role == AuthorRole )
-    {
+    case AuthorRole:
         // TODO: It should be RoomMember state "as of event", not "as of now"
         return QVariant::fromValue(isPending ? m_currentRoom->localMember()
                                              : m_currentRoom->member(evt.senderId()));
-    }
 
-    if (role == AuthorHasAvatarRole) {
-        return m_currentRoom->member(evt.senderId()).avatarUrl().isValid();
-    }
-
-    if (role == ContentTypeRole)
-    {
+    case ContentTypeRole: {
         if (auto e = eventCast<const RoomMessageEvent>(&evt))
         {
+            // "Promote" text/plain to text/html, because we emit HTML for Qt::DisplayRole anyway
             const auto& contentType = e->mimeType().name();
-            return contentType == "text/plain"
-                    ? QStringLiteral("text/html") : contentType;
+            return contentType == u"text/plain" ? u"text/html"_s : contentType;
         }
-        return QStringLiteral("text/plain");
+        return u"text/plain"_s;
     }
 
-    if (role == ContentRole)
-    {
+    case ContentRole: {
         if (evt.isRedacted())
         {
             const auto reason = evt.redactedBecause()->reason();
-            return (reason.isEmpty())
-                    ? tr("Redacted")
-                    : tr("Redacted: %1").arg(reason.toHtmlEscaped());
+            return (reason.isEmpty()) ? tr("Redacted")
+                                      : tr("Redacted: %1").arg(reason.toHtmlEscaped());
         }
 
         if (auto e = eventCast<const RoomMessageEvent>(&evt))
@@ -723,12 +708,13 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
             // EventContent classes inject values into the copy of the
             // content JSON stored in EventContent::Base
             return e->has<EventContent::FileContentBase>()
-                    ? QVariant::fromValue(e->content()->originalJson)
-                    : QVariant();
+                       ? QVariant::fromValue(e->content()->originalJson)
+                       : QVariant();
         }
+        return {};
     }
 
-    if (role == RepliedToRole) {
+    case RepliedToRole:
         return evt.switchOnType([this](const RoomMessageEvent& e) {
             constexpr auto TurnThreadsToReplies = true;
             const auto& replyEventId = e.replyEventId(TurnThreadsToReplies);
@@ -746,13 +732,8 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                                    tr("(loading)") };
             return QVariant::fromValue(result);
         });
-    }
 
-    if( role == HighlightRole )
-        return m_currentRoom->isEventHighlighted(&evt);
-
-    if( role == SpecialMarksRole )
-    {
+    case SpecialMarksRole: {
         if (is<RedactionEvent>(evt) || is<ReactionEvent>(evt))
             return EventStatus::Hidden; // Never show, even pending
 
@@ -787,16 +768,13 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                 && !settings.get<bool>("UI/show_ban", true))
                 return EventStatus::Hidden;
 
-            bool hideRename =
-                memberEvent->isRename()
-                && (!memberEvent->isJoin() && !memberEvent->isLeave())
-                && !settings.get<bool>("UI/show_rename", true);
-            bool hideAvatarUpdate =
-                memberEvent->isAvatarUpdate()
-                && !settings.get<bool>("UI/show_avatar_update", true);
-            if ((hideRename && hideAvatarUpdate)
-                    || (hideRename && !memberEvent->isAvatarUpdate())
-                    || (hideAvatarUpdate && !memberEvent->isRename())) {
+            bool hideRename = memberEvent->isRename()
+                              && (!memberEvent->isJoin() && !memberEvent->isLeave())
+                              && !settings.get<bool>("UI/show_rename", true);
+            bool hideAvatarUpdate = memberEvent->isAvatarUpdate()
+                                    && !settings.get<bool>("UI/show_avatar_update", true);
+            if ((hideRename && hideAvatarUpdate) || (hideRename && !memberEvent->isAvatarUpdate())
+                || (hideAvatarUpdate && !memberEvent->isRename())) {
                 return EventStatus::Hidden;
             }
         }
@@ -828,22 +806,14 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         return EventStatus::Normal;
     }
 
-    if( role == EventIdRole )
-        return !evt.id().isEmpty() ? evt.id() : evt.transactionId();
-
-    if( role == LongOperationRole )
-    {
+    case LongOperationRole:
         if (auto e = eventCast<const RoomMessageEvent>(&evt))
             if (e->has<EventContent::FileContentBase>())
                 return QVariant::fromValue(
-                            m_currentRoom->fileTransferInfo(
-                                isPending ? e->transactionId() : e->id()));
-    }
+                    m_currentRoom->fileTransferInfo(isPending ? e->transactionId() : e->id()));
+        return {};
 
-    if( role == AnnotationRole )
-        return isPending ? pendingIt->annotation() : QString();
-
-    if( role == ReactionsRole ) {
+    case ReactionsRole: {
         // Filter reactions out of all annotations and collate them by key
         struct Reaction {
             QString key;
@@ -870,32 +840,30 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
         QJsonArray qmlReactions;
         for (auto&& r: reactions) {
             const auto authorsCount = r.authorsList.size();
-            if (r.authorsList.size() > 7) {
+            if (authorsCount > 7) {
                 //: When the reaction comes from too many members
-                r.authorsList.replace(3, tr("%Ln more member(s)", "",
-                                            r.authorsList.size() - 3));
+                r.authorsList.replace(3, tr("%Ln more member(s)", "", clamp<int>(authorsCount) - 3));
                 r.authorsList.erase(r.authorsList.begin() + 4,
                                     r.authorsList.end());
             }
-            qmlReactions << QJsonObject {
-                    { QStringLiteral("key"), r.key },
-                    { QStringLiteral("authorsCount"), authorsCount },
-                    { QStringLiteral("authors"),
-                            QLocale().createSeparatedList(r.authorsList) },
-                    { QStringLiteral("includesLocalUser"), r.includesLocalUser }
-                };
+            qmlReactions << QJsonObject{ { u"key"_s, r.key },
+                                         { u"authorsCount"_s, authorsCount },
+                                         { u"authors"_s,
+                                           QLocale().createSeparatedList(r.authorsList) },
+                                         { u"includesLocalUser"_s, r.includesLocalUser } };
         }
         return qmlReactions;
     }
 
-    if( role == DateTimeRole || role == DateRole)
+    case DateTimeRole:
+    case DateRole:
     {
         auto ts = (isPending ? pendingIt->lastUpdated()
                              : makeMessageTimestamp(timelineIt)).toLocalTime();
         return role == DateTimeRole ? QVariant(ts) : renderDate(ts);
     }
 
-    if (role == EventGroupingRole) {
+    case EventGroupingRole:
         for (auto r = row + 1; r < rowCount(); ++r)
         {
             auto i = index(r);
@@ -907,12 +875,12 @@ QVariant MessageEventModel::data(const QModelIndex& idx, int role) const
                            : EventGrouping::KeepPreviousGroup;
         }
         return EventGrouping::ShowDateAndAuthor; // No events before
-    }
 
-    if (role == RefRole)
+    case RefRole:
         return switchOnType(
             evt, [](const RoomCreateEvent& e) { return e.predecessor().roomId; },
             [](const RoomTombstoneEvent& e) { return e.successorRoomId(); });
+    } // switch(role)
 
     return {};
 }
