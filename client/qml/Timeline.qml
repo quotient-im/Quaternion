@@ -530,7 +530,8 @@ Page {
             anchors.horizontalCenter: shuttleDial.horizontalCenter
             height: width * 1.618
             radius: width
-            color: scrollerArea.containsMouse ? palette.highlight : palette.button
+            color: palette.button
+            border.color: scrollerArea.containsMouse ? palette.highlight : palette.button
         }
 
         opacity: scrollerArea.containsMouse ? 1 : 0.7
