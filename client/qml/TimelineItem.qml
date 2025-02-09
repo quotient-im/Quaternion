@@ -337,11 +337,14 @@ Item {
                            : "")
                           + (repliedTo
                              ? "<table style='background-color:"
-                               + messageModel.fadedBackColor(memberColor(repliedTo.sender), 0.06)
-                               + "'><tr><td></td><td>" + inlineAuthorLabel(repliedTo.sender)
-                               + "</td></tr><tr><td><a href='" + repliedTo.eventId
-                               + "'><img src='qrc:///scrollup.svg' height=" + settings.fontHeight
-                               + "/></a></td><td>" + repliedTo.content + "</td></tr></table>"
+                               + messageModel.fadedBackColor(memberColor(repliedTo.sender), 0.07)
+                               + "'><tr><td></td><td style='padding: 2px; padding-bottom: 0px'>"
+                                 + inlineAuthorLabel(repliedTo.sender)
+                               + "</td></tr><tr><td style='padding: 2px; padding-top: 0px'><a href='"
+                                 + repliedTo.eventId
+                                 + "'><img src='qrc:///scrollup.svg' height=" + settings.fontHeight
+                               + "/></a></td><td style='padding: 2px; padding-top: 0px'>"
+                                 + repliedTo.content + "</td></tr></table>"
                              : "")
                           + (actionEvent ? "<em>" : "")
                           + display

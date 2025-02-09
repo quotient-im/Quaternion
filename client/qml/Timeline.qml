@@ -406,10 +406,10 @@ Page {
             anchors.left: parent.left
             width: readMarkerLine.width
             z: -1
-            opacity: 0.1
+            opacity: 0.05
 
             radius: readMarkerLine.height
-            color: messageModel.fadedBackColor(chatView.readMarkerColor)
+            color: chatView.readMarkerColor
         }
         Rectangle {
             id: readMarkerLine

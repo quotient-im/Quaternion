@@ -453,11 +453,9 @@ inline QColor fadedTextColor(QColor unfadedColor, qreal fadeRatio = 0.5)
                      unfadedColor, fadeRatio);
 }
 
-QColor MessageEventModel::fadedBackColor(QColor unfadedColor,
-                                         qreal fadeRatio) const
+QColor MessageEventModel::fadedBackColor(QColor unfadedColor, qreal fadeRatio) const
 {
-    return mixColors(QPalette().color(QPalette::Disabled, QPalette::Base),
-                     unfadedColor, fadeRatio);
+    return mixColors(QPalette().color(QPalette::Disabled, QPalette::Base), unfadedColor, fadeRatio);
 }
 
 QString MessageEventModel::visualiseEvent(const Quotient::RoomEvent& evt, bool abbreviate) const
