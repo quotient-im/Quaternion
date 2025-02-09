@@ -576,10 +576,10 @@ Page {
 
     MouseArea {
         id: scrollerArea
-        anchors.top: chatView.top
-        anchors.bottom: chatView.bottom
+        anchors.verticalCenter: chatView.verticalCenter
         anchors.right: parent.right
         width: (settings.use_shuttle_dial ? shuttleDial : chatView.ScrollBar.vertical).width
+        height: (settings.use_shuttle_dial ? shuttleDial : chatView).height
         acceptedButtons: Qt.NoButton
 
         hoverEnabled: true
@@ -630,16 +630,20 @@ Page {
         }
     }
 
-    component ScrollToButton:  RoundButton {
-        anchors.right: scrollerArea.left
-        anchors.rightMargin: 2
+    component ScrollToButton: Button {
+        id: control
+        anchors.right: scrollerArea.right
         height: settings.fontHeight * 2
-        width: height
+        width: scrollerArea.width
         hoverEnabled: true
         opacity: visible * (0.7 + hovered * 0.2)
 
         display: Button.IconOnly
-        icon.color: palette.buttonText
+        icon {
+            width: control.availableWidth
+            height: control.availableHeight
+            color: palette.buttonText
+        }
 
         AnimationBehavior on opacity {
             NormalNumberAnimation {
@@ -656,8 +660,8 @@ Page {
     ScrollToButton {
         id: scrollToBottomButton
 
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: visible ? 0.5 * height : -height
+        anchors.bottom: chatView.bottom
+        anchors.bottomMargin: visible ? 0 : -height
 
         visible: !chatView.atYEnd
 
@@ -675,8 +679,8 @@ Page {
     ScrollToButton {
         id: scrollToReadMarkerButton
 
-        anchors.bottom: scrollToBottomButton.top
-        anchors.bottomMargin: visible ? 0.5 * height : -3 * height
+        anchors.top: parent.top
+        anchors.topMargin: visible ? 0.5 * height : -height
 
         visible: chatView.count > 1 &&
                  messageModel.readMarkerVisualIndex > 0 &&
