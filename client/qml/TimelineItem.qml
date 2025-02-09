@@ -340,7 +340,7 @@ Item {
                                + messageModel.fadedBackColor(memberColor(repliedTo.sender), 0.07)
                                + "'><tr><td></td><td style='padding: 2px; padding-bottom: 0px'>"
                                  + inlineAuthorLabel(repliedTo.sender)
-                               + "</td></tr><tr><td style='padding: 2px; padding-top: 0px'><a href='"
+                               + "</td></tr><tr><td style='padding: 2px; padding-top: 0px; padding-right: 0px'><a href='"
                                  + repliedTo.eventId
                                  + "'><img src='qrc:///scrollup.svg' height=" + settings.fontHeight
                                + "/></a></td><td style='padding: 2px; padding-top: 0px'>"
