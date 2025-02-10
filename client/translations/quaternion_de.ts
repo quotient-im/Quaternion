@@ -278,6 +278,10 @@ Einstellungen</translation>
         <source>Please fill the fields as desired. None are mandatory</source>
         <translation>Bitte füllen Sie die Felder wie gewünscht aus. Alle sind optional.</translation>
     </message>
+    <message>
+        <source>Remove</source>
+        <translation>Entfernen</translation>
+    </message>
 </context>
 <context>
     <name>Dialog</name>
@@ -1303,6 +1307,14 @@ Matrix URI oder matrix.to Link</translation>
     <message>
         <source>Rooms (%L1)</source>
         <translation>Räume (%L1)</translation>
+    </message>
+    <message>
+        <source>Forget this room?</source>
+        <translation>Diesen Raum vergessen?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to forget room %1?</source>
+        <translation>Sind Sie sicher, dass Sie den Raum %1 vergessen möchten?</translation>
     </message>
 </context>
 <context>

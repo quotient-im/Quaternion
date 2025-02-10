@@ -282,6 +282,10 @@ settings</source>
         <source>Please fill the fields as desired. None are mandatory</source>
         <translation>Пожалуйста, заполните поля по желанию. Обязательных полей нет.</translation>
     </message>
+    <message>
+        <source>Remove</source>
+        <translation>Убрать</translation>
+    </message>
 </context>
 <context>
     <name>Dialog</name>
@@ -1310,6 +1314,14 @@ Matrix URI или ссылка на сервис matrix.to</translation>
     <message>
         <source>Rooms (%L1)</source>
         <translation>Комнаты (%L1)</translation>
+    </message>
+    <message>
+        <source>Forget this room?</source>
+        <translation>Забыть эту комнату?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to forget room %1?</source>
+        <translation>Вы уверены, что хотите забыть комнату %1?</translation>
     </message>
 </context>
 <context>
