@@ -243,34 +243,34 @@
 <context>
     <name>CreateRoomDialog</name>
     <message>
-        <location filename="../roomdialogs.cpp" line="340"/>
+        <location filename="../roomdialogs.cpp" line="344"/>
         <source>Create room</source>
         <translation>Create room</translation>
     </message>
     <message>
-        <location filename="../roomdialogs.cpp" line="346"/>
+        <location filename="../roomdialogs.cpp" line="350"/>
         <source>Add</source>
         <comment>Add a user to the list of invitees</comment>
         <translation>Add</translation>
     </message>
     <message>
-        <location filename="../roomdialogs.cpp" line="361"/>
+        <location filename="../roomdialogs.cpp" line="352"/>
         <source>Remove</source>
         <comment>Remove a user from the list of invitees</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../roomdialogs.cpp" line="357"/>
+        <location filename="../roomdialogs.cpp" line="363"/>
         <source>Please fill the fields as desired. None are mandatory</source>
         <translation>Please fill the fields as desired. None are mandatory</translation>
     </message>
     <message>
-        <location filename="../roomdialogs.cpp" line="393"/>
+        <location filename="../roomdialogs.cpp" line="413"/>
         <source>Invite user(s)</source>
         <translation>Invite user(s)</translation>
     </message>
     <message>
-        <location filename="../roomdialogs.cpp" line="396"/>
+        <location filename="../roomdialogs.cpp" line="416"/>
         <source>Creating the room, please wait</source>
         <translation>Creating the room, please wait</translation>
     </message>
