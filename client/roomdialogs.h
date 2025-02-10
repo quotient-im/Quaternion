@@ -96,7 +96,8 @@ class CreateRoomDialog : public RoomDialogBase
         AccountSelector* accountChooser;
         QComboBox* version;
         QComboBox* nextInvitee;
-        QPushButton* inviteButton;
+        QPushButton* addToInviteesButton;
+        QPushButton* removeFromInviteesButton;
         QListWidget* invitees;
 
         QHash<Connection*, QStandardItemModel*> userLists;

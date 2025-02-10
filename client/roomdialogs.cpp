@@ -327,11 +327,15 @@ class InviteeList : public QListWidget
         {
             if (event->key() ==  Qt::Key_Delete)
                 delete takeItem(currentRow());
+            else
+                QListWidget::keyPressEvent(event);
         }
         void mousePressEvent(QMouseEvent* event) override
         {
             if (event->button() == Qt::MiddleButton)
                 delete takeItem(currentRow());
+            else
+                QListWidget::mousePressEvent(event);
         }
 };
 
@@ -342,9 +346,11 @@ CreateRoomDialog::CreateRoomDialog(Quotient::AccountRegistry* accounts,
     , accountChooser(new AccountSelector(accounts))
     , version(nullptr) // Will be initialized below
     , nextInvitee(new NextInvitee)
-    , inviteButton(
+    , addToInviteesButton(
           new QPushButton(tr("Add", "Add a user to the list of invitees")))
-    , invitees(new QListWidget)
+    , removeFromInviteesButton(
+          new QPushButton(tr("Remove", "Remove a user from the list of invitees")))
+    , invitees(new InviteeList)
 {
     Q_ASSERT(!accounts->empty());
 
@@ -366,9 +372,10 @@ CreateRoomDialog::CreateRoomDialog(Quotient::AccountRegistry* accounts,
     nextInvitee->setCompleter(completer);
     connect(nextInvitee, &NextInvitee::currentTextChanged,
             this, &CreateRoomDialog::updatePushButtons);
-    inviteButton->setFocusPolicy(Qt::NoFocus);
-    inviteButton->setDisabled(true);
-    connect(inviteButton, &QPushButton::clicked, [this] {
+    // Add button initialization
+    addToInviteesButton->setFocusPolicy(Qt::NoFocus);
+    addToInviteesButton->setDisabled(true);
+    connect(addToInviteesButton, &QPushButton::clicked, [this] {
         auto userName = nextInvitee->currentText();
         if (userName.indexOf('@') == -1)
         {
@@ -379,6 +386,18 @@ CreateRoomDialog::CreateRoomDialog(Quotient::AccountRegistry* accounts,
         invitees->addItem(userName);
         nextInvitee->clear();
     });
+
+    // Remove button initialization
+    removeFromInviteesButton->setFocusPolicy(Qt::NoFocus);
+    removeFromInviteesButton->setDisabled(true);
+    connect(removeFromInviteesButton, &QPushButton::clicked, [this] {
+        if (invitees->currentItem() == nullptr)
+            return;
+        delete invitees->takeItem(invitees->currentRow());
+    });
+    connect(invitees, &InviteeList::currentItemChanged, this,
+            &CreateRoomDialog::updatePushButtons);
+
     invitees->setSizeAdjustPolicy(
                 QAbstractScrollArea::AdjustToContentsOnFirstShow);
     invitees->setUniformItemSizes(true);
@@ -388,7 +407,8 @@ CreateRoomDialog::CreateRoomDialog(Quotient::AccountRegistry* accounts,
 
     auto* inviteLayout = new QHBoxLayout;
     inviteLayout->addWidget(nextInvitee);
-    inviteLayout->addWidget(inviteButton);
+    inviteLayout->addWidget(addToInviteesButton);
+    inviteLayout->addWidget(removeFromInviteesButton);
 
     mainFormLayout->addRow(tr("Invite user(s)"), inviteLayout);
     mainFormLayout->addRow("", invitees);
@@ -403,9 +423,10 @@ CreateRoomDialog::CreateRoomDialog(Quotient::AccountRegistry* accounts,
 
 void CreateRoomDialog::updatePushButtons()
 {
-    inviteButton->setEnabled(!nextInvitee->currentText().isEmpty());
-    if (inviteButton->isEnabled() && nextInvitee->hasFocus())
-        inviteButton->setDefault(true);
+    addToInviteesButton->setEnabled(!nextInvitee->currentText().isEmpty());
+    removeFromInviteesButton->setEnabled(invitees->currentItem() != nullptr);
+    if (addToInviteesButton->isEnabled() && nextInvitee->hasFocus())
+        addToInviteesButton->setDefault(true);
     else
         buttonBox()->button(QDialogButtonBox::Ok)->setDefault(true);
 }

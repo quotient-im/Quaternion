@@ -254,6 +254,12 @@
         <translation>Add</translation>
     </message>
     <message>
+        <location filename="../roomdialogs.cpp" line="361"/>
+        <source>Remove</source>
+        <comment>Remove a user from the list of invitees</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../roomdialogs.cpp" line="357"/>
         <source>Please fill the fields as desired. None are mandatory</source>
         <translation>Please fill the fields as desired. None are mandatory</translation>
