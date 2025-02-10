@@ -666,7 +666,7 @@ User-defined tags should start with &quot;u.&quot;</translation>
     <message>
         <location filename="../mainwindow.cpp" line="1091"/>
         <source>Can&apos;t find the event without knowing the room</source>
-        <translation type="unfinished"></translation>
+        <translation>Can&apos;t find the event without knowing the room</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="326"/>
@@ -1086,7 +1086,7 @@ Is that right?</translation>
     <message>
         <location filename="../mainwindow.cpp" line="1092"/>
         <source>You have to be in a room that holds this event to open %1</source>
-        <translation type="unfinished"></translation>
+        <translation>You have to be in a room that holds this event to open %1</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1108"/>
@@ -1454,7 +1454,7 @@ or alias (starting with #)</translation>
         <location filename="../models/messageeventmodel.cpp" line="732"/>
         <source>(loading)</source>
         <extracomment>The line to show instead of the replied-to event content while getting it from the homeserver</extracomment>
-        <translation type="unfinished">(loading)</translation>
+        <translation>(loading)</translation>
     </message>
     <message numerus="yes">
         <location filename="../models/messageeventmodel.cpp" line="845"/>
