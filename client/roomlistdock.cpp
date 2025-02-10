@@ -200,7 +200,7 @@ RoomListDock::RoomListDock(MainWindow* parent)
                     this, tr("Forget this room?"),
                     tr("Are you sure you want to forget room %1?").arg(room->displayName()));
                 if (confirmation == QMessageBox::Yes) {
-                    if (QUO_CHECK(room->connection())
+                    if (QUO_CHECK(room->connection()))
                         room->connection()->forgetRoom(room->id());
                 }
             }
