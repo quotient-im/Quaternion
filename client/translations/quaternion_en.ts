@@ -257,7 +257,7 @@
         <location filename="../roomdialogs.cpp" line="352"/>
         <source>Remove</source>
         <comment>Remove a user from the list of invitees</comment>
-        <translation type="unfinished"></translation>
+        <translation>Remove</translation>
     </message>
     <message>
         <location filename="../roomdialogs.cpp" line="363"/>
@@ -1702,12 +1702,12 @@ or alias (starting with #)</translation>
     <message>
         <location filename="../roomlistdock.cpp" line="200"/>
         <source>Forget this room?</source>
-        <translation type="unfinished"></translation>
+        <translation>Forget this room?</translation>
     </message>
     <message>
         <location filename="../roomlistdock.cpp" line="201"/>
         <source>Are you sure you want to forget room %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>Are you sure you want to forget room %1?</translation>
     </message>
     <message>
         <location filename="../roomlistdock.cpp" line="212"/>
