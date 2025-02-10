@@ -46,7 +46,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-22.04, macos-latest, windows-latest ]
+        os: [ ubuntu-24.04, macos-latest, windows-latest ]
         qt-version: [ 6 ]
         override-compiler: [ '', GCC ] # Defaults: MSVC on Windows, Clang elsewhere
         composition: [ own-quotient, static, dynamic ]
@@ -61,21 +61,18 @@ jobs:
         - os: macos-latest
           override-compiler: GCC
         include:
-        - os: ubuntu-22.04
-          qt-version: 5
+        - os: ubuntu-24.04
           composition: own-quotient
           check: appstream # Use one of faster paths for validation
-        - os: ubuntu-22.04
-          qt-version: 5
-          composition: static
-        - os: ubuntu-22.04
-          qt-version: 5        # Use one variation with external libQuotient
-          composition: dynamic # to do CodeQL analysis (libQuotient is analysed
-          check: codeql        # in its own repo)
+        - os: ubuntu-24.04
+          # Use the variation with external libQuotient to do CodeQL analysis
+          # (libQuotient is analysed in its own repo)
+          composition: dynamic
+          check: codeql
 
     env:
-      QTKEYCHAIN_REF: v0.13.2
-      QUOTIENT_REF: dev
+      QTKEYCHAIN_REF: 0.14.3
+      QUOTIENT_REF: 0.9.x
       VERSION: ${{ needs.Prepare.outputs.version }}
 
     steps:
@@ -87,24 +84,20 @@ jobs:
       if: "!startsWith(matrix.os, 'ubuntu')"
       uses: jurplel/install-qt-action@v3.0.0
       with:
-        version: "6.6" # "${{ startsWith(matrix.os, 'windows') && '6.5' || '6.4' }}" # CI doesn't use Qt 5 on non-Linux any more
+        version: "6.6"
         cache: true
         cache-key-prefix: Qt
         modules: 'qtmultimedia'
         tools: "tools_ninja${{ startsWith(matrix.os, 'windows') && ' tools_opensslv3_x64' || '' }}"
 
-    # Install on Linux via apt to get Qt built with OpenSSL 3
+    # Install on Linux via apt to test against Qt coming from the package manager
     - name: Install dependencies (Linux)
       if: startsWith(matrix.os, 'ubuntu')
       run: |
-        COMMON_PKGS="libolm-dev ninja-build"
-        COMMON_PKGS="$COMMON_PKGS clang-15" # Workaround for https://github.com/actions/runner-images/issues/8659
-        sudo apt-get -qq update
-        sudo apt-get -qq install $COMMON_PKGS \
-            ${{ matrix.qt-version == 5
-                && 'qtdeclarative5-dev qttools5-dev qml-module-qtquick-controls2 qtquickcontrols2-5-dev qtmultimedia5-dev qt5keychain-dev'
-                || 'libgl1-mesa-dev qt6-declarative-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools qml6-module-qtquick-controls qt6-multimedia-dev qtkeychain-qt6-dev'
-            }}
+        sudo apt-get -q update
+        sudo apt-get -qq install libolm-dev ninja-build \
+            qt6-declarative-dev qt6-base-private-dev qt6-tools-dev qt6-tools-dev-tools \
+            qt6-l10n-tools qml6-module-qtquick-controls qt6-multimedia-dev qtkeychain-qt6-dev
 
     - name: Setup environment
       run: |
@@ -112,17 +105,15 @@ jobs:
             echo "CC=gcc" >>$GITHUB_ENV
             echo "CXX=g++" >>$GITHUB_ENV
         elif [[ '${{ runner.os }}' == 'Linux' ]]; then
-            # Workaround for https://github.com/actions/runner-images/issues/8659
-            echo "CC=clang-15" >>$GITHUB_ENV
-            echo "CXX=clang++-15" >>$GITHUB_ENV
+            echo "CC=clang" >>$GITHUB_ENV
+            echo "CXX=clang++" >>$GITHUB_ENV
         fi
         echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
               ${{ runner.os != 'Linux' && '-DCMAKE_MAKE_PROGRAM=$IQTA_TOOLS/Ninja/ninja' || '' }} \
               -DCMAKE_PREFIX_PATH=~/.local \
               ${{ runner.os == 'macOS' && '-DOPENSSL_ROOT_DIR=`brew --prefix openssl`' ||
                   runner.os == 'Windows' && '-DOPENSSL_ROOT_DIR=$IQTA_TOOLS/OpenSSLv3/Win_x64/' || '' }} \
-              -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }} \
-              -DBUILD_WITH_QT6=${{ matrix.qt-version == 6 }}" \
+              -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }}" \
             >>$GITHUB_ENV
 
     - name: Setup MSVC environment
@@ -136,7 +127,7 @@ jobs:
       run: |
         git clone --depth=1 -b $QTKEYCHAIN_REF https://github.com/frankosterfeld/qtkeychain
         cd qtkeychain
-        cmake -S . -B build $CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=~/.local
+        cmake -S . -B build $CMAKE_ARGS -DBUILD_WITH_QT6=ON -DCMAKE_INSTALL_PREFIX=~/.local
         cmake --build build --target install
         if [[ '${{ matrix.composition }}' == 'dynamic' ]]; then
             QTKEYCHAIN_SO_PATH=$(dirname $(find ~/.local/lib* -name 'libqt?keychain.so'))
@@ -211,7 +202,7 @@ jobs:
         fi
 
     - name: Make a package
-      if: matrix.composition == 'own-quotient' && matrix.qt-version == 6 && matrix.override-compiler == ''
+      if: matrix.composition == 'own-quotient' && matrix.override-compiler == ''
       id: package
       env:
         DEPLOY_VERBOSITY: 1

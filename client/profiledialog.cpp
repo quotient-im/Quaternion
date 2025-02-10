@@ -30,6 +30,18 @@
 #include <QtCore/QStandardPaths>
 
 using Quotient::BaseJob, Quotient::User, Quotient::Room;
+using namespace Qt::StringLiterals;
+
+namespace {
+// TODO: move to libQuotient
+//! Like std::clamp but admits a different (usually larger) type for the value
+template <typename T>
+inline constexpr T clamp(const auto& v, const T& lo = std::numeric_limits<T>::min(),
+                         const T& hi = std::numeric_limits<T>::max())
+{
+    return v < lo ? lo : hi < v ? hi : static_cast<T>(v);
+}
+}
 
 class TimestampTableItem : public QTableWidgetItem {
 public:
@@ -51,8 +63,7 @@ public:
     {
         return other.type() != UserType
                    ? QTableWidgetItem::operator<(other)
-                   : data(Qt::UserRole).value<QDateTime>()
-                         < other.data(Qt::UserRole).value<QDateTime>();
+                   : data(Qt::UserRole).toDateTime() < other.data(Qt::UserRole).toDateTime();
     }
 };
 
@@ -66,7 +77,8 @@ public:
         DeviceName,
         DeviceId,
         LastTimeSeen,
-        LastIpAddr
+        LastIpAddr,
+        ColumnsCount // Only for size validation; do not use for real columns!
     };
     DeviceTable();
     ~DeviceTable() override = default;
@@ -80,20 +92,20 @@ public:
         Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled
         | Qt::ItemFlag((ColumnN == DeviceName) & Qt::ItemIsEditable);
 
-    using QTableWidget::setItem;
-    template <Columns ColumnN, typename DataT>
-        requires std::is_constructible_v<ItemType<ColumnN>, DataT>
-    void setItem(int row, const DataT& data)
+    template <Columns ColumnN, typename... DataT>
+        requires std::is_constructible_v<ItemType<ColumnN>, DataT...>
+    auto emplaceItem(auto row, const DataT&... data)
     {
-        auto* item = new ItemType<ColumnN>(data);
+        auto* item = new ItemType<ColumnN>(data...);
         item->setFlags(itemFlags<ColumnN>);
-        setItem(row, ColumnN, item);
+        QTableWidget::setItem(clamp<int>(row, 0), ColumnN, item);
+        return item;
     }
 
-    void markupRow(int row, void (QFont::*fontFn)(bool),
-                   const QString& rowToolTip, bool flagValue = true);
+    void markupRow(int row, void (QFont::*fontFn)(bool), const QString& rowToolTip = {},
+                   bool flagValue = true);
 
-    void markCurrentRow(int row) {
+    void markCurrentDevice(int row) {
         markupRow(row, &QFont::setBold, tr("This is the current device"));
     }
 
@@ -103,13 +115,14 @@ public:
 
 ProfileDialog::DeviceTable::DeviceTable()
 {
-    static const QStringList Headers {
-        // Must be synchronised with DeviceTable::Columns
+    // Must be synchronised with DeviceTable::Columns
+    static const QStringList Headers{
         tr("Device display name"), tr("Device ID"),
         tr("Last time seen"), tr("Last IP address")
     };
+    QUO_CHECK(Headers.size() == ColumnsCount);
 
-    setColumnCount(Headers.size());
+    setColumnCount(ColumnsCount);
     setHorizontalHeaderLabels(Headers);
     auto* headerCtl = horizontalHeader();
     headerCtl->setSectionResizeMode(QHeaderView::Interactive);
@@ -126,7 +139,7 @@ ProfileDialog::DeviceTable::DeviceTable()
 
 void updateAvatarButton(Quotient::User* user, QPushButton* btn)
 {
-    const auto img = user->avatar(128);
+    const auto img = user->avatar(128, [] {});
     if (img.isNull()) {
         btn->setText(ProfileDialog::tr("No avatar"));
         btn->setIcon({});
@@ -211,7 +224,7 @@ void ProfileDialog::DeviceTable::markupRow(int row, void (QFont::*fontFn)(bool),
                                            bool flagValue)
 {
     Q_ASSERT(row < rowCount());
-    for (int c = DeviceName; c < columnCount(); ++c)
+    for (int c = 0; c < columnCount(); ++c)
         if (auto* it = item(row, c)) {
             it->setToolTip(rowToolTip);
             auto font = it->font();
@@ -223,32 +236,33 @@ void ProfileDialog::DeviceTable::markupRow(int row, void (QFont::*fontFn)(bool),
 void ProfileDialog::DeviceTable::fillPendingData(const QString& currentDeviceId)
 {
     setRowCount(2);
-    setItem<DeviceId>(0, currentDeviceId);
-    setItem<LastTimeSeen>(0, QDateTime::currentDateTime());
-    markCurrentRow(0);
+    emplaceItem<DeviceId>(0, currentDeviceId);
+    emplaceItem<LastTimeSeen>(0, QDateTime::currentDateTime());
+    markCurrentDevice(0);
     {
-        auto* loadingMsg = new QTableWidgetItem(tr("Loading other devices..."));
-        loadingMsg->setFlags(Qt::NoItemFlags);
-        setItem(1, DeviceName, loadingMsg);
+        emplaceItem<DeviceName>(1, tr("Loading other devices..."))->setFlags(Qt::NoItemFlags);
+        markupRow(1, &QFont::setItalic);
     }
 }
 
 void ProfileDialog::DeviceTable::refresh(const QVector<Quotient::Device>& devices,
                                          const QString& currentDeviceId)
 {
+    if (!std::in_range<int>(devices.size()))
+        qCCritical(MAIN) << "The number of devices on the account is out of bounds, only the first"
+                         << std::numeric_limits<int>::max() << "devices will be shown";
     clearContents();
-    setRowCount(devices.size());
+    setRowCount(clamp<int>(devices.size(), 0));
 
-    for (int i = 0; i < devices.size(); ++i) {
-        auto device = devices[i];
-        setItem<DeviceName>(i, device.displayName);
-        setItem<DeviceId>(i, device.deviceId);
+    for (int i = 0; i < rowCount(); ++i) {
+        const auto& device = devices[i];
+        emplaceItem<DeviceName>(i, device.displayName);
+        emplaceItem<DeviceId>(i, device.deviceId);
         if (device.lastSeenTs)
-            setItem<LastTimeSeen>(i, QDateTime::fromMSecsSinceEpoch(
-                                         *device.lastSeenTs));
-        setItem<LastIpAddr>(i, device.lastSeenIp);
+            emplaceItem<LastTimeSeen>(i, QDateTime::fromMSecsSinceEpoch(*device.lastSeenTs));
+        emplaceItem<LastIpAddr>(i, device.lastSeenIp);
         if (device.deviceId == currentDeviceId)
-            markCurrentRow(i);
+            markCurrentDevice(i);
     }
 
     setSortingEnabled(true);
@@ -273,7 +287,7 @@ void ProfileDialog::load()
     auto* user = m_currentAccount->user();
     updateAvatarButton(user, m_avatar);
     connect(user, &User::defaultAvatarChanged, this,
-            [this] { updateAvatarButton(account()->user(), m_avatar); });
+            [this, user] { updateAvatarButton(user, m_avatar); });
 
     m_displayName->setText(user->name());
     m_displayName->setFocus();

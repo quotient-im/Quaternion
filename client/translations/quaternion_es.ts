@@ -264,6 +264,10 @@ de sala</translation>
         <source>Restoring access, please wait</source>
         <translation>Restaurando el acceso, por favor espere</translation>
     </message>
+    <message>
+        <source>(none)</source>
+        <translation>(ninguno)</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -686,6 +690,10 @@ Matrix URI o enlace matriz.to</translation>
     <message>
         <source>Alexey &quot;Kitsune&quot; Rusakov</source>
         <translation>Alexey &quot;Kitsune&quot; Rusakov</translation>
+    </message>
+    <message>
+        <source>&amp;Member list</source>
+        <translation>&amp;Lista de miembros</translation>
     </message>
 </context>
 <context>
@@ -1223,13 +1231,6 @@ Esta operación no se puede revertir.</translation>
             <numerusform>%Ln destacado</numerusform>
             <numerusform>%Ln destacados</numerusform>
         </translation>
-    </message>
-</context>
-<context>
-    <name>ThumbnailResponse</name>
-    <message>
-        <source>Image request has been cancelled</source>
-        <translation>La solicitud de imagen ha sido cancelada</translation>
     </message>
 </context>
 <context>

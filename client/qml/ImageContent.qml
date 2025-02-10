@@ -26,7 +26,7 @@ Attachment {
             cursorShape: Qt.PointingHandCursor
         }
         ToolTip.visible: imageHoverHandler.hovered
-        ToolTip.text: room.fileSource(eventId)
+        ToolTip.text: room && eventId ? room.fileSource(eventId) : ""
 
         TapHandler {
             acceptedButtons: Qt.LeftButton

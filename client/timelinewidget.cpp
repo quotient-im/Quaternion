@@ -1,51 +1,53 @@
 #include "timelinewidget.h"
 
 #include "chatroomwidget.h"
-#include "models/messageeventmodel.h"
-#include "thumbnailprovider.h"
 #include "logging_categories.h"
+#include "models/messageeventmodel.h"
 
-#include <Quotient/settings.h>
-#include <Quotient/events/roompowerlevelsevent.h>
 #include <Quotient/events/reactionevent.h>
+#include <Quotient/events/roompowerlevelsevent.h>
+
 #include <Quotient/csapi/message_pagination.h>
+
+#include <Quotient/networkaccessmanager.h>
+#include <Quotient/settings.h>
 #include <Quotient/user.h>
 
 #include <QtQml/QQmlContext>
 #include <QtQml/QQmlEngine>
+#include <QtWidgets/QApplication>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMenu>
-#include <QtWidgets/QApplication>
-#include <QtGui/QDesktopServices>
-#include <QtGui/QClipboard>
+
 #include <QtCore/QStringBuilder>
+#include <QtGui/QClipboard>
+#include <QtGui/QDesktopServices>
 
 using Quotient::operator""_ls;
+
+QNetworkAccessManager* TimelineWidget::NamFactory::create(QObject* parent)
+{
+    return new Quotient::NetworkAccessManager(parent);
+}
 
 TimelineWidget::TimelineWidget(ChatRoomWidget* chatRoomWidget)
     : QQuickWidget(chatRoomWidget)
     , m_messageModel(new MessageEventModel(this))
     , indexToMaybeRead(-1)
     , readMarkerOnScreen(false)
-    , roomWidget(chatRoomWidget)
 {
     using namespace Quotient;
     qmlRegisterUncreatableType<QuaternionRoom>(
         "Quotient", 1, 0, "Room",
         "Room objects can only be created by libQuotient");
-    qmlRegisterUncreatableType<User>(
-        "Quotient", 1, 0, "User",
-        "User objects can only be created by libQuotient");
+    qmlRegisterAnonymousType<RoomMember>("Quotient", 1);
     qmlRegisterAnonymousType<GetRoomEventsJob>("Quotient", 1);
     qmlRegisterAnonymousType<MessageEventModel>("Quotient", 1);
-    qRegisterMetaType<GetRoomEventsJob*>("GetRoomEventsJob*");
-    qRegisterMetaType<User*>("User*");
     qmlRegisterType<Settings>("Quotient", 1, 0, "Settings");
 
     setResizeMode(SizeRootObjectToView);
 
-    engine()->addImageProvider("avatar"_ls, makeAvatarProvider(this));
-    engine()->addImageProvider("thumbnail"_ls, makeThumbnailProvider(this));
+    engine()->setNetworkAccessManagerFactory(&namFactory);
 
     auto* ctxt = rootContext();
     ctxt->setContextProperty("messageModel"_ls, m_messageModel);
@@ -70,6 +72,11 @@ QuaternionRoom* TimelineWidget::currentRoom() const
     return m_messageModel->room();
 }
 
+ChatRoomWidget* TimelineWidget::roomWidget() const
+{
+    return static_cast<ChatRoomWidget*>(parent());
+}
+
 void TimelineWidget::setRoom(QuaternionRoom* newRoom)
 {
     if (currentRoom() == newRoom)
@@ -89,9 +96,7 @@ void TimelineWidget::setRoom(QuaternionRoom* newRoom)
         connect(newRoom, &Quotient::Room::fullyReadMarkerMoved, this, [this] {
             const auto rm = currentRoom()->fullyReadMarker();
             readMarkerOnScreen = rm != currentRoom()->historyEdge()
-                                 && std::lower_bound(indicesOnScreen.cbegin(),
-                                                     indicesOnScreen.cend(),
-                                                     rm->index())
+                                 && std::ranges::lower_bound(indicesOnScreen, rm->index())
                                         != indicesOnScreen.cend();
             reStartShownTimer();
             activityDetector.setEnabled(pendingMarkRead());
@@ -100,7 +105,7 @@ void TimelineWidget::setRoom(QuaternionRoom* newRoom)
     }
 }
 
-void TimelineWidget::focusInput() { roomWidget->focusInput(); }
+void TimelineWidget::focusInput() { roomWidget()->focusInput(); }
 
 void TimelineWidget::spotlightEvent(const QString& eventId)
 {
@@ -109,8 +114,8 @@ void TimelineWidget::spotlightEvent(const QString& eventId)
         emit viewPositionRequested(index);
         emit animateMessage(index);
     } else
-        roomWidget->setHudHtml("<font color=red>"
-                               % tr("Referenced message not found") % "</font>");
+        roomWidget()->setHudHtml("<font color=red>" % tr("Referenced message not found")
+                                 % "</font>");
 }
 
 void TimelineWidget::saveFileAs(const QString& eventId)
@@ -154,8 +159,7 @@ void TimelineWidget::onMessageShownChanged(int visualIndex, bool shown,
             maybeReadTimer.stop();
     }
 
-    auto pos = std::lower_bound(indicesOnScreen.begin(), indicesOnScreen.end(),
-                                timelineIndex);
+    const auto pos = std::ranges::lower_bound(indicesOnScreen, timelineIndex);
     if (shown) {
         if (pos == indicesOnScreen.end() || *pos != timelineIndex) {
             indicesOnScreen.insert(pos, timelineIndex);
@@ -179,13 +183,7 @@ void TimelineWidget::showMenu(int index, const QString& hoveredLink,
     auto menu = new QMenu(this);
     menu->setAttribute(Qt::WA_DeleteOnClose);
 
-    const auto* plEvt =
-        currentRoom()->currentState().get<Quotient::RoomPowerLevelsEvent>();
-    const auto localUserId = currentRoom()->localUser()->id();
-    const int userPl = plEvt ? plEvt->powerLevelForUser(localUserId) : 0;
-    const auto* modelUser =
-        modelIndex.data(MessageEventModel::AuthorRole).value<Quotient::User*>();
-    if (!plEvt || userPl >= plEvt->redact() || localUserId == modelUser->id())
+    if (currentRoom()->canRedact(eventId))
         menu->addAction(QIcon::fromTheme("edit-delete"), tr("Redact"), this,
                         [this, eventId] { currentRoom()->redactEvent(eventId); });
 
@@ -208,9 +206,7 @@ void TimelineWidget::showMenu(int index, const QString& hoveredLink,
                     });
     menu->addAction(QIcon::fromTheme("format-text-blockquote"),
                     tr("Quote", "a verb (do quote), not a noun (a quote)"),
-                    [this, modelIndex] {
-                        roomWidget->quote(modelIndex.data().toString());
-                    });
+                    [this, modelIndex] { roomWidget()->quote(modelIndex.data().toString()); });
 
     auto a = menu->addAction(QIcon::fromTheme("view-list-details"),
                              tr("Show details"),
@@ -222,8 +218,7 @@ void TimelineWidget::showMenu(int index, const QString& hoveredLink,
         modelIndex.data(MessageEventModel::EventTypeRole).toString();
     if (eventType == "image" || eventType == "file") {
         const auto progressInfo =
-            modelIndex.data(MessageEventModel::LongOperationRole)
-                .value<Quotient::FileTransferInfo>();
+            modelIndex.data(MessageEventModel::LongOperationRole).value<Quotient::FileTransferInfo>();
         const bool downloaded = !progressInfo.isUpload
                                 && progressInfo.completed();
 
@@ -265,7 +260,7 @@ void TimelineWidget::reactionButtonClicked(const QString& eventId,
     for (const auto& a: annotations)
         if (auto* e = eventCast<const ReactionEvent>(a);
             e != nullptr && e->key() == key
-            && a->senderId() == currentRoom()->localUser()->id()) //
+            && a->senderId() == currentRoom()->localMember().id()) //
         {
             currentRoom()->redactEvent(a->id());
             return;
@@ -281,6 +276,30 @@ void TimelineWidget::setGlobalSelectionBuffer(const QString& text)
 
     m_selectedText = text;
 }
+
+void TimelineWidget::ensureLastReadEvent()
+{
+    auto r = currentRoom();
+    if (!r)
+        return;
+    if (!historyRequest.isCanceled()) { // Second click cancels the request
+        historyRequest.cancel();
+        return;
+    }
+    // Store the future as is, without continuations, so that it could be cancelled
+    historyRequest = r->ensureHistory(r->lastFullyReadEventId());
+    historyRequest
+        .then([this](auto) {
+            qCDebug(TIMELINE,
+                    "Loaded enough history to get the last fully read event, now scrolling");
+            emit viewPositionRequested(
+                m_messageModel->findRow(currentRoom()->lastFullyReadEventId()));
+            emit historyRequestChanged();
+        })
+        .onCanceled([this] { emit historyRequestChanged(); });
+}
+
+bool TimelineWidget::isHistoryRequestRunning() const { return historyRequest.isRunning(); }
 
 void TimelineWidget::reStartShownTimer()
 {

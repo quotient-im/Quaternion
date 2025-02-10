@@ -36,17 +36,20 @@ The source code is [hosted at GitHub](https://github.com/quotient-im/Quaternion)
 
 ### Requirements
 
-Quaternion 0.0.96 needs Qt version 6.2 or higher, with 5.15
-provided as interim for compatibility (6.0, 6.1 are not supported).
+Quaternion 0.0.97 needs Qt version 6.4 or higher.
 
 ### Linux
 Quaternion is packaged for many distributions, including various versions of
 Debian, Ubuntu and OpenSUSE, as well as Arch Linux, NixOS and FreeBSD.
 A pretty comprehensive list can be found at
 [Repology](https://repology.org/project/quaternion/versions). Popular
-distributions satisfying the mentioned Qt requirement are Debian 11 (Bullseye),
-Ubuntu 22.04 (jammy), Fedora 35, OpenSUSE Leap 15.4, anything newer than that
+distributions satisfying the mentioned Qt requirement are Debian 12 (Bookworm),
+Ubuntu 24.04 (noble), Fedora 39, OpenSUSE Leap 15.6; anything newer than that
 should be fine, too.
+
+On top of the Quaternion package, you should not normally need to install anything in addition;
+if something is not working due to a missing dependency, it's a bug in the package - please
+report it to your distribution's Quaternion packager, _not_ to this repository.
 
 There are also flatpaks for Quaternion available from Flathub. To install, use:
 
@@ -59,21 +62,6 @@ any distribution that has Flatpak - even if it's older than mentioned above.
 Please file issues at https://github.com/flathub/com.github.quaternion
 if you believe there's a problem specific to the Flatpak package of Quaternion.
 
-<!-- REMOVE after 0.0.96: AppImages are broken, see #876.
-The GitHub Releases page offers AppImage binaries for Linux; however, it's
-recommended to only use AppImage binaries if Quaternion is not available
-from your distribution's repos and Flatpak doesn't work for you.
-Distribution-specific packages better integrate into the system (particularly,
-the desktop environment) and include all relevant customisations (e.g. themes)
-and fixes (e.g. security). Both Flatpak packages and distribution-specific
-packages are built in a more reproducible and controlled way than AppImages
-assembled within this project; unlike AppImages, they are also (usually) signed
-by the repo which gives certain protection from tampering.
--->
-
-You should not normally need to install anything in addition; if something
-is not working due to a missing dependency, it's a bug - please report it.
-
 ### Windows
 Since there's no established package management on Windows to resolve
 dependencies, all needed libraries and a C++ runtime are packaged/installed
@@ -82,7 +70,8 @@ around (e.g., it is a part of any Qt development installation), you should
 install it yourself.
 [OpenSSL's Wiki](https://wiki.openssl.org/index.php/Binaries) lists a few links
 to OpenSSL installers. They come in different build configurations; current
-Quaternion builds need OpenSSL 3.x made with/for Visual Studio (not MinGW).
+Quaternion builds distributed from GitHub Releases need OpenSSL 3.x made
+with/for Visual Studio (not MinGW).
 
 ### macOS
 If you use Homebrew (you should!), `brew install quaternion` installs Quaternion
@@ -101,7 +90,7 @@ continuous integration (CI) in the
 A few important notes on these packages in case you're new to them:
 - All of them come bundled with fairly recent (not necessarily latest) Qt 6.
 - They are only provided for testing; feedback on _any_ release is welcome
-  as long as you know which build you run; but do not expect the developers
+  as long as you know which build you run, but do not expect the developers
   to address issues in any but the latest snapshot.
 - In case it's still unclear: these builds are UNSTABLE by default; some may
   not run at all, and if they do, they may ~~tell you obscenities in your
@@ -110,13 +99,11 @@ A few important notes on these packages in case you're new to them:
   including Element ones, and generally corrupt your account in ways unexpected
   and hard to fix (all of that actually happened in the past). Do NOT run these
   builds if you're not prepared to deal with the problems.
-- If you understand the above, have your backups in order and are still willing
-  to try things out or just generally help with the project - make sure to
-  `/join #quotient:matrix.org` and have the URL you downloaded Quaternion from
-  handy. In case of trouble, ~~show this label to your doctor~~ send the URL
-  to the binary you used in the chat room (you may need to use another client
-  or Quaternion version for that), describe what happened and we'll try to pull
-  you out of it.
+- If you understand the above, have your backups in order and are still willing to try things out
+  or just generally help with the project - make sure to `/join #quotient:matrix.org` and have
+  the URL you downloaded Quaternion from. In case of trouble, ~~show this label to your doctor~~
+  send the URL to the binary you used in the chat room (you may need to use another client or
+  Quaternion version for that), describe what happened and we'll try to pull you out of it.
 
 If you want to build Quaternion from sources, see [BUILDING.md](./BUILDING.md).
 
@@ -308,17 +295,14 @@ Quaternion uses libQuotient under the hood; some Quaternion problems are
 actually problems of libQuotient. If you haven't found your case below, check
 also the troubleshooting section in libQuotient README.md.
 
-#### No E2EE support
-If you don't see "Enable E2EE (BETA)" box in the login window, it means that
-your Quaternion build does not support E2EE at all. Work with the packager if
-you use a package, or build Quaternion with E2EE support (see
-[BUILDING.md](./BUILDING.md)) to make it possible.
-
-#### Older messages don't get decrypted in E2EE rooms
-Unfortunately, this is a limitation in the current libQuotient code: it doesn't
-request older keys and therefore cannot decrypt older messages. Check
-[issue 608](https://github.com/quotient-im/libQuotient/issues/608) for
-the progress on this.
+#### Some older messages don't get decrypted in E2EE rooms
+Unfortunately, this is a limitation in the libQuotient code. The E2EE backend
+of libQuotient is currently being ported from Olm to matrix-rust-sdk - it is
+anticipated that matrix-rust-sdk will provide all necessary bits and pieces
+to decrypt older messages in a more comprehensive way (aside from being maintained,
+unlike Olm). Subscribe to
+[the respective pull request](https://github.com/quotient-im/libQuotient/pull/820)
+if you want to be updated on the progress of this work.
 
 #### No messages in the timeline
 If Quaternion runs but you can't see any messages in the chat (though you can
@@ -379,7 +363,7 @@ while logging categories for libQuotient always start with `quotient`.
 
 You can use `*` (asterisk) as a wildcard for any part between two dots, and
 a semicolon is used for a separator. Latter statements override former ones, so
-if you want to switch on all debug logs except `timeline.qml` you can set
+if you want Quaternion to log at debug level except, e.g., `timeline.qml`, set
 ```shell script
 QT_LOGGING_RULES="quaternion.*.debug=true;quaternion.timeline.qml.debug=false"
 ```
@@ -394,5 +378,4 @@ follows:
 (the scary `%{if}`s are just encoding the logging level into its initial letter).
 
 ## Screenshot
-![Screenshot1](Screenshot1.png)
-![Screenshot2](Screenshot2.png)
+![Screenshot](Screenshot.png)

@@ -1,27 +1,37 @@
 #pragma once
 
-#include <QtCore/QMetaType> // For Q_NAMESPACE and Q_DECLARE_METATYPE
-#include <QtCore/QString>
+#include <Quotient/util.h>
 
-class QuaternionRoom;
+// #include <QtCore/QMetaType> // For Q_NAMESPACE and Q_DECLARE_METATYPE
+
+namespace Quotient {
+class Room;
+}
 
 namespace HtmlFilter {
 Q_NAMESPACE
 
 enum Option : unsigned char {
     Default = 0x0,
-    /// Treat `<body>` contents as Markdown (toMatrixHtml() only)
+    //! Treat `<body>` contents as Markdown (toMatrixHtml() only)
     ConvertMarkdown = 0x1,
-    /// Treat `<body>` contents as a fragment in a bigger HTML payload
-    /// (suppresses markup processing inside HTML elements and `<mx-reply>`
-    /// conversion - toMatrixHtml() only)
+    //! Treat `<body>` contents as a fragment in a bigger HTML payload
+    //! (suppresses markup processing inside HTML elements and `<mx-reply>`
+    //! conversion - toMatrixHtml() only)
     Fragment = 0x2,
-    /// Stop at tags not allowed in Matrix, instead of ignoring them
-    /// (from*Html() functions only)
-    Validate = 0x4
+    //! Stop at tags not allowed in Matrix, instead of ignoring them
+    //! (from*Html() functions only)
+    Validate = 0x4,
+    //! Remove <mx-reply> elements previously used for reply fallbacks
+    StripMxReply = 0x8
 };
 Q_ENUM_NS(Option)
 Q_DECLARE_FLAGS(Options, Option)
+
+struct Context {
+    Quotient::Room* room;
+    Quotient::EventId eventId{};
+};
 
 /*! \brief Result structure for HTML parsing
  *
@@ -79,8 +89,7 @@ public:
  * \sa
  * https://matrix.org/docs/spec/client_server/latest#m-room-message-msgtypes
  */
-QString toMatrixHtml(const QString& markup, QuaternionRoom* context,
-                     Options options = Default);
+QString toMatrixHtml(const QString& markup, const Context& context, Options options = Default);
 
 /*! \brief Make the received HTML with Matrix attributes compatible with Qt
  *
@@ -95,15 +104,14 @@ QString toMatrixHtml(const QString& markup, QuaternionRoom* context,
  * the failure.
  *
  * \param matrixHtml text in Matrix HTML that should be converted to Qt HTML
- * \param context optional room context to enrich the text
+ * \param context optional room context
  * \param options whether the algorithm should stop at disallowed HTML tags
  *                 rather than ignore them and try to continue
  * \sa Result
  * \sa
  * https://matrix.org/docs/spec/client_server/latest#m-room-message-msgtypes
  */
-Result fromMatrixHtml(const QString& matrixHtml, QuaternionRoom* context,
-                      Options options = Default);
+Result fromMatrixHtml(const QString& matrixHtml, const Context& context, Options options = Default);
 
 /*! \brief Make the received generic HTML compatible with Qt and convertible
  *         to Matrix
@@ -124,7 +132,6 @@ Result fromMatrixHtml(const QString& matrixHtml, QuaternionRoom* context,
  *
  * \sa fromMatrixHtml
  */
-Result fromLocalHtml(const QString& html, QuaternionRoom* context = nullptr,
-                     Options options = Fragment);
+Result fromLocalHtml(const QString& html, const Context& context, Options options = Fragment);
 }
 Q_DECLARE_METATYPE(HtmlFilter::Result)

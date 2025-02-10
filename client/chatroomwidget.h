@@ -9,11 +9,16 @@
 #pragma once
 
 #include "chatedit.h"
+#include "htmlfilter.h"
 
 #include <Quotient/settings.h>
 
 #include <QtCore/QTemporaryFile>
 #include <QtWidgets/QWidget>
+
+namespace Quotient {
+class Connection;
+}
 
 class TimelineWidget;
 class QuaternionRoom;
@@ -22,24 +27,23 @@ class MainWindow;
 class QLabel;
 class QAction;
 
-namespace Quotient {
-class User;
-}
-
 class ChatRoomWidget : public QWidget
 {
         Q_OBJECT
     public:
-        using completions_t = ChatEdit::completions_t;
-
         explicit ChatRoomWidget(MainWindow* parent = nullptr);
         TimelineWidget* timelineWidget() const;
+        QuaternionRoom* currentRoom() const;
 
-        completions_t findCompletionMatches(const QString& pattern) const;
+        // Helpers for m_chatEdit
+
+        ChatEdit::completions_t findCompletionMatches(const QString& pattern) const;
+        QString matrixHtmlFromMime(const QMimeData* data) const;
+        void checkDndEvent(QDropEvent* event) const;
 
     public slots:
         void setRoom(QuaternionRoom* newRoom);
-        void insertMention(Quotient::User* user);
+        void insertMention(const QString &userId);
         void attachImage(const QImage& img, const QList<QUrl>& sources);
         QString attachFile(const QString& localPath);
         void dropFile(const QString& localPath);
@@ -47,10 +51,12 @@ class ChatRoomWidget : public QWidget
         void cancelAttaching();
         void focusInput();
 
-        /// Set a line just above the message input, with optional list of
-        /// member displaynames
+        //! Set a line above the message input, with optional list of member displaynames
         void setHudHtml(const QString& htmlCaption,
                         const QStringList& plainTextNames = {});
+
+        void showStatusMessage(const QString& message, int timeout = 0) const;
+        void showCompletions(QStringList matches, int pos);
 
         void typingChanged();
         void quote(const QString& htmlText);
@@ -69,15 +75,18 @@ class ChatRoomWidget : public QWidget
         Quotient::SettingsGroup m_uiSettings;
 
         MainWindow* mainWindow() const;
-        QuaternionRoom* currentRoom() const;
+        Quotient::Connection* currentConnection() const;
 
         QString sendFile();
         void sendMessage();
+        void sendSelection(int fromPosition, HtmlFilter::Options htmlFilterOptions);
         [[nodiscard]] QString sendCommand(QStringView command,
                                           const QString& argString);
 
         void resizeEvent(QResizeEvent*) override;
         void keyPressEvent(QKeyEvent* event) override;
+        void dragEnterEvent(QDragEnterEvent* event) override;
+        void dropEvent(QDropEvent* event) override;
 
         int maximumChatEditHeight() const;
 };

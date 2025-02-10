@@ -6,64 +6,73 @@
  *                                                                        *
  **************************************************************************/
 
-#include <QtWidgets/QApplication>
-#include <QtCore/QTranslator>
-#include <QtCore/QLibraryInfo>
-#include <QtCore/QCommandLineParser>
-#include <QtCore/QLoggingCategory>
-#include <QtCore/QStandardPaths>
-#include <QtWidgets/QStyleFactory>
-#include <QtQuickControls2/QQuickStyle>
-
-#include "mainwindow.h"
+#include "desktop_integration.h"
 #include "logging_categories.h"
-#include "linuxutils.h"
+#include "mainwindow.h"
 
 #include <Quotient/networksettings.h>
+#include <Quotient/connection.h>
 
-void loadTranslations(
-        std::initializer_list<std::pair<QStringList, QString>> translationConfigs)
+#include <QtQuickControls2/QQuickStyle>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QStyleFactory>
+
+#include <QtCore/QCommandLineParser>
+#include <QtCore/QLibraryInfo>
+#include <QtCore/QStandardPaths>
+#include <QtCore/QTranslator>
+
+using namespace Qt::StringLiterals;
+
+namespace {
+inline void loadTranslations()
 {
-    for (const auto& [configNames, configPath]: translationConfigs)
-        for (const auto& configName: configNames) {
-            auto* translator = new QTranslator(qApp);
-            bool loaded = false;
+// Extract a number from another macro and turn it to a const char[]
+#define ITOA(i) #i
+    static const auto translationConfigs = std::to_array<std::pair<QStringList, QString>>(
+        { { { u"qt"_s, u"qtbase"_s, u"qtnetwork"_s, u"qtdeclarative"_s, u"qtmultimedia"_s,
+              u"qtquickcontrols"_s, u"qtquickcontrols2"_s,
+              // QtKeychain tries to install its translations to Qt's path;
+              // try to look there, just in case (see also below)
+              u"qtkeychain"_s },
+            QLibraryInfo::path(QLibraryInfo::TranslationsPath) },
+          { { u"qtkeychain"_s },
+            QStandardPaths::locate(QStandardPaths::GenericDataLocation,
+                                   u"qt" ITOA(QT_VERSION_MAJOR) "keychain/translations"_s,
+                                   QStandardPaths::LocateDirectory) },
+          { { u"qt"_s, u"qtkeychain"_s, u"quotient"_s, AppName },
+            QStandardPaths::locate(QStandardPaths::AppLocalDataLocation, u"translations"_s,
+                                   QStandardPaths::LocateDirectory) } });
+#undef ITOA
+
+    for (const auto& [configNames, configPath] : translationConfigs)
+        for (const auto& configName : configNames) {
+            auto translator = std::make_unique<QTranslator>();
             // Check the current directory then configPath
-            if (translator->load(QLocale(), configName, "_")
-                || translator->load(QLocale(), configName, "_", configPath)) {
+            if (translator->load(QLocale(), configName, u"_"_s)
+                || translator->load(QLocale(), configName, u"_"_s, configPath)) {
                 auto path = translator->filePath();
-                if ((loaded = QApplication::installTranslator(translator)))
-                    qCDebug(MAIN).noquote()
-                        << "Loaded translations from" << path;
-                else
-                    qCWarning(MAIN).noquote()
-                        << "Failed to load translations from" << path;
+                if (QApplication::installTranslator(translator.get())) {
+                    qCDebug(MAIN).noquote() << "Loaded translations from" << path;
+                    translator.release()->setParent(qApp); // Change pointer ownership
+                } else
+                    qCWarning(MAIN).noquote() << "Failed to load translations from" << path;
             } else
-                qCDebug(MAIN) << "No translations for" << configName << "at"
-                              << configPath;
-            if (!loaded)
-                delete translator;
+                qCDebug(MAIN) << "No translations for" << configName << "at" << configPath;
         }
+}
 }
 
 int main( int argc, char* argv[] )
 {
-#if QT_VERSION_MAJOR < 6
-    QApplication::setAttribute(Qt::AA_DisableWindowContextHelpButton);
-#if defined(Q_OS_LINUX)
-    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-#endif
-#endif
-
-    QApplication::setOrganizationName(QStringLiteral("Quotient"));
-    QApplication::setApplicationName(QStringLiteral("quaternion"));
-    QApplication::setApplicationDisplayName(QStringLiteral("Quaternion"));
-    QApplication::setApplicationVersion(QStringLiteral("0.0.96.1 (+git)"));
-    QApplication::setDesktopFileName(QStringLiteral("com.github.quaternion"));
+    QApplication::setOrganizationName(u"Quotient"_s);
+    QApplication::setApplicationName(AppName);
+    QApplication::setApplicationDisplayName(u"Quaternion"_s);
+    QApplication::setApplicationVersion(u"0.0.97 beta2 (+git)"_s);
+    QApplication::setDesktopFileName(AppId);
 
     using Quotient::Settings;
-    Settings::setLegacyNames(QStringLiteral("QMatrixClient"),
-                             QStringLiteral("quaternion"));
+    Settings::setLegacyNames(u"QMatrixClient"_s, u"quaternion"_s);
     Settings settings;
 
     QApplication app(argc, argv);
@@ -83,11 +92,7 @@ int main( int argc, char* argv[] )
     } else
 #endif
     {
-#if QT_VERSION_MAJOR < 6
-        const auto qqc2styles = QQuickStyle::availableStyles();
-        if (qqc2styles.contains("Fusion"))
-#endif
-            QQuickStyle::setFallbackStyle("Fusion"); // Looks better on desktops
+        QQuickStyle::setFallbackStyle(u"Fusion"_s); // Looks better on desktops
 //        QQuickStyle::setStyle("Material");
     }
 
@@ -105,14 +110,6 @@ int main( int argc, char* argv[] )
         qCInfo(MAIN) << "Using application font:" << font.toString();
         QApplication::setFont(font);
     }
-
-    // We should not need to do the following, as quitOnLastWindowClosed is
-    // set to "true" by default; might be a bug, see
-    // https://forum.qt.io/topic/71112/application-does-not-quit
-    QObject::connect(&app, &QApplication::lastWindowClosed, &app, [&app]{
-        qCDebug(MAIN) << "Last window closed!";
-        QApplication::postEvent(&app, new QEvent(QEvent::Quit));
-    });
 
     QCommandLineParser parser;
     parser.setApplicationDescription(QApplication::translate("main",
@@ -142,28 +139,10 @@ int main( int argc, char* argv[] )
         qCInfo(MAIN) << "Using locale" << QLocale().name();
     }
 
-// Extract a number from another macro and turn it to a const char[]
-#define ITOA(i) #i
-
-    loadTranslations(
-        { { { "qt", "qtbase", "qtnetwork", "qtdeclarative", "qtmultimedia",
-              "qtquickcontrols", "qtquickcontrols2",
-              // QtKeychain tries to install its translations to Qt's path;
-              // try to look there, just in case (see also below)
-              "qtkeychain" },
-            QLibraryInfo::location(QLibraryInfo::TranslationsPath) },
-          { { "qtkeychain" },
-            QStandardPaths::locate(QStandardPaths::GenericDataLocation,
-                                   "qt" ITOA(QT_VERSION_MAJOR) "keychain/translations",
-                                   QStandardPaths::LocateDirectory) },
-          { { "qt", "qtkeychain", "quotient", "quaternion" },
-            QStandardPaths::locate(QStandardPaths::AppLocalDataLocation,
-                                   "translations",
-                                   QStandardPaths::LocateDirectory) } });
-
-#undef ITOA
+    loadTranslations();
 
     Quotient::NetworkSettings().setupApplicationProxy();
+    Quotient::Connection::setEncryptionDefault(true);
 
     MainWindow window;
     if (parser.isSet(hideMainWindow)) {

@@ -145,8 +145,8 @@
         <translation>Aktuell tippen:</translation>
     </message>
     <message>
-        <source>At pos %1: %2</source>
-        <translation>An Position %1: %2</translation>
+        <source>At character %1: %2</source>
+        <translation>Bei Zeichen %1: %2</translation>
     </message>
     <message>
         <source>%L1 more</source>
@@ -159,6 +159,14 @@
     <message>
         <source>Attaching the pasted image</source>
         <translation>Anhängen des eingefügten Bildes</translation>
+    </message>
+    <message>
+        <source>Can&apos;t attach a file without a selected room</source>
+        <translation>Kann keine Datei ohne einen ausgewählten Raum anhängen</translation>
+    </message>
+    <message>
+        <source>Cannot insert HTML - it&apos;s either invalid or unsupported</source>
+        <translation>HTML kann nicht eingefügt werden – es ist entweder ungültig oder wird nicht unterstützt</translation>
     </message>
 </context>
 <context>
@@ -367,10 +375,6 @@ Einstellungen</translation>
     <message>
         <source>Saved device id</source>
         <translation>Gespeicherte Geräte-ID</translation>
-    </message>
-    <message>
-        <source>Enable E2EE (BETA)</source>
-        <translation>E2EE einschalten (BETA)</translation>
     </message>
 </context>
 <context>
@@ -939,6 +943,13 @@ Matrix URI oder matrix.to Link</translation>
         <source>Show a confirmation box before opening non-Matrix links in an external application</source>
         <translation>Zeige ein Bestätigungsfeld vor dem Öffnen von Nicht-Matrix-Links in einer externen Anwendung an</translation>
     </message>
+    <message numerus="yes">
+        <source>Loading %Ln accounts, please wait</source>
+        <translation>
+            <numerusform>%Ln Konto wird geladen, bitte warten</numerusform>
+            <numerusform>%Ln Konten werden geladen, bitte warten</numerusform>
+        </translation>
+    </message>
     <message>
         <source>Account %1 is synchronised, have a good chat</source>
         <translation>Konto %1 ist synchronisiert, viel Spaß beim Chatten</translation>
@@ -961,6 +972,14 @@ Matrix URI oder matrix.to Link</translation>
     <message>
         <source>Dock panels</source>
         <translation>Dock-Paneele</translation>
+    </message>
+    <message>
+        <source>Can&apos;t find the event without knowing the room</source>
+        <translation>Kann das Ereignis nicht finden, ohne den Raum zu kennen</translation>
+    </message>
+    <message>
+        <source>Open the room that has this event to scroll to %1</source>
+        <translation>Öffnen Sie den Raum, in dem sich dieses Ereignis befindet, um zu %1 zu scrollen</translation>
     </message>
 </context>
 <context>
@@ -1132,6 +1151,10 @@ Matrix URI oder matrix.to Link</translation>
         <source>kicked %1 from the room</source>
         <translation>hat %1 aus dem Raum entfernt</translation>
     </message>
+    <message>
+        <source>(loading)</source>
+        <translation>(lädt)</translation>
+    </message>
 </context>
 <context>
     <name>NetworkConfigDialog</name>
@@ -1221,6 +1244,10 @@ Matrix URI oder matrix.to Link</translation>
     <message>
         <source>You are using an UNSTABLE room version (%1). The server may stop supporting it at any moment. Do you still want to use this version?</source>
         <translation>Sie verwenden eine INSTABILE Raumversion (%1). Der Server kann die Unterstützung jederzeit einstellen. Möchten Sie diese Version noch verwenden?</translation>
+    </message>
+    <message>
+        <source>(no available room versions)</source>
+        <translation>(keine verfügbaren Raumversionen)</translation>
     </message>
 </context>
 <context>
@@ -1354,6 +1381,14 @@ Matrix URI oder matrix.to Link</translation>
     <message>
         <source>Events after fully read marker: %L1</source>
         <translation>Ereignisse nach vollständig gelesenem Marker: %L1</translation>
+    </message>
+    <message>
+        <source>Unread events/highlights since read receipt: %L1/%L2</source>
+        <translation>Ungelesene Ereignisse/Hervorhebungen nach vollständig gelesenem Marker: %L1/%L2</translation>
+    </message>
+    <message>
+        <source>Unread events since read receipt: %L1</source>
+        <translation>Ungelesene Ereignisse nach vollständig gelesenem Marker: %L1</translation>
     </message>
     <message>
         <source>Room id: %1</source>
@@ -1576,13 +1611,6 @@ neuem Raum</translation>
     </message>
 </context>
 <context>
-    <name>ThumbnailResponse</name>
-    <message>
-        <source>Image request has been cancelled</source>
-        <translation>Bildanfrage wurde abgebrochen</translation>
-    </message>
-</context>
-<context>
     <name>TimelineWidget</name>
     <message>
         <source>Referenced message not found</source>
@@ -1707,10 +1735,6 @@ neuem Raum</translation>
         <translation>Zurücksetzen der aktuellen Zeichenformatierung auf die Standardeinstellung</translation>
     </message>
     <message>
-        <source>Could not insert HTML - it&apos;s either invalid or unsupported</source>
-        <translation>HTML konnte nicht eingefügt werden – es ist entweder ungültig oder wird nicht unterstützt</translation>
-    </message>
-    <message>
         <source>Paste as rich text</source>
         <translation>Als Rich-Text einfügen</translation>
     </message>
@@ -1744,17 +1768,6 @@ neuem Raum</translation>
     <message>
         <source>The list is shown separately from the main window</source>
         <translation>Die Liste wird getrennt vom Hauptfenster angezeigt</translation>
-    </message>
-</context>
-<context>
-    <name>AbstractThumbnailResponse</name>
-    <message>
-        <source>No connection to perform image request</source>
-        <translation>Keine Verbindung zum Durchführen einer Bildanforderung</translation>
-    </message>
-    <message>
-        <source>Image request is pending</source>
-        <translation>Bildanforderung ist ausstehend</translation>
     </message>
 </context>
 </TS>

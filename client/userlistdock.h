@@ -11,11 +11,6 @@
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QDockWidget>
 
-namespace Quotient
-{
-    class User;
-}
-
 class UserListModel;
 class QuaternionRoom;
 class QTableView;
@@ -30,7 +25,7 @@ class UserListDock: public QDockWidget
         void setRoom( QuaternionRoom* room );
 
     signals:
-        void userMentionRequested(Quotient::User* u);
+        void userMentionRequested(QString userId);
 
     private slots:
         void refreshTitle();
@@ -50,5 +45,5 @@ class UserListDock: public QDockWidget
         UserListModel* m_model;
         QuaternionRoom* m_currentRoom = nullptr;
 
-        Quotient::User* getSelectedUser() const;
+        QString getSelectedUser() const;
 };

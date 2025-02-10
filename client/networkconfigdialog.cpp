@@ -19,13 +19,6 @@
 #include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QGridLayout>
 
-QLabel* makeBuddyLabel(QString labelText, QWidget* field)
-{
-    auto label = new QLabel(labelText);
-    label->setBuddy(field);
-    return label;
-}
-
 NetworkConfigDialog::NetworkConfigDialog(QWidget* parent)
     : Dialog(tr("Network proxy settings"), parent)
     , useProxyBox(new QGroupBox(tr("&Override system defaults"), this))

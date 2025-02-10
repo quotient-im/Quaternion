@@ -8,6 +8,7 @@
 
 #include "roomlistmodel.h"
 
+#include <Quotient/ranges_extras.h>
 #include <Quotient/settings.h>
 
 static const auto Invite = RoomGroup::SystemPrefix + "invite";
@@ -60,26 +61,16 @@ QString captionToTag(const QString& caption)
     // clang-format on
 }
 
-template <typename LT, typename VT>
-inline auto findIndex(const QList<LT>& list, const VT& value)
-{
-    // Using std::find() instead of indexOf() so that not found keys were
-    // naturally sorted after found ones (index == list.end() - list.begin()
-    // is more than any index in the list, while index == -1 is less).
-    return std::find(list.begin(), list.end(), value) - list.begin();
-}
-
 auto findIndexWithWildcards(const QStringList& list, const QString& value)
 {
     if (list.empty() || value.isEmpty())
         return list.size();
 
-    auto i = findIndex(list, value);
+    auto i = Quotient::findIndex(list, value);
     // Try namespace groupings (".*" in the list), from right to left
-    for (int dotPos = 0;
-         i == list.size() && (dotPos = value.lastIndexOf('.', --dotPos)) != -1;)
-    {
-        i = findIndex(list, value.left(dotPos + 1) + '*');
+    for (QStringList::size_type dotPos = 0;
+         i == list.size() && (dotPos = value.lastIndexOf('.', --dotPos)) != -1;) {
+        i = Quotient::findIndex(list, value.left(dotPos + 1) + '*');
     }
     return i;
 }
@@ -97,9 +88,9 @@ QVariant OrderByTag::groupLabel(const RoomGroup& g) const
     return RoomListModel::tr("%1 (%Ln room(s))", "", g.rooms.size()).arg(caption);
 }
 
-bool OrderByTag::groupLessThan(const RoomGroup& g1, const QVariant& g2key) const
+bool OrderByTag::groupLessThan(const QVariant& g1key, const QVariant& g2key) const
 {
-    const auto& lkey = g1.key.toString();
+    const auto& lkey = g1key.toString();
     const auto& rkey = g2key.toString();
     // See above
     auto li = findIndexWithWildcards(tagsOrder, lkey);
@@ -183,7 +174,7 @@ AbstractRoomOrdering::groups_t OrderByTag::roomGroups(const Room* room) const
             return {}; // No remaining groups, hide the room
     }
     groups_t vl; vl.reserve(tags.size());
-    std::copy(tags.cbegin(), tags.cend(), std::back_inserter(vl));
+    std::ranges::copy(tags, std::back_inserter(vl));
     return vl;
 }
 

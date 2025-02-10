@@ -25,20 +25,18 @@
 #include <QtGui/QDesktopServices>
 
 using Quotient::Connection;
+using namespace Qt::StringLiterals;
 
 static const auto MalformedServerUrl =
         LoginDialog::tr("The server URL doesn't look valid");
 
-LoginDialog::LoginDialog(const QString& statusMessage,
-                         Quotient::AccountRegistry* loggedInAccounts,
+LoginDialog::LoginDialog(const QString& statusMessage, Quotient::AccountRegistry* loggedInAccounts,
                          QWidget* parent, const QStringList& knownAccounts)
-    : Dialog(tr("Login"), parent, Dialog::StatusLine, tr("Login"),
-             Dialog::NoExtraButtons)
+    : Dialog(tr("Login"), parent, Dialog::StatusLine, tr("Login"), Dialog::NoExtraButtons)
     , userEdit(new QLineEdit(this))
     , passwordEdit(new QLineEdit(this))
     , initialDeviceName(new QLineEdit(this))
     , deviceId(new QLineEdit(this))
-    , enableEncryption(new QCheckBox(tr("Enable E2EE (BETA)"), this))
     , serverEdit(new QLineEdit(QStringLiteral("https://matrix.org"), this))
     , saveTokenCheck(new QCheckBox(tr("Stay logged in"), this))
     , m_connection(new Connection)
@@ -62,9 +60,11 @@ LoginDialog::LoginDialog(const QString& statusMessage,
                     Quotient::AccountSettings acct{ userId };
                     initialDeviceName->setText(acct.deviceName());
                     deviceId->setText(acct.deviceId());
+                    saveTokenCheck->setChecked(acct.keepLoggedIn());
                 } else {
                     initialDeviceName->clear();
                     deviceId->clear();
+                    saveTokenCheck->setChecked(true);
                 }
                 setStatusMessage(tr("Resolving the homeserver..."));
                 serverEdit->clear();
@@ -84,8 +84,7 @@ LoginDialog::LoginDialog(const QString& statusMessage,
 
     // This button is only shown when BOTH password auth and SSO are available
     // If only one flow is there, the "Login" button text is changed instead
-    auto* ssoButton = buttonBox()->addButton(tr("Login with SSO"),
-                                             QDialogButtonBox::AcceptRole);
+    auto* ssoButton = buttonBox()->addButton(tr("Login with SSO"), QDialogButtonBox::AcceptRole);
     connect(ssoButton, &QPushButton::clicked, this, &LoginDialog::loginWithSso);
     ssoButton->setHidden(true);
     connect(m_connection.get(), &Connection::loginFlowsChanged, this,
@@ -102,43 +101,30 @@ LoginDialog::LoginDialog(const QString& statusMessage,
                                   : QStringLiteral("Login"));
             });
 
-    {
-        // Fill defaults
-        using namespace Quotient;
-        if ( !knownAccounts.empty() )
-        {
-            AccountSettings account { knownAccounts.front() };
-            userEdit->setText(account.userId());
+    // Fill defaults
+    if (!knownAccounts.empty()) {
+        Quotient::AccountSettings account { knownAccounts.front() };
+        userEdit->setText(account.userId());
 
-            auto homeserver = account.homeserver();
-            if (!homeserver.isEmpty())
-                m_connection->setHomeserver(homeserver);
+        auto homeserver = account.homeserver();
+        if (!homeserver.isEmpty())
+            m_connection->setHomeserver(homeserver);
 
-            initialDeviceName->setText(account.deviceName());
-            deviceId->setText(account.deviceId());
-            enableEncryption->setChecked(account.get<bool>(E2eeEnabledSetting));
-            saveTokenCheck->setChecked(account.keepLoggedIn());
-            passwordEdit->setFocus();
-        }
-        else
-        {
-            enableEncryption->setChecked(false);
-            saveTokenCheck->setChecked(false);
-            userEdit->setFocus();
-        }
+        initialDeviceName->setText(account.deviceName());
+        deviceId->setText(account.deviceId());
+        saveTokenCheck->setChecked(account.keepLoggedIn());
+    } else {
+        saveTokenCheck->setChecked(true);
     }
 }
 
 LoginDialog::LoginDialog(const QString& statusMessage,
-                         const Quotient::AccountSettings& reloginAccount,
-                         QWidget* parent)
-    : Dialog(tr("Re-login"), parent, Dialog::StatusLine, tr("Re-login"),
-             Dialog::NoExtraButtons)
+                         const Quotient::AccountSettings& reloginAccount, QWidget* parent)
+    : Dialog(tr("Re-login"), parent, Dialog::StatusLine, tr("Re-login"), Dialog::NoExtraButtons)
     , userEdit(new QLineEdit(reloginAccount.userId(), this))
     , passwordEdit(new QLineEdit(this))
     , initialDeviceName(new QLineEdit(reloginAccount.deviceName(), this))
     , deviceId(new QLineEdit(reloginAccount.deviceId(), this))
-    , enableEncryption(new QCheckBox(tr("Enable E2EE (BETA)"), this))
     , serverEdit(new QLineEdit(reloginAccount.homeserver().toString(), this))
     , saveTokenCheck(new QCheckBox(tr("Stay logged in"), this))
     , m_connection(new Connection)
@@ -148,7 +134,7 @@ LoginDialog::LoginDialog(const QString& statusMessage,
     userEdit->setFrame(false);
     initialDeviceName->setReadOnly(true);
     initialDeviceName->setFrame(false);
-    enableEncryption->setChecked(reloginAccount.get<bool>(E2eeEnabledSetting));
+    saveTokenCheck->setEnabled(reloginAccount.keepLoggedIn());
     setPendingApplyMessage(tr("Restoring access, please wait"));
 }
 
@@ -170,10 +156,11 @@ void LoginDialog::setup(const QString& statusMessage)
     });
     connect(m_connection.get(), &Connection::loginFlowsChanged, this, [this] {
         serverEdit->setText(m_connection->homeserver().toString());
-        setStatusMessage(m_connection->isUsable()
+        setStatusMessage(!m_connection->loginFlows().empty()
                              ? tr("The homeserver is available")
                              : tr("Could not connect to the homeserver"));
-        button(QDialogButtonBox::Ok)->setEnabled(m_connection->isUsable());
+        button(QDialogButtonBox::Ok)->setEnabled(!m_connection->loginFlows().isEmpty());
+        passwordEdit->setEnabled(m_connection->supportsPasswordAuth());
     });
     // This overrides the above in case of an unsuccessful attempt to resolve
     // the server URL from a changed MXID
@@ -187,24 +174,30 @@ void LoginDialog::setup(const QString& statusMessage)
     deviceId->setFrame(false);
     deviceId->setPlaceholderText(tr(
         "(none)", "The device id label text when there's no saved device id"));
-    connect(initialDeviceName, &QLineEdit::textChanged, deviceId,
-            &QLineEdit::clear);
+    connect(initialDeviceName, &QLineEdit::textChanged, deviceId, &QLineEdit::clear);
 
-    m_connection->enableEncryption(enableEncryption->isChecked());
-    connect(enableEncryption, &QCheckBox::stateChanged, m_connection.get(),
-            &Connection::enableEncryption);
-    connect(m_connection.get(), &Connection::connected,
-            this, &Dialog::accept);
-    connect(m_connection.get(), &Connection::loginError,
-            this, &Dialog::applyFailed);
-    auto* formLayout = addLayout<QFormLayout>();
-    formLayout->addRow(tr("Matrix ID"), userEdit);
-    formLayout->addRow(tr("Password"), passwordEdit);
-    formLayout->addRow(tr("Device name"), initialDeviceName);
-    formLayout->addRow(tr("Saved device id"), deviceId);
-    formLayout->addRow(tr("Connect to server"), serverEdit);
-    formLayout->addRow(enableEncryption);
-    formLayout->addRow(saveTokenCheck);
+    connect(m_connection.get(), &Connection::connected, this, &Dialog::accept);
+    connect(m_connection.get(), &Connection::loginError, this, &Dialog::applyFailed);
+
+    // Lay out controls on the dialog
+
+    auto* mainLayout = addLayout<QFormLayout>();
+
+    mainLayout->addRow(tr("Matrix ID"), userEdit);
+    auto* homeserverLayout = new QFormLayout();
+    homeserverLayout->addRow(tr("Connect to server"), serverEdit);
+    mainLayout->addRow({}, homeserverLayout);
+
+    mainLayout->addRow(tr("Device name"), initialDeviceName);
+    auto* deviceIdLayout = new QFormLayout();
+    deviceIdLayout->addRow(tr("Saved device id"), deviceId);
+    mainLayout->addRow({}, deviceIdLayout);
+
+    mainLayout->addRow(tr("Password"), passwordEdit);
+    mainLayout->addRow(saveTokenCheck);
+
+    setTabOrder({ userEdit, initialDeviceName, passwordEdit, saveTokenCheck, serverEdit, deviceId });
+    userEdit->setFocus();
 }
 
 Connection* LoginDialog::releaseConnection()
@@ -234,15 +227,10 @@ void LoginDialog::apply()
     else if (!url.isValid())
         applyFailed(MalformedServerUrl);
     else {
-        m_connection->setHomeserver(url);
-
-        // Wait for new flows and check them
-        connectSingleShot(m_connection.get(), &Connection::loginFlowsChanged,
-                          this, [this] {
-                              qCDebug(MAIN)
-                                  << "Received login flows, trying to login";
-                              loginWithBestFlow();
-                          });
+        m_connection->setHomeserver(url).then([this](auto) {
+            qCDebug(MAIN) << "Received login flows, trying to login";
+            loginWithBestFlow();
+        });
     }
 }
 

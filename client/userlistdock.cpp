@@ -99,7 +99,7 @@ void UserListDock::refreshTitle()
 
 void UserListDock::showContextMenu(QPoint pos)
 {
-    if (!getSelectedUser())
+    if (getSelectedUser().isEmpty())
         return;
 
     auto* contextMenu = new QMenu(this);
@@ -117,7 +117,7 @@ void UserListDock::showContextMenu(QPoint pos)
     const auto* plEvt =
         m_currentRoom->currentState().get<Quotient::RoomPowerLevelsEvent>();
     const int userPl =
-        plEvt ? plEvt->powerLevelForUser(m_currentRoom->localUser()->id()) : 0;
+        plEvt ? plEvt->powerLevelForUser(m_currentRoom->localMember().id()) : 0;
 
     if (!plEvt || userPl >= plEvt->kick()) {
         contextMenu->addAction(QIcon::fromTheme("im-ban-kick-user"),
@@ -134,47 +134,47 @@ void UserListDock::showContextMenu(QPoint pos)
 
 void UserListDock::startChatSelected()
 {
-    if (auto* user = getSelectedUser())
-        user->requestDirectChat();
+    if (auto userId = getSelectedUser(); !userId.isEmpty())
+        m_currentRoom->connection()->requestDirectChat(userId);
 }
 
 void UserListDock::requestUserMention()
 {
-    if (auto* user = getSelectedUser())
-        emit userMentionRequested(user);
+    if (auto userId = getSelectedUser(); !userId.isEmpty())
+        emit userMentionRequested(userId);
 }
 
 void UserListDock::kickUser()
 {
-    if (auto* user = getSelectedUser())
+    if (auto userId = getSelectedUser(); !userId.isEmpty())
     {
         bool ok;
         const auto reason = QInputDialog::getText(this,
-                tr("Kick %1").arg(user->id()), tr("Reason"),
+                tr("Kick %1").arg(userId), tr("Reason"),
                 QLineEdit::Normal, nullptr, &ok);
         if (ok) {
-            m_currentRoom->kickMember(user->id(), reason);
+            m_currentRoom->kickMember(userId, reason);
         }
     }
 }
 
 void UserListDock::banUser()
 {
-    if (auto* user = getSelectedUser())
+    if (auto userId = getSelectedUser(); !userId.isEmpty())
     {
         bool ok;
         const auto reason = QInputDialog::getText(this,
-                tr("Ban %1").arg(user->id()), tr("Reason"),
+                tr("Ban %1").arg(userId), tr("Reason"),
                 QLineEdit::Normal, nullptr, &ok);
         if (ok) {
-            m_currentRoom->ban(user->id(), reason);
+            m_currentRoom->ban(userId, reason);
         }
     }
 }
 
 void UserListDock::ignoreUser()
 {
-    if (auto* user = getSelectedUser()) {
+    if (auto* user = m_currentRoom->connection()->user(getSelectedUser())) {
         if (!user->isIgnored())
             user->ignore();
         else
@@ -184,17 +184,17 @@ void UserListDock::ignoreUser()
 
 bool UserListDock::isIgnored()
 {
-    if (auto* user = getSelectedUser())
-        return user->isIgnored();
+    if (auto memberId = getSelectedUser(); !memberId.isEmpty())
+        return m_currentRoom->connection()->isIgnored(memberId);
     return false;
 }
 
-Quotient::User* UserListDock::getSelectedUser() const
+QString UserListDock::getSelectedUser() const
 {
     auto index = m_view->currentIndex();
     if (!index.isValid())
-        return nullptr;
-    auto* const user = m_model->userAt(index);
-    Q_ASSERT(user);
-    return user;
+        return {};
+    const auto member = m_model->userAt(index);
+    Q_ASSERT(!member.isEmpty());
+    return member.id();
 }

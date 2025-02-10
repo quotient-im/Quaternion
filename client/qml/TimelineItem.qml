@@ -16,12 +16,6 @@ Item {
     readonly property bool pending: marks > EventStatus.Normal
                                     && marks < EventStatus.Redacted
     readonly property bool failed: marks === EventStatus.SendingFailed
-    readonly property string authorName:
-        room && author ? room.safeMemberName(author.id) : ""
-    // FIXME: boilerplate with models/userlistmodel.cpp:115
-    readonly property string authorColor: // contrast but not too heavy
-        Qt.hsla(author ? author.hueF : 0.0, (1-palette.window.hslSaturation),
-                (-0.7*palette.window.hslLightness + 0.9), palette.buttonText.a)
 
     readonly property bool actionEvent: eventType === "state"
                                         || eventType === "emote"
@@ -74,7 +68,12 @@ Item {
         if (bottomEdgeShown)
             bottomEdgeShownChanged()
         readMarkerHereChanged()
-        scrollFinisher.maybeBindScrollTarget(this)
+    }
+
+    // FIXME: boilerplate with models/userlistmodel.cpp:115
+    function memberColor(member) { // contrast but not too heavy
+        return Qt.hsla(member?.hueF ?? 0, (1-palette.window.hslSaturation),
+                (-0.7*palette.window.hslLightness + 0.9), palette.buttonText.a)
     }
 
     property bool showingDetails
@@ -236,34 +235,29 @@ Item {
                 horizontalAlignment: Image.AlignRight
 
                 forMember: author
-                sourceSize: Qt.size(width,
-                                    visible ? settings.minimalTimelineItemHeight
-                                            : 0)
+                sourceSize: Qt.size(width, visible ? settings.minimalTimelineItemHeight : 0)
 
                 AuthorInteractionArea { }
             }
             Label {
                 id: authorLabel
                 visible: settings.timelineStyleIsXChat
-                         || (authorSectionVisible
-                             && (!actionEvent || authorHasAvatar))
+                         || (authorSectionVisible && (!actionEvent || authorHasAvatar))
                 anchors.left: authorAvatar.right
                 anchors.leftMargin: 2
                 anchors.top: authorAvatar.top
-                width: settings.timelineStyleIsXChat
-                       ? 120 - authorAvatar.width
-                       : Math.min(textField.width, implicitWidth)
-                horizontalAlignment:
-                    actionEvent ? Text.AlignRight : Text.AlignLeft
+                width: settings.timelineStyleIsXChat ? 120 - authorAvatar.width
+                                                     : Math.min(textField.width, implicitWidth)
+                horizontalAlignment: actionEvent ? Text.AlignRight : Text.AlignLeft
                 elide: Text.ElideRight
 
-                color: authorColor
+                color: memberColor(author)
                 textFormat: Label.PlainText
                 font.bold: !settings.timelineStyleIsXChat
                 renderType: settings.render_type
 
-                text: (actionEvent && settings.timelineStyleIsXChat ? "* " : "")
-                      + authorName
+                text:
+                    (actionEvent && settings.timelineStyleIsXChat ? "* " : "") + author?.displayName
 
                 AuthorInteractionArea { }
             }
@@ -296,10 +290,9 @@ Item {
                 id: textField
                 height: textFieldImpl.height
                 anchors.top:
-                    !settings.timelineStyleIsXChat && authorLabel.visible
-                    ? authorLabel.bottom : authorLabel.top
-                anchors.left: (settings.timelineStyleIsXChat
-                               ? authorLabel : authorAvatar).right
+                    !settings.timelineStyleIsXChat && authorLabel.visible ? authorLabel.bottom
+                                                                          : authorLabel.top
+                anchors.left: (settings.timelineStyleIsXChat ? authorLabel : authorAvatar).right
                 anchors.leftMargin: 2
                 anchors.right: parent.right
                 anchors.rightMargin: 1
@@ -322,25 +315,40 @@ Item {
                                   .replace(/</g, '&lt;').replace(/>/g, '&gt;')
                     }
 
+                    function inlineAuthorLabel(author) {
+                        return author
+                               ? "<a href='" + author.id + "' style='text-decoration:none;color:"
+                                 + memberColor(author) + ";font-weight:bold'>"
+                                 + author.htmlSafeDisplayName + "</a> "
+                               : ""
+                    }
+
                     selectByMouse: true
                     readOnly: true
                     textFormat: TextEdit.RichText
                     // FIXME: The text is clumsy and slows down creation
                     text: (!settings.timelineStyleIsXChat
-                           ? ("<table style='
-                                float: right; font-size: small;
-                                color:\"" + settings.lowlight_color
-                              + "\"'><tr><td>"
-                              + (time ? toHtmlEscaped(time) : "")
+                           ? ("<table style='float: right; font-size: small; color:\""
+                                + settings.lowlight_color
+                              + "\"'><tr><td>" + (time ? toHtmlEscaped(time) : "")
                               + "</td></tr></table>"
                               + (actionEvent && !authorLabel.visible
-                                 ? ("<a href='" + (author ? author.id : "")
-                                    + "' style='text-decoration:none;color:\""
-                                    + authorColor + "\";font-weight:bold'>"
-                                    + toHtmlEscaped(authorName) + "</a> ")
-                                 : ""))
+                                 ? inlineAuthorLabel(author) : ""))
                            : "")
-                          + (actionEvent ? "<i>" + display + "</i>" : display)
+                          + (repliedTo
+                             ? "<table style='background-color:"
+                               + messageModel.fadedBackColor(memberColor(repliedTo.sender), 0.07)
+                               + "'><tr><td></td><td style='padding: 2px; padding-bottom: 0px'>"
+                                 + inlineAuthorLabel(repliedTo.sender)
+                               + "</td></tr><tr><td style='padding: 2px; padding-top: 0px; padding-right: 0px'><a href='"
+                                 + repliedTo.eventId
+                                 + "'><img src='qrc:///scrollup.svg' height=" + settings.fontHeight
+                               + "/></a></td><td style='padding: 2px; padding-top: 0px'>"
+                                 + repliedTo.content + "</td></tr></table>"
+                             : "")
+                          + (actionEvent ? "<em>" : "")
+                          + display
+                          + (actionEvent ? "</em>" : "")
                           + (marks === EventStatus.Replaced
                              ? "<small style='color:\"" + settings.lowlight_color
                                + "\"'> (" + qsTr("edited") + ")</small>"
@@ -348,6 +356,7 @@ Item {
                     horizontalAlignment: Text.AlignLeft
                     wrapMode: Text.Wrap
                     color: foreground
+                    font: settings.font
                     renderType: settings.render_type
 
                     onHoveredLinkChanged:
@@ -365,8 +374,7 @@ Item {
 
                 TimelineMouseArea {
                     anchors.fill: parent
-                    cursorShape: textFieldImpl.hoveredLink
-                                 ? Qt.PointingHandCursor : Qt.IBeamCursor
+                    cursorShape: textFieldImpl.hoveredLink ? Qt.PointingHandCursor : Qt.IBeamCursor
                     acceptedButtons: Qt.MiddleButton | Qt.RightButton
 
                     onClicked: (mouse) => {
@@ -419,20 +427,17 @@ Item {
                 anchors.right: textField.right
 
                 sourceComponent: ImageContent {
-                    property var info:
-                        !progressInfo.isUpload && !progressInfo.active &&
-                        content.info && content.info.thumbnail_info
-                        ? content.info.thumbnail_info
-                        : content.info
-                    sourceSize: if (info) { Qt.size(info.w, info.h) }
+                    property var info: progressInfo.isUpload || autoload || progressInfo.active
+                                       ? content?.info : content?.info?.thumbnail_info
+                    sourceSize: if (info && info.w && info.h) { Qt.size(info.w, info.h) }
                     source: downloaded || progressInfo.isUpload
                             ? progressInfo.localPath
-                            : progressInfo.failed
-                              ? ""
-                              : content.info && content.info.thumbnail_info
-                                && !autoload
-                                ? "image://thumbnail/" + content.thumbnailMediaId
-                                : ""
+                            : !progressInfo.failed
+                              ? autoload ? room.makeMediaUrl(eventId, content.url)
+                                         : content.info.thumbnail_url
+                                           ? room.makeMediaUrl(eventId, content.info.thumbnail_url)
+                                           : ""
+                              : "" // TODO: show thumbnail or failing that blurhash before loading
                     maxHeight: chatView.height - textField.height -
                                authorLabel.height * !settings.timelineStyleIsXChat
                     autoload: settings.autoload_images
@@ -452,8 +457,7 @@ Item {
 
             Label {
                 id: annotationLabel
-                anchors.top: imageLoader.active ? imageLoader.bottom
-                                                : fileLoader.bottom
+                anchors.top: imageLoader.active ? imageLoader.bottom : fileLoader.bottom
                 anchors.left: textField.left
                 anchors.right: textField.right
                 height: annotation ? implicitHeight : 0
@@ -471,35 +475,38 @@ Item {
                 anchors.right: textField.right
 
                 Repeater {
+                    id: reactionsView
                     model: reactions
                     ToolButton {
                         id: reactionButton
 
                         padding: 3
+                        leftPadding: 4
+                        rightPadding: 4
+
+                        readonly property color fgColor:
+                            modelData.includesLocalUser ? palette.highlightedText
+                                                        : foreground
 
                         contentItem: Text {
                             text: modelData.key + " \u00d7" /* Math "multiply" */
                                   + modelData.authorsCount
                             textFormat: Text.PlainText
                             font.pointSize: settings.font.pointSize - 1
-                            color: modelData.includesLocalUser
-                                       ? palette.highlight
-                                       : palette.buttonText
+                            color: fgColor
                         }
 
                         background: Rectangle {
                             radius: 4
                             color: reactionButton.down ? palette.button
-                                                       : "transparent"
-                            border.color: modelData.includesLocalUser
-                                              ? palette.highlight
-                                              : settings.disabledPalette.buttonText
+                                   : modelData.includesLocalUser ? palette.highlight : "transparent"
+                            border.color: fgColor
                             border.width: 1
                         }
 
                         hoverEnabled: true
                         ToolTip {
-                            visible: hovered
+                            visible: reactionButton.hovered
                             contentItem: Text {
                                 //: %2 is the list of users
                                 text: qsTr("Reaction '%1' from %2")
@@ -592,18 +599,20 @@ Item {
             color: palette.button
             border.color: palette.mid
 
-            readonly property url evtLink:
-                "https://matrix.to/#/" + room.id + "/" + eventId
-            readonly property string sourceText: toolTip
-
             Item {
                 id: detailsHeader
                 width: parent.width
                 height: childrenRect.height
+                readonly property var boldFontInfo: FontMetrics {
+                    font.family: settings.font.family
+                    font.pointSize: settings.font.pointSize
+                    font.bold: true
+                }
+                readonly property var boldFont: boldFontInfo.font
 
                 TextEdit {
                     text: "<" + dateTime.toLocaleString(Qt.locale(), Locale.ShortFormat) + ">"
-                    font.bold: true
+                    font: parent.boldFont
                     renderType: settings.render_type
                     readOnly: true
                     selectByKeyboard: true; selectByMouse: true
@@ -614,10 +623,12 @@ Item {
                     z: 1
                 }
                 TextEdit {
+                    readonly property url evtLink: "https://matrix.to/#/" + room.id + "/" + eventId
+
                     id: eventTitle
                     text: "<a href=\"" + evtLink + "\">"+ eventId + "</a>"
                     textFormat: Text.RichText
-                    font.bold: true
+                    font: parent.boldFont
                     renderType: settings.render_type
                     horizontalAlignment: Text.AlignHCenter
                     readOnly: true
@@ -629,28 +640,19 @@ Item {
 
                     MouseArea {
                         anchors.fill: parent
-                        cursorShape: parent.hoveredLink ?
-                                         Qt.PointingHandCursor :
-                                         Qt.IBeamCursor
+                        cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.IBeamCursor
                         acceptedButtons: Qt.NoButton
                     }
                 }
                 TextEdit {
                     text: eventClassName
                     textFormat: Text.PlainText
-                    font.bold: true
+                    font: parent.boldFont
                     renderType: settings.render_type
 
                     anchors.top: eventTitle.bottom
                     anchors.right: parent.right
                     anchors.rightMargin: 3
-                }
-
-                TextEdit {
-                    id: permalink
-                    text: evtLink
-                    renderType: settings.render_type
-                    width: 0; height: 0; visible: false
                 }
             }
 
@@ -663,6 +665,8 @@ Item {
                 ScrollBar.vertical.policy: ScrollBar.AlwaysOn
 
                 TextEdit {
+                    readonly property string sourceText: toolTip
+
                     text: sourceText
                     textFormat: Text.PlainText
                     readOnly: true;

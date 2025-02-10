@@ -62,33 +62,25 @@ using the old name.)
 ### Pre-requisites
 - a recent Linux, macOS or Windows system (desktop versions tried; mobile
   platforms might work too but never tried)
-  - Recent enough Linux examples: Debian Bookworm; Fedora 36 or CentOS Stream 9;
-    OpenSUSE Leap 15.4; Ubuntu Jammy Jellyfish.
-- Qt 5 (either Open Source or Commercial), version 5.15.x or newer (Qt 6.6
-  recommended as of this writing)
+  - Recent enough Linux examples: Debian Bookworm; Fedora 39 or CentOS Stream 9;
+    OpenSUSE Leap 15.6; Ubuntu 24.04 (noble)
+- Qt 6.4 or newer (either Open Source or Commercial)
 - CMake 3.16 or newer (from your package management system or
   [the official website](https://cmake.org/download/))
-- A C++ toolchain with C++20 support:
-  - GCC 11 (Windows, Linux, macOS), Clang 11 (Linux), Apple Clang 12 (macOS)
-    and Visual Studio 2019 (Windows) are the oldest officially supported.
+- A C++ toolchain with solid C++20 support and elements of C++23:
+  - GCC 13 (Windows, Linux, macOS), Clang 16 (Linux), Apple Clang 15 (macOS)
+    and Visual Studio 2022 (Windows) are the oldest officially supported.
 - Any build system that works with CMake should be fine:
   GNU Make, ninja (any platform), NMake, jom (Windows) are known to work.
-- optionally, libQuotient 0.8.x development files (from your package management
-  system), or prebuilt libQuotient (see "Getting the source code" above);
-  libQuotient 0.7.x is _not_ compatible with Quaternion 0.0.96 beta 2 and later.
+- optionally, development files for libQuotient 0.9.2 or newer (from your package 
+  management system), or prebuilt libQuotient (see "Getting the source code" above);
+  libQuotient 0.8.x is _not_ compatible with any Quaternion 0.0.97 release.
 - libQuotient dependendencies (see lib/README.md):
   - [Qt Keychain](https://github.com/frankosterfeld/qtkeychain)
   - libolm 3.2.5 or newer (the latest 3.x strongly recommended)
   - OpenSSL 3.x (the version Quaternion runs with must be the same as
     the version used to build Quaternion - or libQuotient, if libQuotient is
     built/installed separately).
-
-Note that in case of using externally built (i.e. not in-tree) libQuotient
-you cannot choose whether or not E2EE is enabled; this is defined by your
-libQuotient build configuration. Since 0.8, it is strongly recommended to build
-libQuotient with E2EE switched on, and manage E2EE via the library API (which
-Quaternion already does). If you build libQuotient from within Quaternion build
-process then you're in full control how libQuotient is built.
 
 #### Linux
 Just install things from the list above using your preferred package manager.
@@ -101,18 +93,12 @@ and run but won't show the messages timeline).
 On Debian/Ubuntu, the following line should get you everything necessary
 to build and run Quaternion:
 ```bash
-# With Qt 5
-sudo apt-get install cmake qtdeclarative5-dev qttools5-dev qml-module-qtquick-controls2 qtquickcontrols2-5-dev qtmultimedia5-dev qt5keychain-dev libolm-dev libssl-dev
-# With Qt 6
-sudo apt-get install cmake libgl1-mesa-dev qt6-declarative-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools qml6-module-qtquick-controls qt6-multimedia-dev qtkeychain-qt6-dev libolm-dev libssl-dev
+sudo apt-get install cmake qt6-declarative-dev qt6-base-private-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools qml6-module-qtquick-controls qt6-multimedia-dev qtkeychain-qt6-dev libolm-dev libssl-dev
 ```
 
 On Fedora, the following command should be enough for building and running:
 ```bash
-# With Qt 5
-sudo dnf install cmake qt5-qtdeclarative-devel qt5-qtmultimedia-devel qt5-qtquickcontrols2-devel qt5-linguist qtkeychain-qt5-devel libolm-devel openssl-devel
-# With Qt 6
-sudo dnf install cmake qt6-qtdeclarative-devel qt6-qtmultimedia-devel qt6-qttools-devel qtkeychain-qt6-devel libolm-devel openssl-devel
+sudo dnf install cmake qt6-qtdeclarative-devel qt6-qtbase-private-devel qt6-qtmultimedia-devel qt6-qttools-devel qtkeychain-qt6-devel libolm-devel openssl-devel
 ```
 
 #### macOS
@@ -159,9 +145,6 @@ Noteworthy CMake variables that you can use:
   (see below on installing from sources).
 - `-DUSE_INTREE_LIBQMC=<ON|OFF>` - force using/not-using the in-tree copy of
   libQuotient sources (see "Getting the source code" above).
-- `-DBUILD_WITH_QT6=<ON|OFF>` - selects the target Qt major version. By default
-  it's `ON` (Qt 6 is preferred); set it to `OFF` to build with Qt 5 (which is
-  generally discouraged; Quaternion 0.0.96 is the last release to support it).
 
 ### Install
 In the root directory of the project sources: `cmake --build build_dir --target install`.
@@ -177,7 +160,7 @@ git clone https://github.com/quotient-im/Quaternion.git --recursive
 cd Quaternion/flatpak
 ./setup_runtime.sh
 ./build.sh
-flatpak --user install quaternion-nightly com.github.quaternion
+flatpak --user install quaternion-nightly io.github.quotient_im.Quaternion
 ```
 Whenever you want to update your Quaternion package, do the following from the flatpak directory:
 
@@ -185,6 +168,11 @@ Whenever you want to update your Quaternion package, do the following from the f
 ./build.sh
 flatpak --user update
 ```
+
+Be mindful that since Quaternion 0.0.97 beta the Flatpak app-id has changed: it used to be
+`com.github.quaternion`, now it's `io.github.quotient_im.quaternion`, to align with
+[Flathub verification rules](https://docs.flathub.org/docs/for-app-authors/verification/).
+Normally, Flatpak should seamlessly handle an upgrade; if it doesn't, send us an issue.
 
 ## Troubleshooting
 

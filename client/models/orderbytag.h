@@ -26,8 +26,7 @@ class OrderByTag : public AbstractRoomOrdering
 
         QString orderingName() const override { return QStringLiteral("tag"); }
         QVariant groupLabel(const RoomGroup& g) const override;
-        bool groupLessThan(const RoomGroup& g1,
-                           const QVariant& g2key) const override;
+        bool groupLessThan(const QVariant& g1key, const QVariant& g2key) const override;
         bool roomLessThan(const QVariant& groupKey,
                           const Room* r1, const Room* r2) const override;
         groups_t roomGroups(const Room* room) const override;

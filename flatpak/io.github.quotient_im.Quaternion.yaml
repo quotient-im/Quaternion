@@ -1,15 +1,13 @@
-id: com.github.quaternion
+id: io.github.quotient_im.Quaternion
 rename-icon: quaternion
 runtime: org.kde.Platform
-runtime-version: '6.6'
+runtime-version: '6.8'
 sdk: org.kde.Sdk
 command: quaternion
 finish-args:
 - --share=ipc
 - --share=network
 - --socket=wayland
-#- --env=QT_QPA_PLATFORM=xcb # wayland QPA plugin still has rough edges
-#- --socket=x11
 - --socket=fallback-x11
 - --device=dri
 - --filesystem=xdg-download
@@ -17,49 +15,68 @@ finish-args:
 - --talk-name=org.kde.kwalletd5
 - --talk-name=org.freedesktop.Notifications
 - --talk-name=org.kde.StatusNotifierWatcher
-- --own-name=org.kde.*
+cleanup:
+- /include
+- /lib/pkgconfig
+- /share/man
 modules:
 - name: libolm
   buildsystem: cmake-ninja
+  builddir: true
   sources:
   - type: git
     url: https://gitlab.matrix.org/matrix-org/olm.git
     tag:  '3.2.15'
   config-opts:
   - -DBUILD_SHARED_LIBS=OFF
-  cleanup: [ /include, /lib, /share ]
+  - -DOLM_TESTS=OFF
+  cleanup:
+  - /lib
+  - /share
 
 - name: libsecret
   buildsystem: meson
+  builddir: true
   config-opts:
   - -Dmanpage=false
   - -Dvapi=false
   - -Dgtk_doc=false
   - -Dintrospection=false
-  - -Dprefer_static=true
-  cleanup: [ /bin, /include, /lib/pkgconfig, /share/man ]
+  - -Dcrypto=disabled
+  cleanup:
+  - /bin
   sources:
   - type: git
     url: https://gitlab.gnome.org/GNOME/libsecret.git
-    tag: '0.20.5'
+    tag: '0.21.4'
 
 - name: qtkeychain
   buildsystem: cmake-ninja
+  builddir: true
   sources:
   - type: git
     url: https://github.com/frankosterfeld/qtkeychain.git
-    tag: '0.14.1'
+    tag: '0.14.3'
+  cleanup:
+  - mkspecs
+  - /lib/cmake
   config-opts:
   - -DBUILD_WITH_QT6=ON
-  - -DBUILD_SHARED_LIBS=OFF
+  # When linked statically, Qt Keychain fails to work with all kinds of strange DBus errors
+#  - -DBUILD_SHARED_LIBS=OFF
+  - -DCMAKE_INSTALL_LIBDIR=/app/lib
+  - -DLIB_INSTALL_DIR=/app/lib
   - -DBUILD_TEST_APPLICATION=OFF
 
 - name: quaternion
   buildsystem: cmake-ninja
-  cleanup: [ /include, /lib ]
+  builddir: true
   sources:
   - type: dir
     path: "../"
   config-opts:
-  - -DQuotient_INSTALL_TESTS=OFF
+  - -DBUILD_TESTING=OFF
   - -DBUILD_SHARED_LIBS=OFF
+  cleanup:
+  - /lib
+  - /share/ndk-modules

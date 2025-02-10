@@ -403,7 +403,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
                 && c->room(room->id(), room->joinState()))
                 disambiguatedName =
                     RoomNameTemplate.arg(room->displayName(),
-                                         room->localUser()->id());
+                                         room->localMember().id());
 
     using Quotient::JoinState;
     switch (role)
@@ -483,15 +483,14 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
                 result += //: The number of invited users
                     "<br>" % tr("Invited: %L1").arg(room->invitedCount());
 
-            const auto directChatUsers = room->directChatUsers();
-            if (!directChatUsers.isEmpty()) {
+            const auto directChatMembers = room->directChatMembers();
+            if (!directChatMembers.isEmpty()) {
                 QStringList userNames;
-                userNames.reserve(directChatUsers.size());
-                for (auto* user: directChatUsers)
-                    userNames.push_back(user->displayname(room).toHtmlEscaped());
+                userNames.reserve(directChatMembers.size());
+                for (const auto& m: directChatMembers)
+                    userNames.push_back(m.htmlSafeDisplayName());
                 result += "<br>"
-                          % tr("Direct chat with %1")
-                                .arg(QLocale().createSeparatedList(userNames));
+                          % tr("Direct chat with %1").arg(QLocale().createSeparatedList(userNames));
             }
 
             if (room->usesEncryption())
@@ -531,7 +530,7 @@ QVariant RoomListModel::data(const QModelIndex& index, int role) const
                          : room->joinState() == JoinState::Invite
                              ? tr("You were invited into this room as %1")
                              : tr("You left this room as %1"))
-                        .arg(room->localUser()->id().toHtmlEscaped());
+                        .arg(room->localMember().id().toHtmlEscaped());
             return result;
         }
         case HasUnreadRole:

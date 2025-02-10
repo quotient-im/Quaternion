@@ -27,18 +27,19 @@ class ChatEdit : public KChatEdit
         bool isCompletionActive();
 
         void insertMention(QString author, QUrl url);
+        bool acceptMimeData(const QMimeData* source);
+
+        // NB: the following virtual functions are protected in QTextEdit but
+        //     ChatRoomWidget delegates to them
+
+        bool canInsertFromMimeData(const QMimeData* source) const override;
 
     public slots:
         void switchContext(QObject* contextKey) override;
         void alternatePaste();
 
     signals:
-        void proposedCompletion(const QStringList& allCompletions, int curIndex);
         void cancelledCompletion();
-
-    protected:
-        bool canInsertFromMimeData(const QMimeData* source) const override;
-        void insertFromMimeData(const QMimeData* source) override;
 
     private:
         ChatRoomWidget* chatRoomWidget;
@@ -60,7 +61,9 @@ class ChatEdit : public KChatEdit
                              QUrl mentionUrl, bool select);
         void keyPressEvent(QKeyEvent* event) override;
         void contextMenuEvent(QContextMenuEvent* event) override;
-        bool pastePlaintextByDefault();
+        void insertFromMimeData(const QMimeData* source) override;
+        void dragEnterEvent(QDragEnterEvent* event) override;
+
+        static bool pastePlaintextByDefault();
+
 };
-
-

@@ -146,8 +146,8 @@
         <translation>Сейчас печатает:</translation>
     </message>
     <message>
-        <source>At pos %1: %2</source>
-        <translation>На позиции %1: %2</translation>
+        <source>At character %1: %2</source>
+        <translation>На символе %1: %2</translation>
     </message>
     <message>
         <source>%L1 more</source>
@@ -160,6 +160,14 @@
     <message>
         <source>Attaching the pasted image</source>
         <translation>Вставленное изображение будет добавлено к сообщению</translation>
+    </message>
+    <message>
+        <source>Can&apos;t attach a file without a selected room</source>
+        <translation>Невозможно прикрепить файл без выбранной комнаты</translation>
+    </message>
+    <message>
+        <source>Cannot insert HTML - it&apos;s either invalid or unsupported</source>
+        <translation>Невозможно вставить HTML - разметка некорректна или не поддерживается</translation>
     </message>
 </context>
 <context>
@@ -371,10 +379,6 @@ settings</source>
     <message>
         <source>Saved device id</source>
         <translation>Сохраненный идентификатор устройства</translation>
-    </message>
-    <message>
-        <source>Enable E2EE (BETA)</source>
-        <translation>Включить E2EE (ТЕСТОВЫЙ РЕЖИМ)</translation>
     </message>
 </context>
 <context>
@@ -975,6 +979,14 @@ Matrix URI или ссылка на сервис matrix.to</translation>
         <source>Dock panels</source>
         <translation>Пристыковываемые панели</translation>
     </message>
+    <message>
+        <source>Can&apos;t find the event without knowing the room</source>
+        <translation>Невозможно найти событие, не зная комнату</translation>
+    </message>
+    <message>
+        <source>Open the room that has this event to scroll to %1</source>
+        <translation>Откройте комнату с этим событием, чтобы прокрутить до %1</translation>
+    </message>
 </context>
 <context>
     <name>MessageEventModel</name>
@@ -1146,6 +1158,10 @@ Matrix URI или ссылка на сервис matrix.to</translation>
         <source>kicked %1 from the room</source>
         <translation>выгнал пользователя %1 из комнаты</translation>
     </message>
+    <message>
+        <source>(loading)</source>
+        <translation>(загружается)</translation>
+    </message>
 </context>
 <context>
     <name>NetworkConfigDialog</name>
@@ -1235,6 +1251,10 @@ Matrix URI или ссылка на сервис matrix.to</translation>
     <message>
         <source>You are using an UNSTABLE room version (%1). The server may stop supporting it at any moment. Do you still want to use this version?</source>
         <translation>Вы используете НЕСТАБИЛЬНУЮ версию комнаты (%1). Сервер может перестать поддерживать её в любой момент. Вы все еще хотите использовать эту версию?</translation>
+    </message>
+    <message>
+        <source>(no available room versions)</source>
+        <translation>(доступных версий комнат нет)</translation>
     </message>
 </context>
 <context>
@@ -1598,13 +1618,6 @@ new room</source>
     </message>
 </context>
 <context>
-    <name>ThumbnailResponse</name>
-    <message>
-        <source>Image request has been cancelled</source>
-        <translation>Запрос на изображение отменен</translation>
-    </message>
-</context>
-<context>
     <name>TimelineWidget</name>
     <message>
         <source>Referenced message not found</source>
@@ -1729,10 +1742,6 @@ new room</source>
         <translation>Сбросить текущее форматирование символов на значение по умолчанию</translation>
     </message>
     <message>
-        <source>Could not insert HTML - it&apos;s either invalid or unsupported</source>
-        <translation>Не удалось вставить HTML - разметка некорректна или не поддерживается</translation>
-    </message>
-    <message>
         <source>Paste as rich text</source>
         <translation>Вставить как форматированный текст</translation>
     </message>
@@ -1766,17 +1775,6 @@ new room</source>
     <message>
         <source>The list is shown separately from the main window</source>
         <translation>Показывать список отдельно от главного окна</translation>
-    </message>
-</context>
-<context>
-    <name>AbstractThumbnailResponse</name>
-    <message>
-        <source>No connection to perform image request</source>
-        <translation>Нет соединения для выполнения запроса изображения</translation>
-    </message>
-    <message>
-        <source>Image request is pending</source>
-        <translation>Запрос на изображение в процессе обработки</translation>
     </message>
 </context>
 </TS>

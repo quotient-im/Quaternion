@@ -145,8 +145,8 @@
         <translation>Currently typing:</translation>
     </message>
     <message>
-        <source>At pos %1: %2</source>
-        <translation>At pos %1: %2</translation>
+        <source>At character %1: %2</source>
+        <translation>At character %1: %2</translation>
     </message>
     <message>
         <source>%L1 more</source>
@@ -159,6 +159,14 @@
     <message>
         <source>Attaching the pasted image</source>
         <translation>Attaching the pasted image</translation>
+    </message>
+    <message>
+        <source>Can&apos;t attach a file without a selected room</source>
+        <translation>Can&apos;t attach a file without a selected room</translation>
+    </message>
+    <message>
+        <source>Cannot insert HTML - it&apos;s either invalid or unsupported</source>
+        <translation>Cannot insert HTML — it&apos;s either invalid or unsupported</translation>
     </message>
 </context>
 <context>
@@ -367,10 +375,6 @@ settings</translation>
     <message>
         <source>Saved device id</source>
         <translation>Saved device id</translation>
-    </message>
-    <message>
-        <source>Enable E2EE (BETA)</source>
-        <translation>Enable E2EE (BETA)</translation>
     </message>
 </context>
 <context>
@@ -969,6 +973,14 @@ Matrix URI or matrix.to link</translation>
         <source>Dock panels</source>
         <translation>Dock panels</translation>
     </message>
+    <message>
+        <source>Can&apos;t find the event without knowing the room</source>
+        <translation>Can&apos;t find the event without knowing the room</translation>
+    </message>
+    <message>
+        <source>Open the room that has this event to scroll to %1</source>
+        <translation>Open the room that has this event to scroll to %1</translation>
+    </message>
 </context>
 <context>
     <name>MessageEventModel</name>
@@ -1139,6 +1151,10 @@ Matrix URI or matrix.to link</translation>
         <source>kicked %1 from the room</source>
         <translation>kicked %1 from the room</translation>
     </message>
+    <message>
+        <source>(loading)</source>
+        <translation>(loading)</translation>
+    </message>
 </context>
 <context>
     <name>NetworkConfigDialog</name>
@@ -1228,6 +1244,10 @@ Matrix URI or matrix.to link</translation>
     <message>
         <source>You are using an UNSTABLE room version (%1). The server may stop supporting it at any moment. Do you still want to use this version?</source>
         <translation>You are using an UNSTABLE room version (%1). The server may stop supporting it at any moment. Do you still want to use this version?</translation>
+    </message>
+    <message>
+        <source>(no available room versions)</source>
+        <translation>(no available room versions)</translation>
     </message>
 </context>
 <context>
@@ -1591,13 +1611,6 @@ new room</translation>
     </message>
 </context>
 <context>
-    <name>ThumbnailResponse</name>
-    <message>
-        <source>Image request has been cancelled</source>
-        <translation>Image request has been cancelled</translation>
-    </message>
-</context>
-<context>
     <name>TimelineWidget</name>
     <message>
         <source>Referenced message not found</source>
@@ -1722,10 +1735,6 @@ new room</translation>
         <translation>Reset the current character formatting to the default</translation>
     </message>
     <message>
-        <source>Could not insert HTML - it&apos;s either invalid or unsupported</source>
-        <translation>Could not insert HTML - it&apos;s either invalid or unsupported</translation>
-    </message>
-    <message>
         <source>Paste as rich text</source>
         <translation>Paste as rich text</translation>
     </message>
@@ -1759,17 +1768,6 @@ new room</translation>
     <message>
         <source>The list is shown separately from the main window</source>
         <translation>The list is shown separately from the main window</translation>
-    </message>
-</context>
-<context>
-    <name>AbstractThumbnailResponse</name>
-    <message>
-        <source>No connection to perform image request</source>
-        <translation>No connection to perform image request</translation>
-    </message>
-    <message>
-        <source>Image request is pending</source>
-        <translation>Image request is pending</translation>
     </message>
 </context>
 </TS>

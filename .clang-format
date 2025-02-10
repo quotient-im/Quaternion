@@ -87,12 +87,14 @@ EmptyLineBeforeAccessModifier: LogicalBlock
 FixNamespaceComments: true
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex:    'csapi/'
+  - Regex:    '[</](events|jobs)/'
     Priority: 8
-  - Regex:    '(events|jobs)/'
+  - Regex:    '[</]csapi/'
     Priority: 12
   - Regex:    '^<(Quotient/)?.+\.h>'
     Priority: 16
+  - Regex:    '^<Qt(Core|Network|Gui)/.+'
+    Priority: 28
   - Regex:    '^<Qt.+(/.+)?'
     Priority: 24
   - Regex:    '^<'

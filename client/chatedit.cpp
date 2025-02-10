@@ -86,15 +86,30 @@ void ChatEdit::contextMenuEvent(QContextMenuEvent *event)
     menu->popup(event->globalPos());
 }
 
+void ChatEdit::insertFromMimeData(const QMimeData* source) { acceptMimeData(source); }
+
 void ChatEdit::switchContext(QObject* contextKey)
 {
     cancelCompletion();
     KChatEdit::switchContext(contextKey);
 }
 
-bool ChatEdit::canInsertFromMimeData(const QMimeData *source) const
+bool ChatEdit::canInsertFromMimeData(const QMimeData* source) const
 {
+    if (!source)
+        return false;
+    // When not in a room, only allow dropping plain text (for commands)
+    if (!chatRoomWidget->currentRoom())
+        return source->hasText();
+
     return source->hasImage() || KChatEdit::canInsertFromMimeData(source);
+}
+
+void ChatEdit::dragEnterEvent(QDragEnterEvent* event)
+{
+    KChatEdit::dragEnterEvent(event);
+    if (event->source() != this)
+        chatRoomWidget->checkDndEvent(event);
 }
 
 void ChatEdit::alternatePaste()
@@ -104,16 +119,15 @@ void ChatEdit::alternatePaste()
     m_pastePlaintext = pastePlaintextByDefault();
 }
 
-void ChatEdit::insertFromMimeData(const QMimeData *source)
+bool ChatEdit::acceptMimeData(const QMimeData* source)
 {
     if (!source) {
-        qCWarning(MSGINPUT) << "Nothing to insert";
-        return;
+        qCWarning(MSGINPUT) << "Nothing to insert from the drop event";
+        return true; // Treat it as nothing to do, not an error
     }
 
     if (source->hasImage())
-        chatRoomWidget->attachImage(source->imageData().value<QImage>(),
-                                    source->urls());
+        chatRoomWidget->attachImage(source->imageData().value<QImage>(), source->urls());
     else if (source->hasHtml()) {
         if (m_pastePlaintext) {
             QTextDocument document;
@@ -121,34 +135,23 @@ void ChatEdit::insertFromMimeData(const QMimeData *source)
             insertPlainText(document.toPlainText());
         } else {
             // Before insertion, remove formatting unsupported in Matrix
-            const auto [cleanHtml, errorPos, errorString] =
-                HtmlFilter::fromLocalHtml(source->html());
-            if (errorPos != -1) {
-                qCWarning(MSGINPUT) << "HTML insertion failed at pos"
-                                    << errorPos << "with error" << errorString;
-                // FIXME: Come on... It should be app->showStatusMessage() or smth
-                emit chatRoomWidget->timelineWidget()->showStatusMessage(
-                    tr("Could not insert HTML - it's either invalid or unsupported"),
-                    5000);
-                return;
-            }
+            const auto cleanHtml = chatRoomWidget->matrixHtmlFromMime(source);
+            if (cleanHtml.isEmpty())
+                return false;
+
             insertHtml(cleanHtml);
         }
         ensureCursorVisible();
     } else if (source->hasUrls()) {
-        bool hasAnyProcessed = false;
-        for (const QUrl &url : source->urls())
-            if (url.isLocalFile()) {
-                chatRoomWidget->dropFile(url.toLocalFile());
-                hasAnyProcessed = true;
-                // Only the first url is processed for now
-                break;
-            }
-        if (!hasAnyProcessed) {
+        const auto& urls = source->urls();
+        // Only the first local url is processed for now
+        if (const auto urlIt = std::ranges::find_if(urls, &QUrl::isLocalFile); urlIt != urls.cend())
+            chatRoomWidget->dropFile(urlIt->toLocalFile());
+        else
             KChatEdit::insertFromMimeData(source);
-        }
     } else
         KChatEdit::insertFromMimeData(source);
+    return true;
 }
 
 void ChatEdit::appendMentionAt(QTextCursor& cursor, QString mention,
@@ -243,7 +246,7 @@ void ChatEdit::triggerCompletion()
     QStringList matchesForSignal;
     for (const auto& p: completionMatches)
         matchesForSignal.push_back(p.first);
-    emit proposedCompletion(matchesForSignal, matchesListPosition);
+    chatRoomWidget->showCompletions(matchesForSignal, matchesListPosition);
     matchesListPosition = (matchesListPosition + 1) % completionMatches.length();
 }
 
