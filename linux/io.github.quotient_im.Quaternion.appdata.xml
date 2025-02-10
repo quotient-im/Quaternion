@@ -42,27 +42,25 @@
   </replaces>
 
   <releases>
-    <release version="0.0.96.82" type="development" date="2025-01-25">
-      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.97-beta2</url>
-      <description><p>0.0.97 beta2</p>
+    <release version="0.0.97" date="2025-02-10">
+      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.97</url>
+      <description><p>0.0.97</p>
         <ul>
+          <li>Use libQuotient 0.9 underneath</li>
+          <li>E2EE is always on now</li>
           <li>Add nice replies visualisation instead of relying on reply fallbacks</li>
+          <li>New look for the shuttle scroller and scroll-to buttons</li>
           <li>
             Clicking on scroll-to-read-marker button now loads history all the way until
             the marker - no need to click on the button repeatedly</li>
           <li>Display images embedded in rich text messages</li>
           <li>New login dialog</li>
+          <li>Forgetting a room requires a confirmation</li>
           <li>Fix: actually log out accounts on exit that are not set to stay logged in</li>
           <li>Regression fix: message text again uses the font configured for the timeline</li>
-          <li>Other code cleanup, performance tweaks and smaller fixes</li>
+          <li>New application id, to comply with Flathub verification requirements</li>
+          <li>Other code cleanup, performance and visual tweaks and smaller fixes</li>
         </ul>
-      </description>
-    </release>
-    <release version="0.0.96.81" type="development" date="2024-11-03">
-      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.97-beta1</url>
-      <description><p>0.0.97 beta</p>
-        <p>Port Quaternion to libQuotient 0.9</p>
-      </description>
     </release>
     <release version="0.0.96.1" date="2024-02-19">
       <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96.1</url>
