@@ -61,6 +61,7 @@
           <li>New application id, to comply with Flathub verification requirements</li>
           <li>Other code cleanup, performance and visual tweaks and smaller fixes</li>
         </ul>
+      </description>
     </release>
     <release version="0.0.96.1" date="2024-02-19">
       <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96.1</url>
