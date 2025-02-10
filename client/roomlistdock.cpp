@@ -198,10 +198,10 @@ RoomListDock::RoomListDock(MainWindow* parent)
             if (auto room = getSelectedRoom()) {
                 QMessageBox::StandardButton confirmation = QMessageBox::question(
                     this, tr("Forget this room?"),
-                    tr("Are you sure you want to forget room %1?").arg(room->name()));
+                    tr("Are you sure you want to forget room %1?").arg(room->displayName()));
                 if (confirmation == QMessageBox::Yes) {
-                    Q_ASSERT(room->connection());
-                    room->connection()->forgetRoom(room->id());
+                    if (QUO_CHECK(room->connection())
+                        room->connection()->forgetRoom(room->id());
                 }
             }
         });
