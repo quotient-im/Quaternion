@@ -1,7 +1,5 @@
 # Quaternion
 
-<!--<a href='https://matrix.org'><img src='https://matrix.org/docs/projects/images/made-for-matrix.png' alt='Made for Matrix' height=64 target=_blank /></a>-->
-
 ![status](https://img.shields.io/badge/status-beta-yellow.svg)
 [![release](https://img.shields.io/github/release/quotient-im/quaternion/all.svg)](https://github.com/quotient-im/Quaternion/releases/latest)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/1663/badge)](https://www.bestpractices.dev/projects/1663)
@@ -128,7 +126,7 @@ longing for contributors.
 ## Configuration
 The only non-trivial command-line option available so far is `--locale` - it
 allows you to override the locale Quaternion uses (an equivalent of setting
-`LC_ALL` variable on UNIX-based systems). Version 0.0.96 comes with German,
+`LC_ALL` variable on UNIX-based systems). Version 0.0.97 comes with German,
 Russian, Polish, and Spanish translations.
 
 Quaternion stores its configuration in a way standard for Qt applications, as
@@ -181,9 +179,10 @@ Some settings exposed in the user interface (Settings and View menus) are:
   a thumbnail in the timeline (with the full image downloaded after you click
   "Save as" or "Open" in the context menu). Check out
   https://github.com/quotient-im/Quaternion/issues/601 for the caveat.
-- `show_spammy` ("Show no-effect activity" in the menu) - when set to `false`,
-  this setting tries to clean up the timeline from events that don't contribute
-  to conversation in any reasonable way.
+- `show_spammy` ("Show no-effect activity" in the menu) - when set to `false`, this setting tries
+  to clean up the timeline from events that don't contribute to conversation in any reasonable way,
+  such as messages from a recently joined user that are all redacted - a typical case of moderation
+  applied to spam.
 - `RoomsDock/tags_order` - allows to alter the order of tags in the room
   list. This is a comma-separated list of tags/namespaces;
   a few characters have special meaning as described below. If a tag is
@@ -218,12 +217,11 @@ Settings not exposed in UI:
 - `animations_duration_ms` - defines the base duration (in milliseconds) of
   animation effects in the timline. The default is 400; set it to 0 to disable
   animation.
-- `outgoing_color` - set this to the color name you prefer for text you sent;
-  HTML color names and SVG `#codes` are supported; by default it's `#204A87`
-  (navy blue).
-- `highlight_color` - set this to the color name you prefer for highlighted
-  rooms/messages; HTML color names and SVG `#codes` are supported;
-  by default it's `orange`.
+- `outgoing_color` - set this to the color name you prefer for text you sent; HTML color names and
+  hex `#codes` are supported; by default it's `#4A8780` (a brownish tint of teal - no science
+  behind that, just an arbitrary shot in a color picker).
+- `highlight_color` - set this to the color name you prefer for highlighted rooms/messages;
+  HTML color names and hex `#codes` are supported; by default it's `orange`.
 - `highlight_mode` - set this to `text` if you prefer to use the text color
   for highlighting; the default is to use the background for highlighting.
 - `use_human_friendly_dates` - set this to false (or 0) if you do NOT want
@@ -296,11 +294,10 @@ actually problems of libQuotient. If you haven't found your case below, check
 also the troubleshooting section in libQuotient README.md.
 
 #### Some older messages don't get decrypted in E2EE rooms
-Unfortunately, this is a limitation in the libQuotient code. The E2EE backend
-of libQuotient is currently being ported from Olm to matrix-rust-sdk - it is
-anticipated that matrix-rust-sdk will provide all necessary bits and pieces
-to decrypt older messages in a more comprehensive way (aside from being maintained,
-unlike Olm). Subscribe to
+Unfortunately, this is a limitation in the libQuotient code. The E2EE backend of libQuotient is
+currently being ported from Olm to matrix-rust-sdk - aside from being maintained, unlike Olm,
+matrix-rust-sdk provides higher-level API withh all necessary bits and pieces to decrypt messages,
+so libQuotient won't have to reimplement it. Subscribe to
 [the respective pull request](https://github.com/quotient-im/libQuotient/pull/820)
 if you want to be updated on the progress of this work.
 
