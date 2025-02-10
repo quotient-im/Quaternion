@@ -1664,68 +1664,78 @@ or alias (starting with #)</translation>
 <context>
     <name>RoomListDock</name>
     <message>
-        <location filename="../roomlistdock.cpp" line="160"/>
+        <location filename="../roomlistdock.cpp" line="161"/>
         <source>Mark room as read</source>
         <translation>Mark room as read</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="167"/>
+        <location filename="../roomlistdock.cpp" line="168"/>
         <source>Add tags...</source>
         <translation>Add tags...</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="170"/>
+        <location filename="../roomlistdock.cpp" line="171"/>
         <source>Change room &amp;settings...</source>
         <translation>Change room &amp;settings...</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="173"/>
+        <location filename="../roomlistdock.cpp" line="174"/>
         <source>Copy room link to clipboard</source>
         <translation>Copy room link to clipboard</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="180"/>
+        <location filename="../roomlistdock.cpp" line="181"/>
         <source>Join room</source>
         <translation>Join room</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="196"/>
+        <location filename="../roomlistdock.cpp" line="197"/>
         <source>Forget room</source>
         <translation>Forget room</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="207"/>
+        <location filename="../roomlistdock.cpp" line="200"/>
+        <source>Forget this room?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../roomlistdock.cpp" line="201"/>
+        <source>Are you sure you want to forget room %1?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../roomlistdock.cpp" line="212"/>
         <source>Remove tag</source>
         <translation>Remove tag</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="283"/>
+        <location filename="../roomlistdock.cpp" line="288"/>
         <source>Reject invitation</source>
         <translation>Reject invitation</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="283"/>
+        <location filename="../roomlistdock.cpp" line="288"/>
         <source>Leave room</source>
         <translation>Leave room</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="308"/>
+        <location filename="../roomlistdock.cpp" line="313"/>
         <source>Enter new tags for the room</source>
         <translation>Enter new tags for the room</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="309"/>
+        <location filename="../roomlistdock.cpp" line="314"/>
         <source>Add</source>
         <comment>A caption on a button to add tags</comment>
         <translation>Add</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="312"/>
+        <location filename="../roomlistdock.cpp" line="317"/>
         <source>Enter tags to add to this room, one tag per line</source>
         <translation>Enter tags to add to this room, one tag per line</translation>
     </message>
     <message>
-        <location filename="../roomlistdock.cpp" line="331"/>
+        <location filename="../roomlistdock.cpp" line="336"/>
         <source>Rooms (%L1)</source>
         <translation>Rooms (%L1)</translation>
     </message>
