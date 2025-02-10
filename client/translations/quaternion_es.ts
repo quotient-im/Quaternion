@@ -1234,13 +1234,6 @@ Esta operación no se puede revertir.</translation>
     </message>
 </context>
 <context>
-    <name>ThumbnailResponse</name>
-    <message>
-        <source>Image request has been cancelled</source>
-        <translation>La solicitud de imagen ha sido cancelada</translation>
-    </message>
-</context>
-<context>
     <name>ProfileDialog</name>
     <message>
         <source>Account</source>
