@@ -663,7 +663,7 @@ QString ChatRoomWidget::sendCommand(QStringView command,
         const auto& [cleanQtHtml, errorPos, errorString] =
             HtmlFilter::fromMatrixHtml(argString, { currentRoom() }, HtmlFilter::Validate);
         if (errorPos != -1)
-            return tr("At pos %1: %2",
+            return tr("At character %1: %2",
                       "%1 is a position of the error; %2 is the error message")
                    .arg(errorPos).arg(errorString);
 

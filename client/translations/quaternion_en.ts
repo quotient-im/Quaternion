@@ -89,9 +89,9 @@
     </message>
     <message>
         <location filename="../chatroomwidget.cpp" line="666"/>
-        <source>At pos %1: %2</source>
+        <source>At character %1: %2</source>
         <comment>%1 is a position of the error; %2 is the error message</comment>
-        <translation>At pos %1: %2</translation>
+        <translation>At character %1: %2</translation>
     </message>
     <message>
         <location filename="../chatroomwidget.cpp" line="711"/>
@@ -1085,8 +1085,8 @@ Is that right?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1092"/>
-        <source>You have to be in a room that holds this event to open %1</source>
-        <translation>You have to be in a room that holds this event to open %1</translation>
+        <source>Open the room that has this event to scroll to %1</source>
+        <translation>Open the room that has this event to scroll to %1</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1108"/>

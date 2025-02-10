@@ -1089,7 +1089,7 @@ void MainWindow::openResource(const QString& idOrUri, const QString& action)
             if (!currentRoom) {
                 QMessageBox::warning(
                     this, tr("Can't find the event without knowing the room"),
-                    tr("You have to be in a room that holds this event to open %1").arg(idOrUri),
+                    tr("Open the room that has this event to scroll to %1").arg(idOrUri),
                     QMessageBox::Close, QMessageBox::Close);
                 return;
             }
