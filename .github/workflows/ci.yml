@@ -82,7 +82,7 @@ jobs:
 
     - name: Install Qt (non-Linux)
       if: "!startsWith(matrix.os, 'ubuntu')"
-      uses: jurplel/install-qt-action@v3.0.0
+      uses: jurplel/install-qt-action@v4.1.1
       with:
         version: "6.6"
         cache: true
