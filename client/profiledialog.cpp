@@ -9,14 +9,15 @@
 #include "profiledialog.h"
 
 #include "accountselector.h"
-#include "mainwindow.h"
 #include "logging_categories.h"
+#include "mainwindow.h"
 #include "verificationdialog.h"
 
-#include <Quotient/connection.h>
-#include <Quotient/user.h>
-#include <Quotient/room.h>
 #include <Quotient/csapi/device_management.h>
+
+#include <Quotient/connection.h>
+#include <Quotient/room.h>
+#include <Quotient/user.h>
 
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QFormLayout>
@@ -26,10 +27,10 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QTableWidgetItem>
 #include <QtWidgets/QToolButton>
-#include <QtGui/QClipboard>
-#include <QtGui/QGuiApplication>
 
 #include <QtCore/QStandardPaths>
+#include <QtGui/QClipboard>
+#include <QtGui/QGuiApplication>
 
 using Quotient::BaseJob, Quotient::User, Quotient::Room;
 using namespace Qt::StringLiterals;
@@ -138,6 +139,7 @@ ProfileDialog::DeviceTable::DeviceTable()
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setTabKeyNavigation(false);
     setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+    sortByColumn(DeviceTable::LastTimeSeen, Qt::DescendingOrder);
 }
 
 void updateAvatarButton(Quotient::User* user, QPushButton* btn)
@@ -156,8 +158,7 @@ void updateAvatarButton(Quotient::User* user, QPushButton* btn)
 ProfileDialog::ProfileDialog(Quotient::AccountRegistry* accounts, MainWindow* parent)
     : Dialog(tr("User profiles"), QDialogButtonBox::Reset | QDialogButtonBox::Close, parent,
              Dialog::StatusLine)
-    , m_settings("UI/ProfileDialog")
-    , m_avatar(new QPushButton)
+    , m_settings("UI/ProfileDialog"), m_avatar(new QPushButton)
     , m_accountSelector(new AccountSelector(accounts))
     , m_displayName(new QLineEdit)
     , m_accessTokenLabel(new QLabel)
@@ -208,9 +209,6 @@ ProfileDialog::ProfileDialog(Quotient::AccountRegistry* accounts, MainWindow* pa
 ProfileDialog::~ProfileDialog()
 {
     m_settings.setValue("normal_geometry", normalGeometry());
-    m_settings.setValue("device_table_state",
-                        m_deviceTable->horizontalHeader()->saveState());
-    m_settings.sync();
 }
 
 void ProfileDialog::setAccount(Quotient::Connection* newAccount)
@@ -225,16 +223,20 @@ Quotient::Connection* ProfileDialog::account() const
 
 void ProfileDialog::setVerifiedItem(int row, const QString& deviceId)
 {
+    // TODO: switch to Connection::getDeviceVerificationState() when it's available
     if (m_currentAccount->deviceId() == deviceId)
         m_deviceTable->emplaceItem<DeviceTable::Verified>(row, tr("This device"));
-    else if (m_currentAccount->isVerifiedDevice(m_currentAccount->userId(), deviceId)) {
+    else if (!m_currentAccount->encryptionEnabled()) {
+        // No E2EE, the column is hidden
+    } else if (m_currentAccount->isVerifiedDevice(m_currentAccount->userId(), deviceId)) {
         m_deviceTable->emplaceItem<DeviceTable::Verified>(row, QIcon::fromTheme(u"security-high"_s),
                                                           tr("Verified"));
-    } else {
+    } else if (m_currentAccount->isKnownE2eeCapableDevice(m_currentAccount->userId(), deviceId)) {
         auto* verifyAction =
-            new QAction(QIcon::fromTheme(u"security-medium"_s), tr("Verify..."), this);
+          new QAction(QIcon::fromTheme(u"security-medium"_s), tr("Verify..."), this);
         using KVSession = Quotient::KeyVerificationSession;
-        connect(verifyAction, &QAction::triggered, this, [this, deviceId, verifyAction] {
+        connect(verifyAction, &QAction::triggered, this, [this, deviceId, verifyAction]
+        {
             if (auto session = verifyAction->data().value<KVSession*>()) {
                 if (session->state() != KVSession::CANCELED)
                     session->cancelVerification(KVSession::USER);
@@ -246,23 +248,20 @@ void ProfileDialog::setVerifiedItem(int row, const QString& deviceId)
         verifyButton->setToolButtonStyle(Qt::ToolButtonFollowStyle);
         verifyButton->setAutoRaise(true);
         verifyButton->setDefaultAction(verifyAction);
-        verifyButton->setEnabled(m_currentAccount->encryptionEnabled());
         m_deviceTable->setCellWidget(clamp<int>(row, 0), DeviceTable::Verified, verifyButton);
+    } else {
+        m_deviceTable->emplaceItem<DeviceTable::Verified>(row, QIcon::fromTheme(u"security-low"_s),
+                                                          tr("No E2EE"));
     }
 }
 
 void ProfileDialog::refreshDevices()
 {
-    m_devicesJob = m_currentAccount->callApi<Quotient::GetDevicesJob>();
-    connect(m_devicesJob, &BaseJob::success, m_deviceTable, [this] {
-        m_devices = m_devicesJob->devices();
+    m_currentAccount->callApi<Quotient::GetDevicesJob>().then(
+      m_deviceTable, [this](const QVector<Quotient::Device>& devices)
+    {
+        m_devices = devices;
         m_deviceTable->refresh(m_devices, this);
-        if (m_settings.contains("device_table_state"))
-            m_deviceTable->horizontalHeader()->restoreState(
-                m_settings.value("device_table_state").toByteArray());
-        else
-            m_deviceTable->sortByColumn(DeviceTable::LastTimeSeen,
-                                        Qt::DescendingOrder);
     });
 }
 
@@ -279,6 +278,7 @@ void ProfileDialog::DeviceTable::markupRow(int row, void (QFont::*fontFn)(bool),
 
 void ProfileDialog::DeviceTable::fillPendingData(const QString& currentDeviceId)
 {
+    setSortingEnabled(false);
     setRowCount(2);
     emplaceItem<DeviceId>(0, currentDeviceId);
     emplaceItem<LastTimeSeen>(0, QDateTime::currentDateTime());
@@ -311,7 +311,15 @@ void ProfileDialog::DeviceTable::refresh(const QVector<Quotient::Device>& device
             markCurrentDevice(i);
     }
 
+    setColumnHidden(DeviceTable::Verified, !currentAccount->encryptionEnabled());
     setSortingEnabled(true);
+    resizeColumnsToContents();
+    // Reduce the width of the device name column if that would drop the horizontal scrollbar;
+    // if the difference is too large, cut the name column width in half to keep it reasonable
+    if (const auto overspill = sizeHint().width() - width(); overspill > 0) {
+        const auto cw = columnWidth(DeviceTable::DeviceName);
+        setColumnWidth(DeviceTable::DeviceName, overspill < cw / 1.5 ? cw - overspill : cw / 2);
+    }
 }
 
 void ProfileDialog::load()
@@ -345,10 +353,7 @@ void ProfileDialog::load()
         accessToken.replace(5, accessToken.size() - 10, "...");
     m_accessTokenLabel->setText(accessToken);
 
-    m_deviceTable->setSortingEnabled(false);
     m_deviceTable->fillPendingData(m_currentAccount->deviceId());
-    if (!m_settings.contains("device_table_state"))
-        m_deviceTable->resizeColumnsToContents();
 
     refreshDevices();
 }
@@ -392,12 +397,8 @@ void ProfileDialog::uploadAvatar()
     connect(fDlg, &QFileDialog::fileSelected, this,
             [this](const QString& fileName) {
                 m_newAvatarPath = fileName;
-                if (!m_newAvatarPath.isEmpty()) {
-                    auto img =
-                        QImage(m_newAvatarPath)
-                            .scaled(m_avatar->iconSize(), Qt::KeepAspectRatio);
+                if (!m_newAvatarPath.isEmpty())
                     m_avatar->setIcon(QPixmap(m_newAvatarPath));
-                }
             });
 }
 
