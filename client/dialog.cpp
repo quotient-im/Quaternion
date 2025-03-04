@@ -61,7 +61,7 @@ QLabel* Dialog::makeBuddyLabel(QString labelText, QWidget* field)
     return label;
 }
 
-QPushButton*Dialog::button(QDialogButtonBox::StandardButton which)
+QPushButton* Dialog::button(QDialogButtonBox::StandardButton which)
 {
     return buttonBox()->button(which);
 }
