@@ -36,6 +36,7 @@ public:
         RefRole,
         ReactionsRole,
         EventClassNameRole,
+        VerificationStateRole,
     };
 
     explicit MessageEventModel(QObject* parent = nullptr);
@@ -90,11 +91,23 @@ struct EventForQml {
 namespace EventGrouping {
 Q_NAMESPACE
 
-enum Mark {
+enum Values {
     KeepPreviousGroup = 0,
     ShowAuthor = 1,
     ShowDateAndAuthor = 2
 };
-Q_ENUM_NS(Mark)
+Q_ENUM_NS(Values)
+
+}
+
+namespace VerificationState {
+Q_NAMESPACE
+
+enum Values {
+    Unverified = 0,
+    Verified = 1,
+    NotRelevant = 2, //!< Unencrypted messages
+};
+Q_ENUM_NS(Values)
 
 }

@@ -165,6 +165,7 @@ target_sources(${PROJECT_NAME} PRIVATE
     client/chatroomwidget.cpp client/chatroomwidget.h
     client/systemtrayicon.cpp client/systemtrayicon.h
     client/profiledialog.cpp client/profiledialog.h
+    client/verificationdialog.h client/verificationdialog.cpp
     client/models/messageeventmodel.cpp client/models/messageeventmodel.h
     client/models/userlistmodel.cpp client/models/userlistmodel.h
     client/models/roomlistmodel.cpp client/models/roomlistmodel.h
