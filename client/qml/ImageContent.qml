@@ -1,8 +1,9 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import QtQuick.Layouts 1.1
 
 Attachment {
+    id: content
+
     required property var sourceSize
     required property url source
     required property var maxHeight
@@ -10,15 +11,15 @@ Attachment {
     openOnFinished: false
 
     Image {
-        id: imageContent
         width: parent.width
-        height: sourceSize.height *
-                Math.min(maxHeight / sourceSize.height * 0.9,
-                         Math.min(width / sourceSize.width, 1))
+        height: sourceSize.height * Math.min(parent.maxHeight / sourceSize.height * 0.9,
+                                             Math.min(width / sourceSize.width, 1))
         fillMode: Image.PreserveAspectFit
         horizontalAlignment: Image.AlignLeft
 
-        source: parent.source
+        // The spec says that the attachment URL SHOULD be mxc but is not required to be
+        source: parent.source.toString().startsWith("mxc")
+                ? room.makeMediaUrl(eventId, parent.source) : parent.source
         sourceSize: parent.sourceSize
 
         HoverHandler {
@@ -27,23 +28,24 @@ Attachment {
         }
         ToolTip.visible: imageHoverHandler.hovered
         ToolTip.text: room && eventId ? room.fileSource(eventId) : ""
+        ToolTip.delay: Application.styleHints.mousePressAndHoldInterval
 
         TapHandler {
             acceptedButtons: Qt.LeftButton
             onTapped: {
-                openOnFinished = true
-                openExternally()
+                content.openOnFinished = true
+                content.openExternally()
             }
         }
         TapHandler {
             acceptedButtons: Qt.RightButton
             onTapped: controller.showMenu(index, textFieldImpl.hoveredLink,
-                                          textFieldImpl.selectedText,
-                                          showingDetails)
+                                          textFieldImpl.selectedText, showingDetails)
         }
 
         Component.onCompleted:
-            if (visible && autoload && !downloaded && !(progressInfo && progressInfo.isUpload))
+            if (visible && content.autoload && !content.downloaded
+                    && !(progressInfo && progressInfo.isUpload))
                 room.downloadFile(eventId)
     }
 

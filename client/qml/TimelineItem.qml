@@ -437,10 +437,7 @@ Item {
                     source: downloaded || progressInfo.isUpload
                             ? progressInfo.localPath
                             : !progressInfo.failed
-                              ? autoload ? room.makeMediaUrl(eventId, content.url)
-                                         : content.info.thumbnail_url
-                                           ? room.makeMediaUrl(eventId, content.info.thumbnail_url)
-                                           : ""
+                              ? autoload ? content.url : content.info.thumbnail_url ?? ""
                               : "" // TODO: show thumbnail or failing that blurhash before loading
                     maxHeight: chatView.height - textField.height -
                                authorLabel.height * !settings.timelineStyleIsXChat
