@@ -19,6 +19,11 @@ using namespace Qt::StringLiterals;
 namespace {
 using namespace HtmlFilter;
 
+inline QRegularExpression operator""_qre(const char* latin1s, size_t size)
+{
+    return QRegularExpression(operator""_L1(latin1s, size));
+}
+
 enum Mode : unsigned char { QtToMatrix, MatrixToQt, GenericToQt };
 
 class Processor : public QXmlStreamEntityResolver {
@@ -52,11 +57,11 @@ private:
 };
 
 constexpr auto permittedTags = std::to_array<QStringView>(
-    { u"font",       u"del", u"h1",    u"h2",     u"h3",      u"h4",  u"h5",   u"h6",
-      u"blockquote", u"p",   u"a",     u"ul",     u"ol",      u"sup", u"sub",  u"li",
-      u"b",          u"i",   u"u",     u"strong", u"em",      u"s",   u"code", u"hr",
-      u"br",         u"div", u"table", u"thead",  u"tbody",   u"tr",  u"th",   u"td",
-      u"caption",    u"pre", u"span",  u"img",    u"mx-reply" });
+  {u"font",       u"del", u"h1",    u"h2",     u"h3",      u"h4",  u"h5",   u"h6",
+   u"blockquote", u"p",   u"a",     u"ul",     u"ol",      u"sup", u"sub",  u"li",
+   u"b",          u"i",   u"u",     u"strong", u"em",      u"s",   u"code", u"hr",
+   u"br",         u"div", u"table", u"thead",  u"tbody",   u"tr",  u"th",   u"td",
+   u"caption",    u"pre", u"span",  u"img",    u"mx-reply"});
 
 struct PassList {
     QStringView tag;
@@ -65,17 +70,16 @@ struct PassList {
 
 // See filterTag() on special processing of commented out tags/attributes
 const auto passLists = std::to_array<PassList>({
-    { u"a", { u"name", u"target", /* u"href" - only from permittedSchemes */ } },
-    { u"img",
-      { u"width", u"height", u"alt", u"title", u"data-mx-emoticon", /* u"src" - only 'mxc:' */ } },
-    { u"ol", { u"start" } },
-    { u"font", { u"color", u"data-mx-color", u"data-mx-bg-color" } },
-    { u"span", { u"color", u"data-mx-color", u"data-mx-bg-color" } },
-    // { u"code", { u"class" /* must start with 'language-' */ } }
+  {u"a", {u"name", u"target", /* u"href" - only from permittedSchemes */}},
+  {u"img", {u"width", u"height", u"alt", u"title", u"data-mx-emoticon", /* u"src" - only 'mxc:' */}},
+  {u"ol", {u"start"}},
+  {u"font", {u"color", u"data-mx-color", u"data-mx-bg-color"}},
+  {u"span", {u"color", u"data-mx-color", u"data-mx-bg-color"}},
+  // { u"code", { u"class" /* must start with 'language-' */ } }
 });
 
 constexpr auto permittedSchemes = std::to_array<QStringView>({
-    u"http:", u"https:", u"ftp:", u"mailto:", u"magnet:", u"matrix:", u"mxc:" /* MSC2398 */
+  u"http:", u"https:", u"ftp:", u"mailto:", u"magnet:", u"matrix:", u"mxc:" /* MSC2398 */
 });
 
 constexpr auto htmlColorAttr = u"color";
@@ -104,12 +108,10 @@ inline auto rangeContains(const auto& c, const auto& v)
     QXmlStreamReader reader(html);
     QString mdWithHtml;
     QXmlStreamWriter writer(&mdWithHtml);
-    while (reader.readNext() != QXmlStreamReader::StartElement
-               || reader.qualifiedName() != u"p")
+    while (reader.readNext() != QXmlStreamReader::StartElement || reader.qualifiedName() != u"p")
         if (reader.atEnd()) {
             Q_ASSERT_X(false, __FUNCTION__, "Malformed Qt markup");
-            qCCritical(HTMLFILTER)
-                << "The passed text doesn't seem to come from QTextDocument";
+            qCCritical(HTMLFILTER) << "The passed text doesn't seem to come from QTextDocument";
             return {};
         }
 
@@ -150,8 +152,7 @@ inline auto rangeContains(const auto& c, const auto& v)
             qCWarning(HTMLFILTER) << "Unexpected token, type" << tokenType;
         }
         if (depth < 0) {
-            Q_ASSERT(tokenType == QXmlStreamReader::EndElement
-                     && reader.qualifiedName() == u"body");
+            Q_ASSERT(tokenType == QXmlStreamReader::EndElement && reader.qualifiedName() == u"body");
             break;
         }
         writer.writeCurrentToken(reader);
@@ -189,8 +190,7 @@ inline auto rangeContains(const auto& c, const auto& v)
         static constexpr auto commentOpen = "!--"_L1;
         static constexpr auto commentClose = "-->"_L1;
         if (uncheckedHtml.startsWith(commentOpen)) { // Skip comments
-            pos = html.indexOf(commentClose, tagNamePos + commentOpen.size())
-                  + commentClose.size();
+            pos = html.indexOf(commentClose, tagNamePos + commentOpen.size()) + commentClose.size();
             continue;
         }
         // Look ahead to detect stray < and escape it
@@ -236,19 +236,16 @@ inline auto rangeContains(const auto& c, const auto& v)
             isFragment = false;
             continue;
         }
-        if (!inHead) {
-            // Check if it's a valid (opening or closing) tag allowed in Matrix
-            if (!rangeContains(permittedTags, tag)) {
-                // Invalid tag or non-tag - either remove the abusing piece or stop and report
-                if (options.testFlag(Validate))
-                    return { {},
-                             pos,
-                             u"Non-tag or disallowed tag: "_s
-                                 % uncheckedHtml.left(gtPos - tagNamePos) };
+        // Check if it's a valid (opening or closing) tag allowed in Matrix
+        if (!inHead && !rangeContains(permittedTags, tag)) {
+            // Invalid tag or non-tag - either remove the abusing piece or stop and report
+            if (options.testFlag(Validate))
+                return {{},
+                        pos,
+                        u"Non-tag or disallowed tag: "_s % uncheckedHtml.left(gtPos - tagNamePos)};
 
-                html.remove(pos, gtPos - pos + 1);
-                continue;
-            }
+            html.remove(pos, gtPos - pos + 1);
+            continue;
         }
 
         // Treat minimised attributes
@@ -259,9 +256,8 @@ inline auto rangeContains(const auto& c, const auto& v)
         // `=''` after minimized attributes.
         // This is not the place to _filter_ allowed/disallowed attributes -
         // filtering is left for filterTag()
-        static const QRegularExpression MinAttrRE {
-            R"(([^[:space:]>/"'=]+)\s*(=\s*([^[:space:]>/"']|"[^"]*"|'[^']*')+)?)"_L1
-        };
+        static const auto MinAttrRE =
+          R"(([^[:space:]>/"'=]+)\s*(=\s*([^[:space:]>/"']|"[^"]*"|'[^']*')+)?)"_qre;
         pos = tagNamePos + tag.size();
         QRegularExpressionMatch m;
         while ((m = MinAttrRE.match(html, pos)).hasMatch() && m.capturedEnd(1) < gtPos) {
@@ -274,9 +270,8 @@ inline auto rangeContains(const auto& c, const auto& v)
             }
         }
         // Make sure empty elements are properly closed
-        static const QRegularExpression EmptyElementRE {
-            "^img|[hb]r|meta$"_L1, QRegularExpression::CaseInsensitiveOption
-        };
+        static const QRegularExpression EmptyElementRE{"^img|[hb]r|meta$"_L1,
+                                                       QRegularExpression::CaseInsensitiveOption};
         if (html[gtPos - 1] != '/' && EmptyElementRE.match(tag).hasMatch()) {
             html.insert(gtPos, '/');
             ++gtPos;
@@ -312,8 +307,8 @@ Result Processor::process(QString html, Mode mode, const Context& context, Optio
     // characters.
 
     // 1. Escape ampersands outside of character entities
-    static const QRegularExpression freestandingAmps{ QStringLiteral(
-        "&(?!(#[0-9]+|#x[0-9a-fA-F]+|[[:alpha:]_][-[:alnum:]_:.]*);)") };
+    static const auto freestandingAmps =
+      "&(?!(#[0-9]+|#x[0-9a-fA-F]+|[[:alpha:]_][-[:alnum:]_:.]*);)"_qre;
     html.replace(freestandingAmps, QStringLiteral("&amp;"));
 
     if (mode != GenericToQt) {
@@ -329,8 +324,7 @@ Result Processor::process(QString html, Mode mode, const Context& context, Optio
         // us the right to eliminate control characters from Matrix payloads, even though the Web
         // generally seems to admit them as NCRs.
         // NB: [:cntrl:] doesn't work because it includes the allowed \n, \r, \t
-        static const auto controlCharRE =
-            QRegularExpression{ R"([\x01-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f])"_L1 };
+        static const auto controlCharRE = R"([\x01-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f])"_qre;
         html.remove(controlCharRE);
     }
 
@@ -512,7 +506,7 @@ void Processor::runOn(const QString &html)
                 const auto& tagName = reader.qualifiedName();
                 if (tagName != u"body" && tagName != u"html")
                     qCWarning(HTMLFILTER)
-                        << "Empty tags stack, skipping" << ('/' + tagName.toString());
+                      << "Empty tags stack, skipping" << ('/' + tagName.toString());
                 break;
             }
             // Close as many elements as were opened in case StartElement
@@ -539,8 +533,8 @@ void Processor::runOn(const QString &html)
             qCCritical(HTMLFILTER).nospace() << "Error at char " << errorPos << ": " << errorString;
             const auto remainder = QStringView(html).mid(reader.characterOffset());
             qCCritical(HTMLFILTER).nospace()
-                << "Buffer at error: " << remainder << ", "
-                << html.size() - reader.characterOffset() << " character(s) remaining";
+              << "Buffer at error: " << remainder << ", " << html.size() - reader.characterOffset()
+              << " character(s) remaining";
             break;
         }
         case QXmlStreamReader::Comment:
@@ -614,8 +608,7 @@ Processor::rewrite_t Processor::filterTag(QStringView tag, QXmlStreamAttributes 
             }
             if (aName == mxBgColorAttr) {
                 rewrite.front().second.append(QString::fromUtf16(htmlStyleAttr),
-                                              "background-color:"
-                                                  + aValue.toString());
+                                              "background-color:" + aValue.toString());
                 continue;
             }
         } else {
@@ -629,8 +622,7 @@ Processor::rewrite_t Processor::filterTag(QStringView tag, QXmlStreamAttributes 
                         continue;
                     if (const auto& v = cssValue(p, u"color:"); !v.isEmpty()) {
                         addColorAttr(mxColorAttr, v);
-                    } else if (const auto& v = cssValue(p, u"background-color:");
-                               !v.isEmpty())
+                    } else if (const auto& v = cssValue(p, u"background-color:"); !v.isEmpty())
                         addColorAttr(mxBgColorAttr, v);
                     else if (const auto& v = cssValue(p, u"font-weight:");
                              v == u"bold" || v == u"bolder" || v.toFloat() > 500)
@@ -644,7 +636,7 @@ Processor::rewrite_t Processor::filterTag(QStringView tag, QXmlStreamAttributes 
                     else {
                         const auto& fontFamilies = cssValue(p, u"font-family:").split(',');
                         for (auto ff : views::transform(fontFamilies, &QStringView::trimmed)
-                                           | views::filter(std::not_fn(&QStringView::empty))) {
+                                         | views::filter(std::not_fn(&QStringView::empty))) {
                             if (ff.front() == '\'' || ff.front() == '"')
                                 ff = ff.mid(1, ff.size() - 2);
                             if (QFontDatabase::isFixedPitch(ff.toString())) {
@@ -665,17 +657,17 @@ Processor::rewrite_t Processor::filterTag(QStringView tag, QXmlStreamAttributes 
             auto url = QUrl::fromUserInput(aValue.toString());
             if (mode == QtToMatrix) {
                 // Make sure the mxc URL is just that, with no internal extras
-                QUrlQuery q{ url.query() };
-                for (auto k : { u"user_id"_s, u"room_id"_s, u"event_id"_s })
+                QUrlQuery q{url.query()};
+                for (const auto& k : {u"user_id"_s, u"room_id"_s, u"event_id"_s})
                     q.removeAllQueryItems(k);
                 url.setQuery(q);
                 a = QXmlStreamAttribute(aName.toString(), url.toString(QUrl::FullyEncoded));
             } else if (context.room) {
                 a = QXmlStreamAttribute(aName.toString(),
                                         context.room
-                                            ->makeMediaUrl(context.eventId,
-                                                           QUrl::fromUserInput(aValue.toString()))
-                                            .toString(QUrl::FullyEncoded));
+                                          ->makeMediaUrl(context.eventId,
+                                                         QUrl::fromUserInput(aValue.toString()))
+                                          .toString(QUrl::FullyEncoded));
             }
             rewrite.front().second.push_back(std::move(a));
         }
@@ -723,8 +715,8 @@ void Processor::filterText(QString& text)
         // (see also https://spec.commonmark.org/0.29/#list-items)
         static const auto ReOptions = QRegularExpression::MultilineOption;
         static const QRegularExpression //
-            UlRE(u"^( *[-+*] {1,4})(?=[^ ])"_s, ReOptions),
-            OlRE(u"^( *[0-9]{1,9}+[.)] {1,4})(?=[^ ])"_s, ReOptions);
+          UlRE(u"^( *[-+*] {1,4})(?=[^ ])"_s, ReOptions),
+          OlRE(u"^( *[0-9]{1,9}+[.)] {1,4})(?=[^ ])"_s, ReOptions);
         static constexpr auto UlMarker = "@@ul@@"_L1, OlMarker = "@@ol@@"_L1;
         text.replace(UlRE, "\\1" % UlMarker);
         text.replace(OlRE, "\\1" % OlMarker);

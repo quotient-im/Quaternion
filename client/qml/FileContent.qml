@@ -9,6 +9,21 @@ Attachment {
         id: fileTransferInfo
         width: parent.width
 
+        function humanSize(bytes)
+        {
+            if (!bytes)
+                return qsTr("Unknown", "Unknown attachment size")
+            if (bytes < 4000)
+                return qsTr("%Ln byte(s)", "", bytes)
+            bytes = Math.round(bytes / 100) / 10
+            if (bytes < 2000)
+                return qsTr("%L1 kB").arg(bytes)
+            bytes = Math.round(bytes / 100) / 10
+            if (bytes < 2000)
+                return qsTr("%L1 MB").arg(bytes)
+            return qsTr("%L1 GB").arg(Math.round(bytes / 100) / 10)
+        }
+
         selectByMouse: true;
         readOnly: true;
         font: timelabel.font

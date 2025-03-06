@@ -326,8 +326,20 @@ Item {
                     selectByMouse: true
                     readOnly: true
                     textFormat: TextEdit.RichText
-                    // FIXME: The text is clumsy and slows down creation
-                    text: (!settings.timelineStyleIsXChat
+                    // FIXME: The text is clumsy and slows down creation; move it to C++
+                    text:
+                        (repliedTo
+                         ? "<table style='background-color:"
+                           + messageModel.fadedBackColor(memberColor(repliedTo.sender), 0.07)
+                           + "'><tr><td></td><td style='padding: 2px; padding-bottom: 0px'>"
+                           + inlineAuthorLabel(repliedTo.sender)
+                           + "</td></tr><tr><td style='padding: 2px; padding-top: 0px; padding-right: 0px'><a href='"
+                             + repliedTo.eventId
+                             + "'><img src='qrc:///scrollup.svg' height=" + settings.fontHeight
+                           + "/></a></td><td style='padding: 2px; padding-top: 0px'>"
+                             + repliedTo.content + "</td></tr></table>"
+                             : "")
+                        + (!settings.timelineStyleIsXChat
                            ? ("<table style='float: right; font-size: small; color:\""
                                 + settings.lowlight_color
                               + "\"'><tr>"
@@ -339,20 +351,7 @@ Item {
                               + (actionEvent && !authorLabel.visible
                                  ? inlineAuthorLabel(author) : ""))
                            : "")
-                          + (repliedTo
-                             ? "<table style='background-color:"
-                               + messageModel.fadedBackColor(memberColor(repliedTo.sender), 0.07)
-                               + "'><tr><td></td><td style='padding: 2px; padding-bottom: 0px'>"
-                                 + inlineAuthorLabel(repliedTo.sender)
-                               + "</td></tr><tr><td style='padding: 2px; padding-top: 0px; padding-right: 0px'><a href='"
-                                 + repliedTo.eventId
-                                 + "'><img src='qrc:///scrollup.svg' height=" + settings.fontHeight
-                               + "/></a></td><td style='padding: 2px; padding-top: 0px'>"
-                                 + repliedTo.content + "</td></tr></table>"
-                             : "")
-                          + (actionEvent ? "<em>" : "")
-                          + display
-                          + (actionEvent ? "</em>" : "")
+                          + (actionEvent ? "<em>" : "") + display + (actionEvent ? "</em>" : "")
                           + (marks === EventStatus.Replaced
                              ? "<small style='color:\"" + settings.lowlight_color
                                + "\"'> (" + qsTr("edited") + ")</small>"
@@ -437,10 +436,7 @@ Item {
                     source: downloaded || progressInfo.isUpload
                             ? progressInfo.localPath
                             : !progressInfo.failed
-                              ? autoload ? room.makeMediaUrl(eventId, content.url)
-                                         : content.info.thumbnail_url
-                                           ? room.makeMediaUrl(eventId, content.info.thumbnail_url)
-                                           : ""
+                              ? autoload ? content.url : content.info.thumbnail_url ?? ""
                               : "" // TODO: show thumbnail or failing that blurhash before loading
                     maxHeight: chatView.height - textField.height -
                                authorLabel.height * !settings.timelineStyleIsXChat
@@ -497,14 +493,15 @@ Item {
                                   + modelData.authorsCount
                             textFormat: Text.PlainText
                             font.pointSize: settings.font.pointSize - 1
-                            color: fgColor
+                            color: reactionButton.fgColor
                         }
 
                         background: Rectangle {
                             radius: 4
-                            color: reactionButton.down ? palette.button
+                            color: reactionButton.hovered ? palette.mid
+                                   : reactionButton.down ? palette.button
                                    : modelData.includesLocalUser ? palette.highlight : "transparent"
-                            border.color: fgColor
+                            border.color: palette.mid
                             border.width: 1
                         }
 
