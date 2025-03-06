@@ -11,7 +11,7 @@ Page {
     TimelineSettings {
         id: settings
 
-        Component.onCompleted: console.log(lc, "Using timeline font: " + font)
+        Component.onCompleted: console.log(root.lc, "Using timeline font: " + font)
     }
 
     background: Rectangle { color: palette.base; border.color: palette.mid }
@@ -38,7 +38,7 @@ Page {
 
         height: headerText.height + 11
         padding: 3
-        visible: !!room
+        visible: !!root.room
 
         property bool showTopic: true
 
@@ -86,7 +86,7 @@ Page {
                     font: roomName.font
                     elide: Text.ElideRight
                     elideWidth: headerText.width
-                    text: room?.displayName ?? ""
+                    text: root.room?.displayName ?? ""
                 }
 
                 text: roomNameMetrics.elidedText
@@ -100,18 +100,17 @@ Page {
                               (roomNameMetrics.text != roomNameMetrics.elidedText
                                || roomName.lineCount > 1)
                 ToolTip.visible: hovered
-                ToolTip.text: room?.displayNameForHtml ?? ""
+                ToolTip.text: root.room?.displayNameForHtml ?? ""
             }
 
             Label {
                 id: versionNotice
-                visible: !!room && (room.isUnstable || room.successorId !== "")
+                visible: !!root.room && (room.isUnstable || room.successorId !== "")
                 width: parent.width
                 leftPadding: headerText.innerLeftPadding
 
-                text: room?.successorId !== "" ? qsTr("This room has been upgraded.")
-                                               : room?.isUnstable ? qsTr("Unstable room version!")
-                                                                  : ""
+                text: root.room?.successorId !== "" ? qsTr("This room has been upgraded.")
+                      : root.room?.isUnstable ? qsTr("Unstable room version!") : ""
                 elide: Text.ElideRight
                 font.italic: true
                 renderType: settings.render_type
@@ -151,7 +150,7 @@ Page {
                     rightPadding: topicField.ScrollBar.vertical.visible
                                   ? topicField.ScrollBar.vertical.width : padding
 
-                    text: room ? room.prettyPrint(room.topic) : ""
+                    text: root.room ? root.room.prettyPrint(root.room.topic) : ""
                     placeholderText: qsTr("(no topic)")
                     textFormat: TextEdit.RichText
                     renderType: settings.render_type
@@ -187,16 +186,16 @@ Page {
         }
         Button {
             id: versionActionButton
-            visible: !!room && ((room.isUnstable && room.canSwitchVersions())
-                              || room.successorId !== "")
+            visible: !!root.room && ((root.room.isUnstable && root.room.canSwitchVersions())
+                                     || root.room.successorId !== "")
             anchors.verticalCenter: headerText.verticalCenter
             anchors.right: parent.right
             width: visible * implicitWidth
-            text: room?.successorId !== "" ? qsTr("Go to\nnew room") : qsTr("Room\nsettings")
+            text: root.room?.successorId !== "" ? qsTr("Go to\nnew room") : qsTr("Room\nsettings")
 
             onClicked:
-                if (room.successorId !== "")
-                    controller.resourceRequested(room.successorId, "join")
+                if (root.room.successorId !== "")
+                    controller.resourceRequested(root.room.successorId, "join")
                 else
                     controller.roomSettingsRequested()
         }
@@ -209,8 +208,7 @@ Page {
         model: messageModel
         delegate: TimelineItem {
             width: chatView.width - scrollerArea.width
-            // #737; the solution found in
-            // https://bugreports.qt.io/browse/QT3DS-784
+            // #737; the solution found in https://bugreports.qt.io/browse/QT3DS-784
             ListView.delayRemove: true
         }
         verticalLayoutDirection: ListView.BottomToTop
@@ -238,7 +236,7 @@ Page {
         readonly property int bottommostVisibleIndex: count > 0 ?
             atYEnd ? 0 : indexAt(contentX, contentY + height - 1) : -1
         readonly property bool noNeedMoreContent:
-            !room || room.eventsHistoryJob || room.allHistoryLoaded
+            !root.room || root.room.eventsHistoryJob || root.room.allHistoryLoaded
 
         /// The number of events per height unit - always positive
         readonly property real eventDensity:
@@ -254,9 +252,8 @@ Page {
 
         function parkReadMarker() {
             readMarkerContentPos = Qt.binding(function() {
-                return !messageModel || messageModel.readMarkerVisualIndex
-                                         > indexAt(contentX, contentY)
-                       ? originY : contentY + contentHeight
+                return messageModel.readMarkerVisualIndex <= indexAt(contentX, contentY)
+                       ? contentY + contentHeight : originY
             })
         }
 
@@ -272,15 +269,13 @@ Page {
             // 2 seconds and if yes, request the amount of messages
             // enough to scroll at this rate for 3 more seconds
             if (velocity > 0 && contentY - velocity*2 < originY)
-                room.getPreviousContent(velocity * eventDensity * 3)
+                root.room.getPreviousContent(velocity * eventDensity * 3)
         }
         onContentYChanged: ensurePreviousContent()
         onContentHeightChanged: ensurePreviousContent()
 
         function saveViewport(force) {
-            if (room)
-                room.saveViewport(indexAt(contentX, contentY),
-                                  bottommostVisibleIndex, force)
+            root.room?.saveViewport(indexAt(contentX, contentY), bottommostVisibleIndex, force)
         }
 
         ScrollFinisher { id: scrollFinisher }
@@ -307,12 +302,10 @@ Page {
         Connections {
             target: controller
             function onPageUpPressed() {
-                chatView.scrollUp(chatView.height
-                                  - sectionBanner.childrenRect.height)
+                chatView.scrollUp(chatView.height - sectionBanner.childrenRect.height)
             }
             function onPageDownPressed() {
-                chatView.scrollDown(chatView.height
-                                    - sectionBanner.childrenRect.height)
+                chatView.scrollDown(chatView.height - sectionBanner.childrenRect.height)
             }
             function onViewPositionRequested(index) {
                 scrollFinisher.scrollViewTo(index, ListView.Contain)
@@ -326,8 +319,7 @@ Page {
             target: messageModel
             function onModelAboutToBeReset() {
                 chatView.parkReadMarker()
-                console.log(lc, "Read marker parked at index",
-                            messageModel.readMarkerVisualIndex)
+                console.log(lc, "Read marker parked at index", messageModel.readMarkerVisualIndex)
                 chatView.saveViewport(true)
             }
             function onModelReset() {
@@ -337,17 +329,13 @@ Page {
             }
         }
 
-        Component.onCompleted: console.log(lc, "QML view loaded")
+        Component.onCompleted: console.log(root.lc, "QML view loaded")
 
         onMovementEnded: saveViewport(false)
 
-        populate: AnimatedTransition {
-            FastNumberAnimation { property: "opacity"; from: 0; to: 1 }
-        }
+        populate: AnimatedTransition { FastNumberAnimation { property: "opacity"; from: 0; to: 1 } }
 
-        add: AnimatedTransition {
-            FastNumberAnimation { property: "opacity"; from: 0; to: 1 }
-        }
+        add: AnimatedTransition { FastNumberAnimation { property: "opacity"; from: 0; to: 1 } }
 
         move: AnimatedTransition {
             FastNumberAnimation { property: "y"; }
@@ -426,7 +414,6 @@ Page {
             }
         }
 
-
         // itemAt is a function rather than a property, so it doesn't
         // produce a QML binding; the piece with contentHeight compensates.
         readonly property var underlayingItem: contentHeight >= height
@@ -460,7 +447,7 @@ Page {
         id: cachedEventsBar
 
         // A proxy property for animation
-        property int requestedHistoryEventsCount: room?.requestedHistorySize ?? 0
+        property int requestedHistoryEventsCount: root.room?.requestedHistorySize ?? 0
         AnimationBehavior on requestedHistoryEventsCount { NormalNumberAnimation { } }
 
         property real averageEvtHeight:
@@ -595,7 +582,7 @@ Page {
         opacity: 0 // Nothing to show at the start
         property bool shown: (chatView.bottommostVisibleIndex >= 0
                               && (scrollerArea.containsMouse || scrollAnimation.running))
-                             || room?.requestedHistorySize > 0
+                             || root.room?.requestedHistorySize > 0
         onShownChanged: {
             if (shown) {
                 fadeOutDelay.stop()
@@ -622,7 +609,7 @@ Page {
                      : qsTr("%Ln events back from now","", chatView.bottommostVisibleIndex))
                      + "\n" + qsTr("%Ln events cached", "", chatView.count)
                    : "")
-                  + (room?.requestedHistorySize > 0
+                  + (root.room?.requestedHistorySize > 0
                      ? (chatView.count > 0 ? "\n" : "")
                        + qsTr("%Ln events requested from the server", "", room.requestedHistorySize)
                      : "")
@@ -646,14 +633,13 @@ Page {
         }
 
         AnimationBehavior on opacity {
-            NormalNumberAnimation {
-                easing.type: Easing.OutQuad
-            }
+            NormalNumberAnimation { easing.type: Easing.OutQuad }
+        }
+        AnimationBehavior on anchors.topMargin {
+            NormalNumberAnimation { easing.type: Easing.OutQuad }
         }
         AnimationBehavior on anchors.bottomMargin {
-            NormalNumberAnimation {
-                easing.type: Easing.OutQuad
-            }
+            NormalNumberAnimation { easing.type: Easing.OutQuad }
         }
     }
 
