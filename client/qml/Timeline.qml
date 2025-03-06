@@ -263,6 +263,19 @@ Page {
     // Only used with the shuttle scroller for now
 
     Rectangle {
+        id: requestedEventsBar
+
+        // Stack above the cached events bar when more history has been requested
+        anchors.right: cachedEventsBar.right
+        anchors.top: chatView.top
+        anchors.bottom: cachedEventsBar.top
+        width: cachedEventsBar.width
+        visible: shuttleDial.visible
+
+        opacity: 0.4
+        color: palette.mid
+    }
+    Rectangle {
         id: cachedEventsBar
 
         // A proxy property for animation
@@ -283,18 +296,6 @@ Page {
                 ? 0 : averageEvtHeight * (chatView.count - chatView.bottommostVisibleIndex)
         visible: shuttleDial.visible
 
-        color: palette.mid
-    }
-    Rectangle {
-        // Loading history events bar, stacked above
-        // the cached events bar when more history has been requested
-        anchors.right: cachedEventsBar.right
-        anchors.top: chatView.top
-        anchors.bottom: cachedEventsBar.top
-        width: cachedEventsBar.width
-        visible: shuttleDial.visible
-
-        opacity: 0.4
         color: palette.mid
     }
 
@@ -378,6 +379,37 @@ Page {
             chatView.originYChanged.connect(cruisingAnimation.restart)
             chatView.contentHeightChanged.connect(cruisingAnimation.restart)
         }
+    }
+    component TextInScrollArea: Text {
+        height: cachedEventsBar.width // Because of the rotation, height becomes width
+        rotation: 90
+
+        horizontalAlignment: Text.AlignLeft
+        verticalAlignment: Text.AlignVCenter
+        padding: 2
+        renderType: settings.render_type
+        font.pointSize: settings.font.pointSize - 1
+    }
+
+    TextInScrollArea {
+        id: totalEventsCount
+
+        visible: chatView.count > 0
+        // NB: anchoring occurs before rotation
+        anchors.bottom: parent.top
+        anchors.left: cachedEventsBar.left
+        transformOrigin: Item.BottomLeft
+        text: chatView.count
+    }
+    TextInScrollArea {
+        id: eventsToBottomCount
+
+        visible: chatView.bottommostVisibleIndex > 0
+        // NB: same as above, anchoring occurs before rotation
+        anchors.top: scrollToBottomButton.top
+        anchors.right: scrollToBottomButton.right
+        transformOrigin: Item.TopRight
+        text: chatView.bottommostVisibleIndex
     }
 
     MouseArea {
@@ -485,7 +517,7 @@ Page {
         id: scrollToReadMarkerButton
 
         anchors.top: parent.top
-        anchors.topMargin: visible ? 0.5 * height : -height
+        anchors.topMargin: visible ? totalEventsCount.width + 10 : -height
 
         visible: chatView.count > 1 &&
                  messageModel.readMarkerVisualIndex > 0 &&
