@@ -326,8 +326,20 @@ Item {
                     selectByMouse: true
                     readOnly: true
                     textFormat: TextEdit.RichText
-                    // FIXME: The text is clumsy and slows down creation
-                    text: (!settings.timelineStyleIsXChat
+                    // FIXME: The text is clumsy and slows down creation; move it to C++
+                    text:
+                        (repliedTo
+                         ? "<table style='background-color:"
+                           + messageModel.fadedBackColor(memberColor(repliedTo.sender), 0.07)
+                           + "'><tr><td></td><td style='padding: 2px; padding-bottom: 0px'>"
+                           + inlineAuthorLabel(repliedTo.sender)
+                           + "</td></tr><tr><td style='padding: 2px; padding-top: 0px; padding-right: 0px'><a href='"
+                             + repliedTo.eventId
+                             + "'><img src='qrc:///scrollup.svg' height=" + settings.fontHeight
+                           + "/></a></td><td style='padding: 2px; padding-top: 0px'>"
+                             + repliedTo.content + "</td></tr></table>"
+                             : "")
+                        + (!settings.timelineStyleIsXChat
                            ? ("<table style='float: right; font-size: small; color:\""
                                 + settings.lowlight_color
                               + "\"'><tr>"
@@ -339,20 +351,7 @@ Item {
                               + (actionEvent && !authorLabel.visible
                                  ? inlineAuthorLabel(author) : ""))
                            : "")
-                          + (repliedTo
-                             ? "<table style='background-color:"
-                               + messageModel.fadedBackColor(memberColor(repliedTo.sender), 0.07)
-                               + "'><tr><td></td><td style='padding: 2px; padding-bottom: 0px'>"
-                                 + inlineAuthorLabel(repliedTo.sender)
-                               + "</td></tr><tr><td style='padding: 2px; padding-top: 0px; padding-right: 0px'><a href='"
-                                 + repliedTo.eventId
-                                 + "'><img src='qrc:///scrollup.svg' height=" + settings.fontHeight
-                               + "/></a></td><td style='padding: 2px; padding-top: 0px'>"
-                                 + repliedTo.content + "</td></tr></table>"
-                             : "")
-                          + (actionEvent ? "<em>" : "")
-                          + display
-                          + (actionEvent ? "</em>" : "")
+                          + (actionEvent ? "<em>" : "") + display + (actionEvent ? "</em>" : "")
                           + (marks === EventStatus.Replaced
                              ? "<small style='color:\"" + settings.lowlight_color
                                + "\"'> (" + qsTr("edited") + ")</small>"
