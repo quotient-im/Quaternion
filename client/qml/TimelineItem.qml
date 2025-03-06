@@ -493,14 +493,15 @@ Item {
                                   + modelData.authorsCount
                             textFormat: Text.PlainText
                             font.pointSize: settings.font.pointSize - 1
-                            color: fgColor
+                            color: reactionButton.fgColor
                         }
 
                         background: Rectangle {
                             radius: 4
-                            color: reactionButton.down ? palette.button
+                            color: reactionButton.hovered ? palette.mid
+                                   : reactionButton.down ? palette.button
                                    : modelData.includesLocalUser ? palette.highlight : "transparent"
-                            border.color: fgColor
+                            border.color: palette.mid
                             border.width: 1
                         }
 
