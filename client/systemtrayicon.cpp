@@ -14,30 +14,30 @@
 
 #include "mainwindow.h"
 #include "quaternionroom.h"
-#include "linuxutils.h"
+#include "desktop_integration.h"
 
 #include <Quotient/settings.h>
 #include <Quotient/qt_connection_util.h>
+
+using namespace Qt::StringLiterals;
 
 SystemTrayIcon::SystemTrayIcon(MainWindow* parent)
     : QSystemTrayIcon(parent)
     , m_parent(parent)
 {
     auto contextMenu = new QMenu(parent);
-    auto showHideAction = contextMenu->addAction(tr("Hide"), this, &SystemTrayIcon::showHide);
+    auto showHideAction =
+        contextMenu->addAction(tr("Hide"), this, &SystemTrayIcon::showHide);
     contextMenu->addAction(tr("Quit"), this, QApplication::quit);
+    m_parent->winId(); // To make sure m_parent->windowHandle() is initialised
     connect(m_parent->windowHandle(), &QWindow::visibleChanged, [showHideAction](bool visible) {
         showHideAction->setText(visible ? tr("Hide") : tr("Show"));
     });
 
-    m_appIcon = QIcon::fromTheme(appIconName(), QIcon(":/icon.png"));
-    m_unreadIcon = QIcon::fromTheme("mail-unread", m_appIcon);
-    m_notified = false;
-    setIcon(m_appIcon);
+    setIcon(appIcon());
     setToolTip("Quaternion");
     setContextMenu(contextMenu);
     connect( this, &SystemTrayIcon::activated, this, &SystemTrayIcon::systemTrayIconAction);
-    connect(qApp, &QApplication::focusChanged, this, &SystemTrayIcon::focusChanged);
 }
 
 void SystemTrayIcon::newRoom(Quotient::Room* room)
@@ -62,7 +62,8 @@ void SystemTrayIcon::unreadStatsChanged(Quotient::Room* room)
     setToolTip(tr("%Ln notification(s)", "", nNotifs));
 
     if (!m_notified) {
-        setIcon(m_unreadIcon);
+        static const auto unreadIcon = QIcon::fromTheme(u"mail-unread"_s, appIcon());
+        setIcon(unreadIcon);
         m_notified = true;
         if (mode == "none")
             return;
@@ -101,7 +102,7 @@ void SystemTrayIcon::showHide()
 void SystemTrayIcon::focusChanged(QWidget* old)
 {
     if (m_notified && old == nullptr && qApp->activeWindow() != nullptr) {
-        setIcon(m_appIcon);
+        setIcon(appIcon());
         setToolTip("Quaternion");
         m_notified = false;
     }

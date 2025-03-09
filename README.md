@@ -1,15 +1,15 @@
 # Quaternion
 
-<a href='https://matrix.org'><img src='https://matrix.org/docs/projects/images/made-for-matrix.png' alt='Made for Matrix' height=64 target=_blank /></a>
-
-[![license](https://img.shields.io/github/license/quotient-im/quaternion.svg)](https://github.com/quotient-im/Quaternion/blob/master/COPYING)
 ![status](https://img.shields.io/badge/status-beta-yellow.svg)
 [![release](https://img.shields.io/github/release/quotient-im/quaternion/all.svg)](https://github.com/quotient-im/Quaternion/releases/latest)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/1663/badge)](https://www.bestpractices.dev/projects/1663)
 [![](https://img.shields.io/matrix/quotient:matrix.org.svg)](https://matrix.to/#/#quotient:matrix.org)
-[![](https://img.shields.io/cii/percentage/1663.svg?label=CII%20best%20practices)](https://bestpractices.coreinfrastructure.org/projects/1663/badge)
 [![CI builds hosted by: Cloudsmith](https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&style=flat-square)](https://cloudsmith.com)
 
-Quaternion is a cross-platform desktop IM client for the [Matrix](https://matrix.org) protocol. This file contains general information about application usage and settings. See [BUILDING.md](./BUILDING.md) for building instructions.
+Quaternion is a cross-platform desktop IM client for the
+[Matrix](https://matrix.org) protocol. You can find general information about
+application usage and settings here. See [BUILDING.md](./BUILDING.md) for
+building instructions.
 
 ## Contacts
 Most of talking around Quaternion happens in the room of its parent project,
@@ -19,69 +19,63 @@ You can file issues at
 If you find what looks like a security issue, please follow
 [special instructions](./SECURITY.md).
 
-## Download and install
 
-For GNU/Linux, the recommended way to install Quaternion is via your
-distribution's package manager. Users of macOS can use a Homebrew
-package. The source code for the latest release as well as binaries
-for major platforms can also be found at the
-[GitHub Releases page](https://github.com/quotient-im/Quaternion/releases).
-Make sure to read the notes below depending to your environment.
+## Downloading and installing
+
+The recommended way to install Quaternion is as follows (make sure to read
+the notes below depending to your environment):
+
+- on GNU/Linux - using your distribution's package manager;
+- on macOS - from Homebrew;
+- on Windows - from an archive at the project's
+  [GitHub Releases page](https://github.com/quotient-im/Quaternion/releases).
+
+The source code is [hosted at GitHub](https://github.com/quotient-im/Quaternion).
 
 ### Requirements
-Quaternion 0.0.96 packages on Linux need Qt version 5.15.x (or 6.x); for major
-distros, that means Debian 11 (Bullseye), Ubuntu 22.04 (jammy), Fedora 35 and
-OpenSUSE Leap 15.4 or newer releases. The packages published by the project
-at GitHub (see below) come with Qt libraries bundled; Linux packages, including
-those from Flathub, use respective package managers to pull necessary libraries
-automatically.
 
-### Windows
-You can download the latest release from
-[GitHub](https://github.com/quotient-im/Quaternion/releases/latest).
+Quaternion 0.0.97 needs Qt version 6.4 or higher.
 
-Since there's no established package management on Windows to resolve
-dependencies, all needed libraries and a C++ runtime are packaged/installed
-together with Quaternion - except OpenSSL, because of export restrictions.
-Unless you already have OpenSSL around (e.g., it is a part of any
-Qt development installation), you should install it yourself.
-[OpenSSL's Wiki](https://wiki.openssl.org/index.php/Binaries) lists a few links
-to OpenSSL installers. They come in different build configurations; currently,
-Quaternion builds need OpenSSL 1.1.x made with/for Visual Studio (not MinGW).
-
-### macOS
-You can download the latest release from
-[GitHub](https://github.com/quotient-im/Quaternion/releases/latest).
-
-Alternatively, you can install Quaternion with [Homebrew Cask](https://brew.sh)
-```
-brew install quaternion
-```
-
-### Linux and others
+### Linux
 Quaternion is packaged for many distributions, including various versions of
 Debian, Ubuntu and OpenSUSE, as well as Arch Linux, NixOS and FreeBSD.
 A pretty comprehensive list can be found at
-[Repology](https://repology.org/project/quaternion/versions).
+[Repology](https://repology.org/project/quaternion/versions). Popular
+distributions satisfying the mentioned Qt requirement are Debian 12 (Bookworm),
+Ubuntu 24.04 (noble), Fedora 39, OpenSUSE Leap 15.6; anything newer than that
+should be fine, too.
 
-Flatpaks for Quaternion are available from Flathub. To install, use:
+On top of the Quaternion package, you should not normally need to install anything in addition;
+if something is not working due to a missing dependency, it's a bug in the package - please
+report it to your distribution's Quaternion packager, _not_ to this repository.
+
+There are also flatpaks for Quaternion available from Flathub. To install, use:
+
 ```
 flatpak install https://flathub.org/repo/appstream/com.github.quaternion.flatpakref
 ```
+
+These packages are built with a suitable KDE runtime. You can install them on
+any distribution that has Flatpak - even if it's older than mentioned above.
 Please file issues at https://github.com/flathub/com.github.quaternion
 if you believe there's a problem specific to the Flatpak package of Quaternion.
 
-<!-- TOREMOVE: AppImages are broken, see #876.
-The GitHub Releases page offers AppImage binaries for Linux; however, it's
-recommended to only use AppImage binaries if Quaternion is not available
-from your distribution's repos and Flatpak doesn't work for you.
-Distribution-specific packages better integrate into the system (particularly,
-the desktop environment) and include all relevant customisations (e.g. themes)
-and fixes (e.g. security). Both Flatpak packages and distribution-specific
-packages are built in a more reproducible and controlled way than AppImages
-assembled within this project; unlike AppImages, they are also (usually) signed
-by the repo which gives certain protection from tampering.
--->
+### Windows
+Since there's no established package management on Windows to resolve
+dependencies, all needed libraries and a C++ runtime are packaged/installed
+together with Quaternion - except OpenSSL. Unless you already have OpenSSL
+around (e.g., it is a part of any Qt development installation), you should
+install it yourself.
+[OpenSSL's Wiki](https://wiki.openssl.org/index.php/Binaries) lists a few links
+to OpenSSL installers. They come in different build configurations; current
+Quaternion builds distributed from GitHub Releases need OpenSSL 3.x made
+with/for Visual Studio (not MinGW).
+
+### macOS
+If you use Homebrew (you should!), `brew install quaternion` installs Quaternion
+along with its dependencies. Otherwise, packages published at
+[GitHub Releases](https://github.com/quotient-im/Quaternion/releases/latest)
+come with everything necessary already bundled.
 
 ### Development builds
 
@@ -94,7 +88,7 @@ continuous integration (CI) in the
 A few important notes on these packages in case you're new to them:
 - All of them come bundled with fairly recent (not necessarily latest) Qt 6.
 - They are only provided for testing; feedback on _any_ release is welcome
-  as long as you know which build you run; but do not expect the developers
+  as long as you know which build you run, but do not expect the developers
   to address issues in any but the latest snapshot.
 - In case it's still unclear: these builds are UNSTABLE by default; some may
   not run at all, and if they do, they may ~~tell you obscenities in your
@@ -103,15 +97,14 @@ A few important notes on these packages in case you're new to them:
   including Element ones, and generally corrupt your account in ways unexpected
   and hard to fix (all of that actually happened in the past). Do NOT run these
   builds if you're not prepared to deal with the problems.
-- If you understand the above, have your backups in order and are still willing
-  to try things out or just generally help with the project - make sure to
-  `/join #quotient:matrix.org` and have the URL you downloaded Quaternion from
-  handy. In case of trouble, ~~show this label to your doctor~~ send the URL
-  to the binary you used in the chat room (you may need to use another client
-  or Quaternion version for that), describe what happened and we'll try to pull
-  you out of it.
+- If you understand the above, have your backups in order and are still willing to try things out
+  or just generally help with the project - make sure to `/join #quotient:matrix.org` and have
+  the URL you downloaded Quaternion from. In case of trouble, ~~show this label to your doctor~~
+  send the URL to the binary you used in the chat room (you may need to use another client or
+  Quaternion version for that), describe what happened and we'll try to pull you out of it.
 
 If you want to build Quaternion from sources, see [BUILDING.md](./BUILDING.md).
+
 
 ## Running
 Just start the executable in your most preferred way - either from the build
@@ -119,18 +112,21 @@ directory or from the installed location. If you're interested in tweaking
 configuration beyond what's available in the UI, read the "Configuration"
 section further below.
 
+
 ## Translation
 Quaternion uses [Lokalise.co](https://lokalise.co) for the translation effort.
 It's easy to participate:
 [join the project at Lokalise.co](https://lokalise.co/public/730769035bbc328c31e863.62506391/),
-ask to add your language (either in #quotient:matrix.org or in
+ask to add your language (either in
+[#quotient:matrix.org](https://matrix.to/#/#quotient:matrix.org) or in
 the Lokalise project chat) and start translating! Many languages are still
 longing for contributors.
+
 
 ## Configuration
 The only non-trivial command-line option available so far is `--locale` - it
 allows you to override the locale Quaternion uses (an equivalent of setting
-`LC_ALL` variable on UNIX-based systems). Version 0.0.96 comes with German,
+`LC_ALL` variable on UNIX-based systems). Version 0.0.97 comes with German,
 Russian, Polish, and Spanish translations.
 
 Quaternion stores its configuration in a way standard for Qt applications, as
@@ -180,10 +176,13 @@ Some settings exposed in the user interface (Settings and View menus) are:
 - `autoload_images` - whether full-size images should be loaded immediately
   once the message is shown on the screen. The default is to automatically load
   full-size images; set this to false (or 0) to disable that and only load
-  a thumbnail initially. Check out
+  a thumbnail in the timeline (with the full image downloaded after you click
+  "Save as" or "Open" in the context menu). Check out
   https://github.com/quotient-im/Quaternion/issues/601 for the caveat.
-- `show_noop_events` - set this to 1 to show state events that do not alter
-  the state (you'll see "(repeated)" next to most of those).
+- `show_spammy` ("Show no-effect activity" in the menu) - when set to `false`, this setting tries
+  to clean up the timeline from events that don't contribute to conversation in any reasonable way,
+  such as messages from a recently joined user that are all redacted - a typical case of moderation
+  applied to spam.
 - `RoomsDock/tags_order` - allows to alter the order of tags in the room
   list. This is a comma-separated list of tags/namespaces;
   a few characters have special meaning as described below. If a tag is
@@ -218,17 +217,18 @@ Settings not exposed in UI:
 - `animations_duration_ms` - defines the base duration (in milliseconds) of
   animation effects in the timline. The default is 400; set it to 0 to disable
   animation.
-- `outgoing_color` - set this to the color name you prefer for text you sent;
-  HTML color names and SVG `#codes` are supported; by default it's `#204A87`
-  (navy blue).
-- `highlight_color` - set this to the color name you prefer for highlighted
-  rooms/messages; HTML color names and SVG `#codes` are supported;
-  by default it's `orange`.
+- `outgoing_color` - set this to the color name you prefer for text you sent; HTML color names and
+  hex `#codes` are supported; by default it's `#4A8780` (a brownish tint of teal - no science
+  behind that, just an arbitrary shot in a color picker).
+- `highlight_color` - set this to the color name you prefer for highlighted rooms/messages;
+  HTML color names and hex `#codes` are supported; by default it's `orange`.
 - `highlight_mode` - set this to `text` if you prefer to use the text color
   for highlighting; the default is to use the background for highlighting.
 - `use_human_friendly_dates` - set this to false (or 0) if you do NOT want
   usage of human-friendly dates ("Today", "Monday" instead of the standard
   day-month-year triad) in the UI; the default is true.
+- `show_noop_events` - set this to 1 to show state events that do not alter
+  the state (you'll see "(repeated)" next to most of those).
 - `quote_style` - the quote template. The `\\1` means the quoted string.
   By default it's `> \\1\n`.
 - `quote_regex` - set to `^([\\s\\S]*)` to add `UI/quote_style` only at
@@ -260,12 +260,11 @@ Settings not exposed in UI:
 - `paste_plaintext_by_default` - set this to false (or 0) if you want to paste
   formatted text by default.
 
-Quaternion uses Qt Keychain to store access tokens and (if libQuotient is
-built with E2EE support) database pickles. If the secure storage supported by
-Qt Keychain is not available, Quaternion will NOT store your access token(s) and
-pickles; do NOT proceed if E2EE is switched on, unless you are fine to end up
-with unrecoverable encrypted messages sent during that session. The fallback
-file used by Quaternion 0.0.9.5/0.0.95 is no more used.
+Quaternion uses Qt Keychain to store access tokens and database pickles. If
+the secure storage supported by Qt Keychain is not available, Quaternion
+will not be able to store your access token(s) and pickles and will
+automatically disable E2EE to avoid unrecoverable encrypted messages.
+The fallback file used by Quaternion pre-0.0.96 is no more used.
 
 Quaternion caches the rooms state and user/room avatars on the file system
 in a conventional location for your platform, as follows:
@@ -287,11 +286,20 @@ in them).
 Deleting cache files may help with problems such as missing avatars,
 rooms stuck in a wrong state etc.
 
+
 ## Troubleshooting
 
 Quaternion uses libQuotient under the hood; some Quaternion problems are
 actually problems of libQuotient. If you haven't found your case below, check
 also the troubleshooting section in libQuotient README.md.
+
+#### Some older messages don't get decrypted in E2EE rooms
+Unfortunately, this is a limitation in the libQuotient code. The E2EE backend of libQuotient is
+currently being ported from Olm to matrix-rust-sdk - aside from being maintained, unlike Olm,
+matrix-rust-sdk provides higher-level API withh all necessary bits and pieces to decrypt messages,
+so libQuotient won't have to reimplement it. Subscribe to
+[the respective pull request](https://github.com/quotient-im/libQuotient/pull/820)
+if you want to be updated on the progress of this work.
 
 #### No messages in the timeline
 If Quaternion runs but you can't see any messages in the chat (though you can
@@ -307,23 +315,58 @@ Especially on Windows, if Quaternion starts up but upon an attempt to connect
 returns a message like "Failed to make SSL context" - correct SSL libraries
 are not reachable by the Quaternion binary. Re-read the chapter "Requirements",
 section "Windows" in the beginning of this file and do as it advises (make sure
-in particular that you use the correct version of OpenSSL - it should be 1.1.*,
-not 3.* or 1.0.*).
+in particular that you use the correct version of OpenSSL - it should be 3.x,
+not 1.x).
 
 #### Logging
-If you want to see log messages in the command-line console rather than
-the system log (a case with Windows and some but not all Linux systems with
+If you want to see log messages in the command-line console (by default,
+they are sent to system log on Windows and some but not all Linux systems with
 journald), set `QT_ASSUME_STDERR_HAS_CONSOLE=1` to force the output to be
 redirected to the console.
 
-When chasing bugs and investigating crashes, it helps to increase the debug
-level. Thanks to [@eang:matrix.org](https://matrix.to/#/@eang:matrix.org]),
-libQuotient uses Qt logging categories - the "Troubleshooting" section of
-the library's `README.md` elaborates on how to setup logging. Note that
-Quaternion itself doesn't use Qt logging categories yet, only the library does.
+When chasing bugs and investigating crashes, it helps to run Quaternion from
+the command line with increased logging level. Both libQuotient and (since
+0.0.96 beta 4) Quaternion use
+[logging categories](https://doc.qt.io/qt-6/qloggingcategory.html#configuring-categories)
+to allow fine-grained switching of logs for a given part of the code. Quaternion
+and libQuotient use different categories; this text only describes those for
+Quaternion, make sure to also check [lib/README.md](lib/README.md) for
+libQuotient logging categories. The most practical way to configure logging in
+order to debug a problem is via the `QT_LOGGING_RULES` environment variable;
+the Qt documentation (see the link above) lists a few other methods. In all
+cases, you need to provide one or several clauses that look as follows:
+```
+quaternion.<category>.<level>=<flag>
+```
+where
+- `<category>` is one of (see also `client/logging_categories.h`):
+  - `main`
+  - `accountselector`
+  - `models` (Quaternion backend for user and room lists)
+  - `models.events` (same for events)
+  - `timeline` (C++ code for timeline visuals - very few log lines and not very
+    informative unless you know what to look for)
+  - `timeline.qml` (QML code for timeline visuals - this is what you likely
+    need to figure out why the timeline looks wrong)
+  - `htmlfilter` (conversions between Qt and Matrix subsets of HTML as well
+    as HTML import from other applications)
+  - `messageinput` (message entry box)
+  - `thumbnails` (the code to supply images for the timeline)
+- `<level>` is one of `debug`, `info`, and `warning`;
+- `<flag>` is either `true` or `false`.
+
+Bear in mind that all logging categories for Quaternion start with `quaternion`
+while logging categories for libQuotient always start with `quotient`.
+
+You can use `*` (asterisk) as a wildcard for any part between two dots, and
+a semicolon is used for a separator. Latter statements override former ones, so
+if you want Quaternion to log at debug level except, e.g., `timeline.qml`, set
+```shell script
+QT_LOGGING_RULES="quaternion.*.debug=true;quaternion.timeline.qml.debug=false"
+```
 
 You may also want to set `QT_MESSAGE_PATTERN` to make logs slightly more
-informative (see https://doc.qt.io/qt-5/qtglobal.html#qSetMessagePattern
+informative (see https://doc.qt.io/qt-6/qtlogging.html#qSetMessagePattern
 for the format description). My (@kitsune's) `QT_MESSAGE_PATTERN` looks as
 follows:
 ```
@@ -332,4 +375,4 @@ follows:
 (the scary `%{if}`s are just encoding the logging level into its initial letter).
 
 ## Screenshot
-![Screenshot, thanks to nep-quaternion@packageloss.eu](quaternion.png)
+![Screenshot](Screenshot.png)

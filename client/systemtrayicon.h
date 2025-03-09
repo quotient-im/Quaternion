@@ -33,8 +33,6 @@ class SystemTrayIcon: public QSystemTrayIcon
 
     private:
         MainWindow* m_parent;
-        QIcon m_appIcon;
-        QIcon m_unreadIcon;
         bool m_notified;
         void showHide();
 };

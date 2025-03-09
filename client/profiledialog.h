@@ -25,6 +25,7 @@ namespace Quotient {
 class AccountRegistry;
 class GetDevicesJob;
 class Connection;
+class KeyVerificationSession;
 }
 
 class ProfileDialog : public Dialog
@@ -42,6 +43,8 @@ private slots:
     void load() override;
     void apply() override;
     void uploadAvatar();
+    Quotient::KeyVerificationSession* initiateVerification(const QString& deviceId,
+                                                           QAction* verifyAction);
 
 private:
     Quotient::SettingsGroup m_settings;
@@ -57,4 +60,7 @@ private:
     QString m_newAvatarPath;
     QPointer<Quotient::GetDevicesJob> m_devicesJob;
     QVector<Quotient::Device> m_devices;
+
+    void setVerifiedItem(int row, const QString& deviceId);
+    void refreshDevices();
 };

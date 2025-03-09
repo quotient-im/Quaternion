@@ -8,7 +8,10 @@
 
 #include "roomlistdock.h"
 
+#include "logging_categories.h"
+
 #include <QtWidgets/QMenu>
+#include <QtWidgets/QMessageBox>
 #include <QtWidgets/QStyledItemDelegate>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPlainTextEdit>
@@ -125,7 +128,8 @@ RoomListDock::RoomListDock(MainWindow* parent)
         const auto& i = model->index(groupPos, 0);
         const auto groupKey = model->roomGroupAt(i).toString();
         if (groupKey.startsWith("org.qmatrixclient"))
-            qCritical() << groupKey << "is deprecated!"; // Fighting the legacy
+            qCCritical(MAIN)
+                << groupKey << "is deprecated!"; // Fighting the legacy
         auto groupState = dockSettings.value(groupKey);
         if (!groupState.isValid()) {
             if (groupKey.startsWith(RoomGroup::SystemPrefix)) {
@@ -191,10 +195,14 @@ RoomListDock::RoomListDock(MainWindow* parent)
     forgetAction =
         roomContextMenu->addAction(QIcon::fromTheme("irc-remove-operator"),
         tr("Forget room"), this, [this] {
-            if (auto room = getSelectedRoom())
-            {
-                Q_ASSERT(room->connection());
-                room->connection()->forgetRoom(room->id());
+            if (auto room = getSelectedRoom()) {
+                QMessageBox::StandardButton confirmation = QMessageBox::question(
+                    this, tr("Forget this room?"),
+                    tr("Are you sure you want to forget room %1?").arg(room->displayName()));
+                if (confirmation == QMessageBox::Yes) {
+                    if (QUO_CHECK(room->connection()))
+                        room->connection()->forgetRoom(room->id());
+                }
             }
         });
 

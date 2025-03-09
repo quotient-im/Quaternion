@@ -16,84 +16,86 @@ class QLabel;
 
 class Dialog : public QDialog
 {
-        Q_OBJECT
-    public:
-        enum UseStatusLine { NoStatusLine, StatusLine };
-        static const auto NoExtraButtons = QDialogButtonBox::NoButton;
+    Q_OBJECT
+public:
+    enum UseStatusLine { NoStatusLine, StatusLine };
+    static constexpr auto NoExtraButtons = QDialogButtonBox::NoButton;
 
-        explicit Dialog(const QString& title, QWidget *parent = nullptr,
-            UseStatusLine useStatusLine = NoStatusLine,
-            const QString& applyTitle = {},
-            QDialogButtonBox::StandardButtons addButtons = QDialogButtonBox::Reset);
+    explicit Dialog(const QString& title, QWidget* parent = nullptr,
+                    UseStatusLine useStatusLine = NoStatusLine, const QString& applyTitle = {},
+                    QDialogButtonBox::StandardButtons addButtons = QDialogButtonBox::Reset);
 
-        explicit Dialog(const QString& title, QDialogButtonBox::StandardButtons setButtons,
-            QWidget *parent = nullptr,
-            UseStatusLine useStatusLine = NoStatusLine);
+    explicit Dialog(const QString& title, QDialogButtonBox::StandardButtons setButtons,
+                    QWidget* parent = nullptr, UseStatusLine useStatusLine = NoStatusLine);
 
-        /// Create and add a layout of the given type
-        /*! This creates a new layout object and adds it to the bottom of
-         * the dialog client area (i.e., above the button box). */
-        template <typename LayoutT>
-        LayoutT* addLayout(int stretch = 0)
-        {
-            auto l = new LayoutT;
-            addLayout(l, stretch);
-            return l;
-        }
-        /// Add a layout to the bottom of the dialog's client area
-        void addLayout(QLayout* l, int stretch = 0);
-        /// Add a widget to the bottom of the dialog's client area
-        void addWidget(QWidget* w, int stretch = 0,
-                       Qt::Alignment alignment = {});
+    /// Create and add a layout of the given type
+    /*! This creates a new layout object and adds it to the bottom of
+     * the dialog client area (i.e., above the button box). */
+    template <typename LayoutT>
+    LayoutT* addLayout(int stretch = 0)
+    {
+        auto l = new LayoutT;
+        addLayout(l, stretch);
+        return l;
+    }
+    /// Add a layout to the bottom of the dialog's client area
+    void addLayout(QLayout* l, int stretch = 0);
+    /// Add a widget to the bottom of the dialog's client area
+    void addWidget(QWidget* w, int stretch = 0, Qt::Alignment alignment = {});
 
-        QPushButton* button(QDialogButtonBox::StandardButton which);
+    static QLabel* makeBuddyLabel(QString labelText, QWidget* field);
 
-    public slots:
-        /// Show or raise the dialog
-        void reactivate();
-        /// Set the status line of the dialog window
-        void setStatusMessage(const QString& msg);
-        /// Return to the dialog after a failed apply
-        void applyFailed(const QString& errorMessage);
+    QPushButton* button(QDialogButtonBox::StandardButton which);
 
-    protected:
-        /// (Re-)Load data in the dialog
-        /*! \sa buttonClicked */
-        virtual void load() { }
-        /// Check data in the dialog before accepting
-        /*! \sa apply, buttonClicked */
-        virtual bool validate() { return true; }
-        /// Apply changes and close the dialog
-        /*!
-         * This method is invoked upon clicking the "apply" button (by default
-         * it's the one with `AcceptRole`), if validate() returned true.
-         * \sa buttonClicked, validate
-         */
-        virtual void apply() { accept(); }
-        /// React to a click of a button in the dialog box
-        /*!
-         * This virtual function is invoked every time one of push buttons
-         * in the dialog button box is clicked; it defines how the dialog reacts
-         * to each button. By default, it calls validate() and, if it succeeds,
-         * apply() on buttons with `AcceptRole`; cancels the dialog on
-         * `RejectRole`; and reloads the fields on `ResetRole`. Override this
-         * method to change this behaviour.
-         * \sa validate, apply, reject, load
-         */
-        virtual void buttonClicked(QAbstractButton* button);
+    using QWidget::setTabOrder;
+#if QT_VERSION < QT_VERSION_CHECK(6, 6, 0)
+    static void setTabOrder(std::initializer_list<QWidget*> widgets);
+#endif
 
-        QDialogButtonBox* buttonBox() const { return buttons; }
-        QLabel* statusLine() const { return statusLabel; }
+public slots:
+    /// Show or raise the dialog
+    void reactivate();
+    /// Set the status line of the dialog window
+    void setStatusMessage(const QString& msg);
+    /// Return to the dialog after a failed apply
+    void applyFailed(const QString& errorMessage);
 
-        void setPendingApplyMessage(const QString& msg)
-        { pendingApplyMessage = msg; }
+protected:
+    /// (Re-)Load data in the dialog
+    /*! \sa buttonClicked */
+    virtual void load() {}
+    /// Check data in the dialog before accepting
+    /*! \sa apply, buttonClicked */
+    virtual bool validate() { return true; }
+    /// Apply changes and close the dialog
+    /*!
+     * This method is invoked upon clicking the "apply" button (by default
+     * it's the one with `AcceptRole`), if validate() returned true.
+     * \sa buttonClicked, validate
+     */
+    virtual void apply() { accept(); }
+    /// React to a click of a button in the dialog box
+    /*!
+     * This virtual function is invoked every time one of push buttons
+     * in the dialog button box is clicked; it defines how the dialog reacts
+     * to each button. By default, it calls validate() and, if it succeeds,
+     * apply() on buttons with `AcceptRole`; cancels the dialog on
+     * `RejectRole`; and reloads the fields on `ResetRole`. Override this
+     * method to change this behaviour.
+     * \sa validate, apply, reject, load
+     */
+    virtual void buttonClicked(QAbstractButton* button);
 
-    private:
-        UseStatusLine applyLatency;
-        QString pendingApplyMessage;
+    QDialogButtonBox* buttonBox() const { return buttons; }
+    QLabel* statusLine() const { return statusLabel; }
 
-        QLabel* statusLabel;
-        QDialogButtonBox* buttons;
+    void setPendingApplyMessage(const QString& msg) { pendingApplyMessage = msg; }
 
-        QVBoxLayout outerLayout;
+private:
+    QString pendingApplyMessage;
+
+    QLabel* statusLabel;
+    QDialogButtonBox* buttons;
+
+    QVBoxLayout outerLayout;
 };

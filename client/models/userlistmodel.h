@@ -16,40 +16,39 @@ namespace Quotient
 {
     class Connection;
     class Room;
-    class User;
+    class RoomMember;
 }
 
 class UserListModel: public QAbstractListModel
 {
         Q_OBJECT
     public:
-        using User = Quotient::User;
+        using RoomMember = Quotient::RoomMember;
 
         UserListModel(QAbstractItemView* parent);
-        virtual ~UserListModel();
 
         void setRoom(Quotient::Room* room);
-        User* userAt(QModelIndex index);
+        RoomMember userAt(QModelIndex index) const;
 
         QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
         int rowCount(const QModelIndex& parent=QModelIndex()) const override;
-    
+
     signals:
-        void membersChanged(); //< Reflection of Room::memberListChanged
+        void membersChanged(); //!< Reflection of Room::memberListChanged
 
     public slots:
         void filter(const QString& filterString);
 
     private slots:
-        void userAdded(User* user);
-        void userRemoved(User* user);
-        void refresh(User* user, QVector<int> roles = {});
-        void avatarChanged(User* user);
+        void userAdded(const RoomMember& member);
+        void userRemoved(const RoomMember& member);
+        void refresh(const RoomMember& member, QVector<int> roles = {});
+        void avatarChanged(const RoomMember& m);
 
     private:
         Quotient::Room* m_currentRoom;
-        QList<User*> m_users;
+        QList<QString> m_memberIds;
 
-        int findUserPos(User* user) const;
+        int findUserPos(const RoomMember &m) const;
         int findUserPos(const QString& username) const;
 };

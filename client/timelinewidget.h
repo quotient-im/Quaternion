@@ -4,12 +4,13 @@
 
 #include <Quotient/eventitem.h>
 
+#include <QtQml/QQmlNetworkAccessManagerFactory>
 #include <QtQuickWidgets/QQuickWidget>
+
 #include <QtCore/QBasicTimer>
 
 class ChatRoomWidget;
 class MessageEventModel;
-class ImageProvider;
 class QuaternionRoom;
 
 class TimelineWidget : public QQuickWidget {
@@ -20,6 +21,7 @@ public:
     QString selectedText() const;
     QuaternionRoom* currentRoom() const;
     Q_INVOKABLE Qt::KeyboardModifiers getModifierKeys() const;
+    Q_INVOKABLE bool isHistoryRequestRunning() const;
 
 signals:
     void resourceRequested(const QString& idOrUri, const QString& action = {});
@@ -31,6 +33,7 @@ signals:
     void showDetails(int currentIndex);
     void viewPositionRequested(int index);
     void animateMessage(int currentIndex);
+    void historyRequestChanged();
 
 public slots:
     void setRoom(QuaternionRoom* room);
@@ -43,10 +46,10 @@ public slots:
                   const QString& selectedText, bool showingDetails);
     void reactionButtonClicked(const QString& eventId, const QString& key);
     void setGlobalSelectionBuffer(const QString& text);
+    void ensureLastReadEvent();
 
 private:
     MessageEventModel* m_messageModel;
-    ImageProvider* m_imageProvider;
     QString m_selectedText;
 
     using timeline_index_t = Quotient::TimelineItem::index_t;
@@ -55,8 +58,15 @@ private:
     QBasicTimer maybeReadTimer;
     bool readMarkerOnScreen;
     ActivityDetector activityDetector;
-    ChatRoomWidget* roomWidget;
+    QFuture<void> historyRequest;
 
+    class NamFactory : public QQmlNetworkAccessManagerFactory {
+    public:
+        QNetworkAccessManager* create(QObject* parent) override;
+    };
+    NamFactory namFactory;
+
+    ChatRoomWidget* roomWidget() const;
     void reStartShownTimer();
     void timerEvent(QTimerEvent* qte) override;
     bool pendingMarkRead() const;

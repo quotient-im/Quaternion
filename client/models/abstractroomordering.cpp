@@ -18,13 +18,13 @@ AbstractRoomOrdering::AbstractRoomOrdering(RoomListModel* m)
 AbstractRoomOrdering::groupLessThan_closure_t
 AbstractRoomOrdering::groupLessThanFactory() const
 {
-    return std::bind(&AbstractRoomOrdering::groupLessThan, this, _1, _2);
+    return std::bind_front(&AbstractRoomOrdering::groupLessThan, this);
 }
 
 AbstractRoomOrdering::roomLessThan_closure_t
 AbstractRoomOrdering::roomLessThanFactory(const QVariant& group) const
 {
-    return std::bind(&AbstractRoomOrdering::roomLessThan, this, group, _1, _2);
+    return std::bind_front(&AbstractRoomOrdering::roomLessThan, this, group);
 }
 
 void AbstractRoomOrdering::updateGroups(Room* room)

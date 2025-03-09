@@ -5,203 +5,20 @@ import Quotient 1.0
 Page {
     id: root
 
-    property var room: messageModel ? messageModel.room : undefined
+    property Room room: messageModel?.room
 
+    readonly property Logger lc: Logger { }
     TimelineSettings {
         id: settings
 
-        Component.onCompleted: console.log("Using timeline font: " + font)
+        Component.onCompleted: console.log(root.lc, "Using timeline font: " + font)
     }
 
-    background: Rectangle { color: palette.base }
+    background: Rectangle { color: palette.base; border.color: palette.mid }
     contentWidth: width
     font: settings.font
 
-    function humanSize(bytes)
-    {
-        if (!bytes)
-            return qsTr("Unknown", "Unknown attachment size")
-        if (bytes < 4000)
-            return qsTr("%Ln byte(s)", "", bytes)
-        bytes = Math.round(bytes / 100) / 10
-        if (bytes < 2000)
-            return qsTr("%L1 kB").arg(bytes)
-        bytes = Math.round(bytes / 100) / 10
-        if (bytes < 2000)
-            return qsTr("%L1 MB").arg(bytes)
-        return qsTr("%L1 GB").arg(Math.round(bytes / 100) / 10)
-    }
-
-    header: Frame {
-        id: roomHeader
-
-        height: headerText.height + 11
-        padding: 3
-        visible: !!room
-
-        property bool showTopic: true
-
-        Image {
-            id: roomAvatar
-            anchors.verticalCenter: headerText.verticalCenter
-            anchors.left: parent.left
-            anchors.margins: 2
-            height: headerText.height
-            // implicitWidth on its own doesn't respect the scale down of
-            // the received image (that almost always happens)
-            width: Math.min(headerText.height / implicitHeight * implicitWidth,
-                            parent.width / 2.618) // Golden ratio - just for fun
-
-            source: room && room.avatarMediaId
-                    ? "image://mtx/" + room.avatarMediaId : ""
-            // Safe upper limit (see also topicField)
-            sourceSize: Qt.size(-1, settings.lineSpacing * 9)
-
-            fillMode: Image.PreserveAspectFit
-
-            AnimationBehavior on width {
-                NormalNumberAnimation { easing.type: Easing.OutQuad }
-            }
-        }
-
-        Column {
-            id: headerText
-            anchors.left: roomAvatar.right
-            anchors.right: versionActionButton.left
-            anchors.top: parent.top
-            anchors.margins: 2
-
-            spacing: 2
-
-            TextArea {
-                id: roomName
-                width: roomNameMetrics.advanceWidth
-                height: roomNameMetrics.height
-                clip: true
-                padding: 0
-
-                TextMetrics {
-                    id: roomNameMetrics
-                    font: roomName.font
-                    elide: Text.ElideRight
-                    elideWidth: headerText.width
-                    text: room ? room.displayName : ""
-                }
-
-                text: roomNameMetrics.elidedText
-                placeholderText: qsTr("(no name)")
-
-                font.bold: true
-                renderType: settings.render_type
-                readOnly: true
-
-                hoverEnabled: text !== "" &&
-                              (roomNameMetrics.text != roomNameMetrics.elidedText
-                               || roomName.lineCount > 1)
-                ToolTip.visible: hovered
-                ToolTip.text: room ? room.htmlSafeDisplayName : ""
-            }
-
-            Label {
-                id: versionNotice
-                visible: !!room && (room.isUnstable || room.successorId !== "")
-                width: parent.width
-
-                text: !room ? "" :
-                    room.successorId !== ""
-                              ? qsTr("This room has been upgraded.") :
-                    room.isUnstable ? qsTr("Unstable room version!") : ""
-                elide: Text.ElideRight
-                font.italic: true
-                renderType: settings.render_type
-
-                HoverHandler {
-                    id: versionHoverHandler
-                    enabled: parent.truncated
-                }
-                ToolTip.text: text
-                ToolTip.visible: versionHoverHandler.hovered
-            }
-
-            ScrollView {
-                id: topicField
-                visible: roomHeader.showTopic
-                width: parent.width
-                // Allow 6 lines of the topic (or 20% of the vertical space);
-                // if there are more than 6 lines, show half-line as a hint
-                height: Math.min(topicText.contentHeight, root.height / 5,
-                                 settings.lineSpacing * 6.5)
-                clip: true
-
-                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
-                ScrollBar.vertical.policy: ScrollBar.AsNeeded
-
-                AnimationBehavior on height {
-                    NormalNumberAnimation { easing.type: Easing.OutQuad }
-                }
-
-                // FIXME: The below TextEdit+MouseArea is a massive copy-paste
-                // from TimelineItem.qml. We need to make a separate component
-                // for these (RichTextField?).
-                TextArea {
-                    id: topicText
-                    width: topicField.width
-                    padding: 0
-
-                    text: room ? room.prettyPrint(room.topic) : ""
-                    placeholderText: qsTr("(no topic)")
-                    textFormat: TextEdit.RichText
-                    renderType: settings.render_type
-                    readOnly: true
-                    wrapMode: TextEdit.Wrap
-
-                    onHoveredLinkChanged:
-                        controller.showStatusMessage(hoveredLink)
-
-                    onLinkActivated:
-                        (link) => { controller.resourceRequested(link) }
-                }
-            }
-        }
-        MouseArea {
-            anchors.fill: headerText
-            acceptedButtons: Qt.MiddleButton | Qt.RightButton
-            cursorShape: topicText.hoveredLink
-                         ? Qt.PointingHandCursor : Qt.IBeamCursor
-
-            onClicked: (mouse) => {
-                if (topicText.hoveredLink)
-                    controller.resourceRequested(topicText.hoveredLink,
-                                                 "_interactive")
-                else if (mouse.button === Qt.RightButton)
-                    headerContextMenu.popup()
-            }
-            Menu {
-                id: headerContextMenu
-                MenuItem {
-                    text: roomHeader.showTopic ? qsTr("Hide topic")
-                                               : qsTr("Show topic")
-                    onTriggered: roomHeader.showTopic = !roomHeader.showTopic
-                }
-            }
-        }
-        Button {
-            id: versionActionButton
-            visible: !!room && ((room.isUnstable && room.canSwitchVersions())
-                              || room.successorId !== "")
-            anchors.verticalCenter: headerText.verticalCenter
-            anchors.right: parent.right
-            width: visible * implicitWidth
-            text: !room ? "" : room.successorId !== ""
-                                ? qsTr("Go to\nnew room") : qsTr("Room\nsettings")
-
-            onClicked:
-                if (room.successorId !== "")
-                    controller.resourceRequested(room.successorId, "join")
-                else
-                    controller.roomSettingsRequested()
-        }
-    }
+    header: RoomHeader { room: root.room }
 
     ListView {
         id: chatView
@@ -210,8 +27,7 @@ Page {
         model: messageModel
         delegate: TimelineItem {
             width: chatView.width - scrollerArea.width
-            // #737; the solution found in
-            // https://bugreports.qt.io/browse/QT3DS-784
+            // #737; the solution found in https://bugreports.qt.io/browse/QT3DS-784
             ListView.delayRemove: true
         }
         verticalLayoutDirection: ListView.BottomToTop
@@ -223,8 +39,7 @@ Page {
 
         clip: true
         ScrollBar.vertical: ScrollBar {
-            policy: settings.use_shuttle_dial ? ScrollBar.AlwaysOff
-                                              : ScrollBar.AsNeeded
+            policy: settings.use_shuttle_dial ? ScrollBar.AlwaysOff : ScrollBar.AsNeeded
             interactive: true
             active: true
 //            background: Item { /* TODO: timeline map */ }
@@ -240,16 +55,12 @@ Page {
         readonly property int bottommostVisibleIndex: count > 0 ?
             atYEnd ? 0 : indexAt(contentX, contentY + height - 1) : -1
         readonly property bool noNeedMoreContent:
-            !room || room.eventsHistoryJob || room.allHistoryLoaded
+            !root.room || root.room.eventsHistoryJob || root.room.allHistoryLoaded
 
         /// The number of events per height unit - always positive
         readonly property real eventDensity:
             contentHeight > 0 && count > 0 ? count / contentHeight : 0.03
             // 0.03 is just an arbitrary reasonable number
-
-        property int lastRequestedEvents: 0
-        readonly property int currentRequestedEvents:
-            room && room.eventsHistoryJob ? lastRequestedEvents : 0
 
         property var textEditWithSelection
         property real readMarkerContentPos: originY
@@ -260,9 +71,8 @@ Page {
 
         function parkReadMarker() {
             readMarkerContentPos = Qt.binding(function() {
-                return !messageModel || messageModel.readMarkerVisualIndex
-                                         > indexAt(contentX, contentY)
-                       ? originY : contentY + contentHeight
+                return messageModel.readMarkerVisualIndex <= indexAt(contentX, contentY)
+                       ? contentY + contentHeight : originY
             })
         }
 
@@ -271,147 +81,37 @@ Page {
                 return
 
             // Take the current speed, or assume we can scroll 8 screens/s
-            var velocity = moving ? -verticalVelocity :
-                           cruisingAnimation.running ?
-                                        cruisingAnimation.velocity :
-                           chatView.height * 8
+            var velocity = moving ? -verticalVelocity
+                                  : cruisingAnimation.running ? cruisingAnimation.velocity
+                                                              : chatView.height * 8
             // Check if we're about to bump into the ceiling in
             // 2 seconds and if yes, request the amount of messages
             // enough to scroll at this rate for 3 more seconds
-            if (velocity > 0 && contentY - velocity*2 < originY) {
-                lastRequestedEvents = velocity * eventDensity * 3
-                room.getPreviousContent(lastRequestedEvents)
-            }
+            if (velocity > 0 && contentY - velocity*2 < originY)
+                root.room.getPreviousContent(velocity * eventDensity * 3)
         }
         onContentYChanged: ensurePreviousContent()
         onContentHeightChanged: ensurePreviousContent()
 
         function saveViewport(force) {
-            if (room)
-                room.saveViewport(indexAt(contentX, contentY),
-                                  bottommostVisibleIndex, force)
+            root.room?.saveViewport(indexAt(contentX, contentY), bottommostVisibleIndex, force)
         }
 
-        // Qt is not fabulous at positioning the list view when the delegate
-        // sizes vary too much; this function runs scrollDelay timer to adjust
-        // the position as needed shortly after the list was positioned.
-        // Nothing good in that, just a workaround.
-        function scrollViewTo(targetIndex, positionMode, saveViewportAfter) {
-            console.log("Scrolling to position", targetIndex)
-            positionViewAtIndex(targetIndex, positionMode)
-            scrollDelay.targetIndex = targetIndex
-            scrollDelay.positionMode = positionMode
-            scrollDelay.saveViewport = saveViewportAfter
-            scrollDelay.round = 1
-            scrollDelay.start()
-        }
-
-        /** @return true if no further action is needed;
-         *          false if scrollDelay has to be restarted. */
-        function fixupPosition(newIndex, newPos, positionMode) {
-            if (newIndex === 0) {
-                if (bottommostVisibleIndex === 0)
-                    return true // Positioning is correct
-
-                // This normally shouldn't happen even with the current
-                // imperfect positioning code in Qt
-                console.warn("Fixing up the viewport to be at sync edge")
-                positionViewAtBeginning()
-            } else {
-                // The viewport is divided into thirds; ListView.End should
-                // place newIndex at the top third, Center corresponds
-                // to the middle third; Beginning is not used for now.
-                var nameForLog, topContentY, bottomContentY
-                switch (positionMode) {
-                case ListView.Contain:
-                    nameForLog = "fully visible"
-                    topContentY = contentY
-                    bottomContentY = contentY + height
-                    if (newPos)
-                        newPos = Math.max(newPos,
-                                          Math.min(contentY, newPos + height))
-                    break
-                case ListView.Center:
-                    nameForLog = "in the centre"
-                    topContentY = contentY + height / 3
-                    bottomContentY = contentY + 2 * height / 3
-                    if (newPos)
-                        newPos -= height / 2
-                    break
-                case ListView.End:
-                    nameForLog = "at the top"
-                    topContentY = contentY
-                    bottomContentY = contentY + height / 3
-                    break
-                default:
-                    console.warn("fixupPosition: Unsupported positioning mode:",
-                                 positionMode)
-                    return true // Refuse to do anything with it
-                }
-
-                var topShownIndex = indexAt(contentX, topContentY)
-                var bottomShownIndex = indexAt(contentX, bottomContentY)
-                if (bottomShownIndex !== -1 && newIndex <= topShownIndex
-                        && newIndex >= bottomShownIndex)
-                    return true // The item is within the expected range
-
-                console.log("Fixing up item", newIndex, "to be", nameForLog,
-                            "- round", scrollDelay.round,
-                            "(" + topShownIndex + "-" + bottomShownIndex,
-                            "range is shown now)")
-                // If the target item moved away too far and got destroyed,
-                // repeat positioning; otherwise, position the canvas exactly
-                // where it should be
-                if (newPos)
-                    contentY = newPos
-                else
-                    positionViewAtIndex(newIndex, positionMode)
-            }
-            return false
-        }
-
-        Timer {
-            id: scrollDelay
-            interval: 120 // small enough to avoid visual stutter
-            onTriggered: {
-                if (chatView.count === 0 || !targetPos)
-                    return
-
-                if (chatView.fixupPosition(targetIndex, targetPos,
-                                           positionMode)
-                    || ++round > 3) // Give up after 3 rounds
-                {
-                    targetPos = undefined
-                    if (saveViewport)
-                        chatView.saveViewport(true)
-                } else // Positioning is still in flux, might need another round
-                    start()
-            }
-
-            property int targetIndex: -1
-            property var targetPos
-            property int positionMode: ListView.End
-            property bool saveViewport: false
-            property int round: 0
-        }
+        ScrollFinisher { id: scrollFinisher }
 
         function scrollUp(dy) {
-            if (contentHeight > height)
+            if (contentHeight > height && dy !== 0) {
+                animateNextScroll = true
                 contentY -= dy
+            }
         }
-        function scrollDown(dy) {
-            if (contentHeight > height)
-                contentY += dy
-        }
+        function scrollDown(dy) { scrollUp(-dy) }
 
         function onWheel(wheel) {
             if (wheel.angleDelta.x === 0) {
-                var yDelta = wheel.angleDelta.y * 10 / 36
-
-                if (yDelta > 0)
-                    scrollUp(yDelta)
-                else
-                    scrollDown(-yDelta)
+                // NB: Scrolling up yields positive angleDelta.y
+                if (contentHeight > height && wheel.angleDelta.y !== 0)
+                    contentY -= wheel.angleDelta.y * settings.lineSpacing / 40
                 wheel.accepted = true
             } else {
                 wheel.accepted = false
@@ -421,15 +121,16 @@ Page {
         Connections {
             target: controller
             function onPageUpPressed() {
-                chatView.scrollUp(chatView.height
-                                  - sectionBanner.childrenRect.height)
+                chatView.scrollUp(chatView.height - sectionBanner.childrenRect.height)
             }
             function onPageDownPressed() {
-                chatView.scrollDown(chatView.height
-                                    - sectionBanner.childrenRect.height)
+                chatView.scrollDown(chatView.height - sectionBanner.childrenRect.height)
             }
             function onViewPositionRequested(index) {
-                chatView.scrollViewTo(index, ListView.Contain, true)
+                scrollFinisher.scrollViewTo(index, ListView.Contain)
+            }
+            function onHistoryRequestChanged() {
+                scrollToReadMarkerButton.checked = controller.isHistoryRequestRunning()
             }
         }
 
@@ -437,32 +138,23 @@ Page {
             target: messageModel
             function onModelAboutToBeReset() {
                 chatView.parkReadMarker()
-                console.log(settings.logCat, "Read marker parked at index",
-                            messageModel.readMarkerVisualIndex)
+                console.log(lc, "Read marker parked at index", messageModel.readMarkerVisualIndex)
                 chatView.saveViewport(true)
             }
             function onModelReset() {
-                if (messageModel.room) {
-                    // Load events if there are not enough of them
-                    chatView.ensurePreviousContent()
-                    chatView.scrollViewTo(
-                                 messageModel.room.savedTopVisibleIndex(),
-                                 ListView.End, false)
-                }
+                // NB: at this point, the actual delegates are not instantiated
+                //     yet, so defer all actions to when at least some are
+                scrollFinisher.scrollViewTo(0, ListView.Contain)
             }
         }
 
-        Component.onCompleted: console.log(settings.logCat, "QML view loaded")
+        Component.onCompleted: console.log(root.lc, "QML view loaded")
 
         onMovementEnded: saveViewport(false)
 
-        populate: AnimatedTransition {
-            FastNumberAnimation { property: "opacity"; from: 0; to: 1 }
-        }
+        populate: AnimatedTransition { FastNumberAnimation { property: "opacity"; from: 0; to: 1 } }
 
-        add: AnimatedTransition {
-            FastNumberAnimation { property: "opacity"; from: 0; to: 1 }
-        }
+        add: AnimatedTransition { FastNumberAnimation { property: "opacity"; from: 0; to: 1 } }
 
         move: AnimatedTransition {
             FastNumberAnimation { property: "y"; }
@@ -477,17 +169,15 @@ Page {
             FastNumberAnimation { property: "opacity"; to: 1 }
         }
 
+        property bool animateNextScroll: false
         Behavior on contentY {
-            enabled: settings.enable_animations && !chatView.moving
-                     && !cruisingAnimation.running
-            SmoothedAnimation {
+            enabled: settings.enable_animations && chatView.animateNextScroll
+            animation: FastNumberAnimation {
                 id: scrollAnimation
                 duration: settings.fast_animations_duration_ms / 3
-                maximumEasingTime: settings.fast_animations_duration_ms
-
-                onRunningChanged: {
-                    if (!running)
-                        chatView.saveViewport(false)
+                onStopped: {
+                    chatView.animateNextScroll = false
+                    chatView.saveViewport(false)
                 }
         }}
 
@@ -523,10 +213,10 @@ Page {
             anchors.left: parent.left
             width: readMarkerLine.width
             z: -1
-            opacity: 0.1
+            opacity: 0.05
 
             radius: readMarkerLine.height
-            color: messageModel.fadedBackColor(chatView.readMarkerColor)
+            color: chatView.readMarkerColor
         }
         Rectangle {
             id: readMarkerLine
@@ -542,7 +232,6 @@ Page {
                 GradientStop { position: 1; color: chatView.readMarkerColor }
             }
         }
-
 
         // itemAt is a function rather than a property, so it doesn't
         // produce a QML binding; the piece with contentHeight compensates.
@@ -565,8 +254,7 @@ Page {
                 font.bold: true
                 opacity: 0.8
                 renderType: settings.render_type
-                text: chatView.underlayingItem ?
-                          chatView.underlayingItem.ListView.section : ""
+                text: chatView.underlayingItem?.ListView.section ?? ""
             }
         }
     }
@@ -575,39 +263,9 @@ Page {
     // Only used with the shuttle scroller for now
 
     Rectangle {
-        id: cachedEventsBar
+        id: requestedEventsBar
 
-        // A proxy property for animation
-        property int requestedHistoryEventsCount:
-            chatView.currentRequestedEvents
-        AnimationBehavior on requestedHistoryEventsCount {
-            NormalNumberAnimation { }
-        }
-
-        property real averageEvtHeight:
-            chatView.count + requestedHistoryEventsCount > 0
-            ? chatView.height
-              / (chatView.count + requestedHistoryEventsCount)
-            : 0
-        AnimationBehavior on averageEvtHeight {
-            FastNumberAnimation { }
-        }
-
-        anchors.horizontalCenter: shuttleDial.horizontalCenter
-        anchors.bottom: chatView.bottom
-        anchors.bottomMargin:
-            averageEvtHeight * chatView.bottommostVisibleIndex
-        width: shuttleDial.backgroundWidth / 2
-        height: chatView.bottommostVisibleIndex < 0 ? 0 :
-            averageEvtHeight
-            * (chatView.count - chatView.bottommostVisibleIndex)
-        visible: shuttleDial.visible
-
-        color: palette.mid
-    }
-    Rectangle {
-        // Loading history events bar, stacked above
-        // the cached events bar when more history has been requested
+        // Stack above the cached events bar when more history has been requested
         anchors.right: cachedEventsBar.right
         anchors.top: chatView.top
         anchors.bottom: cachedEventsBar.top
@@ -617,6 +275,29 @@ Page {
         opacity: 0.4
         color: palette.mid
     }
+    Rectangle {
+        id: cachedEventsBar
+
+        // A proxy property for animation
+        property int requestedHistoryEventsCount: root.room?.requestedHistorySize ?? 0
+        AnimationBehavior on requestedHistoryEventsCount { NormalNumberAnimation { } }
+
+        property real averageEvtHeight:
+            chatView.count + requestedHistoryEventsCount > 0
+            ? chatView.height / (chatView.count + requestedHistoryEventsCount) : 0
+        AnimationBehavior on averageEvtHeight { FastNumberAnimation { } }
+
+        anchors.horizontalCenter: shuttleDial.horizontalCenter
+        anchors.bottom: chatView.bottom
+        anchors.bottomMargin:
+            averageEvtHeight * chatView.bottommostVisibleIndex
+        width: shuttleDial.width
+        height: chatView.bottommostVisibleIndex < 0
+                ? 0 : averageEvtHeight * (chatView.count - chatView.bottommostVisibleIndex)
+        visible: shuttleDial.visible
+
+        color: palette.mid
+    }
 
     // === Scrolling extensions ===
 
@@ -624,41 +305,44 @@ Page {
         id: shuttleDial
         orientation: Qt.Vertical
         height: chatView.height * 0.7
-        width: chatView.ScrollBar.vertical.width
+        width: settings.lineSpacing
         padding: 2
         anchors.right: parent.right
-        anchors.rightMargin: (background.width - width) / 2
         anchors.verticalCenter: chatView.verticalCenter
         enabled: settings.use_shuttle_dial
         visible: enabled && chatView.count > 0
 
-        readonly property real backgroundWidth:
-            handle.width + leftPadding + rightPadding
         // Npages/sec = value^2 => maxNpages/sec = 9
         readonly property real maxValue: 3.0
-        readonly property real deviation:
-            value / (maxValue * 2) * availableHeight
-
-        background: Item {
-            x: shuttleDial.handle.x - shuttleDial.leftPadding
-            width: shuttleDial.backgroundWidth
-            Rectangle {
-                id: springLine
-                // Rectangles (normally) have (x,y) as their top-left corner.
-                // To draw the "spring" line up from the middle point, its `y`
-                // should still be the top edge, not the middle point.
-                y: shuttleDial.height / 2 - Math.max(shuttleDial.deviation, 0)
-                height: Math.abs(shuttleDial.deviation)
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: 2
-                color: palette.highlight
-            }
-        }
-        opacity: scrollerArea.containsMouse ? 1 : 0.7
-        AnimationBehavior on opacity { FastNumberAnimation { } }
+        readonly property real handlePos:
+            topPadding + visualPosition * (availableHeight - handle.height)
 
         from: -maxValue
         to: maxValue
+
+        background: Rectangle {
+            // Draw a "spring" line between the shuttle and the center of the control
+            anchors.top: (shuttleDial.value > 0 ? shuttleHandle : shuttleDial).verticalCenter
+            anchors.bottom: (shuttleDial.value > 0 ? shuttleDial : shuttleHandle).verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: shuttleDial.availableWidth
+            radius: 2
+            color: palette.highlight
+        }
+
+        handle: Rectangle {
+            id: shuttleHandle
+            y: shuttleDial.handlePos
+            width: shuttleDial.availableWidth
+            anchors.horizontalCenter: shuttleDial.horizontalCenter
+            height: width * 1.618
+            radius: width
+            color: palette.button
+            border.color: scrollerArea.containsMouse ? palette.highlight : palette.button
+        }
+
+        opacity: scrollerArea.containsMouse ? 1 : 0.7
+        AnimationBehavior on opacity { FastNumberAnimation { } }
 
         activeFocusOnTab: false
 
@@ -696,15 +380,44 @@ Page {
             chatView.contentHeightChanged.connect(cruisingAnimation.restart)
         }
     }
+    component TextInScrollArea: Text {
+        height: cachedEventsBar.width // Because of the rotation, height becomes width
+        rotation: 90
+
+        horizontalAlignment: Text.AlignLeft
+        verticalAlignment: Text.AlignVCenter
+        padding: 2
+        renderType: settings.render_type
+        font.pointSize: settings.font.pointSize - 1
+    }
+
+    TextInScrollArea {
+        id: totalEventsCount
+
+        visible: chatView.count > 0
+        // NB: anchoring occurs before rotation
+        anchors.bottom: parent.top
+        anchors.left: cachedEventsBar.left
+        transformOrigin: Item.BottomLeft
+        text: chatView.count
+    }
+    TextInScrollArea {
+        id: eventsToBottomCount
+
+        visible: chatView.bottommostVisibleIndex > 0
+        // NB: same as above, anchoring occurs before rotation
+        anchors.top: scrollToBottomButton.top
+        anchors.right: scrollToBottomButton.right
+        transformOrigin: Item.TopRight
+        text: chatView.bottommostVisibleIndex
+    }
 
     MouseArea {
         id: scrollerArea
-        anchors.top: chatView.top
-        anchors.bottom: chatView.bottom
+        anchors.verticalCenter: chatView.verticalCenter
         anchors.right: parent.right
-        width: settings.use_shuttle_dial
-               ? shuttleDial.backgroundWidth
-               : chatView.ScrollBar.vertical.width
+        width: (settings.use_shuttle_dial ? shuttleDial : chatView.ScrollBar.vertical).width
+        height: (settings.use_shuttle_dial ? shuttleDial : chatView).height
         acceptedButtons: Qt.NoButton
 
         hoverEnabled: true
@@ -714,14 +427,13 @@ Page {
         id: timelineStats
         anchors.right: scrollerArea.left
         anchors.top: chatView.top
-        width: childrenRect.width + 3
-        height: childrenRect.height + 3
+        width: childrenRect.width
+        height: childrenRect.height
         color: palette.alternateBase
-        property bool shown:
-            (chatView.bottommostVisibleIndex >= 0
-                  && (scrollerArea.containsMouse || scrollAnimation.running))
-                 || chatView.currentRequestedEvents > 0
-
+        opacity: 0 // Nothing to show at the start
+        property bool shown: (chatView.bottommostVisibleIndex >= 0
+                              && (scrollerArea.containsMouse || scrollAnimation.running))
+                             || root.room?.requestedHistorySize > 0
         onShownChanged: {
             if (shown) {
                 fadeOutDelay.stop()
@@ -738,53 +450,55 @@ Page {
         AnimationBehavior on opacity { FastNumberAnimation { } }
 
         Label {
+            padding: 2
             font.bold: true
             opacity: 0.8
             renderType: settings.render_type
             text: (chatView.count > 0
                    ? (chatView.bottommostVisibleIndex === 0
                      ? qsTr("Latest events")
-                     : qsTr("%Ln events back from now","",
-                            chatView.bottommostVisibleIndex))
-                       + "\n" + qsTr("%Ln events cached", "", chatView.count)
+                     : qsTr("%Ln events back from now","", chatView.bottommostVisibleIndex))
+                     + "\n" + qsTr("%Ln events cached", "", chatView.count)
                    : "")
-                  + (chatView.currentRequestedEvents > 0
+                  + (root.room?.requestedHistorySize > 0
                      ? (chatView.count > 0 ? "\n" : "")
-                       + qsTr("%Ln events requested from the server",
-                              "", chatView.currentRequestedEvents)
+                       + qsTr("%Ln events requested from the server", "", room.requestedHistorySize)
                      : "")
             horizontalAlignment: Label.AlignRight
         }
     }
 
-    component ScrollToButton:  RoundButton {
-        anchors.right: scrollerArea.left
-        anchors.rightMargin: 2
+    component ScrollToButton: Button {
+        id: control
+        anchors.right: scrollerArea.right
         height: settings.fontHeight * 2
-        width: height
+        width: scrollerArea.width
         hoverEnabled: true
         opacity: visible * (0.7 + hovered * 0.2)
 
         display: Button.IconOnly
-        icon.color: palette.buttonText
+        icon {
+            width: control.availableWidth
+            height: control.availableHeight
+            color: palette.buttonText
+        }
 
         AnimationBehavior on opacity {
-            NormalNumberAnimation {
-                easing.type: Easing.OutQuad
-            }
+            NormalNumberAnimation { easing.type: Easing.OutQuad }
+        }
+        AnimationBehavior on anchors.topMargin {
+            NormalNumberAnimation { easing.type: Easing.OutQuad }
         }
         AnimationBehavior on anchors.bottomMargin {
-            NormalNumberAnimation {
-                easing.type: Easing.OutQuad
-            }
+            NormalNumberAnimation { easing.type: Easing.OutQuad }
         }
     }
 
     ScrollToButton {
         id: scrollToBottomButton
 
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: visible ? 0.5 * height : -height
+        anchors.bottom: chatView.bottom
+        anchors.bottomMargin: visible ? 0 : -height
 
         visible: !chatView.atYEnd
 
@@ -800,10 +514,10 @@ Page {
     }
 
     ScrollToButton {
-        id: scrollToReaderMarkerButton
+        id: scrollToReadMarkerButton
 
-        anchors.bottom: scrollToBottomButton.top
-        anchors.bottomMargin: visible ? 0.5 * height : -3 * height
+        anchors.top: parent.top
+        anchors.topMargin: visible ? totalEventsCount.width + 10 : -height
 
         visible: chatView.count > 1 &&
                  messageModel.readMarkerVisualIndex > 0 &&
@@ -817,10 +531,13 @@ Page {
 
         onClicked: {
             if (messageModel.readMarkerVisualIndex < chatView.count)
-                chatView.scrollViewTo(messageModel.readMarkerVisualIndex,
-                                      ListView.Center, true)
-            else
-                room.getPreviousContent(chatView.count / 2) // FIXME, #799
+                scrollFinisher.scrollViewTo(messageModel.readMarkerVisualIndex,
+                                            ListView.Center)
+            else {
+                checkable = true
+                controller.ensureLastReadEvent()
+            }
         }
+        onCheckedChanged: { if (!checked) checkable = false }
     }
 }

@@ -6,33 +6,36 @@
 
 #include "roomdialogs.h"
 
-#include "mainwindow.h"
-#include "quaternionroom.h"
 #include "accountselector.h"
+#include "logging_categories.h"
+#include "mainwindow.h"
 #include "models/orderbytag.h" // For tagToCaption()
+#include "quaternionroom.h"
 
-#include <Quotient/accountregistry.h>
-#include <Quotient/user.h>
-#include <Quotient/connection.h>
-#include <Quotient/qt_connection_util.h>
-#include <Quotient/csapi/create_room.h>
 #include <Quotient/events/roompowerlevelsevent.h>
 
-#include <QtWidgets/QComboBox>
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QPlainTextEdit>
+#include <Quotient/csapi/capabilities.h> // Only needed because loadCapabilities() implies it
+
+#include <Quotient/accountregistry.h>
+#include <Quotient/connection.h>
+#include <Quotient/qt_connection_util.h>
+#include <Quotient/user.h>
+
 #include <QtWidgets/QCheckBox>
-#include <QtWidgets/QListWidget>
-#include <QtWidgets/QLabel>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QHBoxLayout>
-#include <QtWidgets/QFormLayout>
+#include <QtWidgets/QComboBox>
 #include <QtWidgets/QCompleter>
+#include <QtWidgets/QFormLayout>
+#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QListWidget>
 #include <QtWidgets/QMessageBox>
-#include <QtGui/QStandardItemModel>
+#include <QtWidgets/QPlainTextEdit>
+#include <QtWidgets/QPushButton>
 
 #include <QtCore/QElapsedTimer>
 #include <QtCore/QStringBuilder>
+#include <QtGui/QStandardItemModel>
 
 RoomDialogBase::RoomDialogBase(const QString& title,
         const QString& applyButtonText,
@@ -105,42 +108,32 @@ void RoomDialogBase::refillVersionSelector(QComboBox* selector,
                                            Connection* account)
 {
     selector->clear();
-    if (account->loadingCapabilities())
-    {
-        selector->addItem(
-                    tr("(loading)", "Loading room versions from the server"),
-                    QString());
-        selector->setEnabled(false);
-        // FIXME: It should be connectSingleShot
-        // but sadly connectSingleShot doesn't work with lambdas yet
-        connectUntil(account, &Connection::capabilitiesLoaded, this,
-            [this,selector,account] {
-                refillVersionSelector(selector, account);
-                return true;
-            });
-        return;
-    }
-    const auto& versions = account->availableRoomVersions();
-    for (const auto& v: versions)
-    {
-        const bool isDefault = v.id == account->defaultRoomVersion();
-        const auto postfix =
-                isDefault ? tr("default", "Default room version") :
-                v.isStable() ? tr("stable", "Stable room version") :
-                v.status;
-        selector->addItem(v.id % " (" % postfix % ")", v.id);
-        const auto idx = selector->count() - 1;
-        if (isDefault)
-        {
-            auto font = selector->itemData(idx, Qt::FontRole).value<QFont>();
-            font.setBold(true);
-            selector->setItemData(idx, font, Qt::FontRole);
-            selector->setCurrentIndex(idx);
-        }
-        if (!v.isStable())
-            selector->setItemData(idx, QColor(Qt::red), Qt::ForegroundRole);
-    }
-    selector->setEnabled(true);
+    selector->addItem(tr("(loading)", "Loading room versions from the server"), QString());
+    selector->setEnabled(false);
+    account->loadCapabilities().then([selector, account] {
+        selector->clear();
+        const auto& versions = account->availableRoomVersions();
+        if (versions.empty()) {
+            selector->addItem(tr("(no available room versions)"), QString());
+        } else
+            for (const auto& v : versions) {
+                const bool isDefault = v.id == account->defaultRoomVersion();
+                const auto postfix = isDefault      ? tr("default", "Default room version")
+                                     : v.isStable() ? tr("stable", "Stable room version")
+                                                    : v.status;
+                selector->addItem(v.id % " (" % postfix % ")", v.id);
+                const auto idx = selector->count() - 1;
+                if (isDefault) {
+                    auto font = selector->itemData(idx, Qt::FontRole).value<QFont>();
+                    font.setBold(true);
+                    selector->setItemData(idx, font, Qt::FontRole);
+                    selector->setCurrentIndex(idx);
+                }
+                if (!v.isStable())
+                    selector->setItemData(idx, QColor(Qt::red), Qt::ForegroundRole);
+            }
+        selector->setEnabled(!versions.isEmpty());
+    });
 }
 
 void RoomDialogBase::addEssentials(QWidget* accountControl,
@@ -231,7 +224,7 @@ void RoomSettingsDialog::load()
 {
     if (const auto* plEvt =
         room->currentState().get<Quotient::RoomPowerLevelsEvent>()) {
-        const int userPl = plEvt->powerLevelForUser(room->localUser()->id());
+        const int userPl = plEvt->powerLevelForUser(room->localMember().id());
 
         roomName->setText(room->name());
         roomName->setReadOnly(plEvt->powerLevelForState("m.room.name") > userPl);
@@ -282,8 +275,7 @@ void RoomSettingsDialog::apply()
                 static_cast<MainWindow*>(parent())->selectRoom(newRoom);
                 return true;
             });
-        connectSingleShot(room, &Room::upgradeFailed,
-                          this, &Dialog::applyFailed);
+        connect(room, &Room::upgradeFailed, this, &Dialog::applyFailed, Qt::SingleShotConnection);
         room->switchVersion(version->text());
         return; // It's either a version upgrade or everything else
     }
@@ -335,11 +327,15 @@ class InviteeList : public QListWidget
         {
             if (event->key() ==  Qt::Key_Delete)
                 delete takeItem(currentRow());
+            else
+                QListWidget::keyPressEvent(event);
         }
         void mousePressEvent(QMouseEvent* event) override
         {
             if (event->button() == Qt::MiddleButton)
                 delete takeItem(currentRow());
+            else
+                QListWidget::mousePressEvent(event);
         }
 };
 
@@ -350,9 +346,11 @@ CreateRoomDialog::CreateRoomDialog(Quotient::AccountRegistry* accounts,
     , accountChooser(new AccountSelector(accounts))
     , version(nullptr) // Will be initialized below
     , nextInvitee(new NextInvitee)
-    , inviteButton(
+    , addToInviteesButton(
           new QPushButton(tr("Add", "Add a user to the list of invitees")))
-    , invitees(new QListWidget)
+    , removeFromInviteesButton(
+          new QPushButton(tr("Remove", "Remove a user from the list of invitees")))
+    , invitees(new InviteeList)
 {
     Q_ASSERT(!accounts->empty());
 
@@ -374,11 +372,10 @@ CreateRoomDialog::CreateRoomDialog(Quotient::AccountRegistry* accounts,
     nextInvitee->setCompleter(completer);
     connect(nextInvitee, &NextInvitee::currentTextChanged,
             this, &CreateRoomDialog::updatePushButtons);
-//    connect(nextInvitee, &NextInvitee::editTextChanged,
-//            this, &CreateRoomDialog::updateUserList);
-    inviteButton->setFocusPolicy(Qt::NoFocus);
-    inviteButton->setDisabled(true);
-    connect(inviteButton, &QPushButton::clicked, [this] {
+    // Add button initialization
+    addToInviteesButton->setFocusPolicy(Qt::NoFocus);
+    addToInviteesButton->setDisabled(true);
+    connect(addToInviteesButton, &QPushButton::clicked, [this] {
         auto userName = nextInvitee->currentText();
         if (userName.indexOf('@') == -1)
         {
@@ -386,12 +383,21 @@ CreateRoomDialog::CreateRoomDialog(Quotient::AccountRegistry* accounts,
             if (userName.indexOf(':') == -1)
                 userName += ':' + accountChooser->currentAccount()->domain();
         }
-        auto* item = new QListWidgetItem(userName);
-        if (nextInvitee->currentIndex() != -1)
-            item->setData(Qt::UserRole, nextInvitee->currentData(Qt::UserRole));
-        invitees->addItem(item);
+        invitees->addItem(userName);
         nextInvitee->clear();
     });
+
+    // Remove button initialization
+    removeFromInviteesButton->setFocusPolicy(Qt::NoFocus);
+    removeFromInviteesButton->setDisabled(true);
+    connect(removeFromInviteesButton, &QPushButton::clicked, [this] {
+        if (invitees->currentItem() == nullptr)
+            return;
+        delete invitees->takeItem(invitees->currentRow());
+    });
+    connect(invitees, &InviteeList::currentItemChanged, this,
+            &CreateRoomDialog::updatePushButtons);
+
     invitees->setSizeAdjustPolicy(
                 QAbstractScrollArea::AdjustToContentsOnFirstShow);
     invitees->setUniformItemSizes(true);
@@ -401,7 +407,8 @@ CreateRoomDialog::CreateRoomDialog(Quotient::AccountRegistry* accounts,
 
     auto* inviteLayout = new QHBoxLayout;
     inviteLayout->addWidget(nextInvitee);
-    inviteLayout->addWidget(inviteButton);
+    inviteLayout->addWidget(addToInviteesButton);
+    inviteLayout->addWidget(removeFromInviteesButton);
 
     mainFormLayout->addRow(tr("Invite user(s)"), inviteLayout);
     mainFormLayout->addRow("", invitees);
@@ -416,16 +423,16 @@ CreateRoomDialog::CreateRoomDialog(Quotient::AccountRegistry* accounts,
 
 void CreateRoomDialog::updatePushButtons()
 {
-    inviteButton->setEnabled(!nextInvitee->currentText().isEmpty());
-    if (inviteButton->isEnabled() && nextInvitee->hasFocus())
-        inviteButton->setDefault(true);
+    addToInviteesButton->setEnabled(!nextInvitee->currentText().isEmpty());
+    removeFromInviteesButton->setEnabled(invitees->currentItem() != nullptr);
+    if (addToInviteesButton->isEnabled() && nextInvitee->hasFocus())
+        addToInviteesButton->setDefault(true);
     else
         buttonBox()->button(QDialogButtonBox::Ok)->setDefault(true);
 }
 
 void CreateRoomDialog::load()
 {
-    qDebug() << "Loading the dialog";
     roomName->clear();
     alias->clear();
     topic->clear();
@@ -448,23 +455,22 @@ bool CreateRoomDialog::validate()
 void CreateRoomDialog::apply()
 {
     using namespace Quotient;
+    auto* const account = accountChooser->currentAccount();
     QStringList userIds;
     for (int i = 0; i < invitees->count(); ++i)
-        if (auto* user = invitees->item(i)->data(Qt::UserRole).value<User*>())
-            userIds.push_back(user->id());
+        if (const auto& userId = invitees->item(i)->text(); account->user(userId))
+            userIds.push_back(userId);
         else
-            userIds.push_back(invitees->item(i)->text());
+            qCWarning(MAIN).nospace() << std::source_location::current().function_name() << ": "
+                                      << userId << "is not a correct user id, skipping";
 
-    auto* job = accountChooser->currentAccount()->createRoom(
-            publishRoom->isChecked() ?
-                Connection::PublishRoom : Connection::UnpublishRoom,
-            alias->text(), roomName->text(), topic->toPlainText(),
-            userIds, "", version->currentData().toString(), false);
 
-    connect(job, &BaseJob::success, this, &Dialog::accept);
-    connect(job, &BaseJob::failure, this, [this,job] {
-        applyFailed(job->errorString());
-    });
+    account
+        ->createRoom(publishRoom->isChecked() ? Connection::PublishRoom : Connection::UnpublishRoom,
+                     alias->text(), roomName->text(), topic->toPlainText(), userIds, "",
+                     version->currentData().toString(), false)
+        .then(this, &Dialog::accept,
+              [this](const BaseJob* job) { applyFailed(job->errorString()); });
 }
 
 void CreateRoomDialog::accountSwitched()
@@ -487,22 +493,20 @@ void CreateRoomDialog::accountSwitched()
 //    if (prefix.size() >= 3)
 //    {
         QElapsedTimer et; et.start();
-        for (auto* u: connection->users())
+        for (const auto& uId: connection->userIds())
         {
-            if (!u->isGuest())
+            if (!Quotient::isGuestUserId(uId))
             {
-                // It would be great to show u->fullName() rather than
-                // just u->id(); unfortunately, this implies fetching profiles
-                // for the whole list of users known to a given account, which
-                // is terribly inefficient
-                auto* item = new QStandardItem(u->id());
-                item->setData(QVariant::fromValue(u));
+                // It would be great to show a user's full name rather than MXID; unfortunately,
+                // this implies fetching profiles for the whole list of users known to a given
+                // account, one by one, and that can easily be thousands.
+                auto* item = new QStandardItem(uId);
                 model->appendRow(item);
             }
         }
-        qDebug() << "Completion candidates:" << model->rowCount()
-                 << "out of" << connection->users().size()
-                 << "filled in" << et;
+        qCDebug(MAIN) << "Completion candidates:" << model->rowCount()
+                      << "out of" << connection->userIds().size() << "filled in"
+                      << et;
 //    }
     }
     nextInvitee->setModel(model);

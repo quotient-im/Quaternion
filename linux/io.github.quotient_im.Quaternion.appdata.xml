@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component type="desktop-application">
+  <id>io.github.quotient_im.Quaternion</id>
+  <metadata_license>CC-BY-4.0</metadata_license>
+  <project_license>GPL-3.0+</project_license>
+  <name>Quaternion</name>
+  <summary>Qt-based client for Matrix networks</summary>
+
+  <description>
+    <p>
+      Quaternion is a cross-platform desktop IM client for the Matrix protocol.
+    </p>
+  </description>
+
+  <update_contact>kitsune-ral_AT_users.sf.net</update_contact>
+
+  <categories>
+    <category>InstantMessaging</category>
+    <category>Network</category>
+  </categories>
+
+  <launchable type="desktop-id">io.github.quotient_im.Quaternion.desktop</launchable>
+
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/quotient-im/Quaternion/master/Screenshot.png</image>
+      <caption>UI screenshot</caption>
+    </screenshot>
+  </screenshots>
+
+  <url type="homepage">https://github.com/quotient-im/Quaternion</url>
+  <url type="bugtracker">https://github.com/quotient-im/Quaternion/issues</url>
+  <url type="help">https://github.com/quotient-im/Quaternion/blob/master/README.md</url>
+
+  <provides>
+    <binary>quaternion</binary>
+    <id>com.github.quaternion.desktop</id>
+  </provides>
+
+  <replaces>
+    <id>com.github.quaternion.desktop</id>
+  </replaces>
+
+  <releases>
+    <release version="0.0.97" date="2025-02-10">
+      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.97</url>
+      <description><p>0.0.97</p>
+        <ul>
+          <li>Use libQuotient 0.9 underneath</li>
+          <li>E2EE is always on now</li>
+          <li>Add nice replies visualisation instead of relying on reply fallbacks</li>
+          <li>New look for the shuttle scroller and scroll-to buttons</li>
+          <li>
+            Clicking on scroll-to-read-marker button now loads history all the way until
+            the marker - no need to click on the button repeatedly</li>
+          <li>Display images embedded in rich text messages</li>
+          <li>New login dialog</li>
+          <li>Forgetting a room requires a confirmation</li>
+          <li>Fix: actually log out accounts on exit that are not set to stay logged in</li>
+          <li>Regression fix: message text again uses the font configured for the timeline</li>
+          <li>New application id, to comply with Flathub verification requirements</li>
+          <li>Other code cleanup, performance and visual tweaks and smaller fixes</li>
+        </ul>
+      </description>
+    </release>
+    <release version="0.0.96.1" date="2024-02-19">
+      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96.1</url>
+      <description><p>Changes since 0.0.96:</p>
+        <ul>
+          <li>Fix regressions in attaching files</li>
+          <li>Allow `mxc` scheme in hyperlinks (MSC2398)</li>
+        </ul>
+      </description>
+    </release>
+    <release version="0.0.96" date="2024-01-12">
+      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96</url>
+      <description><p>0.0.96</p>
+        <p>Changes since 0.0.95.1:</p>
+        <ul>
+          <li>Qt 6 support</li>
+          <li>Beta-quality support of end-to-end encryption (E2EE)</li>
+          <li>Fixes and improvements in the timeline display and text selection</li>
+          <li>Ctrl-Shift-V to paste content as plain text</li>
+          <li>Fixed problems around drag-n-dropping/pasting some content</li>
+          <li>It's now possible to re-dock floating panels from the menu (especially relevant on Wayland)</li>
+          <li>Using room-specific member avatars in the timeline, not just in the user list</li>
+          <li>Performance and stability improvements</li>
+        </ul>
+      </description>
+    </release>
+
+    <release version="0.0.95.91" type="development" date="2023-12-14">
+      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96-rc1</url>
+      <description><p>0.0.96 RC</p>
+        <p>Minor tweaks and fixes</p>
+      </description>
+    </release>
+    <release version="0.0.95.84" type="development" date="2023-07-30">
+      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96-beta4</url>
+      <description><p>0.0.96 beta4</p>
+        <ul>
+          <li>Restored workability with Qt 5 (but only until the final release; after that, only Qt 6 will be supported)</li>
+          <li>Timeline scrolling with mouse wheels and touchpads is (should be) no more sluggish</li>
+          <li>Pasting HTML from web pages and other applications works in much more cases</li>
+          <li>More discernible text colours for state events and emotes</li>
+        </ul>
+      </description>
+    </release>
+    <release version="0.0.95.83" type="development" date="2023-07-13">
+      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96-beta3</url>
+      <description><p>0.0.96 beta3</p>
+        <ul>
+          <li>Switch to libQuotient 0.8 to make E2EE opt-in at runtime</li>
+          <li>Complete transition to Qt 6</li>
+          <li>Other minor tweaks and fixes</li>
+        </ul>
+      </description>
+    </release>
+    <release version="0.0.95.81" type="development" date="2023-04-02">
+      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.96-beta1</url>
+      <description><p>
+        Switch to libQuotient 0.7, with its new read receipts/fully read markers
+        API and experimental support of E2EE; fix a few bugs. More to come
+        before the final release!
+      </p></description>
+    </release>
+    <release version="0.0.95.1" date="2021-10-07">
+      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.95.1</url>
+      <description><p>
+        This is mostly about bug fixes, including more accurate scrolling back
+        in the timeline (to read marker or previously saved position);
+        actually coloured user names in the timeline; rich text pasting from LibreOffice;
+        and a few limited HTML injections. Also, the "Scroll to read marker" button
+        will load more history if the event with the read marker is not loaded yet
+        (though you'll have to click again to actually scroll after that).
+      </p></description>
+    </release>
+    <release version="0.0.95" date="2021-09-24">
+      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.95</url>
+      <description><p>0.0.95 final release</p>
+        <ul>
+          <li>Revamped read marker and "scroll to read marker" button</li>
+          <li>Initial reactions support</li>
+          <li>Tint for outgoing messages</li>
+          <li>Improvements for the shuttle dial</li>
+          <li>User profile dialog with editable name and avatar</li>
+          <li>Initial Markdown and rich text entry support (still a bit experimental)</li>
+          <li>Different colours for different user ids</li>
+        </ul>
+      </description>
+    </release>
+    <release version="0.0.94.99" type="development" date="2021-09-12" />
+    <release version="0.0.94.97" type="development" date="2021-06-27" />
+    <release version="0.0.9.4" date="2019-04-29" />
+    <release version="0.0.9.3" date="2018-10-21" />
+    <release version="0.0.9.2" date="2018-06-17" />
+    <release version="0.0.9.1" date="2018-05-07" />
+    <release version="0.0.9" date="2018-04-27" />
+    <release version="0.0.5" date="2017-12-22" />
+  </releases>
+
+  <translation type="qt">qt</translation>
+  <translation type="qt">qtkeychain</translation>
+  <translation type="qt">quaternion</translation>
+
+  <developer_name>The Quotient Project</developer_name>
+  <content_rating type="oars-1.0">
+    <content_attribute id="social-chat">intense</content_attribute>
+    <content_attribute id="social-audio">intense</content_attribute>
+    <content_attribute id="social-contacts">intense</content_attribute>
+  </content_rating>
+</component>

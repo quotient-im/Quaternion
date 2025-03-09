@@ -1,4 +1,4 @@
-import QtQuick 2.6
+import QtQuick 2.15
 import QtQuick.Controls 2.3
 import Quotient 1.0
 
@@ -10,15 +10,12 @@ Item {
     readonly property bool authorSectionVisible:
         eventGrouping >= EventGrouping.ShowAuthor
 
+    readonly property var time:
+        dateTime.toLocaleTimeString(Qt.locale(), Locale.ShortFormat)
+
     readonly property bool pending: marks > EventStatus.Normal
                                     && marks < EventStatus.Redacted
     readonly property bool failed: marks === EventStatus.SendingFailed
-    readonly property string authorName:
-        room && author ? room.safeMemberName(author.id) : ""
-    // FIXME: boilerplate with models/userlistmodel.cpp:115
-    readonly property string authorColor: // contrast but not too heavy
-        Qt.hsla(author ? author.hueF : 0.0, (1-palette.window.hslSaturation),
-                (-0.7*palette.window.hslLightness + 0.9), palette.buttonText.a)
 
     readonly property bool actionEvent: eventType === "state"
                                         || eventType === "emote"
@@ -52,11 +49,12 @@ Item {
             if (partiallyShown) {
                 chatView.readMarkerContentPos =
                     Qt.binding(function() { return y + height })
-                console.log("Read marker line bound at index", index)
+                console.log(root.lc, "Read marker line bound at index", index)
             } else {
                 chatView.parkReadMarker()
-                console.log("Read marker parked at index", index
-                            + ", content pos", chatView.readMarkerContentPos,
+                console.log(root.lc, "Read marker parked at index",
+                            index + ", content pos",
+                            chatView.readMarkerContentPos,
                             "(full range is", chatView.originY, "-",
                             chatView.originY + chatView.contentHeight,
                             "as of now)")
@@ -66,24 +64,16 @@ Item {
 
     onPartiallyShownChanged: readMarkerHereChanged()
 
-    function maybeBindScrollTarget() {
-        if (scrollDelay.targetIndex === index) {
-            scrollDelay.targetPos = Qt.binding(function() { return y })
-            console.log("Scroll target bound, current pos:",
-                        scrollDelay.targetPos)
-        }
-    }
-
     Component.onCompleted: {
         if (bottomEdgeShown)
             bottomEdgeShownChanged()
         readMarkerHereChanged()
-        maybeBindScrollTarget()
     }
 
-    Connections {
-        target: scrollDelay
-        function onTargetIndexChanged() { maybeBindScrollTarget() }
+    // FIXME: boilerplate with models/userlistmodel.cpp:115
+    function memberColor(member) { // contrast but not too heavy
+        return Qt.hsla(member?.hueF ?? 0, (1-palette.window.hslSaturation),
+                (-0.7*palette.window.hslLightness + 0.9), palette.buttonText.a)
     }
 
     property bool showingDetails
@@ -168,7 +158,7 @@ Item {
             id: detailsAreaLoader
 //            asynchronous: true // https://bugreports.qt.io/browse/QTBUG-50992
             active: visible
-            visible: false // Controlled by showDetailsButton
+            visible: false // Managed by onShowDetails()
             opacity: 0
             width: parent.width
 
@@ -179,6 +169,29 @@ Item {
             id: message
             width: parent.width
             height: childrenRect.height
+
+            component AuthorInteractionArea: Item {
+                anchors.fill: parent
+                HoverHandler {
+                    id: authorInteractionHoverHandler
+                    cursorShape: Qt.PointingHandCursor
+                }
+                ToolTip.visible: authorInteractionHoverHandler.hovered
+                ToolTip.text: author.id
+
+                TapHandler {
+                    acceptedButtons: Qt.LeftButton|Qt.MiddleButton
+                    onTapped: (mouse, button) => {
+                        // Qt 5 passes the pressed button inside mouse.event;
+                        // Qt 6 passes it as a separate parameter
+                        if (!button && mouse.event)
+                            button = mouse.event.button
+                        controller.resourceRequested(
+                                    author.id, button === Qt.LeftButton
+                                    ? "mention" : "_interactive")
+                    }
+                }
+            }
 
             // There are several layout styles (av - author avatar,
             // al - author label, ts - timestamp, c - content
@@ -209,53 +222,49 @@ Item {
 
                 text: "<" + time + ">"
             }
-            Image {
+            Avatar {
                 id: authorAvatar
                 visible: (authorSectionVisible || settings.timelineStyleIsXChat)
-                         && settings.show_author_avatars && author.avatarMediaId
+                         && settings.show_author_avatars
                 anchors.left: timelabel.right
                 anchors.leftMargin: 3
-                height: visible ? settings.minimalTimelineItemHeight
-                                : authorLabel.height
 
                 width: settings.show_author_avatars
                        * settings.minimalTimelineItemHeight
 
-                fillMode: Image.PreserveAspectFit
                 horizontalAlignment: Image.AlignRight
 
-                source: author.avatarMediaId
-                        ? "image://mtx/" + author.avatarMediaId : ""
-                sourceSize: Qt.size(width, -1)
+                forMember: author
+                sourceSize: Qt.size(width, visible ? settings.minimalTimelineItemHeight : 0)
 
-                AuthorInteractionArea { authorId: author.id }
-                AnimationBehavior on height { FastNumberAnimation { } }
+                AuthorInteractionArea { }
             }
             Label {
                 id: authorLabel
                 visible: settings.timelineStyleIsXChat
-                         || (!actionEvent && authorSectionVisible)
+                         || (authorSectionVisible && (!actionEvent || authorHasAvatar))
                 anchors.left: authorAvatar.right
                 anchors.leftMargin: 2
                 anchors.top: authorAvatar.top
-                width: settings.timelineStyleIsXChat
-                       ? 120 - authorAvatar.width
-                       : Math.min(textField.width, implicitWidth)
-                horizontalAlignment:
-                    actionEvent ? Text.AlignRight : Text.AlignLeft
+                width: settings.timelineStyleIsXChat ? 120 - authorAvatar.width
+                                                     : Math.min(textField.width, implicitWidth)
+                horizontalAlignment: actionEvent ? Text.AlignRight : Text.AlignLeft
                 elide: Text.ElideRight
 
-                color: authorColor
+                color: memberColor(author)
                 textFormat: Label.PlainText
                 font.bold: !settings.timelineStyleIsXChat
                 renderType: settings.render_type
 
-                text: (actionEvent ? "* " : "") + authorName
+                text:
+                    (actionEvent && settings.timelineStyleIsXChat ? "* " : "") + author?.displayName
 
-                AuthorInteractionArea { authorId: author.id }
+                AuthorInteractionArea { }
             }
 
             Item {
+                // 0.0.97: it used to be RectangularGlow, maybe bring
+                //         MultiEffect once we are both legs in Qt 6?
                 id: highlighter
                 anchors.fill: textField
                 visible: highlight && settings.highlight_mode != "text"
@@ -281,21 +290,16 @@ Item {
                 id: textField
                 height: textFieldImpl.height
                 anchors.top:
-                    !settings.timelineStyleIsXChat && authorLabel.visible
-                    ? authorLabel.bottom
-                    : height >= authorAvatar.height ? authorLabel.top : undefined
-                anchors.verticalCenter: !settings.timelineStyleIsXChat
-                                        && !authorLabel.visible
-                                        && height < authorAvatar.height
-                                        ? authorAvatar.verticalCenter
-                                        : undefined
-                anchors.left: (settings.timelineStyleIsXChat
-                               ? authorLabel : authorAvatar).right
+                    !settings.timelineStyleIsXChat && authorLabel.visible ? authorLabel.bottom
+                                                                          : authorLabel.top
+                anchors.left: (settings.timelineStyleIsXChat ? authorLabel : authorAvatar).right
                 anchors.leftMargin: 2
                 anchors.right: parent.right
                 anchors.rightMargin: 1
                 clip: true
 
+                // TextArea clips the offscreen part thereby breaking horizontal
+                // scrolling, hence using TextEdit here
                 TextEdit {
                     id: textFieldImpl
                     anchors.top: textField.top
@@ -311,25 +315,43 @@ Item {
                                   .replace(/</g, '&lt;').replace(/>/g, '&gt;')
                     }
 
+                    function inlineAuthorLabel(author) {
+                        return author
+                               ? "<a href='" + author.id + "' style='text-decoration:none;color:"
+                                 + memberColor(author) + ";font-weight:bold'>"
+                                 + author.htmlSafeDisplayName + "</a> "
+                               : ""
+                    }
+
                     selectByMouse: true
                     readOnly: true
                     textFormat: TextEdit.RichText
-                    // FIXME: The text is clumsy and slows down creation
-                    text: (!settings.timelineStyleIsXChat
-                           ? ("<table style='
-                                float: right; font-size: small;
-                                color:\"" + settings.lowlight_color
-                              + "\"'><tr><td>"
-                              + (time ? toHtmlEscaped(time) : "")
+                    // FIXME: The text is clumsy and slows down creation; move it to C++
+                    text:
+                        (repliedTo
+                         ? "<table style='background-color:"
+                           + messageModel.fadedBackColor(memberColor(repliedTo.sender), 0.07)
+                           + "'><tr><td></td><td style='padding: 2px; padding-bottom: 0px'>"
+                           + inlineAuthorLabel(repliedTo.sender)
+                           + "</td></tr><tr><td style='padding: 2px; padding-top: 0px; padding-right: 0px'><a href='"
+                             + repliedTo.eventId
+                             + "'><img src='qrc:///scrollup.svg' height=" + settings.fontHeight
+                           + "/></a></td><td style='padding: 2px; padding-top: 0px'>"
+                             + repliedTo.content + "</td></tr></table>"
+                             : "")
+                        + (!settings.timelineStyleIsXChat
+                           ? ("<table style='float: right; font-size: small; color:\""
+                                + settings.lowlight_color
+                              + "\"'><tr>"
+                              + (verificationState === VerificationState.Unverified
+                                 ? "<td style='font-family:emoji;color:orange'>⚠️</td>"
+                                 : "")
+                              + "<td>" + (time ? toHtmlEscaped(time) : "")
                               + "</td></tr></table>"
-                              + (actionEvent
-                                 ? ("<a href='" + (author ? author.id : "")
-                                    + "' style='text-decoration:none;color:\""
-                                    + authorColor + "\";font-weight:bold'>"
-                                    + toHtmlEscaped(authorName) + "</a> ")
-                                 : ""))
+                              + (actionEvent && !authorLabel.visible
+                                 ? inlineAuthorLabel(author) : ""))
                            : "")
-                          + (actionEvent ? "<i>" + display + "</i>" : display)
+                          + (actionEvent ? "<em>" : "") + display + (actionEvent ? "</em>" : "")
                           + (marks === EventStatus.Replaced
                              ? "<small style='color:\"" + settings.lowlight_color
                                + "\"'> (" + qsTr("edited") + ")</small>"
@@ -337,6 +359,7 @@ Item {
                     horizontalAlignment: Text.AlignLeft
                     wrapMode: Text.Wrap
                     color: foreground
+                    font: settings.font
                     renderType: settings.render_type
 
                     onHoveredLinkChanged:
@@ -354,8 +377,7 @@ Item {
 
                 TimelineMouseArea {
                     anchors.fill: parent
-                    cursorShape: textFieldImpl.hoveredLink
-                                 ? Qt.PointingHandCursor : Qt.IBeamCursor
+                    cursorShape: textFieldImpl.hoveredLink ? Qt.PointingHandCursor : Qt.IBeamCursor
                     acceptedButtons: Qt.MiddleButton | Qt.RightButton
 
                     onClicked: (mouse) => {
@@ -408,20 +430,14 @@ Item {
                 anchors.right: textField.right
 
                 sourceComponent: ImageContent {
-                    property var info:
-                        !progressInfo.isUpload && !progressInfo.active &&
-                        content.info && content.info.thumbnail_info
-                        ? content.info.thumbnail_info
-                        : content.info
-                    sourceSize: if (info) { Qt.size(info.w, info.h) }
+                    property var info: progressInfo.isUpload || autoload || progressInfo.active
+                                       ? content?.info : content?.info?.thumbnail_info
+                    sourceSize: if (info && info.w && info.h) { Qt.size(info.w, info.h) }
                     source: downloaded || progressInfo.isUpload
                             ? progressInfo.localPath
-                            : progressInfo.failed
-                              ? ""
-                              : content.info && content.info.thumbnail_info
-                                && !autoload
-                                ? "image://mtx/" + content.thumbnailMediaId
-                                : ""
+                            : !progressInfo.failed
+                              ? autoload ? content.url : content.info.thumbnail_url ?? ""
+                              : "" // TODO: show thumbnail or failing that blurhash before loading
                     maxHeight: chatView.height - textField.height -
                                authorLabel.height * !settings.timelineStyleIsXChat
                     autoload: settings.autoload_images
@@ -441,8 +457,7 @@ Item {
 
             Label {
                 id: annotationLabel
-                anchors.top: imageLoader.active ? imageLoader.bottom
-                                                : fileLoader.bottom
+                anchors.top: imageLoader.active ? imageLoader.bottom : fileLoader.bottom
                 anchors.left: textField.left
                 anchors.right: textField.right
                 height: annotation ? implicitHeight : 0
@@ -460,35 +475,39 @@ Item {
                 anchors.right: textField.right
 
                 Repeater {
+                    id: reactionsView
                     model: reactions
                     ToolButton {
                         id: reactionButton
 
-                        topPadding: 2
-                        bottomPadding: 2
+                        padding: 3
+                        leftPadding: 4
+                        rightPadding: 4
+
+                        readonly property color fgColor:
+                            modelData.includesLocalUser ? palette.highlightedText
+                                                        : foreground
 
                         contentItem: Text {
                             text: modelData.key + " \u00d7" /* Math "multiply" */
                                   + modelData.authorsCount
                             textFormat: Text.PlainText
-                            color: modelData.includesLocalUser
-                                       ? palette.highlight
-                                       : palette.buttonText
+                            font.pointSize: settings.font.pointSize - 1
+                            color: reactionButton.fgColor
                         }
 
                         background: Rectangle {
                             radius: 4
-                            color: reactionButton.down ? palette.button
-                                                       : "transparent"
-                            border.color: modelData.includesLocalUser
-                                              ? palette.highlight
-                                              : settings.disabledPalette.buttonText
+                            color: reactionButton.hovered ? palette.mid
+                                   : reactionButton.down ? palette.button
+                                   : modelData.includesLocalUser ? palette.highlight : "transparent"
+                            border.color: palette.mid
                             border.width: 1
                         }
 
                         hoverEnabled: true
                         ToolTip {
-                            visible: hovered
+                            visible: reactionButton.hovered
                             contentItem: Text {
                                 //: %2 is the list of users
                                 text: qsTr("Reaction '%1' from %2")
@@ -581,18 +600,20 @@ Item {
             color: palette.button
             border.color: palette.mid
 
-            readonly property url evtLink:
-                "https://matrix.to/#/" + room.id + "/" + eventId
-            readonly property string sourceText: toolTip
-
             Item {
                 id: detailsHeader
                 width: parent.width
                 height: childrenRect.height
+                readonly property var boldFontInfo: FontMetrics {
+                    font.family: settings.font.family
+                    font.pointSize: settings.font.pointSize
+                    font.bold: true
+                }
+                readonly property var boldFont: boldFontInfo.font
 
                 TextEdit {
-                    text: "<" + time + ">"
-                    font.bold: true
+                    text: "<" + dateTime.toLocaleString(Qt.locale(), Locale.ShortFormat) + ">"
+                    font: parent.boldFont
                     renderType: settings.render_type
                     readOnly: true
                     selectByKeyboard: true; selectByMouse: true
@@ -603,10 +624,12 @@ Item {
                     z: 1
                 }
                 TextEdit {
+                    readonly property url evtLink: "https://matrix.to/#/" + room.id + "/" + eventId
+
                     id: eventTitle
                     text: "<a href=\"" + evtLink + "\">"+ eventId + "</a>"
                     textFormat: Text.RichText
-                    font.bold: true
+                    font: parent.boldFont
                     renderType: settings.render_type
                     horizontalAlignment: Text.AlignHCenter
                     readOnly: true
@@ -618,28 +641,19 @@ Item {
 
                     MouseArea {
                         anchors.fill: parent
-                        cursorShape: parent.hoveredLink ?
-                                         Qt.PointingHandCursor :
-                                         Qt.IBeamCursor
+                        cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.IBeamCursor
                         acceptedButtons: Qt.NoButton
                     }
                 }
                 TextEdit {
                     text: eventClassName
                     textFormat: Text.PlainText
-                    font.bold: true
+                    font: parent.boldFont
                     renderType: settings.render_type
 
                     anchors.top: eventTitle.bottom
                     anchors.right: parent.right
                     anchors.rightMargin: 3
-                }
-
-                TextEdit {
-                    id: permalink
-                    text: evtLink
-                    renderType: settings.render_type
-                    width: 0; height: 0; visible: false
                 }
             }
 
@@ -652,6 +666,8 @@ Item {
                 ScrollBar.vertical.policy: ScrollBar.AlwaysOn
 
                 TextEdit {
+                    readonly property string sourceText: toolTip
+
                     text: sourceText
                     textFormat: Text.PlainText
                     readOnly: true;

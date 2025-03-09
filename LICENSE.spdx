@@ -1,0 +1,14 @@
+SPDXVersion: SPDX-2.3
+DataLicense: CC0-1.0
+
+PackageName: Quaternion
+PackageSupplier: Organization: The Quotient project
+PackageDownloadLocation: git+https://github.com/quotient-im/Quaternion.git
+FilesAnalyzed: false
+PackageHomePage: https://github.com/quotient-im/Quaternion
+PackageLicenseInfoFromFiles: GPL-3.0-or-later
+PackageLicenseInfoFromFiles: LGPL-2.1-only
+PackageLicenseInfoFromFiles: LGPL-2.1-or-later
+PackageLicenseInfoFromFiles: BSD-3-Clause
+PackageLicenseDeclared: GPL-3.0-or-later
+PackageCopyrightText: Copyright The Quotient project contributors

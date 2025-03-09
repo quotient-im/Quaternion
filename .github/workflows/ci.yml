@@ -11,11 +11,13 @@ defaults:
 
 # A note on bash code style (specifically if's)
 # - No attempt to be POSIX-compliant, it's Bash (4.x+) here
-# - In if's, use [[ instead of [; BUT quote strings around and next to ${{ }}
-#   expansions because inside those expansions strings must always be quoted
-# - Quotes: use "" only where shell "$VARIABLES" should be expanded;
-#   ${{ }} is expanded before feeding the script to Bash, therefore single
-#   quotes or even absense of any are enough '${{ }}' (but see above re if's)
+# - In if's, use [[ ... ]] instead of [ ... ]; BUT quote strings around and next
+#   to ${{ }} expansions to make it clear those are strings and not,
+#   accidentally, numbers
+# - Quotes: use "" only where shell "$VARIABLES" should be expanded, everywhere
+#   else '' is the way to go; ${{ }} is expanded before even feeding the script
+#   to Bash, so always use single quotes (or no quotes - except if's, see above)
+#   around them
 
 jobs:
   Prepare:
@@ -44,7 +46,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-22.04, macos-latest, windows-latest ]
+        os: [ ubuntu-24.04, macos-latest, windows-latest ]
         qt-version: [ 6 ]
         override-compiler: [ '', GCC ] # Defaults: MSVC on Windows, Clang elsewhere
         composition: [ own-quotient, static, dynamic ]
@@ -59,66 +61,59 @@ jobs:
         - os: macos-latest
           override-compiler: GCC
         include:
-        - os: ubuntu-22.04
-          qt-version: 5
+        - os: ubuntu-24.04
           composition: own-quotient
           check: appstream # Use one of faster paths for validation
-        - os: ubuntu-22.04
-          qt-version: 5
-          composition: static
-        - os: ubuntu-22.04
-          qt-version: 5        # Use one variation with external libQuotient
-          composition: dynamic # to do CodeQL analysis (libQuotient is analysed
-          check: codeql        # in its own repo)
+        - os: ubuntu-24.04
+          # Use the variation with external libQuotient to do CodeQL analysis
+          # (libQuotient is analysed in its own repo)
+          composition: dynamic
+          check: codeql
 
     env:
-      QTKEYCHAIN_REF: v0.13.2
-      QUOTIENT_REF: dev
+      QTKEYCHAIN_REF: 0.14.3
+      QUOTIENT_REF: 0.9.x
       VERSION: ${{ needs.Prepare.outputs.version }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: ${{ matrix.composition == 'own-quotient' }}
 
     - name: Install Qt (non-Linux)
       if: "!startsWith(matrix.os, 'ubuntu')"
-      uses: jurplel/install-qt-action@v3.0.0
+      uses: jurplel/install-qt-action@v4.1.1
       with:
-        version: "${{ matrix.qt-version == 6 && '6.4' || matrix.qt-version }}.*"
+        version: "6.6"
         cache: true
         cache-key-prefix: Qt
-        modules: ${{ matrix.qt-version == 6 && 'qtmultimedia' || '' }}
-        tools: tools_ninja
+        modules: 'qtmultimedia'
+        tools: "tools_ninja${{ startsWith(matrix.os, 'windows') && ' tools_opensslv3_x64' || '' }}"
 
-    # Install on Linux via apt to get Qt built with OpenSSL 3
-    - name: Install Qt (Linux)
+    # Install on Linux via apt to test against Qt coming from the package manager
+    - name: Install dependencies (Linux)
       if: startsWith(matrix.os, 'ubuntu')
       run: |
-        COMMON_PKGS="libolm-dev ninja-build"
-        sudo apt-get -qq update
-        sudo apt-get -qq install $COMMON_PKGS \
-            ${{ matrix.qt-version == 5
-                && 'qtdeclarative5-dev qttools5-dev qml-module-qtquick-controls2 qtquickcontrols2-5-dev qtmultimedia5-dev qt5keychain-dev'
-                || 'libgl1-mesa-dev qt6-declarative-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools qml6-module-qtquick-controls qt6-multimedia-dev qtkeychain-qt6-dev'
-            }}
+        sudo apt-get -q update
+        sudo apt-get -qq install libolm-dev ninja-build \
+            qt6-declarative-dev qt6-base-private-dev qt6-tools-dev qt6-tools-dev-tools \
+            qt6-l10n-tools qml6-module-qtquick-controls qt6-multimedia-dev qtkeychain-qt6-dev
 
     - name: Setup environment
       run: |
         if [[ '${{ matrix.override-compiler }}' == 'GCC' ]]; then
             echo "CC=gcc" >>$GITHUB_ENV
             echo "CXX=g++" >>$GITHUB_ENV
-        elif [[ '${{ runner.os }}' != 'Windows' ]]; then
+        elif [[ '${{ runner.os }}' == 'Linux' ]]; then
             echo "CC=clang" >>$GITHUB_ENV
             echo "CXX=clang++" >>$GITHUB_ENV
         fi
         echo "CMAKE_ARGS=-GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
               ${{ runner.os != 'Linux' && '-DCMAKE_MAKE_PROGRAM=$IQTA_TOOLS/Ninja/ninja' || '' }} \
               -DCMAKE_PREFIX_PATH=~/.local \
-              -DQuotient_ENABLE_E2EE=ON \
-              ${{ runner.os == 'macOS' && '-DOPENSSL_ROOT_DIR=`brew --prefix openssl`' || '' }} \
-              -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }} \
-              -DBUILD_WITH_QT6=${{ matrix.qt-version == 6 }}" \
+              ${{ runner.os == 'macOS' && '-DOPENSSL_ROOT_DIR=`brew --prefix openssl`' ||
+                  runner.os == 'Windows' && '-DOPENSSL_ROOT_DIR=$IQTA_TOOLS/OpenSSLv3/Win_x64/' || '' }} \
+              -DBUILD_SHARED_LIBS=${{ matrix.composition == 'dynamic' }}" \
             >>$GITHUB_ENV
 
     - name: Setup MSVC environment
@@ -132,7 +127,7 @@ jobs:
       run: |
         git clone --depth=1 -b $QTKEYCHAIN_REF https://github.com/frankosterfeld/qtkeychain
         cd qtkeychain
-        cmake -S . -B build $CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=~/.local
+        cmake -S . -B build $CMAKE_ARGS -DBUILD_WITH_QT6=ON -DCMAKE_INSTALL_PREFIX=~/.local
         cmake --build build --target install
         if [[ '${{ matrix.composition }}' == 'dynamic' ]]; then
             QTKEYCHAIN_SO_PATH=$(dirname $(find ~/.local/lib* -name 'libqt?keychain.so'))
@@ -161,7 +156,7 @@ jobs:
 
     - name: Initialize CodeQL tools
       if: matrix.check == 'codeql'
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@v3
       with:
         languages: cpp
         # If you wish to specify custom queries, you can do so here or in a config file.
@@ -192,7 +187,7 @@ jobs:
 
     - name: Perform CodeQL analysis
       if: matrix.check == 'codeql'
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@v3
 
     - name: Validate installation (Linux)
       if: startsWith(matrix.os, 'ubuntu')
@@ -207,7 +202,7 @@ jobs:
         fi
 
     - name: Make a package
-      if: matrix.composition == 'own-quotient' && matrix.qt-version == 6 && matrix.override-compiler == ''
+      if: matrix.composition == 'own-quotient' && matrix.override-compiler == ''
       id: package
       env:
         DEPLOY_VERBOSITY: 1
@@ -242,6 +237,7 @@ jobs:
                 ;;
             Windows)
                 ls -l $FULL_INSTALL_PATH/quaternion.exe # Fail if it's not there
+                rm -rf $FULL_INSTALL_PATH/{include,lib/cmake,share,qmltooling}
                 OUTPUT=$PACKAGE_STEM.zip
                 7z a $OUTPUT $FULL_INSTALL_PATH
                 ;;
@@ -251,7 +247,7 @@ jobs:
 
     - name: Store artefacts
       if: steps.package.outputs.path != ''
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: quaternion-${{ env.VERSION }}-${{ runner.os }}
         path: ${{ steps.package.outputs.path }}
@@ -269,7 +265,7 @@ jobs:
     steps:
     - name: Retrieve artefacts
       id: get-package
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: quaternion-${{ needs.Prepare.outputs.version}}-${{ matrix.type }}
         path: package
@@ -296,6 +292,7 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
+        commit: dev
         artifacts: ${{ steps.get-package.outputs.download-path }}/*
         # It tends to false-prerelease things but that's better than false-release them
         prerelease: ${{ contains(needs.Prepare.outputs.version, '-') }}

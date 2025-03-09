@@ -126,10 +126,6 @@
         <translation>Sende eine Nachricht (über %1) oder gebe einen Befehl ein …</translation>
     </message>
     <message>
-        <source>Attaching an image from clipboard</source>
-        <translation>Anhängen eines Bildes aus der Zwischenablage</translation>
-    </message>
-    <message>
         <source>No completions</source>
         <translation>Keine Vervollständigungen</translation>
     </message>
@@ -149,12 +145,28 @@
         <translation>Aktuell tippen:</translation>
     </message>
     <message>
-        <source>At pos %1: %2</source>
-        <translation>An Position %1: %2</translation>
+        <source>At character %1: %2</source>
+        <translation>Bei Zeichen %1: %2</translation>
     </message>
     <message>
         <source>%L1 more</source>
         <translation>%L1 weitere</translation>
+    </message>
+    <message>
+        <source>%1 is not readable or not a file</source>
+        <translation>%1 ist nicht lesbar oder keine Datei</translation>
+    </message>
+    <message>
+        <source>Attaching the pasted image</source>
+        <translation>Anhängen des eingefügten Bildes</translation>
+    </message>
+    <message>
+        <source>Can&apos;t attach a file without a selected room</source>
+        <translation>Kann keine Datei ohne einen ausgewählten Raum anhängen</translation>
+    </message>
+    <message>
+        <source>Cannot insert HTML - it&apos;s either invalid or unsupported</source>
+        <translation>HTML kann nicht eingefügt werden – es ist entweder ungültig oder wird nicht unterstützt</translation>
     </message>
 </context>
 <context>
@@ -266,6 +278,10 @@ Einstellungen</translation>
         <source>Please fill the fields as desired. None are mandatory</source>
         <translation>Bitte füllen Sie die Felder wie gewünscht aus. Alle sind optional.</translation>
     </message>
+    <message>
+        <source>Remove</source>
+        <translation>Entfernen</translation>
+    </message>
 </context>
 <context>
     <name>Dialog</name>
@@ -352,6 +368,18 @@ Einstellungen</translation>
         <source>Getting supported login flows...</source>
         <translation>Lade unterstützte Anmeldemethoden …</translation>
     </message>
+    <message>
+        <source>This account is logged in already</source>
+        <translation>Dieses Konto ist bereits angemeldet</translation>
+    </message>
+    <message>
+        <source>(none)</source>
+        <translation>(keiner)</translation>
+    </message>
+    <message>
+        <source>Saved device id</source>
+        <translation>Gespeicherte Geräte-ID</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -374,10 +402,6 @@ Einstellungen</translation>
     <message>
         <source>&amp;View</source>
         <translation>&amp;Oberfläche</translation>
-    </message>
-    <message>
-        <source>Dock &amp;panels</source>
-        <translation>&amp;Panel anheften</translation>
     </message>
     <message>
         <source>&amp;Display in timeline</source>
@@ -654,14 +678,6 @@ Antwort:
         <translation>Einen Raum aus der Raumliste öffnen</translation>
     </message>
     <message>
-        <source>Show/hide Rooms dock panel</source>
-        <translation>Dock-Panel der Räume ein-/ausblenden</translation>
-    </message>
-    <message>
-        <source>Show/hide Users dock panel</source>
-        <translation>Benutzer-Dock-Panel ein-/ausblenden</translation>
-    </message>
-    <message>
         <source>Couldn&apos;t delete access token</source>
         <translation>Zugriffstoken konnte nicht gelöscht werden.</translation>
     </message>
@@ -931,6 +947,44 @@ Matrix URI oder matrix.to Link</translation>
         <source>Show a confirmation box before opening non-Matrix links in an external application</source>
         <translation>Zeige ein Bestätigungsfeld vor dem Öffnen von Nicht-Matrix-Links in einer externen Anwendung an</translation>
     </message>
+    <message numerus="yes">
+        <source>Loading %Ln accounts, please wait</source>
+        <translation>
+            <numerusform>%Ln Konto wird geladen, bitte warten</numerusform>
+            <numerusform>%Ln Konten werden geladen, bitte warten</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Account %1 is synchronised, have a good chat</source>
+        <translation>Konto %1 ist synchronisiert, viel Spaß beim Chatten</translation>
+    </message>
+    <message numerus="yes">
+        <source>All %Ln accounts synchronised, have a good chat</source>
+        <translation>
+            <numerusform>%Ln Konto ist synchronisiert, viel Spaß beim Chatten</numerusform>
+            <numerusform>Alle %Ln Kontos sind synchronisiert, viel Spaß beim Chatten</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>&amp;Room list</source>
+        <translation>&amp;Raumliste</translation>
+    </message>
+    <message>
+        <source>&amp;Member list</source>
+        <translation>&amp;Mitgliederliste</translation>
+    </message>
+    <message>
+        <source>Dock panels</source>
+        <translation>Dock-Paneele</translation>
+    </message>
+    <message>
+        <source>Can&apos;t find the event without knowing the room</source>
+        <translation>Kann das Ereignis nicht finden, ohne den Raum zu kennen</translation>
+    </message>
+    <message>
+        <source>Open the room that has this event to scroll to %1</source>
+        <translation>Öffnen Sie den Raum, in dem sich dieses Ereignis befindet, um zu %1 zu scrollen</translation>
+    </message>
 </context>
 <context>
     <name>MessageEventModel</name>
@@ -1101,6 +1155,10 @@ Matrix URI oder matrix.to Link</translation>
         <source>kicked %1 from the room</source>
         <translation>hat %1 aus dem Raum entfernt</translation>
     </message>
+    <message>
+        <source>(loading)</source>
+        <translation>(lädt)</translation>
+    </message>
 </context>
 <context>
     <name>NetworkConfigDialog</name>
@@ -1191,6 +1249,10 @@ Matrix URI oder matrix.to Link</translation>
         <source>You are using an UNSTABLE room version (%1). The server may stop supporting it at any moment. Do you still want to use this version?</source>
         <translation>Sie verwenden eine INSTABILE Raumversion (%1). Der Server kann die Unterstützung jederzeit einstellen. Möchten Sie diese Version noch verwenden?</translation>
     </message>
+    <message>
+        <source>(no available room versions)</source>
+        <translation>(keine verfügbaren Raumversionen)</translation>
+    </message>
 </context>
 <context>
     <name>RoomListDock</name>
@@ -1245,6 +1307,14 @@ Matrix URI oder matrix.to Link</translation>
     <message>
         <source>Rooms (%L1)</source>
         <translation>Räume (%L1)</translation>
+    </message>
+    <message>
+        <source>Forget this room?</source>
+        <translation>Diesen Raum vergessen?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to forget room %1?</source>
+        <translation>Sind Sie sicher, dass Sie den Raum %1 vergessen möchten?</translation>
     </message>
 </context>
 <context>
@@ -1319,6 +1389,34 @@ Matrix URI oder matrix.to Link</translation>
     <message>
         <source>(maybe more)</source>
         <translation>(vielleicht mehr)</translation>
+    </message>
+    <message>
+        <source>Events after fully read marker: %L1</source>
+        <translation>Ereignisse nach vollständig gelesenem Marker: %L1</translation>
+    </message>
+    <message>
+        <source>Unread events/highlights since read receipt: %L1/%L2</source>
+        <translation>Ungelesene Ereignisse/Hervorhebungen nach vollständig gelesenem Marker: %L1/%L2</translation>
+    </message>
+    <message>
+        <source>Unread events since read receipt: %L1</source>
+        <translation>Ungelesene Ereignisse nach vollständig gelesenem Marker: %L1</translation>
+    </message>
+    <message>
+        <source>Room id: %1</source>
+        <translation>Raum-ID: %1</translation>
+    </message>
+    <message>
+        <source>You joined this room as %1</source>
+        <translation>Sie sind diesem Raum als %1 beigetreten</translation>
+    </message>
+    <message>
+        <source>You were invited into this room as %1</source>
+        <translation>Sie wurden als %1 in diesen Raum eingeladen</translation>
+    </message>
+    <message>
+        <source>You left this room as %1</source>
+        <translation>Sie haben diesen Raum als %1 verlassen</translation>
     </message>
 </context>
 <context>
@@ -1525,25 +1623,6 @@ neuem Raum</translation>
     </message>
 </context>
 <context>
-    <name>ThumbnailResponse</name>
-    <message>
-        <source>Image request has been cancelled</source>
-        <translation>Bildanfrage wurde abgebrochen</translation>
-    </message>
-    <message>
-        <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
-        <translation>Die Medien-ID &apos;%1&apos; folgt nicht dem Server/Medien-ID-Muster</translation>
-    </message>
-    <message>
-        <source>No connection to perform image request</source>
-        <translation>Keine Verbindung zum Durchführen einer Bildanforderung</translation>
-    </message>
-    <message>
-        <source>Image request is pending</source>
-        <translation>Bildanforderung ist ausstehend</translation>
-    </message>
-</context>
-<context>
     <name>TimelineWidget</name>
     <message>
         <source>Referenced message not found</source>
@@ -1666,6 +1745,41 @@ neuem Raum</translation>
     <message>
         <source>Reset the current character formatting to the default</source>
         <translation>Zurücksetzen der aktuellen Zeichenformatierung auf die Standardeinstellung</translation>
+    </message>
+    <message>
+        <source>Paste as rich text</source>
+        <translation>Als Rich-Text einfügen</translation>
+    </message>
+    <message>
+        <source>Paste as plain text</source>
+        <translation>Als Klartext einfügen</translation>
+    </message>
+</context>
+<context>
+    <name>DockModeMenu</name>
+    <message>
+        <source>&amp;Off</source>
+        <translation>&amp;Aus</translation>
+    </message>
+    <message>
+        <source>&amp;Docked</source>
+        <translation>Ange&amp;dockt</translation>
+    </message>
+    <message>
+        <source>&amp;Floating</source>
+        <translation>&amp;Schwebend</translation>
+    </message>
+    <message>
+        <source>Completely hide this list</source>
+        <translation>Diese Liste vollständig ausblenden</translation>
+    </message>
+    <message>
+        <source>The list is shown within the main window</source>
+        <translation>Die Liste wird im Hauptfenster angezeigt</translation>
+    </message>
+    <message>
+        <source>The list is shown separately from the main window</source>
+        <translation>Die Liste wird getrennt vom Hauptfenster angezeigt</translation>
     </message>
 </context>
 </TS>

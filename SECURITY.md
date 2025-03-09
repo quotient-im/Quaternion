@@ -2,14 +2,12 @@
 
 ## Supported Versions
 
-Only the latest released version of Quaternion is supported with security
-updates. Also, an effort is put into supporting the latest released version
-on most recent stable releases of each major Linux distribution (Debian,
-Ubuntu, Fedora, OpenSuse). Users of older Quaternion versions are strongly
-advised to upgrade to the latest release - support of those versions is very
-limited, if provided at all. If you can't do it because your Linux distribution
-is too old, you likely have other security problems as well;
-upgrade your Linux distribution!
+Only the latest stable (i.e. not beta) version of Quaternion is supported with security updates.
+Also, an effort is put into supporting the version on most recent stable releases of each major
+Linux distribution (Debian, Ubuntu, Fedora, OpenSuse). Users of older Quaternion versions are
+strongly advised to upgrade to the latest release - support of those versions is very limited,
+if provided at all. If you can't do it because your Linux distribution is too old, you likely
+have other security problems as well; upgrade your Linux distribution!
 
 ## Reporting a Vulnerability
 

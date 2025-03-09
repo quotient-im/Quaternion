@@ -15,5 +15,6 @@ cmake_install.cmake
 Makefile
 quaternion_autogen/
 .cmake/
+.qmlls.ini
 
 .DS_Store

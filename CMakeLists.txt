@@ -3,10 +3,10 @@ if (POLICY CMP0092)
 cmake_policy(SET CMP0092 NEW)
 endif()
 
-set(IDENTIFIER "com.github.quaternion")
-set(COPYRIGHT "Copyright © 2016-2023 Quaternion project contributors")
+set(IDENTIFIER "io.github.quotient_im.Quaternion")
+set(COPYRIGHT "Copyright © The Quotient Project contributors")
 
-project(quaternion VERSION 0.0.95.83 LANGUAGES CXX)
+project(quaternion VERSION 0.0.97 LANGUAGES CXX)
 
 if(UNIX AND NOT APPLE)
     set(LINUX 1)
@@ -47,30 +47,24 @@ if (MSVC)
 else()
     foreach (FLAG all pedantic extra error=return-void) # Switch these on
         CHECK_CXX_COMPILER_FLAG("-W${FLAG}" W${FLAG}_SUPPORTED)
+        mark_as_advanced(W${FLAG}_SUPPORTED)
         if (W${FLAG}_SUPPORTED AND NOT CMAKE_CXX_FLAGS MATCHES "W(no-)?${FLAG}($| )")
             add_compile_options(-W${FLAG})
         endif ()
     endforeach ()
     foreach (FLAG unused-parameter subobject-linkage) # Switch these off
         CHECK_CXX_COMPILER_FLAG("-Wno-${FLAG}" Wno-${FLAG}_SUPPORTED)
+        mark_as_advanced(Wno-${FLAG}_SUPPORTED)
         if (Wno-${FLAG}_SUPPORTED AND NOT CMAKE_CXX_FLAGS MATCHES "W(no-)?${FLAG}($| )")
             add_compile_options(-Wno-${FLAG})
         endif ()
     endforeach ()
 endif()
 
-option(BUILD_WITH_QT6 "Build with Qt 6 (instead of Qt 5)" ON)
-
-if (BUILD_WITH_QT6)
-    set(QtMinVersion "6.2")
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15")
-    set(QUOTIENT "QuotientQt6")
-else()
-    set(QtMinVersion "5.15")
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13")
-    set(QUOTIENT "Quotient")
-endif()
-string(REGEX REPLACE "^(.).*" "Qt\\1" Qt ${QtMinVersion}) # makes "Qt5" or "Qt6"
+set(QtMinVersion "6.4")
+set(QUOTIENT "QuotientQt6")
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15")
+string(REGEX REPLACE "^(.).*" "Qt\\1" Qt ${QtMinVersion}) # makes "Qt<MajorVersionDigit>"
 
 # Find the libraries
 find_package(${Qt} ${QtMinVersion} REQUIRED
@@ -96,6 +90,7 @@ if(WIN32)
     endif()
 endif()
 
+set(QUOTIENT_FORCE_NAMESPACED_INCLUDES 1)
 if ((NOT DEFINED USE_INTREE_LIBQMC OR USE_INTREE_LIBQMC)
         AND EXISTS ${PROJECT_SOURCE_DIR}/lib/Quotient/util.h)
     add_subdirectory(lib)
@@ -104,23 +99,22 @@ if ((NOT DEFINED USE_INTREE_LIBQMC OR USE_INTREE_LIBQMC)
     endif ()
 endif ()
 if (NOT USE_INTREE_LIBQMC)
-    find_package(${QUOTIENT} 0.8 REQUIRED)
+    find_package(${QUOTIENT} 0.9.2 REQUIRED)
     if (NOT ${QUOTIENT}_FOUND)
-        message( WARNING "libQuotient not found; configuration will most likely fail.")
-        message( WARNING "Make sure you have installed libQuotient development files")
-        message( WARNING "as a package or checked out the library sources in lib/.")
-        message( WARNING "See also BUILDING.md")
+        message(WARNING "libQuotient not found; configuration will most likely fail.")
+        message(WARNING "Make sure you have installed libQuotient development files")
+        message(WARNING "as a package or checked out the library sources in lib/.")
+        message(WARNING "See also BUILDING.md")
     endif ()
 endif ()
 
-message( STATUS )
-message( STATUS "=============================================================================" )
-message( STATUS "                     Quaternion ${quaternion_VERSION} Build Information" )
-message( STATUS "=============================================================================" )
+message(STATUS)
+message(STATUS "== Quaternion ${quaternion_VERSION} configuration summary ==")
+message(STATUS)
 if (CMAKE_BUILD_TYPE)
-    message( STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+    message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 endif(CMAKE_BUILD_TYPE)
-message( STATUS "Quaternion install prefix: ${CMAKE_INSTALL_PREFIX}" )
+message(STATUS "Quaternion install prefix: ${CMAKE_INSTALL_PREFIX}")
 # Get Git info if possible
 find_package(Git)
 if(GIT_FOUND)
@@ -129,54 +123,58 @@ if(GIT_FOUND)
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         OUTPUT_VARIABLE GIT_SHA1
         OUTPUT_STRIP_TRAILING_WHITESPACE)
-    message( STATUS "Git SHA1: ${GIT_SHA1}")
+    message(STATUS "Git SHA1: ${GIT_SHA1}")
 endif()
-message( STATUS "Using compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}" )
-message( STATUS "Using Qt ${${Qt}_VERSION} at ${${Qt}_Prefix}" )
+message(STATUS "Using compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+message(STATUS "Using Qt ${${Qt}_VERSION} at ${${Qt}_Prefix}")
 if (USE_INTREE_LIBQMC)
-    message( STATUS "Using in-tree libQuotient")
+    message(STATUS "Using in-tree libQuotient")
     if (GIT_FOUND)
         execute_process(COMMAND
             "${GIT_EXECUTABLE}" rev-parse -q HEAD
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib
             OUTPUT_VARIABLE LIB_GIT_SHA1
             OUTPUT_STRIP_TRAILING_WHITESPACE)
-        message( STATUS "  Library git SHA1: ${LIB_GIT_SHA1}")
+        message(STATUS "  Library git SHA1: ${LIB_GIT_SHA1}")
     endif (GIT_FOUND)
 else ()
-    message( STATUS "Using libQuotient ${${QUOTIENT}_VERSION} at ${${QUOTIENT}_DIR}")
+    message(STATUS "Using libQuotient ${${QUOTIENT}_VERSION} at ${${QUOTIENT}_DIR}")
 endif ()
-message( STATUS "=============================================================================" )
-message( STATUS )
+message(STATUS)
+
+# Windows, this is a GUI executable; OSX, make a bundle
+add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE)
 
 # Set up source files
-set(quaternion_SRCS
-    client/quaternionroom.cpp
-    client/htmlfilter.cpp
-    client/imageprovider.cpp
-    client/activitydetector.cpp
-    client/dialog.cpp
-    client/logindialog.cpp
-    client/networkconfigdialog.cpp
-    client/roomdialogs.cpp
-    client/mainwindow.cpp
-    client/roomlistdock.cpp
-    client/userlistdock.cpp
-    client/accountselector.cpp
-    client/kchatedit.cpp
-    client/chatedit.cpp
-    client/timelinewidget.cpp
-    client/chatroomwidget.cpp
-    client/systemtrayicon.cpp
-    client/profiledialog.cpp
-    client/models/messageeventmodel.cpp
-    client/models/userlistmodel.cpp
-    client/models/roomlistmodel.cpp
-    client/models/abstractroomordering.cpp
-    client/models/orderbytag.cpp
+target_sources(${PROJECT_NAME} PRIVATE
+    client/quaternionroom.cpp client/quaternionroom.h
+    client/htmlfilter.cpp client/htmlfilter.h
+    client/activitydetector.cpp client/activitydetector.h
+    client/dialog.cpp client/dialog.h
+    client/logindialog.cpp client/logindialog.h
+    client/networkconfigdialog.cpp client/networkconfigdialog.h
+    client/roomdialogs.cpp client/roomdialogs.h
+    client/dockmodemenu.cpp client/dockmodemenu.h
+    client/mainwindow.cpp client/mainwindow.h
+    client/roomlistdock.cpp client/roomlistdock.h
+    client/userlistdock.cpp client/userlistdock.h
+    client/accountselector.cpp client/accountselector.h
+    client/kchatedit.cpp client/kchatedit.h
+    client/chatedit.cpp client/chatedit.h
+    client/timelinewidget.cpp client/timelinewidget.h
+    client/chatroomwidget.cpp client/chatroomwidget.h
+    client/systemtrayicon.cpp client/systemtrayicon.h
+    client/profiledialog.cpp client/profiledialog.h
+    client/verificationdialog.h client/verificationdialog.cpp
+    client/models/messageeventmodel.cpp client/models/messageeventmodel.h
+    client/models/userlistmodel.cpp client/models/userlistmodel.h
+    client/models/roomlistmodel.cpp client/models/roomlistmodel.h
+    client/models/abstractroomordering.cpp client/models/abstractroomordering.h
+    client/models/orderbytag.cpp client/models/orderbytag.h
+    client/desktop_integration.h client/logging_categories.h
     client/main.cpp
     client/resources.qrc
-    )
+)
 
 # quaternion_en.ts is updated explicitly by building trbase target,
 # while all other translation files are created and updated externally at
@@ -186,20 +184,21 @@ QT_CREATE_TRANSLATION(quaternion_QM ${quaternion_en_TS}
                       client/ client/qml/ OPTIONS -no-obsolete)
 add_custom_target(trbase DEPENDS ${quaternion_en_TS})
 
-set(quaternion_TS
+QT_ADD_TRANSLATION(quaternion_QM
     client/translations/quaternion_en_GB.ts
     client/translations/quaternion_de.ts
     client/translations/quaternion_pl.ts
     client/translations/quaternion_ru.ts
     client/translations/quaternion_es.ts
-    )
-QT_ADD_TRANSLATION(quaternion_QM ${quaternion_TS})
+)
+target_sources(${PROJECT_NAME} PRIVATE ${quaternion_QM})
 
 if(WIN32)
     set(quaternion_WINRC quaternion_win32.rc)
-    set_property(SOURCE quaternion_win32.rc APPEND PROPERTY
+    set_property(SOURCE ${quaternion_WINRC} APPEND PROPERTY
         OBJECT_DEPENDS ${PROJECT_SOURCE_DIR}/icons/quaternion.ico
     )
+    target_sources(${PROJECT_NAME} PRIVATE ${quaternion_WINRC})
 endif()
 
 if(APPLE)
@@ -218,14 +217,10 @@ if(APPLE)
     set(MACOSX_BUNDLE_ICON_FILE ${ICON_NAME})
     set_property(SOURCE "${${PROJECT_NAME}_MAC_ICON}" PROPERTY
         MACOSX_PACKAGE_LOCATION Resources)
+    target_sources(${PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_MAC_ICON})
 endif(APPLE)
 
-# Windows, this is a GUI executable; OSX, make a bundle
-add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
-    ${quaternion_SRCS} ${quaternion_QM}
-    ${quaternion_WINRC} ${${PROJECT_NAME}_MAC_ICON})
-
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     GIT_SHA1="${GIT_SHA1}" LIB_GIT_SHA1="${LIB_GIT_SHA1}")
@@ -236,6 +231,12 @@ endif ()
 target_link_libraries(${PROJECT_NAME} ${QUOTIENT}
     ${Qt}::Widgets ${Qt}::Quick ${Qt}::Qml ${Qt}::Gui ${Qt}::Network ${Qt}::QuickControls2 ${Qt}::QuickWidgets)
 
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    CXX_STANDARD 23
+    CXX_EXTENSIONS OFF
+    VISIBILITY_INLINES_HIDDEN ON
+    CXX_VISIBILITY_PRESET hidden
+)
 # macOS specific config for bundling
 if (APPLE)
     set_property(TARGET ${PROJECT_NAME} PROPERTY MACOSX_BUNDLE_INFO_PLIST
@@ -246,7 +247,8 @@ endif()
 
 install(TARGETS ${PROJECT_NAME}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR})
+        BUNDLE DESTINATION .
+)
 if(LINUX)
     install(FILES linux/${IDENTIFIER}.desktop
             DESTINATION  ${CMAKE_INSTALL_DATADIR}/applications
@@ -272,15 +274,14 @@ if(WIN32)
         message(STATUS \"Running windeployqt at \${CMAKE_INSTALL_PREFIX}\${CMAKE_INSTALL_BINDIR}\")
         execute_process(
             COMMAND \"${${Qt}_BinDir}/windeployqt\" --verbose ${DEPLOY_VERBOSITY}
-                --no-multimediaquick --no-declarative --no-test --no-winextras
-                --qmldir \"${QML_DIR}\"
+                --no-multimediaquick --no-test --qmldir \"${QML_DIR}\"
                 \${CMAKE_INSTALL_PREFIX}\${CMAKE_INSTALL_BINDIR}
             RESULT_VARIABLE WDQ_RETVAL
         )
         if (WDQ_RETVAL)
-            message( \"windeployqt returned \${WDQ_RETVAL} - check messages above\")
+            message(FATAL_ERROR \"windeployqt returned \${WDQ_RETVAL} - check messages above\")
         else()
-            message( STATUS \"Quaternion and its dependencies have been deployed to \${CMAKE_INSTALL_PREFIX}.\")
+            message(STATUS \"Quaternion and its dependencies have been deployed to \${CMAKE_INSTALL_PREFIX}.\")
         endif()
     ")
     install(FILES ${quaternion_QM}
@@ -291,8 +292,19 @@ endif(WIN32)
 # Packaging
 
 if(APPLE)
+    execute_process(
+        COMMAND "${${Qt}_BinDir}/qmake" -query QT_INSTALL_TRANSLATIONS
+        OUTPUT_VARIABLE _qt_translations_dir
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        COMMAND_ERROR_IS_FATAL ANY
+    )
     set(MACDEPLOYQT_ARGS ${PROJECT_NAME}.app -dmg -qmldir="${QML_DIR}" -verbose=${DEPLOY_VERBOSITY})
     add_custom_target(image
+        COMMAND mkdir ${PROJECT_NAME}.app/Contents/Translations
+        COMMAND install "${_qt_translations_dir}/qtbase_*.qm"
+                        "${_qt_translations_dir}/qtdeclarative_*.qm"
+                        "${_qt_translations_dir}/qtmultimedia_*.qm"
+                        ${PROJECT_NAME}.app/Contents/Translations
         COMMAND "${${Qt}_BinDir}/macdeployqt" ${MACDEPLOYQT_ARGS}
         DEPENDS ${PROJECT_NAME}
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}

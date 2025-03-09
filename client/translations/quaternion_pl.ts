@@ -126,10 +126,6 @@
         <translation>Wyślij wiadomość (poprzez %1) lub wprowadź polecenie…</translation>
     </message>
     <message>
-        <source>Attaching an image from clipboard</source>
-        <translation>Załączanie obrazu ze schowka</translation>
-    </message>
-    <message>
         <source>No completions</source>
         <translation>Brak dokończeń</translation>
     </message>
@@ -339,10 +335,6 @@ pokoju</translation>
     <message>
         <source>&amp;View</source>
         <translation>&amp;Widok</translation>
-    </message>
-    <message>
-        <source>Dock &amp;panels</source>
-        <translation>Łącz &amp;panele</translation>
     </message>
     <message>
         <source>&amp;Display in timeline</source>
@@ -609,14 +601,6 @@ Odpowiedź:
     <message>
         <source>Open a room from the room list</source>
         <translation>Otwórz pokój z listy pokoi</translation>
-    </message>
-    <message>
-        <source>Show/hide Rooms dock panel</source>
-        <translation>Pokazuje/ukrywa panel dock pokojów</translation>
-    </message>
-    <message>
-        <source>Show/hide Users dock panel</source>
-        <translation>Pokazuje/ukrywa panel dock użytkowników</translation>
     </message>
     <message>
         <source>Couldn&apos;t delete access token</source>
@@ -1445,21 +1429,6 @@ nowego pokoju</translation>
             <numerusform>%Ln wyróżnień</numerusform>
             <numerusform>%Ln wyróżnień</numerusform>
         </translation>
-    </message>
-</context>
-<context>
-    <name>ThumbnailResponse</name>
-    <message>
-        <source>Image request has been cancelled</source>
-        <translation>Żądanie obrazu zostało anulowane</translation>
-    </message>
-    <message>
-        <source>No connection to perform image request</source>
-        <translation>Brak połączeń do wykonania żądania obrazu</translation>
-    </message>
-    <message>
-        <source>Image request is pending</source>
-        <translation>Oczekiwanie na obraz</translation>
     </message>
 </context>
 <context>

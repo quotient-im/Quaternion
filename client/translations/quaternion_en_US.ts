@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS version="2.1" language="en_GB">
+<!DOCTYPE TS><TS version="2.1" language="en_US">
 <context>
     <name>ChatRoomWidget</name>
     <message>
@@ -83,7 +83,7 @@
     </message>
     <message>
         <source>Unknown /command. Use // to send this line literally</source>
-        <translation>Unknown /command. Use // to send this line literally.</translation>
+        <translation>Unknown /command. Use // to send this line literally</translation>
     </message>
     <message>
         <source>Attach</source>
@@ -166,7 +166,7 @@
     </message>
     <message>
         <source>Cannot insert HTML - it&apos;s either invalid or unsupported</source>
-        <translation>Cannot insert HTML — it&apos;s either invalid or unsupported</translation>
+        <translation>Cannot insert HTML - it&apos;s either invalid or unsupported</translation>
     </message>
 </context>
 <context>
@@ -225,7 +225,7 @@ settings</translation>
     <message numerus="yes">
         <source>%Ln events back from now</source>
         <translation>
-            <numerusform>%Ln events back from now</numerusform>
+            <numerusform>%Ln event back from now</numerusform>
             <numerusform>%Ln events back from now</numerusform>
         </translation>
     </message>
@@ -534,8 +534,8 @@ settings</translation>
     <message>
         <source>Clicking &apos;Retry&apos; will attempt to resume synchronisation;
 Clicking &apos;Cancel&apos; will stop further synchronisation of this account until logout or Quaternion restart.</source>
-        <translation>Clicking &apos;Retry&apos; will attempt to resume synchronization;
-Clicking &apos;Cancel&apos; will stop further synchronization of this account until logout or Quaternion restart.</translation>
+        <translation>Clicking &apos;Retry&apos; will attempt to resume synchronisation;
+Clicking &apos;Cancel&apos; will stop further synchronisation of this account until logout or Quaternion restart.</translation>
     </message>
     <message>
         <source>Before this server can process your information, you have to agree with its terms and conditions; please click the button below to open the web page where you can do that</source>

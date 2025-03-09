@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.1
 
@@ -8,6 +8,21 @@ Attachment {
     TextEdit {
         id: fileTransferInfo
         width: parent.width
+
+        function humanSize(bytes)
+        {
+            if (!bytes)
+                return qsTr("Unknown", "Unknown attachment size")
+            if (bytes < 4000)
+                return qsTr("%Ln byte(s)", "", bytes)
+            bytes = Math.round(bytes / 100) / 10
+            if (bytes < 2000)
+                return qsTr("%L1 kB").arg(bytes)
+            bytes = Math.round(bytes / 100) / 10
+            if (bytes < 2000)
+                return qsTr("%L1 MB").arg(bytes)
+            return qsTr("%L1 GB").arg(Math.round(bytes / 100) / 10)
+        }
 
         selectByMouse: true;
         readOnly: true;
@@ -29,23 +44,18 @@ Attachment {
         textFormat: TextEdit.PlainText
         wrapMode: Text.Wrap;
 
-        TimelineMouseArea {
-            anchors.fill: parent
-            acceptedButtons: Qt.NoButton
-            hoverEnabled: true
-
-            onContainsMouseChanged:
-                controller.showStatusMessage(containsMouse
-                                             ? room.fileSource(eventId) : "")
-        }
-
-        TimelineMouseArea {
-            anchors.fill: parent
-            acceptedButtons: Qt.RightButton
+        HoverHandler {
+            id: fileContentHoverHandler
             cursorShape: Qt.IBeamCursor
+        }
+        ToolTip.visible: fileContentHoverHandler.hovered
+        ToolTip.text: room && eventId ? room.fileSource(eventId) : ""
 
-            onClicked: controller.showMenu(index, textFieldImpl.hoveredLink,
-                textFieldImpl.selectedText, showingDetails)
+        TapHandler {
+            acceptedButtons: Qt.RightButton
+            onTapped: controller.showMenu(index, textFieldImpl.hoveredLink,
+                                          textFieldImpl.selectedText,
+                                          showingDetails)
         }
     }
     ProgressBar {

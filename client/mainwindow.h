@@ -68,14 +68,15 @@ class MainWindow: public QMainWindow, public Quotient::UriResolverBase {
         void openRoomSettings(QuaternionRoom* r = nullptr);
         void selectRoom(Quotient::Room* r);
         void showStatusMessage(const QString& message, int timeout = 0);
-        void logout(Connection* c);
+        QFuture<QString> logout(Connection* c);
 
     private slots:
         void invokeLogin();
 
         void reloginNeeded(Connection* c, const QString& message = {});
         void networkError(Connection* c);
-        void sslErrors(QNetworkReply* reply, const QList<QSslError>& errors);
+        void sslErrors(const QPointer<QNetworkReply>& reply,
+                       const QList<QSslError>& errors);
         void proxyAuthenticationRequired(const QNetworkProxy& /* unused */,
                                          QAuthenticator* auth);
 

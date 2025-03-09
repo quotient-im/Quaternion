@@ -64,7 +64,7 @@ class AbstractRoomOrdering : public QObject
         /// Returns human-readable room group caption
         virtual QVariant groupLabel(const RoomGroup& g) const = 0;
         /// Orders a group against a key of another group
-        virtual bool groupLessThan(const RoomGroup& g1,
+        virtual bool groupLessThan(const QVariant& g1key,
                                    const QVariant& g2key) const = 0;
         /// Orders two rooms within one group
         virtual bool roomLessThan(const QVariant& group,
@@ -78,8 +78,7 @@ class AbstractRoomOrdering : public QObject
         virtual void connectSignals(Room* room) = 0;
 
     public:
-        using groupLessThan_closure_t =
-                std::function<bool(const RoomGroup&, const QVariant&)>;
+        using groupLessThan_closure_t = std::function<bool(const QVariant&, const QVariant&)>;
         /// Returns a closure that invokes this->groupLessThan()
         groupLessThan_closure_t groupLessThanFactory() const;
 

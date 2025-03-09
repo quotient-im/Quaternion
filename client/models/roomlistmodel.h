@@ -100,24 +100,24 @@ class RoomListModel: public QAbstractItemModel
         // Beware, the returned iterators are as short-lived as QModelIndex'es
         auto lowerBoundGroup(const QVariant& group)
         {
-            return std::lower_bound(m_roomGroups.begin(), m_roomGroups.end(),
-                                    group, m_roomOrder->groupLessThanFactory());
+            return std::ranges::lower_bound(m_roomGroups, group,
+                                            m_roomOrder->groupLessThanFactory(), &RoomGroup::key);
         }
         auto lowerBoundGroup(const QVariant& group) const
         {
-            return std::lower_bound(m_roomGroups.begin(), m_roomGroups.end(),
-                                    group, m_roomOrder->groupLessThanFactory());
+            return std::ranges::lower_bound(m_roomGroups, group,
+                                            m_roomOrder->groupLessThanFactory(), &RoomGroup::key);
         }
 
         auto lowerBoundRoom(RoomGroup& group, Room* room) const
         {
-            return std::lower_bound(group.rooms.begin(), group.rooms.end(),
-                    room, m_roomOrder->roomLessThanFactory(group.key));
+            return std::ranges::lower_bound(group.rooms, room,
+                                            m_roomOrder->roomLessThanFactory(group.key));
         }
 
         auto lowerBoundRoom(const RoomGroup& group, Room* room) const
         {
-            return std::lower_bound(group.rooms.begin(), group.rooms.end(),
-                    room, m_roomOrder->roomLessThanFactory(group.key));
+            return std::ranges::lower_bound(group.rooms, room,
+                                            m_roomOrder->roomLessThanFactory(group.key));
         }
 };

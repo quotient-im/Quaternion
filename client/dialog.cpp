@@ -9,6 +9,10 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QLabel>
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 6, 0)
+#include <ranges> // For std::views::adjacent
+#endif
+
 Dialog::Dialog(const QString& title, QWidget *parent,
                UseStatusLine useStatusLine, const QString& applyTitle,
                QDialogButtonBox::StandardButtons addButtons)
@@ -24,7 +28,6 @@ Dialog::Dialog(const QString& title, QWidget *parent,
 Dialog::Dialog(const QString& title, QDialogButtonBox::StandardButtons setButtons,
     QWidget *parent, UseStatusLine useStatusLine)
     : QDialog(parent)
-    , applyLatency(useStatusLine)
     , pendingApplyMessage(tr("Applying changes, please wait"))
     , statusLabel(useStatusLine == NoStatusLine ? nullptr : new QLabel)
     , buttons(new QDialogButtonBox(setButtons))
@@ -51,10 +54,25 @@ void Dialog::addWidget(QWidget* w, int stretch, Qt::Alignment alignment)
     outerLayout.insertWidget(outerLayout.count() - offset, w, stretch, alignment);
 }
 
-QPushButton*Dialog::button(QDialogButtonBox::StandardButton which)
+QLabel* Dialog::makeBuddyLabel(QString labelText, QWidget* field)
+{
+    auto label = new QLabel(labelText);
+    label->setBuddy(field);
+    return label;
+}
+
+QPushButton* Dialog::button(QDialogButtonBox::StandardButton which)
 {
     return buttonBox()->button(which);
 }
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 6, 0)
+void Dialog::setTabOrder(std::initializer_list<QWidget*> widgets)
+{
+    for (auto [w1, w2] : std::views::adjacent<2>(widgets))
+        setTabOrder(w1, w2);
+}
+#endif
 
 void Dialog::reactivate()
 {

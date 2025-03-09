@@ -264,6 +264,10 @@ de sala</translation>
         <source>Restoring access, please wait</source>
         <translation>Restaurando el acceso, por favor espere</translation>
     </message>
+    <message>
+        <source>(none)</source>
+        <translation>(ninguno)</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -286,10 +290,6 @@ de sala</translation>
     <message>
         <source>&amp;View</source>
         <translation>&amp;Ver</translation>
-    </message>
-    <message>
-        <source>Dock &amp;panels</source>
-        <translation>Dock &amp;paneles</translation>
     </message>
     <message>
         <source>&amp;Display in timeline</source>
@@ -566,14 +566,6 @@ Response:
         <translation>Abrir una sala de la lista de salas</translation>
     </message>
     <message>
-        <source>Show/hide Rooms dock panel</source>
-        <translation>Mostrar / ocultar panel de acoplamiento de salas</translation>
-    </message>
-    <message>
-        <source>Show/hide Users dock panel</source>
-        <translation>Mostrar/ocultar el panel de acoplamiento Usuarios</translation>
-    </message>
-    <message>
         <source>Couldn&apos;t delete access token</source>
         <translation>No se pudo eliminar el token de acceso</translation>
     </message>
@@ -698,6 +690,10 @@ Matrix URI o enlace matriz.to</translation>
     <message>
         <source>Alexey &quot;Kitsune&quot; Rusakov</source>
         <translation>Alexey &quot;Kitsune&quot; Rusakov</translation>
+    </message>
+    <message>
+        <source>&amp;Member list</source>
+        <translation>&amp;Lista de miembros</translation>
     </message>
 </context>
 <context>
@@ -1235,21 +1231,6 @@ Esta operación no se puede revertir.</translation>
             <numerusform>%Ln destacado</numerusform>
             <numerusform>%Ln destacados</numerusform>
         </translation>
-    </message>
-</context>
-<context>
-    <name>ThumbnailResponse</name>
-    <message>
-        <source>Image request has been cancelled</source>
-        <translation>La solicitud de imagen ha sido cancelada</translation>
-    </message>
-    <message>
-        <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
-        <translation>El id de medios &apos;%1&apos; no sigue el patrón server/mediaId</translation>
-    </message>
-    <message>
-        <source>No connection to perform image request</source>
-        <translation>No hay conexión para realizar una solicitud de imagen</translation>
     </message>
 </context>
 <context>

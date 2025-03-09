@@ -30,7 +30,7 @@ MouseArea {
     }
     onClicked: {
         if (textEdit.hoveredLink)
-            textEdit.onLinkActivated(textEdit.hoveredLink)
+            textEdit.linkActivated(textEdit.hoveredLink)
     }
     onDoubleClicked: {
         selectionMode = TextEdit.SelectWords

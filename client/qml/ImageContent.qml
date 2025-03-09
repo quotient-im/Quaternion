@@ -1,7 +1,9 @@
-import QtQuick 2.0
-import QtQuick.Layouts 1.1
+import QtQuick 2.15
+import QtQuick.Controls 2.15
 
 Attachment {
+    id: content
+
     required property var sourceSize
     required property url source
     required property var maxHeight
@@ -9,41 +11,41 @@ Attachment {
     openOnFinished: false
 
     Image {
-        id: imageContent
         width: parent.width
-        height: sourceSize.height *
-                Math.min(maxHeight / sourceSize.height * 0.9,
-                         Math.min(width / sourceSize.width, 1))
+        height: sourceSize.height * Math.min(parent.maxHeight / sourceSize.height * 0.9,
+                                             Math.min(width / sourceSize.width, 1))
         fillMode: Image.PreserveAspectFit
         horizontalAlignment: Image.AlignLeft
 
-        source: parent.source
+        // The spec says that the attachment URL SHOULD be mxc but is not required to be
+        source: parent.source.toString().startsWith("mxc")
+                ? room.makeMediaUrl(eventId, parent.source) : parent.source
         sourceSize: parent.sourceSize
 
-        TimelineMouseArea {
-            anchors.fill: parent
-            acceptedButtons: Qt.LeftButton
-            hoverEnabled: true
+        HoverHandler {
+            id: imageHoverHandler
+            cursorShape: Qt.PointingHandCursor
+        }
+        ToolTip.visible: imageHoverHandler.hovered
+        ToolTip.text: room && eventId ? room.fileSource(eventId) : ""
+        ToolTip.delay: Application.styleHints.mousePressAndHoldInterval
 
-            onContainsMouseChanged:
-                controller.showStatusMessage(containsMouse
-                                             ? room.fileSource(eventId) : "")
-            onClicked: {
-                openOnFinished = true
-                openExternally()
+        TapHandler {
+            acceptedButtons: Qt.LeftButton
+            onTapped: {
+                content.openOnFinished = true
+                content.openExternally()
             }
         }
-
-        TimelineMouseArea {
-            anchors.fill: parent
+        TapHandler {
             acceptedButtons: Qt.RightButton
-            cursorShape: Qt.PointingHandCursor
-            onClicked: controller.showMenu(index, textFieldImpl.hoveredLink,
-                textFieldImpl.selectedText, showingDetails)
+            onTapped: controller.showMenu(index, textFieldImpl.hoveredLink,
+                                          textFieldImpl.selectedText, showingDetails)
         }
 
         Component.onCompleted:
-            if (visible && autoload && !downloaded && !(progressInfo && progressInfo.isUpload))
+            if (visible && content.autoload && !content.downloaded
+                    && !(progressInfo && progressInfo.isUpload))
                 room.downloadFile(eventId)
     }
 

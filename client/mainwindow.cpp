@@ -8,56 +8,59 @@
 
 #include "mainwindow.h"
 
-#include "roomlistdock.h"
-#include "userlistdock.h"
+#include "accountselector.h"
 #include "chatroomwidget.h"
-#include "timelinewidget.h"
-#include "quaternionroom.h"
-#include "profiledialog.h"
+#include "dockmodemenu.h"
+#include "desktop_integration.h"
+#include "logging_categories.h"
 #include "logindialog.h"
 #include "networkconfigdialog.h"
+#include "profiledialog.h"
+#include "quaternionroom.h"
 #include "roomdialogs.h"
-#include "accountselector.h"
+#include "roomlistdock.h"
 #include "systemtrayicon.h"
-#include "linuxutils.h"
+#include "timelinewidget.h"
+#include "userlistdock.h"
 
 #include <Quotient/csapi/joining.h>
+
 #include <Quotient/connection.h>
 #include <Quotient/networkaccessmanager.h>
+#include <Quotient/qt_connection_util.h>
 #include <Quotient/settings.h>
 #include <Quotient/user.h>
-#include <Quotient/qt_connection_util.h>
 
-#include <QtCore/QTimer>
-#include <QtCore/QDebug>
-#include <QtCore/QStandardPaths>
-#include <QtCore/QStringBuilder>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtCore/QElapsedTimer>
-#include <QtNetwork/QNetworkReply>
-#include <QtNetwork/QAuthenticator>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QCheckBox>
+#include <QtWidgets/QComboBox>
+#include <QtWidgets/QCompleter>
+#include <QtWidgets/QDialogButtonBox>
+#include <QtWidgets/QFormLayout>
+#include <QtWidgets/QInputDialog>
+#include <QtWidgets/QLabel>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QMessageBox>
-#include <QtWidgets/QInputDialog>
-#include <QtWidgets/QStatusBar>
-#include <QtWidgets/QLabel>
+#include <QtWidgets/QProgressDialog>
 #include <QtWidgets/QPushButton>
-#include <QtWidgets/QDialogButtonBox>
-#include <QtWidgets/QComboBox>
-#include <QtWidgets/QCheckBox>
-#include <QtWidgets/QFormLayout>
-#include <QtWidgets/QCompleter>
-#if QT_VERSION_MAJOR >= 6
+#include <QtWidgets/QStatusBar>
+
+#include <QtCore/QDebug>
+#include <QtCore/QDir>
+#include <QtCore/QElapsedTimer>
+#include <QtCore/QFileInfo>
+#include <QtCore/QStandardPaths>
+#include <QtCore/QStringBuilder>
+#include <QtCore/QTimer>
 #include <QtGui/QActionGroup>
-#endif
-#include <QtGui/QMovie>
-#include <QtGui/QPixmap>
 #include <QtGui/QCloseEvent>
 #include <QtGui/QDesktopServices>
+#include <QtGui/QMovie>
+#include <QtGui/QPixmap>
+#include <QtNetwork/QAuthenticator>
+#include <QtNetwork/QNetworkReply>
 
-#include <set>
+using namespace Qt::StringLiterals;
 
 MainWindow::MainWindow()
 {
@@ -74,7 +77,7 @@ MainWindow::MainWindow()
     connect(nam, &QNetworkAccessManager::sslErrors,
             this, &MainWindow::sslErrors);
 
-    setWindowIcon(QIcon::fromTheme(appIconName(), QIcon(":/icon.png")));
+    setWindowIcon(appIcon());
 
     roomListDock = new RoomListDock(this);
     addDockWidget(Qt::LeftDockWidgetArea, roomListDock);
@@ -94,8 +97,8 @@ MainWindow::MainWindow()
     connect(userListDock, &UserListDock::userMentionRequested,
             chatRoomWidget, &ChatRoomWidget::insertMention);
 
-    createMenu();
-    createWinId(); // TODO: check that it's actually needed
+    loadSettings(); // Only GUI, account settings will be loaded in invokeLogin
+    createMenu(); // Assumes loadSettings() is done, to set flags on menu items
     systemTrayIcon = new SystemTrayIcon(this);
     systemTrayIcon->show();
 
@@ -105,7 +108,6 @@ MainWindow::MainWindow()
     statusBar()->setSizeGripEnabled(false);
     statusBar()->addPermanentWidget(busyLabel);
     statusBar()->showMessage(tr("Loading..."));
-    loadSettings(); // Only GUI, account settings will be loaded in invokeLogin
 
     busyLabel->show();
     busyIndicator->start();
@@ -131,8 +133,6 @@ MainWindow::MainWindow()
 MainWindow::~MainWindow()
 {
     saveSettings();
-    for (auto* acc: qAsConst(logoutOnExit))
-        logout(acc);
     accountRegistry->disconnect(this);
 }
 
@@ -194,24 +194,11 @@ void MainWindow::createMenu()
     static const auto quitShortcut = QSysInfo::productType() == "windows"
                                          ? QKeySequence(Qt::CTRL | Qt::Key_Q)
                                          : QKeySequence::Quit;
-    connectionMenu->addAction(QIcon::fromTheme("application-exit"),
-        tr("&Quit"), qApp, &QApplication::quit, quitShortcut);
+    connectionMenu->addAction(QIcon::fromTheme("application-exit"), tr("&Quit"), quitShortcut, qApp,
+                              &QApplication::quit);
 
     // View menu
     auto viewMenu = menuBar()->addMenu(tr("&View"));
-
-    viewMenu->addSeparator();
-    auto dockPanesMenu = viewMenu->addMenu(
-        QIcon::fromTheme("labplot-editvlayout"),
-        tr("Dock &panels", "Panels of the dock, not 'to dock the panels'"));
-    roomListDock->toggleViewAction()
-            ->setStatusTip(tr("Show/hide Rooms dock panel"));
-    dockPanesMenu->addAction(roomListDock->toggleViewAction());
-    userListDock->toggleViewAction()
-        ->setStatusTip(tr("Show/hide Users dock panel"));
-    dockPanesMenu->addAction(userListDock->toggleViewAction());
-
-    viewMenu->addSeparator();
 
     auto showEventsMenu = viewMenu->addMenu(tr("&Display in timeline"));
     addUiOptionCheckbox(
@@ -326,6 +313,11 @@ void MainWindow::createMenu()
             sg.setValue("quote_type", list.indexOf(newType));
     });
 
+    viewMenu->addSection(
+        tr("Dock panels", "Panels of the dock, not 'to dock the panels'"));
+    viewMenu->addMenu(new DockModeMenu(tr("&Room list"), roomListDock));
+    viewMenu->addMenu(new DockModeMenu(tr("&Member list"), userListDock));
+
     // Room menu
     auto roomMenu = menuBar()->addMenu(tr("&Room"));
 
@@ -356,9 +348,8 @@ void MainWindow::createMenu()
     openRoomAction->setStatusTip(tr("Open a room from the room list"));
     openRoomAction->setShortcut(QKeySequence::Open);
     openRoomAction->setDisabled(true);
-    roomMenu->addAction(QIcon::fromTheme("window-close"),
-        tr("&Close current room"), [this] { selectRoom(nullptr); },
-        QKeySequence::Close);
+    roomMenu->addAction(QIcon::fromTheme("window-close"), tr("&Close current room"),
+                        QKeySequence::Close, [this] { selectRoom(nullptr); });
 
     // Settings menu
     auto settingsMenu = menuBar()->addMenu(tr("&Settings"));
@@ -656,12 +647,10 @@ void MainWindow::firstSyncOver(const Connection *c)
     statusBar()->showMessage(
         tr("First sync completed for %1", "%1 is user id").arg(c->userId()),
         3000);
-    const auto& accountsNotSynced =
-        std::count_if(accountRegistry->cbegin(), accountRegistry->cend(),
-                      [](const Connection* cc) {
-                          return cc->nextBatchToken().isEmpty();
-                      });
-    qDebug() << "Connections still not synced: " << accountsNotSynced;
+    const auto accountsNotSynced =
+        std::ranges::count_if(*accountRegistry,
+                              [](const Connection* cc) { return cc->nextBatchToken().isEmpty(); });
+    qCDebug(MAIN) << "Connections still not synced: " << accountsNotSynced;
     if (accountsNotSynced == 0) {
         busyLabel->hide();
         busyIndicator->stop();
@@ -748,14 +737,14 @@ void MainWindow::showAboutWindow()
         layout->addWidget(labelString);
 
         auto* linkLabel =
-                new QLabel("<a href=\"https://matrix.org/docs/projects/client/quaternion.html\">"
+                new QLabel("<a href=\"https://matrix.org/ecosystem/clients/quaternion\">"
                            % tr("Web page") % "</a>");
         linkLabel->setAlignment(Qt::AlignHCenter);
         linkLabel->setOpenExternalLinks(true);
         layout->addWidget(linkLabel);
 
         layout->addWidget(
-                    new QLabel("Copyright (C) 2016-2021 "
+                    new QLabel("Copyright (C) 2016-2024 "
                                % tr("Quaternion project contributors")));
 
 #ifdef GIT_SHA1
@@ -840,12 +829,12 @@ public:
 
     void tryConnection()
     {
-        connection->assumeIdentity(userId, accessToken);
+        connection->assumeIdentity(userId, deviceId, accessToken);
     }
     void onNetworkError(const QString& error)
     {
         using namespace std::chrono_literals;
-        qWarning() << "Network error at initial connection:" << error;
+        qCWarning(MAIN) << "Network error at initial connection:" << error;
         QTimer::singleShot(10s, this, &ConnectionInitiator::tryConnection);
     }
 
@@ -862,7 +851,8 @@ inline QString accessTokenKey(const KeySourceT& source, bool legacyLocation)
     auto k = source.userId();
     if (legacyLocation) {
         if (source.deviceId().isEmpty())
-            qWarning() << "Device id on the account is not set";
+            qCWarning(MAIN) << "Device id on the account" << source.userId()
+                            << "is not set";
         else
             k += '-' % source.deviceId();
     }
@@ -884,7 +874,7 @@ void MainWindow::invokeLogin()
             continue;
 
         showLoginDialog = false;
-        qDebug().noquote().nospace()
+        qCDebug(MAIN).noquote().nospace()
             << "Found an access token for " << account.userId() << '/'
             << account.deviceId() << ", trying to connect";
         auto ci = new ConnectionInitiator(account, token, this);
@@ -900,14 +890,14 @@ void MainWindow::invokeLogin()
                 });
         if (legacyLocation) {
             connect(c, &Connection::connected, this, [this, c] {
-                qInfo()
+                qCInfo(MAIN)
                     << "Removing the access token from the oldkeychain slot";
                 using namespace QKeychain;
                 auto* delJob = new DeletePasswordJob(qAppName(), this);
                 delJob->setKey(accessTokenKey(*c, true));
                 connect(delJob, &Job::finished, this, [delJob] {
                     if (delJob->error() != Error::NoError)
-                        qWarning().noquote()
+                        qCWarning(MAIN).noquote()
                             << "Cleanup of the old keychain slot failed:"
                             << delJob->errorString();
                 });
@@ -929,8 +919,8 @@ std::pair<QByteArray, bool> MainWindow::loadAccessToken(
     using namespace QKeychain;
     for (auto legacyLocation : { false, true }) {
         const auto& key = accessTokenKey(account, legacyLocation);
-        qDebug().noquote() << "Reading the access token from the keychain for"
-                           << key;
+        qCDebug(MAIN).noquote()
+            << "Reading the access token from the keychain for" << key;
         auto slotName = qAppName();
         if (legacyLocation)
             slotName += " access token for " % key;
@@ -945,8 +935,9 @@ std::pair<QByteArray, bool> MainWindow::loadAccessToken(
         if (job->error() == Error::NoError)
             return { job->binaryData(), legacyLocation };
 
-        qInfo().noquote() << "Could not read the access token for" << job->key()
-                          << "from the keychain:" << job->errorString();
+        qCInfo(MAIN).noquote()
+            << "Could not read the access token for" << job->key()
+            << "from the keychain:" << job->errorString();
     }
     return {};
 }
@@ -961,16 +952,17 @@ void MainWindow::reloginNeeded(Connection* c, const QString& message)
     showLoginWindow(message, c->userId());
 }
 
-void MainWindow::logout(Connection* c)
+QFuture<QString> MainWindow::logout(Connection* c)
 {
-    Q_ASSERT_X(c, __FUNCTION__, "Logout on a null connection");
+    if (QUO_ALARM_X(!c, "Logout on a null connection"_L1))
+        return {};
 
     // libQuotient takes care about the new location but not the old one
     using namespace QKeychain;
-    auto* job = new DeletePasswordJob(qAppName(), this);
-    job->setKey(accessTokenKey(*c, true));
-    connect(job, &Job::finished, this, [this, job] {
-        switch (job->error()) {
+    auto* keychainJob = new DeletePasswordJob(qAppName(), this);
+    keychainJob->setKey(accessTokenKey(*c, true));
+    auto keychainFt = QtFuture::connect(keychainJob, &Job::finished).then(this, [this](Job* j) {
+        switch (j->error()) {
         case Error::EntryNotFound:
         case Error::NoError: return;
         // Actual errors follow
@@ -983,19 +975,20 @@ void MainWindow::logout(Connection* c)
                                     "token from the keychain."),
                                  QMessageBox::Close);
         }
-        qWarning() << "Could not delete access token from the keychain: "
-                   << qUtf8Printable(job->errorString());
+        qCWarning(MAIN).noquote() << "Could not delete access token from the keychain: "
+                                  << QUO_CSTR(j->errorString());
     });
-    job->start();
-
-    c->logout();
+    keychainJob->start();
+    return QtFuture::whenAll(keychainFt, c->logout()).then([userId = c->userId()](auto) {
+        return userId;
+    });
 }
 
 Quotient::UriResolveResult MainWindow::visitUser(Quotient::User* user,
                                                  const QString& action)
 {
     if (action == "mention" || action.isEmpty())
-        chatRoomWidget->insertMention(user);
+        chatRoomWidget->insertMention(user->id());
     // action=_interactive is checked in openResource() and
     // converted to "chat" in openUserInput()
     else if (action == "_interactive"
@@ -1022,17 +1015,13 @@ void MainWindow::joinRoom(Quotient::Connection* account,
                           const QString& roomAliasOrId,
                           const QStringList& viaServers)
 {
-    auto* job =
-        account->joinRoom(QUrl::toPercentEncoding(roomAliasOrId), viaServers);
     // Connection::joinRoom() already connected to success() the code that
     // initialises the room in the library, which in turn causes RoomListModel
     // to update the room list. So the below connection to success() will be
     // triggered after all the initialisation have happened.
-    connect(job, &Quotient::BaseJob::success, this,
-            [this, account, roomAliasOrId] {
-                statusBar()->showMessage(
-                    tr("Joined %1 as %2").arg(roomAliasOrId, account->userId()));
-            });
+    account->joinRoom(roomAliasOrId, viaServers).then(this, [this, account, roomAliasOrId] {
+        statusBar()->showMessage(tr("Joined %1 as %2").arg(roomAliasOrId, account->userId()));
+    });
 }
 
 bool MainWindow::visitNonMatrix(const QUrl& url)
@@ -1098,6 +1087,17 @@ void MainWindow::openResource(const QString& idOrUri, const QString& action)
             showLoginWindow(tr("Please connect to a server"));
             return;
         }
+        if (uri.type() == Uri::BareEventId) {
+            if (!currentRoom) {
+                QMessageBox::warning(
+                    this, tr("Can't find the event without knowing the room"),
+                    tr("Open the room that has this event to scroll to %1").arg(idOrUri),
+                    QMessageBox::Close, QMessageBox::Close);
+                return;
+            }
+            chatRoomWidget->timelineWidget()->spotlightEvent(uri.primaryId());
+            return;
+        }
         if (!action.isEmpty())
             uri.setAction(action);
 
@@ -1142,9 +1142,9 @@ void MainWindow::openRoomSettings(QuaternionRoom* r)
 void MainWindow::selectRoom(Quotient::Room* r)
 {
     if (r)
-        qDebug() << "Opening room" << r->objectName();
+        qCDebug(MAIN) << "Opening room" << r->objectName();
     else if (currentRoom)
-        qDebug() << "Closing room" << currentRoom->objectName();
+        qCDebug(MAIN) << "Closing room" << currentRoom->objectName();
     QElapsedTimer et; et.start();
     if (currentRoom)
         disconnect(currentRoom, &QuaternionRoom::displaynameChanged,
@@ -1163,9 +1163,9 @@ void MainWindow::selectRoom(Quotient::Room* r)
         show();
         activateWindow();
     }
-    qDebug().noquote() << et << "to"
-                       << (r ? "select room " + r->canonicalAlias()
-                             : "close the room");
+    qCDebug(MAIN).noquote()
+        << et << "to"
+        << (r ? "select room " + r->canonicalAlias() : "close the room");
 }
 
 void MainWindow::showStatusMessage(const QString& message, int timeout)
@@ -1253,23 +1253,21 @@ void MainWindow::openUserInput(bool forJoining)
             }
             QStringList completions;
             const auto& allRooms = connection->allRooms();
-            const auto& users = connection->users();
+            const auto& userIds = connection->userIds();
             // Assuming that roughly half of rooms in the room list have
             // a canonical alias; this may be quite a bit off but is better
             // than not reserving at all
-            completions.reserve(allRooms.size() * 3 / 2 + users.size());
+            completions.reserve(allRooms.size() * 3 / 2 + userIds.size());
             for (auto* room: allRooms) {
                 completions << room->id();
                 if (!room->canonicalAlias().isEmpty())
                     completions << room->canonicalAlias();
             }
 
-            for (auto* user: users)
-                completions << user->id();
+            std::ranges::copy(userIds, std::back_inserter(completions));
 
             completions.sort();
-            completions.erase(std::unique(completions.begin(), completions.end()),
-                              completions.end());
+            completions.erase(std::ranges::unique(completions).begin(), completions.end());
 
             auto* completer = new QCompleter(completions);
             completer->setFilterMode(Qt::MatchContains);
@@ -1372,7 +1370,8 @@ void MainWindow::networkError(Connection* c)
     });
 }
 
-void MainWindow::sslErrors(QNetworkReply* reply, const QList<QSslError>& errors)
+void MainWindow::sslErrors(const QPointer<QNetworkReply>& reply,
+                           const QList<QSslError>& errors)
 {
     for (const auto& error: errors)
     {
@@ -1400,7 +1399,10 @@ void MainWindow::sslErrors(QNetworkReply* reply, const QList<QSslError>& errors)
             return;
         Quotient::NetworkAccessManager::addIgnoredSslError(error);
     }
-    reply->ignoreSslErrors(errors);
+    // If a message box above is left open for too long, the reply may timeout
+    // and self-delete (#688) - double-check that it's still alive
+    if (reply)
+        reply->ignoreSslErrors(errors);
 }
 
 void MainWindow::proxyAuthenticationRequired(const QNetworkProxy&,
@@ -1426,14 +1428,33 @@ void MainWindow::proxyAuthenticationRequired(const QNetworkProxy&,
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-    if (Quotient::SettingsGroup("UI")
-            .value("close_to_tray", false).toBool())
-    {
+    if (Quotient::Settings{}.get("UI/close_to_tray", false)) {
         hide();
         event->ignore();
+        return;
     }
-    else
-    {
+    if (logoutOnExit.empty()) {
+        qCDebug(MAIN, "Closing down");
         event->accept();
+        return;
     }
+
+    event->ignore(); // Got some finalization to do, can't exit yet
+    qCDebug(MAIN) << "Logging out" << logoutOnExit.size() << "account(s) that don't stay logged in";
+    auto dlg = new QProgressDialog(u"Logging out"_s, u"Exit now"_s, 0,
+                                   static_cast<int>(logoutOnExit.size()));
+    dlg->setMinimumDuration(1000);
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    for (auto* c : logoutOnExit)
+        logout(c).then([this, dlg](auto) {
+            // By now, MainWindow::dropConnection() has already worked, in particular the logged out
+            // account was removed from logoutOnExit.
+            dlg->setValue(dlg->maximum() - static_cast<int>(logoutOnExit.size()));
+            if (logoutOnExit.empty()) {
+                qCDebug(MAIN, "All accounts to log out on exit have logged out");
+                // NB: this causes a new QCloseEvent coming on MainWindow but logoutOnExit is empty
+                // already, leading to the early finish of this new closeEvent() invocation
+                qApp->quit();
+            }
+        });
 }

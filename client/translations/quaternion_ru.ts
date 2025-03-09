@@ -126,10 +126,6 @@
         <translation>Отправить сообщение (через %1) или ввести команду...</translation>
     </message>
     <message>
-        <source>Attaching an image from clipboard</source>
-        <translation>Добавление изображения из буфера обмена</translation>
-    </message>
-    <message>
         <source>No completions</source>
         <translation>Подсказок нет</translation>
     </message>
@@ -150,12 +146,28 @@
         <translation>Сейчас печатает:</translation>
     </message>
     <message>
-        <source>At pos %1: %2</source>
-        <translation>На позиции %1: %2</translation>
+        <source>At character %1: %2</source>
+        <translation>На символе %1: %2</translation>
     </message>
     <message>
         <source>%L1 more</source>
         <translation>еще %L1</translation>
+    </message>
+    <message>
+        <source>%1 is not readable or not a file</source>
+        <translation>%1 недоступен для чтения или не является файлом</translation>
+    </message>
+    <message>
+        <source>Attaching the pasted image</source>
+        <translation>Вставленное изображение будет добавлено к сообщению</translation>
+    </message>
+    <message>
+        <source>Can&apos;t attach a file without a selected room</source>
+        <translation>Невозможно прикрепить файл без выбранной комнаты</translation>
+    </message>
+    <message>
+        <source>Cannot insert HTML - it&apos;s either invalid or unsupported</source>
+        <translation>Невозможно вставить HTML - разметка некорректна или не поддерживается</translation>
     </message>
 </context>
 <context>
@@ -270,6 +282,10 @@ settings</source>
         <source>Please fill the fields as desired. None are mandatory</source>
         <translation>Пожалуйста, заполните поля по желанию. Обязательных полей нет.</translation>
     </message>
+    <message>
+        <source>Remove</source>
+        <translation>Убрать</translation>
+    </message>
 </context>
 <context>
     <name>Dialog</name>
@@ -356,6 +372,18 @@ settings</source>
         <source>Getting supported login flows...</source>
         <translation>Запрашиваются поддерживаемые процедуры входа</translation>
     </message>
+    <message>
+        <source>This account is logged in already</source>
+        <translation>Эта учетная запись уже подключена</translation>
+    </message>
+    <message>
+        <source>(none)</source>
+        <translation>(нет)</translation>
+    </message>
+    <message>
+        <source>Saved device id</source>
+        <translation>Сохраненный идентификатор устройства</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -378,10 +406,6 @@ settings</source>
     <message>
         <source>&amp;View</source>
         <translation>&amp;Вид</translation>
-    </message>
-    <message>
-        <source>Dock &amp;panels</source>
-        <translation>&amp;Док-панели</translation>
     </message>
     <message>
         <source>&amp;Display in timeline</source>
@@ -658,14 +682,6 @@ Response:
         <translation>Открыть комнату из списка комнат</translation>
     </message>
     <message>
-        <source>Show/hide Rooms dock panel</source>
-        <translation>Показать/скрыть панель «Комнаты»</translation>
-    </message>
-    <message>
-        <source>Show/hide Users dock panel</source>
-        <translation>Показать/скрыть панель «Пользователи»</translation>
-    </message>
-    <message>
         <source>Couldn&apos;t delete access token</source>
         <translation>Не удалось удалить ключ доступа</translation>
     </message>
@@ -935,6 +951,46 @@ Matrix URI или ссылка на сервис matrix.to</translation>
         <source>Show a confirmation box before opening non-Matrix links in an external application</source>
         <translation>Показывать окно подтверждения перед открытием ссылок вне Matrix во внешнем приложении</translation>
     </message>
+    <message numerus="yes">
+        <source>Loading %Ln accounts, please wait</source>
+        <translation>
+            <numerusform>Загрузка %Ln учетной записи; подождите, пожалуйста</numerusform>
+            <numerusform>Загрузка %Ln учетных записей; подождите, пожалуйста</numerusform>
+            <numerusform>Загрузка %Ln учетных записей; подождите, пожалуйста</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Account %1 is synchronised, have a good chat</source>
+        <translation>Учетная запись %1 синхронизирована, приятного общения</translation>
+    </message>
+    <message numerus="yes">
+        <source>All %Ln accounts synchronised, have a good chat</source>
+        <translation>
+            <numerusform>%Ln учетная запись синхронизирована, приятного общения</numerusform>
+            <numerusform>Все %Ln учетных записи синхронизированы, приятного общения</numerusform>
+            <numerusform>Все %Ln учетных записей синхронизированы, приятного общения</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>&amp;Room list</source>
+        <translation>&amp;Список комнат</translation>
+    </message>
+    <message>
+        <source>&amp;Member list</source>
+        <translation>&amp;Список участников</translation>
+    </message>
+    <message>
+        <source>Dock panels</source>
+        <translation>Пристыковываемые панели</translation>
+    </message>
+    <message>
+        <source>Can&apos;t find the event without knowing the room</source>
+        <translation>Невозможно найти событие, не зная комнату</translation>
+    </message>
+    <message>
+        <source>Open the room that has this event to scroll to %1</source>
+        <translation>Откройте комнату с этим событием, чтобы прокрутить до %1</translation>
+    </message>
 </context>
 <context>
     <name>MessageEventModel</name>
@@ -1106,6 +1162,10 @@ Matrix URI или ссылка на сервис matrix.to</translation>
         <source>kicked %1 from the room</source>
         <translation>выгнал пользователя %1 из комнаты</translation>
     </message>
+    <message>
+        <source>(loading)</source>
+        <translation>(загружается)</translation>
+    </message>
 </context>
 <context>
     <name>NetworkConfigDialog</name>
@@ -1196,6 +1256,10 @@ Matrix URI или ссылка на сервис matrix.to</translation>
         <source>You are using an UNSTABLE room version (%1). The server may stop supporting it at any moment. Do you still want to use this version?</source>
         <translation>Вы используете НЕСТАБИЛЬНУЮ версию комнаты (%1). Сервер может перестать поддерживать её в любой момент. Вы все еще хотите использовать эту версию?</translation>
     </message>
+    <message>
+        <source>(no available room versions)</source>
+        <translation>(доступных версий комнат нет)</translation>
+    </message>
 </context>
 <context>
     <name>RoomListDock</name>
@@ -1250,6 +1314,14 @@ Matrix URI или ссылка на сервис matrix.to</translation>
     <message>
         <source>Rooms (%L1)</source>
         <translation>Комнаты (%L1)</translation>
+    </message>
+    <message>
+        <source>Forget this room?</source>
+        <translation>Забыть эту комнату?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to forget room %1?</source>
+        <translation>Вы уверены, что хотите забыть комнату %1?</translation>
     </message>
 </context>
 <context>
@@ -1325,6 +1397,34 @@ Matrix URI или ссылка на сервис matrix.to</translation>
     <message>
         <source>(maybe more)</source>
         <translation>(возможно больше)</translation>
+    </message>
+    <message>
+        <source>Events after fully read marker: %L1</source>
+        <translation>Событий после отметки о полном прочтении: %L1</translation>
+    </message>
+    <message>
+        <source>Unread events/highlights since read receipt: %L1/%L2</source>
+        <translation>Полностью непрочитанных сообщений/уведомлений: %L1/%L2</translation>
+    </message>
+    <message>
+        <source>Unread events since read receipt: %L1</source>
+        <translation>Полностью непрочитанных сообщений: %L1</translation>
+    </message>
+    <message>
+        <source>Room id: %1</source>
+        <translation>Идентификатор комнаты: %1</translation>
+    </message>
+    <message>
+        <source>You joined this room as %1</source>
+        <translation>Вы присоединились к этой комнате под учетной записью %1</translation>
+    </message>
+    <message>
+        <source>You were invited into this room as %1</source>
+        <translation>Вас пригласили в эту комнату как %1</translation>
+    </message>
+    <message>
+        <source>You left this room as %1</source>
+        <translation>Вы покинули эту комнату как %1</translation>
     </message>
 </context>
 <context>
@@ -1530,25 +1630,6 @@ new room</source>
     </message>
 </context>
 <context>
-    <name>ThumbnailResponse</name>
-    <message>
-        <source>Image request has been cancelled</source>
-        <translation>Запрос на изображение отменен</translation>
-    </message>
-    <message>
-        <source>Media id &apos;%1&apos; doesn&apos;t follow server/mediaId pattern</source>
-        <translation>Идентификатор файла &quot;%1&quot; не соответствует шаблону server/mediaId</translation>
-    </message>
-    <message>
-        <source>No connection to perform image request</source>
-        <translation>Нет соединения для выполнения запроса изображения</translation>
-    </message>
-    <message>
-        <source>Image request is pending</source>
-        <translation>Запрос на изображение в процессе обработки</translation>
-    </message>
-</context>
-<context>
     <name>TimelineWidget</name>
     <message>
         <source>Referenced message not found</source>
@@ -1671,6 +1752,41 @@ new room</source>
     <message>
         <source>Reset the current character formatting to the default</source>
         <translation>Сбросить текущее форматирование символов на значение по умолчанию</translation>
+    </message>
+    <message>
+        <source>Paste as rich text</source>
+        <translation>Вставить как форматированный текст</translation>
+    </message>
+    <message>
+        <source>Paste as plain text</source>
+        <translation>Вставить как текст без разметки</translation>
+    </message>
+</context>
+<context>
+    <name>DockModeMenu</name>
+    <message>
+        <source>&amp;Off</source>
+        <translation>&amp;Скрыт</translation>
+    </message>
+    <message>
+        <source>&amp;Docked</source>
+        <translation>При&amp;стыкованная</translation>
+    </message>
+    <message>
+        <source>&amp;Floating</source>
+        <translation>&amp;Плавающая</translation>
+    </message>
+    <message>
+        <source>Completely hide this list</source>
+        <translation>Полностью скрыть этот список</translation>
+    </message>
+    <message>
+        <source>The list is shown within the main window</source>
+        <translation>Показывать список внутри главного окна</translation>
+    </message>
+    <message>
+        <source>The list is shown separately from the main window</source>
+        <translation>Показывать список отдельно от главного окна</translation>
     </message>
 </context>
 </TS>
