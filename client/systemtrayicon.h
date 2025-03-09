@@ -32,7 +32,8 @@ class SystemTrayIcon: public QSystemTrayIcon
         void focusChanged(QWidget* old);
 
     private:
-        MainWindow* m_parent;
         bool m_notified;
+
         void showHide();
+        MainWindow* mainWindow() const;
 };

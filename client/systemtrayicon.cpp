@@ -21,16 +21,14 @@
 
 using namespace Qt::StringLiterals;
 
-SystemTrayIcon::SystemTrayIcon(MainWindow* parent)
-    : QSystemTrayIcon(parent)
-    , m_parent(parent)
+SystemTrayIcon::SystemTrayIcon(MainWindow* parent) : QSystemTrayIcon(parent)
 {
     auto contextMenu = new QMenu(parent);
     auto showHideAction =
         contextMenu->addAction(tr("Hide"), this, &SystemTrayIcon::showHide);
     contextMenu->addAction(tr("Quit"), this, QApplication::quit);
-    m_parent->winId(); // To make sure m_parent->windowHandle() is initialised
-    connect(m_parent->windowHandle(), &QWindow::visibleChanged, [showHideAction](bool visible) {
+    mainWindow()->winId(); // To make sure mainWindow()->windowHandle() is initialised
+    connect(mainWindow()->windowHandle(), &QWindow::visibleChanged, [showHideAction](bool visible) {
         showHideAction->setText(visible ? tr("Hide") : tr("Show"));
     });
 
@@ -56,7 +54,7 @@ void SystemTrayIcon::unreadStatsChanged(Quotient::Room* room)
     if (qApp->activeWindow() != nullptr || room->notificationCount() == 0)
         return;
 
-    for (auto* c: m_parent->registry()->accounts())
+    for (auto* c: mainWindow()->registry()->accounts())
         for (auto* r: c->allRooms())
             nNotifs += r->notificationCount();
     setToolTip(tr("%Ln notification(s)", "", nNotifs));
@@ -71,12 +69,12 @@ void SystemTrayIcon::unreadStatsChanged(Quotient::Room* room)
         showMessage(
             //: %1 is the room display name
             tr("Notification in %1").arg(room->displayName()),
-            tr("%Ln notification(s)", "", room->notificationCount()));
+            tr("%Ln notification(s)", "", static_cast<int>(room->notificationCount())));
         if (mode != "non-intrusive")
-            m_parent->activateWindow();
-        connectSingleShot(this, &SystemTrayIcon::messageClicked, m_parent,
-                          [this,qRoom=static_cast<QuaternionRoom*>(room)]
-                          { m_parent->selectRoom(qRoom); });
+            mainWindow()->activateWindow();
+        connect(this, &SystemTrayIcon::messageClicked, mainWindow(),
+                [this, r = static_cast<QuaternionRoom*>(room)] { mainWindow()->selectRoom(r); },
+                Qt::SingleShotConnection);
     }
 }
 
@@ -89,15 +87,17 @@ void SystemTrayIcon::systemTrayIconAction(QSystemTrayIcon::ActivationReason reas
 
 void SystemTrayIcon::showHide()
 {
-    if (m_parent->isVisible())
-        m_parent->hide();
+    if (mainWindow()->isVisible())
+        mainWindow()->hide();
     else {
-        m_parent->show();
-        m_parent->activateWindow();
-        m_parent->raise();
-        m_parent->setFocus();
+        mainWindow()->show();
+        mainWindow()->activateWindow();
+        mainWindow()->raise();
+        mainWindow()->setFocus();
     }
 }
+
+MainWindow* SystemTrayIcon::mainWindow() const { return static_cast<MainWindow*>(parent()); }
 
 void SystemTrayIcon::focusChanged(QWidget* old)
 {
