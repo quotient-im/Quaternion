@@ -40,42 +40,53 @@ SystemTrayIcon::SystemTrayIcon(MainWindow* parent) : QSystemTrayIcon(parent)
 
 void SystemTrayIcon::newRoom(Quotient::Room* room)
 {
-    unreadStatsChanged(room);
-    connect(room, &Quotient::Room::unreadStatsChanged,
-            this, [this,room] { unreadStatsChanged(room); });
+    unreadStatsChanged();
+    connect(room, &Quotient::Room::unreadStatsChanged, this, &SystemTrayIcon::unreadStatsChanged);
 }
 
-void SystemTrayIcon::unreadStatsChanged(Quotient::Room* room)
+void SystemTrayIcon::unreadStatsChanged()
 {
-    using namespace Quotient;
-    const auto mode = Settings().get<QString>("UI/notifications", "intrusive");
-    int nNotifs = 0;
-
-    if (qApp->activeWindow() != nullptr || room->notificationCount() == 0)
+    const auto mode = notificationMode();
+    if (mode == u"none")
         return;
 
+    int nNotifs = 0;
     for (auto* c: mainWindow()->registry()->accounts())
         for (auto* r: c->allRooms())
             nNotifs += r->notificationCount();
-    setToolTip(tr("%Ln notification(s)", "", nNotifs));
+    setToolTip(tr("%Ln unread message(s) across all rooms", "", nNotifs));
 
-    if (!m_notified) {
-        static const auto unreadIcon = QIcon::fromTheme(u"mail-unread"_s, appIcon());
-        setIcon(unreadIcon);
-        m_notified = true;
-        if (mode == "none")
-            return;
+    if (m_notified || qApp->activeWindow() != nullptr)
+        return;
 
-        showMessage(
-            //: %1 is the room display name
-            tr("Notification in %1").arg(room->displayName()),
-            tr("%Ln notification(s)", "", static_cast<int>(room->notificationCount())));
-        if (mode != "non-intrusive")
-            mainWindow()->activateWindow();
-        connect(this, &SystemTrayIcon::messageClicked, mainWindow(),
-                [this, r = static_cast<QuaternionRoom*>(room)] { mainWindow()->selectRoom(r); },
-                Qt::SingleShotConnection);
+    if (nNotifs == 0) {
+        setIcon(appIcon());
+        return;
     }
+
+    static const auto unreadIcon = QIcon::fromTheme(u"mail-unread"_s, appIcon());
+    setIcon(unreadIcon);
+    m_notified = true;
+}
+
+void SystemTrayIcon::highlightCountChanged(Quotient::Room* room)
+{
+    if (qApp->activeWindow() != nullptr || room->highlightCount() == 0)
+        return;
+
+    const auto mode = notificationMode();
+    if (mode == u"none")
+        return;
+
+    //: %1 is the room display name
+    showMessage(tr("Highlight in %1").arg(room->displayName()),
+                tr("%Ln highlight(s)", "", static_cast<int>(room->highlightCount())));
+    if (mode == u"intrusive")
+        mainWindow()->activateWindow();
+
+    connect(this, &SystemTrayIcon::messageClicked, mainWindow(),
+            [this, r = static_cast<QuaternionRoom*>(room)] { mainWindow()->selectRoom(r); },
+            Qt::SingleShotConnection);
 }
 
 void SystemTrayIcon::systemTrayIconAction(QSystemTrayIcon::ActivationReason reason)
@@ -99,11 +110,16 @@ void SystemTrayIcon::showHide()
 
 MainWindow* SystemTrayIcon::mainWindow() const { return static_cast<MainWindow*>(parent()); }
 
+QString SystemTrayIcon::notificationMode() const
+{
+    static const Quotient::Settings settings{};
+    return settings.get<QString>("UI/notifications", u"intrusive"_s);
+}
+
 void SystemTrayIcon::focusChanged(QWidget* old)
 {
     if (m_notified && old == nullptr && qApp->activeWindow() != nullptr) {
         setIcon(appIcon());
-        setToolTip("Quaternion");
         m_notified = false;
     }
 }

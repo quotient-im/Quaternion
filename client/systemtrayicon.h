@@ -27,7 +27,8 @@ class SystemTrayIcon: public QSystemTrayIcon
         void newRoom(Quotient::Room* room);
 
     private slots:
-        void unreadStatsChanged(Quotient::Room* room);
+        void unreadStatsChanged();
+        void highlightCountChanged(Quotient::Room* room);
         void systemTrayIconAction(QSystemTrayIcon::ActivationReason reason);
         void focusChanged(QWidget* old);
 
@@ -36,4 +37,5 @@ class SystemTrayIcon: public QSystemTrayIcon
 
         void showHide();
         MainWindow* mainWindow() const;
+        QString notificationMode() const;
 };
