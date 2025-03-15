@@ -35,7 +35,8 @@ SystemTrayIcon::SystemTrayIcon(MainWindow* parent) : QSystemTrayIcon(parent)
     setIcon(appIcon());
     setToolTip("Quaternion");
     setContextMenu(contextMenu);
-    connect( this, &SystemTrayIcon::activated, this, &SystemTrayIcon::systemTrayIconAction);
+    connect(this, &SystemTrayIcon::activated, this, &SystemTrayIcon::systemTrayIconAction);
+    connect(qApp, &QApplication::focusChanged, this, &SystemTrayIcon::focusChanged);
 }
 
 void SystemTrayIcon::newRoom(Quotient::Room* room)
