@@ -42,7 +42,10 @@ SystemTrayIcon::SystemTrayIcon(MainWindow* parent) : QSystemTrayIcon(parent)
 void SystemTrayIcon::newRoom(Quotient::Room* room)
 {
     unreadStatsChanged();
+    highlightCountChanged(room);
     connect(room, &Quotient::Room::unreadStatsChanged, this, &SystemTrayIcon::unreadStatsChanged);
+    connect(room, &Quotient::Room::highlightCountChanged, this,
+            [this, room] { highlightCountChanged(room); });
 }
 
 void SystemTrayIcon::unreadStatsChanged()
