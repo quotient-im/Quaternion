@@ -135,68 +135,6 @@
     </message>
 </context>
 <context>
-    <name>Timeline</name>
-    <message>
-        <source>(no topic)</source>
-        <translation>(sin tema)</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation>Desconocido</translation>
-    </message>
-    <message>
-        <source>Unstable room version!</source>
-        <translation>¡Versión de sala inestable!</translation>
-    </message>
-    <message>
-        <source>(no name)</source>
-        <translation>(sin nombre)</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln byte(s)</source>
-        <translation>
-            <numerusform>%Ln byte</numerusform>
-            <numerusform>%Ln bytes</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>%L1 MB</source>
-        <translation>%L1 MB</translation>
-    </message>
-    <message>
-        <source>%L1 GB</source>
-        <translation>%L1 GB</translation>
-    </message>
-    <message>
-        <source>This room has been upgraded.</source>
-        <translation>Esta sala ha sido mejorada.</translation>
-    </message>
-    <message>
-        <source>Room
-settings</source>
-        <translation>Configuración
-de sala</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln events back from now</source>
-        <translation>
-            <numerusform>%Ln evento desde ahora</numerusform>
-            <numerusform>%Ln eventos desde ahora</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>%L1 kB</source>
-        <translation>%L1 kB</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln events cached</source>
-        <translation>
-            <numerusform>%Ln evento en caché</numerusform>
-            <numerusform>%Ln eventos en caché</numerusform>
-        </translation>
-    </message>
-</context>
-<context>
     <name>CreateRoomDialog</name>
     <message>
         <source>Create room</source>
@@ -1188,6 +1126,22 @@ Esta operación no se puede revertir.</translation>
         <source>downloaded to %1</source>
         <translation>descargado a %1</translation>
     </message>
+    <message>
+        <source>Unknown</source>
+        <translation>Desconocido</translation>
+    </message>
+    <message>
+        <source>%L1 kB</source>
+        <translation>%L1 kB</translation>
+    </message>
+    <message>
+        <source>%L1 MB</source>
+        <translation>%L1 MB</translation>
+    </message>
+    <message>
+        <source>%L1 GB</source>
+        <translation>%L1 GB</translation>
+    </message>
 </context>
 <context>
     <name>TimelineItem</name>
@@ -1234,18 +1188,11 @@ Esta operación no se puede revertir.</translation>
     </message>
 </context>
 <context>
-    <name>ProfileDialog</name>
-    <message>
-        <source>Account</source>
-        <translation>Cuenta</translation>
-    </message>
-    <message>
-        <source>Access token</source>
-        <translation>Token de acceso</translation>
-    </message>
-</context>
-<context>
     <name>TimelineWidget</name>
+    <message>
+        <source>Save file as...</source>
+        <translation>Guardar archivo como...</translation>
+    </message>
     <message>
         <source>Save file as</source>
         <translation>Guardar archivo como</translation>
@@ -1261,6 +1208,59 @@ Esta operación no se puede revertir.</translation>
     <message>
         <source>Open externally</source>
         <translation>Abrir externamente</translation>
+    </message>
+</context>
+<context>
+    <name>ProfileDialog</name>
+    <message>
+        <source>Account</source>
+        <translation>Cuenta</translation>
+    </message>
+    <message>
+        <source>Access token</source>
+        <translation>Token de acceso</translation>
+    </message>
+</context>
+<context>
+    <name>Timeline</name>
+    <message numerus="yes">
+        <source>%Ln events back from now</source>
+        <translation>
+            <numerusform>%Ln evento desde ahora</numerusform>
+            <numerusform>%Ln eventos desde ahora</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln events cached</source>
+        <translation>
+            <numerusform>%Ln evento en caché</numerusform>
+            <numerusform>%Ln eventos en caché</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>RoomHeader</name>
+    <message>
+        <source>(no name)</source>
+        <translation>(sin nombre)</translation>
+    </message>
+    <message>
+        <source>This room has been upgraded.</source>
+        <translation>Esta sala ha sido mejorada.</translation>
+    </message>
+    <message>
+        <source>Unstable room version!</source>
+        <translation>¡Versión de sala inestable!</translation>
+    </message>
+    <message>
+        <source>(no topic)</source>
+        <translation>(sin tema)</translation>
+    </message>
+    <message>
+        <source>Room
+settings</source>
+        <translation>Configuración
+de sala</translation>
     </message>
 </context>
 </TS>
