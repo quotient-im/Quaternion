@@ -1188,6 +1188,18 @@ Esta operación no se puede revertir.</translation>
         <source>downloaded to %1</source>
         <translation>descargado a %1</translation>
     </message>
+    <message>
+        <source>%L1 kB</source>
+        <translation>%L1 kB</translation>
+    </message>
+    <message>
+        <source>%L1 MB</source>
+        <translation>%L1 MB</translation>
+    </message>
+    <message>
+        <source>%L1 GB</source>
+        <translation>%L1 GB</translation>
+    </message>
 </context>
 <context>
     <name>TimelineItem</name>

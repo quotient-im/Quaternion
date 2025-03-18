@@ -1352,6 +1352,18 @@ Ta operacja nie może zostać cofnięta.</translation>
         <source>downloaded to %1</source>
         <translation>pobrano do %1</translation>
     </message>
+    <message>
+        <source>%L1 kB</source>
+        <translation>%L1 kB</translation>
+    </message>
+    <message>
+        <source>%L1 MB</source>
+        <translation>%L1 MB</translation>
+    </message>
+    <message>
+        <source>%L1 GB</source>
+        <translation>%L1 GB</translation>
+    </message>
 </context>
 <context>
     <name>TimelineItem</name>

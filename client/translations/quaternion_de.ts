@@ -1545,6 +1545,25 @@ Dieser Vorgang kann nicht rückgängig gemacht werden.</translation>
         <source>downloaded to %1</source>
         <translation>nach %1 heruntergeladen</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln byte(s)</source>
+        <translation>
+            <numerusform>%Ln Byte</numerusform>
+            <numerusform>%Ln Bytes</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>%L1 kB</source>
+        <translation>%L1 kB</translation>
+    </message>
+    <message>
+        <source>%L1 MB</source>
+        <translation>%L1 MB</translation>
+    </message>
+    <message>
+        <source>%L1 GB</source>
+        <translation>%L1 GB</translation>
+    </message>
 </context>
 <context>
     <name>TimelineItem</name>
@@ -1735,6 +1754,10 @@ neuem Raum</translation>
         <source>Set avatar</source>
         <translation>Avatar einstellen</translation>
     </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
+    </message>
 </context>
 <context>
     <name>ChatEdit</name>
@@ -1780,6 +1803,17 @@ neuem Raum</translation>
     <message>
         <source>The list is shown separately from the main window</source>
         <translation>Die Liste wird getrennt vom Hauptfenster angezeigt</translation>
+    </message>
+</context>
+<context>
+    <name>RoomHeader</name>
+    <message>
+        <source>(no name)</source>
+        <translation>(kein Name)</translation>
+    </message>
+    <message>
+        <source>(no topic)</source>
+        <translation>(kein Thema)</translation>
     </message>
 </context>
 </TS>

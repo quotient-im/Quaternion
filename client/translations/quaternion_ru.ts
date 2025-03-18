@@ -1553,6 +1553,26 @@ This operation cannot be reverted.</source>
         <source>downloaded to %1</source>
         <translation>скачано в %1</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln byte(s)</source>
+        <translation>
+            <numerusform>%Ln байт</numerusform>
+            <numerusform>%Ln байта</numerusform>
+            <numerusform>%Ln байт</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>%L1 kB</source>
+        <translation>%L1 Кб</translation>
+    </message>
+    <message>
+        <source>%L1 MB</source>
+        <translation>%L1 МБ</translation>
+    </message>
+    <message>
+        <source>%L1 GB</source>
+        <translation>%L1 ГБ</translation>
+    </message>
 </context>
 <context>
     <name>TimelineItem</name>
@@ -1742,6 +1762,10 @@ new room</source>
         <source>Set avatar</source>
         <translation>Установить аватар</translation>
     </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отменить</translation>
+    </message>
 </context>
 <context>
     <name>ChatEdit</name>
@@ -1787,6 +1811,17 @@ new room</source>
     <message>
         <source>The list is shown separately from the main window</source>
         <translation>Показывать список отдельно от главного окна</translation>
+    </message>
+</context>
+<context>
+    <name>RoomHeader</name>
+    <message>
+        <source>(no name)</source>
+        <translation>(без названия)</translation>
+    </message>
+    <message>
+        <source>(no topic)</source>
+        <translation>(без темы)</translation>
     </message>
 </context>
 </TS>

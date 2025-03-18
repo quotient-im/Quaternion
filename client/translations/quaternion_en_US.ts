@@ -1159,6 +1159,10 @@ Matrix URI or matrix.to link</translation>
         <source>(loading)</source>
         <translation>(loading)</translation>
     </message>
+    <message>
+        <source>Could not decrypt the event</source>
+        <translation>Could not decrypt the event</translation>
+    </message>
 </context>
 <context>
     <name>NetworkConfigDialog</name>
@@ -1545,6 +1549,29 @@ This operation cannot be reverted.</translation>
         <source>downloaded to %1</source>
         <translation>downloaded to %1</translation>
     </message>
+    <message>
+        <source>Unknown</source>
+        <translation>Unknown</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln byte(s)</source>
+        <translation>
+            <numerusform>%Ln byte</numerusform>
+            <numerusform>%Ln bytes</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>%L1 kB</source>
+        <translation>%L1 kB</translation>
+    </message>
+    <message>
+        <source>%L1 MB</source>
+        <translation>%L1 MB</translation>
+    </message>
+    <message>
+        <source>%L1 GB</source>
+        <translation>%L1 GB</translation>
+    </message>
 </context>
 <context>
     <name>TimelineItem</name>
@@ -1619,6 +1646,13 @@ new room</translation>
         <translation>
             <numerusform>%Ln highlight</numerusform>
             <numerusform>%Ln highlights</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln unread message(s) across all rooms</source>
+        <translation>
+            <numerusform>%Ln unread message across all rooms</numerusform>
+            <numerusform>%Ln unread messages across all rooms</numerusform>
         </translation>
     </message>
 </context>
@@ -1735,6 +1769,50 @@ new room</translation>
         <source>Set avatar</source>
         <translation>Set avatar</translation>
     </message>
+    <message>
+        <source>Verification timed out</source>
+        <translation>Verification timed out</translation>
+    </message>
+    <message>
+        <source>Verification was cancelled</source>
+        <translation>Verification was cancelled</translation>
+    </message>
+    <message>
+        <source>Verification was cancelled on the other device</source>
+        <translation>Verification was cancelled on the other device</translation>
+    </message>
+    <message>
+        <source>Verification failed: emojis did not match</source>
+        <translation>Verification failed: emojis did not match</translation>
+    </message>
+    <message>
+        <source>Verification did not succeed</source>
+        <translation>Verification did not succeed</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancel</translation>
+    </message>
+    <message>
+        <source>Please accept the verification request on the device you want to verify</source>
+        <translation>Please accept the verification request on the device you want to verify</translation>
+    </message>
+    <message>
+        <source>This device</source>
+        <translation>This device</translation>
+    </message>
+    <message>
+        <source>Verified</source>
+        <translation>Verified</translation>
+    </message>
+    <message>
+        <source>Verify...</source>
+        <translation>Verify...</translation>
+    </message>
+    <message>
+        <source>No E2EE</source>
+        <translation>No E2EE</translation>
+    </message>
 </context>
 <context>
     <name>ChatEdit</name>
@@ -1780,6 +1858,64 @@ new room</translation>
     <message>
         <source>The list is shown separately from the main window</source>
         <translation>The list is shown separately from the main window</translation>
+    </message>
+</context>
+<context>
+    <name>RoomHeader</name>
+    <message>
+        <source>(no name)</source>
+        <translation>(no name)</translation>
+    </message>
+    <message>
+        <source>This room has been upgraded.</source>
+        <translation>This room has been upgraded.</translation>
+    </message>
+    <message>
+        <source>Unstable room version!</source>
+        <translation>Unstable room version!</translation>
+    </message>
+    <message>
+        <source>(no topic)</source>
+        <translation>(no topic)</translation>
+    </message>
+    <message>
+        <source>Hide topic</source>
+        <translation>Hide topic</translation>
+    </message>
+    <message>
+        <source>Show topic</source>
+        <translation>Show topic</translation>
+    </message>
+    <message>
+        <source>Go to
+new room</source>
+        <translation>Go to
+new room</translation>
+    </message>
+    <message>
+        <source>Room
+settings</source>
+        <translation>Room
+settings</translation>
+    </message>
+</context>
+<context>
+    <name>VerificationDialog</name>
+    <message>
+        <source>Verifying device %1</source>
+        <translation>Verifying device %1</translation>
+    </message>
+    <message>
+        <source>Confirm that the same emoji, in the same order are displayed on the other side</source>
+        <translation>Confirm that the same emoji, in the same order are displayed on the other side</translation>
+    </message>
+    <message>
+        <source>They match</source>
+        <translation>They match</translation>
+    </message>
+    <message>
+        <source>They DON&apos;T match</source>
+        <translation>They DON&apos;T match</translation>
     </message>
 </context>
 </TS>

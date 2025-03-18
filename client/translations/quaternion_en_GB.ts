@@ -1545,6 +1545,25 @@ This operation cannot be reverted.</translation>
         <source>downloaded to %1</source>
         <translation>downloaded to %1</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln byte(s)</source>
+        <translation>
+            <numerusform>%Ln byte</numerusform>
+            <numerusform>%Ln bytes</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>%L1 kB</source>
+        <translation>%L1 kB</translation>
+    </message>
+    <message>
+        <source>%L1 MB</source>
+        <translation>%L1 MB</translation>
+    </message>
+    <message>
+        <source>%L1 GB</source>
+        <translation>%L1 GB</translation>
+    </message>
 </context>
 <context>
     <name>TimelineItem</name>
@@ -1619,6 +1638,13 @@ new room</translation>
         <translation>
             <numerusform>%Ln highlight</numerusform>
             <numerusform>%Ln highlights</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln unread message(s) across all rooms</source>
+        <translation>
+            <numerusform>%Ln unread messages across all rooms</numerusform>
+            <numerusform>%Ln unread messages across all rooms</numerusform>
         </translation>
     </message>
 </context>
@@ -1735,6 +1761,10 @@ new room</translation>
         <source>Set avatar</source>
         <translation>Set avatar</translation>
     </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancel</translation>
+    </message>
 </context>
 <context>
     <name>ChatEdit</name>
@@ -1780,6 +1810,24 @@ new room</translation>
     <message>
         <source>The list is shown separately from the main window</source>
         <translation>The list is shown separately from the main window</translation>
+    </message>
+</context>
+<context>
+    <name>RoomHeader</name>
+    <message>
+        <source>(no name)</source>
+        <translation>(no name)</translation>
+    </message>
+    <message>
+        <source>(no topic)</source>
+        <translation>(no topic)</translation>
+    </message>
+</context>
+<context>
+    <name>VerificationDialog</name>
+    <message>
+        <source>Confirm that the same emoji, in the same order are displayed on the other side</source>
+        <translation>Confirm that the same emoji, in the same order are displayed on the other side</translation>
     </message>
 </context>
 </TS>
