@@ -49,8 +49,7 @@ void UserListModel::setRoom(Quotient::Room* room)
         connect(m_currentRoom, &Room::memberAvatarUpdated, this, &UserListModel::avatarChanged);
         connect(m_currentRoom->connection(), &Connection::loggedOut, this,
                 [this] { setRoom(nullptr); });
-
-        filter({});
+        doFilter({});
         qCDebug(MODELS) << m_memberIds.count() << "member(s) in the room";
     }
     endResetModel();
@@ -158,23 +157,9 @@ void UserListModel::filter(const QString& filterString)
     if (m_currentRoom == nullptr)
         return;
 
-    QElapsedTimer et; et.start();
-
     beginResetModel();
-    auto filteredMembers = Quotient::rangeTo<QList>(
-        std::views::filter(m_currentRoom->joinedMembers(),
-                           Quotient::memberMatcher(filterString, Qt::CaseInsensitive)));
-    std::ranges::sort(filteredMembers, Quotient::MemberSorter());
-    const auto sortedIds = std::views::transform(filteredMembers, &RoomMember::id);
-#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
-    m_memberIds.assign(sortedIds.begin(), sortedIds.end());
-#else
-    m_memberIds = QList(sortedIds.begin(), sortedIds.end());
-#endif
+    doFilter(filterString);
     endResetModel();
-
-    qCDebug(MODELS) << "Filtering" << m_memberIds.size() << "user(s) in"
-                    << m_currentRoom->displayName() << "took" << et;
 }
 
 void UserListModel::refresh(const RoomMember& member, QVector<int> roles)
@@ -200,4 +185,23 @@ int UserListModel::findUserPos(const Quotient::RoomMember& m) const
 int UserListModel::findUserPos(const QString& username) const
 {
     return static_cast<int>(Quotient::lowerBoundMemberIndex(m_memberIds, username, m_currentRoom));
+}
+
+void UserListModel::doFilter(const QString& filterString)
+{
+    QElapsedTimer et; et.start();
+
+    auto filteredMembers = Quotient::rangeTo<QList>(
+        std::views::filter(m_currentRoom->joinedMembers(),
+                           Quotient::memberMatcher(filterString, Qt::CaseInsensitive)));
+    std::ranges::sort(filteredMembers, Quotient::MemberSorter());
+    const auto sortedIds = std::views::transform(filteredMembers, &RoomMember::id);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+    m_memberIds.assign(sortedIds.begin(), sortedIds.end());
+#else
+    m_memberIds = QList(sortedIds.begin(), sortedIds.end());
+#endif
+
+    qCDebug(MODELS) << "Filtering" << m_memberIds.size() << "user(s) in"
+                    << m_currentRoom->displayName() << "took" << et;
 }

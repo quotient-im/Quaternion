@@ -51,4 +51,5 @@ class UserListModel: public QAbstractListModel
 
         int findUserPos(const RoomMember &m) const;
         int findUserPos(const QString& username) const;
+        void doFilter(const QString& filterString);
 };
