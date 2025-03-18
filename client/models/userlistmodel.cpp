@@ -23,6 +23,8 @@
 #include <Quotient/room.h>
 #include <Quotient/user.h>
 
+using Quotient::RoomMember;
+
 UserListModel::UserListModel(QAbstractItemView* parent)
     : QAbstractListModel(parent), m_currentRoom(nullptr)
 { }
