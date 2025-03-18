@@ -18,7 +18,7 @@ VerificationDialog::VerificationDialog(Session* session, QWidget* parent)
     QUO_CHECK(session->state() == Session::WAITINGFORKEY || session->state() == Session::ACCEPTED);
 
     addWidget(new QLabel(
-      tr("Confirm that the same emoji, in the same order are displayed on the other side")));
+      tr("Confirm that the same icons, in the same order are displayed on the other side")));
     const auto emojis = session->sasEmojis();
     constexpr auto rowsCount = 2;
     const auto rowSize = (emojis.size() + 1) / rowsCount;

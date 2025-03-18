@@ -412,7 +412,7 @@ inline QString errorToMessage(Quotient::KeyVerificationSession::Error e)
     case REMOTE_USER:    return ProfileDialog::tr("Verification was cancelled on the other device");
     case MISMATCHED_SAS:
     case REMOTE_MISMATCHED_SAS:
-        return ProfileDialog::tr("Verification failed: emojis did not match");
+        return ProfileDialog::tr("Verification failed: icons did not match");
     default:             return ProfileDialog::tr("Verification did not succeed");
     }
 }
