@@ -367,12 +367,12 @@
         <location filename="../qml/FileContent.qml" line="15"/>
         <source>Unknown</source>
         <comment>Unknown attachment size</comment>
-        <translation type="unfinished">Unknown</translation>
+        <translation>Unknown</translation>
     </message>
     <message numerus="yes">
         <location filename="../qml/FileContent.qml" line="17"/>
         <source>%Ln byte(s)</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>%Ln byte</numerusform>
             <numerusform>%Ln bytes</numerusform>
         </translation>
@@ -380,17 +380,17 @@
     <message>
         <location filename="../qml/FileContent.qml" line="20"/>
         <source>%L1 kB</source>
-        <translation type="unfinished">%L1 kB</translation>
+        <translation>%L1 kB</translation>
     </message>
     <message>
         <location filename="../qml/FileContent.qml" line="23"/>
         <source>%L1 MB</source>
-        <translation type="unfinished">%L1 MB</translation>
+        <translation>%L1 MB</translation>
     </message>
     <message>
         <location filename="../qml/FileContent.qml" line="24"/>
         <source>%L1 GB</source>
-        <translation type="unfinished">%L1 GB</translation>
+        <translation>%L1 GB</translation>
     </message>
     <message>
         <location filename="../qml/FileContent.qml" line="94"/>
@@ -1465,7 +1465,7 @@ or alias (starting with #)</translation>
     <message>
         <location filename="../models/messageeventmodel.cpp" line="604"/>
         <source>Could not decrypt the event</source>
-        <translation type="unfinished"></translation>
+        <translation>Could not decrypt the event</translation>
     </message>
     <message>
         <location filename="../models/messageeventmodel.cpp" line="608"/>
@@ -1599,37 +1599,37 @@ or alias (starting with #)</translation>
     <message>
         <location filename="../profiledialog.cpp" line="410"/>
         <source>Verification timed out</source>
-        <translation type="unfinished"></translation>
+        <translation>Verification timed out</translation>
     </message>
     <message>
         <location filename="../profiledialog.cpp" line="411"/>
         <source>Verification was cancelled</source>
-        <translation type="unfinished"></translation>
+        <translation>Verification was cancelled</translation>
     </message>
     <message>
         <location filename="../profiledialog.cpp" line="412"/>
         <source>Verification was cancelled on the other device</source>
-        <translation type="unfinished"></translation>
+        <translation>Verification was cancelled on the other device</translation>
     </message>
     <message>
         <location filename="../profiledialog.cpp" line="415"/>
         <source>Verification failed: emojis did not match</source>
-        <translation type="unfinished"></translation>
+        <translation>Verification failed: emojis did not match</translation>
     </message>
     <message>
         <location filename="../profiledialog.cpp" line="416"/>
         <source>Verification did not succeed</source>
-        <translation type="unfinished"></translation>
+        <translation>Verification did not succeed</translation>
     </message>
     <message>
         <location filename="../profiledialog.cpp" line="426"/>
         <source>Cancel</source>
-        <translation type="unfinished">Cancel</translation>
+        <translation>Cancel</translation>
     </message>
     <message>
         <location filename="../profiledialog.cpp" line="427"/>
         <source>Please accept the verification request on the device you want to verify</source>
-        <translation type="unfinished"></translation>
+        <translation>Please accept the verification request on the device you want to verify</translation>
     </message>
     <message>
         <location filename="../profiledialog.cpp" line="287"/>
@@ -1645,23 +1645,23 @@ or alias (starting with #)</translation>
     <message>
         <location filename="../profiledialog.cpp" line="228"/>
         <source>This device</source>
-        <translation type="unfinished"></translation>
+        <translation>This device</translation>
     </message>
     <message>
         <location filename="../profiledialog.cpp" line="233"/>
         <source>Verified</source>
-        <translation type="unfinished"></translation>
+        <translation>Verified</translation>
     </message>
     <message>
         <location filename="../profiledialog.cpp" line="236"/>
         <location filename="../profiledialog.cpp" line="433"/>
         <source>Verify...</source>
-        <translation type="unfinished"></translation>
+        <translation>Verify...</translation>
     </message>
     <message>
         <location filename="../profiledialog.cpp" line="254"/>
         <source>No E2EE</source>
-        <translation type="unfinished"></translation>
+        <translation>No E2EE</translation>
     </message>
     <message>
         <location filename="../profiledialog.cpp" line="391"/>
@@ -1752,45 +1752,45 @@ or alias (starting with #)</translation>
     <message>
         <location filename="../qml/RoomHeader.qml" line="63"/>
         <source>(no name)</source>
-        <translation type="unfinished">(no name)</translation>
+        <translation>(no name)</translation>
     </message>
     <message>
         <location filename="../qml/RoomHeader.qml" line="85"/>
         <source>This room has been upgraded.</source>
-        <translation type="unfinished">This room has been upgraded.</translation>
+        <translation>This room has been upgraded.</translation>
     </message>
     <message>
         <location filename="../qml/RoomHeader.qml" line="86"/>
         <source>Unstable room version!</source>
-        <translation type="unfinished">Unstable room version!</translation>
+        <translation>Unstable room version!</translation>
     </message>
     <message>
         <location filename="../qml/RoomHeader.qml" line="127"/>
         <source>(no topic)</source>
-        <translation type="unfinished">(no topic)</translation>
+        <translation>(no topic)</translation>
     </message>
     <message>
         <location filename="../qml/RoomHeader.qml" line="155"/>
         <source>Hide topic</source>
-        <translation type="unfinished">Hide topic</translation>
+        <translation>Hide topic</translation>
     </message>
     <message>
         <location filename="../qml/RoomHeader.qml" line="155"/>
         <source>Show topic</source>
-        <translation type="unfinished">Show topic</translation>
+        <translation>Show topic</translation>
     </message>
     <message>
         <location filename="../qml/RoomHeader.qml" line="169"/>
         <source>Go to
 new room</source>
-        <translation type="unfinished">Go to
+        <translation>Go to
 new room</translation>
     </message>
     <message>
         <location filename="../qml/RoomHeader.qml" line="169"/>
         <source>Room
 settings</source>
-        <translation type="unfinished">Room
+        <translation>Room
 settings</translation>
     </message>
 </context>
@@ -2079,9 +2079,9 @@ This operation cannot be reverted.</translation>
     <message numerus="yes">
         <location filename="../systemtrayicon.cpp" line="61"/>
         <source>%Ln unread message(s) across all rooms</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln unread message across all rooms</numerusform>
+            <numerusform>%Ln unread messages across all rooms</numerusform>
         </translation>
     </message>
     <message>
@@ -2304,22 +2304,22 @@ new room</translation>
     <message>
         <location filename="../verificationdialog.cpp" line="13"/>
         <source>Verifying device %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Verifying device %1</translation>
     </message>
     <message>
         <location filename="../verificationdialog.cpp" line="21"/>
         <source>Confirm that the same emoji, in the same order are displayed on the other side</source>
-        <translation type="unfinished"></translation>
+        <translation>Confirm that the same emoji, in the same order are displayed on the other side</translation>
     </message>
     <message>
         <location filename="../verificationdialog.cpp" line="38"/>
         <source>They match</source>
-        <translation type="unfinished"></translation>
+        <translation>They match</translation>
     </message>
     <message>
         <location filename="../verificationdialog.cpp" line="39"/>
         <source>They DON&apos;T match</source>
-        <translation type="unfinished"></translation>
+        <translation>They DON&apos;T match</translation>
     </message>
 </context>
 <context>
