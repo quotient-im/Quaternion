@@ -152,92 +152,6 @@
     </message>
 </context>
 <context>
-    <name>Timeline</name>
-    <message>
-        <source>(no topic)</source>
-        <translation>(brak tematu)</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation>Nieznany</translation>
-    </message>
-    <message>
-        <source>Unstable room version!</source>
-        <translation>Niestabilna wersja pokoju!</translation>
-    </message>
-    <message>
-        <source>(no name)</source>
-        <translation>(bez nazwy)</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln byte(s)</source>
-        <translation>
-            <numerusform>%Ln bajt</numerusform>
-            <numerusform>%Ln bajty</numerusform>
-            <numerusform>%Ln bajtów</numerusform>
-            <numerusform>%Ln bajtów</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>%L1 MB</source>
-        <translation>%L1 MB</translation>
-    </message>
-    <message>
-        <source>%L1 GB</source>
-        <translation>%L1 GB</translation>
-    </message>
-    <message>
-        <source>This room has been upgraded.</source>
-        <translation>Ten pokój został zaktualizowany.</translation>
-    </message>
-    <message>
-        <source>Go to
-new room</source>
-        <translation>Przejdź do
-nowego pokoju</translation>
-    </message>
-    <message>
-        <source>Room
-settings</source>
-        <translation>Ustawienia
-pokoju</translation>
-    </message>
-    <message>
-        <source>Latest events</source>
-        <translation>Ostatnie wydarzenia</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln events back from now</source>
-        <translation>
-            <numerusform>%Ln wydarzenie od teraz</numerusform>
-            <numerusform>%Ln wydarzenia od teraz</numerusform>
-            <numerusform>%Ln wydarzeń od teraz</numerusform>
-            <numerusform>%Ln wydarzeń od teraz</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>%L1 kB</source>
-        <translation>%L1 kB</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln events cached</source>
-        <translation>
-            <numerusform>%Ln wydarzenie w pamięci podręcznej</numerusform>
-            <numerusform>%Ln wydarzenia w pamięci podręcznej</numerusform>
-            <numerusform>%Ln wydarzeń w pamięci podręcznej</numerusform>
-            <numerusform>%Ln wydarzeń w pamięci podręcznej</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Hide topic</source>
-        <translation>Ukryj temat</translation>
-    </message>
-    <message>
-        <source>Show topic</source>
-        <translation>Pokaż temat</translation>
-    </message>
-</context>
-<context>
     <name>CreateRoomDialog</name>
     <message>
         <source>Create room</source>
@@ -1352,6 +1266,22 @@ Ta operacja nie może zostać cofnięta.</translation>
         <source>downloaded to %1</source>
         <translation>pobrano do %1</translation>
     </message>
+    <message>
+        <source>Unknown</source>
+        <translation>Nieznany</translation>
+    </message>
+    <message>
+        <source>%L1 kB</source>
+        <translation>%L1 kB</translation>
+    </message>
+    <message>
+        <source>%L1 MB</source>
+        <translation>%L1 MB</translation>
+    </message>
+    <message>
+        <source>%L1 GB</source>
+        <translation>%L1 GB</translation>
+    </message>
 </context>
 <context>
     <name>TimelineItem</name>
@@ -1489,10 +1419,6 @@ nowego pokoju</translation>
 <context>
     <name>ProfileDialog</name>
     <message>
-        <source>This is the current device</source>
-        <translation>To jest obecne urządzenie</translation>
-    </message>
-    <message>
         <source>Device display name</source>
         <translation>Wyświetlana nazwa urządzenia</translation>
     </message>
@@ -1529,10 +1455,6 @@ nowego pokoju</translation>
         <translation>Token dostępu</translation>
     </message>
     <message>
-        <source>Apply and close</source>
-        <translation>Zastosuj i zamknij</translation>
-    </message>
-    <message>
         <source>Loading other devices...</source>
         <translation>Ładowanie innych urządzeń…</translation>
     </message>
@@ -1546,6 +1468,31 @@ nowego pokoju</translation>
     </message>
 </context>
 <context>
+    <name>Timeline</name>
+    <message>
+        <source>Latest events</source>
+        <translation>Ostatnie wydarzenia</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln events back from now</source>
+        <translation>
+            <numerusform>%Ln wydarzenie od teraz</numerusform>
+            <numerusform>%Ln wydarzenia od teraz</numerusform>
+            <numerusform>%Ln wydarzeń od teraz</numerusform>
+            <numerusform>%Ln wydarzeń od teraz</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln events cached</source>
+        <translation>
+            <numerusform>%Ln wydarzenie w pamięci podręcznej</numerusform>
+            <numerusform>%Ln wydarzenia w pamięci podręcznej</numerusform>
+            <numerusform>%Ln wydarzeń w pamięci podręcznej</numerusform>
+            <numerusform>%Ln wydarzeń w pamięci podręcznej</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
     <name>ChatEdit</name>
     <message>
         <source>Reset formatting</source>
@@ -1554,6 +1501,45 @@ nowego pokoju</translation>
     <message>
         <source>Reset the current character formatting to the default</source>
         <translation>Przywraca domyślne formatowanie znaków</translation>
+    </message>
+</context>
+<context>
+    <name>RoomHeader</name>
+    <message>
+        <source>(no name)</source>
+        <translation>(bez nazwy)</translation>
+    </message>
+    <message>
+        <source>This room has been upgraded.</source>
+        <translation>Ten pokój został zaktualizowany.</translation>
+    </message>
+    <message>
+        <source>Unstable room version!</source>
+        <translation>Niestabilna wersja pokoju!</translation>
+    </message>
+    <message>
+        <source>(no topic)</source>
+        <translation>(brak tematu)</translation>
+    </message>
+    <message>
+        <source>Hide topic</source>
+        <translation>Ukryj temat</translation>
+    </message>
+    <message>
+        <source>Show topic</source>
+        <translation>Pokaż temat</translation>
+    </message>
+    <message>
+        <source>Go to
+new room</source>
+        <translation>Przejdź do
+nowego pokoju</translation>
+    </message>
+    <message>
+        <source>Room
+settings</source>
+        <translation>Ustawienia
+pokoju</translation>
     </message>
 </context>
 </TS>

@@ -171,96 +171,6 @@
     </message>
 </context>
 <context>
-    <name>Timeline</name>
-    <message>
-        <source>(no topic)</source>
-        <translation>(без темы)</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation>Неизвестно</translation>
-    </message>
-    <message>
-        <source>Unstable room version!</source>
-        <translation>Нестабильная версия комнаты!</translation>
-    </message>
-    <message>
-        <source>(no name)</source>
-        <translation>(без имени)</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln byte(s)</source>
-        <translation>
-            <numerusform>%Ln байт</numerusform>
-            <numerusform>%Ln байта</numerusform>
-            <numerusform>%Ln байтов</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>%L1 MB</source>
-        <translation>%L1 МБ</translation>
-    </message>
-    <message>
-        <source>%L1 GB</source>
-        <translation>%L1 ГБ</translation>
-    </message>
-    <message>
-        <source>This room has been upgraded.</source>
-        <translation>Эта комната была обновлена</translation>
-    </message>
-    <message>
-        <source>Go to
-new room</source>
-        <translation>Перейти в новую комнату</translation>
-    </message>
-    <message>
-        <source>Room
-settings</source>
-        <translation>Настройки
-комнаты</translation>
-    </message>
-    <message>
-        <source>Latest events</source>
-        <translation>Последние события</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln events back from now</source>
-        <translation>
-            <numerusform>%Ln событие назад</numerusform>
-            <numerusform>%Ln событий назад</numerusform>
-            <numerusform>%Ln событий назад</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>%L1 kB</source>
-        <translation>%L1 Кб</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln events cached</source>
-        <translation>
-            <numerusform>%Ln событие закешировано</numerusform>
-            <numerusform>%Ln события закешировано</numerusform>
-            <numerusform>%Ln событий закешировано</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln events requested from the server</source>
-        <translation>
-            <numerusform>%Ln событие запрошено с сервера</numerusform>
-            <numerusform>%Ln события запрошены с сервера</numerusform>
-            <numerusform>%Ln событий запрошено с сервера</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Hide topic</source>
-        <translation>Скрыть тему</translation>
-    </message>
-    <message>
-        <source>Show topic</source>
-        <translation>Показать тему</translation>
-    </message>
-</context>
-<context>
     <name>CreateRoomDialog</name>
     <message>
         <source>Create room</source>
@@ -667,7 +577,7 @@ Response:
     </message>
     <message>
         <source>Library commit SHA:</source>
-        <translation>SHA-ключ коммита в репозитории:</translation>
+        <translation>SHA-ключ коммита в репозитории библиотеки:</translation>
     </message>
     <message>
         <source>Open room...</source>
@@ -1166,6 +1076,10 @@ Matrix URI или ссылка на сервис matrix.to</translation>
         <source>(loading)</source>
         <translation>(загружается)</translation>
     </message>
+    <message>
+        <source>Could not decrypt the event</source>
+        <translation>Не удалось расшифровать событие</translation>
+    </message>
 </context>
 <context>
     <name>NetworkConfigDialog</name>
@@ -1553,6 +1467,30 @@ This operation cannot be reverted.</source>
         <source>downloaded to %1</source>
         <translation>скачано в %1</translation>
     </message>
+    <message>
+        <source>Unknown</source>
+        <translation>Неизвестен</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln byte(s)</source>
+        <translation>
+            <numerusform>%Ln байт</numerusform>
+            <numerusform>%Ln байта</numerusform>
+            <numerusform>%Ln байт</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>%L1 kB</source>
+        <translation>%L1 Кб</translation>
+    </message>
+    <message>
+        <source>%L1 MB</source>
+        <translation>%L1 МБ</translation>
+    </message>
+    <message>
+        <source>%L1 GB</source>
+        <translation>%L1 ГБ</translation>
+    </message>
 </context>
 <context>
     <name>TimelineItem</name>
@@ -1571,12 +1509,14 @@ This operation cannot be reverted.</source>
     <message>
         <source>Go to
 older room</source>
-        <translation>Перейти в старую комнату</translation>
+        <translation>Перейти в
+старую комнату</translation>
     </message>
     <message>
         <source>Go to
 new room</source>
-        <translation>Перейти в новую комнату</translation>
+        <translation>Перейти в
+новую комнату</translation>
     </message>
     <message>
         <source>Reaction &apos;%1&apos; from %2</source>
@@ -1626,6 +1566,14 @@ new room</source>
             <numerusform>%Ln упоминание</numerusform>
             <numerusform>%Ln упоминания</numerusform>
             <numerusform>%Ln упоминаний</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln unread message(s) across all rooms</source>
+        <translation>
+            <numerusform>%Ln непрочитанное сообщение во всех комнатах</numerusform>
+            <numerusform>%Ln непрочитанных сообщения во всех комнатах</numerusform>
+            <numerusform>%Ln непрочитанных сообщений во всех комнатах</numerusform>
         </translation>
     </message>
 </context>
@@ -1687,10 +1635,6 @@ new room</source>
 <context>
     <name>ProfileDialog</name>
     <message>
-        <source>This is the current device</source>
-        <translation>Это текущее устройство</translation>
-    </message>
-    <message>
         <source>Device display name</source>
         <translation>Отображаемое имя устройства</translation>
     </message>
@@ -1727,10 +1671,6 @@ new room</source>
         <translation>Ключ доступа</translation>
     </message>
     <message>
-        <source>Apply and close</source>
-        <translation>Применить и закрыть</translation>
-    </message>
-    <message>
         <source>Loading other devices...</source>
         <translation>Загрузка других устройств...</translation>
     </message>
@@ -1741,6 +1681,81 @@ new room</source>
     <message>
         <source>Set avatar</source>
         <translation>Установить аватар</translation>
+    </message>
+    <message>
+        <source>Verification timed out</source>
+        <translation>Время проверки истекло</translation>
+    </message>
+    <message>
+        <source>Verification was cancelled</source>
+        <translation>Проверка была отменена</translation>
+    </message>
+    <message>
+        <source>Verification was cancelled on the other device</source>
+        <translation>Проверка была отменена на другом устройстве</translation>
+    </message>
+    <message>
+        <source>Verification did not succeed</source>
+        <translation>Проверка не удалась</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отменить</translation>
+    </message>
+    <message>
+        <source>Please accept the verification request on the device you want to verify</source>
+        <translation>Пожалуйста, подтвердите запрос на проверку на устройстве, которое вы хотите проверить</translation>
+    </message>
+    <message>
+        <source>This device</source>
+        <translation>Это устройство</translation>
+    </message>
+    <message>
+        <source>Verified</source>
+        <translation>Проверено</translation>
+    </message>
+    <message>
+        <source>Verify...</source>
+        <translation>Проверить...</translation>
+    </message>
+    <message>
+        <source>No E2EE</source>
+        <translation>Нет сквозного шифрования</translation>
+    </message>
+    <message>
+        <source>Verification failed: icons did not match</source>
+        <translation>Проверка не удалась: значки не совпадают</translation>
+    </message>
+</context>
+<context>
+    <name>Timeline</name>
+    <message>
+        <source>Latest events</source>
+        <translation>Последние события</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln events back from now</source>
+        <translation>
+            <numerusform>%Ln событие назад</numerusform>
+            <numerusform>%Ln событий назад</numerusform>
+            <numerusform>%Ln событий назад</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln events cached</source>
+        <translation>
+            <numerusform>%Ln событие закешировано</numerusform>
+            <numerusform>%Ln события закешировано</numerusform>
+            <numerusform>%Ln событий закешировано</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln events requested from the server</source>
+        <translation>
+            <numerusform>%Ln событие запрошено с сервера</numerusform>
+            <numerusform>%Ln события запрошены с сервера</numerusform>
+            <numerusform>%Ln событий запрошено с сервера</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -1787,6 +1802,76 @@ new room</source>
     <message>
         <source>The list is shown separately from the main window</source>
         <translation>Показывать список отдельно от главного окна</translation>
+    </message>
+</context>
+<context>
+    <name>RoomHeader</name>
+    <message>
+        <source>(no name)</source>
+        <translation>(без названия)</translation>
+    </message>
+    <message>
+        <source>This room has been upgraded.</source>
+        <translation>Эта комната была обновлена.</translation>
+    </message>
+    <message>
+        <source>Unstable room version!</source>
+        <translation>Неустойчивая версия комнаты!</translation>
+    </message>
+    <message>
+        <source>(no topic)</source>
+        <translation>(без темы)</translation>
+    </message>
+    <message>
+        <source>Hide topic</source>
+        <translation>Скрыть тему</translation>
+    </message>
+    <message>
+        <source>Show topic</source>
+        <translation>Показать тему</translation>
+    </message>
+    <message>
+        <source>Go to
+new room</source>
+        <translation>Перейти в
+новую комнату</translation>
+    </message>
+    <message>
+        <source>Room
+settings</source>
+        <translation>Настройки
+комнаты</translation>
+    </message>
+    <message>
+        <source>Go to
+new room</source>
+        <translation>Перейти в
+новую комнату</translation>
+    </message>
+    <message>
+        <source>Room
+settings</source>
+        <translation>Настройки
+комнаты</translation>
+    </message>
+</context>
+<context>
+    <name>VerificationDialog</name>
+    <message>
+        <source>Verifying device %1</source>
+        <translation>Проверка устройства %1</translation>
+    </message>
+    <message>
+        <source>They match</source>
+        <translation>Они совпадают</translation>
+    </message>
+    <message>
+        <source>They DON&apos;T match</source>
+        <translation>Они НЕ совпадают</translation>
+    </message>
+    <message>
+        <source>Confirm that the same icons, in the same order are displayed on the other side</source>
+        <translation>Убедитесь, что на другой стороне отображаются те же значки в том же порядке</translation>
     </message>
 </context>
 </TS>

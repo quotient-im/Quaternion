@@ -170,93 +170,6 @@
     </message>
 </context>
 <context>
-    <name>Timeline</name>
-    <message>
-        <source>(no topic)</source>
-        <translation>(kein Thema)</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation>Unbekannt</translation>
-    </message>
-    <message>
-        <source>Unstable room version!</source>
-        <translation>Instabile Raumversion!</translation>
-    </message>
-    <message>
-        <source>(no name)</source>
-        <translation>(kein Name)</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln byte(s)</source>
-        <translation>
-            <numerusform>%Ln Byte</numerusform>
-            <numerusform>%Ln Bytes</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>%L1 MB</source>
-        <translation>%L1 MB</translation>
-    </message>
-    <message>
-        <source>%L1 GB</source>
-        <translation>%L1 GB</translation>
-    </message>
-    <message>
-        <source>This room has been upgraded.</source>
-        <translation>Der Raum wurde aktualisiert.</translation>
-    </message>
-    <message>
-        <source>Go to
-new room</source>
-        <translation>Gehe zu
-neuem Raum</translation>
-    </message>
-    <message>
-        <source>Room
-settings</source>
-        <translation>Raum-
-Einstellungen</translation>
-    </message>
-    <message>
-        <source>Latest events</source>
-        <translation>Neueste Ereignisse</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln events back from now</source>
-        <translation>
-            <numerusform>%Ln Ereignis zurückgescrollt</numerusform>
-            <numerusform>%Ln Ereignisse zurückgescrollt</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>%L1 kB</source>
-        <translation>%L1 kB</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln events cached</source>
-        <translation>
-            <numerusform>%Ln Ereignis zwischengespeichert</numerusform>
-            <numerusform>%Ln Ereignisse zwischengespeichert</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln events requested from the server</source>
-        <translation>
-            <numerusform>%Ln Ereignis vom Server angefragt</numerusform>
-            <numerusform>%Ln Ereignisse vom Server angefragt</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Hide topic</source>
-        <translation>Thema ausblenden</translation>
-    </message>
-    <message>
-        <source>Show topic</source>
-        <translation>Thema anzeigen</translation>
-    </message>
-</context>
-<context>
     <name>CreateRoomDialog</name>
     <message>
         <source>Create room</source>
@@ -1545,6 +1458,29 @@ Dieser Vorgang kann nicht rückgängig gemacht werden.</translation>
         <source>downloaded to %1</source>
         <translation>nach %1 heruntergeladen</translation>
     </message>
+    <message>
+        <source>Unknown</source>
+        <translation>Unbekannt</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln byte(s)</source>
+        <translation>
+            <numerusform>%Ln Byte</numerusform>
+            <numerusform>%Ln Bytes</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>%L1 kB</source>
+        <translation>%L1 kB</translation>
+    </message>
+    <message>
+        <source>%L1 MB</source>
+        <translation>%L1 MB</translation>
+    </message>
+    <message>
+        <source>%L1 GB</source>
+        <translation>%L1 GB</translation>
+    </message>
 </context>
 <context>
     <name>TimelineItem</name>
@@ -1621,6 +1557,13 @@ neuem Raum</translation>
             <numerusform>%Ln Hervorhebungen</numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln unread message(s) across all rooms</source>
+        <translation>
+            <numerusform>%Ln ungelesene Nachricht in allen Räumen</numerusform>
+            <numerusform>%Ln ungelesene Nachrichten in allen Räumen</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>TimelineWidget</name>
@@ -1680,10 +1623,6 @@ neuem Raum</translation>
 <context>
     <name>ProfileDialog</name>
     <message>
-        <source>This is the current device</source>
-        <translation>Dies ist das aktuelle Gerät</translation>
-    </message>
-    <message>
         <source>Device display name</source>
         <translation>Anzeigename des Geräts</translation>
     </message>
@@ -1720,10 +1659,6 @@ neuem Raum</translation>
         <translation>Zugriffstoken</translation>
     </message>
     <message>
-        <source>Apply and close</source>
-        <translation>Übernehmen und schließen</translation>
-    </message>
-    <message>
         <source>Loading other devices...</source>
         <translation>Lade andere Geräte …</translation>
     </message>
@@ -1734,6 +1669,50 @@ neuem Raum</translation>
     <message>
         <source>Set avatar</source>
         <translation>Avatar einstellen</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
+    </message>
+    <message>
+        <source>Please accept the verification request on the device you want to verify</source>
+        <translation>Bitte akzeptieren Sie die Verifizierungsanfrage auf dem Gerät, das Sie verifizieren möchten.</translation>
+    </message>
+    <message>
+        <source>This device</source>
+        <translation>Dieses Gerät</translation>
+    </message>
+    <message>
+        <source>No E2EE</source>
+        <translation>Keine E2EE</translation>
+    </message>
+</context>
+<context>
+    <name>Timeline</name>
+    <message>
+        <source>Latest events</source>
+        <translation>Neueste Ereignisse</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln events back from now</source>
+        <translation>
+            <numerusform>%Ln Ereignis zurückgescrollt</numerusform>
+            <numerusform>%Ln Ereignisse zurückgescrollt</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln events cached</source>
+        <translation>
+            <numerusform>%Ln Ereignis zwischengespeichert</numerusform>
+            <numerusform>%Ln Ereignisse zwischengespeichert</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln events requested from the server</source>
+        <translation>
+            <numerusform>%Ln Ereignis vom Server angefragt</numerusform>
+            <numerusform>%Ln Ereignisse vom Server angefragt</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -1780,6 +1759,64 @@ neuem Raum</translation>
     <message>
         <source>The list is shown separately from the main window</source>
         <translation>Die Liste wird getrennt vom Hauptfenster angezeigt</translation>
+    </message>
+</context>
+<context>
+    <name>RoomHeader</name>
+    <message>
+        <source>(no name)</source>
+        <translation>(kein Name)</translation>
+    </message>
+    <message>
+        <source>This room has been upgraded.</source>
+        <translation>Der Raum wurde aktualisiert.</translation>
+    </message>
+    <message>
+        <source>Unstable room version!</source>
+        <translation>Instabile Raumversion!</translation>
+    </message>
+    <message>
+        <source>(no topic)</source>
+        <translation>(kein Thema)</translation>
+    </message>
+    <message>
+        <source>Hide topic</source>
+        <translation>Thema ausblenden</translation>
+    </message>
+    <message>
+        <source>Show topic</source>
+        <translation>Thema anzeigen</translation>
+    </message>
+    <message>
+        <source>Go to
+new room</source>
+        <translation>Gehe zu
+neuem Raum</translation>
+    </message>
+    <message>
+        <source>Room
+settings</source>
+        <translation>Raum-
+Einstellungen</translation>
+    </message>
+    <message>
+        <source>Go to
+new room</source>
+        <translation>Gehe zu
+neuem Raum</translation>
+    </message>
+    <message>
+        <source>Room
+settings</source>
+        <translation>Raum-
+Einstellungen</translation>
+    </message>
+</context>
+<context>
+    <name>VerificationDialog</name>
+    <message>
+        <source>Confirm that the same icons, in the same order are displayed on the other side</source>
+        <translation>Vergewissern Sie sich, dass die gleichen Symbole in der gleichen Reihenfolge auf der anderen Seite angezeigt werden</translation>
     </message>
 </context>
 </TS>
