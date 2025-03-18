@@ -1613,8 +1613,8 @@ or alias (starting with #)</translation>
     </message>
     <message>
         <location filename="../profiledialog.cpp" line="415"/>
-        <source>Verification failed: emojis did not match</source>
-        <translation>Verification failed: emojis did not match</translation>
+        <source>Verification failed: icons did not match</source>
+        <translation>Verification failed: icons did not match</translation>
     </message>
     <message>
         <location filename="../profiledialog.cpp" line="416"/>
@@ -2308,8 +2308,8 @@ new room</translation>
     </message>
     <message>
         <location filename="../verificationdialog.cpp" line="21"/>
-        <source>Confirm that the same emoji, in the same order are displayed on the other side</source>
-        <translation>Confirm that the same emoji, in the same order are displayed on the other side</translation>
+        <source>Confirm that the same icons, in the same order are displayed on the other side</source>
+        <translation>Confirm that the same icons, in the same order are displayed on the other side</translation>
     </message>
     <message>
         <location filename="../verificationdialog.cpp" line="38"/>
