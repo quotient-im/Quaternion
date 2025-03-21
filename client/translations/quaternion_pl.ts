@@ -82,10 +82,6 @@
         <translation>/%1 &lt;memberId&gt;</translation>
     </message>
     <message>
-        <source>Unknown /command. Use // to send this line literally</source>
-        <translation>Nieznane polecenie. Użyj //, aby dosłownie wysłać tę linię</translation>
-    </message>
-    <message>
         <source>Attach</source>
         <translation>Załącz</translation>
     </message>
@@ -1530,16 +1526,16 @@ nowego pokoju</translation>
         <translation>Pokaż temat</translation>
     </message>
     <message>
-        <source>Go to
-new room</source>
-        <translation>Przejdź do
-nowego pokoju</translation>
-    </message>
-    <message>
         <source>Room
 settings</source>
         <translation>Ustawienia
 pokoju</translation>
+    </message>
+    <message>
+        <source>Go to
+new room</source>
+        <translation>Przejdź do
+nowego pokoju</translation>
     </message>
 </context>
 </TS>

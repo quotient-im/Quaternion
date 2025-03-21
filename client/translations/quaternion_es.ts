@@ -82,10 +82,6 @@
         <translation>/%1 &lt;memberId&gt;</translation>
     </message>
     <message>
-        <source>Unknown /command. Use // to send this line literally</source>
-        <translation>/command desconocido. Utilice // para enviar esta línea literalmente</translation>
-    </message>
-    <message>
         <source>Attach</source>
         <translation>Adjuntar</translation>
     </message>
