@@ -409,7 +409,7 @@ inline QString errorToMessage(Quotient::KeyVerificationSession::Error e)
     case TIMEOUT:
     case REMOTE_TIMEOUT: return ProfileDialog::tr("Verification timed out");
     case USER:           return ProfileDialog::tr("Verification was cancelled");
-    case REMOTE_USER:    return ProfileDialog::tr("Verification was cancelled on the other device");
+    case REMOTE_USER:    return ProfileDialog::tr("Verification was cancelled on the other side");
     case MISMATCHED_SAS:
     case REMOTE_MISMATCHED_SAS:
         return ProfileDialog::tr("Verification failed: icons did not match");
