@@ -688,7 +688,7 @@ QString ChatRoomWidget::sendCommand(QStringView command,
     }
     // --- Add more room commands here
     qCDebug(MSGINPUT) << "Unknown command:" << command;
-    return tr("Unknown /command. If you intended to send a message start with // instead of /");
+    return tr("Unknown /command. If you intended to send a message, start with // instead of /");
 }
 
 void ChatRoomWidget::sendInput()
