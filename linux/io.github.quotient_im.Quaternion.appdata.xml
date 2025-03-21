@@ -42,6 +42,18 @@
   </replaces>
 
   <releases>
+    <release version="0.0.97.1" date="2025-03-21">
+      <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.97.1</url>
+      <description><p>0.0.97.1</p>
+        <ul>
+          <li>You can now verify Quaternion sessions for E2EE communication (have to start
+            verification in Quaternion for now; the other direction is not implemented yet)</li>
+          <li>Change systray icon when new messages come and Quaternion is not an active window</li>
+          <li>Event numbers now show up in the scroller area if the shuttle scroller is used</li>
+          <li>Various smaller UI tweaks and fixes</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.0.97" date="2025-02-10">
       <url>https://github.com/quotient-im/Quaternion/releases/tag/0.0.97</url>
       <description><p>0.0.97</p>

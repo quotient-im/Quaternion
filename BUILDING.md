@@ -169,10 +169,12 @@ Whenever you want to update your Quaternion package, do the following from the f
 flatpak --user update
 ```
 
-Be mindful that since Quaternion 0.0.97 beta the Flatpak app-id has changed: it used to be
+Be mindful that since Quaternion 0.0.97 the Flatpak app-id has changed: before it used to be
 `com.github.quaternion`, now it's `io.github.quotient_im.quaternion`, to align with
 [Flathub verification rules](https://docs.flathub.org/docs/for-app-authors/verification/).
-Normally, Flatpak should seamlessly handle an upgrade; if it doesn't, send us an issue.
+Normally, Flatpak should seamlessly handle an upgrade; if it doesn't, make an issue at either the
+main Quaternion repo (https://github.com/quotient-im/Quaternion) or at the Quaternion Flatpak repo
+(https://github.com/flathub/io.github.quotient_im.Quaternion) - we'll route it as needed.
 
 ## Troubleshooting
 

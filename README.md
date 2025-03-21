@@ -34,12 +34,12 @@ The source code is [hosted at GitHub](https://github.com/quotient-im/Quaternion)
 
 ### Requirements
 
-Quaternion 0.0.97 needs Qt version 6.4 or higher.
+Quaternion 0.0.97.1 needs Qt version 6.4 or higher.
 
 ### Linux
 Quaternion is packaged for many distributions, including various versions of
 Debian, Ubuntu and OpenSUSE, as well as Arch Linux, NixOS and FreeBSD.
-A pretty comprehensive list can be found at
+A pretty comprehensive up-to-date list can be found at
 [Repology](https://repology.org/project/quaternion/versions). Popular
 distributions satisfying the mentioned Qt requirement are Debian 12 (Bookworm),
 Ubuntu 24.04 (noble), Fedora 39, OpenSUSE Leap 15.6; anything newer than that
@@ -52,12 +52,12 @@ report it to your distribution's Quaternion packager, _not_ to this repository.
 There are also flatpaks for Quaternion available from Flathub. To install, use:
 
 ```
-flatpak install https://flathub.org/repo/appstream/com.github.quaternion.flatpakref
+flatpak install https://flathub.org/repo/appstream/io.github.quotient_im.Quaternion.flatpakref
 ```
 
 These packages are built with a suitable KDE runtime. You can install them on
 any distribution that has Flatpak - even if it's older than mentioned above.
-Please file issues at https://github.com/flathub/com.github.quaternion
+Please file issues at https://github.com/flathub/io.github.quotient_im.Quaternion
 if you believe there's a problem specific to the Flatpak package of Quaternion.
 
 ### Windows
@@ -89,7 +89,7 @@ A few important notes on these packages in case you're new to them:
 - All of them come bundled with fairly recent (not necessarily latest) Qt 6.
 - They are only provided for testing; feedback on _any_ release is welcome
   as long as you know which build you run, but do not expect the developers
-  to address issues in any but the latest snapshot.
+  to address issues in older snapshots.
 - In case it's still unclear: these builds are UNSTABLE by default; some may
   not run at all, and if they do, they may ~~tell you obscenities in your
   local language, steal your smartphone, and share your private photos~~
@@ -100,7 +100,7 @@ A few important notes on these packages in case you're new to them:
 - If you understand the above, have your backups in order and are still willing to try things out
   or just generally help with the project - make sure to `/join #quotient:matrix.org` and have
   the URL you downloaded Quaternion from. In case of trouble, ~~show this label to your doctor~~
-  send the URL to the binary you used in the chat room (you may need to use another client or
+  send the URL to the binary you used in the chat room (you may have to use another client or
   Quaternion version for that), describe what happened and we'll try to pull you out of it.
 
 If you want to build Quaternion from sources, see [BUILDING.md](./BUILDING.md).
@@ -116,18 +116,18 @@ section further below.
 ## Translation
 Quaternion uses [Lokalise.co](https://lokalise.co) for the translation effort.
 It's easy to participate:
-[join the project at Lokalise.co](https://lokalise.co/public/730769035bbc328c31e863.62506391/),
-ask to add your language (either in
+[join the project at Lokalise.co](https://lokalise.co/public/730769035bbc328c31e863.62506391/);
+if your language is not there, ask to add it (either in
 [#quotient:matrix.org](https://matrix.to/#/#quotient:matrix.org) or in
-the Lokalise project chat) and start translating! Many languages are still
+the Lokalise project chat); and start translating! Many languages are still
 longing for contributors.
 
 
 ## Configuration
 The only non-trivial command-line option available so far is `--locale` - it
 allows you to override the locale Quaternion uses (an equivalent of setting
-`LC_ALL` variable on UNIX-based systems). Version 0.0.97 comes with German,
-Russian, Polish, and Spanish translations.
+`LC_ALL` variable on UNIX-based systems). German, Russian, Polish, and Spanish translations are
+either complete or mostly complete, as of this writing.
 
 Quaternion stores its configuration in a way standard for Qt applications, as
 described below. It will read and write the configuration in the user-specific
@@ -163,22 +163,21 @@ Some settings exposed in the user interface (Settings and View menus) are:
   set to "xchat", Quaternion will show the author to the left of each message,
   in an xchat/hexchat style. Any other value will select the "default" layout,
   with author labels above blocks of messages.
-- `use_shuttle_dial` - Quaternion will use a shuttle dial instead of
-  a classic scrollbar for the timeline's vertical scrolling control. To start
-  scrolling move the shuttle dial away from its neutral position in the middle;
-  the further away you move it, the faster you scroll in that direction.
-  Releasing the dial resets it back to the neutral position and stops scrolling.
-  This is more convenient if you need to move around without knowing
-  the position relative to the edges, as is the case of a Matrix timeline;
-  however, the control is somewhat unconventional and not all people like it.
-  The shuttle dial is enabled by default; set this to false (or 0) to use
-  the classic scrollbar.
-- `autoload_images` - whether full-size images should be loaded immediately
-  once the message is shown on the screen. The default is to automatically load
-  full-size images; set this to false (or 0) to disable that and only load
-  a thumbnail in the timeline (with the full image downloaded after you click
-  "Save as" or "Open" in the context menu). Check out
-  https://github.com/quotient-im/Quaternion/issues/601 for the caveat.
+- `use_shuttle_dial` - Quaternion will use a shuttle dial instead of a classic scrollbar for
+  the timeline's vertical scrolling control. To start scrolling move the shuttle dial away from its
+  neutral position in the middle; the further away you move it, the faster you scroll in that
+  direction. Releasing the dial resets it back to the neutral position and stops scrolling.
+  This is more convenient than the classic scrollbar when you need to move around with bounds of
+  the timeline constantly changing, as is the case of a Matrix timeline (older messages get loaded
+  as you scroll back, and new messages can come from sync too, making the classic scrollbar jump
+  around); with that said, the control is somewhat unconventional and not all people like it.
+  The shuttle dial is enabled by default; set this to false (or 0) to use the classic scrollbar.
+- `autoload_images` - whether full-size images should be loaded immediately once the message is
+  shown on the screen. The default is to automatically load full-size images; set this to false
+  (or 0) to disable that and only load a thumbnail in the timeline (with the full image downloaded
+  after you click "Save as" or "Open" in the context menu) but be aware that if a message doesn't
+  have a thumbnail at all you won't see anything (see also
+  https://github.com/quotient-im/Quaternion/issues/601).
 - `show_spammy` ("Show no-effect activity" in the menu) - when set to `false`, this setting tries
   to clean up the timeline from events that don't contribute to conversation in any reasonable way,
   such as messages from a recently joined user that are all redacted - a typical case of moderation
@@ -217,11 +216,11 @@ Settings not exposed in UI:
 - `animations_duration_ms` - defines the base duration (in milliseconds) of
   animation effects in the timline. The default is 400; set it to 0 to disable
   animation.
-- `outgoing_color` - set this to the color name you prefer for text you sent; HTML color names and
-  hex `#codes` are supported; by default it's `#4A8780` (a brownish tint of teal - no science
-  behind that, just an arbitrary shot in a color picker).
-- `highlight_color` - set this to the color name you prefer for highlighted rooms/messages;
-  HTML color names and hex `#codes` are supported; by default it's `orange`.
+- `outgoing_color` - set this to the name or hex code (3- or 6-digit) of the colour you prefer
+  for text you sent; by default it's `#4A8780` (a brownish tint of teal - no science behind that,
+  just an arbitrary shot in a color picker).
+- `highlight_color` - set this to the name or hex code (3- or 6-digit) of the colour you prefer
+  for highlighted rooms/messages; by default it's `orange`.
 - `highlight_mode` - set this to `text` if you prefer to use the text color
   for highlighting; the default is to use the background for highlighting.
 - `use_human_friendly_dates` - set this to false (or 0) if you do NOT want
@@ -229,10 +228,11 @@ Settings not exposed in UI:
   day-month-year triad) in the UI; the default is true.
 - `show_noop_events` - set this to 1 to show state events that do not alter
   the state (you'll see "(repeated)" next to most of those).
-- `quote_style` - the quote template. The `\\1` means the quoted string.
-  By default it's `> \\1\n`.
-- `quote_regex` - set to `^([\\s\\S]*)` to add `UI/quote_style` only at
-  the beginning and end of the quote. By default it's `(.+)(?:\n|$)`.
+- `quote_style` - the quote template. `\\1` means the quoted string; by default it's `> \\1\n`
+  (i.e., `> ` prepended before each line of the quoted string).
+- `quote_regex` - set to `^([\\s\\S]*)` to add `UI/quote_style` only at the beginning and the end
+  of the quote; by default it's `(.+)(?:\n|$)`, meaning that each line is quoted with `quote_style`
+  separately.
 - `Fonts/render_type` - select how to render fonts in Quaternion timeline;
   possible values are "NativeRendering" (default) and "QtRendering".
 - `Fonts/family` - override the font family for the whole application.
@@ -245,18 +245,16 @@ Settings not exposed in UI:
 - `Fonts/timeline_pointSize` - font size (in points) to display messages
   in the timeline. If not specified, the application-wide point size is used.
 - `maybe_read_timer` - threshold time interval in milliseconds for a displayed
-  message to be considered as read.
-- `hyperlink_users` - set this to false (or 0) if you do NOT want to
-  hyperlink matrix user IDs in messages. By default it's true.
-- `auto_markdown` (EXPERIMENTAL) - since version 0.0.95 Quaternion has
-  experimental support for Markdown when entering messages. Quaternion only
-  treats the message as Markdown if the message starts with `/md` command (the
-  command itself is removed from the message before sending). Setting
-  `auto_markdown` to `true` enables Markdown parsing in all messages that
-  _do not_ start with `/plain` instead. By default, this setting is `false`
-  since the current support of Markdown by Qt is buggy, and the implementation
-  in Quaternion has its own quirks on top of that. If you have it enabled
-  (or use `/md` command) feel free to submit bug reports at the usual place.
+  message to be considered as read if it's still displayed after that interval.
+- `hyperlink_users` - set this to false (or 0) if you do NOT want to hyperlink matrix user IDs
+  in messages; by default it's true, meaning that user IDs will be turned to hyperlinks
+- `auto_markdown` (EXPERIMENTAL) - since version 0.0.95 Quaternion has experimental support for
+  Markdown when entering messages. Normally, Quaternion only treats the message as Markdown if
+  it is prepended by `/md` command (the command itself is removed from the message before sending).
+  Setting `auto_markdown` to `true` enables Markdown parsing in all messages unless you prepend
+  `/plain`. By default, this setting is `false` since the current support of Markdown by Qt is
+  buggy, and the implementation in Quaternion has its own quirks on top of that. If you have it
+  enabled (or use `/md` command) feel free to report any bugs with it at the usual place.
 - `paste_plaintext_by_default` - set this to false (or 0) if you want to paste
   formatted text by default.
 
@@ -292,6 +290,12 @@ rooms stuck in a wrong state etc.
 Quaternion uses libQuotient under the hood; some Quaternion problems are
 actually problems of libQuotient. If you haven't found your case below, check
 also the troubleshooting section in libQuotient README.md.
+
+#### Failure to start on Windows
+If you try to start Quaternion from a path that is in your `%PATH%` variable it's very likely to
+miss all the libraries that reside in subdirectories of the package. Make sure that you start
+Quaternion (either from the command line or Explorer) with the current directory being that of
+`quaternion.exe` binary.
 
 #### Some older messages don't get decrypted in E2EE rooms
 Unfortunately, this is a limitation in the libQuotient code. The E2EE backend of libQuotient is
