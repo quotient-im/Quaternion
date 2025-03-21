@@ -103,7 +103,7 @@ Frame {
             // Allow 5 full (actually, 6 minus padding) lines of the topic
             // but not more than 20% of the timeline vertical space
             height:
-                Math.min(topicText.implicitHeight, parent.height / 5, settings.lineSpacing * 6)
+                Math.min(topicText.implicitHeight, root.height / 5, settings.lineSpacing * 6)
             
             ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
             ScrollBar.vertical.policy: ScrollBar.AsNeeded
