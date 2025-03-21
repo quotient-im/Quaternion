@@ -82,10 +82,6 @@
         <translation>/%1 &lt;ID-участника&gt;</translation>
     </message>
     <message>
-        <source>Unknown /command. Use // to send this line literally</source>
-        <translation>Неизвестная команда. Используйте //, чтобы отправить буквально эту строку</translation>
-    </message>
-    <message>
         <source>Attach</source>
         <translation>Добавить</translation>
     </message>
@@ -168,6 +164,10 @@
     <message>
         <source>Cannot insert HTML - it&apos;s either invalid or unsupported</source>
         <translation>Невозможно вставить HTML - разметка некорректна или не поддерживается</translation>
+    </message>
+    <message>
+        <source>Unknown /command. If you intended to send a message, start with // instead of /</source>
+        <translation>Неизвестная /команда. Если вы собирались отправить сообщение, используйте // вместо / в его начале</translation>
     </message>
 </context>
 <context>
@@ -1691,10 +1691,6 @@ new room</source>
         <translation>Проверка была отменена</translation>
     </message>
     <message>
-        <source>Verification was cancelled on the other device</source>
-        <translation>Проверка была отменена на другом устройстве</translation>
-    </message>
-    <message>
         <source>Verification did not succeed</source>
         <translation>Проверка не удалась</translation>
     </message>
@@ -1725,6 +1721,10 @@ new room</source>
     <message>
         <source>Verification failed: icons did not match</source>
         <translation>Проверка не удалась: значки не совпадают</translation>
+    </message>
+    <message>
+        <source>Verification was cancelled on the other side</source>
+        <translation>Проверка была отменена на другом конце</translation>
     </message>
 </context>
 <context>
@@ -1831,12 +1831,6 @@ new room</source>
         <translation>Показать тему</translation>
     </message>
     <message>
-        <source>Go to
-new room</source>
-        <translation>Перейти в
-новую комнату</translation>
-    </message>
-    <message>
         <source>Room
 settings</source>
         <translation>Настройки
@@ -1847,12 +1841,6 @@ settings</source>
 new room</source>
         <translation>Перейти в
 новую комнату</translation>
-    </message>
-    <message>
-        <source>Room
-settings</source>
-        <translation>Настройки
-комнаты</translation>
     </message>
 </context>
 <context>

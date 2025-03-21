@@ -82,10 +82,6 @@
         <translation>/%1 &lt;memberId&gt;</translation>
     </message>
     <message>
-        <source>Unknown /command. Use // to send this line literally</source>
-        <translation>Unknown /command. Use // to send this line literally.</translation>
-    </message>
-    <message>
         <source>Attach</source>
         <translation>Attach</translation>
     </message>
@@ -167,6 +163,10 @@
     <message>
         <source>Cannot insert HTML - it&apos;s either invalid or unsupported</source>
         <translation>Cannot insert HTML — it&apos;s either invalid or unsupported</translation>
+    </message>
+    <message>
+        <source>Unknown /command. If you intended to send a message, start with // instead of /</source>
+        <translation>Unknown /command. If you intended to send a message, start with // instead of /</translation>
     </message>
 </context>
 <context>
@@ -1683,10 +1683,6 @@ new room</translation>
         <translation>Verification was cancelled</translation>
     </message>
     <message>
-        <source>Verification was cancelled on the other device</source>
-        <translation>Verification was cancelled on the other device</translation>
-    </message>
-    <message>
         <source>Verification did not succeed</source>
         <translation>Verification did not succeed</translation>
     </message>
@@ -1717,6 +1713,10 @@ new room</translation>
     <message>
         <source>Verification failed: icons did not match</source>
         <translation>Verification failed: icons did not match</translation>
+    </message>
+    <message>
+        <source>Verification was cancelled on the other side</source>
+        <translation>Verification was cancelled on the other side</translation>
     </message>
 </context>
 <context>
@@ -1820,12 +1820,6 @@ new room</translation>
         <translation>Show topic</translation>
     </message>
     <message>
-        <source>Go to
-new room</source>
-        <translation>Go to
-new room</translation>
-    </message>
-    <message>
         <source>Room
 settings</source>
         <translation>Room
@@ -1836,12 +1830,6 @@ settings</translation>
 new room</source>
         <translation>Go to
 new room</translation>
-    </message>
-    <message>
-        <source>Room
-settings</source>
-        <translation>Room
-settings</translation>
     </message>
 </context>
 <context>

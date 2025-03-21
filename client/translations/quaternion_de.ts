@@ -82,10 +82,6 @@
         <translation>/%1 &lt;Benutzer-ID&gt;</translation>
     </message>
     <message>
-        <source>Unknown /command. Use // to send this line literally</source>
-        <translation>Unbekannter /Befehl. Starte mit //, um diese Zeile normal zu senden</translation>
-    </message>
-    <message>
         <source>Attach</source>
         <translation>Anhängen</translation>
     </message>
@@ -167,6 +163,10 @@
     <message>
         <source>Cannot insert HTML - it&apos;s either invalid or unsupported</source>
         <translation>HTML kann nicht eingefügt werden – es ist entweder ungültig oder wird nicht unterstützt</translation>
+    </message>
+    <message>
+        <source>Unknown /command. If you intended to send a message, start with // instead of /</source>
+        <translation>Unbekannter /Befehl. Um eine Nachricht zu senden, beginnen Sie mit // anstelle von /</translation>
     </message>
 </context>
 <context>
@@ -1686,6 +1686,10 @@ neuem Raum</translation>
         <source>No E2EE</source>
         <translation>Keine E2EE</translation>
     </message>
+    <message>
+        <source>Verification was cancelled on the other side</source>
+        <translation>Die Verifizierung wurde auf der Gegenseite abgebrochen</translation>
+    </message>
 </context>
 <context>
     <name>Timeline</name>
@@ -1788,12 +1792,6 @@ neuem Raum</translation>
         <translation>Thema anzeigen</translation>
     </message>
     <message>
-        <source>Go to
-new room</source>
-        <translation>Gehe zu
-neuem Raum</translation>
-    </message>
-    <message>
         <source>Room
 settings</source>
         <translation>Raum-
@@ -1804,12 +1802,6 @@ Einstellungen</translation>
 new room</source>
         <translation>Gehe zu
 neuem Raum</translation>
-    </message>
-    <message>
-        <source>Room
-settings</source>
-        <translation>Raum-
-Einstellungen</translation>
     </message>
 </context>
 <context>
