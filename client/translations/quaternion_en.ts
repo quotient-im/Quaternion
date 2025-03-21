@@ -94,11 +94,6 @@
         <translation>At character %1: %2</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="691"/>
-        <source>Unknown /command. If you intended to send a message start with // instead of /</source>
-        <translation>Unknown /command. If you intended to send a message start with // instead of /</translation>
-    </message>
-    <message>
         <location filename="../chatroomwidget.cpp" line="711"/>
         <source>You should select a room to send messages.</source>
         <translation>You should select a room to send messages.</translation>
@@ -233,6 +228,11 @@
         <location filename="../chatroomwidget.cpp" line="682"/>
         <source>/%1 &lt;memberId&gt;</source>
         <translation>/%1 &lt;memberId&gt;</translation>
+    </message>
+    <message>
+        <location filename="../chatroomwidget.cpp" line="691"/>
+        <source>Unknown /command. If you intended to send a message, start with // instead of /</source>
+        <translation>Unknown /command. If you intended to send a message, start with // instead of /</translation>
     </message>
     <message>
         <location filename="../chatroomwidget.cpp" line="850"/>
