@@ -23,7 +23,7 @@
 #include <QtGui/QClipboard>
 #include <QtGui/QDesktopServices>
 
-using Quotient::operator""_ls;
+using namespace Qt::StringLiterals;
 
 QNetworkAccessManager* TimelineWidget::NamFactory::create(QObject* parent)
 {
@@ -50,10 +50,10 @@ TimelineWidget::TimelineWidget(ChatRoomWidget* chatRoomWidget)
     engine()->setNetworkAccessManagerFactory(&namFactory);
 
     auto* ctxt = rootContext();
-    ctxt->setContextProperty("messageModel"_ls, m_messageModel);
-    ctxt->setContextProperty("controller"_ls, this);
+    ctxt->setContextProperty(u"messageModel"_s, m_messageModel);
+    ctxt->setContextProperty(u"controller"_s, this);
 
-    setSource(QUrl("qrc:///qml/Timeline.qml"_ls));
+    setSource(QUrl(u"qrc:///qml/Timeline.qml"_s));
 
     connect(&activityDetector, &ActivityDetector::triggered, this,
             &TimelineWidget::markShownAsRead);
