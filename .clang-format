@@ -93,16 +93,19 @@ EmptyLineBeforeAccessModifier: LogicalBlock
 FixNamespaceComments: true
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex:    '["</](events|jobs)/'
+  - Regex:    '^<Quotient/csapi/'
     Priority: 8
-  - Regex:    '["</]csapi/'
-    Priority: 12
-  - Regex:    '^["<](Quotient/)?.+\.h[">]'
+    SortPriority: 5
+  - Regex:    '^<Quotient/(events|jobs)/'
+    Priority: 8
+    SortPriority: 7
+  - Regex:    '^<Quotient/'
+    Priority: 8
+  - Regex:    '^<Qt(Core|Network|Gui)/.+>'
     Priority: 16
-  - Regex:    '^<Qt(Core|Network|Gui)/.+'
-    Priority: 28
+    SortPriority: 14
   - Regex:    '^<Qt.+(/.+)?'
-    Priority: 24
+    Priority: 16
   - Regex:    '^<'
     Priority: 32
   - Regex:    '.*'
@@ -171,7 +174,7 @@ ShortNamespaceLines: 20
 #SortUsingDeclarations: LexicographicNumeric
 #SpaceAfterCStyleCast: false
 #SpaceAfterLogicalNot: false
-SpaceAfterTemplateKeyword: false
+SpaceAfterTemplateKeyword: true
 SpaceAroundPointerQualifiers: After
 #SpaceBeforeAssignmentOperators: true
 #SpaceBeforeCaseColon: false
