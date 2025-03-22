@@ -581,20 +581,19 @@ QString ChatRoomWidget::sendCommand(QStringView command,
     {
         if (argString.isEmpty())
             return tr("/me needs an argument");
-        currentRoom()->postMessage(argString, MsgType::Emote);
+        currentRoom()->postText<MsgType::Emote>(argString);
         return {};
     }
     if (command == u"notice")
     {
         if (argString.isEmpty())
             return tr("/notice needs an argument");
-        currentRoom()->postMessage(argString, MsgType::Notice);
+        currentRoom()->postText<MsgType::Notice>(argString);
         return {};
     }
     if (command == u"shrug") // Peeked at Discord
     {
-        currentRoom()->postPlainText((argString.isEmpty() ? "" : argString + " ") +
-                                     "¯\\_(ツ)_/¯");
+        currentRoom()->postText(argString % QString(!argString.isEmpty(), u' ') % u"¯\\_(ツ)_/¯");
         return {};
     }
     if (command == u"roomname")
@@ -627,7 +626,7 @@ QString ChatRoomWidget::sendCommand(QStringView command,
         {
             if (auto* room = currentRoom()->connection()->room(args.front()))
             {
-                room->postPlainText(args.back());
+                room->postText(args.back());
                 return {};
             }
             return tr("%1 doesn't seem to have joined room %2")
@@ -637,7 +636,7 @@ QString ChatRoomWidget::sendCommand(QStringView command,
         {
             auto futureChat = currentConnection()->getDirectChat(args.front());
             if (!args.back().isEmpty())
-                futureChat.then([msg=args.back()] (Room* dc) { dc->postPlainText(msg); });
+                futureChat.then([msg=args.back()] (Room* dc) { dc->postText(msg); });
             return {};
         }
 
@@ -650,7 +649,7 @@ QString ChatRoomWidget::sendCommand(QStringView command,
         const auto& plainMsg = m_chatEdit->toPlainText().mid(CmdLen);
         if (plainMsg.isEmpty())
             return NothingToSendMsg();
-        currentRoom()->postPlainText(plainMsg);
+        currentRoom()->postText(plainMsg);
         return {};
     }
     if (command == u"html")
