@@ -24,26 +24,26 @@
 #include <QtGui/QAction>
 #endif
 
-#include <QtCore/QRegularExpression>
-#include <QtCore/QStringBuilder>
-#include <QtCore/QLocale>
-#include <QtCore/QTemporaryFile>
-#include <QtCore/QMimeData>
-#include <QtCore/QMimeDatabase>
+#include "chatedit.h"
+#include "logging_categories.h"
+#include "mainwindow.h"
+#include "quaternionroom.h"
+#include "timelinewidget.h"
 
 #include <Quotient/events/roommessageevent.h>
-#include <Quotient/user.h>
-#include <Quotient/uri.h>
 #include <Quotient/settings.h>
+#include <Quotient/uri.h>
+#include <Quotient/user.h>
 
-#include "mainwindow.h"
-#include "timelinewidget.h"
-#include "quaternionroom.h"
-#include "chatedit.h"
-#include "htmlfilter.h"
-#include "logging_categories.h"
+#include <QtCore/QLocale>
+#include <QtCore/QMimeData>
+#include <QtCore/QMimeDatabase>
+#include <QtCore/QRegularExpression>
+#include <QtCore/QStringBuilder>
+#include <QtCore/QTemporaryFile>
 
 using namespace Qt::StringLiterals;
+namespace HtmlFilter = Quotient::HtmlFilter;
 
 static auto DefaultPlaceholderText()
 {
@@ -659,8 +659,8 @@ QString ChatRoomWidget::sendCommand(QStringView command,
         // filterMatrixHtmlToPlainText() one day instead...); then convert
         // back to Matrix HTML to produce the (clean) rich text version
         // of the message
-        const auto& [cleanQtHtml, errorPos, errorString] =
-            HtmlFilter::fromMatrixHtml(argString, { currentRoom() }, HtmlFilter::Validate);
+        const auto [cleanQtHtml, errorPos, errorString] =
+          fromMatrix(argString, {currentRoom()}, HtmlFilter::Validate);
         if (errorPos != -1)
             return tr("At character %1: %2",
                       "%1 is a position of the error; %2 is the error message")
@@ -842,7 +842,7 @@ QString ChatRoomWidget::matrixHtmlFromMime(const QMimeData* data) const
 {
     QUO_CHECK(data->hasHtml());
     const auto [cleanHtml, errorPos, errorString] =
-        HtmlFilter::fromLocalHtml(data->html(), { currentRoom() });
+      HtmlFilter::fromLocal(data->html(), {currentRoom()});
     if (errorPos != -1) {
         qCWarning(MSGINPUT) << "HTML validation failed at position" << errorPos << "with error"
                             << errorString;

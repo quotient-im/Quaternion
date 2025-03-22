@@ -14,7 +14,6 @@ QUO_LOGGING_CATEGORY(ACCOUNTSELECTOR, "quaternion.accountselector")
 QUO_LOGGING_CATEGORY(MODELS, "quaternion.models")
 QUO_LOGGING_CATEGORY(EVENTMODEL, "quaternion.models.events")
 QUO_LOGGING_CATEGORY(TIMELINE, "quaternion.timeline")
-QUO_LOGGING_CATEGORY(HTMLFILTER, "quaternion.htmlfilter")
 QUO_LOGGING_CATEGORY(MSGINPUT, "quaternion.messageinput")
 QUO_LOGGING_CATEGORY(THUMBNAILS, "quaternion.thumbnails")
 

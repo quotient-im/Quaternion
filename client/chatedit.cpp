@@ -9,7 +9,6 @@
 #include "chatedit.h"
 
 #include "chatroomwidget.h"
-#include "htmlfilter.h"
 #include "timelinewidget.h"
 #include "logging_categories.h"
 

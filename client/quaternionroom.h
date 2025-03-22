@@ -8,10 +8,8 @@
 
 #pragma once
 
-#include "htmlfilter.h"
-
 #include <Quotient/csapi/rooms.h>
-
+#include <Quotient/htmlfilter.h>
 #include <Quotient/room.h>
 
 #include <QtCore/QDeadlineTimer>
@@ -60,7 +58,7 @@ public:
                                                           const QString& originEventId);
 
     void sendMessage(const QTextDocumentFragment& richText,
-                     HtmlFilter::Options htmlFilterOptions = HtmlFilter::Default);
+                     Quotient::HtmlFilter::Options htmlFilterOptions = Quotient::HtmlFilter::Default);
 
 private:
     using EventPromise = QPromise<void>;

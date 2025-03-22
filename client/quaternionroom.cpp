@@ -261,14 +261,14 @@ void QuaternionRoom::checkForRequestedEvents(const rev_iter_t& from)
 }
 
 void QuaternionRoom::sendMessage(const QTextDocumentFragment& richText,
-                                 HtmlFilter::Options htmlFilterOptions)
+                                 Quotient::HtmlFilter::Options htmlFilterOptions)
 {
+    using namespace Quotient;
     const auto& plainText = richText.toPlainText();
-    const auto& html = HtmlFilter::toMatrixHtml(richText.toHtml(), { this }, htmlFilterOptions);
+    const auto& html = HtmlFilter::toMatrix(richText.toHtml(), { this }, htmlFilterOptions);
     Q_ASSERT(!plainText.isEmpty());
     // Send plain text if htmlText has no markup or just <br/> elements
     // (those are easily represented as line breaks in plain text)
-    using namespace Quotient;
     static const QRegularExpression MarkupRE{ "<(?![Bb][Rr])"_L1 };
     // TODO: use Room::postText() once we're on lib 0.9.3+
     post<RoomMessageEvent>(plainText, MessageEventType::Text,

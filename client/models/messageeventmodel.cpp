@@ -8,26 +8,26 @@
 
 #include "messageeventmodel.h"
 
-#include <QtCore/QDebug>
-#include <QtGui/QPalette>
-#include <QtQml> // for qmlRegisterType()
-
-#include "../quaternionroom.h"
-#include "../htmlfilter.h"
 #include "../logging_categories.h"
+#include "../quaternionroom.h"
 
-#include <Quotient/connection.h>
-#include <Quotient/user.h>
-#include <Quotient/settings.h>
 #include <Quotient/events/encryptionevent.h>
-#include <Quotient/events/roommemberevent.h>
-#include <Quotient/events/simplestateevents.h>
+#include <Quotient/events/reactionevent.h>
 #include <Quotient/events/redactionevent.h>
 #include <Quotient/events/roomavatarevent.h>
-#include <Quotient/events/roomcreateevent.h>
-#include <Quotient/events/roomtombstoneevent.h>
 #include <Quotient/events/roomcanonicalaliasevent.h>
-#include <Quotient/events/reactionevent.h>
+#include <Quotient/events/roomcreateevent.h>
+#include <Quotient/events/roommemberevent.h>
+#include <Quotient/events/roomtombstoneevent.h>
+#include <Quotient/events/simplestateevents.h>
+#include <Quotient/connection.h>
+#include <Quotient/htmlfilter.h>
+#include <Quotient/settings.h>
+#include <Quotient/user.h>
+
+#include <QtQml> // for qmlRegisterType()
+#include <QtCore/QDebug>
+#include <QtGui/QPalette>
 
 namespace {
 // TODO: move to libQuotient; duplicate in profiledialog.cpp
@@ -481,9 +481,9 @@ QString MessageEventModel::visualiseEvent(const Quotient::RoomEvent& evt, bool a
             if (e.has<TextContent>() && e.mimeType().name() != "text/plain") {
                 // Naïvely assume that it's HTML
                 auto htmlBody = e.get<TextContent>()->body;
+                using namespace Quotient::HtmlFilter;
                 auto [cleanHtml, errorPos, errorString] =
-                    HtmlFilter::fromMatrixHtml(htmlBody, { m_currentRoom, e.id() },
-                                               HtmlFilter::StripMxReply);
+                  fromMatrix(htmlBody, {m_currentRoom, e.id()}, StripMxReply);
                 // If HTML is bad (or it's not HTML at all), fall back
                 // to returning the prettified plain text
                 if (errorPos != -1) {

@@ -148,7 +148,6 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE)
 # Set up source files
 target_sources(${PROJECT_NAME} PRIVATE
     client/quaternionroom.cpp client/quaternionroom.h
-    client/htmlfilter.cpp client/htmlfilter.h
     client/activitydetector.cpp client/activitydetector.h
     client/dialog.cpp client/dialog.h
     client/logindialog.cpp client/logindialog.h
