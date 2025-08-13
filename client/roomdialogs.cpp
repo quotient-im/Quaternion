@@ -138,13 +138,15 @@ void RoomDialogBase::refillVersionSelector(QComboBox* selector, Connection* acco
     });
 }
 
-void RoomDialogBase::addEssentials(QWidget* accountControl,
-                                   QLayout* versionBox)
+void RoomDialogBase::addEssentials(QWidget* accountControl, QLayout* versionBox)
 {
     Q_ASSERT(accountControl != nullptr && versionBox != nullptr);
     auto* layout = essentialsLayout ? essentialsLayout : mainFormLayout;
     layout->insertRow(0, tr("Account"), accountControl);
-    layout->insertRow(1, tr("Room version"), versionBox);
+    auto* versionLabel = makeBuddyLabel(tr("Room version"), versionBox->itemAt(0)->widget());
+    layout->insertRow(1, versionLabel, versionBox);
+    versionLabel->setSizePolicy(versionLabel->sizePolicy().horizontalPolicy(),
+                                QSizePolicy::MinimumExpanding);
 }
 
 bool RoomDialogBase::checkRoomVersion(QString version, Connection* account)
