@@ -93,6 +93,7 @@ RoomDialogBase::RoomDialogBase(const QString& title,
 QComboBox* RoomDialogBase::addVersionSelector(QLayout* layout)
 {
     auto* versionSelector = new QComboBox;
+    versionSelector->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     layout->addWidget(versionSelector);
     {
         auto* specLink =
@@ -104,13 +105,14 @@ QComboBox* RoomDialogBase::addVersionSelector(QLayout* layout)
     return versionSelector;
 }
 
-void RoomDialogBase::refillVersionSelector(QComboBox* selector,
-                                           Connection* account)
+void RoomDialogBase::refillVersionSelector(QComboBox* selector, Connection* account)
 {
+    if (futureRoomVersions.isRunning())
+        futureRoomVersions.cancel();
     selector->clear();
     selector->addItem(tr("(loading)", "Loading room versions from the server"), QString());
     selector->setEnabled(false);
-    account->loadCapabilities().then([selector, account] {
+    futureRoomVersions = account->loadCapabilities().then([selector, account] {
         selector->clear();
         const auto& versions = account->availableRoomVersions();
         if (versions.empty()) {
@@ -265,18 +267,20 @@ bool RoomSettingsDialog::validate()
 
 void RoomSettingsDialog::apply()
 {
-    using Quotient::Room;
+    using namespace Quotient;
     if (version->text() != room->version())
     {
         setStatusMessage(tr("Creating the new room version, please wait"));
-        connectUntil(room, &Room::upgraded, this,
-            [this] (const QString&, Room* newRoom) {
+        room->upgrade(version->text())
+          .then([this](Expected<Room*, BaseJob::Status>&& r)
+        {
+            if (r) {
                 accept();
-                static_cast<MainWindow*>(parent())->selectRoom(newRoom);
-                return true;
-            });
-        connect(room, &Room::upgradeFailed, this, &Dialog::applyFailed, Qt::SingleShotConnection);
-        room->switchVersion(version->text());
+                static_cast<MainWindow*>(parent())->selectRoom(r.value());
+            } else {
+                applyFailed(r.error().message);
+            }
+        }).onCanceled([this] { applyFailed(tr("Upgrade was cancelled")); });
         return; // It's either a version upgrade or everything else
     }
     if (roomName->text() != room->name())

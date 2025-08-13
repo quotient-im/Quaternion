@@ -8,6 +8,7 @@
 
 #include "dialog.h"
 
+#include <QtCore/QFuture>
 #include <QtCore/QHash>
 
 namespace Quotient {
@@ -56,6 +57,9 @@ class RoomDialogBase : public Dialog
         void refillVersionSelector(QComboBox* selector, Connection* account);
         void addEssentials(QWidget* accountControl, QLayout* versionBox);
         bool checkRoomVersion(QString version, Connection* account);
+
+    private:
+        QFuture<void> futureRoomVersions{};
 };
 
 class RoomSettingsDialog : public RoomDialogBase
