@@ -5,6 +5,7 @@ build_dir
 .directory
 CMakeLists.txt.user*
 .idea
+.cursor
 
 flatpak/app
 flatpak/.flatpak-builder
@@ -16,5 +17,6 @@ Makefile
 quaternion_autogen/
 .cmake/
 .qmlls.ini
+.cache
 
 .DS_Store
