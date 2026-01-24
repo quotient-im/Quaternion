@@ -5,6 +5,7 @@ Image {
     readonly property var forRoom: root.room
     /* readonly */ property var forMember
 
+    property string memberId: forMember?.id ?? ""
     property string sourceId: forMember?.avatarUrl ?? forRoom?.avatarUrl ?? ""
     source: sourceId
     cache: false // Quotient::Avatar takes care of caching
@@ -16,10 +17,10 @@ Image {
     }
 
     Connections {
-        target: forRoom
+        target: avatar.forRoom
         function onAvatarChanged() { avatar.reload() }
         function onMemberAvatarUpdated(member) {
-            if (avatar.forMember && member?.id === avatar.forMember.id)
+            if (avatar.memberId && member?.id === avatar.memberId)
                 avatar.reload()
         }
     }
