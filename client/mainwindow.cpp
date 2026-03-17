@@ -1125,7 +1125,7 @@ void MainWindow::openResource(const QString& idOrUri, const QString& action)
                                             tr("%1 wasn't found in your room list. Would you like to join?")
                                             .arg(idOrUri));
         if (join == QMessageBox::Yes)
-            std::cout << "QT6 HELL YEA" << std::endl;
+            joinRoom(account, uri.primaryId());
     }
     else // Invalid cases should have been eliminated earlier
     {
