@@ -497,9 +497,14 @@ QString MessageEventModel::visualiseEvent(const Quotient::RoomEvent& evt, bool a
                 return cleanHtml;
             }
             if (const auto fileContent = e.get<FileContentBase>()) {
-                auto fileCaption = fileContent->commonInfo().originalName.toHtmlEscaped();
-                if (fileCaption.isEmpty())
-                    fileCaption = m_currentRoom->prettyPrint(e.plainBody());
+                auto body = e.plainBody();
+                auto filename = fileContent->commonInfo().originalName.toHtmlEscaped();
+                //  In the case that no caption was provided, the filename occupies the body field
+                //  so perform a check here so as not to produce (filename + filename)
+                auto fileCaption = body != filename
+                ? ("<p>" + body + "</p>") + filename
+                : filename;
+
                 return !fileCaption.isEmpty() ? fileCaption : tr("a file");
             }
             return m_currentRoom->prettyPrint(e.plainBody());
