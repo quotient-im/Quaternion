@@ -1123,7 +1123,7 @@ void MainWindow::openResource(const QString& idOrUri, const QString& action)
     {
         QMessageBox::StandardButton join = QMessageBox::question(this, tr("Join room?"), 
                                             tr("%1 wasn't found in your room list. Would you like to join?")
-                                            .arg(idOrUri));
+                                            .arg(uri.primaryId()));
         if (join == QMessageBox::Yes)
             joinRoom(account, uri.primaryId());
     }
