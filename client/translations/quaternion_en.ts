@@ -88,13 +88,13 @@
         <translation>There&apos;s no such /command outside of room.</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="666"/>
+        <location filename="../chatroomwidget.cpp" line="665"/>
         <source>At character %1: %2</source>
         <comment>%1 is a position of the error; %2 is the error message</comment>
         <translation>At character %1: %2</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="711"/>
+        <location filename="../chatroomwidget.cpp" line="710"/>
         <source>You should select a room to send messages.</source>
         <translation>You should select a room to send messages.</translation>
     </message>
@@ -165,7 +165,7 @@
     </message>
     <message>
         <location filename="../chatroomwidget.cpp" line="538"/>
-        <location filename="../chatroomwidget.cpp" line="684"/>
+        <location filename="../chatroomwidget.cpp" line="683"/>
         <source>%1 doesn&apos;t look like a user id</source>
         <translation>%1 doesn&apos;t look like a user id</translation>
     </message>
@@ -210,32 +210,32 @@
         <translation>/notice needs an argument</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="625"/>
+        <location filename="../chatroomwidget.cpp" line="624"/>
         <source>/%1 &lt;memberId&gt; &lt;message&gt;</source>
         <translation>/%1 &lt;memberId&gt; &lt;message&gt;</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="633"/>
+        <location filename="../chatroomwidget.cpp" line="632"/>
         <source>%1 doesn&apos;t seem to have joined room %2</source>
         <translation>%1 doesn&apos;t seem to have joined room %2</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="644"/>
+        <location filename="../chatroomwidget.cpp" line="643"/>
         <source>%1 doesn&apos;t look like a user id or room alias</source>
         <translation>%1 doesn&apos;t look like a user id or room alias</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="682"/>
+        <location filename="../chatroomwidget.cpp" line="681"/>
         <source>/%1 &lt;memberId&gt;</source>
         <translation>/%1 &lt;memberId&gt;</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="691"/>
+        <location filename="../chatroomwidget.cpp" line="690"/>
         <source>Unknown /command. If you intended to send a message, start with // instead of /</source>
         <translation>Unknown /command. If you intended to send a message, start with // instead of /</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="850"/>
+        <location filename="../chatroomwidget.cpp" line="849"/>
         <source>Cannot insert HTML - it&apos;s either invalid or unsupported</source>
         <translation>Cannot insert HTML - it&apos;s either invalid or unsupported</translation>
     </message>
@@ -1291,213 +1291,213 @@ or alias (starting with #)</translation>
     </message>
     <message>
         <location filename="../models/messageeventmodel.cpp" line="470"/>
-        <location filename="../models/messageeventmodel.cpp" line="706"/>
+        <location filename="../models/messageeventmodel.cpp" line="712"/>
         <source>Redacted</source>
         <translation>Redacted</translation>
     </message>
     <message>
         <location filename="../models/messageeventmodel.cpp" line="472"/>
-        <location filename="../models/messageeventmodel.cpp" line="707"/>
+        <location filename="../models/messageeventmodel.cpp" line="713"/>
         <source>Redacted: %1</source>
         <translation>Redacted: %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="503"/>
+        <location filename="../models/messageeventmodel.cpp" line="509"/>
         <source>a file</source>
         <translation>a file</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="517"/>
+        <location filename="../models/messageeventmodel.cpp" line="523"/>
         <source>invited %1 to the room</source>
         <translation>invited %1 to the room</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="519"/>
+        <location filename="../models/messageeventmodel.cpp" line="525"/>
         <source>joined the room</source>
         <translation>joined the room</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="525"/>
+        <location filename="../models/messageeventmodel.cpp" line="531"/>
         <source>(repeated)</source>
         <extracomment>State event that doesn&apos;t change the state</extracomment>
         <translation>(repeated)</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="535"/>
+        <location filename="../models/messageeventmodel.cpp" line="541"/>
         <source>cleared the display name</source>
         <translation>cleared the display name</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="538"/>
+        <location filename="../models/messageeventmodel.cpp" line="544"/>
         <source>changed the display name to %1</source>
         <translation>changed the display name to %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="544"/>
+        <location filename="../models/messageeventmodel.cpp" line="550"/>
         <source> and </source>
         <translation> and </translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="546"/>
+        <location filename="../models/messageeventmodel.cpp" line="552"/>
         <source>cleared the avatar</source>
         <translation>cleared the avatar</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="547"/>
+        <location filename="../models/messageeventmodel.cpp" line="553"/>
         <source>updated the avatar</source>
         <translation>updated the avatar</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="554"/>
+        <location filename="../models/messageeventmodel.cpp" line="560"/>
         <source>withdrew %1&apos;s invitation</source>
         <translation>withdrew %1&apos;s invitation</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="555"/>
+        <location filename="../models/messageeventmodel.cpp" line="561"/>
         <source>rejected the invitation</source>
         <translation>rejected the invitation</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="559"/>
+        <location filename="../models/messageeventmodel.cpp" line="565"/>
         <source>unbanned %1</source>
         <translation>unbanned %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="560"/>
+        <location filename="../models/messageeventmodel.cpp" line="566"/>
         <source>self-unbanned</source>
         <translation>self-unbanned</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="564"/>
+        <location filename="../models/messageeventmodel.cpp" line="570"/>
         <source>kicked %1 from the room</source>
         <translation>kicked %1 from the room</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="565"/>
+        <location filename="../models/messageeventmodel.cpp" line="571"/>
         <source>kicked %1 from the room: %2</source>
         <translation>kicked %1 from the room: %2</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="567"/>
+        <location filename="../models/messageeventmodel.cpp" line="573"/>
         <source>left the room</source>
         <translation>left the room</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="571"/>
+        <location filename="../models/messageeventmodel.cpp" line="577"/>
         <source>banned %1 from the room</source>
         <translation>banned %1 from the room</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="572"/>
+        <location filename="../models/messageeventmodel.cpp" line="578"/>
         <source>banned %1 from the room: %2</source>
         <translation>banned %1 from the room: %2</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="574"/>
+        <location filename="../models/messageeventmodel.cpp" line="580"/>
         <source>self-banned from the room</source>
         <translation>self-banned from the room</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="575"/>
+        <location filename="../models/messageeventmodel.cpp" line="581"/>
         <source>knocked</source>
         <translation>knocked</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="578"/>
+        <location filename="../models/messageeventmodel.cpp" line="584"/>
         <source>made something unknown</source>
         <translation>made something unknown</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="581"/>
+        <location filename="../models/messageeventmodel.cpp" line="587"/>
         <source>cleared the room main alias</source>
         <translation>cleared the room main alias</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="582"/>
+        <location filename="../models/messageeventmodel.cpp" line="588"/>
         <source>set the room main alias to: %1</source>
         <translation>set the room main alias to: %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="586"/>
+        <location filename="../models/messageeventmodel.cpp" line="592"/>
         <source>cleared the room name</source>
         <translation>cleared the room name</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="587"/>
+        <location filename="../models/messageeventmodel.cpp" line="593"/>
         <source>set the room name to: %1</source>
         <translation>set the room name to: %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="591"/>
+        <location filename="../models/messageeventmodel.cpp" line="597"/>
         <source>cleared the topic</source>
         <translation>cleared the topic</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="592"/>
+        <location filename="../models/messageeventmodel.cpp" line="598"/>
         <source>set the topic to: %1</source>
         <translation>set the topic to: %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="594"/>
+        <location filename="../models/messageeventmodel.cpp" line="600"/>
         <source>changed the room avatar</source>
         <translation>changed the room avatar</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="595"/>
+        <location filename="../models/messageeventmodel.cpp" line="601"/>
         <source>activated End-to-End Encryption</source>
         <translation>activated End-to-End Encryption</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="597"/>
+        <location filename="../models/messageeventmodel.cpp" line="603"/>
         <source>upgraded the room to version %1</source>
         <translation>upgraded the room to version %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="598"/>
+        <location filename="../models/messageeventmodel.cpp" line="604"/>
         <source>created the room, version %1</source>
         <translation>created the room, version %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="602"/>
+        <location filename="../models/messageeventmodel.cpp" line="608"/>
         <source>upgraded the room: %1</source>
         <translation>upgraded the room: %1</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="604"/>
+        <location filename="../models/messageeventmodel.cpp" line="610"/>
         <source>Could not decrypt the event</source>
         <translation>Could not decrypt the event</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="608"/>
+        <location filename="../models/messageeventmodel.cpp" line="614"/>
         <source>updated the database</source>
         <comment>TWIM bot updated the database</comment>
         <translation>updated the database</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="610"/>
+        <location filename="../models/messageeventmodel.cpp" line="616"/>
         <source>updated %1 state</source>
         <comment>%1 - Matrix event type</comment>
         <translation>updated %1 state</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="611"/>
+        <location filename="../models/messageeventmodel.cpp" line="617"/>
         <source>updated %1 state for %2</source>
         <comment>%1 - Matrix event type, %2 - state key</comment>
         <translation>updated %1 state for %2</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="614"/>
+        <location filename="../models/messageeventmodel.cpp" line="620"/>
         <source>Unknown event</source>
         <translation>Unknown event</translation>
     </message>
     <message>
-        <location filename="../models/messageeventmodel.cpp" line="737"/>
+        <location filename="../models/messageeventmodel.cpp" line="743"/>
         <source>(loading)</source>
         <extracomment>The line to show instead of the replied-to event content while getting it from the homeserver</extracomment>
         <translation>(loading)</translation>
     </message>
     <message numerus="yes">
-        <location filename="../models/messageeventmodel.cpp" line="850"/>
+        <location filename="../models/messageeventmodel.cpp" line="856"/>
         <source>%Ln more member(s)</source>
         <extracomment>When the reaction comes from too many members</extracomment>
         <translation>
