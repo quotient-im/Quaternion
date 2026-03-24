@@ -88,13 +88,13 @@
         <translation>There&apos;s no such /command outside of room.</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="666"/>
+        <location filename="../chatroomwidget.cpp" line="665"/>
         <source>At character %1: %2</source>
         <comment>%1 is a position of the error; %2 is the error message</comment>
         <translation>At character %1: %2</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="711"/>
+        <location filename="../chatroomwidget.cpp" line="710"/>
         <source>You should select a room to send messages.</source>
         <translation>You should select a room to send messages.</translation>
     </message>
@@ -165,7 +165,7 @@
     </message>
     <message>
         <location filename="../chatroomwidget.cpp" line="538"/>
-        <location filename="../chatroomwidget.cpp" line="684"/>
+        <location filename="../chatroomwidget.cpp" line="683"/>
         <source>%1 doesn&apos;t look like a user id</source>
         <translation>%1 doesn&apos;t look like a user id</translation>
     </message>
@@ -210,32 +210,32 @@
         <translation>/notice needs an argument</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="625"/>
+        <location filename="../chatroomwidget.cpp" line="624"/>
         <source>/%1 &lt;memberId&gt; &lt;message&gt;</source>
         <translation>/%1 &lt;memberId&gt; &lt;message&gt;</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="633"/>
+        <location filename="../chatroomwidget.cpp" line="632"/>
         <source>%1 doesn&apos;t seem to have joined room %2</source>
         <translation>%1 doesn&apos;t seem to have joined room %2</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="644"/>
+        <location filename="../chatroomwidget.cpp" line="643"/>
         <source>%1 doesn&apos;t look like a user id or room alias</source>
         <translation>%1 doesn&apos;t look like a user id or room alias</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="682"/>
+        <location filename="../chatroomwidget.cpp" line="681"/>
         <source>/%1 &lt;memberId&gt;</source>
         <translation>/%1 &lt;memberId&gt;</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="691"/>
+        <location filename="../chatroomwidget.cpp" line="690"/>
         <source>Unknown /command. If you intended to send a message, start with // instead of /</source>
         <translation>Unknown /command. If you intended to send a message, start with // instead of /</translation>
     </message>
     <message>
-        <location filename="../chatroomwidget.cpp" line="850"/>
+        <location filename="../chatroomwidget.cpp" line="849"/>
         <source>Cannot insert HTML - it&apos;s either invalid or unsupported</source>
         <translation>Cannot insert HTML - it&apos;s either invalid or unsupported</translation>
     </message>
@@ -704,6 +704,16 @@ User-defined tags should start with &quot;u.&quot;</translation>
         <translation>Can&apos;t find the event without knowing the room</translation>
     </message>
     <message>
+        <location filename="../mainwindow.cpp" line="1124"/>
+        <source>Join room?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1125"/>
+        <source>%1 wasn&apos;t found in your room list. Would you like to join?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../mainwindow.cpp" line="326"/>
         <source>Create &amp;new room...</source>
         <translation>Create &amp;new room...</translation>
@@ -1114,7 +1124,7 @@ Is that right?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1087"/>
-        <location filename="../mainwindow.cpp" line="1210"/>
+        <location filename="../mainwindow.cpp" line="1215"/>
         <source>Please connect to a server</source>
         <translation>Please connect to a server</translation>
     </message>
@@ -1139,135 +1149,125 @@ Is that right?</translation>
         <translation>Confirm your account to open %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1123"/>
-        <source>Room not found</source>
-        <translation>Room not found</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="1124"/>
-        <source>There&apos;s no room %1 in the room list. Check the spelling and the account.</source>
-        <translation>There&apos;s no room %1 in the room list. Check the spelling and the account.</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="1193"/>
+        <location filename="../mainwindow.cpp" line="1198"/>
         <source>Confirm account</source>
         <translation>Confirm account</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1220"/>
+        <location filename="../mainwindow.cpp" line="1225"/>
         <source>Open room</source>
         <translation>Open room</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1221"/>
+        <location filename="../mainwindow.cpp" line="1226"/>
         <source>Room or user ID, room alias,
 Matrix URI or matrix.to link</source>
         <translation>Room or user ID, room alias,
 Matrix URI or matrix.to link</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1222"/>
+        <location filename="../mainwindow.cpp" line="1227"/>
         <source>Go to room</source>
         <translation>Go to room</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1223"/>
-        <location filename="../mainwindow.cpp" line="1225"/>
+        <location filename="../mainwindow.cpp" line="1228"/>
+        <location filename="../mainwindow.cpp" line="1230"/>
         <source>Join room</source>
         <translation>Join room</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1224"/>
+        <location filename="../mainwindow.cpp" line="1229"/>
         <source>Room ID (starting with !)
 or alias (starting with #)</source>
         <translation>Room ID (starting with !)
 or alias (starting with #)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1239"/>
+        <location filename="../mainwindow.cpp" line="1244"/>
         <source>Account</source>
         <translation>Account</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1298"/>
+        <location filename="../mainwindow.cpp" line="1303"/>
         <source>Chat with user</source>
         <comment>On a button in &apos;Open room&apos; dialog when a user identifier is entered</comment>
         <translation>Chat with user</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1305"/>
+        <location filename="../mainwindow.cpp" line="1310"/>
         <source>Can&apos;t open</source>
         <comment>On a disabled button in &apos;Open room&apos; dialog when an invalid/unsupported URI is entered</comment>
         <translation>Can&apos;t open</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1327"/>
+        <location filename="../mainwindow.cpp" line="1332"/>
         <source>Could not resolve id</source>
         <translation>Could not resolve id</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1329"/>
+        <location filename="../mainwindow.cpp" line="1334"/>
         <source>Could not find an external application to open the URI:</source>
         <translation>Could not find an external application to open the URI:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1330"/>
+        <location filename="../mainwindow.cpp" line="1335"/>
         <source>Could not resolve Matrix identifier</source>
         <translation>Could not resolve Matrix identifier</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1335"/>
+        <location filename="../mainwindow.cpp" line="1340"/>
         <source>Incorrect action on a Matrix resource</source>
         <translation>Incorrect action on a Matrix resource</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1336"/>
+        <location filename="../mainwindow.cpp" line="1341"/>
         <source>The URI contains an action &apos;%1&apos; that cannot be applied to Matrix resource %2</source>
         <translation>The URI contains an action &apos;%1&apos; that cannot be applied to Matrix resource %2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1352"/>
+        <location filename="../mainwindow.cpp" line="1357"/>
         <source>Couldn&apos;t connect to the server as %1; will retry within %2 seconds</source>
         <translation>Couldn&apos;t connect to the server as %1; will retry within %2 seconds</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1367"/>
+        <location filename="../mainwindow.cpp" line="1372"/>
         <source>Reconnecting...</source>
         <translation>Reconnecting...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1383"/>
+        <location filename="../mainwindow.cpp" line="1388"/>
         <source>No SSL support</source>
         <translation>No SSL support</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1386"/>
+        <location filename="../mainwindow.cpp" line="1391"/>
         <source>Your SSL configuration does not allow Quaternion to establish secure connections.</source>
         <translation>Your SSL configuration does not allow Quaternion to establish secure connections.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1393"/>
+        <location filename="../mainwindow.cpp" line="1398"/>
         <source>SSL error</source>
         <translation>SSL error</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1411"/>
+        <location filename="../mainwindow.cpp" line="1416"/>
         <source>Proxy needs authentication</source>
         <translation>Proxy needs authentication</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1413"/>
+        <location filename="../mainwindow.cpp" line="1418"/>
         <source>Authenticate</source>
         <comment>Authenticate with the proxy server</comment>
         <translation>Authenticate</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1417"/>
+        <location filename="../mainwindow.cpp" line="1422"/>
         <source>User name</source>
         <translation>User name</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1420"/>
+        <location filename="../mainwindow.cpp" line="1425"/>
         <source>Password</source>
         <translation>Password</translation>
     </message>
