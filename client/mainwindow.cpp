@@ -1121,7 +1121,7 @@ void MainWindow::openResource(const QString& idOrUri, const QString& action)
     const auto result = visitResource(account, uri);
     if (result == Quotient::CouldNotResolve)
     {
-        QMessageBox::StandardButton join = QMessageBox::question(this, tr("Join room?"), 
+        QMessageBox::StandardButton join = QMessageBox::question(this, tr("Join room?"),
                                             tr("%1 wasn't found in your room list. Would you like to join?")
                                             .arg(uri.primaryId()));
         if (join == QMessageBox::Yes)
