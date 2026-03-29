@@ -189,10 +189,12 @@ void TimelineWidget::showMenu(int index, const QString& hoveredLink,
         auto plainText = modelIndex.data().toString();
         menu->addAction(QIcon::fromTheme("edit-delete"), tr("Redact"), this,
                         [this, eventId, plainText] { 
-                            QMessageBox::question(this, tr("Confirm redaction"),
-                            tr("Are you sure you want to redact the following message?: %1")
-                            .arg("\"" + plainText + "\""));
-                            // currentRoom()->redactEvent(eventId); 
+                            QMessageBox::StandardButton join = QMessageBox::question(this, tr("Confirm redaction"),
+                                tr("Are you sure you want to redact the following message?: %1")
+                                .arg("\"" + plainText + "\""));
+                
+                            if(join == QMessageBox::Yes)
+                                currentRoom()->redactEvent(eventId); 
                         });
     }
 
