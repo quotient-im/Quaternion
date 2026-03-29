@@ -18,6 +18,7 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMenu>
+#include <QtWidgets/QMessageBox>
 
 #include <QtCore/QStringBuilder>
 #include <QtGui/QClipboard>
@@ -185,7 +186,11 @@ void TimelineWidget::showMenu(int index, const QString& hoveredLink,
 
     if (currentRoom()->canRedact(eventId))
         menu->addAction(QIcon::fromTheme("edit-delete"), tr("Redact"), this,
-                        [this, eventId] { currentRoom()->redactEvent(eventId); });
+                        [this, eventId, hoveredLink] { 
+                            QMessageBox::question(this, tr("Confirm redaction"),
+                            tr("Are you sure you want to redact the following message?");
+                            // currentRoom()->redactEvent(eventId); 
+                        });
 
     if (!selectedText.isEmpty())
         menu->addAction(tr("Copy selected text to clipboard"), this,
