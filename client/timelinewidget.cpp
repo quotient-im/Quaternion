@@ -191,7 +191,7 @@ void TimelineWidget::showMenu(int index, const QString& hoveredLink,
                         [this, eventId, plainText] { 
                             QMessageBox::question(this, tr("Confirm redaction"),
                             tr("Are you sure you want to redact the following message?: %1")
-                            .arg(plainText));
+                            .arg("\"" + plainText + "\""));
                             // currentRoom()->redactEvent(eventId); 
                         });
     }
