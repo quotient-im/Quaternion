@@ -4,24 +4,22 @@
 #include "logging_categories.h"
 #include "models/messageeventmodel.h"
 
+#include <Quotient/csapi/message_pagination.h>
 #include <Quotient/events/reactionevent.h>
 #include <Quotient/events/roompowerlevelsevent.h>
-
-#include <Quotient/csapi/message_pagination.h>
-
 #include <Quotient/networkaccessmanager.h>
 #include <Quotient/settings.h>
 #include <Quotient/user.h>
 
+#include <QtCore/QStringBuilder>
+#include <QtGui/QClipboard>
+#include <QtGui/QDesktopServices>
 #include <QtQml/QQmlContext>
 #include <QtQml/QQmlEngine>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMenu>
-
-#include <QtCore/QStringBuilder>
-#include <QtGui/QClipboard>
-#include <QtGui/QDesktopServices>
+#include <QtWidgets/QMessageBox>
 
 using namespace Qt::StringLiterals;
 
@@ -37,9 +35,8 @@ TimelineWidget::TimelineWidget(ChatRoomWidget* chatRoomWidget)
     , readMarkerOnScreen(false)
 {
     using namespace Quotient;
-    qmlRegisterUncreatableType<QuaternionRoom>(
-        "Quotient", 1, 0, "Room",
-        "Room objects can only be created by libQuotient");
+    qmlRegisterUncreatableType<QuaternionRoom>("Quotient", 1, 0, "Room",
+                                               "Room objects can only be created by libQuotient");
     qmlRegisterAnonymousType<RoomMember>("Quotient", 1);
     qmlRegisterAnonymousType<GetRoomEventsJob>("Quotient", 1);
     qmlRegisterAnonymousType<MessageEventModel>("Quotient", 1);
@@ -55,8 +52,7 @@ TimelineWidget::TimelineWidget(ChatRoomWidget* chatRoomWidget)
 
     setSource(QUrl(u"qrc:///qml/Timeline.qml"_s));
 
-    connect(&activityDetector, &ActivityDetector::triggered, this,
-            &TimelineWidget::markShownAsRead);
+    connect(&activityDetector, &ActivityDetector::triggered, this, &TimelineWidget::markShownAsRead);
 }
 
 TimelineWidget::~TimelineWidget()
@@ -67,10 +63,7 @@ TimelineWidget::~TimelineWidget()
 
 QString TimelineWidget::selectedText() const { return m_selectedText; }
 
-QuaternionRoom* TimelineWidget::currentRoom() const
-{
-    return m_messageModel->room();
-}
+QuaternionRoom* TimelineWidget::currentRoom() const { return m_messageModel->room(); }
 
 ChatRoomWidget* TimelineWidget::roomWidget() const
 {
@@ -93,11 +86,12 @@ void TimelineWidget::setRoom(QuaternionRoom* newRoom)
 
     m_messageModel->changeRoom(newRoom);
     if (newRoom) {
-        connect(newRoom, &Quotient::Room::fullyReadMarkerMoved, this, [this] {
+        connect(newRoom, &Quotient::Room::fullyReadMarkerMoved, this, [this]
+        {
             const auto rm = currentRoom()->fullyReadMarker();
             readMarkerOnScreen = rm != currentRoom()->historyEdge()
                                  && std::ranges::lower_bound(indicesOnScreen, rm->index())
-                                        != indicesOnScreen.cend();
+                                      != indicesOnScreen.cend();
             reStartShownTimer();
             activityDetector.setEnabled(pendingMarkRead());
         });
@@ -121,18 +115,16 @@ void TimelineWidget::spotlightEvent(const QString& eventId)
 void TimelineWidget::saveFileAs(const QString& eventId)
 {
     if (!currentRoom()) {
-        qCWarning(TIMELINE)
-            << "ChatRoomWidget::saveFileAs without an active room ignored";
+        qCWarning(TIMELINE) << "ChatRoomWidget::saveFileAs without an active room ignored";
         return;
     }
-    const auto fileName = QFileDialog::getSaveFileName(
-        this, tr("Save file as"), currentRoom()->fileNameToDownload(eventId));
+    const auto fileName = QFileDialog::getSaveFileName(this, tr("Save file as"),
+                                                       currentRoom()->fileNameToDownload(eventId));
     if (!fileName.isEmpty())
         currentRoom()->downloadFile(eventId, QUrl::fromLocalFile(fileName));
 }
 
-void TimelineWidget::onMessageShownChanged(int visualIndex, bool shown,
-                                           bool hasReadMarker)
+void TimelineWidget::onMessageShownChanged(int visualIndex, bool shown, bool hasReadMarker)
 {
     const auto* room = currentRoom();
     if (!room || !room->displayed())
@@ -173,94 +165,86 @@ void TimelineWidget::onMessageShownChanged(int visualIndex, bool shown,
     }
 }
 
-void TimelineWidget::showMenu(int index, const QString& hoveredLink,
-                              const QString& selectedText, bool showingDetails)
+void TimelineWidget::showMenu(int index, const QString& hoveredLink, const QString& selectedText,
+                              bool showingDetails)
 {
     const auto modelIndex = m_messageModel->index(index, 0);
-    const auto eventId =
-        modelIndex.data(MessageEventModel::EventIdRole).toString();
+    const auto eventId = modelIndex.data(MessageEventModel::EventIdRole).toString();
 
     auto menu = new QMenu(this);
     menu->setAttribute(Qt::WA_DeleteOnClose);
 
-    if (currentRoom()->canRedact(eventId))
+    if (currentRoom()->canRedact(eventId)) {
+        auto plainText = modelIndex.data().toString();
         menu->addAction(QIcon::fromTheme("edit-delete"), tr("Redact"), this,
-                        [this, eventId] { currentRoom()->redactEvent(eventId); });
+                        [this, eventId, plainText]
+        {
+            if (QMessageBox::question(this, tr("Confirm redaction"),
+                                      tr("Are you sure you want to redact the following message?: \"%1\"")
+                                        .arg(plainText.left(100)))
+                 == QMessageBox::Yes)
+                currentRoom()->redactEvent(eventId);
+        });
+    }
 
     if (!selectedText.isEmpty())
         menu->addAction(tr("Copy selected text to clipboard"), this,
-                        [selectedText] {
-                            QApplication::clipboard()->setText(selectedText);
-                        });
+                        [selectedText] { QApplication::clipboard()->setText(selectedText); });
 
     if (!hoveredLink.isEmpty())
-        menu->addAction(tr("Copy link to clipboard"), this, [hoveredLink] {
-            QApplication::clipboard()->setText(hoveredLink);
-        });
+        menu->addAction(tr("Copy link to clipboard"), this,
+                        [hoveredLink] { QApplication::clipboard()->setText(hoveredLink); });
 
-    menu->addAction(QIcon::fromTheme("link"), tr("Copy permalink to clipboard"),
-                    [this, eventId] {
-                        QApplication::clipboard()->setText(
-                            "https://matrix.to/#/" + currentRoom()->id() + "/"
-                            + QUrl::toPercentEncoding(eventId));
-                    });
+    menu->addAction(QIcon::fromTheme("link"), tr("Copy permalink to clipboard"), [this, eventId]
+    {
+        QApplication::clipboard()->setText("https://matrix.to/#/" + currentRoom()->id() + "/"
+                                           + QUrl::toPercentEncoding(eventId));
+    });
     menu->addAction(QIcon::fromTheme("format-text-blockquote"),
                     tr("Quote", "a verb (do quote), not a noun (a quote)"),
                     [this, modelIndex] { roomWidget()->quote(modelIndex.data().toString()); });
 
-    auto a = menu->addAction(QIcon::fromTheme("view-list-details"),
-                             tr("Show details"),
+    auto a = menu->addAction(QIcon::fromTheme("view-list-details"), tr("Show details"),
                              [this, index] { emit showDetails(index); });
     a->setCheckable(true);
     a->setChecked(showingDetails);
 
-    const auto eventType =
-        modelIndex.data(MessageEventModel::EventTypeRole).toString();
+    const auto eventType = modelIndex.data(MessageEventModel::EventTypeRole).toString();
     if (eventType == "image" || eventType == "file") {
         const auto progressInfo =
-            modelIndex.data(MessageEventModel::LongOperationRole).value<Quotient::FileTransferInfo>();
-        const bool downloaded = !progressInfo.isUpload
-                                && progressInfo.completed();
+          modelIndex.data(MessageEventModel::LongOperationRole).value<Quotient::FileTransferInfo>();
+        const bool downloaded = !progressInfo.isUpload && progressInfo.completed();
 
         menu->addSeparator();
         menu->addAction(QIcon::fromTheme("document-open"), tr("Open externally"),
                         [this, index] { emit openExternally(index); });
         if (downloaded) {
             menu->addAction(QIcon::fromTheme("folder-open"), tr("Open Folder"),
-                            [localDir = progressInfo.localDir] {
-                                QDesktopServices::openUrl(localDir);
-                            });
+                            [localDir = progressInfo.localDir]
+            { QDesktopServices::openUrl(localDir); });
             if (eventType == "image") {
                 menu->addAction(tr("Copy image to clipboard"), this,
-                                [imgPath = progressInfo.localPath.path()] {
-                                    QApplication::clipboard()->setImage(
-                                        QImage(imgPath));
-                                });
+                                [imgPath = progressInfo.localPath.path()]
+                { QApplication::clipboard()->setImage(QImage(imgPath)); });
             }
         } else {
             menu->addAction(QIcon::fromTheme("edit-download"), tr("Download"),
-                            [this, eventId] {
-                                currentRoom()->downloadFile(eventId);
-                            });
+                            [this, eventId] { currentRoom()->downloadFile(eventId); });
         }
-        menu->addAction(QIcon::fromTheme("document-save-as"),
-                        tr("Save file as..."),
+        menu->addAction(QIcon::fromTheme("document-save-as"), tr("Save file as..."),
                         [this, eventId] { saveFileAs(eventId); });
     }
     menu->popup(QCursor::pos());
 }
 
-void TimelineWidget::reactionButtonClicked(const QString& eventId,
-                                           const QString& key)
+void TimelineWidget::reactionButtonClicked(const QString& eventId, const QString& key)
 {
     using namespace Quotient;
-    const auto& annotations =
-        currentRoom()->relatedEvents(eventId, EventRelation::AnnotationType);
+    const auto& annotations = currentRoom()->relatedEvents(eventId, EventRelation::AnnotationType);
 
-    for (const auto& a: annotations)
+    for (const auto& a : annotations)
         if (auto* e = eventCast<const ReactionEvent>(a);
-            e != nullptr && e->key() == key
-            && a->senderId() == currentRoom()->localMember().id()) //
+            e != nullptr && e->key() == key && a->senderId() == currentRoom()->localMember().id()) //
         {
             currentRoom()->redactEvent(a->id());
             return;
@@ -289,28 +273,25 @@ void TimelineWidget::ensureLastReadEvent()
     // Store the future as is, without continuations, so that it could be cancelled
     historyRequest = r->ensureHistory(r->lastFullyReadEventId());
     historyRequest
-        .then([this](auto) {
-            qCDebug(TIMELINE,
-                    "Loaded enough history to get the last fully read event, now scrolling");
-            emit viewPositionRequested(
-                m_messageModel->findRow(currentRoom()->lastFullyReadEventId()));
-            emit historyRequestChanged();
-        })
-        .onCanceled([this] { emit historyRequestChanged(); });
+      .then([this](auto)
+    {
+        qCDebug(TIMELINE, "Loaded enough history to get the last fully read event, now scrolling");
+        emit viewPositionRequested(m_messageModel->findRow(currentRoom()->lastFullyReadEventId()));
+        emit historyRequestChanged();
+    }).onCanceled([this] { emit historyRequestChanged(); });
 }
 
 bool TimelineWidget::isHistoryRequestRunning() const { return historyRequest.isRunning(); }
 
 void TimelineWidget::reStartShownTimer()
 {
-    if (!readMarkerOnScreen || indicesOnScreen.empty()
-        || indexToMaybeRead >= indicesOnScreen.back())
+    if (!readMarkerOnScreen || indicesOnScreen.empty() || indexToMaybeRead >= indicesOnScreen.back())
         return;
 
     static Quotient::Settings settings;
-    maybeReadTimer.start(settings.get<int>("UI/maybe_read_timer", 1000), this);
-    qCDebug(TIMELINE) << "Scheduled maybe-read message update:"
-                      << indexToMaybeRead << "->" << indicesOnScreen.back();
+    maybeReadTimer.start(settings.get<int>("UI/maybe_read_timer", 1'000), this);
+    qCDebug(TIMELINE) << "Scheduled maybe-read message update:" << indexToMaybeRead << "->"
+                      << indicesOnScreen.back();
 }
 
 void TimelineWidget::timerEvent(QTimerEvent* qte)
@@ -324,8 +305,8 @@ void TimelineWidget::timerEvent(QTimerEvent* qte)
     if (readMarkerOnScreen && !indicesOnScreen.empty()
         && indexToMaybeRead < indicesOnScreen.back()) //
     {
-        qCDebug(TIMELINE) << "Maybe-read message update:" << indexToMaybeRead
-                          << "->" << indicesOnScreen.back();
+        qCDebug(TIMELINE) << "Maybe-read message update:" << indexToMaybeRead << "->"
+                          << indicesOnScreen.back();
         indexToMaybeRead = indicesOnScreen.back();
         activityDetector.setEnabled(pendingMarkRead());
     }
