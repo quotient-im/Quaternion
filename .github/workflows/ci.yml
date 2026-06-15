@@ -138,7 +138,8 @@ jobs:
       if: "!startsWith(matrix.os, 'ubuntu')"
       run: |
         git clone --depth=1 https://gitlab.matrix.org/matrix-org/olm.git
-        cmake -S olm -B olm/build $CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=~/.local
+        cmake -S olm -B olm/build $CMAKE_ARGS \
+            -DCMAKE_INSTALL_PREFIX=~/.local -DCMAKE_POLICY_VERSION_MINIMUM=3.5
         cmake --build olm/build --target install
 
     - name: Get, build and install libQuotient
