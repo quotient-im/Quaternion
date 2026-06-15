@@ -46,7 +46,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-24.04, macos-latest, windows-latest ]
+        os: [ ubuntu-24.04, macos-14, windows-latest ]
         qt-version: [ 6 ]
         override-compiler: [ '', GCC ] # Defaults: MSVC on Windows, Clang elsewhere
         composition: [ own-quotient, static, dynamic ]
@@ -54,11 +54,11 @@ jobs:
         # Unsupported combinations
         - os: windows-latest
           composition: dynamic
-        - os: macos-latest
+        - os: macos-14
           composition: dynamic
         - os: windows-latest
           override-compiler: GCC
-        - os: macos-latest
+        - os: macos-14
           override-compiler: GCC
         include:
         - os: ubuntu-24.04
@@ -138,7 +138,8 @@ jobs:
       if: "!startsWith(matrix.os, 'ubuntu')"
       run: |
         git clone --depth=1 https://gitlab.matrix.org/matrix-org/olm.git
-        cmake -S olm -B olm/build $CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=~/.local
+        cmake -S olm -B olm/build $CMAKE_ARGS \
+            -DCMAKE_INSTALL_PREFIX=~/.local -DCMAKE_POLICY_VERSION_MINIMUM=3.5
         cmake --build olm/build --target install
 
     - name: Get, build and install libQuotient
