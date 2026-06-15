@@ -1120,12 +1120,17 @@ void MainWindow::openResource(const QString& idOrUri, const QString& action)
     }
     const auto result = visitResource(account, uri);
     if (result == Quotient::CouldNotResolve)
-        QMessageBox::warning(this, tr("Room not found"),
-                             tr("There's no room %1 in the room list."
-                                " Check the spelling and the account.")
-                                 .arg(idOrUri));
+    {
+        QMessageBox::StandardButton join = QMessageBox::question(this, tr("Join room?"),
+                                            tr("%1 wasn't found in your room list. Would you like to join?")
+                                            .arg(uri.primaryId()));
+        if (join == QMessageBox::Yes)
+            joinRoom(account, uri.primaryId());
+    }
     else // Invalid cases should have been eliminated earlier
+    {
         Q_ASSERT(result == Quotient::UriResolved);
+    }
 }
 
 void MainWindow::openRoomSettings(QuaternionRoom* r)

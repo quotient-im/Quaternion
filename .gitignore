@@ -12,6 +12,7 @@ flatpak/.flatpak-builder
 flatpak/repo
 
 CMakeCache.txt
+CMakeFiles/
 cmake_install.cmake
 Makefile
 quaternion_autogen/
@@ -20,3 +21,10 @@ quaternion_autogen/
 .cache
 
 .DS_Store
+
+quaternion
+*.qm
+
+.qt
+.lupdate
+.vscode
