@@ -46,7 +46,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-24.04, macos-latest, windows-latest ]
+        os: [ ubuntu-24.04, macos-14, windows-latest ]
         qt-version: [ 6 ]
         override-compiler: [ '', GCC ] # Defaults: MSVC on Windows, Clang elsewhere
         composition: [ own-quotient, static, dynamic ]
@@ -54,11 +54,11 @@ jobs:
         # Unsupported combinations
         - os: windows-latest
           composition: dynamic
-        - os: macos-latest
+        - os: macos-14
           composition: dynamic
         - os: windows-latest
           override-compiler: GCC
-        - os: macos-latest
+        - os: macos-14
           override-compiler: GCC
         include:
         - os: ubuntu-24.04
