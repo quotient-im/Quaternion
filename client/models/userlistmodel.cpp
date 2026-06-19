@@ -9,13 +9,14 @@
 #include "userlistmodel.h"
 
 #include "../logging_categories.h"
+#include "../quaternionroom.h"
 
 #include <QtCore/QDebug>
-#include <QtGui/QPixmap>
-#include <QtGui/QPalette>
 #include <QtGui/QFontMetrics>
-// Injecting the dependency on a view is not so nice; but the way the model
-// provides avatar decorations depends on the delegate size
+#include <QtGui/QPalette>
+#include <QtGui/QPixmap>
+// Injecting the dependency on a view is not so nice; but the way the model provides avatar
+// decorations depends on the delegate size, and some other defaults come from the view, too
 #include <QtWidgets/QAbstractItemView>
 
 #include <Quotient/connection.h>
@@ -69,19 +70,15 @@ QVariant UserListModel::data(const QModelIndex& index, int role) const
     if( !index.isValid() )
         return QVariant();
 
-    if( index.row() >= m_memberIds.count() )
-    {
-        qCWarning(MODELS) << "UserListModel, something's wrong: index.row() >= "
-                             "m_users.count()";
+    if (QUO_ALARM(index.row() >= m_memberIds.count()))
         return QVariant();
-    }
+
     auto m = userAt(index);
-    if( role == Qt::DisplayRole )
-    {
-        return m.displayName();
-    }
     const auto* view = static_cast<const QAbstractItemView*>(parent());
-    if (role == Qt::DecorationRole) {
+
+    switch (role) {
+    case Qt::DisplayRole:    return m.displayName();
+    case Qt::DecorationRole: {
         // Convert avatar image to QIcon
         const auto dpi = view->devicePixelRatioF();
         if (auto av = m.avatar(static_cast<int>(view->iconSize().height() * dpi), [] {});
@@ -93,18 +90,18 @@ QVariant UserListModel::data(const QModelIndex& index, int role) const
         return QIcon::fromTheme("user-available",
                                 QIcon(":/irc-channel-joined"));
     }
-
-    if (role == Qt::ToolTipRole)
-    {
+    case Qt::ToolTipRole: {
         auto tooltip =
-            QStringLiteral("<b>%1</b><br>%2").arg(m.name().toHtmlEscaped(), m.id().toHtmlEscaped());
+          QLatin1String("<b>%1</b><br>%2<br>").arg(m.name().toHtmlEscaped(), m.id().toHtmlEscaped())
+          + tr("Power level: %1 (%2)")
+              .arg(m.powerLevel())
+              .arg(static_cast<QuaternionRoom*>(m_currentRoom)->powerGrade(m));
         // TODO: Find a new way to determine that the user is bridged
 //        if (!user->bridged().isEmpty())
 //            tooltip += "<br>" + tr("Bridged from: %1").arg(user->bridged());
         return tooltip;
     }
-
-    if (role == Qt::ForegroundRole) {
+    case Qt::ForegroundRole: {
         // FIXME: boilerplate with TimelineItem.qml:57
         const auto& palette = view->palette();
         return QColor::fromHslF(static_cast<float>(m.hueF()),
@@ -112,8 +109,15 @@ QVariant UserListModel::data(const QModelIndex& index, int role) const
                                 0.9f - 0.7f * palette.color(QPalette::Window).lightnessF(),
                                 palette.color(QPalette::ButtonText).alphaF());
     }
-
-    return QVariant();
+    case Qt::FontRole: {
+        auto font = view->font();
+        if (m_currentRoom->creatorIds().contains(m.id())) {
+            font.setBold(true);
+        }
+        return font;
+    }
+    default: return QVariant();
+    }
 }
 
 int UserListModel::rowCount(const QModelIndex& parent) const
@@ -179,14 +183,46 @@ void UserListModel::avatarChanged(const RoomMember& m)
     refresh(m, {Qt::DecorationRole});
 }
 
+struct MemberSorter {
+    bool operator()(const RoomMember& m1, const RoomMember& m2) const
+    {
+#if Quotient_VERSION_MINOR < 10
+        if (QUO_ALARM(!room))
+            return false;
+        const auto m1IsCreator = room->creatorIds().contains(m1.id());
+        const auto m2IsCreator = room->creatorIds().contains(m2.id());
+#else
+        const auto m1IsCreator = m1.isCreator();
+        const auto m2IsCreator = m2.isCreator();
+#endif
+        if (m1IsCreator != m2IsCreator)
+            return m1IsCreator > m2IsCreator;
+
+        return ms(m1, m2);
+    }
+
+#if Quotient_VERSION_MINOR < 10
+    const Quotient::Room* room;
+#endif
+    Quotient::MemberSorter ms{};
+};
+
 int UserListModel::findUserPos(const Quotient::RoomMember& m) const
 {
-    return findUserPos(m.disambiguatedName());
+    return static_cast<int>(
+      std::ranges::lower_bound(m_memberIds, m,
+#if Quotient_VERSION_MINOR < 10
+                               MemberSorter{m_currentRoom},
+#else
+                               MemberSorter{},
+#endif
+                               std::bind_front(&Quotient::Room::member, m_currentRoom))
+      - m_memberIds.begin());
 }
 
-int UserListModel::findUserPos(const QString& username) const
+int UserListModel::findUserPos(const Quotient::UserId& mxId) const
 {
-    return static_cast<int>(Quotient::lowerBoundMemberIndex(m_memberIds, username, m_currentRoom));
+    return findUserPos(m_currentRoom->member(mxId));
 }
 
 void UserListModel::doFilter(const QString& filterString)
@@ -196,7 +232,11 @@ void UserListModel::doFilter(const QString& filterString)
     auto filteredMembers = Quotient::rangeTo<QList>(
         std::views::filter(m_currentRoom->joinedMembers(),
                            Quotient::memberMatcher(filterString, Qt::CaseInsensitive)));
-    std::ranges::sort(filteredMembers, Quotient::MemberSorter());
+#if Quotient_VERSION_MINOR < 10
+    std::ranges::sort(filteredMembers, MemberSorter{m_currentRoom});
+#else
+    std::ranges::sort(filteredMembers, MemberSorter{});
+#endif
     const auto sortedIds = std::views::transform(filteredMembers, &RoomMember::id);
 #if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
     m_memberIds.assign(sortedIds.begin(), sortedIds.end());

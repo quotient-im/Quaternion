@@ -177,7 +177,8 @@ Item {
                     cursorShape: Qt.PointingHandCursor
                 }
                 ToolTip.visible: authorInteractionHoverHandler.hovered
-                ToolTip.text: author.id
+                ToolTip.text: qsTr('%1\nPower level: %2 (%3)')
+                              .arg(author.id).arg(author.powerLevel).arg(room.powerGrade(author))
 
                 TapHandler {
                     acceptedButtons: Qt.LeftButton|Qt.MiddleButton

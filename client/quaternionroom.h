@@ -62,6 +62,8 @@ public:
     void sendMessage(const QTextDocumentFragment& richText,
                      HtmlFilter::Options htmlFilterOptions = HtmlFilter::Default);
 
+    Q_INVOKABLE QString powerGrade(const Quotient::RoomMember& member) const;
+
 private:
     using EventPromise = QPromise<void>;
     using EventId = Quotient::EventId;

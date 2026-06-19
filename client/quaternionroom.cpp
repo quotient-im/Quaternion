@@ -276,3 +276,17 @@ void QuaternionRoom::sendMessage(const QTextDocumentFragment& richText,
                                ? std::make_unique<EventContent::TextContent>(html, u"text/html"_s)
                                : nullptr);
 }
+
+QString QuaternionRoom::powerGrade(const Quotient::RoomMember& member) const
+{
+    using namespace Quotient;
+    if (creatorIds().contains(member.id()))
+        return tr("creator");
+
+    auto pl = member.powerLevel();
+    auto plEvent = currentState().get<RoomPowerLevelsEvent>();
+    return pl < plEvent->stateDefault()                                   ? tr("user")
+           : pl < plEvent->powerLevelForEventType<RoomPowerLevelsEvent>() ? tr("moderator")
+           : pl < plEvent->powerLevelForEventType<RoomTombstoneEvent>()   ? tr("administrator")
+                                                                          : tr("upgrading admin");
+}

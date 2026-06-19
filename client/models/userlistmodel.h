@@ -10,6 +10,8 @@
 
 #include <QtCore/QAbstractListModel>
 
+#include <Quotient/util.h>
+
 class QAbstractItemView;
 
 namespace Quotient
@@ -45,9 +47,11 @@ class UserListModel: public QAbstractListModel
 
     private:
         Quotient::Room* m_currentRoom;
-        QList<QString> m_memberIds;
+        QList<Quotient::UserId> m_memberIds;
 
         int findUserPos(const Quotient::RoomMember &m) const;
-        int findUserPos(const QString& username) const;
+        int findUserPos(const Quotient::UserId& mxId) const;
         void doFilter(const QString& filterString);
+
+        QString powerGrade(Quotient::Room* room, const Quotient::RoomMember& member) const;
 };
